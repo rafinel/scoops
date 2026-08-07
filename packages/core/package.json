@@ -1,0 +1,33 @@
+{
+  "name": "@scoops/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "format": "biome format --write .",
+    "check:code": "biome check src",
+    "check:types": "tsc --noEmit"
+  },
+  "exports": {
+    "./identity/domain/entities": "./src/identity/domain/entities/index.ts",
+    "./identity/domain/structures": "./src/identity/domain/structures/index.ts",
+    "./identity/interfaces": "./src/identity/interfaces/index.ts",
+    "./billing/domain/entities": "./src/billing/domain/entities/index.ts",
+    "./billing/domain/events": "./src/billing/domain/events/index.ts",
+    "./billing/domain/structures": "./src/billing/domain/structures/index.ts",
+    "./billing/interfaces": "./src/billing/interfaces/index.ts",
+    "./billing/use-cases": "./src/billing/use-cases/index.ts",
+    "./mrp/domain/entities": "./src/mrp/domain/entities/index.ts",
+    "./mrp/domain/events": "./src/mrp/domain/events/index.ts",
+    "./mrp/domain/structures": "./src/mrp/domain/structures/index.ts",
+    "./mrp/interfaces": "./src/mrp/interfaces/index.ts",
+    "./mrp/use-cases": "./src/mrp/use-cases/index.ts",
+    "./pdv/domain/entities": "./src/pdv/domain/entities/index.ts",
+    "./pdv/domain/events": "./src/pdv/domain/events/index.ts",
+    "./pdv/domain/structures": "./src/pdv/domain/structures/index.ts",
+    "./pdv/interfaces": "./src/pdv/interfaces/index.ts",
+    "./pdv/use-cases": "./src/pdv/use-cases/index.ts",
+    "./shared/domain/errors": "./src/shared/domain/errors/index.ts",
+    "./shared/interfaces": "./src/shared/interfaces/index.ts"
+  }
+}

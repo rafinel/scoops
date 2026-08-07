@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "#communication/*": ["./src/communication/*"],
+      "#billing/*": ["./src/billing/*"],
+      "#consultation/*": ["./src/consultation/*"],
+      "#document-engine/*": ["./src/document-engine/*"],
+      "#document-production/*": ["./src/document-production/*"],
+      "#identity/*": ["./src/identity/*"],
+      "#legal-catalog/*": ["./src/legal-catalog/*"],
+      "#mrp/*": ["./src/mrp/*"],
+      "#pdv/*": ["./src/pdv/*"],
+      "#scheduling/*": ["./src/scheduling/*"],
+      "#shared/*": ["./src/shared/*"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

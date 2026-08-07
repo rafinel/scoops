@@ -1,0 +1,5 @@
+export * from '#pdv/domain/events/discount-created-event.ts'
+export * from '#pdv/domain/events/discount-updated-event.ts'
+export * from '#pdv/domain/events/order-registered-event.ts'
+export * from '#pdv/domain/events/sales-channel-created-event.ts'
+export * from '#pdv/domain/events/sales-channel-updated-event.ts'

@@ -1,0 +1,80 @@
+# dependencies
+node_modules/
+/.pnp
+.pnp.js
+.react-email
+.swc
+.turbo
+.yarn/
+!.yarn/releases
+
+# testing
+coverage/
+playwright-report/
+test-results/
+
+# production
+**/build/*
+**/public/sw*
+**/public/workbox-*
+**/public/fallback*
+**/html/**
+
+# tmp
+tmp/
+
+# logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# misc
+.DS_Store
+*.pem
+.vercel
+.branches
+.temp
+tmp/
+dist
+
+# Tmp
+
+
+# Vercel
+.vercel
+
+# IDE's
+.vscode/
+
+# Agents
+.agent/
+.agents/
+.cursor/
+.codex/
+.claude/
+.context/
+.serena/
+.opencode/
+opencode.json
+.mcp.json
+prompt.md
+issue.md
+CLAUDE.md
+GEMINI.md
+AGENTS.local.md
+.obsidian/
+.impeccable
+
+# MCP's
+.playwright-mcp
+
+# env files
+.env
+.env.development
+.env.testing
+.env.staging
+.env.production
