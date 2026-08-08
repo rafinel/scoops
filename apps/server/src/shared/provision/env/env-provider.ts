@@ -3,11 +3,11 @@ import { ConfigService } from '@nestjs/config'
 import { z } from 'zod'
 
 export const envSchema = z.object({
-  APP_VERSION: z.string().default('development'),
   DATABASE_URL: z
     .string()
     .url()
     .default('postgresql://postgres:postgres@127.0.0.1:54322/postgres'),
+  PORT: z.coerce.number().int().positive().optional(),
   S3_ENDPOINT: z.string().url().default('http://127.0.0.1:9000'),
   SCOOPS_SERVER_APP_MODE: z.enum(['dev', 'prod', 'stg', 'test']).default('dev'),
   SCOOPS_SERVER_APP_PORT: z.coerce.number().int().positive().default(3333),

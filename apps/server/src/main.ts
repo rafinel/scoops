@@ -28,7 +28,7 @@ async function bootstrap() {
     credentials: true,
   })
 
-  await app.listen(envProvider.get('SCOOPS_SERVER_APP_PORT'))
+  await app.listen(envProvider.get('PORT') ?? envProvider.get('SCOOPS_SERVER_APP_PORT'))
 }
 
 bootstrap()

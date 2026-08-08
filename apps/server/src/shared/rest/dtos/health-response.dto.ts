@@ -18,7 +18,7 @@ export class HealthResponseDto {
   status!: 'ok' | 'not_ready'
 
   @ApiProperty()
-  version!: string
+  mode!: string
 
   @ApiProperty({ format: 'date-time' })
   timestamp!: string

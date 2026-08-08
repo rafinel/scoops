@@ -40,13 +40,13 @@ export class CheckHealthController {
       storage: this.toServiceState(storage),
     }
     const timestamp = new Date().toISOString()
-    const version = this.envProvider.get('APP_VERSION')
+    const mode = this.envProvider.get('SCOOPS_SERVER_APP_MODE')
 
     if (!database || !supabase || !storage) {
       throw new ServiceUnavailableException({
         statusCode: HttpStatus.SERVICE_UNAVAILABLE,
         status: 'not_ready',
-        version,
+        mode,
         timestamp,
         services,
       })
@@ -54,7 +54,7 @@ export class CheckHealthController {
 
     return {
       status: 'ok',
-      version,
+      mode,
       timestamp,
       services,
     }
