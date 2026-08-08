@@ -1,850 +1,850 @@
-### 1. Visão Geral
+### 1. Overview
 
-O módulo **Identity — Identidade e Acesso** permite criar uma sorveteria no
-Scoops, ativar seu primeiro Gerente, autenticar a equipe e administrar o ciclo
-de vida dos usuários. O módulo também define quais áreas cada perfil pode
-acessar, preserva a autoria das alterações administrativas e mantém cada
-usuário vinculado a uma única sorveteria.
+The **Identity — Identity and Access** module allows you to create an ice cream shop in
+Scoops, activate your first Manager, authenticate the team and manage the cycle
+users' lives. The module also defines which areas each profile can
+access, preserves authorship of administrative changes and maintains each
+user linked to a single ice cream shop.
 
-O modelo de acesso do MVP é deliberadamente simples. Existem somente os perfis
-fixos `Gerente` e `Operador`. Gerentes possuem acesso integral ao Scoops e
-administram a equipe. Operadores acessam somente `Nova venda` e `Pedidos`.
+The MVP access model is deliberately simple. There are only profiles
+fixed `Manager` and `Operator`. Managers have full access to Scoops and
+manage the team. Operators only access `New Sale` and `Orders`.
 
-**Objetivo:** permitir que uma sorveteria comece a usar o Scoops por meio de um
-onboarding direto e mantenha os acessos da equipe atualizados sem configuração
-complexa de permissões.
+**Purpose:** to allow an ice cream shop to start using Scoops through a
+direct onboarding and keep team access updated without configuration
+complex of permissions.
 
-**Problema resolvido:** entradas, mudanças de função e desligamentos da equipe
-exigem concessão ou revogação rápida de acesso. Sem regras centralizadas, uma
-pessoa pode acessar funções indevidas, ações deixam de ter autoria confiável e
-contas antigas permanecem disponíveis.
+**Problem resolved:** team entries, role changes and terminations
+require quick granting or revocation of access. Without centralized rules, a
+person can access undue functions, actions no longer have reliable authorship and
+old accounts remain available.
 
-**Valor entregue:** onboarding simples, acesso previsível, isolamento por
-sorveteria, responsabilização individual e controle integral do ciclo de vida
-dos dados da organização.
+**Value delivered:** simple onboarding, predictable access, isolation by
+ice cream shop, individual responsibility and full control of the life cycle
+of the organization's data.
 
 ---
 
-### 2. Público-alvo
+### 2. Target audience
 
-#### Público principal
+#### Main audience
 
-Gerentes de sorveterias e açaiterias independentes que precisam cadastrar a
-organização, convidar a equipe e controlar quem possui acesso administrativo ou
-operacional.
+Managers of independent ice cream and açaí shops who need to register their
+organization, invite staff, and control who has administrative or
+operational.
 
-#### Públicos secundários
+#### Secondary audiences
 
-- Operadores que precisam entrar no Scoops e acessar somente os fluxos de venda
-  autorizados.
-- Novos responsáveis que iniciam o uso do Scoops e se tornam o primeiro
-  Gerente da sorveteria.
+- Operators who need to enter Scoops and only access sales flows
+  authorized.
+- New managers who start using Scoops and become the first
+  Ice cream shop manager.
 
-#### Não público
+#### Not public
 
-- Usuários que precisam pertencer a mais de uma sorveteria com a mesma conta.
-- Redes que exigem hierarquia multiloja ou administração centralizada.
-- Organizações que precisam de perfis personalizados ou permissões individuais.
-- Equipe interna do Scoops buscando assumir a identidade de um cliente ou
-  acessar globalmente as sorveterias.
+- Users who need to belong to more than one ice cream shop with the same account.
+- Networks that require multi-store hierarchy or centralized administration.
+- Organizations that need custom profiles or individual permissions.
+- Scoops internal team seeking to assume the identity of a customer or
+  Globally access ice cream shops.
 
-#### Contexto de uso
+#### Context of use
 
-- Primeiro acesso de uma sorveteria ao Scoops.
-- Entrada de novos Gerentes ou Operadores na equipe.
-- Promoção, rebaixamento, inativação ou reativação de usuários.
-- Uso em computadores, tablets ou celulares, inclusive dispositivos
-  compartilhados.
-- Consulta de alterações administrativas e identificação de responsáveis.
+- First access for an ice cream shop to Scoops.
+- Entry of new Managers or Operators into the team.
+- Promotion, demotion, inactivation or reactivation of users.
+- Use on computers, tablets or cell phones, including devices
+  shared.
+- Consultation of administrative changes and identification of those responsible.
 
-#### Dores e necessidades
+#### Pains and needs
 
-- Começar a usar o produto sem configuração extensa.
-- Conceder acesso sem compartilhar senhas.
-- Garantir que Operadores não alcancem funções administrativas.
-- Remover imediatamente o acesso de quem deixou a equipe.
-- Saber quem alterou um usuário e quando.
-- Evitar que a sorveteria fique sem um Gerente ativo.
-- Excluir integralmente a sorveteria quando o cliente decidir encerrar sua
-  utilização do Scoops.
+- Start using the product without extensive configuration.
+- Grant access without sharing passwords.
+- Ensure that Operators do not reach administrative functions.
+- Immediately remove access from those who left the team.
+- Know who changed a user and when.
+- Prevent the ice cream shop from being left without an active Manager.
+- Completely exclude the ice cream shop when the customer decides to close his shop
+  use of Scoops.
 
 #### Jobs to Be Done
 
-- Quando eu começar a usar o Scoops, quero criar minha sorveteria e confirmar
-  minha conta, para assumir a administração com segurança.
-- Quando uma pessoa entrar na equipe, quero convidá-la com o perfil correto,
-  para que ela crie a própria senha e acesse somente o necessário.
-- Quando uma pessoa mudar de função, quero promovê-la ou rebaixá-la, para que o
-  acesso acompanhe sua responsabilidade atual.
-- Quando uma pessoa deixar a equipe, quero revogar imediatamente seu acesso,
-  para proteger a operação sem apagar o histórico.
-- Quando uma alteração administrativa gerar dúvida, quero consultar quem a
-  realizou e quando, para reconstruir o ocorrido.
-- Quando eu decidir encerrar definitivamente o uso do Scoops, quero excluir a
-  sorveteria e todos os dados associados, para não manter uma operação residual.
+- When I start using Scoops, I want to create my ice cream shop and confirm
+  my account, to take over the administration safely.
+- When a person joins the team, I want to invite them with the correct profile,
+  so that she can create her own password and access only what is necessary.
+- When a person changes role, I want to promote or demote them, so that the
+  access tracks your current responsibility.
+- When a person leaves the team, I want to immediately revoke their access,
+  to protect the operation without erasing the history.
+- When an administrative change raises doubts, I want to consult whoever
+  carried out and when, to reconstruct what happened.
+- When I decide to permanently stop using Scoops, I want to delete the
+  ice cream shop and all associated data, so as not to maintain a residual operation.
 
 ---
 
-### 3. Análise do Cenário Competitivo
+### 3. Competitive Scenario Analysis
 
-Soluções de gestão para alimentação e ponto de venda costumam oferecer usuários
-e permissões como parte de plataformas operacionais mais amplas. Segundo suas
-fontes oficiais, há abordagens que vão de permissões configuradas diretamente
-por usuário a funções reutilizáveis e códigos pessoais para identificação no
-caixa.
+Management solutions for food and point of sale usually offer users
+and permissions as part of broader operating platforms. According to your
+official sources, there are approaches that range from directly configured permissions
+per user to reusable functions and personal codes for identification in the
+box.
 
-O Scoops não buscará reproduzir essa granularidade no MVP. A oportunidade está
-em oferecer um modelo mais fácil de compreender para pequenas equipes: dois
-perfis fixos, nenhuma exceção individual e regras explícitas para promoção,
-inativação e preservação de autoria.
+Scoops will not seek to replicate this granularity in the MVP. The opportunity is
+in offering an easier to understand model for small teams: two
+fixed profiles, no individual exceptions and explicit rules for promotion,
+inactivation and preservation of authorship.
 
-#### Matriz competitiva
+#### Competitive matrix
 
-| Solução | Público | Proposta de valor | Funcionalidades | Preço público | Limitações |
+| Solution | Public | Value proposition | Features | Public price | Limitations |
 |---|---|---|---|---|---|
-| [Saipos](https://saipos.com/sistema/sorveteria) | Sorveterias e estabelecimentos de alimentação | Centralizar atendimento, estoque, gestão e delivery | Usuários, tipos e permissões individuais, além dos módulos operacionais | A página oficial informa planos a partir de R$ 219,90/mês | Segundo a [documentação de usuários](https://meajuda.saipos.com/hc/pt-br/articles/27043903853460-Como-criar-um-novo-usu%C3%A1rio-no-sistema-Saipos), o mesmo usuário não pode ser usado simultaneamente em dois dispositivos |
-| [Toast](https://support.toasttab.com/en/article/Access-Permissions-Reference) | Restaurantes, grupos e operações com múltiplas unidades | Controlar responsabilidades da equipe no ponto de venda e na administração | Permissões por função, múltiplas funções por funcionário e regras por localização | Não identificado publicamente nas fontes consultadas | Maior amplitude de configuração do que a necessária para o público inicial do Scoops |
-| [Square](https://my.squareup.com/help/us/en/article/8357-require-passcodes-at-point-of-sale) | Pequenos e médios negócios com ponto de venda | Identificar membros da equipe e limitar ações no caixa | Conjuntos de permissões, códigos pessoais, código compartilhado e código do proprietário | O [Square Advanced Access](https://squareup.com/us/en/staff/advanced-access) é informado como incluído nos planos Square Plus de US$ 49/mês por local e Premium de US$ 149/mês por local | Códigos compartilhados não permitem atribuir vendas e atividades a uma pessoa específica |
-| Planilha, senha compartilhada e controle verbal | Pequenas operações sem gestão formal de acesso | Baixo esforço inicial | Lista manual de pessoas e compartilhamento informal de credenciais | Variável | Não revoga acesso de forma confiável, reduz autoria e aumenta erros administrativos |
+| [Saipos](https://saipos.com/sistema/sorveteria) | Ice cream shops and food establishments | Centralize service, stock, management and delivery | Individual users, types and permissions, in addition to operational modules | The official page informs plans starting at R$ 219.90/month | According to [user documentation](https://meajuda.saipos.com/hc/pt-br/articles/27043903853460-Como-criar-um-novo-usu%C3%A1rio-no-sistema-Saipos), the same user cannot be used simultaneously on two devices |
+| [Toast](https://support.toasttab.com/en/article/Access-Permissions-Reference) | Restaurants, groups and multi-unit operations | Control team responsibilities at the point of sale and in administration | Permissions by role, multiple roles per employee and rules by location | Not publicly identified in the sources consulted | Greater range of configuration than needed for the initial Scoops audience |
+| [Square](https://my.squareup.com/help/us/en/article/8357-require-passcodes-at-point-of-sale) | Small and medium-sized businesses with point of sale | Identify team members and limit actions at the register | Permission Sets, Personal Codes, Shared Code, and Owner Code | [Square Advanced Access](https://squareup.com/us/en/staff/advanced-access) is reported to be included with Square Plus $49/month per location and Premium $149/month per location plans | Shared codes do not allow you to attribute sales and activities to a specific person |
+| Spreadsheet, shared password and verbal control | Small operations without formal access management | Low initial effort | Manual People Listing and Informal Credential Sharing | Variable | Does not reliably revoke access, reduces authorship and increases administrative errors |
 
-#### Constatações e inferências
+#### Findings and inferences
 
-- Segundo a documentação oficial da Saipos, permissões podem ser habilitadas ou
-  desabilitadas por usuário e a gestão exige acesso gerencial.
-- A página oficial do Toast informa que permissões são normalmente atribuídas
-  por funções e podem variar entre localizações.
-- A documentação do Square diferencia códigos pessoais, compartilhados e do
-  proprietário; somente o código pessoal preserva a atribuição individual.
-- Inferência baseada nas fontes: soluções maduras atendem operações maiores com
-  modelos flexíveis, mas exigem mais decisões de configuração.
-- Inferência baseada nas fontes: o Scoops pode se diferenciar para pequenas
-  equipes reduzindo a configuração sem abrir mão de autoria e revogação.
+- According to Saipos' official documentation, permissions can be enabled or
+  disabled per user and management requires managerial access.
+- The official Toast page states which permissions are normally assigned
+  by functions and may vary between locations.
+- Square documentation differentiates between personal, shared, and third-party code.
+  owner; only the personal code preserves individual attribution.
+- Source-based inference: mature solutions serve larger operations with
+  Flexible models but require more configuration decisions.
+- Source-based inference: Scoops can differentiate itself for small
+  teams reducing configuration without giving up authorship and revocation.
 
-#### Diferenciais recomendados
+#### Recommended differentials
 
-- Onboarding da sorveteria e do primeiro Gerente em um único fluxo.
-- Somente dois perfis, com responsabilidades fáceis de explicar.
-- Nenhuma permissão individual capaz de criar combinações inesperadas.
-- Convites que preservam o segredo da senha do novo usuário.
-- Regras que impedem autoelevação e ausência de Gerente ativo.
-- Auditoria administrativa compreensível pelo próprio Gerente.
-- Exclusão integral da sorveteria sob comando do cliente.
-
----
-
-### 4. Requisitos
-
-#### REQ-01 Onboarding da Sorveteria
-
-- [ ] **Onboarding da Sorveteria**
-
-**Descrição:** Um novo cliente deve conseguir criar uma sorveteria e sua conta
-de primeiro Gerente por meio de um fluxo público.
-
-##### Regras de Negócio
-
-- **Dados obrigatórios:** o fluxo deve solicitar nome da sorveteria, nome do
-  Gerente, e-mail e senha.
-- **Sorveteria:** o nome deve ser obrigatório, mas pode se repetir em
-  sorveterias diferentes.
-- **Primeiro perfil:** o primeiro usuário deve receber o perfil `Gerente`.
-- **Acesso pendente:** o Gerente não pode acessar o sistema antes de confirmar a
-  conta.
-- **Ativação conjunta:** a confirmação deve ativar a sorveteria e o primeiro
-  Gerente.
-- **Correção do e-mail pendente:** antes da ativação, o responsável deve poder
-  retornar à etapa inicial para corrigir somente o e-mail do primeiro Gerente;
-  o nome da sorveteria e o nome do Gerente devem permanecer preenchidos.
-- **Confirmação da correção:** para salvar o novo e-mail, o responsável deve
-  informar novamente a senha cadastrada.
-- **Validação da correção:** o novo e-mail deve ser válido e estar disponível;
-  em caso de falha, o endereço anterior e o onboarding pendente devem ser
-  preservados.
-- **Novo envio:** após salvar um novo e-mail, o link de confirmação anterior
-  deve perder a validade e uma nova confirmação deve ser enviada ao endereço
-  corrigido.
-- **Cancelamento da correção:** ao cancelar a edição, o responsável deve voltar
-  à confirmação pendente sem alterar o cadastro.
-- **Prazo:** um onboarding não confirmado deve expirar após sete dias.
-- **Prazo após correção:** corrigir o e-mail ou reenviar a confirmação não deve
-  reiniciar o prazo original de sete dias do onboarding.
-- **Expiração:** ao expirar, a sorveteria pendente e a conta correspondente
-  devem ser removidas, liberando o e-mail para nova tentativa.
-- **Cadastro avulso:** não deve existir criação pública de usuário sem uma nova
-  sorveteria ou convite válido.
-- **Dependência:** a contratação comercial pode acompanhar o onboarding, mas
-  suas regras pertencem ao módulo de Assinatura.
-
-##### Regras de UI/UX
-
-- **Interface:** apresentar formulário curto, com progresso claro e linguagem
-  voltada ao responsável pela sorveteria.
-- **Feedback:** após o envio, informar que a conta depende da confirmação e
-  indicar o endereço utilizado.
-- **Correção:** na etapa de confirmação pendente, apresentar a ação `Voltar e
-  corrigir`; ao acioná-la, retornar à etapa inicial em modo de edição, manter os
-  dados preenchidos e colocar foco no campo de e-mail.
-- **Retorno após correção:** depois de salvar, retornar à confirmação pendente,
-  exibir o endereço atualizado e informar que uma nova mensagem foi enviada.
-- **Estado vazio:** não aplicável ao formulário inicial.
-- **Ação bloqueada:** impedir acesso aos módulos enquanto a confirmação estiver
-  pendente.
-- **Responsividade:** o fluxo deve funcionar integralmente a partir de 320 px.
-- **Acessibilidade:** campos devem possuir labels, instruções, foco visível e
-  erros anunciados por tecnologia assistiva.
+- Onboarding of the ice cream shop and the first Manager in a single flow.
+- Only two profiles, with responsibilities that are easy to explain.
+- No individual permissions capable of creating unexpected combinations.
+- Invitations that preserve the secret of the new user's password.
+- Rules that prevent self-elevation and the absence of an active Manager.
+- Administrative audit understandable by the Manager himself.
+- Full exclusion of the ice cream shop under the customer's command.
 
 ---
 
-#### REQ-02 Autenticação e Sessão
+### 4. Requirements
 
-- [ ] **Autenticação e Sessão**
+#### REQ-01 Ice Cream Shop Onboarding
 
-**Descrição:** Usuários ativos devem entrar no Scoops com e-mail e senha e
-permanecer autenticados somente durante uma sessão válida.
+- [ ] **Ice Cream Shop Onboarding**
 
-##### Regras de Negócio
+**Description:** A new customer must be able to create an ice cream shop and their account
+First Manager via a public stream.
 
-- **Método:** o MVP deve aceitar somente e-mail e senha.
-- **Conta ativa:** somente usuários ativos de sorveterias ativas podem entrar.
-- **Mensagem neutra:** falhas não devem revelar se um e-mail está cadastrado.
-- **Tentativas:** após cinco falhas consecutivas, novas tentativas devem ser
-  bloqueadas por 15 minutos.
-- **Inatividade:** a sessão deve expirar após 30 minutos sem interação.
-- **Duração máxima:** uma sessão deve exigir nova autenticação após sete dias,
-  mesmo que permaneça em uso.
-- **Simultaneidade:** o mesmo usuário pode manter sessões em vários dispositivos.
-- **Saída:** `Sair deste dispositivo` deve encerrar somente a sessão atual.
-- **Perda de sessão:** quando possível, trabalho não concluído deve ser
-  preservado para retomada após novo login.
+##### Business Rules
 
-##### Regras de UI/UX
+- **Mandatory data:** the flow must request the name of the ice cream shop, name of the
+  Manager, email and password.
+- **Ice cream shop:** the name must be mandatory, but may be repeated in
+  different ice cream shops.
+- **First profile:** the first user must receive the `Manager` profile.
+- **Pending access:** the Manager cannot access the system before confirming the
+  account.
+- **Joint activation:** confirmation must activate the ice cream shop and the first
+  Manager.
+- **Correction of pending email:** before activation, the person responsible must be able to
+  return to the initial step to correct only the first Manager's email;
+  the name of the ice cream shop and the name of the Manager must remain filled in.
+- **Correction confirmation:** to save the new email, the person responsible must
+  Enter the registered password again.
+- **Correction validation:** the new email must be valid and available;
+  in case of failure, the previous address and pending onboarding must be
+  preserved.
+- **New submission:** after saving a new email, the previous confirmation link
+  must lose its validity and a new confirmation must be sent to the address
+  corrected.
+- **Correction cancellation:** when canceling the edit, the person responsible must return
+  pending confirmation without changing the registration.
+- **Deadline:** an unconfirmed onboarding must expire after seven days.
+- **Deadline after correction:** correcting the email or resending the confirmation should not
+  restart the original seven-day onboarding period.
+- **Expiration:** upon expiration, the pending ice cream shop and the corresponding bill
+  must be removed, freeing the email for another attempt.
+- **Separate registration:** there must be no public user creation without a new
+  ice cream parlor or valid invitation.
+- **Dependency:** commercial subscription can accompany onboarding, but
+  its rules belong to the Subscription module.
 
-- **Interface:** apresentar marca Scoops, e-mail, senha, ação principal de
-  entrada e acesso à recuperação.
-- **Feedback:** diferenciar carregamento, falha de credenciais, bloqueio
-  temporário e sessão expirada.
-- **Estado vazio:** não aplicável.
-- **Ação bloqueada:** contas pendentes, inativas ou pertencentes a sorveterias
-  indisponíveis devem receber orientação sem exposição de dados internos.
-- **Responsividade:** o formulário deve permanecer legível e operável em
-  celular, tablet e computador.
-- **Acessibilidade:** deve permitir preenchimento por teclado, leitores de tela
-  e gerenciadores de senha.
+##### UI/UX rules
 
----
-
-#### REQ-03 Senha e Recuperação de Acesso
-
-- [ ] **Senha e Recuperação de Acesso**
-
-**Descrição:** O usuário deve criar ou redefinir a própria senha sem que um
-Gerente possa conhecê-la ou defini-la em seu lugar.
-
-##### Regras de Negócio
-
-- **Comprimento:** a senha deve aceitar entre 8 e 64 caracteres.
-- **Responsabilidade:** Gerentes nunca podem visualizar ou definir senhas de
-  outros usuários.
-- **Recuperação:** toda troca de senha deve acontecer pelo fluxo de recuperação
-  enviado ao e-mail cadastrado.
-- **Uso único:** o link de recuperação deve ser utilizável uma única vez.
-- **Validade:** o link deve expirar após uma hora.
-- **Revogação:** a redefinição deve encerrar todas as sessões do usuário.
-- **Conta inexistente:** a solicitação deve apresentar a mesma resposta para
-  e-mails cadastrados e não cadastrados.
-- **Limite individual:** um endereço pode receber no máximo três mensagens de
-  autenticação em 24 horas.
-- **Intervalo:** reenvios devem respeitar intervalo mínimo de dois minutos.
-
-##### Regras de UI/UX
-
-- **Interface:** solicitar somente o e-mail na recuperação e a nova senha após
-  validação do link.
-- **Feedback:** confirmar a solicitação sem revelar a existência da conta.
-- **Estado vazio:** não aplicável.
-- **Ação bloqueada:** links expirados ou usados devem orientar uma nova
-  solicitação.
-- **Responsividade:** o fluxo deve funcionar sem rolagem horizontal em telas
-  pequenas.
-- **Acessibilidade:** requisitos e erros da senha devem ser textuais e não
-  depender somente de cor.
+- **Interface:** present short form, with clear progress and language
+  aimed at the person responsible for the ice cream shop.
+- **Feedback:** after sending, inform that the account depends on confirmation and
+  indicate the address used.
+- **Correction:** in the pending confirmation step, present the action `Back and
+  fix`; when activating it, return to the initial step in editing mode, keep the
+  filled data and focus on the email field.
+- **Return after correction:** after saving, return to pending confirmation,
+  display the updated address and inform you that a new message has been sent.
+- **Empty state:** not applicable to the initial form.
+- **Action blocked:** prevent access to modules while confirmation is in progress
+  pending.
+- **Responsiveness:** the flow must work fully from 320 px.
+- **Accessibility:** fields must have labels, instructions, visible focus and
+  errors announced by assistive technology.
 
 ---
 
-#### REQ-04 Perfis e Autorização
+#### REQ-02 Authentication and Session
 
-- [ ] **Perfis e Autorização**
+- [ ] **Authentication and Session**
 
-**Descrição:** O sistema deve aplicar permissões fixas por perfil em todas as
-entradas de navegação e ações protegidas.
+**Description:** Active users must log into Scoops with their email and password and
+remain authenticated only during a valid session.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Perfis:** devem existir somente `Gerente` e `Operador`.
-- **Imutabilidade:** perfis não podem ser criados, renomeados, editados,
-  duplicados ou excluídos.
-- **Sem exceções:** não deve existir concessão ou remoção individual de
-  permissões.
-- **Gerente:** possui acesso integral a todos os módulos e configurações.
-- **Operador:** pode acessar somente `Nova venda` e `Pedidos`.
-- **Acesso direto:** endereços ou atalhos não podem contornar as permissões.
-- **Isolamento:** todo usuário e toda ação devem permanecer restritos à própria
-  sorveteria.
-- **Perfil próprio:** nenhum usuário pode promover ou rebaixar a si mesmo.
-- **Último Gerente:** nenhuma ação pode deixar a sorveteria sem ao menos um
-  Gerente ativo.
+- **Method:** the MVP must only accept email and password.
+- **Active account:** only active users of active ice cream shops can enter.
+- **Neutral message:** failures should not reveal whether an email is registered.
+- **Attempts:** after five consecutive failures, new attempts must be made.
+  blocked for 15 minutes.
+- **Inactivity:** the session must expire after 30 minutes without interaction.
+- **Maximum duration:** a session must require re-authentication after seven days,
+  even if it remains in use.
+- **Concurrency:** the same user can maintain sessions on multiple devices.
+- **Exit:** `Exit this device` should only end the current session.
+- **Session loss:** when possible, uncompleted work should be
+  preserved for resumption after new login.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Interface:** exibir o perfil como atributo fixo do usuário, sem controles de
-  permissões granulares.
-- **Feedback:** promoção e rebaixamento devem apresentar confirmação e resultado.
-- **Estado vazio:** não aplicável.
-- **Ação bloqueada:** ocultar ações incompatíveis com o perfil e explicar
-  bloqueios administrativos relevantes.
-- **Responsividade:** menus autorizados devem permanecer acessíveis em telas
-  menores sem cobrir o conteúdo.
-- **Acessibilidade:** o estado ativo e as restrições não devem depender somente
-  de cor.
-
----
-
-#### REQ-05 Cadastro e Convite de Usuários
-
-- [ ] **Cadastro e Convite de Usuários**
-
-**Descrição:** Um Gerente deve conseguir convidar um novo usuário para a própria
-sorveteria com nome, e-mail e perfil.
-
-##### Regras de Negócio
-
-- **Autorização:** somente Gerentes podem cadastrar usuários.
-- **Campos:** nome, e-mail e perfil são obrigatórios.
-- **E-mail único:** cada e-mail pode pertencer a somente uma conta em todo o
-  Scoops, ignorando diferenças entre maiúsculas e minúsculas.
-- **Estado inicial:** o usuário deve permanecer `Pendente` até aceitar o convite
-  e definir a senha.
-- **Validade:** o convite deve expirar após sete dias.
-- **Reenvio:** um novo convite deve invalidar o link anterior e reiniciar o
-  prazo.
-- **Correção pendente:** antes da ativação, o Gerente pode corrigir os dados do
-  convite.
-- **Cancelamento:** convites pendentes podem ser cancelados e removidos
-  definitivamente.
-- **Ativação:** o usuário ativado deve assumir o perfil escolhido no convite.
-- **Gerente convidado:** um Gerente pode cadastrar diretamente outro Gerente.
-
-##### Regras de UI/UX
-
-- **Interface:** apresentar formulário com nome, e-mail e seleção entre os dois
-  perfis, acompanhado de uma explicação curta de cada perfil.
-- **Feedback:** informar envio, reenvio, ativação, expiração e cancelamento.
-- **Estado vazio:** quando existir somente o primeiro Gerente, convidar a
-  adicionar a equipe.
-- **Ação bloqueada:** e-mail duplicado ou limite temporário de envio deve ser
-  informado junto à ação correspondente.
-- **Responsividade:** formulário e confirmações devem caber em telas pequenas.
-- **Acessibilidade:** seleção de perfil e mensagens devem ser operáveis e
-  compreensíveis por teclado e leitor de tela.
+- **Interface:** present Scoops brand, email, password, main action
+  entry and access to recovery.
+- **Feedback:** differentiate loading, credential failure, blocking
+  temporary and session expired.
+- **Empty state:** not applicable.
+- **Action blocked:** pending, inactive or accounts belonging to ice cream shops
+  unavailable must receive guidance without exposing internal data.
+- **Responsiveness:** the form must remain readable and operable in
+  cell phone, tablet and computer.
+- **Accessibility:** must allow keyboard filling, screen readers
+  and password managers.
 
 ---
 
-#### REQ-06 Listagem e Consulta de Usuários
+#### REQ-03 Password and Access Recovery
 
-- [ ] **Listagem e Consulta de Usuários**
+- [ ] **Password and Access Recovery**
 
-**Descrição:** Gerentes devem localizar usuários e compreender rapidamente seu
-perfil, estado e atividade recente.
+**Description:** The user must create or reset their own password without a
+Manager can know it or define it in its place.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Autorização:** somente Gerentes podem consultar a gestão da equipe.
-- **Dados visíveis:** a listagem deve apresentar nome, e-mail, perfil, status e
-  último acesso.
-- **Busca:** deve localizar por nome ou e-mail.
-- **Filtros:** deve filtrar por perfil e status.
-- **Estados:** a listagem deve distinguir `Pendente`, `Ativo` e `Inativo`.
-- **Detalhe:** cada usuário deve possuir uma visão com dados, ações disponíveis
-  e histórico administrativo.
-- **Isolamento:** nenhum resultado pode incluir usuário de outra sorveteria.
+- **Length:** the password must be between 8 and 64 characters.
+- **Responsibility:** Managers can never view or set passwords for
+  other users.
+- **Recovery:** every password change must happen through the recovery flow
+  sent to the registered email.
+- **Single use:** the recovery link must be usable once.
+- **Validity:** the link must expire after one hour.
+- **Revocation:** reset must terminate all user sessions.
+- **Non-existent account:** the request must present the same response for
+  registered and unregistered emails.
+- **Individual limit:** an address can receive a maximum of three messages
+  24-hour authentication.
+- **Interval:** resubmissions must respect a minimum interval of two minutes.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Interface:** utilizar tabela ou lista responsiva com ações contextuais.
-- **Feedback:** busca, filtros e carregamento devem indicar o estado atual.
-- **Estado vazio:** distinguir ausência de equipe de busca ou filtro sem
-  resultados.
-- **Ação bloqueada:** ações indisponíveis devem ser ocultadas ou apresentar a
-  razão do bloqueio.
-- **Responsividade:** em telas estreitas, priorizar nome, perfil e status e
-  mover detalhes para a visão dedicada.
-- **Acessibilidade:** filtros, linhas e menus de ações devem ser navegáveis por
-  teclado.
-
----
-
-#### REQ-07 Promoção e Rebaixamento
-
-- [ ] **Promoção e Rebaixamento**
-
-**Descrição:** Um Gerente deve conseguir promover um Operador a Gerente ou
-rebaixar outro Gerente a Operador.
-
-##### Regras de Negócio
-
-- **Autorização:** somente Gerentes podem alterar o perfil de outro usuário.
-- **Autoalteração:** o usuário não pode alterar o próprio perfil.
-- **Promoção:** deve conceder imediatamente o conjunto integral do perfil
-  `Gerente`.
-- **Rebaixamento:** deve remover imediatamente os acessos administrativos e
-  preservar `Nova venda` e `Pedidos`.
-- **Último Gerente:** o rebaixamento deve ser bloqueado quando deixar a
-  sorveteria sem um Gerente ativo.
-- **Histórico:** a alteração não deve modificar a autoria de ações anteriores.
-- **Notificação:** o usuário afetado deve ser comunicado sobre a mudança.
-
-##### Regras de UI/UX
-
-- **Interface:** apresentar a ação no detalhe do usuário com descrição do acesso
-  adquirido ou perdido.
-- **Feedback:** exigir confirmação e informar sucesso ou falha.
-- **Estado vazio:** não aplicável.
-- **Ação bloqueada:** explicar a proibição de autoalteração e a proteção do
-  último Gerente.
-- **Responsividade:** a confirmação deve preservar leitura e ações em telas
-  pequenas.
-- **Acessibilidade:** foco deve retornar ao elemento acionador após fechar a
-  confirmação.
+- **Interface:** only request the email upon recovery and the new password after
+  link validation.
+- **Feedback:** confirm the request without revealing the existence of the account.
+- **Empty state:** not applicable.
+- **Action blocked:** expired or used links must guide a new one
+  request.
+- **Responsiveness:** the flow must work without horizontal scrolling on screens
+  small.
+- **Accessibility:** password requirements and errors must be textual and not
+  depend only on color.
 
 ---
 
-#### REQ-08 Inativação e Reativação
+#### REQ-04 Profiles and Authorization
 
-- [ ] **Inativação e Reativação**
+- [ ] **Profiles and Authorization**
 
-**Descrição:** Gerentes devem revogar e restaurar o acesso de usuários sem
-apagar sua identidade ou histórico.
+**Description:** The system must apply fixed permissions per profile to all
+protected navigation entries and actions.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Inativação:** deve encerrar imediatamente todas as sessões do usuário e
-  impedir novas entradas.
-- **Auto-inativação:** nenhum usuário pode inativar a própria conta.
-- **Último Gerente:** não deve ser possível inativar o último Gerente ativo.
-- **Histórico:** usuários com atividade devem ser inativados, nunca excluídos
-  individualmente.
-- **E-mail reservado:** o e-mail de um usuário inativo não pode ser reutilizado.
-- **Reativação:** deve restaurar o acesso da mesma conta com o perfil atual.
-- **Senha:** a reativação não autoriza o Gerente a definir uma senha.
-- **Notificação:** o usuário deve ser comunicado sobre inativação e reativação.
+- **Profiles:** there must only be `Manager` and `Operator`.
+- **Immutability:** profiles cannot be created, renamed, edited,
+  duplicated or deleted.
+- **No exceptions:** there must be no individual granting or removal of
+  permissions.
+- **Manager:** has full access to all modules and configurations.
+- **Operator:** can only access `New Sale` and `Orders`.
+- **Direct access:** addresses or shortcuts cannot bypass permissions.
+- **Isolation:** every user and every action must remain restricted to their own
+  ice cream shop.
+- **Own profile:** no user can promote or demote themselves.
+- **Last Manager:** no action can leave the ice cream shop without at least one
+  Active manager.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Interface:** exibir status e ação correspondente no detalhe do usuário.
-- **Feedback:** a inativação deve avisar que sessões abertas serão encerradas.
-- **Estado vazio:** não aplicável.
-- **Ação bloqueada:** explicar auto-inativação proibida e proteção do último
-  Gerente.
-- **Responsividade:** ações devem permanecer disponíveis sem depender de hover.
-- **Acessibilidade:** status deve possuir texto explícito além da cor.
-
----
-
-#### REQ-09 Dados Pessoais e Minha Conta
-
-- [ ] **Dados Pessoais e Minha Conta**
-
-**Descrição:** Todo usuário deve consultar sua identidade, alterar o próprio
-nome e encerrar a sessão atual.
-
-##### Regras de Negócio
-
-- **Nome próprio:** qualquer usuário pode alterar o próprio nome.
-- **Correção por Gerente:** Gerentes podem corrigir o nome de outros usuários.
-- **E-mail ativo:** o e-mail não pode ser alterado após a ativação.
-- **Snapshot:** alterações de nome não devem modificar nomes preservados em
-  registros históricos.
-- **Perfil:** o perfil deve ser somente leitura em `Minha conta`.
-- **Saída:** deve existir somente a ação `Sair deste dispositivo`.
-- **Senha:** não deve existir troca direta de senha dentro da sessão; o usuário
-  utiliza a recuperação por e-mail.
-
-##### Regras de UI/UX
-
-- **Interface:** exibir nome editável, e-mail e perfil somente leitura e ação de
-  saída.
-- **Feedback:** alterações de nome devem informar salvamento, erro e estado de
-  carregamento.
-- **Estado vazio:** não aplicável.
-- **Ação bloqueada:** campos imutáveis devem explicar por que não podem ser
-  alterados.
-- **Responsividade:** a página deve funcionar integralmente em celular.
-- **Acessibilidade:** campos somente leitura devem ser distinguíveis sem perder
-  legibilidade.
+- **Interface:** display the profile as a fixed user attribute, without control controls
+  granular permissions.
+- **Feedback:** promotion and relegation must present confirmation and result.
+- **Empty state:** not applicable.
+- **Action blocked:** hide actions incompatible with the profile and explain
+  relevant administrative blocks.
+- **Responsiveness:** authorized menus must remain accessible on screens
+  minors without covering the content.
+- **Accessibility:** the active state and restrictions should not depend solely on
+  of color.
 
 ---
 
-#### REQ-10 Auditoria Administrativa
+#### REQ-05 User Registration and Invitation
 
-- [ ] **Auditoria Administrativa**
+- [ ] **User Registration and Invitation**
 
-**Descrição:** O módulo deve manter um histórico imutável das alterações de
-identidade e acesso realizadas na sorveteria.
+**Description:** A Manager must be able to invite a new user to their own
+ice cream shop with name, email and profile.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Ações auditadas:** cadastrar, reenviar convite, cancelar convite, ativar,
-  promover, rebaixar, inativar, reativar, iniciar recuperação e alterar nomes.
-- **Conteúdo:** cada registro deve identificar ação, usuário afetado, responsável
-  e data e hora.
-- **Alterações:** quando aplicável, preservar valor anterior e novo valor.
-- **Segredos:** senhas, links de ativação e conteúdos de recuperação nunca devem
-  aparecer na auditoria.
-- **Imutabilidade:** registros não podem ser editados ou removidos
-  individualmente.
-- **Retenção:** a auditoria permanece por toda a vida da sorveteria.
-- **Acesso:** somente Gerentes podem consultar a auditoria.
-- **Fuso:** datas devem ser exibidas no horário de São Paulo.
+- **Authorization:** only Managers can register users.
+- **Fields:** name, email and profile are mandatory.
+- **Single email:** each email can belong to only one account in the entire
+  Scoops, ignoring case differences.
+- **Initial state:** the user must remain `Pending` until accepting the invitation
+  and set the password.
+- **Validity:** the invitation must expire after seven days.
+- **Resend:** a new invitation must invalidate the previous link and restart the
+  deadline.
+- **Pending correction:** before activation, the Manager can correct the data of the
+  invitation.
+- **Cancellation:** pending invitations can be canceled and removed
+  definitely.
+- **Activation:** the activated user must assume the profile chosen in the invitation.
+- **Guest manager:** a Manager can directly register another Manager.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Interface:** exibir linha do tempo no detalhe do usuário com ação,
-  responsável e momento.
-- **Feedback:** carregamento e falha de consulta devem ser informados.
-- **Estado vazio:** explicar quando ainda não houver alteração além da criação.
-- **Ação bloqueada:** Operadores não devem visualizar entradas ou atalhos para a
-  auditoria.
-- **Responsividade:** eventos devem reorganizar seus campos sem truncar a ação.
-- **Acessibilidade:** a ordem cronológica e os relacionamentos devem ser
-  compreensíveis fora da apresentação visual.
-
----
-
-#### REQ-11 Gestão da Sorveteria
-
-- [ ] **Gestão da Sorveteria**
-
-**Descrição:** Gerentes devem consultar e alterar o nome da própria sorveteria.
-
-##### Regras de Negócio
-
-- **Dado único:** o cadastro institucional do MVP contém somente o nome da
-  sorveteria.
-- **Alteração:** qualquer Gerente pode alterar o nome.
-- **Identidade histórica:** a alteração não deve mover usuários ou dados para
-  outra sorveteria.
-- **Auditoria:** a mudança deve preservar nome anterior, novo nome, responsável
-  e momento.
-- **Duplicidade:** outra sorveteria pode utilizar o mesmo nome.
-- **Acesso:** Operadores não podem consultar nem alterar essa configuração.
-
-##### Regras de UI/UX
-
-- **Interface:** apresentar o nome atual e uma ação clara de edição.
-- **Feedback:** informar sucesso, erro e carregamento da alteração.
-- **Estado vazio:** não aplicável, pois o nome é obrigatório desde o onboarding.
-- **Ação bloqueada:** Operadores não devem visualizar `Sorveteria` na navegação.
-- **Responsividade:** edição e feedback devem funcionar em celular.
-- **Acessibilidade:** o estado de edição deve manter label, instrução e foco
-  visível.
+- **Interface:** present form with name, email and selection between the two
+  profiles, accompanied by a short explanation of each profile.
+- **Feedback:** inform shipping, resending, activation, expiration and cancellation.
+- **Empty state:** when there is only the first Manager, invite the
+  add the team.
+- **Action blocked:** duplicate email or temporary sending limit must be
+  informed along with the corresponding action.
+- **Responsiveness:** form and confirmations must fit on small screens.
+- **Accessibility:** profile selection and messages must be operable and
+  understandable by keyboard and screen reader.
 
 ---
 
-#### REQ-12 Exclusão da Sorveteria
+#### REQ-06 User Listing and Query
 
-- [ ] **Exclusão da Sorveteria**
+- [ ] **User List and Consultation**
 
-**Descrição:** Qualquer Gerente deve conseguir excluir imediatamente e de forma
-irreversível a sorveteria e todos os dados associados.
+**Description:** Managers must quickly locate users and understand their
+profile, status and recent activity.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Autorização:** somente Gerentes podem iniciar a exclusão.
-- **Abrangência:** a exclusão deve remover usuários, produtos, estoque, pedidos,
-  configurações, históricos, auditorias e quaisquer outros dados pertencentes à
-  sorveteria.
-- **Assinatura:** a assinatura deve ser cancelada com sucesso antes da remoção.
-- **Falha de cancelamento:** se o cancelamento falhar, nenhum dado deve ser
-  removido.
-- **Confirmação de identidade:** o Gerente deve informar novamente sua senha.
-- **Confirmação textual:** o Gerente deve digitar o nome atual da sorveteria.
-- **Consequências:** o sistema deve listar claramente as categorias de dados que
-  serão apagadas.
-- **Imediata:** não deve existir agendamento, período de arrependimento ou
-  restauração pelo cliente.
-- **Irreversibilidade:** após a confirmação final, o acesso deve ser bloqueado e
-  a exclusão deve prosseguir até remover todos os dados.
-- **Falha parcial:** uma interrupção não deve reativar a sorveteria; o processo
-  deve continuar até sua conclusão.
-- **Notificação:** após concluir, todos os Gerentes devem receber uma mensagem
-  com sorveteria, responsável, data e caráter irreversível.
+- **Authorization:** only Managers can consult team management.
+- **Visible data:** the listing must present name, email, profile, status and
+  last access.
+- **Search:** must locate by name or email.
+- **Filters:** must filter by profile and status.
+- **States:** the listing must distinguish between `Pending`, `Active` and `Inactive`.
+- **Detail:** each user must have a view with data, available actions
+  and administrative history.
+- **Isolation:** no results can include users from another ice cream shop.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Interface:** colocar a ação em uma zona de perigo separada das configurações
-  comuns.
-- **Feedback:** usar confirmação em etapas, linguagem direta e conclusão
-  inequívoca.
-- **Estado vazio:** não aplicável.
-- **Ação bloqueada:** explicar falhas de senha, divergência de nome ou problema
-  no cancelamento da assinatura sem iniciar remoção parcial.
-- **Responsividade:** consequências e confirmações devem permanecer integralmente
-  legíveis em telas pequenas.
-- **Acessibilidade:** a gravidade não deve ser comunicada somente pela cor e o
-  foco deve permanecer contido nas confirmações.
+- **Interface:** use a responsive table or list with contextual actions.
+- **Feedback:** search, filters and loading must indicate the current state.
+- **Empty state:** distinguish absence of search team or filter without
+  results.
+- **Action blocked:** unavailable actions must be hidden or show the
+  reason for blocking.
+- **Responsiveness:** on narrow screens, prioritize name, profile and status and
+  move details to the dedicated view.
+- **Accessibility:** filters, lines and action menus must be navigable by
+  keyboard.
 
 ---
 
-#### REQ-13 Navegação, Estados e Qualidade da Experiência
+#### REQ-07 Promotion and Demotion
 
-- [ ] **Navegação, Estados e Qualidade da Experiência**
+- [ ] **Promotion and Demotion**
 
-**Descrição:** O Identity deve oferecer navegação coerente, estados claros e
-uma experiência acessível em todos os fluxos.
+**Description:** A Manager must be able to promote an Operator to Manager or
+demoting another Manager to Operator.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Usuários:** disponível somente para Gerentes.
-- **Sorveteria:** disponível somente para Gerentes.
-- **Minha conta:** disponível para Gerentes e Operadores no menu do usuário.
-- **Cobertura de estados:** devem existir estados para confirmação pendente,
-  convite pendente, link expirado, link já utilizado, conta inativa, acesso
-  negado, falha de comunicação e sessão expirada.
-- **Consistência:** menus ocultos não substituem a validação das ações protegidas.
-- **Autoria:** ações relevantes devem sempre permanecer associadas ao usuário
-  que as realizou.
+- **Authorization:** only Managers can change another user's profile.
+- **Self-change:** the user cannot change their own profile.
+- **Promotion:** must immediately grant the full profile set
+  `Manager`.
+- **Demotion:** must immediately remove administrative and
+  preserve `New Sale` and `Orders`.
+- **Last Manager:** relegation must be blocked when leaving
+  ice cream shop without an active Manager.
+- **History:** the change must not modify the authorship of previous actions.
+- **Notification:** the affected user must be notified about the change.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Interface:** seguir o design system do Scoops, com Manrope, superfícies
-  neutras, roxo como cor de marca e ícones Lucide.
-- **Feedback:** toda ação que aguarde uma resposta deve apresentar carregamento,
-  sucesso e erro.
-- **Estado vazio:** cada lista sem conteúdo deve explicar a situação e oferecer
-  a próxima ação válida.
-- **Ação bloqueada:** mensagens devem explicar o motivo e, quando possível, como
-  resolver.
-- **Responsividade:** todos os fluxos devem funcionar a partir de 320 px sem
-  rolagem horizontal obrigatória.
-- **Acessibilidade:** atender WCAG 2.2 nível AA, com contraste, foco visível,
-  navegação por teclado, labels, mensagens anunciadas e alvos de toque adequados.
-
----
-
-#### REQ-14 Critérios de Sucesso do MVP
-
-- [ ] **Critérios de Sucesso do MVP**
-
-**Descrição:** O desempenho do produto deve ser acompanhado por indicadores de
-ativação, autonomia administrativa e segurança funcional.
-
-##### Regras de Negócio
-
-- **Onboarding:** ao menos 90% dos onboardings concluídos devem confirmar a conta
-  em até 24 horas.
-- **Convites:** ao menos 90% dos convites aceitos devem ser concluídos sem
-  intervenção de suporte.
-- **Eficiência:** cadastro ou alteração de usuário deve poder ser concluído em
-  menos de dois minutos por um Gerente familiarizado com o fluxo.
-- **Auditoria:** 100% das ações administrativas previstas devem produzir o
-  registro correspondente.
-- **Autorização:** nenhum cenário de validação pode permitir acesso entre
-  sorveterias ou ação incompatível com o perfil.
-- **Acompanhamento:** os indicadores devem ser avaliados após o lançamento para
-  orientar correções e priorização.
-
-##### Regras de UI/UX
-
-- **Interface:** eventos necessários à medição não devem adicionar etapas ao
-  fluxo do usuário.
-- **Feedback:** falhas que impedem conclusão devem ser distinguíveis de abandono
-  voluntário.
-- **Estado vazio:** relatórios sem volume suficiente devem indicar ausência de
-  amostra conclusiva.
-- **Ação bloqueada:** não aplicável ao uso cotidiano do módulo.
-- **Responsividade:** qualquer visualização futura dos indicadores deve seguir o
-  padrão responsivo do produto.
-- **Acessibilidade:** indicadores não devem depender somente de cor.
+- **Interface:** display the action in user detail with access description
+  acquired or lost.
+- **Feedback:** require confirmation and report success or failure.
+- **Empty state:** not applicable.
+- **Action blocked:** explain the prohibition of self-change and the protection of
+  last Manager.
+- **Responsiveness:** confirmation must preserve reading and actions on screens
+  small.
+- **Accessibility:** focus must return to the trigger element after closing the
+  confirmation.
 
 ---
 
-### 5. Fluxo de Usuário (User Flow)
+#### REQ-08 Inactivation and Reactivation
 
-#### Fluxo A - Criar sorveteria e primeiro Gerente
+- [ ] **Inactivation and Reactivation**
 
-1. O responsável inicia o onboarding público.
-2. O sistema solicita nome da sorveteria, nome do Gerente, e-mail e senha.
-3. O responsável envia o cadastro.
-4. O sistema mantém a sorveteria e a conta pendentes e solicita confirmação.
-5. Na confirmação pendente, o responsável pode selecionar `Voltar e corrigir`:
-   - O sistema retorna à etapa inicial em modo de edição, preserva o nome da
-     sorveteria e o nome do Gerente e coloca foco no e-mail.
-   - O responsável altera o e-mail, informa novamente a senha e salva.
-   - Sucesso: o sistema invalida o link anterior, envia uma nova confirmação,
-     retorna à etapa pendente e mantém o prazo original de sete dias.
-   - E-mail inválido ou indisponível: preserva o endereço anterior e apresenta
-     o motivo da correção necessária.
-   - Cancelamento: retorna à confirmação pendente sem alterar o cadastro.
-6. O responsável confirma a conta:
-   - Sucesso: sorveteria e primeiro Gerente ficam ativos.
-   - Link inválido, já utilizado ou expirado: o sistema orienta o reenvio da
-     confirmação, um novo cadastro ou a entrada, caso a conta já esteja ativa.
-7. O Gerente entra no Scoops e inicia a configuração da operação.
+**Description:** Managers must revoke and restore user access without
+erase your identity or history.
 
-#### Fluxo B - Entrar no Scoops
+##### Business Rules
 
-1. O usuário informa e-mail e senha.
-2. O sistema valida conta, sorveteria e tentativas anteriores.
-3. O sistema decide:
-   - Sucesso: abre a primeira área autorizada para o perfil.
-   - Credenciais inválidas: apresenta mensagem neutra e preserva o e-mail.
-   - Bloqueio temporário: informa quando será possível tentar novamente.
-   - Conta pendente ou inativa: orienta o usuário sem revelar dados internos.
-4. Após inatividade ou duração máxima, o sistema solicita novo login.
+- **Inactivation:** must immediately terminate all user sessions and
+  prevent new entries.
+- **Self-inactivation:** no user can inactivate their own account.
+- **Last Manager:** it should not be possible to inactivate the last active Manager.
+- **History:** active users must be inactivated, never deleted
+  individually.
+- **Reserved email:** an inactive user's email cannot be reused.
+- **Reactivation:** must restore access to the same account with the current profile.
+- **Password:** reactivation does not authorize the Manager to set a password.
+- **Notification:** the user must be notified about inactivation and reactivation.
 
-#### Fluxo C - Recuperar acesso
+##### UI/UX rules
 
-1. O usuário seleciona `Esqueci minha senha`.
-2. Informa o e-mail.
-3. O sistema apresenta a mesma confirmação independentemente da existência da
-   conta.
-4. O usuário abre um link válido e define a nova senha.
-5. O sistema valida:
-   - Sucesso: altera a senha e encerra as sessões anteriores.
-   - Link expirado ou usado: orienta nova solicitação.
-6. O usuário entra novamente.
-
-#### Fluxo D - Convidar usuário
-
-1. Um Gerente acessa `Usuários` e seleciona `Convidar usuário`.
-2. Informa nome, e-mail e perfil.
-3. O sistema valida unicidade e campos obrigatórios.
-4. O Gerente confirma o envio.
-5. O cadastro aparece como `Pendente`.
-6. O convidado aceita o convite e define a senha:
-   - Sucesso: o usuário fica `Ativo` com o perfil escolhido.
-   - Link expirado: o Gerente pode reenviar um novo convite.
-
-#### Fluxo E - Cancelar convite pendente
-
-1. O Gerente abre um usuário `Pendente`.
-2. Seleciona `Cancelar convite`.
-3. O sistema informa que o link perderá a validade e o cadastro será removido.
-4. O Gerente confirma:
-   - Sucesso: o convite é invalidado e o e-mail liberado.
-   - Falha: o cadastro permanece pendente.
-
-#### Fluxo F - Promover Operador
-
-1. O Gerente abre um Operador ativo.
-2. Seleciona `Promover a Gerente`.
-3. O sistema lista o acesso que será concedido.
-4. O Gerente confirma.
-5. O usuário recebe acesso integral, registro de auditoria e notificação.
-
-#### Fluxo G - Rebaixar Gerente
-
-1. O Gerente abre outro Gerente ativo.
-2. Seleciona `Rebaixar para Operador`.
-3. O sistema valida:
-   - Há outro Gerente ativo: permite continuar.
-   - A ação deixaria a sorveteria sem Gerente: bloqueia e explica a regra.
-4. O Gerente confirma.
-5. O usuário passa a acessar somente `Nova venda` e `Pedidos` e é notificado.
-
-#### Fluxo H - Inativar usuário
-
-1. O Gerente abre outro usuário ativo.
-2. Seleciona `Inativar`.
-3. O sistema valida auto-inativação e proteção do último Gerente.
-4. O sistema informa que acessos existentes serão encerrados.
-5. O Gerente confirma:
-   - Sucesso: o usuário fica `Inativo`, perde acesso e é notificado.
-   - Falha: nenhum estado é alterado.
-
-#### Fluxo I - Reativar usuário
-
-1. O Gerente filtra usuários inativos.
-2. Abre a conta desejada e seleciona `Reativar`.
-3. O sistema preserva e exibe o perfil atual.
-4. O Gerente confirma.
-5. O usuário fica ativo e recebe uma notificação.
-
-#### Fluxo J - Consultar auditoria
-
-1. O Gerente abre o detalhe de um usuário.
-2. O sistema apresenta a linha do tempo administrativa.
-3. O Gerente identifica ação, responsável, momento e alterações aplicáveis.
-4. Se não houver eventos adicionais, o sistema explica que existe somente o
-   registro inicial.
-
-#### Fluxo K - Alterar nome da sorveteria
-
-1. O Gerente acessa `Sorveteria`.
-2. Altera o nome e confirma.
-3. O sistema valida que o valor não está vazio.
-4. O sistema salva a alteração e registra a auditoria.
-5. O novo nome passa a aparecer nas áreas futuras sem alterar históricos.
-
-#### Fluxo L - Excluir sorveteria
-
-1. O Gerente acessa a zona de perigo em `Sorveteria`.
-2. O sistema lista todos os grupos de dados que serão removidos.
-3. O Gerente informa novamente a senha.
-4. Digita o nome atual da sorveteria.
-5. O sistema cancela a assinatura:
-   - Sucesso: permite a confirmação final.
-   - Falha: bloqueia a exclusão sem remover dados.
-6. O Gerente confirma a ação irreversível.
-7. O acesso à sorveteria é encerrado e todos os dados associados são removidos.
-8. Todos os Gerentes recebem uma notificação da conclusão.
-
-#### Fluxo M - Alterar o próprio nome e sair
-
-1. O usuário abre `Minha conta`.
-2. Altera o nome:
-   - Sucesso: o novo nome passa a ser exibido em usos futuros.
-   - Falha: o valor anterior é preservado.
-3. Quando desejar, seleciona `Sair deste dispositivo`.
-4. Somente a sessão atual é encerrada e o usuário retorna ao login.
+- **Interface:** display status and corresponding action in user detail.
+- **Feedback:** inactivation should warn that open sessions will be closed.
+- **Empty state:** not applicable.
+- **Action blocked:** explain prohibited self-inactivation and protection of the latter
+  Manager.
+- **Responsiveness:** actions must remain available without depending on hover.
+- **Accessibility:** status must have explicit text in addition to color.
 
 ---
 
-### 6. Fora do Escopo (Out of Scope)
+#### REQ-09 Personal Data and My Account
 
-- Múltiplas sorveterias vinculadas à mesma conta.
-- Hierarquia de grupos, filiais ou franquias.
-- Perfis além de `Gerente` e `Operador`.
-- Perfis personalizados e permissões individuais.
-- Códigos pessoais ou compartilhados para acesso rápido no PDV.
-- Autenticação em dois fatores.
-- Login social, corporativo ou sem senha.
-- Alteração de e-mail após a ativação.
-- Troca direta de senha dentro de `Minha conta`.
-- Ação manual para encerrar todas as sessões.
-- Exclusão individual de usuário com histórico.
-- Dados da sorveteria além do nome.
-- Superadministrador, impersonação ou acesso global às sorveterias.
-- Agendamento, cancelamento ou recuperação da exclusão da sorveteria.
-- Exportação de dados antes da exclusão.
-- Configurações operacionais de estoque, vendas, impressão ou cardápio dentro do
+- [ ] **Personal Data and My Account**
+
+**Description:** Every user must check their identity, change their
+name and close the current session.
+
+##### Business Rules
+
+- **First name:** any user can change their own name.
+- **Correction by Manager:** Managers can correct the name of other users.
+- **Active email:** email cannot be changed after activation.
+- **Snapshot:** name changes should not modify names preserved in
+  historical records.
+- **Profile:** the profile must be read-only in `My Account`.
+- **Exit:** there must only be the `Exit this device` action.
+- **Password:** there must be no direct password change within the session; the user
+  uses email recovery.
+
+##### UI/UX rules
+
+- **Interface:** display editable name, email and read-only profile and action
+  exit.
+- **Feedback:** name changes must inform saving, error and status
+  loading.
+- **Empty state:** not applicable.
+- **Action blocked:** immutable fields must explain why they cannot be
+  changed.
+- **Responsiveness:** the page must work entirely on cell phones.
+- **Accessibility:** read-only fields must be distinguishable without losing
+  readability.
+
+---
+
+#### REQ-10 Administrative Audit
+
+- [ ] **Administrative Audit**
+
+**Description:** The module must maintain an immutable history of changes to
+identity and access carried out at the ice cream shop.
+
+##### Business Rules
+
+- **Actions audited:** register, resend invitation, cancel invitation, activate,
+  promote, demote, inactivate, reactivate, initiate recovery and change names.
+- **Content:** each record must identify action, affected user, responsible
+  and date and time.
+- **Changes:** when applicable, preserve previous value and new value.
+- **Secrets:** passwords, activation links and recovery content should never be
+  appear in the audit.
+- **Immutability:** records cannot be edited or removed
+  individually.
+- **Retention:** the audit remains for the entire life of the ice cream shop.
+- **Access:** only Managers can consult the audit.
+- **Time Zone:** dates must be displayed in São Paulo time.
+
+##### UI/UX rules
+
+- **Interface:** display timeline in user detail with action,
+  responsible and moment.
+- **Feedback:** loading and query failure must be reported.
+- **Empty state:** explain when there is still no change beyond creation.
+- **Action blocked:** Operators must not view entries or shortcuts to the
+  audit.
+- **Responsiveness:** events must reorganize their fields without truncating the action.
+- **Accessibility:** the chronological order and relationships must be
+  understandable outside of the visual presentation.
+
+---
+
+#### REQ-11 Ice Cream Shop Management
+
+- [ ] **Ice Cream Shop Management**
+
+**Description:** Managers must consult and change the name of their own ice cream shop.
+
+##### Business Rules
+
+- **Unique data:** the MVP institutional registration contains only the name of the company
+  ice cream shop.
+- **Change:** any Manager can change the name.
+- **Historical identity:** the change must not move users or data to
+  another ice cream shop.
+- **Audit:** the change must preserve the previous name, new name, person responsible
+  and moment.
+- **Duplicate names:** another ice cream shop may use the same name.
+- **Access:** Operators cannot consult or change this configuration.
+
+##### UI/UX rules
+
+- **Interface:** display the current name and a clear editing action.
+- **Feedback:** inform success, error and loading of the change.
+- **Empty status:** not applicable, as the name is mandatory from onboarding.
+- **Action blocked:** Operators must not see `Ice Cream Parlor` in the navigation.
+- **Responsiveness:** editing and feedback must work on cell phones.
+- **Accessibility:** the editing state must maintain label, instruction and focus
+  visible.
+
+---
+
+#### REQ-12 Exclusion of Ice Cream Parlor
+
+- [ ] **Exclusion of Ice Cream Parlor**
+
+**Description:** Any Manager must be able to delete immediately and
+irreversible to the ice cream shop and all associated data.
+
+##### Business Rules
+
+- **Authorization:** only Managers can initiate the deletion.
+- **Scope:** deletion must remove users, products, stock, orders,
+  configurations, histories, audits and any other data belonging to the
+  ice cream shop.
+- **Subscription:** subscription must be successfully canceled before removal.
+- **Cancellation Failure:** If cancellation fails, no data should be
+  removed.
+- **Identity confirmation:** the Manager must enter his password again.
+- **Textual confirmation:** the Manager must enter the current name of the ice cream shop.
+- **Consequences:** the system must clearly list the categories of data that
+  will be deleted.
+- **Immediate:** there must be no scheduling, regret period or
+  restoration by the customer.
+- **Irreversibility:** after final confirmation, access must be blocked and
+  deletion should continue until all data is removed.
+- **Partial failure:** an interruption should not reactivate the ice cream shop; the process
+  must continue until completion.
+- **Notification:** after completing, all Managers should receive a message
+  with ice cream shop, responsible, date and irreversible character.
+
+##### UI/UX rules
+
+- **Interface:** place the action in a danger zone separate from the settings
+  common.
+- **Feedback:** use confirmation in stages, direct language and conclusion
+  unequivocal.
+- **Empty state:** not applicable.
+- **Action blocked:** explain password failure, name mismatch or problem
+  in canceling the subscription without initiating partial removal.
+- **Responsiveness:** consequences and confirmations must remain fully
+  readable on small screens.
+- **Accessibility:** gravity should not be communicated only by color and
+  focus should remain contained in commits.
+
+---
+
+#### REQ-13 Navigation, States and Quality of Experience
+
+- [ ] **Navigation, States and Quality of Experience**
+
+**Description:** Identity must offer coherent navigation, clear states and
+an accessible experience across all streams.
+
+##### Business Rules
+
+- **Users:** available only to Managers.
+- **Ice Cream Parlor:** available only to Managers.
+- **My account:** available for Managers and Operators in the user menu.
+- **State coverage:** there must be states for pending confirmation,
+  pending invitation, expired link, link already used, inactive account, access
+  denied, communication failure and session expired.
+- **Consistency:** hidden menus do not replace the validation of protected actions.
+- **Authorship:** relevant actions must always remain associated with the user
+  who carried them out.
+
+##### UI/UX rules
+
+- **Interface:** follow the Scoops design system, with Manrope, surfaces
+  neutral colors, purple as the brand color and Lucide icons.
+- **Feedback:** every action that awaits a response must present loading,
+  success and error.
+- **Empty state:** each list without content must explain the situation and offer
+  the next valid action.
+- **Action blocked:** messages should explain why and, where possible, how
+  resolve.
+- **Responsiveness:** all flows must work from 320 px without
+  Mandatory horizontal scrolling.
+- **Accessibility:** meet WCAG 2.2 level AA, with contrast, visible focus,
+  keyboard navigation, labels, announced messages and appropriate touch targets.
+
+---
+
+#### REQ-14 MVP Success Criteria
+
+- [ ] **MVP Success Criteria**
+
+**Description:** Product performance must be monitored by indicators of
+activation, administrative autonomy and functional security.
+
+##### Business Rules
+
+- **Onboarding:** at least 90% of completed onboardings must confirm the account
+  within 24 hours.
+- **Invitations:** at least 90% of accepted invitations must be completed without
+  supportive intervention.
+- **Efficiency:** user registration or change must be able to be completed in
+  less than two minutes by a Manager familiar with the flow.
+- **Audit:** 100% of the planned administrative actions must produce the
+  corresponding record.
+- **Authorization:** no validation scenario can allow access between
+  ice cream shops or action incompatible with the profile.
+- **Monitoring:** indicators must be evaluated after launch to
+  guide corrections and prioritization.
+
+##### UI/UX rules
+
+- **Interface:** events required for measurement should not add steps to the
+  user flow.
+- **Feedback:** failures that prevent completion must be distinguishable from abandonment
+  voluntary.
+- **Empty state:** reports without sufficient volume must indicate no
+  conclusive sample.
+- **Action blocked:** not applicable to everyday use of the module.
+- **Responsiveness:** any future visualization of the indicators must follow the
+  responsive product pattern.
+- **Accessibility:** indicators should not depend solely on color.
+
+---
+
+### 5. User Flow
+
+#### Flow A - Create ice cream shop and first Manager
+
+1. The person responsible initiates public onboarding.
+2. The system requests the name of the ice cream shop, the name of the Manager, email and password.
+3. The person responsible sends the registration.
+4. The system keeps the ice cream shop and bill pending and requests confirmation.
+5. In the pending confirmation, the person responsible can select `Go back and correct`:
+   - The system returns to the initial stage in editing mode, preserving the name of the
+     ice cream shop and the name of the Manager and focuses on the email.
+   - The person responsible changes the email, enters the password again and saves it.
+   - Success: the system invalidates the previous link, sends a new confirmation,
+     returns to the pending stage and maintains the original seven-day deadline.
+   - Invalid or unavailable email: preserves the previous address and displays
+     the reason for the necessary correction.
+   - Cancellation: returns to pending confirmation without changing the registration.
+6. The person responsible confirms the account:
+   - Success: ice cream shop and first Manager become active.
+   - Invalid link, already used or expired: the system instructs you to resend the
+     confirmation, new registration or entry, if the account is already active.
+7. The Manager enters Scoops and starts configuring the operation.
+
+#### Flow B - Enter Scoops
+
+1. The user enters email and password.
+2. The system validates the account, ice cream shop and previous attempts.
+3. The system decides:
+   - Success: opens the first authorized area for the profile.
+   - Invalid credentials: presents a neutral message and preserves the email.
+   - Temporary blocking: informs you when it will be possible to try again.
+   - Pending or inactive account: guides the user without revealing internal data.
+4. After inactivity or maximum duration, the system requests a new login.
+
+#### Flow C - Regain access
+
+1. User selects `I forgot my password`.
+2. Enter the email.
+3. The system presents the same confirmation regardless of the existence of the
+   account.
+4. The user opens a valid link and sets the new password.
+5. The system validates:
+   - Success: change the password and close previous sessions.
+   - Expired or used link: guides new request.
+6. The user logs in again.
+
+#### Flow D - Invite user
+
+1. A Manager goes to `Users` and selects `Invite user`.
+2. Provide your name, email and profile.
+3. The system validates uniqueness and mandatory fields.
+4. The Manager confirms the shipment.
+5. The registration appears as `Pending`.
+6. The guest accepts the invitation and sets the password:
+   - Success: the user becomes `Active` with the chosen profile.
+   - Expired link: the Manager can resend a new invitation.
+
+#### Flow E - Cancel pending invitation
+
+1. The Manager opens a `Pending` user.
+2. Select `Cancel invitation`.
+3. The system informs you that the link will no longer be valid and the registration will be removed.
+4. The Manager confirms:
+   - Success: the invitation is invalidated and the email released.
+   - Failed: registration remains pending.
+
+#### Flow F - Promote Operator
+
+1. The Manager opens an active Operator.
+2. Select `Promote to Manager`.
+3. The system lists the access that will be granted.
+4. The Manager confirms.
+5. User receives full access, audit log and notification.
+
+#### Flow G - Demote Manager
+
+1. The Manager opens another active Manager.
+2. Select `Demote to Operator`.
+3. The system validates:
+   - There is another Manager active: allows to continue.
+   - The action would leave the ice cream shop without a Manager: block and explain the rule.
+4. The Manager confirms.
+5. The user now only accesses `New Sale` and `Orders` and is notified.
+
+#### Flow H - Inactivate user
+
+1. The Manager opens another active user.
+2. Select `Inactivate`.
+3. The system validates self-inactivation and protection of the last Manager.
+4. The system informs you that existing accesses will be closed.
+5. The Manager confirms:
+   - Success: the user becomes `Inactive`, loses access and is notified.
+   - Failed: no state is changed.
+
+#### Flow I - Reactivate user
+
+1. The Manager filters inactive users.
+2. Open the desired account and select `Reactivate`.
+3. The system preserves and displays the current profile.
+4. The Manager confirms.
+5. The user becomes active and receives a notification.
+
+#### Flow J - Consult audit
+
+1. The Manager opens a user's detail.
+2. The system displays the administrative timeline.
+3. The Manager identifies action, person responsible, timing and applicable changes.
+4. If there are no additional events, the system explains that there is only the
+   initial registration.
+
+#### Flow K - Change the name of the ice cream shop
+
+1. The Manager accesses `Ice Cream Parlor`.
+2. Change the name and confirm.
+3. The system validates that the value is not empty.
+4. The system saves the change and records the audit.
+5. The new name will appear in future areas without changing history.
+
+#### Flow L - Exclude ice cream shop
+
+1. The Manager accesses the danger zone in `Ice Cream Parlor`.
+2. The system lists all data groups that will be removed.
+3. The Manager enters the password again.
+4. Enter the current name of the ice cream shop.
+5. The system cancels the subscription:
+   - Success: allows final confirmation.
+   - Failure: Blocks deletion without removing data.
+6. The Manager confirms the irreversible action.
+7. Access to the ice cream shop is terminated and all associated data is removed.
+8. All Managers receive notification of completion.
+
+#### Flow M - Change your own name and exit
+
+1. User opens `My Account`.
+2. Change the name:
+   - Success: the new name will be displayed in future uses.
+   - Failure: the previous value is preserved.
+3. When desired, select `Leave this device`.
+4. Only the current session is closed and the user returns to login.
+
+---
+
+### 6. Out of Scope
+
+- Multiple ice cream shops linked to the same account.
+- Hierarchy of groups, branches or franchises.
+- Profiles beyond `Manager` and `Operator`.
+- Customized profiles and individual permissions.
+- Personal or shared codes for quick access at the POS.
+- Two-factor authentication.
+- Social, corporate or passwordless login.
+- Change of email after activation.
+- Direct password change within `My Account`.
+- Manual action to terminate all sessions.
+- Individual deletion of users with history.
+- Information about the ice cream shop in addition to the name.
+- Super administrator, impersonation or global access to ice cream shops.
+- Scheduling, canceling or recovering the deletion of the ice cream shop.
+- Data export before deletion.
+- Operational settings for stock, sales, printing or menu within the
   Identity.
 
-#### Descartado durante a definição
+#### Discarded during definition
 
-- **Perfis personalizados:** descartados em favor de apenas `Gerente` e
-  `Operador`, reduzindo configuração e combinações inesperadas.
-- **Permissões individuais:** substituídas por conjuntos fixos por perfil.
-- **PIN no PDV:** descartado; o acesso utiliza e-mail e senha.
-- **Múltiplas sorveterias por usuário:** descartadas para manter vínculo único no
+- **Custom profiles:** dropped in favor of just `Manager` and
+  `Operator`, reducing configuration and unexpected combinations.
+- **Individual permissions:** replaced by fixed sets per profile.
+- **PIN at POS:** discarded; Access uses email and password.
+- **Multiple ice cream shops per user:** discarded to maintain a single link in the
   MVP.
-- **Dados institucionais adicionais:** razão social, documentos, contatos e
-  endereço foram considerados e removidos; a sorveteria possui somente nome.
-- **Alteração de senha autenticada:** substituída exclusivamente pela recuperação
-  por e-mail.
-- **Sessão única:** descartada; múltiplos dispositivos podem permanecer ativos.
-- **Encerrar todas as sessões manualmente:** descartado; a interface oferece
-  somente saída do dispositivo atual.
-- **Exclusão agendada:** descartada; a exclusão da sorveteria é imediata e
-  irreversível após confirmação reforçada.
-- **Superadministrador:** descartado para evitar acesso global às sorveterias.
+- **Additional institutional data:** corporate name, documents, contacts and
+  address were considered and removed; the ice cream shop only has a name.
+- **Authenticated password change:** replaced exclusively by recovery
+  by email.
+- **Single session:** discarded; multiple devices can remain active.
+- **End all sessions manually:** discarded; the interface offers
+  only output from current device.
+- **Scheduled deletion:** discarded; the exclusion of the ice cream parlor is immediate and
+  irreversible after hard confirmation.
+- **Super Administrator:** discarded to prevent global access to ice cream shops.

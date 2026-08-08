@@ -1,392 +1,391 @@
 ---
-description: Prompt para pesquisar, entrevistar e criar PRDs completos com análise competitiva, público-alvo e validação interativa.
+description: Prompt to research, interview and create PRDs complete with competitive analysis, target audience and interactive validation.
 ---
 
-# Prompt: Criar PRD
+# Prompt: Create PRD
 
-## Objetivo Principal
+## Main Objective
 
-Criar um PRD completo e implementável a partir do texto recebido pelo comando:
+Create a complete and deployable PRD from the text received by the command:
 
 ```bash
-create-prd "<texto do produto ou funcionalidade>"
+create-prd "<product or feature description>"
 ```
 
-O PRD deve ser salvo em:
+The PRD must be saved in:
 
 ```text
-documentation/prds/<slug-do-produto>.md
+documentation/prds/<product-slug>.md
 ```
 
-Se for informado um caminho de saída, use-o:
+If an exit path is provided, use it:
 
 ```bash
-create-prd "<texto>" --output documentation/prds/meu-prd.md
+create-prd "<text>" --output documentation/prds/my-prd.md
 ```
 
 ---
 
-## Regra Principal
+## Main Rule
 
-Não escreva o PRD imediatamente.
+Don't write the PRD right away.
 
-Primeiro:
+First:
 
-1. Pesquise os materiais disponíveis.
-2. Analise arquivos, código, designs e documentos relacionados.
-3. Faça uma entrevista rigorosa com o usuário.
-4. Resolva dependências e contradições.
-5. Apresente um resumo do entendimento.
-6. Aguarde confirmação explícita.
+1. Research available materials.
+2. Analyze related files, code, designs, and documents.
+3. Conduct a rigorous user interview.
+4. Resolve dependencies and contradictions.
+5. Present a summary of understanding.
+6. Wait for explicit confirmation.
 
-Só depois da confirmação o arquivo poderá ser criado ou atualizado.
-
----
-
-## Skill Obrigatória: Grilling
-
-Entreviste o usuário rigorosamente sobre todos os aspectos do produto até
-alcançar entendimento compartilhado.
-
-Para cada pergunta:
-
-- faça somente uma pergunta por vez;
-- explique por que a decisão é necessária;
-- apresente uma recomendação;
-- aguarde a resposta antes de continuar;
-- registre a decisão;
-- identifique dependências com decisões futuras;
-- conteste contradições ou riscos.
-
-Nunca faça várias perguntas na mesma mensagem.
-
-Se uma informação puder ser encontrada em arquivos, código, designs, ferramentas
-ou internet, pesquise antes de perguntar.
-
-As decisões pertencem ao usuário. Não assuma decisões importantes sem
-confirmação.
-
-Não execute a criação do PRD até o usuário confirmar que o entendimento está
-correto.
+Only after confirmation can the file be created or updated.
 
 ---
 
-## Entrada do Comando
+## Mandatory Skill: Grilling
 
-O texto recebido após `create-prd` representa o contexto inicial do produto ou
-funcionalidade.
+Interview the user rigorously about all aspects of the product until
+shared understanding is achieved.
 
-Extraia dele:
+For each question:
 
-- problema;
-- oportunidade;
-- módulo;
-- público mencionado;
-- funcionalidades;
-- restrições;
-- materiais referenciados;
-- decisões já tomadas.
+- ask only one question at a time;
+- explain why the decision is necessary;
+- present a recommendation;
+- wait for the response before continuing;
+- record the decision;
+- identify dependencies with future decisions;
+- challenge contradictions or risks.
 
-Se o texto estiver vazio ou insuficiente, faça uma pergunta inicial solicitando
-contexto.
+Never ask multiple questions in the same message.
 
----
+If information can be found in files, code, designs, tools
+or internet, research before asking.
 
-## Pesquisa do Ambiente
+Decisions belong to the user. Don't make important decisions without
+confirmation.
 
-Antes da entrevista:
-
-1. Leia os PRDs relacionados.
-2. Leia documentação e regras do projeto.
-3. Inspecione código relevante.
-4. Inspecione designs e protótipos.
-5. Identifique entidades, fluxos e regras existentes.
-6. Procure contradições entre documentação, design e implementação.
-7. Diferencie fatos encontrados, decisões confirmadas, hipóteses e decisões
-   pendentes.
-
-Não pergunte ao usuário algo que possa ser descoberto no ambiente.
+Do not perform PRD creation until the user confirms understanding is
+correct.
 
 ---
 
-## Pesquisa de Mercado Obrigatória
+## Command Input
 
-Faça pesquisa atualizada na internet sobre o cenário competitivo.
+The text received after `create-prd` represents the initial product context or
+functionality.
 
-Analise:
+Extract from it:
 
-- concorrentes diretos;
-- concorrentes indiretos;
-- alternativas manuais;
-- público atendido;
-- proposta de valor;
-- funcionalidades relevantes;
-- preços públicos, quando disponíveis;
-- pontos fortes;
-- limitações;
-- lacunas de mercado;
-- oportunidades de diferenciação.
+- problem;
+- opportunity;
+- module;
+- audiences mentioned;
+- functionalities;
+- restrictions;
+- referenced materials;
+- decisions already taken.
 
-Use prioritariamente fontes oficiais e primárias.
-
-Não invente informações. Toda informação factual sobre concorrentes deve conter
-fonte em Markdown.
-
-Diferencie fatos de inferências usando expressões como:
-
-- `Segundo a fonte...`
-- `A página oficial informa...`
-- `Inferência baseada nas fontes...`
-- `Não identificado publicamente...`
-
-A pesquisa deve orientar recomendações, mas não substituir decisões do usuário.
+If the text is empty or insufficient, ask an initial question requesting
+context.
 
 ---
 
-## Árvore de Decisão
+## Environmental Research
 
-Investigue, uma decisão por vez:
+Before the interview:
 
-1. Problema e oportunidade.
-2. Objetivo do produto.
-3. Público-alvo principal.
-4. Públicos secundários.
-5. Não público.
+1. Read the related PRDs.
+2. Read project documentation and rules.
+3. Inspect relevant code.
+4. Inspect designs and prototypes.
+5. Identify existing entities, flows and rules.
+6. Look for contradictions between documentation, design and implementation.
+7. Differentiate between facts found, confirmed decisions, hypotheses and decisions
+   pending.
+
+Don't ask the user something that can be discovered in the environment.
+
+---
+
+## Mandatory Market Research
+
+Do up-to-date research on the internet about the competitive scenario.
+
+Analysis:
+
+- direct competitors;
+- indirect competitors;
+- manual alternatives;
+- target audience;
+- value proposition;
+- relevant features;
+- public prices, when available;
+- strengths;
+- limitations;
+- market gaps;
+- opportunities for differentiation.
+
+Use official and primary sources as a priority.
+
+Don't invent information. All factual information about competitors must contain
+a source in Markdown.
+
+Differentiate facts from inferences using expressions such as:
+
+- `According to the source...`
+- `The official page informs...`
+- `Source-based inference...`
+- `Not publicly identified...`
+
+Research should guide recommendations, but not replace user decisions.
+
+---
+
+## Decision Tree
+
+Investigate, one decision at a time:
+
+1. Problem and opportunity.
+2. Product objective.
+3. Main target audience.
+4. Secondary audiences.
+5. Non-audience.
 6. Jobs to Be Done.
-7. Proposta de valor.
-8. Diferenciação competitiva.
-9. Escopo da primeira versão.
-10. Funcionalidades obrigatórias.
-11. Regras de negócio.
-12. Entidades e relacionamentos.
-13. Fluxos principais.
-14. Estados vazios e erros.
-15. Permissões e responsabilidades.
-16. Integrações e dependências.
-17. Dados e snapshots.
-18. Exclusões e efeitos colaterais.
-19. Critérios de sucesso.
-20. Requisitos de UI/UX.
-21. Responsividade e acessibilidade.
-22. Requisitos não funcionais.
-23. Fora do escopo.
-24. Decisões descartadas.
+7. Value proposition.
+8. Competitive differentiation.
+9. Scope of the first version.
+10. Mandatory features.
+11. Business rules.
+12. Entities and relationships.
+13. Main flows.
+14. Empty states and errors.
+15. Permissions and responsibilities.
+16. Integrations and dependencies.
+17. Data and snapshots.
+18. Exclusions and side effects.
+19. Success criteria.
+20. UI/UX requirements.
+21. Responsiveness and accessibility.
+22. Non-functional requirements.
+23. Out of scope.
+24. Discarded decisions.
 
-Não faça perguntas sobre itens já resolvidos nos materiais ou pelo usuário.
+Do not ask questions about items already resolved in the materials or by the user.
 
 ---
 
-## Formato das Perguntas
+## Question Format
 
-Use exatamente este formato:
+Use exactly this format:
 
 ```text
-Pergunta [número] — [tema]
+Question [number] — [topic]
 
-Contexto:
-[Explique por que essa decisão é necessária.]
+Context:
+[Explain why this decision is necessary.]
 
-Minha recomendação:
-[Apresente uma recomendação objetiva e justificada.]
+My recommendation:
+[Present an objective, justified recommendation.]
 
-Pergunta:
-[Faça somente uma pergunta.]
+Question:
+[Ask only one question.]
 ```
 
 ---
 
-## Confirmação Obrigatória
+## Mandatory Confirmation
 
-Quando todas as decisões relevantes estiverem resolvidas, apresente um resumo
-com:
+When all relevant decisions are resolved, present a summary
+with:
 
-- problema;
-- objetivo;
-- público-alvo;
-- proposta de valor;
-- cenário competitivo;
-- diferenciais;
-- escopo;
-- regras críticas;
-- fluxos principais;
-- fora do escopo;
-- riscos e hipóteses restantes.
+- problem;
+- objective;
+- target audience;
+- value proposition;
+- competitive scenario;
+- differentials;
+- scope;
+- critical rules;
+- main flows;
+- out of scope;
+- remaining risks and hypotheses.
 
-Depois faça somente esta pergunta:
+Then just ask this question:
 
 ```text
-Este entendimento está correto e posso escrever o PRD?
+Is this understanding correct, and may I write the PRD?
 ```
 
-Não escreva o arquivo até receber confirmação explícita.
+Do not write the file until you receive explicit confirmation.
 
 ---
 
-## Formato Obrigatório do PRD
+## PRD Mandatory Format
 
-Após a confirmação, escreva o documento nesta estrutura:
+After confirmation, write the document in this structure:
 
-### 1. Visão Geral
+### 1. Overview
 
-Inclua descrição do produto, objetivo, problema resolvido e valor entregue.
+Include product description, objective, problem solved and value delivered.
 
-### 2. Público-alvo
+### 2. Target audience
 
-Inclua público principal, públicos secundários, não público, contexto de uso,
-dores, necessidades e Jobs to Be Done.
+Include primary audience, secondary audiences, non-audience, context of use,
+pains, needs and Jobs to Be Done.
 
-Use o formato:
+Use the format:
 
 ```text
-Quando [contexto], quero [ação], para [resultado].
+When [context], I want [action], so that [result].
 ```
 
-### 3. Análise do Cenário Competitivo
+### 3. Competitive Scenario Analysis
 
-Inclua resumo do mercado, concorrentes diretos e indiretos, alternativas
-manuais, matriz competitiva, oportunidades, diferenciais recomendados, fontes e
-distinção entre fatos e inferências.
+Include market summary, direct and indirect competitors, manual alternatives,
+competitive matrix, opportunities, recommended differentiators, sources and
+distinction between facts and inferences.
 
-Use a tabela:
+Use the table:
 
-| Solução | Público | Proposta de valor | Funcionalidades | Preço público | Limitações |
+| Solution | Public | Value proposition | Features | Public price | Limitations |
 |---|---|---|---|---|---|
 
-Não preencha células com suposições. Use `Não identificado publicamente` quando
-necessário.
+Don't fill cells with assumptions. Use `Not publicly identified` when
+necessary.
 
-### 4. Requisitos
+### 4. Requirements
 
-Cada requisito deve seguir este formato:
+Each requirement must follow this format:
 
-#### REQ-01 Nome do Requisito
+#### REQ-01 Requirement Name
 
-- [ ] **Nome do Requisito**
+- [ ] **Requirement Name**
 
-**Descrição:** descreva o comportamento esperado.
+**Description:** describe the expected behavior.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Regra:** comportamento obrigatório.
-- **Validação:** condição e resultado.
-- **Exceção:** comportamento alternativo.
-- **Dependência:** módulo ou entidade relacionada.
+- **Rule:** mandatory behavior.
+- **Validation:** condition and result.
+- **Exception:** alternative behavior.
+- **Dependency:** related module or entity.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Interface:** apresentação da funcionalidade.
-- **Feedback:** estados de sucesso, erro e carregamento.
-- **Estado vazio:** comportamento sem dados.
-- **Ação bloqueada:** motivo e correção.
-- **Responsividade:** comportamento em telas menores.
-- **Acessibilidade:** requisitos relevantes.
+- **Interface:** presentation of the functionality.
+- **Feedback:** success, error and loading states.
+- **Empty state:** behavior without data.
+- **Action blocked:** reason and correction.
+- **Responsiveness:** behavior on smaller screens.
+- **Accessibility:** relevant requirements.
 
-Use requisitos sequenciais: `REQ-01`, `REQ-02`, `REQ-03`.
+Use sequential requirements: `REQ-01`, `REQ-02`, `REQ-03`.
 
-Use `[ ]` por padrão. Use `[x]` somente quando a implementação tiver sido
-verificada.
+Use `[ ]` by default. Use `[x]` only when the implementation has been
+checked.
 
-Separe os requisitos com `---`.
+Separate requirements with `---`.
 
-### 5. Fluxo de Usuário (User Flow)
+### 5. User Flow
 
-Use fluxos identificados por letras:
+Use streams identified by letters:
 
 ```text
-Fluxo A - Nome do fluxo
+Flow A - Flow name
 
-1. O usuário inicia a ação.
-2. O sistema apresenta o estado.
-3. O usuário toma uma decisão.
-4. O sistema valida:
-   - Sucesso: comportamento esperado.
-   - Falha: mensagem e estado preservado.
-5. O fluxo termina.
+1. The user starts the action.
+2. The system presents the state.
+3. The user makes a decision.
+4. The system validates:
+   - Success: expected behavior.
+   - Failure: message and preserved state.
+5. The flow ends.
 ```
 
-Inclua fluxos principais, alternativos, erros, estados vazios e confirmações
-destrutivas.
+Include main flows, alternate flows, errors, empty states and destructive actions.
 
-### 6. Fora do Escopo (Out of Scope)
+### 6. Out of Scope
 
-Liste funcionalidades explicitamente excluídas da versão.
+List features explicitly excluded from the release.
 
-#### Descartado durante a definição
+#### Discarded during definition
 
-Registre decisões consideradas e rejeitadas:
+Record considered and rejected decisions:
 
-- **Alternativa:** motivo da rejeição.
-- **Regra anterior:** regra que a substituiu.
+- **Alternative:** reason for rejection.
+- **Previous rule:** rule that replaced it.
 
-Se nada tiver sido descartado, escreva:
+If nothing has been discarded, write:
 
-- **Não identificado:** nenhuma alternativa foi formalmente descartada durante a
-  definição.
-
----
-
-## Regras de Qualidade
-
-O PRD deve:
-
-- ser escrito em português claro;
-- usar linguagem normativa;
-- manter requisitos testáveis;
-- separar regras de negócio de UI/UX;
-- preservar decisões confirmadas;
-- apontar dependências;
-- evitar duplicidade;
-- manter nomenclatura consistente;
-- não inventar fatos;
-- incluir fontes nas afirmações de mercado;
-- diferenciar fatos de inferências;
-- registrar decisões descartadas;
-- não incluir funcionalidades fora do escopo.
-
-Antes de salvar, valide:
-
-- todos os requisitos possuem descrição, regras de negócio e UI/UX;
-- os fluxos cobrem os requisitos;
-- o público-alvo está refletido no produto;
-- a análise competitiva influencia o posicionamento;
-- não existem contradições;
-- não há decisões relevantes pendentes.
-
-Se houver uma decisão relevante pendente, volte à entrevista e faça uma pergunta
-por vez. Não finalize o PRD até alcançar entendimento compartilhado.
+- **Unidentified:** no alternative was formally ruled out during the
+  definition.
 
 ---
 
-## Execução do Arquivo
+## Quality Rules
 
-Depois de gerar o PRD:
+The PRD must:
 
-1. Crie o diretório de saída se necessário.
-2. Gere um slug legível para o nome do arquivo.
-3. Salve em `documentation/prds/`.
-4. Se o arquivo já existir, informe que será atualizado antes de sobrescrevê-lo.
-5. Verifique se o arquivo foi criado.
-6. Exiba o caminho final e um resumo do conteúdo gerado.
+- be written in clear English;
+- use normative language;
+- maintain testable requirements;
+- separate business rules from UI/UX;
+- preserve confirmed decisions;
+- point out dependencies;
+- avoid duplication;
+- maintain consistent nomenclature;
+- do not invent facts;
+- include sources in market statements;
+- differentiate facts from inferences;
+- record discarded decisions;
+- do not include features outside the scope.
 
-Formato final:
+Before saving, validate:
+
+- all requirements have a description, business rules and UI/UX;
+- the flows cover the requirements;
+- the target audience is reflected in the product;
+- competitive analysis influences positioning;
+- there are no contradictions;
+- there are no relevant decisions pending.
+
+If there is a relevant decision pending, come back to the interview and ask a question
+at a time. Do not finalize the PRD until you reach shared understanding.
+
+---
+
+## File Execution
+
+After generating the PRD:
+
+1. Create the output directory if necessary.
+2. Generate a human-readable slug for the file name.
+3. Save to `documentation/prds/`.
+4. If the file already exists, inform that it will be updated before overwriting it.
+5. Verify that the file was created.
+6. Display the final path and a summary of the generated content.
+
+Final format:
 
 ```text
 [RESEARCH] Environment analyzed ✅
 [RESEARCH] Competitive analysis completed ✅
 [INTERVIEW] Shared understanding confirmed ✅
-[PRD] Generated: documentation/prds/<arquivo>.md ✅
+[PRD] Generated: documentation/prds/<file>.md ✅
 ```
 
 ---
 
-## Comportamentos Proibidos
+## Prohibited Behaviors
 
-- Criar o PRD antes da confirmação do usuário.
-- Fazer múltiplas perguntas na mesma mensagem.
-- Perguntar fatos que podem ser pesquisados.
-- Inventar dados de concorrentes ou preços.
-- Apresentar inferências como fatos.
-- Ignorar contradições.
-- Alterar decisões confirmadas sem avisar.
-- Criar requisitos sem critérios verificáveis.
-- Salvar o arquivo fora de `documentation/prds/` sem instrução explícita.
+- Create the PRD before user confirmation.
+- Ask multiple questions in the same message.
+- Ask facts that can be researched.
+- Invent competitor or price data.
+- Present inferences as facts.
+- Ignore contradictions.
+- Change confirmed decisions without warning.
+- Create requirements without verifiable criteria.
+- Save file outside `documentation/prds/` without explicit instruction.

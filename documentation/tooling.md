@@ -1,198 +1,360 @@
 ---
-description: Developer tooling used in this repository — package manager, monorepo orchestration, linting/formatting, testing, database, git hooks, and helper scripts.
+description: Developer tooling used in the Scoops monorepo for installation, local development, validation, testing, database work, messaging, and local infrastructure.
 ---
 
 # Tooling
 
-This document describes the **developer tooling** of the HMS monorepo: how to
-install, run, lint, test, and contribute. For the application/runtime tech stack
-(frameworks, libraries) see [`infrastructure.md`](infrastructure.md).
+This document describes how to install, run, validate, and test the Scoops
+monorepo. For application architecture and runtime technology choices, see
+[`architecture.md`](architecture.md).
 
 ## Requirements
 
-- **Node.js** `>= 18` (see `engines` in the root `package.json`)
-- **pnpm** `9.0.0` (pinned via `packageManager`) — use `corepack enable` so the
-  correct version is used automatically
+- **Node.js** `>= 18`, as declared by the root `package.json`.
+- **pnpm** `9.0.0`, pinned through the root `packageManager` field.
+- **Docker Engine with Docker Compose** for the local PostgreSQL, Supabase,
+  Mailpit, MinIO, and Inngest services.
+
+Enable Corepack so the repository's pnpm version is selected automatically:
+
+```bash
+corepack enable
+pnpm install
+```
 
 ## Monorepo layout
 
-Managed as a pnpm workspace (`pnpm-workspace.yaml`):
+The repository is a pnpm workspace configured by `pnpm-workspace.yaml`:
 
-- `apps/*` — `apps/web` (frontend), `apps/server` (backend)
-- `packages/*` — `packages/core` (shared domain) and `packages/validation`
-  (shared Zod schemas)
+```text
+apps/
+├── server/       NestJS backend
+└── web/          TanStack Start frontend
 
-Run a script in a single workspace with `--filter`:
-
+packages/
+└── core/         Shared domain entities, events, contracts, and use cases
 ```
+
+Run a command in one workspace with `--filter`:
+
+```bash
 pnpm --filter web dev
 pnpm --filter server dev
-pnpm --filter @hms/core check-types
+pnpm --filter @scoops/core check:types
 ```
 
-## Package manager — pnpm
+## Package management with pnpm
 
-- Install everything: `pnpm install`
-- Add a dependency to a workspace: `pnpm --filter web add <pkg>`
-- Add a workspace package as a dependency: `pnpm --filter server add @hms/core --workspace`
-- `pnpm.onlyBuiltDependencies` in the root `package.json` allow-lists native
-  packages permitted to run install scripts (`@swc/core`, `lightningcss`).
+Install all workspace dependencies from the repository root:
 
-## Task orchestration — Turborepo
+```bash
+pnpm install
+```
 
-Configured in `turbo.json`. Root scripts fan out to every workspace:
+Add a dependency to one application:
 
-| Root command         | Runs                                  |
-| -------------------- | ------------------------------------- |
-| `pnpm build`         | `turbo run build`                     |
-| `pnpm dev`           | `turbo run dev` (persistent, no cache)|
-| `pnpm lint`          | `turbo run lint`                      |
-| `pnpm test`          | `turbo run test`                      |
-| `pnpm check-types`   | `turbo run check-types`               |
-| `pnpm format`        | `biome format --write .`              |
-| `pnpm check`         | `biome check --write .`               |
+```bash
+pnpm --filter web add <package>
+pnpm --filter server add <package>
+```
 
-`build` and `check-types` declare `dependsOn: ["^build"]` / `["^check-types"]`, so
-dependencies build before their dependents.
+Add the local core package to an application with the workspace protocol:
 
-## Language — TypeScript
+```bash
+pnpm --filter server add @scoops/core@workspace:*
+```
 
-- TypeScript `5.9.2`, pinned at the root and per workspace.
-- Each app/package owns its `tsconfig.json`:
-  - `apps/web` — `moduleResolution: bundler`, `@/*` path alias, JSX.
-  - `apps/server` — `moduleResolution: nodenext`, decorators (NestJS).
-  - `packages/core` — `bundler` resolution; exposes subpaths via `exports` and
-    internal `#identity/*` / `#shared/*` via `imports`.
-- Type-check without emitting: `pnpm check-types` at the monorepo level, or the
-  workspace-specific `check:types` script for `apps/web` and `apps/server`.
+Commit `pnpm-lock.yaml` whenever dependency declarations change. Use pnpm for
+workspace installation and dependency updates; do not generate a new npm lockfile
+for workspace changes.
 
-## Linting & formatting — BiomeJS
+## Environment setup
 
-Single tool for both lint and format, configured in `biome.json` (schema `2.5.1`).
+The repository provides separate templates for Docker Compose and both runnable
+applications:
 
-- **Formatter:** 2-space indent, line width **90**, single quotes, JSX single
-  quotes, semicolons **as needed**. Tailwind CSS directives are recognized by the
-  CSS parser.
-- **Linter:** enabled with a curated rule set (most rules at `warn`); notable
-  relaxations include `noExplicitAny: off` and `organizeImports: off` (import
-  organization is handled by the editor on save, see `apps/web/.vscode`).
-- Commands:
-  ```
-  pnpm format          # format the whole repo (write)
-  pnpm check           # lint + format + safe fixes (write)
-  pnpm --filter web check:code
-  pnpm --filter web check:types
-  pnpm --filter server check:code
-  pnpm --filter server check:types
-  ```
+```bash
+cp .env.example .env
+cp apps/server/.env.example apps/server/.env
+cp apps/web/.env.example apps/web/.env
+```
 
-The application workspaces keep code and type validation as separate checks:
+The root `.env` configures Docker Compose. The server `.env` configures NestJS,
+PostgreSQL, local service URLs, and Inngest. The web `.env` contains browser-safe
+Vite variables; only variables prefixed with `VITE_` are exposed to browser code.
 
-- `check:code` runs Biome checks;
-- `check:types` runs TypeScript without emitting files.
+Local Supabase `ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` values must be JWTs
+signed with the same `JWT_SECRET` configured in the root `.env`. Real keys and
+production credentials must never be committed.
 
-The shared packages currently retain their package-specific `lint` and
-`check-types` scripts.
+## Task orchestration with Turborepo
 
-## Testing — Vitest
+Turborepo is configured in `turbo.json`. The functional root orchestration
+commands are:
 
-The application and core workspaces use Vitest for automated tests.
+| Root command | Behavior |
+| --- | --- |
+| `pnpm build` | Runs each workspace `build` task and builds dependencies first. |
+| `pnpm dev` | Runs persistent development tasks without caching. |
+| `pnpm format` | Formats the complete repository with Biome. |
 
-- `apps/web`: `pnpm --filter web test` (`vitest run`)
-- `apps/server`:
-  - `pnpm --filter server test` — unit and REST integration tests
-  - `pnpm --filter server test:watch` — watch mode
-  - `pnpm --filter server test:cov` — coverage
-  - `pnpm --filter server test:e2e` — uses `test/vitest-e2e.config.mts`
-- `packages/core`: `pnpm --filter @hms/core test` (`vitest run`)
-- `pnpm test` runs the test task across all workspaces through Turborepo.
+The repository currently names workspace validation scripts `check:code` and
+`check:types`, while the root Turbo tasks are named `lint` and `check-types`.
+Until those names are aligned, run validation through the workspace commands
+documented below instead of assuming `pnpm lint` or `pnpm check-types` validates
+every workspace.
 
-Server REST integration tests use Testcontainers and are configured with
-`fileParallelism: false` so each module fixture can own an isolated database
-without competing container startups.
+## TypeScript
 
-## CI/CD — GitHub Actions and Coolify
+Each workspace owns its TypeScript configuration and version:
 
-- `.github/workflows/core-package-ci.yaml` validates the shared core package on PRs.
-- `.github/workflows/server-app-ci.yaml` validates and builds the server on PRs.
-- `.github/workflows/web-app-ci.yaml` validates and builds the web app on PRs.
-- `.github/workflows/server-app-production-cd.yml` applies production Drizzle migrations and
-  then triggers the server production Coolify webhook with `COOLIFY_API_TOKEN` after a
-  merged PR into `main`.
-- `.github/workflows/server-app-staging-cd.yml` applies staging Drizzle migrations,
-  resets and seeds staging, and then triggers the server staging Coolify webhook
-  with `COOLIFY_API_TOKEN` after pushes to `develop`.
-- `.github/workflows/web-app-staging-cd.yml` deploys web staging after pushes to
-  `develop` using `COOLIFY_API_TOKEN`.
-- `.github/workflows/web-app-production-cd.yml` deploys web production after a merged
-  PR into `main` using `COOLIFY_API_TOKEN`.
-- `.github/workflows/release-production.yml` creates the version tag and GitHub Release
-  from the merged PR title and description.
+- `apps/web` uses bundler resolution, JSX, the `@/*` source alias, and strict
+  no-emit checks.
+- `apps/server` uses NodeNext resolution, NestJS decorators, the `@/*` source
+  alias, and emits its build to `apps/server/dist`.
+- `packages/core` uses bundler resolution, no emit, package subpath exports, and
+  internal aliases such as `#identity/*`, `#billing/*`, and `#shared/*`.
 
-The `production` and `staging` GitHub environments must provide these secrets:
+Run type checks independently:
 
-- `COOLIFY_API_TOKEN`
-- `COOLIFY_WEBHOOK_HMS_WEB_APP_PROD` and `COOLIFY_WEBHOOK_HMS_WEB_APP_STG`
-- `COOLIFY_WEBHOOK_HMS_SERVER_APP_PROD` and `COOLIFY_WEBHOOK_HMS_SERVER_APP_STG`
-- `DATABASE_URL_PRODUCTION` and `DATABASE_URL_STG`
-- `HMS_USER_SEED_PASSWORD_STG`
-- `HMS_WEB_APP_URL_STG`
-- `SUPABASE_URL_STG`
-- `SUPABASE_SERVICE_ROLE_KEY_STG`
+```bash
+pnpm --filter web check:types
+pnpm --filter server check:types
+pnpm --filter @scoops/core check:types
+```
 
+## Linting and formatting with Biome
 
-## Frontend tooling (`apps/web`)
+Biome is configured centrally in `biome.json`.
 
-- **Vite** (`vite dev --port 3000`, `vite build`, `vite preview`).
-- **TanStack Router** route generation: `pnpm --filter web generate-routes`
-  (`tsr generate`) — `routeTree.gen.ts` is generated and treated as read-only.
-- **shadcn/ui**: components added via `pnpm --filter web shadcn add <name>`, output
-  to `src/ui/shadcn/` (see `components.json`).
+- Formatting uses two spaces, a line width of 90, single quotes, JSX single
+  quotes, and semicolons only as needed.
+- The CSS parser recognizes Tailwind directives.
+- Generated route metadata, build output, and local infrastructure volumes are
+  excluded from formatting or linting as appropriate.
+- Import organization is disabled so repository import grouping remains
+  intentional and follows
+  [`rules/code-conventions-rules.md`](rules/code-conventions-rules.md).
 
-## Backend tooling (`apps/server`)
+Format the repository:
 
-- **NestJS CLI**: `start` / `dev` (`--watch`) / `debug` / `build` (`nest build`) /
-  `prod` (`node dist/main`).
-- The Nest compiler uses `apps/server/webpack.config.cjs` to include the local
-  `@hms/core` and `@hms/validation` workspace packages in the server bundle.
-  Other Node dependencies remain external. This ensures production executes
-  compiled JavaScript instead of trying to load workspace TypeScript sources
-  directly.
-- **Drizzle ORM (drizzle-kit)** for the database:
-  ```
-  pnpm --filter server db:migration:generate  # generate migrations from schema
-  pnpm --filter server db:migration:apply     # apply migrations
-  pnpm --filter server db:schema:push        # push schema directly (dev)
-  pnpm --filter server db:studio     # open Drizzle Studio
-  ```
+```bash
+pnpm format
+```
 
-## Local infrastructure — Docker Compose
+Check each workspace's source:
 
-`docker-compose.yaml` plus `volumes/` (auth email templates, DB roles/JWT SQL,
-Kong gateway config) provide the local backing services (Supabase-style stack).
-Bring it up with `docker compose up`.
+```bash
+pnpm --filter web check:code
+pnpm --filter server check:code
+pnpm --filter @scoops/core check:code
+```
 
-## Git hooks — husky + commitlint
+## Testing
 
-- **husky** installs git hooks; the `prepare` script (`husky`) runs automatically
-  after `pnpm install`.
-- **commit-msg hook** (`.husky/commit-msg`) runs **commitlint** to enforce
-  Conventional Commits. See [`rules/commit-rules.md`](rules/commit-rules.md).
-- Do not bypass hooks with `--no-verify`.
+### Web unit tests
 
-## Helper scripts (`scripts/`)
+The web application uses Vitest, Testing Library, and jsdom. Unit tests are
+discovered from `apps/web/src/**/*.test.{ts,tsx}`:
 
-- `install-skills.sh` — installs the agent skills used in this repo
-  (`frontend-design`, `caveman-commit`) via `npx skills add`.
-- `generate-supabase-keys.sh` — generates local `ANON_KEY` and
-  `SUPABASE_SERVICE_ROLE_KEY` values signed with the `JWT_SECRET` from `.env`.
-- `sync-commands.sh` — turns the prompts in `documentation/prompts/*.md` into
-  slash-command files for editors/agents (`.cursor/commands`, `.claude/commands`,
-  `.opencode/commands`), symlinking when possible and copying as a fallback.
+```bash
+pnpm --filter web test
+```
 
-## Editor configuration
+### Web browser tests
 
-`apps/web/.vscode/settings.json` and the root `.vscode/settings.json` set Biome as
-the default formatter, enable `organizeImports` on save, mark `routeTree.gen.ts` as
-read-only/excluded, and force TypeScript to index workspace package subpath exports
-(`typescript.preferences.includePackageJsonAutoImports: "on"`).
+Playwright runs browser integration tests from `apps/web/tests`. Its web-server
+configuration starts the application on `http://127.0.0.1:3000` and reuses an
+existing local server outside CI:
+
+```bash
+pnpm --filter web test:integration
+pnpm --filter web test:integration:ui
+```
+
+The configured browser project is Chromium. Install the Playwright browser when
+required by a new machine:
+
+```bash
+pnpm --filter web exec playwright install chromium
+```
+
+### Server tests
+
+The server uses Vitest with a Node environment. Tests are discovered from
+`apps/server/src/**/*.test.ts`; Testcontainers PostgreSQL is available for
+database-backed integration fixtures.
+
+```bash
+pnpm --filter server test
+pnpm --filter server test:watch
+pnpm --filter server test:cov
+```
+
+The server configuration gives tests and lifecycle hooks a 60-second timeout to
+allow container startup. The test command currently passes when no test files are
+present.
+
+The core package currently exposes code and type checks but does not define a
+test script.
+
+## Frontend tooling
+
+The web application is built with TanStack Start, TanStack Router, React, Vite,
+Tailwind CSS, and Nitro.
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm --filter web dev` | Start development on port 3000. |
+| `pnpm --filter web generate-routes` | Regenerate `src/routeTree.gen.ts`. |
+| `pnpm --filter web build` | Build the client, SSR bundle, and Nitro server output. |
+| `pnpm --filter web start` | Run `.output/server/index.mjs`. |
+| `pnpm --filter web preview` | Preview the Vite production build. |
+
+`apps/web/src/routeTree.gen.ts` is generated by TanStack Router and must not be
+edited manually. Nitro is enabled for production builds; development SSR is
+served directly by TanStack Start and Vite.
+
+Browser-visible configuration is validated in
+`apps/web/src/constants/browser-env.ts`.
+
+## Backend tooling
+
+The server uses NestJS and its CLI:
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm --filter server start` | Start the server through NestJS. |
+| `pnpm --filter server dev` | Start NestJS in watch mode. |
+| `pnpm --filter server debug` | Start watch mode with the Node debugger. |
+| `pnpm --filter server build` | Compile the server into `apps/server/dist`. |
+| `pnpm --filter server prod` | Run the compiled `dist/main` entrypoint. |
+
+The server imports `@scoops/core` through package subpath exports. Its Nest build
+uses `apps/server/webpack.config.cjs` to bundle that workspace package into the
+server artifact while leaving normal Node dependencies external. This prevents
+the production Node process from trying to execute the core package's TypeScript
+source exports directly.
+
+### Database tooling
+
+Drizzle Kit reads `apps/server/drizzle.config.ts`. It uses the shared schema
+barrel and writes generated migrations to
+`apps/server/src/shared/database/drizzle/migrations`.
+
+Set `DATABASE_URL` in `apps/server/.env` before running database commands:
+
+```bash
+pnpm --filter server db:migration:generate
+pnpm --filter server db:migration:apply
+pnpm --filter server db:schema:push
+pnpm --filter server db:studio
+```
+
+Use migration generation and application for tracked schema changes. Direct
+schema push is intended for local development.
+
+### Inngest tooling
+
+The server exposes all registered background jobs through `/api/inngest`.
+`AppModule` performs the single root registration with
+`InngestModule.forRoot({ client, functions })`.
+
+For local development, set `INNGEST_DEV=1` in `apps/server/.env` and run the
+Docker Compose Inngest service. Production removes `INNGEST_DEV` and supplies
+`INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY` through the deployment environment.
+
+Messaging implementation rules are documented in
+[`rules/messaging-layer-rules.md`](rules/messaging-layer-rules.md).
+
+## Local infrastructure with Docker Compose
+
+`docker-compose.yaml` and `volumes/` provide:
+
+- PostgreSQL with Supabase roles and JWT configuration;
+- Supabase Auth, PostgREST, Postgres Meta, Studio, and Kong gateway;
+- Mailpit for local email capture;
+- MinIO plus an initialization container for S3-compatible storage;
+- static authentication email templates;
+- the Inngest development server.
+
+Start and inspect the stack from the repository root:
+
+```bash
+docker compose up -d
+docker compose ps
+docker compose logs -f
+```
+
+Stop containers without deleting named data volumes:
+
+```bash
+docker compose down
+```
+
+Default local endpoints are:
+
+| Service | URL |
+| --- | --- |
+| Web application | `http://127.0.0.1:3000` |
+| Server application | `http://127.0.0.1:3333` |
+| Supabase gateway | `http://127.0.0.1:54321` |
+| PostgreSQL | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
+| Supabase Studio | `http://127.0.0.1:54323` |
+| Mailpit UI | `http://127.0.0.1:54324` |
+| Mailpit SMTP | `127.0.0.1:54325` |
+| MinIO API | `http://127.0.0.1:9000` |
+| MinIO Console | `http://127.0.0.1:9001` |
+| Inngest UI/API | `http://127.0.0.1:8298` |
+
+Ports and local credentials can be overridden in the root `.env`.
+
+## Helper scripts
+
+The repository currently provides one helper script:
+
+```bash
+bash scripts/sync-commands.sh
+```
+
+It synchronizes Markdown prompts from `documentation/prompts` into command files
+for Cursor, Claude, and OpenCode, and generates matching local agent skills under
+`.agents/skills`. It creates symlinks when supported and copies files as a
+fallback.
+
+## Commit conventions
+
+Commit message conventions are documented in
+[`rules/commit-rules.md`](rules/commit-rules.md). The repository does not
+currently configure Husky or commitlint hooks, so these conventions are not
+automatically enforced by local Git hooks.
+
+## CI/CD status
+
+The repository does not currently contain GitHub Actions workflows or Coolify
+deployment automation. Validation and deployment are manual until CI/CD files are
+added. New automation must use Scoops-specific workflow names, secrets, and
+environment variables.
+
+## Recommended local validation
+
+Before handing off a change, run the checks for each affected workspace:
+
+```bash
+pnpm --filter @scoops/core check:code
+pnpm --filter @scoops/core check:types
+
+pnpm --filter server check:code
+pnpm --filter server check:types
+pnpm --filter server test
+pnpm --filter server build
+
+pnpm --filter web check:code
+pnpm --filter web check:types
+pnpm --filter web test
+pnpm --filter web test:integration
+pnpm --filter web build
+```
+
+Run only the workspaces affected by the change, adding Docker-backed integration
+checks when persistence or external service behavior changes.

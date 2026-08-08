@@ -1,1153 +1,1153 @@
-### 1. Visão Geral
+### 1. Overview
 
-O módulo de **Vendas do Scoops** permite que operadores de sorveterias e
-açaiterias montem e registrem pedidos com produtos vendidos como Porção ou
-Revenda. O módulo possui quatro entradas independentes na navegação:
-`Nova venda`, `Pedidos`, `Canais de venda` e `Descontos`.
+The **Scoops Sales** module allows operators of ice cream and açaí shops to
+set up and register orders with products sold as Portion or
+Resale. The module has four independent navigation entries:
+`New sale`, `Orders`, `Sales channels` and `Discounts`.
 
-Em `Nova venda`, o operador encontra produtos elegíveis, configura tamanho,
-marca, acompanhamentos e quantidade, revisa o carrinho e registra o pedido.
-O registro cria uma venda definitiva e executa todas as baixas de estoque em
-uma única transação.
+In `New sale`, the operator finds eligible products, configures size,
+brand, accompaniments and quantity, review the cart and register the order.
+The record creates an outright sale and performs all stock write-offs in
+a single transaction.
 
-Em `Canais de venda`, o gerente configura ajustes percentuais opcionais usados
-para representar contextos como delivery, balcão ou promoção local. Um pedido
-sem canal utiliza os preços-base dos produtos. Um pedido com canal aplica o
-mesmo percentual a todos os produtos e acompanhamentos pagos.
+In `Sales channels`, the manager configures optional percentage adjustments used
+to represent contexts such as delivery, counter or local promotion. An order
+without a channel uses the base prices of the products. A channeled order applies the
+same percentage for all paid products and accompaniments.
 
-Em `Descontos`, o gerente configura Combos formados por pelo menos dois
-produtos distintos e vendidos por um preço final fixo. Durante a montagem do
-pedido, o sistema detecta automaticamente os Combos elegíveis, preserva os
-produtos em linhas separadas e aplica a combinação que gera a maior economia,
-sem reutilizar a mesma unidade em mais de um Combo.
+In `Discounts`, the manager configures Combos made up of at least two
+distinct products sold for a fixed final price. During assembly of the
+order, the system automatically detects eligible Combos, preserves the
+products in separate lines and applies the combination that generates the greatest savings,
+without reusing the same unit in more than one Combo.
 
-Em `Pedidos`, usuários autorizados consultam as vendas da sorveteria e os
-snapshots comerciais preservados no momento do registro.
+In `Orders`, authorized users consult the ice cream shop's sales and
+commercial snapshots preserved at the time of registration.
 
-**Objetivo:** permitir que um operador treinado monte e registre um pedido
-comum em até 60 segundos, sem cálculo manual de preços, baixa parcial de estoque
-ou duplicidade de venda.
+**Purpose:** to allow a trained operator to assemble and record an ordinary order
+in up to 60 seconds, without manual price calculation, partial stock write-off
+or duplicate sales.
 
-**Problema resolvido:** sorveterias precisam combinar tamanhos, quantidades,
-acompanhamentos e embalagens enquanto mantêm preços e saldos consistentes. Sem
-um fluxo centralizado, o atendimento fica sujeito a cálculos incorretos,
-estoque divergente, descontos inconsistentes e histórico incompleto.
+**Problem solved:** ice cream shops need to combine sizes, quantities,
+accompaniments and packaging while maintaining consistent prices and sales. Without
+a centralized flow, service is subject to incorrect calculations,
+divergent inventory, inconsistent discounts and incomplete history.
 
-**Valor entregue:** atendimento rápido, precificação previsível por canal,
-consumo preciso de estoque, aplicação automática de Combos e histórico legível
-mesmo quando produtos, marcas, tamanhos, acompanhamentos, canais ou descontos
-forem alterados ou excluídos.
+**Value delivered:** fast service, predictable pricing per channel,
+accurate stock consumption, automatic application of Combos and readable history
+even when products, brands, sizes, accompaniments, channels or discounts
+are changed or deleted.
 
 ---
 
-### 2. Público-alvo
+### 2. Target audience
 
-#### Público principal
+#### Main audience
 
-Operadores de sorveterias e açaiterias independentes, de pequeno ou médio porte,
-que precisam montar e registrar pedidos durante o atendimento.
+Operators of independent, small or medium-sized ice cream and açaí shops,
+who need to assemble and record orders during service.
 
-#### Públicos secundários
+#### Secondary audiences
 
-- Gerentes responsáveis pela configuração dos canais de venda e descontos.
-- Gerentes e operadores que precisam conferir pedidos registrados pela equipe.
+- Managers responsible for configuring sales channels and discounts.
+- Managers and operators who need to check orders registered by the team.
 
-#### Não público
+#### Not public
 
-- Redes e franquias que dependem de gestão multiloja avançada.
-- Restaurantes que precisam de mesas, comandas, cozinha ou divisão de conta.
-- Operações que exigem caixa, pagamento, emissão fiscal ou funcionamento
-  offline no primeiro lançamento.
+- Chains and franchises that depend on advanced multi-store management.
+- Restaurants that need tables, controls, kitchen or bill division.
+- Operations that require cash, payment, tax issuance or operation
+  offline on first launch.
 
-#### Contexto de uso
+#### Context of use
 
-- Atendimento em computador ou tablet em modo paisagem.
-- Uso simultâneo por mais de um operador na mesma sorveteria.
-- Pedidos presenciais ou recebidos externamente e digitados manualmente.
-- Operação conectada ao servidor, com validação de estoque em tempo real.
+- Service on computer or tablet in landscape mode.
+- Simultaneous use by more than one operator in the same ice cream shop.
+- Orders received in person or externally and entered manually.
+- Operation connected to the server, with real-time stock validation.
 
-#### Dores e necessidades
+#### Pains and needs
 
-- Encontrar rapidamente um produto disponível.
-- Montar Porções com tamanho, acompanhamentos e quantidade.
-- Registrar Revendas pelo produto e pela marca correta, quando aplicável.
-- Aplicar automaticamente a melhor combinação de Combos elegíveis.
-- Aplicar preços diferentes por contexto comercial sem duplicar produtos.
-- Evitar estoque negativo e baixas parciais.
-- Consultar quem registrou uma venda, quando e por qual valor.
+- Quickly find an available product.
+- Assemble portions with size, accompaniments and quantity.
+- Register Resale products and the correct brand, when applicable.
+- Automatically apply the best combination of eligible Combos.
+- Apply different prices per commercial context without duplicating products.
+- Avoid negative stock and partial write-offs.
+- Consult who registered a sale, when and for what amount.
 
 #### Jobs to Be Done
 
-- Quando estiver atendendo um cliente, quero encontrar e configurar os produtos
-  rapidamente, para registrar o pedido sem interromper o atendimento.
-- Quando uma venda pertencer a um canal com preço diferente, quero selecionar
-  esse canal, para que todos os valores sejam recalculados automaticamente.
-- Quando houver dois operadores vendendo simultaneamente, quero que o estoque
-  seja revalidado no registro, para evitar saldo negativo ou vendas
-  inconsistentes.
-- Quando precisar conferir uma venda anterior, quero abrir seu detalhamento,
-  para visualizar os dados praticados no momento do pedido.
-- Quando um canal deixar de existir, quero poder excluí-lo sem perder o contexto
-  dos pedidos anteriores.
-- Quando eu configurar uma oferta com produtos diferentes, quero definir um
-  preço fixo de Combo, para promovê-la sem alterar o cadastro dos produtos.
-- Quando um pedido atender a mais de uma oferta, quero que o sistema escolha
-  automaticamente a maior economia, para não depender de cálculo do operador.
+- When serving a customer, I want to find and configure products
+  quickly to register the order without interrupting service.
+- When a sale belongs to a channel with a different price, I want to select
+  this channel, so that all values are automatically recalculated.
+- When there are two operators selling simultaneously, I want the stock
+  be revalidated in the registry, to avoid negative balance or sales
+  inconsistent.
+- When I need to check a previous sale, I want to open its details,
+  to view the data applied at the time of the order.
+- When a channel ceases to exist, I want to be able to delete it without losing context
+  of previous orders.
+- When I configure an offer with different products, I want to define a
+  fixed price for the Combo, to promote it without changing the product registration.
+- When an order meets more than one offer, I want the system to choose
+  automatically the greatest savings, so as not to depend on operator calculations.
 
 ---
 
-### 3. Análise do Cenário Competitivo
+### 3. Competitive Scenario Analysis
 
-O mercado brasileiro possui soluções amplas para alimentação e soluções
-generalistas de ponto de venda. Segundo suas páginas oficiais, os concorrentes
-costumam combinar PDV, estoque, caixa, financeiro, delivery e emissão fiscal.
-O Scoops não tentará reproduzir essa amplitude no MVP.
+The Brazilian market has broad solutions for food and
+point of sale generalists. According to their official pages, competitors
+they usually combine POS, inventory, cash, finance, delivery and tax issuance.
+Scoops won't try to replicate that range in MVP.
 
-A oportunidade de diferenciação está na operação especializada de sorveterias:
-Porções vendidas por tamanho, acompanhamentos com consumo configurado,
-Revendas por produto e marca e baixa precisa da quantidade efetivamente
-consumida.
+The opportunity for differentiation lies in the specialized operation of ice cream shops:
+Portions sold by size, side dishes with configured consumption,
+Resales by product and brand and effectively lowers the quantity
+consumed.
 
-#### Matriz competitiva
+#### Competitive matrix
 
-| Solução | Público | Proposta de valor | Funcionalidades | Preço público | Limitações |
+| Solution | Public | Value proposition | Features | Public price | Limitations |
 |---|---|---|---|---|---|
-| [Consumer](https://consumer.com.br/recursos) | Restaurantes, bares, lanchonetes, cafeterias, sorveterias e outros negócios de alimentação | Plataforma única para operação de restaurantes | PDV, estoque, ficha técnica, caixa, delivery, fiscal, cardápio digital e integrações | A página oficial de planos informa opções a partir de [R$ 59,90/mês](https://loja.consumer.com.br/) | Não identificado publicamente |
-| [Saipos](https://saipos.com/sistema/sorveteria) | Sorveterias e outros estabelecimentos de alimentação | Centralizar gestão, operação, estoque e delivery | Integração com balança, estoque, financeiro, delivery e análise de vendas | A página oficial informa planos a partir de R$ 219,90/mês | Não identificado publicamente |
-| [Kyte](https://www.kyte.com.br/vender/site-de-pedidos) | Pequenos negócios de varejo e serviços | Vender pelo celular, computador e catálogo online | PDV, catálogo, estoque, recibos, fiado e fluxo de caixa | PRO por R$ 49,90/mês; GROW por R$ 69,90/mês; PRIME por R$ 99,90/mês | Inferência baseada na abrangência oficial: solução generalista, sem especialização pública identificada em consumo por tamanho e acompanhamento |
-| [MarketUP](https://suporte.marketup.com/hc/pt-br/articles/360000798983-Aplicativos-MarketUP) | Pequenas empresas, incluindo bares e restaurantes | ERP e PDV sem mensalidade | Cadastro de produtos, vendas, caixa, modo offline, ERP e NFC-e | Gratuito, segundo a página oficial | Inferência baseada na página oficial: foco generalista, sem regras públicas identificadas para montagem especializada de Porções |
-| [iFood](https://developer.ifood.com.br/pt-BR/docs/guides/modules/catalog/definitions) | Estabelecimentos que vendem por marketplace e cardápio digital | Distribuição e gestão de ofertas em canais digitais | Catálogos, produtos, complementos, disponibilidade e preços distintos por contexto | Não identificado publicamente nesta fonte | Não substitui o controle operacional interno do Scoops; integração está fora do MVP |
-| Planilha, calculadora e registro manual | Pequenas operações sem sistema integrado | Baixo custo inicial e flexibilidade | Cálculo e anotação manual | Variável | Risco de erro de preço, estoque divergente, duplicidade e histórico incompleto |
+| [Consumer](https://consumer.com.br/recursos) | Restaurants, bars, snack bars, coffee shops, ice cream shops and other food businesses | Single platform for restaurant operations | POS, stock, technical data sheet, cashier, delivery, tax, digital menu and integrations | The official plan page informs options starting at [R$ 59.90/month](https://loja.consumer.com.br/) | Not publicly identified |
+| [Saipos](https://saipos.com/sistema/sorveteria) | Ice cream parlors and other food establishments | Centralize management, operations, inventory and delivery | Integration with scales, inventory, finance, delivery and sales analysis | The official page informs plans starting at R$ 219.90/month | Not publicly identified |
+| [Kyte](https://www.kyte.com.br/vender/site-de-pedidos) | Small retail and service businesses | Sell ​​via cell phone, computer and online catalog | POS, catalogue, stock, receipts, credit and cash flow | PRO for R$49.90/month; GROW for R$69.90/month; PRIME for R$99.90/month | Inference based on official coverage: generalist solution, without identified public specialization in consumption by size and monitoring |
+| [MarketUP](https://suporte.marketup.com/hc/pt-br/articles/360000798983-Aplicativos-MarketUP) | Small businesses including bars and restaurants | ERP and POS without monthly fees | Product registration, sales, cash, offline mode, ERP and NFC-e | Free, according to the official page | Inference based on the official page: generalist focus, without public rules identified for specialized assembly of Portions |
+| [iFood](https://developer.ifood.com.br/pt-BR/docs/guides/modules/catalog/definitions) | Establishments that sell via marketplace and digital menu | Distribution and management of offers on digital channels | Different catalogues, products, add-ons, availability and prices by context | Not publicly identified in this source | Does not replace Scoops' internal operational control; integration is out of MVP |
+| Spreadsheet, calculator and manual recording | Small operations without an integrated system | Low initial cost and flexibility | Manual calculation and annotation | Variable | Risk of pricing error, divergent inventory, duplication and incomplete history |
 
-#### Constatações e inferências
+#### Findings and inferences
 
-- A página oficial do Consumer informa que sua plataforma reúne mais de cem
-  funcionalidades e atende também sorveterias.
-- A página oficial da Saipos para sorveterias destaca integração com balança,
-  estoque e análise por canal.
-- A documentação oficial do iFood permite preços diferentes para o mesmo item
-  nos contextos `Entrega` e `Cardápio Digital`.
-- A documentação oficial do iFood descreve
-  [Combos como itens estruturados](https://developer.ifood.com.br/pt-BR/docs/guides/modules/catalog/guides/combo)
-  com grupos e opções; no Scoops, a decisão confirmada é manter os produtos
-  como linhas comuns e aplicar o Combo como desconto automático do pedido.
-- Inferência baseada nas fontes: preços específicos por produto e canal são um
-  modelo mais flexível adotado por soluções maduras.
-- Decisão confirmada para o Scoops: o MVP utilizará um percentual global por
-  canal, sem exceções por produto, reduzindo configuração e complexidade.
+- The official Consumer page informs that its platform brings together more than one hundred
+  features and also serves ice cream shops.
+- Saipos' official page for ice cream shops highlights integration with scales,
+  stock and analysis by channel.
+- Official iFood documentation allows different prices for the same item
+  in the `Delivery` and `Digital Menu` contexts.
+- The official iFood documentation describes
+  [Combos as structured items](https://developer.ifood.com.br/pt-BR/docs/guides/modules/catalog/guides/combo)
+  with groups and options; at Scoops, the confirmed decision is to keep the products
+  as common lines and apply the Combo as an automatic order discount.
+- Source-based inference: specific prices by product and channel are a
+  more flexible model adopted by mature solutions.
+- Decision confirmed for Scoops: MVP will use a global percentage per
+  channel, without exceptions per product, reducing configuration and complexity.
 
-#### Diferenciais recomendados
+#### Recommended differentials
 
-- Montagem rápida orientada ao atendimento de sorveterias.
-- Baixa de estoque baseada no tamanho, quantidade e acompanhamentos vendidos.
-- Revenda por produto e marca explícita quando aplicável.
-- Combos configuráveis com preço fixo e aplicação automática da maior economia.
-- Validação atômica em cenários com operadores simultâneos.
-- Preço opcional por canal sem duplicar o cadastro dos produtos.
-- Snapshots completos para preservar o histórico após alterações cadastrais.
-
----
-
-### 4. Requisitos
-
-#### REQ-01 Gestão de Canais de Venda
-
-- [ ] **Gestão de Canais de Venda**
-
-**Descrição:** O gerente deve conseguir criar e administrar canais opcionais que
-aplicam um percentual global aos itens pagos de um pedido.
-
-##### Regras de Negócio
-
-- **Campos:** cada canal possui nome, percentual e status.
-- **Nome obrigatório:** o nome não pode ser vazio ou composto apenas por
-  espaços.
-- **Nome único:** não podem existir canais com o mesmo nome na sorveteria,
-  ignorando maiúsculas, minúsculas e espaços nas extremidades.
-- **Percentual:** aceita valores entre `−99,99%` e `+100%`, inclusive.
-- **Acréscimo:** percentual positivo aumenta os preços.
-- **Desconto:** percentual negativo reduz os preços.
-- **Neutro:** percentual zero identifica o canal sem alterar os preços.
-- **Canal opcional:** pedidos podem ser registrados sem canal.
-- **Sem canal padrão:** nenhum canal é selecionado automaticamente.
-- **Status ativo:** somente canais ativos podem ser selecionados em novas
-  vendas.
-- **Inativação:** impede novas seleções, mas não altera pedidos anteriores.
-- **Exclusão:** qualquer canal pode ser excluído após confirmação, mesmo quando
-  já utilizado.
-- **Snapshot:** edição, inativação ou exclusão não modifica os dados copiados
-  para pedidos anteriores.
-- **Multi-tenancy:** canais são exclusivos da sorveteria atual.
-- **Dependência:** permissões de gerenciamento dependem do módulo de Auth.
-
-##### Regras de UI/UX
-
-- **Listagem:** deve exibir nome, percentual, tipo do ajuste, status e ações.
-- **Novo canal:** deve solicitar nome, percentual e status.
-- **Representação:** acréscimos usam sinal `+`, descontos usam `−` e percentuais
-  neutros usam `0%`.
-- **Validação inline:** nomes duplicados e percentuais fora do intervalo devem
-  ser informados junto ao campo.
-- **Estado vazio:** deve explicar que canais são opcionais e oferecer
-  `Criar primeiro canal`.
-- **Exclusão:** deve apresentar confirmação informando que pedidos anteriores
-  continuarão preservados.
-- **Feedback:** criação, edição, inativação e exclusão devem apresentar sucesso,
-  erro e carregamento.
-- **Ação bloqueada:** um Operador sem permissão não deve visualizar ações de
-  gerenciamento.
-- **Responsividade:** tabela e formulário não podem cortar nomes, percentuais ou
-  ações em telas menores.
-- **Acessibilidade:** campos devem possuir rótulos associados e erros anunciados
-  por tecnologia assistiva.
+- Quick assembly aimed at serving ice cream shops.
+- Stock write-off based on size, quantity and accompaniments sold.
+- Resale by product and explicit brand when applicable.
+- Configurable combos with fixed price and automatic application of the biggest savings.
+- Atomic validation in scenarios with simultaneous operators.
+- Optional price per channel without duplicating product registration.
+- Complete snapshots to preserve history after registration changes.
 
 ---
 
-#### REQ-02 Catálogo de Produtos da Nova Venda
+### 4. Requirements
 
-- [ ] **Catálogo de Produtos da Nova Venda**
+#### REQ-01 Sales Channel Management
 
-**Descrição:** A tela `Nova venda` deve apresentar somente produtos ativos e
-com configuração comercial válida, diferenciando disponibilidade e categoria
-de venda.
+- [ ] **Sales Channel Management**
 
-##### Regras de Negócio
+**Description:** The manager must be able to create and manage optional channels that
+apply a global percentage to the paid items of an order.
 
-- **Fonte dos dados:** produtos, tamanhos, marcas, acompanhamentos, preços-base e
-  quantidades consumidas são configurados no módulo de Produtos.
-- **Sem edição comercial:** a tela `Nova venda` não permite alterar cadastro,
-  preço ou estoque.
-- **Categoria Porção:** aparece quando possui pelo menos um tamanho ativo e
-  válido.
-- **Categoria Revenda:** aparece quando possui preço e disponibilidade válidos.
-- **Categoria Fabricável:** não torna um produto vendável sem Porção ou Revenda.
-- **Categoria Ingrediente:** não torna um produto vendável.
-- **Porção e Revenda:** permanecem mutuamente exclusivas.
-- **Produto inativo:** não aparece em operações novas.
-- **Produto incompleto:** não aparece no catálogo e deve ser corrigido no módulo
-  de Produtos.
-- **Produto sem estoque:** permanece visível como indisponível.
-- **Porção parcial:** permanece selecionável quando ao menos um tamanho puder
-  ser vendido.
-- **Configuração indisponível:** tamanho, marca ou acompanhamento inviável fica
-  desabilitado.
-- **Estoque não reservado:** visualizar ou adicionar um produto ao carrinho não
-  reserva saldo.
-- **Inclusão única:** um produto que já esteja no carrinho não pode ser
-  adicionado novamente, mesmo que o operador pretenda escolher outro tamanho,
-  marca ou conjunto de acompanhamentos.
-- **Multi-tenancy:** somente produtos da sorveteria atual podem ser exibidos.
+##### Business Rules
 
-##### Regras de UI/UX
+- **Fields:** each channel has a name, percentage and status.
+- **Mandatory name:** the name cannot be empty or composed only of
+  spaces.
+- **Unique name:** there cannot be channels with the same name in the ice cream shop,
+  ignoring uppercase, lowercase and spaces at the ends.
+- **Percentage:** accepts values ​​between `−99.99%` and `+100%`, inclusive.
+- **Addition:** positive percentage increases prices.
+- **Discount:** negative percentage reduces prices.
+- **Neutral:** zero percentage identifies the channel without changing prices.
+- **Optional channel:** orders can be registered without a channel.
+- **No default channel:** no channel is selected automatically.
+- **Active status:** only active channels can be selected in new
+  sales.
+- **Inactivation:** prevents new selections, but does not change previous orders.
+- **Deletion:** any channel can be deleted after confirmation, even when
+  already used.
+- **Snapshot:** editing, inactivating or deleting does not modify the copied data
+  for previous orders.
+- **Multi-tenancy:** channels are exclusive to the current ice cream shop.
+- **Dependency:** management permissions depend on the Auth module.
 
-- **Grade:** produtos devem ser apresentados em cards de seleção rápida.
-- **Busca:** deve filtrar por nome.
-- **Filtros:** deve oferecer `Todos`, `Porções` e `Revendas`.
-- **Identificação:** o card deve exibir nome, categoria comercial e
-  disponibilidade.
-- **Sem estoque:** o card deve permanecer visível, desabilitado e identificado
-  com `Sem estoque`.
-- **Produto adicionado:** o card de um produto presente no carrinho deve exibir
-  o selo `Adicionado`, permanecer visualmente distinto e não pode abrir uma nova
-  configuração.
-- **Indisponibilidade parcial:** opções indisponíveis devem informar o motivo.
-- **Estado vazio inicial:** deve orientar o cadastro de produtos quando não
-  houver nenhum produto elegível.
-- **Estado vazio de busca:** deve exibir `Nenhum produto encontrado` e permitir
-  limpar busca e filtros.
-- **Loading:** a grade deve usar skeletons ou indicador equivalente.
-- **Ação bloqueada:** cards indisponíveis ou já adicionados não podem abrir a
-  configuração do item; para um produto adicionado, a interface deve orientar o
-  ajuste de configuração ou quantidade diretamente no carrinho.
-- **Responsividade:** a quantidade de colunas deve adaptar-se à largura
-  disponível.
-- **Acessibilidade:** cards devem ser operáveis por teclado e comunicar os
-  estados disponível, indisponível ou adicionado.
+##### UI/UX rules
+
+- **List:** must display name, percentage, type of adjustment, status and actions.
+- **New channel:** must request name, percentage and status.
+- **Representation:** additions use a `+` sign, discounts use `−` and percentages
+  neutrals use `0%`.
+- **Inline validation:** duplicate names and percentages out of range must
+  be informed in the field.
+- **Empty state:** must explain which channels are optional and offer
+  `Create first channel`.
+- **Exclusion:** must present confirmation stating that previous orders
+  will continue to be preserved.
+- **Feedback:** creation, editing, inactivation and deletion must be successful,
+  error and loading.
+- **Action blocked:** an Operator without permission must not view action actions
+  management.
+- **Responsiveness:** table and form cannot cut names, percentages or
+  actions on smaller screens.
+- **Accessibility:** fields must have associated labels and errors announced
+  by assistive technology.
 
 ---
 
-#### REQ-03 Configuração de Item Porção
+#### REQ-02 New Sale Product Catalog
 
-- [ ] **Configuração de Item Porção**
+- [ ] **New Sale Product Catalog**
 
-**Descrição:** O operador deve conseguir selecionar tamanho, acompanhamentos e
-quantidade antes de adicionar uma Porção ao carrinho.
+**Description:** The `New Sale` screen must only display active and
+with valid commercial configuration, differentiating availability and category
+of sale.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Tamanho obrigatório:** toda Porção exige um tamanho ativo.
-- **Quantidade obrigatória:** deve ser um número inteiro maior que zero.
-- **Acompanhamentos:** são opcionais e podem ser múltiplos.
-- **Preço contextual:** o preço-base do acompanhamento depende da configuração
-  `produto + tamanho + acompanhamento`.
-- **Acompanhamento gratuito:** mantém preço igual a zero em qualquer canal.
-- **Consumo da Porção:** corresponde a
-  `quantidade_do_tamanho × quantidade_vendida`.
-- **Consumo do acompanhamento:** corresponde a
-  `quantidade_por_porção × quantidade_vendida`.
-- **Estoque único:** a baixa usa o saldo do produto.
-- **Estoque por marca:** a baixa automática usa a marca principal vigente.
-- **Marca principal inválida:** a configuração fica indisponível.
-- **Mudança de tamanho:** deve atualizar preço, consumo e acompanhamentos
-  disponíveis.
-- **Dependência:** regras de tamanhos e acompanhamentos pertencem ao módulo de
-  Produtos.
+- **Data source:** products, sizes, brands, accompaniments, base prices and
+  Consumed quantities are configured in the Products module.
+- **Without commercial editing:** the `New Sale` screen does not allow changing registration,
+  price or stock.
+- **Portion Category:** appears when it has at least one active size and
+  valid.
+- **Resale Category:** appears when it has a valid price and availability.
+- **Manufacturable Category:** does not make a product salable without Portion or Resale.
+- **Ingredient Category:** does not make a product salable.
+- **Portion and Resale:** remain mutually exclusive.
+- **Inactive product:** does not appear in new operations.
+- **Incomplete product:** does not appear in the catalog and must be corrected in the module
+  of Products.
+- **Product out of stock:** remains visible as unavailable.
+- **Partial portion:** remains selectable when at least one size can
+  be sold.
+- **Configuration unavailable:** size, brand or accompaniment is unfeasible
+  disabled.
+- **Stock not reserved:** viewing or adding a product to the cart is not
+  reserve balance.
+- **One-time inclusion:** a product that is already in the cart cannot be
+  added again, even if the operator intends to choose another size,
+  brand or set of accompaniments.
+- **Multi-tenancy:** only products from the current ice cream shop can be displayed.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Fluxo único:** tamanho, acompanhamentos e quantidade devem ficar na mesma
-  área de configuração.
-- **Tamanhos:** devem exibir nome, quantidade consumida e preço-base.
-- **Acompanhamentos:** devem exibir nome, tipo e preço-base ou `Grátis`.
-- **Quantidade:** deve possuir controles adequados para toque e entrada direta.
-- **Resumo:** deve mostrar preço unitário final, quantidade e subtotal antes da
-  inclusão.
-- **Indisponibilidade:** opções sem saldo suficiente devem ficar desabilitadas
-  com explicação.
-- **Erro:** tentativa de incluir configuração inválida deve preservar as escolhas
-  já realizadas.
-- **Ação bloqueada:** `Adicionar ao carrinho` fica desabilitado sem tamanho ou
-  quantidade válidos.
-- **Responsividade:** a configuração não pode ocultar a ação principal.
-- **Acessibilidade:** opções selecionáveis devem comunicar nome, estado e preço.
-
----
-
-#### REQ-04 Configuração de Item Revenda
-
-- [ ] **Configuração de Item Revenda**
-
-**Descrição:** O operador deve conseguir selecionar a marca, quando aplicável,
-e a quantidade de unidades de uma Revenda antes de adicioná-la ao carrinho.
-
-##### Regras de Negócio
-
-- **Sem tamanho:** Revenda não utiliza tamanhos de Porção.
-- **Sem acompanhamento:** Revenda não aceita acompanhamentos.
-- **Quantidade:** deve ser um número inteiro maior que zero.
-- **Estoque único:** quando o produto não controlar estoque por marca, a baixa
-  corresponde a `1 unidade × quantidade_vendida`.
-- **Estoque por marca:** o operador seleciona uma marca de Revenda disponível.
-- **Marca explícita:** a baixa ocorre na marca selecionada, independentemente da
-  marca principal.
-- **Preço:** usa o preço-base da configuração de Revenda ou da marca.
-- **Indisponibilidade:** configurações inativas ou sem saldo suficiente não
-  podem ser selecionadas.
-- **Dependência:** produto, marca, preço e disponibilidade são configurados no
-  módulo de Produtos.
-
-##### Regras de UI/UX
-
-- **Seleção:** deve exibir produto, marca quando aplicável, preço-base e
-  disponibilidade.
-- **Quantidade:** deve possuir controles adequados para toque e entrada direta.
-- **Resumo:** deve mostrar preço unitário final, quantidade e subtotal.
-- **Sem estoque:** marca ou configuração indisponível deve ficar desabilitada.
-- **Erro:** validações devem preservar a quantidade informada.
-- **Ação bloqueada:** `Adicionar ao carrinho` fica desabilitado sem marca
-  obrigatória ou quantidade válida.
-- **Responsividade:** opções e resumo não podem sobrepor-se em telas menores.
-- **Acessibilidade:** cada opção deve comunicar produto, marca, preço e estado.
+- **Grid:** products must be presented on quick selection cards.
+- **Search:** must filter by name.
+- **Filters:** must offer `All`, `Portions` and `Resales`.
+- **Identification:** the card must display name, commercial category and
+  availability.
+- **Out of stock:** the card must remain visible, disabled and identified
+  with `Out of stock`.
+- **Product added:** the card of a product present in the cart must display
+  the `Added` badge, remains visually distinct and cannot open a new
+  configuration.
+- **Partial unavailability:** unavailable options must inform the reason.
+- **Initial empty state:** should guide product registration when not
+  there are no eligible products.
+- **Empty search status:** should display `No products found` and allow
+  Clear search and filters.
+- **Loading:** the grid must use skeletons or equivalent indicator.
+- **Action blocked:** unavailable or already added cards cannot open the
+  item configuration; for an added product, the interface must guide the
+  adjustment of configuration or quantity directly in the cart.
+- **Responsiveness:** the number of columns must adapt to the width
+  available.
+- **Accessibility:** cards must be keyboard operable and communicate
+  available, unavailable or added states.
 
 ---
 
-#### REQ-05 Montagem e Edição do Carrinho
+#### REQ-03 Portion Item Configuration
 
-- [ ] **Montagem e Edição do Carrinho**
+- [ ] **Portion Item Setting**
 
-**Descrição:** O operador deve conseguir revisar, editar e remover itens antes
-de registrar o pedido.
+**Description:** The operator must be able to select size, sides and
+quantity before adding a Portion to the cart.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Carrinho temporário:** o carrinho não é um pedido persistido.
-- **Sem rascunhos:** sair ou recarregar a tela pode descartar o carrinho após
-  aviso.
-- **Canal opcional:** o carrinho pode ser montado com ou sem canal.
-- **Preço inicial:** sem canal selecionado, usa preços-base.
-- **Edição direta:** tamanho, marca, acompanhamentos e quantidade podem ser
-  alterados a partir do item.
-- **Revalidação na edição:** qualquer alteração recalcula preço e consumo.
-- **Unicidade por produto:** cada produto pode ocupar no máximo uma linha no
-  carrinho, independentemente de tamanho, marca ou acompanhamentos.
-- **Nova inclusão bloqueada:** tentar adicionar um produto já presente no
-  carrinho não cria linha, não soma quantidade e não altera a configuração
-  existente.
-- **Quantidade no carrinho:** novas unidades de um produto já adicionado devem
-  ser informadas pelos controles de quantidade da linha existente.
-- **Produto imutável na edição:** a edição de uma linha pode alterar tamanho,
-  marca, acompanhamentos e quantidade, mas não pode substituir o produto por
-  outro.
-- **Remoção:** retirar um item recalcula o total imediatamente.
-- **Carrinho vazio:** não pode ser registrado.
-- **Estoque não reservado:** itens no carrinho não bloqueiam saldo.
-- **Movimentação:** nenhuma baixa ocorre antes do registro definitivo.
+- **Required size:** every Portion requires an active size.
+- **Mandatory quantity:** must be an integer greater than zero.
+- **Side dishes:** are optional and can be multiple.
+- **Contextual pricing:** the base price for accompaniment depends on the configuration
+  `product + size + accompaniment`.
+- **Free monitoring:** keeps the price equal to zero on any channel.
+- **Portion Consumption:** corresponds to
+  `size_quantity × sold_quantity`.
+- **Accompaniment consumption:** corresponds to
+  `quantity_per_portion × quantity_sold`.
+- **Single stock:** the write-off uses the product balance.
+- **Stock by brand:** automatic write-off uses the current main brand.
+- **Invalid main brand:** the configuration is unavailable.
+- **Size change:** must update price, consumption and accompaniments
+  available.
+- **Dependency:** size and accompaniment rules belong to the module
+  Products.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Estrutura desktop:** catálogo e carrinho devem permanecer visíveis lado a
-  lado.
-- **Item:** deve exibir produto, tamanho, marca, acompanhamentos, quantidade,
-  preço unitário e subtotal conforme aplicável.
-- **Ações:** cada item deve oferecer editar e remover.
-- **Quantidade:** cada linha deve permitir aumentar, reduzir ou informar
-  diretamente a quantidade do produto.
-- **Correspondência com o catálogo:** enquanto uma linha existir, o card do
-  produto correspondente deve permanecer identificado com `Adicionado` e
-  bloqueado para nova seleção; removê-la deve reabilitar o card.
-- **Total:** deve permanecer destacado.
-- **Canal:** seleção opcional deve permanecer visível durante a montagem.
-- **Estado vazio:** deve exibir `Adicione produtos para iniciar a venda`.
-- **Saída:** deve avisar que itens não registrados serão perdidos.
-- **Feedback:** edições, remoções e recálculos devem atualizar a interface
-  imediatamente.
-- **Tentativa duplicada:** se uma inclusão for solicitada a partir de uma visão
-  desatualizada, deve exibir `Produto já adicionado. Ajuste-o no carrinho` sem
-  modificar o carrinho.
-- **Ação bloqueada:** `Registrar pedido` fica desabilitado quando o carrinho
-  estiver vazio ou possuir configuração inválida.
-- **Telas estreitas:** o carrinho pode assumir um painel dedicado, preservando
-  acesso ao total e à ação principal.
-- **Acessibilidade:** controles de quantidade, edição e remoção devem possuir
-  nomes acessíveis; a mudança do card para `Adicionado` deve ser anunciada por
-  tecnologia assistiva.
+- **Single flow:** size, accompaniments and quantity must stay the same
+  configuration area.
+- **Sizes:** must display name, quantity consumed and base price.
+- **Side dishes:** must display name, type and base price or `Free`.
+- **Quantity:** must have adequate controls for touch and direct input.
+- **Summary:** must show final unit price, quantity and subtotal before
+  inclusion.
+- **Unavailability:** options without sufficient balance must be disabled
+  with explanation.
+- **Error:** attempt to include invalid configuration must preserve the choices
+  already carried out.
+- **Action blocked:** `Add to cart` is disabled without size or
+  valid quantities.
+- **Responsiveness:** the configuration cannot hide the main action.
+- **Accessibility:** selectable options must communicate name, status and price.
 
 ---
 
-#### REQ-06 Precificação por Canal
+#### REQ-04 Resale Item Configuration
 
-- [ ] **Precificação por Canal**
+- [ ] **Resale Item Configuration**
 
-**Descrição:** O sistema deve calcular preços e subtotais usando o canal
-opcional selecionado para o pedido.
+**Description:** The operator must be able to select the brand, when applicable,
+and the quantity of units from a Resale product before adding it to the cart.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Sem canal:** o preço final é igual ao preço-base.
-- **Com canal:** aplica o mesmo percentual a todos os componentes pagos.
-- **Escopo:** Porções, Revendas e acompanhamentos pagos recebem o ajuste.
-- **Item gratuito:** preço-base igual a zero permanece igual a zero.
-- **Fórmula:** `preço_ajustado = preço_base × (1 + percentual ÷ 100)`.
-- **Arredondamento:** cada preço unitário ajustado é arredondado para duas casas
-  decimais antes do subtotal.
-- **Subtotal:** corresponde a `preço_unitário_arredondado × quantidade`.
-- **Total:** corresponde à soma dos subtotais arredondados.
-- **Troca de canal:** recalcula todos os itens ainda não registrados.
-- **Canal único:** no máximo um canal pode ser aplicado ao pedido.
-- **Sem exceção por produto:** o MVP não aceita percentual específico por
-  produto e canal.
-- **Preço inválido:** nenhuma combinação permitida pode tornar negativo o preço
-  de um item pago.
-- **Atualização não retroativa:** alterações no canal não mudam pedidos
-  registrados.
+- **No size:** Resale does not use portion sizes.
+- **No accompaniment:** Resale does not accept accompaniments.
+- **Quantity:** must be an integer greater than zero.
+- **Single stock:** when the product does not control stock by brand, the write-off
+  corresponds to `1 unit × quantity_sold`.
+- **Stock by brand:** the operator selects an available Resale brand.
+- **Explicit brand:** the write-off occurs in the selected brand, regardless of the
+  main brand.
+- **Price:** uses the base price of the Resale product or brand configuration.
+- **Unavailability:** inactive configurations or without sufficient balance will not
+  can be selected.
+- **Dependency:** product, brand, price and availability are configured in the
+  Products module.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Seletor:** deve oferecer canais ativos e a opção `Sem canal`.
-- **Opcionalidade:** a ausência de canal não bloqueia o registro.
-- **Feedback imediato:** seleção ou troca recalcula preços, subtotais e total.
-- **Transparência:** deve exibir nome e percentual do canal selecionado.
-- **Sem canal:** deve identificar que os preços-base estão sendo usados.
-- **Loading:** o recálculo deve possuir estado visual quando não for instantâneo.
-- **Erro:** falha de recálculo deve manter a seleção anterior e preservar o
-  carrinho.
-- **Acessibilidade:** o ajuste de preço não pode ser comunicado apenas por cor.
+- **Selection:** must display product, brand when applicable, base price and
+  availability.
+- **Quantity:** must have adequate controls for touch and direct input.
+- **Summary:** must show final unit price, quantity and subtotal.
+- **Out of stock:** unavailable brand or configuration must be disabled.
+- **Error:** validations must preserve the informed quantity.
+- **Action blocked:** `Add to cart` is disabled without branding
+  mandatory or valid quantity.
+- **Responsiveness:** options and summary cannot overlap on smaller screens.
+- **Accessibility:** each option must communicate product, brand, price and condition.
 
 ---
 
-#### REQ-07 Revalidação de Canal, Combo e Estoque
+#### REQ-05 Assembling and Editing the Cart
 
-- [ ] **Revalidação de Canal e Estoque**
+- [ ] **Cart Assembly and Editing**
 
-**Descrição:** O sistema deve revalidar o canal, os Combos e todos os saldos
-imediatamente antes de registrar o pedido.
+**Description:** Operator must be able to review, edit and remove items before
+to register the order.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Concorrência:** múltiplos operadores podem registrar pedidos simultaneamente.
-- **Canal atualizado:** o registro usa a configuração vigente do canal.
-- **Canal alterado:** se nome ou percentual mudou, o carrinho é recalculado e
-  exige nova confirmação.
-- **Canal inativo ou excluído:** a seleção é removida; o operador pode seguir
-  sem canal ou escolher outro.
-- **Combos vigentes:** elegibilidade, composição, preço, status e melhor
-  combinação devem ser recalculados com as configurações vigentes.
-- **Combo alterado:** se o desconto ou a melhor combinação mudar, o carrinho é
-  recalculado e exige nova confirmação.
-- **Combo inválido:** o desconto é removido sem retirar seus produtos do
-  carrinho.
-- **Estoque atualizado:** a validação usa os saldos mais recentes.
-- **Consolidação:** consumos que atingem o mesmo produto ou marca são somados
-  antes da validação.
-- **Estoque negativo:** não é permitido.
-- **Sem exceção:** não existe configuração para permitir venda abaixo de zero.
-- **Bloqueio total:** insuficiência em qualquer componente bloqueia o pedido
-  inteiro.
-- **Sem baixa parcial:** nenhuma movimentação é mantida após falha.
-- **Carrinho preservado:** falhas de canal, Combo ou estoque não descartam os
-  itens.
-- **Nova tentativa:** o operador deve confirmar novamente depois da correção.
+- **Temporary cart:** the cart is not a persisted order.
+- **No drafts:** exiting or reloading the screen may discard the cart after
+  warning.
+- **Optional channel:** the cart can be assembled with or without a channel.
+- **Initial price:** without channel selected, uses base prices.
+- **Direct editing:** size, brand, accompaniments and quantity can be
+  changed from the item.
+- **Revalidation in editing:** any change recalculates price and consumption.
+- **Uniqueness per product:** each product can occupy a maximum of one line in the
+  cart, regardless of size, brand or accompaniments.
+- **New inclusion blocked:** try to add a product already present in the
+  cart does not create a line, does not add quantity and does not change the configuration
+  existing.
+- **Quantity in cart:** new units of a product already added must
+  be informed by the quantity controls of the existing line.
+- **Product immutable in editing:** editing a line can change size,
+  brand, accompaniments and quantity, but you cannot replace the product with
+  another.
+- **Removal:** removing an item recalculates the total immediately.
+- **Empty cart:** cannot be registered.
+- **Unreserved stock:** items in the cart do not block balance.
+- **Movement:** no write-off occurs before definitive registration.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Canal alterado:** deve informar o percentual anterior e o atual.
-- **Canal removido:** deve explicar que o pedido está usando preços-base até nova
-  seleção.
-- **Combo alterado:** deve informar que os descontos foram recalculados e
-  solicitar revisão dos valores.
-- **Item insuficiente:** deve ser destacado no carrinho.
-- **Detalhamento:** deve informar produto ou marca, quantidade necessária,
-  disponível e faltante.
-- **Mensagem de exemplo:** `Estoque insuficiente de Granola Frooty: necessário
-  300 g, disponível 200 g, faltam 100 g`.
-- **Correção:** o operador deve conseguir editar ou remover o item afetado.
-- **Ação bloqueada:** o registro permanece bloqueado enquanto houver
-  insuficiência conhecida.
-- **Acessibilidade:** mensagens devem ser associadas aos itens afetados e
-  anunciadas por tecnologia assistiva.
-
----
-
-#### REQ-08 Confirmação e Registro do Pedido
-
-- [ ] **Confirmação e Registro do Pedido**
-
-**Descrição:** O operador deve confirmar explicitamente o resumo antes de criar
-um pedido definitivo e executar as baixas.
-
-##### Regras de Negócio
-
-- **Confirmação obrigatória:** o pedido não pode ser registrado por uma ação
-  implícita.
-- **Resumo:** deve conter canal ou `Sem canal`, quantidade de itens, Combos
-  aplicados, economia e total.
-- **Registro definitivo:** a confirmação cria um pedido concluído.
-- **Sem pagamento:** não existe etapa de pagamento, caixa ou troco.
-- **Transação atômica:** criação do pedido e baixas de estoque ocorrem na mesma
-  transação.
-- **Idempotência:** cliques repetidos, reenvios ou respostas atrasadas não podem
-  duplicar pedido ou estoque.
-- **Numeração:** cada sorveteria possui sequência própria crescente.
-- **Identificação visível:** o usuário vê `Pedido #<número>`.
-- **Identificador interno:** pode existir separadamente e não deve ser exibido
-  como referência principal.
-- **Imutabilidade:** o pedido não pode ser editado, cancelado, estornado ou
-  excluído no MVP.
-- **Sucesso:** limpa o carrinho somente depois da confirmação do servidor.
-- **Falha:** não cria pedido nem mantém qualquer baixa.
-
-##### Regras de UI/UX
-
-- **Diálogo final:** deve permitir `Voltar ao carrinho` ou `Registrar pedido`.
-- **Prevenção de envio duplo:** durante o processamento, a ação deve ficar
-  bloqueada e indicar carregamento.
-- **Sucesso:** deve exibir `Pedido #<número> registrado com sucesso` e iniciar um
-  carrinho vazio.
-- **Falha transacional:** deve exibir `Não foi possível registrar o pedido.
-  Nenhum estoque foi alterado. Tente novamente`.
-- **Conexão perdida:** deve preservar o carrinho na tela e permitir nova
-  tentativa.
-- **Ação irreversível:** o diálogo deve informar que o MVP não permite
-  cancelamento ou estorno.
-- **Acessibilidade:** foco deve ser movido para o diálogo e devolvido ao elemento
-  de origem quando ele for fechado.
+- **Desktop structure:** catalog and cart must remain visible side by side
+  side.
+- **Item:** must display product, size, brand, accompaniments, quantity,
+  unit price and subtotal as applicable.
+- **Actions:** each item must offer edit and remove.
+- **Quantity:** each line must allow increasing, reducing or informing
+  directly the quantity of the product.
+- **Correspondence with the catalog:** while a line exists, the card of the
+  corresponding product must remain identified with `Added` and
+  blocked for new selection; removing it should re-enable the card.
+- **Total:** must remain highlighted.
+- **Channel:** optional selection must remain visible during assembly.
+- **Empty state:** should display `Add products to start sale`.
+- **Output:** must warn that unregistered items will be lost.
+- **Feedback:** edits, removals and recalculations should update the interface
+  immediately.
+- **Duplicate attempt:** if an add is requested from a view
+  outdated, it should display `Product already added. Adjust it in the cart` without
+  modify the cart.
+- **Action blocked:** `Register order` is disabled when the cart
+  is empty or has an invalid configuration.
+- **Narrow screens:** the cart can take on a dedicated panel, preserving
+  access to total and main action.
+- **Accessibility:** quantity, editing and removal controls must have
+  accessible names; the card's change to `Added` must be announced by
+  assistive technology.
 
 ---
 
-#### REQ-09 Snapshot do Pedido
+#### REQ-06 Pricing by Channel
 
-- [ ] **Snapshot do Pedido**
+- [ ] **Pricing by Channel**
 
-**Descrição:** O pedido deve preservar os dados comerciais e operacionais
-praticados no momento do registro.
+**Description:** The system must calculate prices and subtotals using the channel
+option selected for the order.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Dados gerais:** identificador, número sequencial, sorveteria, data, hora,
-  operador, quantidade de itens e total.
-- **Snapshot do canal:** identificador original, nome e percentual, quando
-  selecionado.
-- **Sem canal:** deve ser persistido explicitamente como ausência de canal.
-- **Snapshot do produto:** identificador original, nome e categoria comercial.
-- **Snapshot da marca:** identificador original e nome, quando aplicável.
-- **Snapshot do tamanho:** identificador original, nome e quantidade consumida,
-  quando aplicável.
-- **Snapshot do acompanhamento:** identificador original, nome, tipo, quantidade
-  consumida, preço-base e preço final.
-- **Snapshot do Combo:** identificador original, nome, preço fixo, economia,
-  configurações e quantidades participantes, preços anteriores ao desconto e
-  vínculos com as linhas do pedido.
-- **Preços:** cada linha preserva preço-base, preço final unitário, quantidade e
+- **Without channel:** the final price is the same as the base price.
+- **With channel:** applies the same percentage to all paid components.
+- **Scope:** Portions, Resales and paid accompaniments receive the adjustment.
+- **Free item:** base price equal to zero remains equal to zero.
+- **Formula:** `adjusted_price = base_price × (1 + percentage ÷ 100)`.
+- **Rounding:** each adjusted unit price is rounded to two places
+  decimals before the subtotal.
+- **Subtotal:** corresponds to `rounded_unit_price × quantity`.
+- **Total:** corresponds to the sum of the rounded subtotals.
+- **Change channel:** recalculates all items not yet registered.
+- **Single Channel:** A maximum of one channel can be applied to the order.
+- **No exception per product:** MVP does not accept specific percentage per
+  product and channel.
+- **Invalid price:** no combination allowed can make the price negative
+  of a paid item.
+- **Non-retroactive update:** channel changes do not change orders
+  registered.
+
+##### UI/UX rules
+
+- **Selector:** must offer active channels and the `No channel` option.
+- **Optionality:** the absence of a channel does not block the registration.
+- **Immediate feedback:** selection or exchange recalculates prices, subtotals and total.
+- **Transparency:** must display the name and percentage of the selected channel.
+- **No channel:** must identify that base prices are being used.
+- **Loading:** the recalculation must have a visual state when it is not instantaneous.
+- **Error:** recalculation failure must maintain the previous selection and preserve the
+  cart.
+- **Accessibility:** price adjustment cannot be communicated by color alone.
+
+---
+
+#### REQ-07 Channel, Combo and Stock Revalidation
+
+- [ ] **Channel and Stock Revalidation**
+
+**Description:** The system must revalidate the channel, Combos and all balances
+immediately before registering the order.
+
+##### Business Rules
+
+- **Competition:** multiple operators can register orders simultaneously.
+- **Updated channel:** registration uses the current channel configuration.
+- **Channel changed:** if name or percentage changed, the cart is recalculated and
+  requires new confirmation.
+- **Inactive or deleted channel:** the selection is removed; the operator can follow
+  without channel or choose another one.
+- **Current combos:** eligibility, composition, price, status and best
+  combination must be recalculated with the current settings.
+- **Combo changed:** if the discount or best combination changes, the cart is
+  recalculated and requires new confirmation.
+- **Invalid combo:** the discount is removed without removing the products from the
+  cart.
+- **Updated stock:** validation uses the most recent balances.
+- **Consolidation:** consumptions that reach the same product or brand are added together
+  before validation.
+- **Negative stock:** is not allowed.
+- **No exception:** there is no configuration to allow sales below zero.
+- **Total blocking:** insufficiency in any component blocks the order
+  entire.
+- **No partial write-off:** no movement is maintained after failure.
+- **Cart preserved:** channel, Combo or stock failures do not discard items
+  items.
+- **Retry:** the operator must confirm again after the correction.
+
+##### UI/UX rules
+
+- **Channel changed:** must inform the previous and current percentage.
+- **Channel removed:** must explain that the order is using base prices until further notice
+  selection.
+- **Combo changed:** must inform that the discounts have been recalculated and
+  request a review of the values.
+- **Insufficient item:** must be highlighted in the cart.
+- **Details:** must inform product or brand, quantity required,
+  available and missing.
+- **Example message:** `Insufficient stock of Granola Frooty: required
+  300 g, 200 g available, 100 g missing.
+- **Fix:** operator should be able to edit or remove the affected item.
+- **Action blocked:** the record remains blocked as long as there is
+  known insufficiency.
+- **Accessibility:** messages must be associated with affected items and
+  announced by assistive technology.
+
+---
+
+#### REQ-08 Order Confirmation and Registration
+
+- [ ] **Order Confirmation and Registration**
+
+**Description:** The operator must explicitly confirm the summary before creating
+a definitive order and execute the write-offs.
+
+##### Business Rules
+
+- **Mandatory confirmation:** the order cannot be registered by an action
+  implicit.
+- **Summary:** must contain channel or `No channel`, number of items, Combos
+  applied, economy and total.
+- **Final registration:** confirmation creates a completed order.
+- **No payment:** there is no payment step, cashier or change.
+- **Atomic transaction:** order creation and stock issues occur at the same time
+  transaction.
+- **Idempotence:** repeated clicks, resends or delayed responses cannot
+  duplicate order or stock.
+- **Numbering:** each ice cream shop has its own increasing sequence.
+- **Visible identification:** the user sees `Order #<number>`.
+- **Internal identifier:** may exist separately and should not be displayed
+  as the main reference.
+- **Immutability:** the order cannot be edited, canceled, reversed or
+  deleted in MVP.
+- **Success:** clears the cart only after confirmation from the server.
+- **Failure:** does not create order or maintain any write-off.
+
+##### UI/UX rules
+
+- **Final dialog:** must allow `Return to cart` or `Register order`.
+- **Prevention of double sending:** during processing, the action must be
+  blocked and indicate charging.
+- **Success:** should display `Order #<number> registered successfully` and initiate a
+  empty cart.
+- **Transactional failure:** should display `Unable to register order.
+  No stocks were changed. Please try again`.
+- **Connection lost:** must preserve the cart on the screen and allow new
+  attempt.
+- **Irreversible action:** the dialog must inform that the MVP does not allow
+  cancellation or refund.
+- **Accessibility:** focus must be moved to the dialog and returned to the element
+  source when it is closed.
+
+---
+
+#### REQ-09 Order Snapshot
+
+- [ ] **Order Snapshot**
+
+**Description:** The request must preserve commercial and operational data
+practiced at the time of registration.
+
+##### Business Rules
+
+- **General data:** identifier, sequence number, ice cream shop, date, time,
+  operator, quantity of items and total.
+- **Channel snapshot:** original identifier, name and percentage, when
+  selected.
+- **No channel:** must be explicitly persisted as no channel.
+- **Product snapshot:** original identifier, name and commercial category.
+- **Brand snapshot:** original identifier and name, when applicable.
+- **Size snapshot:** original identifier, name and quantity consumed,
+  when applicable.
+- **Snapshot of accompaniment:** original identifier, name, type, quantity
+  consumed, base price and final price.
+- **Combo Snapshot:** original identifier, name, fixed price, economy,
+  participating configurations and quantities, pre-discount prices and
+  links to order lines.
+- **Prices:** each line preserves base price, final unit price, quantity and
   subtotal.
-- **Consumos:** devem ser preservadas as quantidades de estoque calculadas para a
-  venda.
-- **Exclusões cadastrais:** exclusão de qualquer cadastro não pode tornar o
-  pedido ilegível.
-- **Atualização não retroativa:** nenhuma alteração cadastral modifica snapshots.
-- **Multi-tenancy:** snapshots pertencem exclusivamente à sorveteria do pedido.
+- **Consumptions:** the quantities of stock calculated for the
+  sale.
+- **Registration exclusions:** deletion of any registration cannot make the
+  invalid order.
+- **Non-retroactive update:** no registration changes modify snapshots.
+- **Multi-tenancy:** snapshots belong exclusively to the ice cream shop of the order.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Legibilidade:** histórico deve mostrar nomes copiados, não identificadores
-  técnicos.
-- **Canal ausente:** deve exibir `Sem canal`.
-- **Valores:** deve exibir os valores efetivamente praticados.
-- **Cadastro excluído:** não deve gerar mensagens de item ausente no histórico.
-- **Estado de erro:** falha ao carregar detalhes deve permitir nova tentativa sem
-  perder os filtros da listagem.
-- **Responsividade:** detalhes extensos devem quebrar linha sem cortar conteúdo.
-- **Acessibilidade:** agrupamentos devem possuir títulos e ordem de leitura
-  coerente.
-
----
-
-#### REQ-10 Histórico de Pedidos
-
-- [ ] **Histórico de Pedidos**
-
-**Descrição:** Operadores e Gerentes devem consultar todos os pedidos da
-sorveteria atual e abrir seus detalhes.
-
-##### Regras de Negócio
-
-- **Ordenação:** pedidos mais recentes aparecem primeiro.
-- **Filtro de período:** aceita data inicial e final.
-- **Filtro de canal:** aceita um canal específico ou `Sem canal`.
-- **Filtros combinados:** período e canal podem ser usados simultaneamente.
-- **Escopo do Operador:** o Operador consulta pedidos de toda a sorveteria, não
-  apenas os próprios.
-- **Carregamento:** deve usar paginação ou carregamento incremental.
-- **Reinício:** alterar filtros reinicia a navegação dos resultados.
-- **Detalhes:** usam exclusivamente os snapshots registrados.
-- **Sem mutações:** não existem ações de editar, cancelar, estornar ou excluir.
-- **Sem relatórios:** métricas, dashboards e exportações não pertencem ao MVP.
-- **Multi-tenancy:** pedidos de outras sorveterias nunca podem ser retornados.
-
-##### Regras de UI/UX
-
-- **Filtros:** período e canal devem aparecer acima da listagem.
-- **Linha:** deve exibir número, data, hora, operador, canal, quantidade de itens
-  e total.
-- **Detalhe:** deve apresentar itens, configurações, quantidades, preços,
-  subtotais, consumos e total.
-- **Sem canal:** deve ser filtrável e exibido como `Sem canal`.
-- **Loading:** deve usar skeletons ou indicador equivalente.
-- **Estado vazio geral:** deve informar que ainda não existem pedidos.
-- **Estado vazio filtrado:** deve informar que nenhum pedido corresponde aos
-  filtros e oferecer `Limpar filtros`.
-- **Fim da listagem:** não deve solicitar novos lotes quando não houver mais
-  dados.
-- **Erro:** deve preservar filtros e permitir tentar novamente.
-- **Responsividade:** listagem pode adaptar colunas, mas número, data e total
-  devem continuar visíveis.
-- **Acessibilidade:** filtros, linhas acionáveis e detalhes devem ser navegáveis
-  por teclado.
+- **Readability:** history should show copied names, not identifiers
+  technical identifiers.
+- **Missing channel:** should display `No channel`.
+- **Values:** must display the actual values.
+- **Registration deleted:** should not generate missing item messages in the history.
+- **Error state:** failed to load details should allow retry without
+  lose the listing filters.
+- **Responsiveness:** extensive details must break lines without cutting content.
+- **Accessibility:** groupings must have titles and reading order
+  coherent.
 
 ---
 
-#### REQ-11 Permissões, Navegação e Isolamento
+#### REQ-10 Order History
 
-- [ ] **Permissões, Navegação e Isolamento**
+- [ ] **Order History**
 
-**Descrição:** O módulo deve aplicar responsabilidades distintas e manter os
-dados isolados por sorveteria.
+**Description:** Operators and Managers must consult all orders from the
+current ice cream shop and open its details.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Navegação independente:** deve conter `Nova venda`, `Pedidos`,
-  `Canais de venda` e `Descontos`, sem grupo pai.
-- **Operador:** pode montar, registrar e consultar pedidos.
-- **Gerente:** possui as permissões do Operador e gerencia canais e descontos.
-- **Configuração de Produtos:** permanece fora do módulo de Vendas.
-- **Autorização:** regras de perfil dependem do módulo de Auth.
-- **Isolamento:** produtos, canais, sequências, pedidos e históricos são sempre
-  filtrados pela sorveteria atual.
-- **Acesso direto:** uma URL não pode contornar as permissões.
-- **Auditoria mínima:** cada pedido deve preservar o operador responsável.
+- **Sort:** most recent orders appear first.
+- **Period filter:** accepts start and end date.
+- **Channel filter:** accepts a specific channel or `No channel`.
+- **Combined filters:** period and channel can be used simultaneously.
+- **Scope of the Operator:** the Operator consults orders from the entire ice cream shop, not
+  just their own.
+- **Loading:** must use pagination or incremental loading.
+- **Restart:** changing filters restarts the results navigation.
+- **Details:** exclusively use registered snapshots.
+- **No mutations:** there are no edit, cancel, reverse or delete actions.
+- **No reports:** metrics, dashboards and exports do not belong to MVP.
+- **Multi-tenancy:** orders from other ice cream shops can never be returned.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Menus:** itens sem permissão não devem ser exibidos.
-- **Acesso negado:** deve apresentar orientação clara sem revelar dados.
-- **Consistência:** títulos das páginas devem corresponder aos nomes da
-  navegação.
-- **Sem atalhos de produto:** `Nova venda` não oferece edição de cadastro.
-- **Feedback de sessão:** perda de autenticação deve preservar o carrinho na tela
-  quando tecnicamente possível e solicitar nova autenticação.
-- **Responsividade:** navegação não pode bloquear o conteúdo principal em telas
-  menores.
-- **Acessibilidade:** estado ativo da navegação deve ser comunicado além da cor.
-
----
-
-#### REQ-12 Desempenho, Responsividade e Acessibilidade
-
-- [ ] **Desempenho, Responsividade e Acessibilidade**
-
-**Descrição:** As quatro áreas do módulo devem responder com rapidez, funcionar
-nos dispositivos prioritários e oferecer acesso inclusivo.
-
-##### Regras de Negócio
-
-- **Dispositivos prioritários:** computador e tablet em modo paisagem.
-- **Busca:** deve apresentar resultados em até 1 segundo em condições normais.
-- **Recálculo:** deve atualizar valores em até 1 segundo em condições normais.
-- **Registro:** deve concluir em até 3 segundos em condições normais.
-- **Meta operacional:** um operador treinado deve registrar um pedido comum em
-  até 60 segundos.
-- **Operação online:** conexão com o servidor é obrigatória.
-- **Sem fila offline:** pedidos não são registrados localmente para sincronização
-  posterior.
-- **Segurança:** ações protegidas devem ser validadas também no servidor.
-- **Consistência:** valores exibidos e persistidos devem usar a mesma regra de
-  cálculo e arredondamento.
-
-##### Regras de UI/UX
-
-- **Layout principal:** catálogo e carrinho ficam lado a lado quando houver
-  espaço.
-- **Telas estreitas:** o carrinho pode abrir em painel separado.
-- **Alvos de toque:** controles principais devem possuir área mínima de
-  `44 × 44 px`.
-- **Contraste:** textos e controles devem atender ao nível AA.
-- **Semântica:** sucesso, alerta, erro e indisponibilidade não podem depender
-  apenas de cor.
-- **Teclado:** busca, catálogo, configurações, carrinho, diálogos e filtros devem
-  ser operáveis por teclado.
-- **Foco:** deve permanecer visível e seguir ordem lógica.
-- **Leitores de tela:** rótulos, estados, erros e atualizações críticas devem ser
-  comunicados.
-- **Loading:** ações assíncronas devem apresentar feedback sem deslocamentos
-  abruptos desnecessários.
-- **Falha de conexão:** deve informar que a venda não foi registrada e preservar
-  o carrinho atual para nova tentativa.
+- **Filters:** period and channel must appear above the listing.
+- **Line:** must display number, date, time, operator, channel, number of items
+  and total.
+- **Detail:** must present items, configurations, quantities, prices,
+  subtotals, consumption and total.
+- **No channel:** must be filterable and displayed as `No channel`.
+- **Loading:** must use skeletons or equivalent indicator.
+- **General empty status:** should inform you that there are no orders yet.
+- **Filtered empty state:** should inform that no orders match the
+  filters and offer `Clear filters`.
+- **End of listing:** you should not request new lots when there are no more
+  data.
+- **Error:** must preserve filters and allow retrying.
+- **Responsiveness:** listing can adapt columns, but number, date and total
+  must remain visible.
+- **Accessibility:** filters, actionable lines and details must be navigable
+  by keyboard.
 
 ---
 
-#### REQ-13 Gestão de Descontos do Tipo Combo
+#### REQ-11 Permissions, Navigation and Isolation
 
-- [ ] **Gestão de Descontos do Tipo Combo**
+- [ ] **Permissions, Navigation and Isolation**
 
-**Descrição:** O Gerente deve conseguir criar e administrar descontos do tipo
-Combo, formados por produtos distintos e vendidos por um preço final fixo.
+**Description:** The module must apply distinct responsibilities and maintain
+data isolated by ice cream shop.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Tipo no MVP:** `Combo` é o único tipo de desconto disponível.
-- **Campos:** cada Combo possui nome, tipo, componentes, preço final fixo e
-  status `Ativo` ou `Inativo`.
-- **Nome obrigatório:** não pode ser vazio ou conter apenas espaços.
-- **Nome único:** não podem existir Combos com o mesmo nome na sorveteria,
-  ignorando maiúsculas, minúsculas e espaços nas extremidades.
-- **Composição mínima:** exige pelo menos dois produtos distintos.
-- **Quantidade por componente:** deve ser um número inteiro maior que zero.
-- **Porção exata:** o componente deve registrar produto, tamanho e conjunto de
-  acompanhamentos incluídos.
-- **Porção sem tamanho:** não pode ser adicionada ao Combo.
-- **Revenda exata:** o componente deve registrar produto e marca, quando
-  aplicável; Revenda não possui embalagem.
-- **Preço fixo:** deve ser maior que zero e representa o valor final de uma
-  aplicação do Combo, independentemente do canal de venda.
-- **Economia obrigatória:** o Combo só pode ser ativado quando seu preço fixo
-  for menor que a soma vigente dos componentes pelos preços-base.
-- **Sem vigência:** o MVP não possui data inicial, data final ou agendamento.
-- **Status ativo:** somente Combos ativos participam de novas vendas.
-- **Inativação automática:** se um produto, tamanho, acompanhamento, marca ou
-  configuração exigida ficar inválido, inativo ou for excluído, o Combo deve
-  ser inativado automaticamente.
-- **Reativação:** exige correção dos componentes e nova validação da economia.
-- **Edição:** alterações afetam apenas carrinhos não registrados e pedidos
-  futuros.
-- **Exclusão:** qualquer Combo pode ser excluído após confirmação, mesmo quando
-  já utilizado.
-- **Histórico:** edição, inativação ou exclusão não altera pedidos registrados.
-- **Multi-tenancy:** descontos pertencem exclusivamente à sorveteria atual.
-- **Permissão:** somente Gerentes podem criar, editar, ativar, inativar ou
-  excluir Combos.
-- **Dependências:** Auth, Produtos, Canais de venda e Pedidos.
+- **Independent navigation:** must contain `New sale`, `Orders`,
+  `Sales channels` and `Discounts`, without parent group.
+- **Operator:** can assemble, register and consult orders.
+- **Manager:** has Operator permissions and manages channels and discounts.
+- **Product Configuration:** remains outside the Sales module.
+- **Authorization:** profile rules depend on the Auth module.
+- **Isolation:** products, channels, sequences, orders and histories are always
+  filtered by the current ice cream shop.
+- **Direct access:** a URL cannot bypass permissions.
+- **Minimum audit:** each request must keep the operator responsible.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Navegação:** `Descontos` deve ser uma entrada independente do módulo.
-- **Listagem:** deve exibir nome, tipo, preço do Combo, quantidade de produtos,
-  status e ações.
-- **Busca:** o placeholder deve ser
-  `Buscar por nome do desconto ou produto…`.
-- **Filtros:** deve oferecer somente `Tipo` e `Status`.
-- **Criação:** a tela deve solicitar nome, componentes, preço final e status.
-- **Adicionar produto:** deve abrir um diálogo que diferencia Porção de Revenda
-  e exige a configuração exata aplicável.
-- **Economia:** o formulário deve comparar a soma vigente dos componentes com o
-  preço do Combo e exibir a economia calculada.
-- **Validação inline:** nome duplicado, composição insuficiente, componente
-  repetido ou inválido e preço sem economia devem ser informados junto ao campo
-  correspondente.
-- **Estado vazio:** deve explicar o objetivo dos descontos e oferecer
-  `Criar primeiro desconto`.
-- **Estado vazio filtrado:** deve oferecer `Limpar filtros`.
-- **Exclusão:** deve apresentar confirmação informando que o histórico será
-  preservado e carrinhos abertos serão revalidados.
-- **Feedback:** criação, edição, ativação, inativação e exclusão devem apresentar
-  sucesso, erro e carregamento.
-- **Ação bloqueada:** Operadores não visualizam ações de gerenciamento.
-- **Responsividade:** tabela, formulário e diálogo não podem ocultar campos ou
-  ações principais em telas menores.
-- **Acessibilidade:** campos, seletores, erros, status e confirmações devem ser
-  operáveis por teclado e anunciados por tecnologia assistiva.
+- **Menus:** items without permission should not be displayed.
+- **Access denied:** must present clear guidance without revealing data.
+- **Consistency:** page titles must match the page names
+  navigation.
+- **No product shortcuts:** `New sale` does not offer registration editing.
+- **Session feedback:** loss of authentication should preserve cart on screen
+  when technically possible and request new authentication.
+- **Responsiveness:** navigation cannot block main content on screens
+  minors.
+- **Accessibility:** active navigation status must be communicated in addition to color.
 
 ---
 
-#### REQ-14 Aplicação Automática de Combos
+#### REQ-12 Performance, Responsiveness and Accessibility
 
-- [ ] **Aplicação Automática de Combos**
+- [ ] **Performance, Responsiveness and Accessibility**
 
-**Descrição:** O sistema deve identificar e aplicar automaticamente os Combos
-elegíveis no carrinho, escolhendo a combinação que produz a maior economia.
+**Description:** The four areas of the module must respond quickly, function
+on priority devices and offer inclusive access.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Detecção automática:** incluir, editar ou remover uma linha, alterar sua
-  quantidade ou trocar o canal deve recalcular os Combos elegíveis.
-- **Correspondência exata:** uma unidade só atende a um componente quando
-  produto, tamanho, acompanhamentos e marca correspondem integralmente à
-  configuração do Combo, conforme aplicável.
-- **Unidades participantes:** as quantidades exigidas devem existir no carrinho.
-- **Aplicação única:** cada Combo pode ser aplicado no máximo uma vez por
-  pedido.
-- **Combos diferentes:** mais de um Combo pode ser aplicado no mesmo pedido.
-- **Sem reutilização:** uma unidade de produto não pode participar de dois
+- **Priority devices:** computer and tablet in landscape mode.
+- **Search:** should present results within 1 second under normal conditions.
+- **Recalculation:** must update values ​​within 1 second under normal conditions.
+- **Registration:** must complete within 3 seconds under normal conditions.
+- **Operational Goal:** a trained operator must record a common order in
+  up to 60 seconds.
+- **Online operation:** connection to the server is mandatory.
+- **No offline queue:** orders are not registered locally for synchronization
+  later.
+- **Security:** protected actions must also be validated on the server.
+- **Consistency:** displayed and persisted values must use the same
+  calculation and rounding.
+
+##### UI/UX rules
+
+- **Main layout:** catalog and cart are side by side when available
+  space.
+- **Narrow screens:** the cart can open in a separate panel.
+- **Touch targets:** main controls must have a minimum contact area
+  `44×44px`.
+- **Contrast:** texts and controls must meet level AA.
+- **Semantics:** success, alert, error and unavailability cannot depend on
+  just in color.
+- **Keyboard:** search, catalog, settings, cart, dialogs and filters must
+  be keyboard operable.
+- **Focus:** must remain visible and follow logical order.
+- **Screen readers:** labels, states, errors and critical updates must be
+  communicated.
+- **Loading:** asynchronous actions must present feedback without offsets
+  unnecessary abruptness.
+- **Connection failure:** must inform that the sale was not registered and preserve
+  the current cart for retry.
+
+---
+
+#### REQ-13 Combo Discount Management
+
+- [ ] **Combo Discount Management**
+
+**Description:** The Manager must be able to create and manage discounts of the type
+Combo, made up of different products and sold for a fixed final price.
+
+##### Business Rules
+
+- **Type in MVP:** `Combo` is the only type of discount available.
+- **Fields:** each Combo has a name, type, components, fixed final price and
+  status `Active` or `Inactive`.
+- **Required name:** cannot be empty or contain only spaces.
+- **Unique name:** Combos with the same name cannot exist in the ice cream shop,
+  ignoring uppercase, lowercase and spaces at the ends.
+- **Minimum composition:** requires at least two different products.
+- **Quantity per component:** must be an integer greater than zero.
+- **Exact portion:** the component must register product, size and set of
+  side dishes included.
+- **Unsized portion:** cannot be added to the Combo.
+- **Exact resale:** the component must register the product and brand, when
+  applicable; Resale does not have packaging.
+- **Fixed price:** must be greater than zero and represents the final value of a
+  application of the Combo, regardless of the sales channel.
+- **Mandatory savings:** the Combo can only be activated when its fixed price
+  is less than the current sum of the components at the base prices.
+- **No validity:** the MVP has no start date, end date or schedule.
+- **Active status:** only active Combos participate in new sales.
+- **Automatic inactivation:** if a product, size, accompaniment, brand or
+  required configuration becomes invalid, inactive or is deleted, the Combo must
+  be automatically deactivated.
+- **Reactivation:** requires correction of components and new validation of the economy.
+- **Edition:** changes only affect unregistered carts and orders
+  futures.
+- **Exclusion:** any Combo can be deleted after confirmation, even when
+  already used.
+- **History:** editing, inactivating or deleting does not change registered orders.
+- **Multi-tenancy:** discounts belong exclusively to the current ice cream store.
+- **Permission:** only Managers can create, edit, activate, inactivate or
+  delete Combos.
+- **Dependencies:** Auth, Products, Sales Channels and Orders.
+
+##### UI/UX rules
+
+- **Navigation:** `Discounts` must be an independent entry of the module.
+- **List:** must display name, type, price of the Combo, quantity of products,
+  status and actions.
+- **Search:** the placeholder must be
+  `Search by discount or product name…`.
+- **Filters:** must only offer `Type` and `Status`.
+- **Creation:** the screen must request name, components, final price and status.
+- **Add product:** should open a dialog that differentiates Resale Portion
+  and requires the exact applicable configuration.
+- **Economy:** the form must compare the current sum of the components with the
+  Combo price and display the calculated savings.
+- **Inline validation:** duplicate name, insufficient composition, component
+  repeated or invalid and price without savings must be informed next to the field
+  corresponding.
+- **Empty state:** must explain the purpose of the discounts and offer
+  `Create first discount`.
+- **Filtered empty state:** should offer `Clear filters`.
+- **Exclusion:** must present confirmation stating that the history will be
+  preserved and opened carts will be revalidated.
+- **Feedback:** creation, editing, activation, inactivation and deletion must present
+  success, error and loading.
+- **Action blocked:** Operators do not see management actions.
+- **Responsiveness:** table, form and dialog cannot hide fields or
+  main actions on smaller screens.
+- **Accessibility:** fields, selectors, errors, statuses and confirmations must be
+  keyboard operable and announced by assistive technology.
+
+---
+
+#### REQ-14 Automatic Combo Application
+
+- [ ] **Automatic Combo Application**
+
+**Description:** The system must automatically identify and apply Combos
+eligible in the cart, choosing the combination that produces the greatest savings.
+
+##### Business Rules
+
+- **Automatic detection:** add, edit or remove a line, change its
+  quantity or changing the channel must recalculate the eligible Combos.
+- **Exact match:** a unit only meets a component when
+  product, size, accompaniments and brand fully correspond to the
+  Combo configuration, as applicable.
+- **Participating units:** the required quantities must exist in the cart.
+- **Single application:** each Combo can be applied at most once per
+  request.
+- **Different Combos:** more than one Combo can be applied to the same order.
+- **No reuse:** a product unit cannot participate in two
   Combos.
-- **Maior economia:** havendo disputa por unidades, o sistema deve escolher o
-  conjunto de Combos com a maior economia total.
-- **Desempate:** combinações com a mesma economia total devem priorizar, de
-  forma determinística, os Combos criados primeiro.
-- **Economia positiva:** um Combo só é aplicado quando reduz o total do pedido.
-- **Aplicação obrigatória:** o Operador não pode remover manualmente um Combo
-  elegível.
-- **Linhas preservadas:** os produtos permanecem em suas linhas originais e
-  conservam preço-base, preço ajustado por canal, quantidade e subtotal.
-- **Desconto no pedido:** a economia do Combo deve ser registrada como desconto
-  no nível do pedido, vinculada às unidades e linhas participantes, sem alterar
-  o preço unitário original.
-- **Fórmula:** `economia = soma dos preços finais das unidades participantes − preço fixo do Combo`.
-- **Preço fixo independente:** o preço final do Combo não recebe ajuste do
-  canal; produtos e unidades não consumidos por Combo continuam sujeitos ao
-  canal selecionado.
-- **Total:** corresponde à soma dos subtotais das linhas menos a soma dos
-  descontos de Combo aplicados.
-- **Revalidação:** imediatamente antes do registro, o sistema deve revalidar
-  canal, estoque, componentes, status e preço de todos os Combos.
-- **Carrinho atualizado:** se a melhor combinação mudar, o sistema recalcula o
-  total, preserva os itens e exige nova revisão do Operador.
-- **Combo inválido:** se deixar de ser elegível, seu desconto é removido e o
-  Operador deve revisar o pedido.
-- **Registro atômico:** snapshots dos Combos e vínculos com as linhas devem ser
-  gravados na mesma transação do pedido e das baixas de estoque.
-- **Snapshot do Combo:** deve preservar identificador original, nome, preço
-  fixo, economia, componentes, configurações, quantidades, preços anteriores ao
-  desconto e vínculos entre componentes e linhas do pedido.
-- **Imutabilidade:** alterações ou exclusões posteriores não modificam o pedido.
-- **Desempenho:** o recálculo de Combos deve terminar em até 1 segundo em
-  condições normais, inclusive com Combos concorrentes.
+- **Greater savings:** if there is a dispute over units, the system must choose the
+  set of Combos with the highest total savings.
+- **Tiebreaker:** combinations with the same total savings must prioritize,
+  deterministically, the Combos created first.
+- **Positive savings:** a Combo is only applied when it reduces the order total.
+- **Mandatory application:** the Operator cannot manually remove a Combo
+  eligible.
+- **Lines preserved:** the products remain in their original lines and
+  they retain base price, channel-adjusted price, quantity and subtotal.
+- **Discount on order:** Combo savings must be recorded as a discount
+  at the order level, linked to participating units and lines, without changing
+  the original unit price.
+- **Formula:** `savings = sum of final prices of participating units − fixed price of the Combo`.
+- **Independent fixed price:** the final price of the Combo is not adjusted by the
+  channel; products and units not consumed by Combo remain subject to the
+  selected channel.
+- **Total:** corresponds to the sum of the subtotals of the lines minus the sum of the
+  Combo discounts applied.
+- **Revalidation:** immediately before registration, the system must revalidate
+  channel, stock, components, status and price of all Combos.
+- **Cart updated:** if the best combination changes, the system recalculates the
+  total, preserves the items and requires a new review by the Operator.
+- **Invalid Combo:** If you are no longer eligible, your discount will be removed and the
+  Operator must review the order.
+- **Atomic registration:** snapshots of Combos and links with lines must be
+  recorded in the same transaction as the order and stock issues.
+- **Combo Snapshot:** must preserve original identifier, name, price
+  fixed, economy, components, configurations, quantities, prices prior to
+  discount and links between components and order lines.
+- **Immutability:** subsequent changes or deletions do not modify the order.
+- **Performance:** Combo recalculation must finish within 1 second
+  normal conditions, including with competing Combos.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Resumo automático:** o carrinho deve exibir cada Combo aplicado, uma
-  aplicação, seus produtos participantes e a economia gerada.
-- **Preços transparentes:** linhas mantêm os valores originais e o desconto do
-  Combo aparece separadamente antes do total.
-- **Sem controle manual:** não deve existir ação para remover ou selecionar um
+- **Automatic summary:** the cart must display each Combo applied, a
+  application, its participating products and the savings generated.
+- **Transparent prices:** lines maintain the original values and the discount
+  Combo appears separately before the total.
+- **No manual control:** there must be no action to remove or select a
   Combo.
-- **Atualização:** alterações no carrinho devem atualizar Combos e total sem
-  exigir recarregamento da página.
-- **Conflito reutilizável:** conflitos identificados na revalidação devem usar
-  um diálogo comum de conflitos do pedido, com título, motivo, itens afetados e
-  ação de revisão.
-- **Alerta:** mudanças de canal ou Combo que apenas recalculam valores usam
-  tratamento de alerta e a ação `Revisar valores`.
-- **Erro bloqueante:** produto, configuração ou estoque indisponível usa
-  tratamento de erro e a ação `Revisar itens`.
-- **Falha técnica:** falha de conexão ou processamento deve assegurar que o
-  pedido não foi registrado parcialmente e oferecer `Tentar novamente`.
-- **Carrinho preservado:** todos os diálogos de conflito mantêm os itens e as
-  escolhas válidas.
-- **Histórico:** o detalhe do pedido deve exibir nome, preço fixo, economia e
-  produtos participantes de cada Combo aplicado.
-- **Sem Combo:** quando nenhum Combo for elegível, o carrinho segue normalmente
-  sem mensagem de erro.
-- **Acessibilidade:** aplicação, remoção automática e alterações de total devem
-  ser anunciadas sem depender somente de cor.
+- **Update:** changes to the cart must update Combos and total without
+  require page reloading.
+- **Reusable conflict:** conflicts identified in revalidation must use
+  a common order conflict dialog, with title, reason, affected items and
+  review action.
+- **Alert:** channel or Combo changes that only recalculate values use
+  alert handling and the `Review values` action.
+- **Blocking error:** product, configuration or stock unavailable uses
+  error handling and the `Review items` action.
+- **Technical failure:** connection or processing failure must ensure that the
+  order was not partially registered and offer `Try again`.
+- **Cart preserved:** all conflict dialogs keep the items and
+  valid choices.
+- **History:** order detail must display name, fixed price, economy and
+  products participating in each Combo applied.
+- **No Combo:** when no Combo is eligible, the cart continues normally
+  no error message.
+- **Accessibility:** application, automatic removal and total changes must
+  be advertised without relying solely on color.
 
 ---
 
-### 5. Fluxo de Usuário (User Flow)
+### 5. User Flow
 
-#### Fluxo A - Gerente cria um canal de venda
+#### Flow A - Manager creates a sales channel
 
-1. O Gerente acessa `Canais de venda`.
-2. O sistema apresenta os canais da sorveteria.
-3. O Gerente seleciona `Novo canal`.
-4. O Gerente informa nome, percentual e status.
-5. O sistema valida:
-   - Sucesso: cria o canal e atualiza a listagem.
-   - Falha: mantém os dados e informa o campo inválido.
-6. O fluxo termina.
+1. The Manager accesses `Sales channels`.
+2. The system displays the ice cream shop channels.
+3. The Manager selects `New channel`.
+4. The Manager enters the name, percentage and status.
+5. The system validates:
+   - Success: creates the channel and updates the listing.
+   - Fail: keeps the data and reports the invalid field.
+6. The flow ends.
 
-#### Fluxo B - Gerente edita, inativa ou exclui um canal
+#### Flow B - Manager edits, inactivates or deletes a channel
 
-1. O Gerente abre as ações de um canal.
-2. Para editar, altera os dados e confirma.
-3. Para inativar, muda o status e confirma.
-4. Para excluir, revisa o aviso e confirma a ação destrutiva.
-5. O sistema preserva os snapshots dos pedidos anteriores.
-6. O sistema valida:
-   - Sucesso: atualiza ou remove o canal das operações futuras.
-   - Falha: mantém o estado anterior e informa o erro.
-7. O fluxo termina.
+1. The Manager opens the actions of a channel.
+2. To edit, change the data and confirm.
+3. To inactivate, change the status and confirm.
+4. To delete, review the warning and confirm the destructive action.
+5. The system preserves snapshots of previous orders.
+6. The system validates:
+   - Success: Updates or removes the channel from future operations.
+   - Failure: maintains the previous state and reports the error.
+7. The flow ends.
 
-#### Fluxo C - Gerente cria um Combo
+#### Flow C - Manager creates a Combo
 
-1. O Gerente acessa `Descontos`.
-2. O sistema apresenta a busca, os filtros `Tipo` e `Status` e os descontos da
-   sorveteria.
-3. O Gerente seleciona `Criar desconto` e escolhe o tipo `Combo`.
-4. O Gerente informa um nome único e adiciona pelo menos dois produtos
-   distintos.
-5. Para cada Porção, informa tamanho, acompanhamentos incluídos e quantidade;
-   para cada Revenda, informa marca quando aplicável e quantidade.
-6. O Gerente informa o preço final fixo e o status.
-7. O sistema calcula e apresenta a economia.
-8. O sistema valida:
-   - Sucesso: cria o Combo e atualiza a listagem.
-   - Falha: preserva os dados e informa nome duplicado, composição inválida,
-     componente indisponível ou ausência de economia.
-9. O fluxo termina.
+1. The Manager accesses `Discounts`.
+2. The system displays the search, the `Type` and `Status` filters and the discounts of the
+   ice cream shop.
+3. The Manager selects `Create discount` and chooses the `Combo` type.
+4. The Manager enters a unique name and adds at least two products
+   distinct.
+5. For each Portion, inform the size, included accompaniments and quantity;
+   for each Resale, inform brand when applicable and quantity.
+6. The Manager enters the final fixed price and status.
+7. The system calculates and displays the savings.
+8. The system validates:
+   - Success: creates the Combo and updates the listing.
+   - Failure: preserves data and reports duplicate name, invalid composition,
+     unavailable component or lack of savings.
+9. The flow ends.
 
-#### Fluxo D - Gerente edita, inativa ou exclui um Combo
+#### Flow D - Manager edits, inactivates or deletes a Combo
 
-1. O Gerente abre as ações de um Combo.
-2. Para editar, altera seus dados e confirma.
-3. Para inativar ou reativar, altera o status; uma reativação revalida todos os
-   componentes e a economia.
-4. Para excluir, revisa o aviso sobre histórico e carrinhos abertos e confirma.
-5. O sistema preserva os snapshots dos pedidos registrados.
-6. Carrinhos abertos são recalculados na próxima interação ou tentativa de
-   registro.
-7. O sistema valida:
-   - Sucesso: atualiza ou remove o Combo das operações futuras.
-   - Falha: mantém o estado anterior e informa o erro.
-8. O fluxo termina.
+1. The Manager opens the actions of a Combo.
+2. To edit, change your data and confirm.
+3. To deactivate or reactivate, change the status; reactivation revalidates all
+   components and the economy.
+4. To delete, review the notice about history and open carts and confirm.
+5. The system preserves snapshots of registered orders.
+6. Open carts are recalculated on the next interaction or checkout attempt
+   registration.
+7. The system validates:
+   - Success: updates or removes the Combo from future operations.
+   - Failure: maintains the previous state and reports the error.
+8. The flow ends.
 
-#### Fluxo E - Operador inicia uma nova venda
+#### Flow E - Operator starts a new sale
 
-1. O Operador acessa `Nova venda`.
-2. O sistema apresenta a grade, a busca, os filtros, o seletor opcional de canal
-   e o carrinho vazio.
-3. O sistema usa preços-base enquanto nenhum canal estiver selecionado.
-4. O Operador busca ou filtra produtos.
-5. Produtos sem estoque permanecem visíveis como indisponíveis.
-6. Produtos já presentes no carrinho permanecem visíveis com o selo
-   `Adicionado` e bloqueados para nova seleção.
-7. O fluxo segue para configuração de Porção ou Revenda.
+1. The Operator accesses `New sale`.
+2. The system presents the grid, search, filters, optional channel selector
+   and the cart is empty.
+3. The system uses base prices while no channels are selected.
+4. The Operator searches or filters products.
+5. Out-of-stock products remain visible as unavailable.
+6. Products already present in the cart remain visible with the seal
+   `Added` and locked for reselection.
+7. The flow continues to Portion or Resale configuration.
 
-#### Fluxo F - Operador adiciona uma Porção
+#### Flow F - Operator adds a Portion
 
-1. O Operador seleciona uma Porção disponível.
-2. O sistema apresenta tamanhos, acompanhamentos e quantidade.
-3. O Operador configura o item.
-4. O sistema calcula preço, consumo e subtotal.
-5. O Operador seleciona `Adicionar ao carrinho`.
-6. O sistema valida:
-   - Produto ausente do carrinho: cria uma única linha e marca seu card como
-     `Adicionado`.
-   - Produto já presente: bloqueia a inclusão, preserva a linha existente e
-     orienta o ajuste no carrinho.
-   - Falha: preserva as escolhas e informa a correção necessária.
-7. O fluxo retorna à montagem.
+1. The Operator selects an available Portion.
+2. The system presents sizes, accompaniments and quantity.
+3. Operator configures the item.
+4. The system calculates price, consumption and subtotal.
+5. Operator selects `Add to Cart`.
+6. The system validates:
+   - Product missing from cart: creates a single line and marks your card as
+     `Added`.
+   - Product already present: blocks inclusion, preserves the existing line and
+     guides the adjustment of the stroller.
+   - Failure: preserves the choices and explains the necessary correction.
+7. The flow returns to the assembly.
 
-#### Fluxo G - Operador adiciona uma Revenda
+#### Flow G - Operator adds a Resale product
 
-1. O Operador seleciona uma Revenda disponível.
-2. O sistema apresenta produto, marca quando aplicável e quantidade.
-3. O Operador configura o item.
-4. O sistema calcula preço, consumo e subtotal.
-5. O Operador seleciona `Adicionar ao carrinho`.
-6. O sistema valida:
-   - Produto ausente do carrinho: cria uma única linha e marca seu card como
-     `Adicionado`.
-   - Produto já presente: bloqueia a inclusão, preserva a linha existente e
-     orienta o ajuste no carrinho.
-   - Falha: preserva os dados e informa a correção necessária.
-7. O fluxo retorna à montagem.
+1. The Operator selects an available Resale product.
+2. The system displays the product, brand when applicable and quantity.
+3. Operator configures the item.
+4. The system calculates price, consumption and subtotal.
+5. Operator selects `Add to Cart`.
+6. The system validates:
+   - Product missing from cart: creates a single line and marks your card as
+     `Added`.
+   - Product already present: blocks inclusion, preserves the existing line and
+     guides the adjustment of the stroller.
+   - Failure: preserves the data and explains the necessary correction.
+7. The flow returns to the assembly.
 
-#### Fluxo H - Operador edita o carrinho
+#### Flow H - Operator edits the cart
 
-1. O Operador abre um item do carrinho.
-2. O sistema apresenta a configuração atual.
-3. O Operador altera tamanho, marca, acompanhamentos ou quantidade.
-4. O sistema recalcula preço, consumo e subtotal.
-5. O Operador confirma:
-   - Sucesso: atualiza a única linha existente para o produto.
-   - Falha: preserva a edição e informa o problema.
-6. O fluxo retorna ao carrinho.
+1. The Operator opens an item from the cart.
+2. The system displays the current configuration.
+3. The Operator changes size, brand, toppings or quantity.
+4. The system recalculates price, consumption and subtotal.
+5. The Operator confirms:
+   - Success: Updates the only existing line for the product.
+   - Failure: preserves the edit and reports the problem.
+6. The flow returns to the cart.
 
-#### Fluxo I - Sistema aplica Combos automaticamente
+#### Flow I - System applies Combos automatically
 
-1. O Operador inclui, edita ou remove produtos ou altera quantidades.
-2. O sistema identifica todos os Combos ativos com correspondência exata.
-3. O sistema resolve disputas sem reutilizar unidades e escolhe a combinação de
-   maior economia total; em empate, prioriza os Combos criados primeiro.
-4. Cada Combo pode aparecer uma vez, mas Combos diferentes podem coexistir.
-5. O sistema mantém os produtos em linhas separadas e exibe os descontos no
-   resumo do pedido.
-6. O Operador não pode remover manualmente os Combos elegíveis.
-7. Se nenhum Combo gerar economia, o pedido permanece sem desconto.
-8. O fluxo retorna à montagem.
+1. The Operator adds, edits or removes products or changes quantities.
+2. The system identifies all active Combos with exact matches.
+3. The system resolves disputes without reusing units and chooses the combination of
+   greater total savings; in a tie, prioritizes the Combos created first.
+4. Each Combo can appear once, but different Combos can coexist.
+5. The system keeps products on separate lines and displays discounts in the
+   order summary.
+6. The Operator cannot manually remove eligible Combos.
+7. If no Combo generates savings, the order remains without discount.
+8. The flow returns to the assembly.
 
-#### Fluxo J - Operador seleciona ou troca o canal
+#### Flow J - Operator selects or changes the channel
 
-1. O Operador abre o seletor de canal.
-2. O sistema apresenta canais ativos e `Sem canal`.
-3. O Operador escolhe uma opção.
-4. O sistema recalcula todos os componentes pagos.
-5. O sistema atualiza preços, subtotais e total.
-6. Em caso de falha, mantém a seleção anterior e preserva o carrinho.
-7. O fluxo retorna à montagem.
+1. Operator opens the channel selector.
+2. The system displays active channels and `No channel`.
+3. The Operator chooses an option.
+4. The system recalculates all paid components.
+5. The system updates prices, subtotals and total.
+6. In case of failure, keep the previous selection and preserve the cart.
+7. The flow returns to the assembly.
 
-#### Fluxo K - Operador registra um pedido
+#### Flow K - Operator records an order
 
-1. O Operador seleciona `Registrar pedido`.
-2. O sistema revalida canal, Combos, configurações e estoque.
-3. O sistema apresenta número de itens, canal ou `Sem canal`, Combos aplicados,
-   economia e total.
-4. O Operador confirma `Registrar pedido`.
-5. O sistema executa em uma transação:
-   - criação do pedido;
-   - geração do número sequencial;
-   - gravação dos snapshots;
-   - gravação dos descontos e vínculos dos Combos;
-   - baixa de todos os estoques.
-6. O sistema exibe `Pedido #<número> registrado com sucesso`.
-7. O sistema limpa o carrinho.
-8. O fluxo termina.
+1. The Operator selects `Register order`.
+2. The system revalidates channel, Combos, settings and stock.
+3. The system displays number of items, channel or `No channel`, Combos applied,
+   economy and total.
+4. Operator confirms `Register order`.
+5. The system executes in one transaction:
+   - creation of the order;
+   - generation of the sequential number;
+   - recording of snapshots;
+   - recording of discounts and Combo links;
+   - write-off of all stocks.
+6. The system displays `Order #<number> registered successfully`.
+7. The system cleans the cart.
+8. The flow ends.
 
-#### Fluxo L - Canal muda durante a montagem
+#### L Flow - Channel changes during assembly
 
-1. O Operador tenta registrar um pedido com canal selecionado.
-2. O sistema identifica que o canal foi alterado.
-3. O sistema recalcula o carrinho com o percentual vigente.
-4. O sistema informa a alteração.
-5. O Operador revisa e confirma novamente.
-6. Se o canal foi inativado ou excluído, o sistema remove a seleção e permite
-   seguir sem canal ou escolher outro.
-7. O fluxo retorna à confirmação.
+1. The Operator tries to register an order with the selected channel.
+2. The system identifies that the channel has been changed.
+3. The system recalculates the cart with the current percentage.
+4. The system notifies you of the change.
+5. Operator reviews and confirms again.
+6. If the channel has been inactivated or deleted, the system removes the selection and allows
+   continue without a channel or choose another one.
+7. The flow returns to confirmation.
 
-#### Fluxo M - Estoque fica insuficiente
+#### Flow M - Stock is insufficient
 
-1. O Operador tenta registrar um pedido.
-2. O sistema consolida e revalida todos os consumos.
-3. Um produto ou marca não possui saldo suficiente.
-4. O sistema bloqueia o pedido inteiro.
-5. Nenhum pedido ou baixa é persistido.
-6. O carrinho é preservado e os itens insuficientes são destacados.
-7. O Operador edita ou remove os itens e tenta novamente.
+1. The Operator attempts to register an order.
+2. The system consolidates and revalidates all consumption.
+3. A product or brand does not have sufficient balance.
+4. The system blocks the entire order.
+5. No orders or downloads are persisted.
+6. The cart is preserved and insufficient items are highlighted.
+7. The Operator edits or removes the items and tries again.
 
-#### Fluxo N - Falha de conexão ou processamento
+#### Flow N - Connection or processing failure
 
-1. O Operador tenta registrar um pedido.
-2. A conexão ou a transação falha.
-3. O sistema confirma que nenhuma baixa parcial foi mantida.
-4. O carrinho permanece na tela.
-5. O sistema oferece `Tentar novamente`.
-6. O fluxo retorna à confirmação.
+1. The Operator attempts to register an order.
+2. The connection or transaction fails.
+3. The system confirms that no partial write-offs were maintained.
+4. The cart remains on the screen.
+5. The system offers `Try again`.
+6. The flow returns to confirmation.
 
-#### Fluxo O - Combo muda durante a montagem
+#### Flow O - Combo changes during assembly
 
-1. O Operador tenta registrar um pedido com Combo aplicado.
-2. O sistema identifica alteração, inativação, exclusão ou perda de elegibilidade
-   do Combo.
-3. O sistema recalcula a melhor combinação e o total.
-4. O sistema abre o diálogo reutilizável de conflito do pedido e informa os
-   descontos alterados ou removidos.
-5. Os produtos permanecem no carrinho.
-6. O Operador seleciona `Revisar valores` ou `Revisar itens`, conforme o tipo de
-   conflito.
-7. Depois da revisão, o Operador confirma novamente.
+1. The Operator attempts to register an order with Combo applied.
+2. The system identifies changes, inactivation, exclusion or loss of eligibility
+   of the Combo.
+3. The system recalculates the best combination and the total.
+4. The system opens the reusable order conflict dialog and informs the
+   discounts changed or removed.
+5. The products remain in the cart.
+6. The Operator selects `Review values` or `Review items`, depending on the type of
+   conflict.
+7. After review, the Operator confirms again.
 
-#### Fluxo P - Usuário consulta pedidos
+#### Flow P - User queries orders
 
-1. O usuário acessa `Pedidos`.
-2. O sistema apresenta os pedidos mais recentes da sorveteria.
-3. O usuário filtra por período e canal, inclusive `Sem canal`.
-4. O sistema reinicia e atualiza a listagem.
-5. O usuário abre um pedido.
-6. O sistema apresenta os snapshots completos da venda, incluindo Combos,
-   economia e produtos participantes.
-7. Não são oferecidas ações de edição, cancelamento, estorno ou exclusão.
-8. O fluxo termina.
+1. The user accesses `Orders`.
+2. The system displays the ice cream shop's most recent orders.
+3. The user filters by period and channel, including `No channel`.
+4. The system restarts and updates the listing.
+5. The user opens an order.
+6. The system presents complete snapshots of the sale, including Combos,
+   economy and participating products.
+7. No editing, cancellation, reversal or deletion actions are offered.
+8. The flow ends.
 
 ---
 
-### 6. Fora do Escopo (Out of Scope)
+### 6. Out of Scope
 
-- Formas de pagamento, caixa, troco, sangria, suprimento e conciliação.
-- Cancelamento ou estorno de pedidos.
-- Edição ou exclusão de pedidos registrados.
-- Identificação, cadastro ou histórico de clientes.
-- Fidelidade, cashback, cupons ou crédito de cliente.
-- Tipos de desconto diferentes de Combo.
-- Mecânica `Pague X, leve Y`.
-- Combo formado por apenas um produto ou por menos de dois produtos distintos.
-- Mais de uma aplicação do mesmo Combo no pedido.
-- Vigência, data inicial, data final ou agendamento de descontos.
-- Seleção, aplicação ou remoção manual de Combo pelo Operador.
-- Observações livres por item ou pedido.
-- Impressão de recibo, cupom ou documento fiscal.
-- NFC-e, SAT, NF-e ou outras integrações fiscais.
-- Integração com iFood, Rappi, WhatsApp, maquininhas ou outros sistemas.
-- Importação automática de pedidos externos.
-- Operação offline e sincronização posterior.
-- Preço ou percentual específico por `produto + canal`.
-- Mais de um canal ou modificador no mesmo pedido.
-- Modificador manual separado do canal.
-- Relatórios, dashboards, indicadores e exportações.
-- Rascunhos persistentes de pedidos.
-- Reserva de estoque ao adicionar ao carrinho.
-- Configuração de produtos, tamanhos, marcas, acompanhamentos ou estoque dentro
-  do módulo de Vendas.
-- Mesas, comandas, cozinha, divisão de conta e entrega.
-- Gestão multiloja avançada para redes e franquias.
-- Inventário físico, lotes, validade, perdas e desperdícios.
+- Methods of payment, cash, change, bleeding, supply and reconciliation.
+- Cancellation or reversal of orders.
+- Editing or deleting registered orders.
+- Identification, registration or customer history.
+- Loyalty, cashback, coupons or customer credit.
+- Types of discounts other than Combo.
+- `Pay X, get Y` mechanics.
+- Combo consisting of just one product or less than two different products.
+- More than one application of the same Combo in the order.
+- Validity, start date, end date or discount scheduling.
+- Manual selection, application or removal of Combo by the Operator.
+- Free observations per item or order.
+- Printing of receipt, coupon or tax document.
+- NFC-e, SAT, NF-e or other tax integrations.
+- Integration with iFood, Rappi, WhatsApp, machines or other systems.
+- Automatic import of external orders.
+- Offline operation and later synchronization.
+- Specific price or percentage per `product + channel`.
+- More than one channel or modifier in the same order.
+- Separate manual channel changer.
+- Reports, dashboards, indicators and exports.
+- Persistent order drafts.
+- Stock reservation when adding to cart.
+- Configuration of products, sizes, brands, accompaniments or stock within
+  of the Sales module.
+- Tables, controls, kitchen, bill division and delivery.
+- Advanced multi-store management for chains and franchises.
+- Physical inventory, batches, validity, losses and waste.
 
-#### Descartado durante a definição
+#### Discarded during definition
 
-- **Múltiplas linhas ou agrupamento do mesmo produto:** descartado; cada produto
-  pode ocupar somente uma linha, e novas unidades ou configurações devem ser
-  ajustadas no item existente do carrinho.
-- **Nome `PDV`:** substituído por `Nova venda`.
-- **Grupo de navegação `Vendas`:** descartado; `Nova venda`, `Pedidos` e
-  `Canais de venda` são entradas independentes.
-- **Modificador de preço genérico:** substituído por `Canal de venda`.
-- **Canal padrão:** descartado; nenhum canal é selecionado automaticamente.
-- **Canal obrigatório:** descartado; pedidos sem canal usam preços-base.
-- **Preço por produto e canal:** adiado; o MVP usa um percentual global.
-- **Ocultar produtos sem estoque:** substituído por exibição indisponível.
-- **Remover e adicionar novamente para editar:** substituído por edição direta.
-- **Bloquear exclusão de canal utilizado:** substituído por snapshot no pedido.
-- **Combo como produto do catálogo:** descartado; os produtos permanecem em
-  linhas separadas e o Combo é registrado como desconto do pedido.
-- **Combo com um único produto:** descartado; Combo exige pelo menos dois
-  produtos distintos e `Pague X, leve Y` permanece uma mecânica separada.
-- **Múltiplas aplicações do mesmo Combo:** descartado; cada Combo pode ser
-  aplicado no máximo uma vez por pedido.
-- **Escolha manual entre Combos concorrentes:** substituída pela aplicação
-  automática da combinação com maior economia total.
-- **Remoção manual de Combo elegível:** descartada para garantir consistência da
-  oferta durante o atendimento.
-- **Fabricável como categoria de venda:** um Fabricável só aparece quando também
-  é Porção ou Revenda.
-- **Tabela de preços separada:** preços-base permanecem no módulo de Produtos.
-- **Estoque negativo:** descartado; nenhuma venda pode produzir saldo negativo.
-- **Baixa parcial:** descartada; qualquer insuficiência bloqueia toda a venda.
-- **Rascunho persistente:** descartado; o carrinho existe apenas durante a
-  montagem atual.
+- **Multiple lines or grouping of the same product:** discarded; each product
+  can only occupy one line, and new units or configurations must be
+  adjusted to the existing item in the cart.
+- **Name `POS`:** replaced by `New sale`.
+- **Navigation group `Sales`:** discarded; `New Sale`, `Orders` and
+  `Sales channels` are independent inputs.
+- **Generic price modifier:** replaced by `Sales channel`.
+- **Default channel:** discarded; no channels are selected automatically.
+- **Mandatory channel:** discarded; channelless orders use base prices.
+- **Price per product and channel:** postponed; MVP uses a global percentage.
+- **Hide out-of-stock products:** replaced by unavailable display.
+- **Remove and re-add to edit:** replaced by direct edit.
+- **Block deletion of used channel:** replaced by snapshot in the order.
+- **Combo as catalog product:** discarded; the products remain in
+  separate lines and the Combo is recorded as an order discount.
+- **Combo with a single product:** discarded; Combo requires at least two
+  distinct products and `Pay X, get Y` remains a separate mechanic.
+- **Multiple applications of the same Combo:** discarded; each Combo can be
+  applied no more than once per order.
+- **Manual choice between competing Combos:** replaced by the application
+  automatic combination with greater total savings.
+- **Manual removal of eligible Combo:** discarded to ensure consistency of
+  offer during the service.
+- **Manufacturable as a sales category:** a Manufacturable only appears when it also
+  is Portion or Resale.
+- **Separate price table:** base prices remain in the Products module.
+- **Negative stock:** discarded; no sale can produce a negative balance.
+- **Partial write-off:** discarded; any insufficiency blocks the entire sale.
+- **Persistent draft:** discarded; the cart exists only during the
+  current assembly.

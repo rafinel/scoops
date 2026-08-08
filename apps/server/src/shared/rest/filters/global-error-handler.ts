@@ -6,12 +6,10 @@ import {
   type ExceptionFilter,
 } from '@nestjs/common'
 import { HttpAdapterHost } from '@nestjs/core'
-import {
-  AppError,
-  BadRequestError,
-  ConflictError,
-  NotFoundError,
-} from '@scoops/core/shared/domain/errors'
+
+type CoreError = Error & {
+  readonly title: string
+}
 
 export type ErrorResponse = {
   readonly statusCode: number
@@ -51,19 +49,19 @@ export class GlobalErrorHandler implements ExceptionFilter {
       }
     }
 
-    if (exception instanceof NotFoundError) {
+    if (this.isCoreError(exception, 'NotFoundError')) {
       return this.createSharedErrorResponse(exception, HttpStatus.NOT_FOUND, path)
     }
 
-    if (exception instanceof BadRequestError) {
+    if (this.isCoreError(exception, 'BadRequestError')) {
       return this.createSharedErrorResponse(exception, HttpStatus.BAD_REQUEST, path)
     }
 
-    if (exception instanceof ConflictError) {
+    if (this.isCoreError(exception, 'ConflictError')) {
       return this.createSharedErrorResponse(exception, HttpStatus.CONFLICT, path)
     }
 
-    if (this.isAppError(exception)) {
+    if (this.isCoreError(exception)) {
       return this.createSharedErrorResponse(
         exception,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -81,7 +79,7 @@ export class GlobalErrorHandler implements ExceptionFilter {
   }
 
   private createSharedErrorResponse(
-    exception: AppError,
+    exception: CoreError,
     statusCode: number,
     path: string,
   ): ErrorResponse {
@@ -115,8 +113,12 @@ export class GlobalErrorHandler implements ExceptionFilter {
     return fallback
   }
 
-  private isAppError(exception: unknown): exception is AppError {
-    return exception instanceof AppError
+  private isCoreError(exception: unknown, name?: string): exception is CoreError {
+    return (
+      exception instanceof Error &&
+      typeof (exception as Partial<CoreError>).title === 'string' &&
+      (!name || exception.constructor.name === name)
+    )
   }
 
   private isRecord(value: unknown): value is Record<string, unknown> {

@@ -1,491 +1,491 @@
 # Design System — Scoops
 
-> Sorvete · Açaí · Gelado
+> Ice Cream · Açaí · Frozen Treats
 
-Guia de design do produto Scoops. Alinha tokens, componentes e padrões de tela para consistência entre módulos (Auth, Estoque, Vendas, BI, Billing).
+Scoops Product Design Guide. Aligns tokens, components and screen patterns for consistency between modules (Auth, Inventory, Sales, BI, Billing).
 
-Fontes: CSS global do app, referência **Purple Stream** e telas desenhadas no Pencil.
+Sources: Global CSS of the app, reference **Purple Stream** and screens drawn with Pencil.
 
 ---
 
-## 1. Princípios
+## 1. Principles
 
-- **Números protagonistas.** Métricas grandes, pesadas (700–800) em preto sobre backgrounds neutros. Cor entra para reforçar semântica (verde = bom, vermelho = alerta), não para decorar.
-- **Cards com radius alto e sombra sutil.** `border-radius: 16px`, sombra leve para separar sem competir. Zero ruído visual.
-- **Roxo é a marca, não o fundo.** Roxo aparece em elementos de identidade (logo, botão primário, tab ativa, item de menu selecionado). Superfícies principais são branco e cinza claro.
-- **Sidebar como navegação estável.** Fundo claro, ícones + texto, agrupamentos expansíveis, item ativo em pill lilás.
-- **Cálculos em tempo real, alertas visuais imediatos.** Estados críticos (limitador de produção, estoque abaixo do ideal) são comunicados por cor de fundo e ícone, não só por texto.
-- **Formulários salvam ao perder foco.** Configurações do produto não têm botão "Salvar". Cada campo salva inline. Botões só existem em ações destrutivas ou irreversíveis.
-- **Ícones apenas do Lucide.** Nenhuma outra biblioteca ou emoji.
+- **Protagonist numbers.** Large, heavy metrics (700–800) in black on neutral backgrounds. Color is used to reinforce semantics (green = good, red = alert), not to decorate.
+- **Cards with high radius and subtle shadow.** `border-radius: 16px`, light shadow to separate without competing. Zero visual noise.
+- **Purple is the brand, not the background.** Purple appears in identity elements (logo, primary button, active tab, selected menu item). Main surfaces are white and light gray.
+- **Sidebar as stable navigation.** Light background, icons + text, expandable groupings, active item in lilac pill.
+- **Real-time calculations, immediate visual alerts.** Critical states (production limiter, sub-optimal stock) are communicated by background color and icon, not just by text.
+- **Forms save when losing focus.** Product settings do not have a "Save" button. Each field saves inline. Buttons only exist in destructive or irreversible actions.
+- **Lucide-only icons.** No other libraries or emojis.
 
 ---
 
 ## 2. Tokens
 
-### Cores
+### Colors
 
-**Primárias**
-| Token | Hex | Uso |
+**Primaries**
+| Token | Hex | Usage |
 |---|---|---|
-| `$primary` | `#6D28F5` | Marca, botão primário, tab ativa, item selecionado |
-| `$primary-soft` | `#EDE9FE` | Fundo de tab ativa, badge de destaque, preview de cálculos, chip de categoria Fabricável |
+| `$primary` | `#6D28F5` | Tag, primary button, active tab, selected item |
+| `$primary-soft` | `#EDE9FE` | Active tab background, highlight badge, calculation preview, Manufacturable category chip |
 
-**Superfícies e texto**
-| Token | Hex | Uso |
+**Surfaces and text**
+| Token | Hex | Usage |
 |---|---|---|
-| `$bg-page` | `#F7F7F8` | Fundo da área de conteúdo (não da sidebar/header) |
-| `$bg-card` | `#FFFFFF` | Cards, header, sidebar, modais |
-| `$bg-muted` | `#F9FAFB` | Fundo de tabela header, campos sufixos/prefixos, blocos de preview neutros |
-| `$border` | `#E5E7EB` | Bordas de card, input, botão outline |
-| `$border-soft` | `#F3F4F6` | Separadores de linha em tabela |
-| `$text-primary` | `#111827` | Texto principal |
-| `$text-secondary` | `#6B7280` | Labels, subtítulos, texto de apoio |
-| `$text-tertiary` | `#9CA3AF` | Placeholders, hints, separadores decorativos |
+| `$bg-page` | `#F7F7F8` | Content area background (not sidebar/header) |
+| `$bg-card` | `#FFFFFF` | Cards, header, sidebar, modals |
+| `$bg-muted` | `#F9FAFB` | Table background header, suffix/prefix fields, neutral preview blocks |
+| `$border` | `#E5E7EB` | Card borders, input, button outline |
+| `$border-soft` | `#F3F4F6` | Row separators in table |
+| `$text-primary` | `#111827` | Main text |
+| `$text-secondary` | `#6B7280` | Labels, subtitles, supporting text |
+| `$text-tertiary` | `#9CA3AF` | Placeholders, hints, decorative separators |
 
-**Semânticas — sucesso**
-| Token | Hex | Uso |
+**Semantics — success**
+| Token | Hex | Usage |
 |---|---|---|
-| `$success` | `#166534` | Texto/ícone em badges e estados positivos escuros |
-| `$success-soft` | `#DCFCE7` | Fundo de badge de status "Ativo" |
-| `$success-vivid` | `#059669` / `#10B981` | Números positivos protagonistas (margem, "estoque permite", "estoque do produto após produção") |
+| `$success` | `#166534` | Text/icon on dark positive badges and statuses |
+| `$success-soft` | `#DCFCE7` | "Active" status badge background |
+| `$success-vivid` | `#059669` / `#10B981` | Leading positive numbers (margin, "stock allows", "product stock after production") |
 
-**Semânticas — atenção**
-| Token | Hex | Uso |
+**Semantics — attention**
+| Token | Hex | Usage |
 |---|---|---|
-| `$warning` | `#92400E` | Texto de labels em cards de alerta suave |
-| `$warning-vivid` | `#B45309` | Valores em destaque em cards de alerta suave (ex: "Máximo Produzível" limitado) |
-| `$warning-soft` | `#FEF3C7` | Fundo de badge/card de atenção |
+| `$warning` | `#92400E` | Label text on soft alert cards |
+| `$warning-vivid` | `#B45309` | Featured values ​​on soft alert cards (e.g. limited "Maximum Producible") |
+| `$warning-soft` | `#FEF3C7` | Attention badge/card background |
 
-**Semânticas — perigo**
-| Token | Hex | Uso |
+**Semantics — danger**
+| Token | Hex | Usage |
 |---|---|---|
-| `$danger` | `#B91C1C` / `#991B1B` | Texto e ícones em alertas de erro |
-| `$danger-vivid` | `#DC2626` | Botão destrutivo cheio |
-| `$danger-soft` | `#FEE2E2` | Fundo de chip categoria Revenda, ícone de dialog destrutivo |
-| `$danger-bg` | `#FEF2F2` | Fundo de linha em vermelho na tabela de receita (estoque insuficiente) |
+| `$danger` | `#B91C1C` / `#991B1B` | Text and icons in error alerts |
+| `$danger-vivid` | `#DC2626` | Full destructive button |
+| `$danger-soft` | `#FEE2E2` | Resale category chip background, destructive dialog icon |
+| `$danger-bg` | `#FEF2F2` | Red line background in recipe table (insufficient stock) |
 
-**Semânticas — info**
-| Token | Hex | Uso |
+**Semantics — info**
+| Token | Hex | Usage |
 |---|---|---|
-| `$info` | `#1E40AF` | Texto de chip categoria Ingrediente, badge Entrada Manual |
-| `$info-soft` | `#DBEAFE` | Fundo dos mesmos |
+| `$info` | `#1E40AF` | Chip text category Ingredient, badge Manual Entry |
+| `$info-soft` | `#DBEAFE` | Background thereof |
 
-### Tipografia
+### Typography
 
-**Família:** `Manrope`, com fallback `"Segoe UI", system-ui, sans-serif`.
+**Family:** `Manrope`, with fallback `"Segoe UI", system-ui, sans-serif`.
 
-**Pesos usados:** 500, 600, 700, 800, 900.
+**Weights used:** 500, 600, 700, 800, 900.
 
-**Escala**
-| Uso | Tamanho | Peso |
+**Scale**
+| Usage | Size | Weight |
 |---|---|---|
-| Título de página / nome do produto | 24 | 700 |
-| Título de card / seção | 18 | 700 |
-| Título de modal | 20 | 800 |
-| Valor de métrica grande | 22–34 | 700–800 |
-| Corpo padrão | 14 | 400–700 |
-| Label de campo / subtítulo | 13 | 600 (label) / 400 (subtítulo) |
-| Header de tabela (uppercase) | 11 | 600, letter-spacing 0.5 |
-| Hint / caption / breadcrumb | 12–13 | 500 |
+| Page Title / Product Name | 24 | 700 |
+| Card/section title | 18 | 700 |
+| Modal title | 20 | 800 |
+| Large Metric Value | 22–34 | 700–800 |
+| Standard body | 14 | 400–700 |
+| Field label / subtitle | 13 | 600 (label) / 400 (subtitle) |
+| Table header (uppercase) | 11 | 600, letter-spacing 0.5 |
+| Hint/caption/breadcrumb | 12–13 | 500 |
 
-Logo "Scoops" é itálico, peso 900, cor `$primary`.
+"Scoops" logo is italic, weight 900, color `$primary`.
 
-Tagline abaixo do logo em uppercase, peso 800, letter-spacing 1.2–1.5, cor `$text-secondary`.
+Tagline below the logo in uppercase, weight 800, letter-spacing 1.2–1.5, color `$text-secondary`.
 
 ### Radius
 
-| Token | Valor | Uso |
+| Token | Value | Usage |
 |---|---|---|
-| `$radius-sm` | 6px | Botões pequenos em tabela (Editar, Remover, paginação) |
-| `$radius-md` | 8–10px | Botões primários/outline, tabs em pill, inputs, badges de tab |
-| `$radius-lg` | 12px | Cards de tabela interna, inputs de preview, badges de alerta |
-| `$radius-xl` | 16px | Cards principais, modais |
-| `$radius-full` | 999px | Chips, badges arredondados, switch, ícones circulares |
+| `$radius-sm` | 6px | Small buttons in table (Edit, Remove, pagination) |
+| `$radius-md` | 8–10px | Primary/outline buttons, pill tabs, inputs, tab badges |
+| `$radius-lg` | 12px | Internal table cards, preview inputs, alert badges |
+| `$radius-xl` | 16px | Main cards, modals |
+| `$radius-full` | 999px | Chips, rounded badges, switch, circular icons |
 
-### Sombras
+### Shadows
 
-| Uso | Valor |
+| Usage | Value |
 |---|---|
-| Card principal | `0 1px 3px rgba(0,0,0,0.05)` |
-| Card de tab ativa | `0 1px 2px rgba(0,0,0,0.06)` |
-| Botão primário | `0 8px 20px rgba(109, 40, 217, 0.25)` |
-| Botão destrutivo | `0 8px 20px rgba(220, 38, 38, 0.25)` |
-| Modal / dialog | `0 20px 50px rgba(0,0,0,0.20)` |
+| Main Card | `0 1px 3px rgba(0,0,0,0.05)` |
+| Active tab card | `0 1px 2px rgba(0,0,0,0.06)` |
+| Primary button | `0 8px 20px rgba(109, 40, 217, 0.25)` |
+| Destructive Button | `0 8px 20px rgba(220, 38, 38, 0.25)` |
+| Modal/dialog | `0 20px 50px rgba(0,0,0,0.20)` |
 
-### Espaçamento
+### Spacing
 
-Escala de gap/padding: 4, 6, 8, 12, 14, 16, 20, 24, 32.
+Gap/padding scale: 4, 6, 8, 12, 14, 16, 20, 24, 32.
 
-- Interior de card principal: 24.
-- Gap entre seções empilhadas: 20.
-- Padding lateral do conteúdo (dentro da Content area): 32.
-- Padding vertical de linha de tabela: 12–14.
+- Main card interior: 24.
+- Gap between stacked sections: 20.
+- Side content padding (within the Content area): 32.
+- Vertical table row padding: 12–14.
 
 ---
 
-## 3. Componentes
+## 3. Components
 
 ### Sidebar
 
-**Estrutura:**
-- Frame vertical, largura 280px, altura fill, `$bg-card`, borda direita `$border`.
-- Padding 20px lateral, 28 top, 24 bottom, gap 28 entre seções.
+**Structure:**
+- Vertical frame, width 280px, fill height, `$bg-card`, right border `$border`.
+- Padding 20px side, 28 top, 24 bottom, gap 28 between sections.
 
-**Brand no topo:**
-- Mark quadrado 40×40, `$primary`, radius 10, ícone `ice-cream-cone` branco 22px.
-- Texto "Scoops" ao lado (20/900, itálico, `$primary`) + tagline abaixo (9/800 uppercase, `$text-secondary`).
+**Brand on top:**
+- Mark square 40×40, `$primary`, radius 10, white `ice-cream-cone` icon 22px.
+- "Scoops" text on the side (20/900, italics, `$primary`) + tagline below (9/800 uppercase, `$text-secondary`).
 
-**Nav item padrão:**
-- Frame horizontal, padding 10×14, gap 12, radius 10.
-- Ícone Lucide 18×18 + texto 14/800 `$text-primary`.
+**Default item nav:**
+- Horizontal frame, padding 10×14, gap 12, radius 10.
+- Lucide 18×18 icon + 14/800 text `$text-primary`.
 
-**Nav item selecionado:**
-- Fundo `$primary-soft`, ícone e texto em `$primary` (peso 900 no texto).
-- Se for grupo expansível: chevron à direita, tamanho 16.
+**Nav selected item:**
+- Background `$primary-soft`, icon and text in `$primary` (weight 900 in text).
+- If it is an expandable group: chevron on the right, size 16.
 
-**Grupo expansível:**
-- Header (item padrão) + Subnav quando aberto.
-- Subnav com padding-left 26 e ponto (ellipse 6×6) antes de cada item filho.
-- Filho ativo: ponto e texto em `$primary`. Filho inativo: `$text-tertiary` / `$text-secondary`.
+**Expandable group:**
+- Header (default item) + Subnav when opened.
+- Subnav with padding-left 26 and dot (ellipse 6×6) before each child item.
+- Active child: point and text in `$primary`. Inactive child: `$text-tertiary` / `$text-secondary`.
 
-**Footer:**
-- Separador `border-top 1px $border-soft`.
-- Items Usuários e Assinatura (mesmo padrão dos nav items).
+**Footers:**
+- `border-top 1px $border-soft` separator.
+- User and Subscription Items (same pattern as nav items).
 
 ### Header
 
-**Estrutura:**
-- Frame horizontal, altura 72, padding 16 top/bottom + 24 lateral.
-- `$bg-card` com borda inferior 1px `$border`.
+**Structure:**
+- Horizontal frame, height 72, padding 16 top/bottom + 24 side.
+- `$bg-card` with bottom border 1px `$border`.
 
-**Search bar (esquerda):**
-- Frame horizontal, width ~320, padding 10×16, `$bg-card`, borda 1px `$border`, radius 12.
-- Ícone `search` 16px + placeholder 14/500 `$text-tertiary`.
+**Search bar (left):**
+- Horizontal frame, width ~320, padding 10×16, `$bg-card`, border 1px `$border`, radius 12.
+- `search` icon 16px + placeholder 14/500 `$text-tertiary`.
 
-**User card (direita):**
-- Frame horizontal, padding 8×14×8×8, gap 10, `$bg-card`, borda 1px `$border`, radius 12.
-- Avatar circular 32×32 (fundo `$success-soft`, texto `$success` 13/900).
-- Nome 14/800 + ícone `chevron-down` 14px cinza.
+**User card (right):**
+- Horizontal frame, padding 8×14×8×8, gap 10, `$bg-card`, border 1px `$border`, radius 12.
+- Circular avatar 32×32 (background `$success-soft`, text `$success` 13/900).
+- Name 14/800 + 14px gray `chevron-down` icon.
 
-### Cards principais
+### Main Cards
 
-**Estrutura padrão:**
-- `$bg-card`, radius 16, padding 24, gap 16–20 entre seções internas.
-- Sombra sutil (ver tokens).
+**Standard structure:**
+- `$bg-card`, radius 16, padding 24, gap 16–20 between inner sections.
+- Subtle shadow (see tokens).
 
-**Header do card:**
-- Título 18/700 + contador em cinza (14/500) quando aplicável.
-- Subtítulo 13/400 `$text-secondary`.
-- Botão principal (ex: "Vincular Marca") alinhado à direita.
+**Card header:**
+- Title 18/700 + counter in gray (14/500) when applicable.
+- Subtitle 13/400 `$text-secondary`.
+- Main button (e.g. "Link Brand") aligned to the right.
 
-### Métricas em cards
+### Card metrics
 
-Três variações:
+Three variations:
 
-**Neutra**
-- Fundo `$bg-muted`, padding 20, radius 16.
+**Neutral**
+- Background `$bg-muted`, padding 20, radius 16.
 - Label 11/600 uppercase `$text-secondary`, letter-spacing 0.5.
-- Valor 22–34/800 `$text-primary`.
-- Detalhe opcional 12/500 `$text-secondary` abaixo.
+- Value 22–34/800 `$text-primary`.
+- Optional 12/500 `$text-secondary` detail below.
 
-**Positiva (sucesso)**
-- Fundo `$bg-muted`, mesmo layout.
-- Valor em `$success-vivid`.
+**Positive (success)**
+- `$bg-muted` background, same layout.
+- Value in `$success-vivid`.
 
-**Atenção (limitador)**
-- Fundo `$warning-soft`, label em `$warning`, valor em `$warning-vivid`, detalhe em `$warning` 600.
+**Attention (limiter)**
+- Background `$warning-soft`, label in `$warning`, value in `$warning-vivid`, detail in `$warning` 600.
 
-### Botão primário
+### Primary button
 
-**Padrão:**
+**Default:**
 - Padding 8×14, `$primary`, radius 10, gap 6, alignItems center.
-- Ícone opcional 14×14 branco à esquerda.
-- Texto 13/700 branco.
-- Sombra roxa translúcida (ver tokens).
+- Optional 14×14 white icon on the left.
+- Text 13/700 white.
+- Translucent purple eyeshadow (see tokens).
 
-**Uso:** ações principais (Vincular Marca, Adicionar Ingrediente, Confirmar Produção, Salvar alterações, Entendi em dialogs de bloqueio).
+**Usage:** main actions (Link Brand, Add Ingredient, Confirm Production, Save changes, Understood in blocking dialogs).
 
-### Botão outline
+### Outline button
 
-- Padding 10×20, `$bg-card`, borda 1px `$border`, radius 10.
-- Texto 13/700 `$text-primary`.
-- **Uso:** Cancelar em modais.
+- Padding 10×20, `$bg-card`, border 1px `$border`, radius 10.
+- Text 13/700 `$text-primary`.
+- **Use:** Cancel in modals.
 
-### Botão destrutivo
+### Destructive button
 
-**Cheio (ação irreversível):**
-- Padding 10×20, `$danger-vivid`, radius 10, ícone `trash-2` branco 14px + texto 13/700 branco.
-- Sombra vermelha translúcida.
-- **Uso:** botão "Remover produto" na Zona de Perigo, botão final em dialogs de confirmação de deleção.
+**Full (irreversible action):**
+- Padding 10×20, `$danger-vivid`, radius 10, `trash-2` icon white 14px + text 13/700 white.
+- Translucent red eyeshadow.
+- **Use:** "Remove product" button in the Danger Zone, final button in deletion confirmation dialogs.
 
-**Outline (secundário):**
-- `$bg-card`, borda 1px `#FCA5A5`, texto `$danger` 13/700, ícone `trash-2` 14px.
-- **Uso:** "Remover ingrediente" no footer esquerdo do modal de edição, "Remover" nas tabelas.
+**Outline (secondary):**
+- `$bg-card`, 1px border `#FCA5A5`, `$danger` text 13/700, `trash-2` icon 14px.
+- **Usage:** "Remove ingredient" in the left footer of the editing modal, "Remove" in the tables.
 
-### Tabs em pill
+### Tabs in pill
 
 **Container:**
-- Frame horizontal, padding 4, gap 4, fundo cinza claro (`#F1F5F9`), radius 12.
+- Horizontal frame, padding 4, gap 4, light gray background (`#F1F5F9`), radius 12.
 
-**Tab inativa:**
-- Padding 8×16, gap 8, radius default.
-- Ícone Lucide 15×15 `$text-secondary` + label 14/600 `$text-secondary`.
+**Inactive tab:**
+- Padding 8×16, gap 8, default radius.
+- Lucide icon 15×15 `$text-secondary` + label 14/600 `$text-secondary`.
 
-**Tab ativa:**
-- Fundo `$bg-card`, radius 8, sombra sutil.
-- Ícone e label em `$primary` (label 14/700).
+**Active tab:**
+- Background `$bg-card`, radius 8, subtle shadow.
+- Icon and label in `$primary` (label 14/700).
 
-### Chips de categoria
+### Category Chips
 
-- Padding 4×10, radius 999, borda 1px na cor de destaque + fundo soft correspondente.
-- Texto 12/600.
+- Padding 4×10, radius 999, 1px border in highlight color + corresponding soft background.
+- Text 12/600.
 
-Mapeamento por categoria:
-| Categoria | Fundo | Texto/Borda |
+Mapping by category:
+| Category | Background | Text/Border |
 |---|---|---|
-| Ingrediente | `$info-soft` | `$info` / `#93C5FD` |
-| Fabricável | `$primary-soft` | `$primary` / `#C4B5FD` |
-| Acompanhamento | `$warning-soft` | `$warning` / `#FCD34D` |
-| Revenda | `$danger-soft` | `$danger` / `#FCA5A5` |
+| Ingredient | `$info-soft` | `$info` / `#93C5FD` |
+| Manufacturable | `$primary-soft` | `$primary` / `#C4B5FD` |
+| Accompaniment | `$warning-soft` | `$warning` / `#FCD34D` |
+| Resale | `$danger-soft` | `$danger` / `#FCA5A5` |
 
-Chip de status "Ativo": mesmo padrão em `$success-soft` / `$success` / `#86EFAC`.
+"Active" status chip: same default in `$success-soft` / `$success` / `#86EFAC`.
 
-### Badge de tipo (em tabela de movimentações)
+### Type badge (in movement table)
 
-Padrão de chip, ligeiramente maior. Mapeamento:
-| Tipo | Fundo | Texto |
+Chip pattern, slightly larger. Mapping:
+| Type | Background | Text |
 |---|---|---|
-| Entrada Manual | `$info-soft` | `$info` |
-| Produção | `$primary-soft` | `#5B21B6` |
-| Venda | `$warning-soft` | `$warning` |
-| Baixa Manual | `$danger-soft` | `$danger` |
+| Manual Entry | `$info-soft` | `$info` |
+| Production | `$primary-soft` | `#5B21B6` |
+| Sale | `$warning-soft` | `$warning` |
+| Manual Download | `$danger-soft` | `$danger` |
 
-### Input de texto padrão
+### Default text input
 
-- Frame horizontal, `$bg-card`, borda 1px `$border`, radius 10.
-- Padding interno 12×14.
-- Texto 14/700 `$text-primary`.
+- Horizontal frame, `$bg-card`, 1px border `$border`, radius 10.
+- 12×14 internal padding.
+- Text 14/700 `$text-primary`.
 
-### Input com prefix/suffix
+### Input with prefix/suffix
 
-- Prefix/Suffix: padding 12×14, fundo `$bg-muted`, borda vertical de separação `$border`, radius só nos cantos externos.
-- Texto do prefix/suffix: 14/800 `$text-secondary`.
-- Usado para R$, kg, ml, un, g.
+- Prefix/Suffix: padding 12×14, background `$bg-muted`, vertical separation border `$border`, radius only in the outer corners.
+- Prefix/suffix text: 14/800 `$text-secondary`.
+- Used for R$, kg, ml, un, g.
 
 ### Dropdown (select)
 
-- Mesma base do input.
-- Valor + ícone `chevron-down` 14 `$text-secondary` alinhado à direita.
-- Quando desabilitado (ex: campo bloqueado em Editar): fundo `$bg-muted`, ícone `lock` 14 `$text-tertiary` à esquerda do valor, texto em `$text-secondary`.
+- Same base as the input.
+- Value + icon `chevron-down` 14 `$text-secondary` right-aligned.
+- When disabled (e.g. field locked in Edit): background `$bg-muted`, `lock` icon 14 `$text-tertiary` to the left of the value, text in `$text-secondary`.
 
 ### Textarea
 
-- Base do input, mas layout vertical, padding 14, altura fixa (ex: 104px).
-- Texto interno 14/500.
+- Input base, but vertical layout, padding 14, fixed height (ex: 104px).
+- Internal text 14/500.
 
-### Switch
+###Switch
 
 - Frame 44×24, radius 999.
-- Estado ligado: fundo `$success-vivid`, dot branco 18×18 alinhado à direita.
-- Estado desligado: fundo `$border`, dot alinhado à esquerda.
+- On state: `$success-vivid` background, 18×18 white dot aligned to the right.
+- Off state: background `$border`, dot aligned left.
 
-### Switch como "campo"
+### Switch as "field"
 
-- Row horizontal, padding 12×14, gap 12, `$bg-card`, borda 1px `$border`, radius 10.
-- Switch à esquerda + label 14/700 `$text-primary` à direita.
-- Usado para Status "Produto ativo" e "Permitir estoque negativo".
+- Row horizontal, padding 12×14, gap 12, `$bg-card`, border 1px `$border`, radius 10.
+- Switch on the left + label 14/700 `$text-primary` on the right.
+- Used for "Active Product" and "Allow Negative Stock" Status.
 
-### Tabela
+### Table
 
 **Header:**
-- Frame horizontal, fundo `$bg-muted`, padding 12×16–20.
-- Cada célula com texto 11/600 uppercase `$text-secondary`, letter-spacing 0.5.
+- Horizontal frame, `$bg-muted` background, 12×16–20 padding.
+- Each cell with text 11/600 uppercase `$text-secondary`, letter-spacing 0.5.
 
-**Linha:**
+**Line:**
 - Padding 14×16–20, alignItems center.
-- Separador `border-top 1px $border-soft` a partir da segunda linha.
+- `border-top 1px $border-soft` separator from the second line.
 
-**Linha em alerta (ex: ingrediente insuficiente):**
-- Fundo `$danger-bg`.
-- Ícone `triangle-alert` 14 `$danger` + texto de valor em `$danger`.
-- Subtexto (ex: "Só 4.000 ml — limita a produção") em `$danger` 11/500.
+**Alert line (e.g. insufficient ingredient):**
+- Background `$danger-bg`.
+- `triangle-alert` icon 14 `$danger` + value text in `$danger`.
+- Subtext (e.g. "Only 4,000 ml — limits production") in `$danger` 11/500.
 
-**Container da tabela:**
-- Borda 1px `$border-soft`, radius 12, clip.
+**Table container:**
+- Border 1px `$border-soft`, radius 12, clip.
 
-### Ações em linha (tabela)
+### Inline actions (table)
 
-Botões pequenos, padding 6×10, gap 4, radius 6, borda 1px.
+Small buttons, padding 6×10, gap 4, radius 6, border 1px.
 
-- **Entrada:** borda + ícone `arrow-down` + texto verde (`#10B981`).
-- **Baixa:** borda + ícone `arrow-up` + texto laranja (`#F59E0B`).
-- **Editar:** borda `$border`, ícone `pencil` + texto `$text-secondary`.
-- **Remover:** borda `#FCA5A5`, ícone `trash-2` + texto `$danger`.
-- **Mais:** ícone `ellipsis` sozinho, mesmo padrão de outline.
+- **Input:** border + `arrow-down` icon + green text (`#10B981`).
+- **Low:** border + `arrow-up` icon + orange text (`#F59E0B`).
+- **Edit:** border `$border`, icon `pencil` + text `$text-secondary`.
+- **Remove:** border `#FCA5A5`, icon `trash-2` + text `$danger`.
+- **Plus:** `ellipsis` icon alone, same outline pattern.
 
-Todos texto 12/600.
+All text 12/600.
 
-### Paginação
+### Pagination
 
-- Frame horizontal, justify space-between.
-- Info à esquerda: "Mostrando 1-5 de 47" (13/400 `$text-secondary`).
-- Botões de página à direita, 32×32, radius 6, texto 13/500.
-- Botão ativo: `$primary`, texto branco 13/700, sombra roxa translúcida.
+- Horizontal frame, justify space between.
+- Info on the left: "Showing 1-5 of 47" (13/400 `$text-secondary`).
+- Page buttons on the right, 32×32, radius 6, text 13/500.
+- Active button: `$primary`, white text 13/700, translucent purple shadow.
 
 ### Modal
 
 **Container:**
-- `$bg-card`, radius 16, sombra grande (ver tokens).
-- Larguras típicas: 440 (dialog simples), 520 (formulário padrão), 640 (produção com projeção).
+- `$bg-card`, radius 16, large shadow (see tokens).
+- Typical widths: 440 (simple dialog), 520 (standard form), 640 (production with projection).
 
 **Header:**
-- Padding 24 top + 24 lateral, sem padding bottom.
-- Ícone quadrado 44×44 (fundo `$warning-soft`, `$danger-soft` ou `$success-soft`) com ícone Lucide central 20–22px.
-- Título 18–20/800 + subtítulo 13/400 `$text-secondary`.
-- Botão close 32×32 outline com ícone `x` 16 `$text-secondary`.
+- Padding 24 top + 24 side, without padding bottom.
+- 44×44 square icon (background `$warning-soft`, `$danger-soft` or `$success-soft`) with central Lucide icon 20–22px.
+- Title 18–20/800 + subtitle 13/400 `$text-secondary`.
+- Close 32×32 outline button with `x` 16 `$text-secondary` icon.
 
 **Body:**
-- Padding 20 top + 24 lateral, gap 16.
-- Campos de formulário (labels 13/600 + inputs).
-- Bloco de preview em `$bg-muted` com borda `$border-soft`, radius 12: 3 métricas lado a lado justify-space-between.
+- Padding 20 top + 24 side, gap 16.
+- Form fields (labels 13/600 + inputs).
+- Preview block in `$bg-muted` with `$border-soft` border, radius 12:3 side-by-side metrics justify-space-between.
 
-**Footer:**
-- Padding 16 top + 24 lateral + 24 bottom, gap 12.
-- Alinhamento `justify-end` (padrão) ou `justify-space-between` (quando há botão de remover à esquerda).
-- Cancelar (outline) + CTA primário à direita.
+**Footers:**
+- Padding 16 top + 24 side + 24 bottom, gap 12.
+- `justify-end` alignment (default) or `justify-space-between` (when there is a remove button on the left).
+- Cancel (outline) + primary CTA on the right.
 
-### Dialog de bloqueio
+### Blocking dialog
 
-Variação do modal usada para bloquear ações destrutivas quando há dependências.
+Modal variation used to block destructive actions when there are dependencies.
 
-- Ícone `triangle-alert` `$warning` em quadrado `$warning-soft`.
-- Título "Categoria X em uso" + subtítulo explicativo.
-- Lista de dependências em bloco `$bg-muted`, cada item com ícone `link` 14 + texto 13/600.
-- CTA único: "Entendi" (primary).
+- `triangle-alert` `$warning` icon in `$warning-soft` square.
+- Title "Category X in use" + explanatory subtitle.
+- List of dependencies in `$bg-muted` block, each item with `link` icon 14 + text 13/600.
+- Single CTA: “I got it” (primary).
 
-### Dialog de confirmação destrutiva
+### Destructive confirmation dialog
 
-- Ícone `triangle-alert` ou `trash-2` `$danger` em quadrado `$danger-soft`.
-- Título "Remover X?" + subtítulo "Esta ação não pode ser desfeita."
-- Corpo com descrição do impacto e (opcional) lista de itens em bloco `$bg-muted`.
-- Footer: Cancelar (outline) + botão destrutivo cheio.
+- `triangle-alert` or `trash-2` `$danger` icon in `$danger-soft` square.
+- Title "Remove X?" + subtitle "This action cannot be undone."
+- Body with description of the impact and (optional) list of items in the `$bg-muted` block.
+- Footer: Cancel (outline) + full destructive button.
 
-### Preview de cálculo (bloco de métricas)
+### Calculation preview (metrics block)
 
-Aparece em modais de Adicionar/Editar Ingrediente, Adicionar Tamanho, Registrar Produção.
+Appears in the Add/Edit Ingredient, Add Size, Register Production modes.
 
-- Frame horizontal, padding 16×20, `$bg-muted`, borda `$border-soft`, radius 12.
-- Justify space-between.
-- Cada métrica: label 11/700 `$text-secondary` uppercase (letter-spacing 0.4) + valor 18/800 `$text-primary` (ou `$success-vivid` para valores positivos).
+- Horizontal frame, 16×20 padding, `$bg-muted`, `$border-soft` border, radius 12.
+- Justify space between.
+- Each metric: label 11/700 `$text-secondary` uppercase (letter-spacing 0.4) + value 18/800 `$text-primary` (or `$success-vivid` for positive values).
 
-### Card de categoria (aba Configurações)
+### Category card (Settings tab)
 
-- Frame horizontal, padding 14×16, gap 10, radius 12.
-- **Estado ativo:** fundo da cor soft da categoria + borda 2px da cor sólida + ícone e label na cor sólida.
-- **Check circular** à direita, 20×20, radius 999, fundo cor sólida com ícone `check` branco 12px.
-- **Estado inativo:** `$bg-card`, borda 1px `$border`, ícone `$text-secondary`, label `$text-primary`.
+- Horizontal frame, padding 14×16, gap 10, radius 12.
+- **Active state:** background in the soft color of the category + 2px border in solid color + icon and label in solid color.
+- **Circular check** on the right, 20×20, radius 999, solid color background with 12px white `check` icon.
+- **Inactive state:** `$bg-card`, 1px border `$border`, icon `$text-secondary`, label `$text-primary`.
 
-### Zona de Perigo
+### Danger Zone
 
-- Card com `$bg-danger-bg` (`#FEF2F2`) + borda 1px `#FCA5A5` + radius 16 + padding 24.
-- Título 18/700 `$danger` + subtítulo 13/400 `$danger`.
-- Botão destrutivo cheio à direita.
-
----
-
-## 4. Padrões de tela
-
-### Layout base
-
-- **Sidebar** fixa à esquerda (280px).
-- **Content** ocupa o resto:
-  - Header (72px) no topo.
-  - ContentWrap com padding 8 top + 32 lateral + 32 bottom + gap 20 entre elementos.
-
-### Página do Produto
-
-Ordem vertical do ContentWrap:
-1. Breadcrumb ("Estoque › Produtos › [Nome do Produto]")
-2. Product Header (card com nome, unidade, status, chips de categoria, botões Editar/Remover)
-3. Tabs em pill (condicionais por categoria)
-4. Cards de conteúdo da aba ativa
-
-### Tabelas dentro de cards
-
-- Título do card + contador + botão principal no topo.
-- Tabela abaixo.
-- Filtros (quando aplicável) entre header e tabela.
-- Paginação (quando aplicável) no rodapé do card.
-
-### Estados vazios
-
-Botão grande centralizado com CTA explícito (ex: "Adicionar primeira marca") quando a lista está vazia.
-
-### Estados de alerta
-
-- **Preditivo (produção):** linha em vermelho + ícone + subtexto explicativo. Botão de confirmação bloqueado.
-- **Informativo (limitador):** card de métrica com fundo warning + valor destacado + detalhe explicativo.
+- Card with `$bg-danger-bg` (`#FEF2F2`) + 1px border `#FCA5A5` + radius 16 + padding 24.
+- Title 18/700 `$danger` + subtitle 13/400 `$danger`.
+- Full destructive button on the right.
 
 ---
 
-## 5. Ícones
+## 4. Screen Patterns
 
-**Biblioteca única:** [Lucide](https://lucide.dev). Nada de emojis ou outras libs.
+### Base layout
 
-**Ícones frequentes:**
-| Ícone | Uso |
+- **Sidebar** fixed to the left (280px).
+- **Content** takes up the rest:
+  - Header (72px) at the top.
+  - ContentWrap with padding 8 top + 32 side + 32 bottom + gap 20 between elements.
+
+### Product Page
+
+ContentWrap vertical order:
+1. Breadcrumb ("Stock › Products › [Product Name]")
+2. Product Header (card with name, unit, status, category chips, Edit/Remove buttons)
+3. Tabs in pill (conditional by category)
+4. Active tab content cards
+
+### Tables inside cards
+
+- Card title + counter + main button at the top.
+- Table below.
+- Filters (when applicable) between header and table.
+- Pagination (when applicable) in the card footer.
+
+### Empty states
+
+Large centered button with explicit CTA (e.g. "Add first brand") when the list is empty.
+
+### Alert states
+
+- **Predictive (production):** red line + icon + explanatory subtext. Confirmation button blocked.
+- **Informative (limiter):** metric card with warning background + highlighted value + explanatory detail.
+
+---
+
+## 5. Icons
+
+**Single library:** [Lucide](https://lucide.dev). No emojis or other libs.
+
+**Frequent icons:**
+| Icon | Usage |
 |---|---|
 | `house` | Dashboard |
-| `package` | Estoque, Fabricável (chip categoria) |
-| `tag` | Vendas, Preços (tab), Revenda (chip) |
-| `chef-hat` | Receita (tab) |
-| `layers` | Acompanhamentos (tab) |
-| `factory` | Fabricável (card categoria) |
-| `settings` | Configurações |
-| `users` | Usuários |
-| `credit-card` | Assinatura |
-| `search` | Busca |
-| `bell` / `circle-help` | Header (notificações, ajuda) |
-| `chevron-down` / `chevron-right` | Dropdowns, grupos expansíveis |
-| `plus` / `minus` | Adicionar / stepper |
-| `pencil` | Editar |
-| `trash-2` | Remover |
-| `arrow-down` / `arrow-up` | Entrada / Baixa |
-| `arrow-right` | Projeção (X → Y) |
-| `triangle-alert` | Alertas críticos |
-| `info` | Notas informativas |
-| `link` | Item de dependência em dialog de bloqueio |
-| `check` | Confirmação em check circular |
-| `lock` | Campo desabilitado |
-| `x` | Fechar, remover chip |
-| `play` | Botão Produzir |
-| `calculator` | Preview de cálculo |
-| `ellipsis` | Menu de mais ações |
-| `ice-cream-cone` | Mark da marca |
+| `package` | Stock, Manufacturable (chip category) |
+| `tag` | Sales, Prices (tab), Resale (chip) |
+| `chef-hat` | Recipe (tab) |
+| `layers` | Side dishes (tab) |
+| `factory` | Manufacturable (card category) |
+| `settings` | Settings |
+| `users` | Users |
+| `credit-card` | Subscription |
+| `search` | Search |
+| `bell` / `circle-help` | Header (notifications, help) |
+| `chevron-down` / `chevron-right` | Dropdowns, expandable groups |
+| `plus` / `minus` | Add / stepper |
+| `pencil` | Edit |
+| `trash-2` | Remove |
+| `arrow-down` / `arrow-up` | Entry / Download |
+| `arrow-right` | Projection (X → Y) |
+| `triangle-alert` | Critical Alerts |
+| `info` | Information notes |
+| `link` | Dependency item in blocking dialog |
+| `check` | Confirmation in circular check |
+| `lock` | Field disabled |
+| `x` | Close, remove chip |
+| `play` | Produce button |
+| `calculator` | Calculation preview |
+| `ellipsis` | More actions menu |
+| `ice-cream-cone` | Brand mark |
 
 ---
 
-## 6. Comportamento e microinterações
+## 6. Behavior and microinteractions
 
-- **Cálculos em tempo real:** ao digitar em qualquer input que alimenta um cálculo (quantidade de ingrediente, preço, tamanho, lotes a produzir), o preview e as métricas se atualizam imediatamente.
-- **Sincronização de inputs (Modal Produzir):** stepper de lotes ↔ input de unidade em ml (ou unidade do produto). Editar um atualiza o outro.
-- **Baixas atômicas:** ao confirmar produção ou venda, todas as baixas de estoque acontecem juntas. Se qualquer uma falha, nenhuma é aplicada.
-- **Bloqueio duro em categorias:** se o gerente tenta desmarcar categoria em uso, sistema exibe dialog listando as dependências, sem permitir a remoção.
-- **Salvamento inline (Configurações):** cada campo salva ao perder foco. Sem botão "Salvar".
-- **Toggle de disponibilidade (Revenda):** marca desabilitada não aparece no PDV. Input de preço fica em cinza tertiary.
-- **Confirmação destrutiva:** qualquer remoção (produto, marca, ingrediente, acompanhamento, tamanho) passa por dialog.
+- **Real-time calculations:** when typing in any input that feeds a calculation (quantity of ingredient, price, size, batches to produce), the preview and metrics are updated immediately.
+- **Input synchronization (Produce Modal):** batch stepper ↔ unit input in ml (or product unit). Editing one updates the other.
+- **Atomic write-offs:** when confirming production or sale, all stock write-offs happen together. If either fails, none is applied.
+- **Hard blocking on categories:** if the manager tries to unmark the category in use, the system displays a dialog listing the dependencies, without allowing removal.
+- **Inline saving (Settings):** each field saves when losing focus. No "Save" button.
+- **Availability toggle (Resale):** disabled brand does not appear in the POS. Price input is in tertiary gray.
+- **Destructive confirmation:** any removal (product, brand, ingredient, accompaniment, size) goes through dialog.
 
 ---
 
-## 7. Fora do padrão (não usar)
+## 7. Non-standard (do not use)
 
-- Formas circulares para itens não-icônicos (avatares, dots de subnav são exceções).
-- Emojis em qualquer contexto.
-- Ícones fora do Lucide.
-- Bordas grossas (> 2px) em qualquer elemento.
-- Gradientes complexos (só sombras coloridas suaves nos botões primários e destrutivos).
-- Fundo saturado em blocos de preview de cálculo (foi movido para `$bg-muted` neutro).
-- Cor "Base" como tipo de acompanhamento (o fabricável já é a base do pedido).
-- Duas fontes diferentes (só Manrope).
-- Cores por tipo na coluna Tipo da tabela de acompanhamentos vinculados (fica texto neutro).
-- Roxo em número de valor override na tabela de acompanhamento (fica igual aos outros — todos em `$text-primary`).
+- Circular shapes for non-iconic items (avatars, subnav dots are exceptions).
+- Emojis in any context.
+- Icons outside of Lucide.
+- Thick borders (> 2px) on any element.
+- Complex gradients (only soft colored shadows on primary and destructive buttons).
+- Saturated background in calculation preview blocks (moved to neutral `$bg-muted`).
+- "Base" color as type of accompaniment (manufacturable is already the basis of the order).
+- Two different sources (only Manrope).
+- Colors by type in the Type column of the linked accompaniments table (neutral text remains).
+- Purple in number of override value in the monitoring table (it stays the same as the others — all in `$text-primary`).

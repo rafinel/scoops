@@ -1,19 +1,20 @@
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
-
 import { Controller, Get, HttpStatus, ServiceUnavailableException } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
 
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
-import { ErrorResponseDto, HealthResponseDto } from '@/shared/rest/dtos'
-
-const { version } = JSON.parse(
-  readFileSync(join(process.cwd(), 'package.json'), 'utf-8'),
-) as { version: string }
+import { EnvProvider } from '@/shared/provision/env/env-provider'
+import {
+  HealthErrorResponseDto,
+  HealthResponseDto,
+  type ServiceState,
+} from '@/shared/rest/dtos'
 
 @Controller()
 export class CheckHealthController {
-  constructor(private readonly drizzleClient: DrizzleClient) {}
+  constructor(
+    private readonly drizzleClient: DrizzleClient,
+    private readonly envProvider: EnvProvider,
+  ) {}
 
   @Get('/health')
   @ApiResponse({
@@ -24,29 +25,54 @@ export class CheckHealthController {
   @ApiResponse({
     status: HttpStatus.SERVICE_UNAVAILABLE,
     description: 'One or more application dependencies are unavailable.',
-    type: ErrorResponseDto,
+    type: HealthErrorResponseDto,
   })
-  async handle() {
-    const database = await this.drizzleClient.isHealthy()
+  async handle(): Promise<HealthResponseDto> {
+    const [database, supabase, storage] = await Promise.all([
+      this.drizzleClient.isHealthy(),
+      this.checkHttpService(this.envProvider.get('SUPABASE_URL'), '/auth/v1/health'),
+      this.checkHttpService(this.envProvider.get('S3_ENDPOINT'), '/minio/health/live'),
+    ])
 
-    if (!database) {
+    const services = {
+      database: this.toServiceState(database),
+      supabase: this.toServiceState(supabase),
+      storage: this.toServiceState(storage),
+    }
+    const timestamp = new Date().toISOString()
+    const version = this.envProvider.get('APP_VERSION')
+
+    if (!database || !supabase || !storage) {
       throw new ServiceUnavailableException({
         statusCode: HttpStatus.SERVICE_UNAVAILABLE,
         status: 'not_ready',
         version,
-        timestamp: new Date().toISOString(),
-        services: { database: 'DOWN' },
+        timestamp,
+        services,
       })
     }
 
     return {
       status: 'ok',
       version,
-      timestamp: new Date().toISOString(),
-      services: {
-        database: 'UP',
-        supabase: 'UP',
-      },
+      timestamp,
+      services,
     }
+  }
+
+  private async checkHttpService(baseUrl: string, path: string) {
+    try {
+      const response = await fetch(new URL(path, baseUrl), {
+        signal: AbortSignal.timeout(1_000),
+      })
+
+      return response.ok
+    } catch {
+      return false
+    }
+  }
+
+  private toServiceState(healthy: boolean): ServiceState {
+    return healthy ? 'UP' : 'DOWN'
   }
 }

@@ -4,8 +4,6 @@ import { IdentityDatabaseModule } from '@/identity/database/identity-database.mo
 
 @Module({
   imports: [IdentityDatabaseModule],
-  controllers: [],
-  providers: [],
   exports: [IdentityDatabaseModule],
 })
 export class IdentityModule {}

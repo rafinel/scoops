@@ -16,6 +16,28 @@ All code is written in English, including variable names, functions, types,
 comments, and exported contracts. User-facing copy may use the product's
 language.
 
+## Import order
+
+TypeScript source files order imports in these groups:
+
+1. framework packages, such as `@nestjs/common`;
+2. third-party libraries, such as `inngest` and `zod`;
+3. workspace packages, such as `@scoops/core`;
+4. one blank line;
+5. internal application imports, such as paths using the `@/` alias.
+
+Keep the first three package groups contiguous. Do not insert a blank line between
+third-party and workspace package imports.
+
+```ts
+import { Injectable } from '@nestjs/common'
+import { type Context, eventType, type InngestFunction } from 'inngest'
+import { z } from 'zod'
+import { UserRegistrationAttemptCreatedEvent } from '@scoops/core/identity/domain/events'
+
+import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
+```
+
 ## Naming variables, types, objects, and functions
 
 ### `camelCase`

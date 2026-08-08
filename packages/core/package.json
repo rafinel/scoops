@@ -10,6 +10,7 @@
   },
   "exports": {
     "./identity/domain/entities": "./src/identity/domain/entities/index.ts",
+    "./identity/domain/events": "./src/identity/domain/events/index.ts",
     "./identity/domain/structures": "./src/identity/domain/structures/index.ts",
     "./identity/interfaces": "./src/identity/interfaces/index.ts",
     "./billing/domain/entities": "./src/billing/domain/entities/index.ts",
@@ -27,7 +28,20 @@
     "./pdv/domain/structures": "./src/pdv/domain/structures/index.ts",
     "./pdv/interfaces": "./src/pdv/interfaces/index.ts",
     "./pdv/use-cases": "./src/pdv/use-cases/index.ts",
+    "./shared/domain/entities": "./src/shared/domain/entities/index.ts",
     "./shared/domain/errors": "./src/shared/domain/errors/index.ts",
-    "./shared/interfaces": "./src/shared/interfaces/index.ts"
+    "./shared/domain/events": "./src/shared/domain/events/index.ts",
+    "./shared/domain/structures": "./src/shared/domain/structures/index.ts",
+    "./shared/interfaces": "./src/shared/interfaces/index.ts",
+    "./shared/responses/pagination-response": "./src/shared/responses/pagination-response.ts",
+    "./shared/responses/rest-response": "./src/shared/responses/rest-response.ts",
+    "./shared/constants": "./src/shared/constants/index.ts"
+  },
+  "imports": {
+    "#billing/*": "./src/billing/*",
+    "#identity/*": "./src/identity/*",
+    "#mrp/*": "./src/mrp/*",
+    "#pdv/*": "./src/pdv/*",
+    "#shared/*": "./src/shared/*"
   }
 }

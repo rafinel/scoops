@@ -1,646 +1,646 @@
-### 1. Visão Geral
+### 1. Overview
 
-O **MRP/Estoque do Scoops** é a área operacional responsável por cadastrar
-produtos, organizar marcas, controlar saldos, definir receitas, registrar
-produções e configurar acompanhamentos.
+**MRP/Scoops Stock** is the operational area responsible for registering
+products, organize brands, control balances, define recipes, register
+productions and set up accompaniments.
 
-O módulo conecta a composição dos produtos ao estoque disponível. A partir de
-uma receita e dos saldos atuais, o gerente consegue saber quanto pode produzir,
-quais ingredientes limitam a produção e qual é o custo operacional da receita.
+The module connects the composition of products to available stock. From
+a recipe and current balances, the manager can know how much he can produce,
+which ingredients limit production and what is the operating cost of the recipe.
 
-As quantidades exibidas no design atual usam gramas. A unidade de estoque é
-herdada pelos dados dependentes do produto, como marcas, receitas e tamanhos.
+Quantities displayed in the current design use grams. The stock unit is
+inherited by product-dependent data such as brands, recipes and sizes.
 
-**Objetivo:** dar ao gerente controle e previsibilidade sobre o ciclo
-`produto → marca → receita → produção → estoque`.
+**Objective:** give the manager control and predictability over the cycle
+`product → brand → recipe → production → stock`.
 
-**Problema resolvido:** sem uma visão integrada, a falta de ingredientes só é
-percebida durante a produção, causando atrasos e vendas perdidas. Também fica
-difícil entender quanto um produto fabricável consome e qual é o seu custo
-operacional.
+**Problem solved:** without an integrated vision, the lack of ingredients is only
+perceived during production, causing delays and lost sales. It is also
+difficult to understand how much a manufacturable product consumes and what its cost is
+operational.
 
-**Valor entregue:** permite identificar restrições de estoque antes da produção,
-calcular CMV em tempo real, controlar marcas e embalagens, produzir com baixa
-atômica e manter os produtos prontos para venda no PDV.
+**Delivered value:** allows you to identify stock restrictions before production,
+calculate COGS in real time, control brands and packaging, produce with low
+atomic and keep products ready for sale at the POS.
 
-**Usuários:** Gerente gerencia produtos, marcas, receitas e configurações.
-Funcionário pode registrar produção conforme as permissões definidas pelo módulo
-de autenticação.
+**Users:** Manager manages products, brands, recipes and configurations.
+Employee can register production according to the permissions defined by the module
+authentication.
 
-**Multi-tenancy:** produtos, marcas, receitas, produções e saldos são isolados
-por sorveteria.
-
----
-
-### 2. Requisitos
-
-#### REQ-01 Cadastro e Categorias de Produto
-
-- [ ] **Cadastro e Categorias de Produto**
-
-**Descrição:** O sistema deve permitir cadastrar um produto com uma ou mais
-categorias, unidade, controle de estoque e status.
-
-##### Regras de Negócio
-
-- **Nome:** obrigatório e único dentro da sorveteria.
-- **Unidade:** pertence ao produto e é herdada por marcas, receitas, tamanhos e
-  operações dependentes.
-- **Unidades disponíveis:** o modelo pode suportar `g`, `ml`, `kg`, `l` e `un`,
-  mas os exemplos e o design atual devem usar gramas.
-- **Controle:** o produto pode usar `Estoque único` ou `Por marca`.
-- **Padrão:** novos produtos iniciam com `Estoque único`.
-- **Categorias:** `Ingrediente`, `Fabricável`, `Porção`, `Acompanhamento` e
-  `Revenda`.
-- **Porção e Revenda:** são mutuamente exclusivas.
-- **Fabricável:** habilita receita e produção, mas não torna o produto vendável
-  sozinho.
-- **Porção:** representa a venda fracionada de um estoque a granel e exige pelo
-  menos um tamanho para aparecer no PDV.
-- **Acompanhamento:** representa um produto que pode ser vinculado a uma Porção.
-- **Revenda:** representa venda em embalagem inteira.
-- **Combinações:** Fabricável + Porção é permitido; Fabricável sem Porção pode
-  ser produzido sem aparecer no PDV; Acompanhamento + Porção ou Revenda é
-  permitido.
-- **Status:** produto inativo permanece cadastrado, mas não aparece em operações
-  novas.
-- **Estoque ideal:** opcional; quando preenchido, permite classificar o estoque
-  como Normal ou Baixo.
-- **Observações internas:** texto livre visível somente para usuários autorizados
-  pelo módulo de Auth.
-- **Estoque negativo:** não existe opção para permitir estoque negativo.
-- **Multi-tenancy:** nenhum produto de outra sorveteria pode ser exibido ou
-  utilizado.
-
-##### Regras de UI/UX
-
-- **Modal de cadastro:** deve conter Nome, Unidade, Categorias e Controle de
-  Estoque.
-- **Categorias:** devem ser cards selecionáveis com checkbox e indicação de
-  dependências.
-- **Exclusão Porção × Revenda:** ao selecionar uma, a outra deve ficar
-  desabilitada com explicação.
-- **Fabricável:** quando selecionado, o controle deve ficar travado em Estoque
-  único, se essa for a regra vigente do modelo operacional.
-- **Validação inline:** erros devem aparecer junto ao campo correspondente.
-- **Pós-cadastro:** após criar, o sistema deve abrir a página dedicada do
-  produto.
-- **Unidade:** o design de produtos de peso deve exibir quantidades em gramas,
-  sem alternar visualmente entre gramas e quilogramas.
+**Multi-tenancy:** products, brands, recipes, productions and balances are isolated
+by ice cream shop.
 
 ---
 
-#### REQ-02 Gestão de Marcas e Marca Principal
+### 2. Requirements
 
-- [ ] **Gestão de Marcas e Marca Principal**
+#### REQ-01 Registration and Product Categories
 
-**Descrição:** Produtos com estoque por marca devem permitir cadastrar marcas,
-controlar seus saldos e definir a marca principal usada em baixas automáticas.
+- [ ] **Registration and Product Categories**
 
-##### Regras de Negócio
+**Description:** The system must allow registering a product with one or more
+categories, unit, stock control and status.
 
-- **Aplicação:** marcas existem somente em produtos com controle `Por marca`.
-- **Campos:** Nome, Quantidade da embalagem, Valor por embalagem e Estoque
-  atual.
-- **Unidade herdada:** a marca não define sua própria unidade; usa a unidade do
-  produto pai.
-- **Quantidade da embalagem:** deve ser maior que zero e representa a quantidade
-  de unidade base contida em uma embalagem.
-- **Estoque:** é armazenado na unidade base do produto.
-- **Entrada por embalagem:** `quantidade_de_embalagens × quantidade_da_embalagem`.
-- **Entrada por unidade:** o gerente também pode informar diretamente a
-  quantidade em unidade base.
-- **Preço unitário:** calculado por
-  `valor_por_embalagem ÷ quantidade_da_embalagem`.
-- **Marca principal:** enquanto houver marcas cadastradas, deve existir uma
-  marca principal para baixas automáticas sem escolha explícita.
-- **Uma principal ativa:** o produto mantém uma única marca principal por vez.
-- **Primeira marca:** ao cadastrar a primeira marca, ela é definida
-  automaticamente como principal.
-- **Troca:** a nova marca passa a ser usada somente nas próximas operações.
-- **Exclusão da principal:** se houver outras marcas, uma delas deve ser definida
-  como principal antes da exclusão. Se for a última, a exclusão pode ocorrer com
-  aviso e o produto fica indisponível até receber uma nova marca principal.
-- **Nomes:** não podem existir duas marcas com o mesmo nome no produto.
-- **Exclusão:** marcas são apagadas após confirmação e aviso dos impactos.
-- **Dependências:** a exclusão deve informar receitas, vínculos e configurações
-  que serão apagados junto.
-- **Custo de receita:** alterações no valor da marca recalculam o CMV das
-  receitas que usam o produto ou a marca principal correspondente.
+##### Business Rules
 
-##### Regras de UI/UX
+- **Name:** mandatory and unique within the ice cream shop.
+- **Unit:** belongs to the product and is inherited by brands, recipes, sizes and
+  dependent operations.
+- **Available units:** the model can support `g`, `ml`, `kg`, `l` and `un`,
+  but the examples and current design must use grams.
+- **Control:** the product can use `Single stock` or `By brand`.
+- **Default:** new products start with `Single stock`.
+- **Categories:** `Ingredient`, `Manufacturable`, `Portion`, `Side dish` and
+  `Resale`.
+- **Portion and Resale:** are mutually exclusive.
+- **Manufacturable:** enables recipe and production, but does not make the product salable
+  alone.
+- **Portion:** represents the fractional sale of a bulk stock and requires at least
+  one less size to appear in the POS.
+- **Accompaniment:** represents a product that can be linked to a Portion.
+- **Resale:** represents sale in entire packaging.
+- **Combinations:** Manufacturable + Portion is allowed; Manufacturable without Portion can
+  be produced without appearing in the POS; Accompaniment + Portion or Resale is
+  allowed.
+- **Status:** inactive product remains registered, but does not appear in operations
+  new ones.
+- **Ideal stock:** optional; when completed, allows you to classify the stock
+  as Normal or Low.
+- **Internal notes:** free text visible only to authorized users
+  by the Auth module.
+- **Negative stock:** there is no option to allow negative stock.
+- **Multi-tenancy:** no products from another ice cream shop can be displayed or
+  used.
 
-- **Tabela de marcas:** deve exibir Marca, Embalagem, Valor/embalagem, Preço
-  unitário, Estoque e Ações.
-- **Chip principal:** a marca principal deve exibir o chip `Principal`.
-- **Switch:** cada marca deve possuir um switch para defini-la como principal.
-- **Menu de ações:** deve conter Editar marca, Definir como principal e Excluir
-  marca.
-- **Exclusão:** deve abrir diálogo de confirmação com o nome da marca e os
-  impactos conhecidos.
-- **Estado vazio:** deve exibir `Adicionar primeira marca`.
-- **Entrada:** o modal deve permitir alternar entre Embalagens e Unidade base.
-- **Preview:** ao informar embalagens, mostrar o total convertido em gramas como
-  texto de apoio.
+##### UI/UX rules
 
----
-
-#### REQ-03 Controle e Ajuste de Estoque
-
-- [ ] **Controle e Ajuste de Estoque**
-
-**Descrição:** O sistema deve exibir o saldo atual, permitir entradas e baixas
-manuais e impedir qualquer operação que resulte em estoque negativo.
-
-##### Regras de Negócio
-
-- **Estoque único:** o saldo pertence diretamente ao produto.
-- **Por marca:** o estoque total é a soma dos saldos das marcas.
-- **Entrada:** adiciona quantidade positiva ao produto ou à marca selecionada.
-- **Baixa manual:** remove quantidade positiva do produto ou da marca selecionada.
-- **Ajuste:** toda alteração manual deve ser tratada como entrada ou baixa.
-- **Saldo mínimo:** nenhuma baixa pode resultar em saldo menor que zero.
-- **Validação:** quantidade obrigatória e maior que zero.
-- **Unidade:** quantidade do ajuste deve usar a unidade base do produto.
-- **Produção:** aumenta o estoque do Fabricável depois de baixar seus
-  ingredientes.
-- **Venda:** o PDV é responsável por baixar produtos, acompanhamentos e
-  Revendas conforme o PRD de PDV.
-- **Marca principal:** produção e outras baixas automáticas sem seleção explícita
-  usam a marca principal.
-- **Atualização de disponibilidade:** entradas e baixas recalculam estoque total,
-  situação e capacidade de produção.
-- **Histórico:** o histórico de movimentações e auditoria está fora do escopo
-  desta versão.
-
-##### Regras de UI/UX
-
-- **Resumo:** deve exibir Estoque atual, Estoque ideal e Situação.
-- **Situação Normal:** quando o saldo total for maior ou igual ao estoque ideal.
-- **Situação Baixo:** quando o saldo total for menor que o estoque ideal.
-- **Sem estoque ideal:** exibir situação Normal sem comparação de meta.
-- **Ações:** Entrada e Baixa devem ficar próximas ao saldo correspondente.
-- **Insuficiência:** o botão de confirmar baixa deve ficar bloqueado quando a
-  quantidade exceder o saldo.
-- **Mensagem:** informar quantidade disponível e quantidade solicitada.
-- **Zero:** saldo zero deve ser exibido como estado válido, não como ausência de
-  cadastro.
+- **Registration modal:** must contain Name, Unit, Categories and Control
+  Stock.
+- **Categories:** must be selectable cards with checkbox and indication of
+  dependencies.
+- **Portion × Resale Exclusion:** when selecting one, the other must remain
+  disabled with explanation.
+- **Manufacturable:** when selected, the control must be locked in Stock
+  single, if this is the current rule of the operating model.
+- **Inline validation:** errors must appear next to the corresponding field.
+- **Post-registration:** after creating, the system must open the dedicated page of
+  product.
+- **Unit:** Weight products design must display quantities in grams,
+  without visually switching between grams and kilograms.
 
 ---
 
-#### REQ-04 Listagem de Produtos
+#### REQ-02 Brand Management and Main Brand
 
-- [ ] **Listagem de Produtos**
+- [ ] **Brand Management and Main Brand**
 
-**Descrição:** A tela de Produtos deve permitir consultar, filtrar, ordenar e
-  abrir os produtos cadastrados.
+**Description:** Products with stock by brand must allow brands to be registered,
+control your balances and define the main brand used in automatic write-offs.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Filtros:** categoria, situação do estoque e status do produto.
-- **Filtros combinados:** seções diferentes usam AND; múltiplas categorias usam
-  OR entre si.
-- **Busca:** filtra por nome.
-- **Ordenação:** Nome, Quantidade de estoque, Número de marcas, Categorias e
-  Unidade.
-- **Paginação:** a listagem deve ser paginada.
-- **KPIs:** cards de resumo devem respeitar os filtros ativos.
-- **Cards operacionais:** podem exibir Produtos, Marcas, Estoque baixo e Produtos
-  com produção limitada.
-- **Valor em estoque:** não deve aparecer como KPI deste módulo; pertence a uma
-  tela financeira de custos, lucros e movimentações.
-- **Estoque baixo:** usa a comparação com estoque ideal.
-- **Estado vazio:** deve diferenciar ausência de produtos de filtros sem
-  resultados.
+- **Application:** brands only exist on products with `By brand` control.
+- **Fields:** Name, Package quantity, Value per package and Stock
+  current.
+- **Inherited unit:** the brand does not define its own unit; use the unit
+  parent product.
+- **Packaging quantity:** must be greater than zero and represents the quantity
+  of base unit contained in a package.
+- **Stock:** is stored in the product's base unit.
+- **Input per package:** `quantity_of_packaging × quantity_of_packaging`.
+- **Input by unit:** the manager can also inform directly the
+  quantity in base unit.
+- **Unit price:** calculated by
+  `value_per_package ÷ quantity_of_package`.
+- **Main brand:** as long as there are brands registered, there must be one
+  main brand for automatic write-offs without explicit choice.
+- **One active main:** the product maintains a single main brand at a time.
+- **First brand:** when registering the first brand, it is defined
+  automatically as main.
+- **Exchange:** the new brand will only be used in future operations.
+- **Exclusion of the main one:** if there are other brands, one of them must be defined
+  as primary before deletion. If it is the latter, the deletion may occur with
+  notice and the product is unavailable until it receives a new master brand.
+- **Names:** There cannot be two brands with the same name on the product.
+- **Exclusion:** brands are deleted after confirmation and notice of impacts.
+- **Dependencies:** the exclusion must inform recipes, links and configurations
+  which will be deleted together.
+- **Cost of goods sold:** changes in brand value recalculate the COGS of
+  recipes that use the corresponding main product or brand.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Tabela:** deve ocupar todo o espaço disponível abaixo dos filtros.
-- **Filtros:** devem permanecer na posição definida pelo layout aprovado e não
-  disputar espaço horizontal com a tabela.
-- **Colunas:** Nome, Quantidade de estoque, Número de marcas, Categorias e
-  Unidade, além das ações necessárias.
-- **Linha baixa:** pode usar fundo de alerta, indicador vermelho e texto
-  explicativo.
-- **Busca:** deve possuir ícone e placeholder contextual.
-- **Limpar:** deve remover todos os filtros ativos.
-- **Estado vazio sem produtos:** CTA `Cadastrar primeiro produto`.
-- **Estado vazio com filtros:** mensagem `Nenhum produto encontrado` e CTA
-  `Limpar filtros`.
-
----
-
-#### REQ-05 Página Dedicada e Configurações do Produto
-
-- [ ] **Página Dedicada e Configurações do Produto**
-
-**Descrição:** Cada produto deve possuir uma página dedicada com abas e seções
-  condicionais por categoria.
-
-##### Regras de Negócio
-
-- **Aba Estoque:** sempre disponível.
-- **Aba Receita:** disponível para Fabricável.
-- **Aba Acompanhamentos:** disponível para Porção.
-- **Aba Preços — Tamanhos:** disponível para Porção; os dados comerciais são
-  consumidos pelo PDV.
-- **Aba Preços — Revenda:** disponível para Revenda; os dados comerciais são
-  consumidos pelo PDV.
-- **Aba Configurações:** sempre disponível.
-- **Categorias em uso:** não podem ser removidas sem resolver suas
-  dependências.
-- **Alteração de unidade:** afeta marcas, receitas, tamanhos, consumo e
-  operações dependentes do produto.
-- **Aviso de unidade:** qualquer mudança de unidade deve exibir um diálogo com
-  os impactos antes da confirmação.
-- **Conversão:** não existe conversão automática entre g↔kg ou ml↔l nesta versão.
-- **Exclusão de produto:** apaga o produto e seus dados dependentes após aviso e
-  confirmação, incluindo marcas, receita, tamanhos, vínculos e configurações de
-  venda.
-- **Dependências externas:** produtos de outros cadastros permanecem intactos,
-  mas os vínculos com o produto apagado são removidos.
-
-##### Regras de UI/UX
-
-- **Cabeçalho:** deve exibir nome, unidade, status, chips de categoria e ações
-  Editar e Remover.
-- **Breadcrumb:** `Estoque > Produtos > [Nome do produto]`.
-- **Abas:** devem aparecer somente quando habilitadas pela categoria.
-- **Configurações:** devem conter Informações Básicas, Controle de Estoque,
-  Categorias, Observações internas e Zona de Perigo.
-- **Unidade:** o diálogo deve explicar que a unidade é compartilhada por marcas,
-  receitas, tamanhos e movimentações.
-- **Exclusão:** o diálogo destrutivo deve listar o que será apagado.
-- **Salvamento:** campos simples podem salvar ao perder foco, conforme o padrão
-  de design do módulo.
+- **Brand table:** must display Brand, Packaging, Value/packaging, Price
+  unit, Stock and Movements.
+- **Main chip:** the main brand must display the `Main` chip.
+- **Switch:** each brand must have a switch to define it as main.
+- **Action menu:** must contain Edit brand, Set as main and Delete
+  brand.
+- **Exclusion:** must open confirmation dialog with the brand name and
+  known impacts.
+- **Empty state:** should display `Add first tag`.
+- **Input:** the modal must allow switching between Packaging and Base Unit.
+- **Preview:** when informing packaging, show the total converted into grams as
+  supporting text.
 
 ---
 
-#### REQ-06 Receitas de Produtos Fabricáveis
+#### REQ-03 Inventory Control and Adjustment
 
-- [ ] **Receitas de Produtos Fabricáveis**
+- [ ] **Inventory Control and Adjustment**
 
-**Descrição:** Uma receita deve definir os ingredientes necessários para produzir
-  uma quantidade de referência de um produto Fabricável.
+**Description:** The system must display the current balance, allow entries and write-offs
+manuals and prevent any operation that results in negative stock.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Uma receita:** cada Fabricável possui uma única receita nesta versão.
-- **Rendimento de referência:** o gerente define a quantidade base da receita,
-  sempre na unidade do produto fabricável.
-- **Ingrediente elegível:** somente produtos com categoria Ingrediente podem
-  entrar na receita.
-- **Acompanhamento:** não pode ser usado como ingrediente de receita.
-- **Campos da linha:** produto ingrediente, quantidade e unidade herdada.
-- **Unidade:** a quantidade do ingrediente usa a mesma unidade de estoque do
-  ingrediente; o design atual apresenta os valores em gramas.
-- **Marca:** quando o ingrediente possui estoque por marca, a receita usa a marca
-  principal vigente no momento da produção.
-- **Marca exibida:** a tabela deve identificar qual marca principal será usada.
-- **Sem marca principal:** a produção fica bloqueada até que uma marca principal
-  seja definida.
-- **Quantidade:** cada quantidade deve ser maior que zero.
-- **Duplicidade:** a mesma combinação de ingrediente não pode aparecer duas vezes.
-- **CMV:** custo do ingrediente é calculado com o preço unitário vigente.
-- **CMV total:** soma dos custos de todas as linhas para o rendimento de
-  referência.
-- **Custo unitário:** para Fabricável, é calculado por
-  `CMV total ÷ rendimento de referência`.
-- **Máximo produzível:** é o menor limite calculado entre todos os ingredientes.
-- **Atualização:** alterações em receita, marca ou entrada de estoque recalculam
-  CMV e capacidade de produção.
-- **Remoção de ingrediente:** remove somente a linha da receita.
+- **Single stock:** the balance belongs directly to the product.
+- **By brand:** total stock is the sum of brand balances.
+- **Input:** adds positive quantity to the selected product or brand.
+- **Manual write-off:** removes a positive quantity from the selected product or brand.
+- **Adjustment:** every manual change must be treated as entry or write-off.
+- **Minimum balance:** no write-off can result in a balance less than zero.
+- **Validation:** mandatory quantity and greater than zero.
+- **Unit:** adjustment quantity must use the base unit of the product.
+- **Production:** increases Fabricable stock after lowering its
+  ingredients.
+- **Sales:** the POS is responsible for downloading products, accompaniments and
+  Resales according to the POS PRD.
+- **Main brand:** production and other automatic write-offs without explicit selection
+  use the main brand.
+- **Availability update:** entries and write-offs recalculate total stock,
+  production situation and capacity.
+- **History:** movement and audit history is out of scope
+  of this version.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Cabeçalho:** deve exibir rendimento de referência e ação Produzir.
-- **Tabela:** deve exibir Insumo, Fonte/Marca, Quantidade, Custo, % do CMV,
-  Estoque e Ações.
-- **Unidades:** o design deve usar gramas em quantidades e projeções.
-- **Fonte:** exibir chip da marca principal quando o estoque for por marca.
-- **Estoque suficiente:** mostrar saldo atual e capacidade estimada.
-- **Insumo limitante:** destacar a linha com ícone e fundo de alerta.
-- **Insumo insuficiente:** a própria linha deve mostrar necessário, disponível e
-  faltante; não depender de uma lista separada.
-- **Adicionar:** botão `Adicionar ingrediente` deve inserir ou abrir a nova
-  configuração de linha.
-- **Excluir:** deve exigir confirmação e informar que CMV e capacidade serão
-  recalculados.
-- **Estado vazio:** orientar o gerente a adicionar o primeiro ingrediente.
+- **Summary:** must display Current stock, Ideal stock and Situation.
+- **Normal Situation:** when the total balance is greater than or equal to the ideal stock.
+- **Low Situation:** when the total balance is less than the ideal stock.
+- **No ideal stock:** display Normal situation without target comparison.
+- **Actions:** Entry and Write-off must be close to the corresponding balance.
+- **Insufficiency:** the confirmation button must be blocked when the
+  amount exceeds balance.
+- **Message:** inform available quantity and requested quantity.
+- **Zero:** zero balance must be displayed as valid status, not as absence of
+  registration.
 
 ---
 
-#### REQ-07 Registro de Produção
+#### REQ-04 Product Listing
 
-- [ ] **Registro de Produção**
+- [ ] **Product List**
 
-**Descrição:** O gerente ou funcionário autorizado deve registrar a produção de
-  um Fabricável, consumindo os ingredientes e adicionando o produto produzido ao
-  estoque.
+**Description:** The Products screen must allow consulting, filtering, ordering and
+  open registered products.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Acesso:** ação Produzir fica disponível na receita ou no produto Fabricável.
-- **Modos:** o operador pode informar a produção por Lote ou por Quantidade.
-- **Switch:** a mudança entre os modos é feita por um switch.
-- **Lote:** representa exatamente o rendimento de referência da receita.
-- **Quantidade:** deve ser informada na unidade do produto; o design atual usa
-  gramas.
-- **Sincronização:** alterar lotes atualiza a quantidade e alterar quantidade
-  atualiza lotes quando houver equivalência.
-- **Consumo:**
-  `quantidade_do_ingrediente × (quantidade_produzida ÷ rendimento_de_referência)`.
-- **Projeção:** deve calcular consumo, estoque atual e estoque após produção para
-  cada ingrediente ou marca principal.
-- **Insuficiência:** se qualquer ingrediente estiver insuficiente, a confirmação
-  é bloqueada.
-- **Baixa:** ocorre no produto ingrediente ou na marca principal, conforme o
-  controle de estoque.
-- **Entrada:** a quantidade produzida é adicionada ao estoque do Fabricável.
-- **Acompanhamentos:** não são consumidos na produção.
-- **Custo:** custo da produção pode ser calculado pelo CMV multiplicado pela
-  quantidade de lotes; valor em estoque e lucro pertencem ao módulo financeiro.
-- **Atômica:** baixas dos ingredientes e entrada do Fabricável devem ocorrer na
-  mesma transação.
-- **Falha:** se qualquer operação falhar, nenhuma alteração permanece.
-- **Estoque negativo:** nunca permitir confirmação que gere saldo negativo.
+- **Filters:** category, stock status and product status.
+- **Combined filters:** different sections use AND; multiple categories use
+  OR each other.
+- **Search:** filters by name.
+- **Order:** Name, Stock quantity, Number of brands, Categories and
+  Unit.
+- **Pagination:** the listing must be paginated.
+- **KPIs:** summary cards must respect active filters.
+- **Operational Cards:** can display Products, Brands, Low Stock and Products
+  with limited production.
+- **Value in stock:** should not appear as a KPI in this module; belongs to a
+  financial view of costs, profits and movements.
+- **Low stock:** uses comparison with ideal stock.
+- **Empty state:** must differentiate absence of products from filters without
+  results.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Modal:** deve exibir produto, rendimento e switch Lote/Quantidade.
-- **Lote:** mostrar o campo de lotes e, abaixo dele, o preview textual da
-  quantidade equivalente, como `Equivale a 2.000 g`.
-- **Quantidade:** mostrar input com sufixo `g`.
-- **Layout:** controles de modo e entrada devem ficar organizados lado a lado
-  quando houver espaço.
-- **Atalhos:** podem existir opções `1 lote`, `2 lotes` e `Máximo`.
-- **Tabela de projeção:** deve exibir Insumo/Marca, Consumo, Atual e Após.
-- **Linha insuficiente:** deve ficar vermelha e mostrar necessário, disponível e
-  faltante na própria tabela.
-- **Botão:** `Confirmar produção` deve ficar desabilitado quando houver falta.
-- **Sucesso:** fechar o modal, atualizar estoques e confirmar a produção.
-- **Falha:** manter o contexto, informar que nenhuma alteração foi aplicada e
-  permitir nova tentativa.
+- **Table:** must occupy all available space below the filters.
+- **Filters:** must remain in the position defined by the approved layout and not
+  compete for horizontal space with the table.
+- **Columns:** Name, Stock quantity, Number of brands, Categories and
+  Unit, in addition to the necessary actions.
+- **Low line:** can use alert background, red indicator and text
+  explanatory.
+- **Search:** must have an icon and contextual placeholder.
+- **Clear:** must remove all active filters.
+- **Empty status without products:** CTA `Register first product`.
+- **Empty state with filters:** `No products found` message and CTA
+  `Clear filters`.
 
 ---
 
-#### REQ-08 Acompanhamentos e Tipos de Acompanhamento
+#### REQ-05 Dedicated Page and Product Settings
 
-- [ ] **Acompanhamentos e Tipos de Acompanhamento**
+- [ ] **Dedicated Page and Product Settings**
 
-**Descrição:** O gerente deve configurar quais produtos Acompanhamento podem ser
-  oferecidos em cada Porção.
+**Description:** Each product must have a dedicated page with tabs and sections
+  conditionals by category.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Vínculo:** uma Porção pode possuir zero ou mais acompanhamentos.
-- **Uso múltiplo:** um Acompanhamento pode ser vinculado a várias Porções.
-- **Produto elegível:** somente a categoria Acompanhamento pode ser vinculada.
-- **Tipo:** cada vínculo possui um tipo, como Cobertura, Extra ou Grátis.
-- **Tipo contextual:** o tipo pode variar entre produtos Porção.
-- **Quantidade por porção:** define o consumo em cada unidade vendida.
-- **Preço:** é configurado pela combinação produto + tamanho + acompanhamento e
-  pertence ao fluxo comercial do PDV.
-- **Marca:** o consumo usa a marca principal do acompanhamento quando o estoque
-  é por marca.
-- **Remoção:** apagar o vínculo não altera saldos atuais.
-- **Tipo em uso:** um tipo utilizado em vínculos não pode ser apagado sem que os
-  vínculos sejam resolvidos.
+- **Stock Tab:** always available.
+- **Recipe Tab:** available for Manufacturable.
+- **Accompaniments Tab:** available for Portion.
+- **Prices Tab — Sizes:** available for Portion; business data is
+  consumed by the POS.
+- **Prices Tab — Resale:** available for Resale; business data is
+  consumed by the POS.
+- **Settings Tab:** always available.
+- **Categories in use:** cannot be removed without resolving their
+  dependencies.
+- **Unit change:** affects brands, recipes, sizes, consumption and
+  product-dependent operations.
+- **Unit warning:** any unit change should display a dialog with
+  impacts before confirmation.
+- **Conversion:** there is no automatic conversion between g↔kg or ml↔l in this version.
+- **Product deletion:** deletes the product and its dependent data after notice and
+  confirmation, including brands, recipe, sizes, links and settings
+  sale.
+- **External dependencies:** products from other registrations remain intact,
+  but links to the deleted product are removed.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Tabela:** deve exibir Acompanhamento, Tipo, Marca, Quantidade por porção e
-  Ações.
-- **Vincular:** botão `Vincular acompanhamento` deve abrir modal.
-- **Modal:** campos Acompanhamento, Tipo, Quantidade por porção e preview de
-  custo; marca aparece quando aplicável.
-- **Marca principal:** exibir a marca principal usada na baixa.
-- **Preço:** pode ser exibido por tamanho, mas a configuração comercial deve
-  permanecer coerente com o PRD de PDV.
-- **Tipos:** dropdown deve oferecer link `Gerenciar tipos`.
-- **Acompanhamento opcional:** nenhum componente deve obrigar a criação de um
-  acompanhamento para uma Porção.
-- **Exclusão:** remoção do vínculo exige confirmação.
-
----
-
-#### REQ-09 Configurações Comerciais Integradas
-
-- [ ] **Configurações Comerciais Integradas**
-
-**Descrição:** A página do produto deve apresentar as configurações necessárias
-  para que o PDV utilize tamanhos e Revendas, sem duplicar a lógica de venda.
-
-##### Regras de Negócio
-
-- **Porção:** cada tamanho possui nome, quantidade em unidade de estoque, preço
-  de venda e status.
-- **Obrigatoriedade:** toda Porção vendável precisa de pelo menos um tamanho
-  ativo.
-- **Revenda:** possui preço de venda, quantidade da embalagem e disponibilidade.
-- **Revenda por marca:** cada marca pode possuir preço e disponibilidade próprios.
-- **Acompanhamento:** o preço é específico para produto + tamanho + acompanhamento.
-- **Atualização:** alterações não modificam pedidos anteriores.
-- **Responsabilidade:** regras de cálculo, carrinho, baixa de venda e histórico
-  de pedidos pertencem ao PRD de PDV.
-
-##### Regras de UI/UX
-
-- **Abas condicionais:** Preços — Tamanhos aparece somente para Porção; Preços —
-  Revenda aparece somente para Revenda.
-- **Tamanhos:** tabela deve exibir Nome, Quantidade, Custo operacional, Preço,
-  Lucro/Margem quando o módulo financeiro estiver disponível e Ações.
-- **Financeiro:** o valor total em estoque, lucros e relatórios financeiros não
-  devem ser apresentados como KPI do MRP.
-- **Status:** tamanhos e marcas devem permitir ativação e inativação sem apagar
-  configurações automaticamente.
-- **PDV:** produtos sem configuração comercial ativa não aparecem no PDV.
+- **Header:** should display name, unit, status, category chips and actions
+  Edit and Remove.
+- **Breadcrumb:** `Stock > Products > [Product name]`.
+- **Tabs:** should only appear when enabled by the category.
+- **Settings:** must contain Basic Information, Stock Control,
+  Categories, Internal Observations and Danger Zone.
+- **Unit:** the dialogue must explain that the unit is shared by brands,
+  recipes, sizes and movements.
+- **Deletion:** the destructive dialog must list what will be deleted.
+- **Saving:** simple fields can save when losing focus, as per standard
+  module design.
 
 ---
 
-#### REQ-10 Navegação, Estados e Confirmações
+#### REQ-06 Manufacturable Product Recipes
 
-- [ ] **Navegação, Estados e Confirmações**
+- [ ] **Manufacturable Product Recipes**
 
-**Descrição:** O MRP deve oferecer navegação consistente, estados claros e
-  confirmações para alterações destrutivas ou de alto impacto.
+**Description:** A recipe must define the ingredients needed to produce
+  a reference quantity of a Manufacturable product.
 
-##### Regras de Negócio
+##### Business Rules
 
-- **Navegação principal:** Dashboard, Produtos, PDV, Histórico de Pedidos e
-  Modificadores de Preço.
-- **Sem subbotões:** a navegação principal não deve criar subnavegação desnecessária.
-- **Produto:** abrir a linha ou ação Detalhes leva à página dedicada.
-- **Categorias em uso:** tentativa de remoção deve ser bloqueada até resolver
-  dependências.
-- **Exclusões:** produtos, marcas, ingredientes, acompanhamentos e tamanhos são
-  apagados após aviso e confirmação.
-- **Zona de perigo:** deve listar o que será apagado antes da confirmação.
-- **Autenticação:** perfis, permissões e usuários pertencem ao módulo Auth.
-- **Unidade:** mudança de unidade exige diálogo de aviso antes de salvar.
+- **One recipe:** each Manufacturable has a single recipe in this version.
+- **Reference income:** the manager defines the base quantity of the recipe,
+  always in the unit of the manufacturable product.
+- **Eligible ingredient:** only products with the Ingredient category can
+  enter the recipe.
+- **Accompaniment:** cannot be used as a recipe ingredient.
+- **Line fields:** product ingredient, quantity and inherited unit.
+- **Unit:** the quantity of the ingredient uses the same stock unit as the
+  ingredient; the current design presents values ​​in grams.
+- **Brand:** when the ingredient is stocked by brand, the recipe uses the brand
+  main force in force at the time of production.
+- **Brand displayed:** the table must identify which main brand will be used.
+- **No main brand:** production is blocked until a main brand
+  be defined.
+- **Quantity:** each quantity must be greater than zero.
+- **Duplicate combinations:** the same ingredient combination cannot appear twice.
+- **COGS:** ingredient cost is calculated using the current unit price.
+- **Total COGS:** sum of the costs of all lines for income
+  reference.
+- **Unit cost:** for Manufacturable, it is calculated by
+  `Total COGS ÷ Reference Yield`.
+- **Producible maximum:** is the lowest limit calculated among all ingredients.
+- **Update:** changes in recipe, brand or stock entry recalculate
+  COGS and production capacity.
+- **Ingredient removal:** only removes the line from the recipe.
 
-##### Regras de UI/UX
+##### UI/UX rules
 
-- **Breadcrumb:** manter o contexto `Estoque > Produtos > Produto`.
-- **Estados de carregamento:** busca, salvamento, cálculo e produção devem ter
-  feedback visual.
-- **Estado vazio:** cada tabela deve orientar a próxima ação.
-- **Dialog de unidade:** informar que a unidade é compartilhada por marcas,
-  receitas, tamanhos e operações dependentes.
-- **Dialog de exclusão:** usar linguagem destrutiva clara, com Cancelar e
-  Remover.
-- **Responsividade:** tabelas, cards e modais não podem sobrepor ou cortar
-  conteúdo em telas menores.
-- **Consistência visual:** usar os componentes, tokens e ícones definidos no guia
-  de design.
-
----
-
-### 3. Fluxo de Usuário (User Flow)
-
-**Fluxo A - Usuário consulta Produtos**
-
-1. O usuário acessa `Produtos`.
-2. O sistema exibe cards operacionais, filtros, busca e tabela.
-3. O usuário filtra por categoria, estoque ou status.
-4. O sistema aplica filtros combinados e recalcula os cards.
-5. O usuário ordena por Nome, Quantidade de estoque, Número de marcas,
-   Categorias ou Unidade.
-6. O usuário abre `Detalhes` de um produto.
-7. O sistema abre a página dedicada na aba Estoque.
-
-**Fluxo B - Usuário cadastra produto**
-
-1. O gerente clica em `Novo produto`.
-2. O sistema exibe Nome, Unidade, Categorias e Controle de estoque.
-3. O gerente preenche os campos.
-4. O sistema valida:
-   - **Sucesso:** cria o produto ativo com saldo zero e abre sua página.
-   - **Nome duplicado:** informa que o nome já existe.
-   - **Sem unidade:** solicita uma unidade.
-   - **Sem categoria:** solicita pelo menos uma categoria.
-5. O gerente configura marcas, receita ou preços depois do cadastro.
-
-**Fluxo C - Gerente gerencia marcas**
-
-1. O gerente abre um produto com controle `Por marca`.
-2. Clica em `Vincular marca`.
-3. Informa nome, quantidade da embalagem, valor da embalagem e estoque inicial.
-4. O sistema calcula preço unitário e atualiza o estoque total.
-5. A primeira marca recebe automaticamente o chip `Principal`.
-6. Para trocar a principal, o gerente usa o switch da nova marca.
-7. Para excluir, abre o menu de ações e confirma o diálogo.
-8. O sistema recalcula os dados dependentes.
-
-**Fluxo D - Gerente ajusta estoque**
-
-1. O gerente abre a aba Estoque.
-2. Escolhe Entrada ou Baixa.
-3. Se houver marca, escolhe o saldo da marca correspondente.
-4. Seleciona Embalagens ou Unidade base.
-5. Informa a quantidade.
-6. O sistema exibe o total em gramas.
-7. O sistema valida:
-   - **Entrada válida:** soma ao saldo.
-   - **Baixa válida:** subtrai do saldo.
-   - **Baixa maior que o saldo:** bloqueia e informa a quantidade disponível.
-8. O sistema recalcula situação e capacidade de produção.
-
-**Fluxo E - Gerente monta receita**
-
-1. O gerente abre um produto Fabricável e acessa Receita.
-2. Define o rendimento de referência em gramas.
-3. Adiciona um Ingrediente.
-4. Seleciona a quantidade; a unidade é herdada.
-5. Se o ingrediente for por marca, o sistema mostra a marca principal.
-6. O sistema calcula custo, percentual do CMV, saldo e capacidade.
-7. O gerente salva a linha.
-8. O sistema atualiza CMV e quantidade máxima produzível.
-
-**Fluxo F - Gerente ou funcionário registra produção**
-
-1. O usuário autorizado clica em `Produzir`.
-2. O sistema abre o modal com switch Lote/Quantidade.
-3. O usuário informa lotes ou quantidade em gramas.
-4. O sistema mostra o preview equivalente e a tabela de projeção.
-5. Se algum ingrediente estiver insuficiente, a própria linha mostra necessário,
-   disponível e faltante; confirmar fica bloqueado.
-6. Se houver saldo suficiente, o usuário confirma.
-7. O sistema baixa os ingredientes e adiciona o produto produzido na mesma
-   transação.
-8. Em sucesso, atualiza a página e fecha o modal.
-9. Em falha, nenhuma alteração permanece.
-
-**Fluxo G - Gerente configura acompanhamentos**
-
-1. O gerente abre um produto Porção.
-2. Acessa Acompanhamentos e clica em `Vincular acompanhamento`.
-3. Seleciona produto, tipo, quantidade por porção e, quando aplicável, marca.
-4. Configura o preço por produto + tamanho + acompanhamento na seção comercial.
-5. O sistema exibe o custo previsto e salva o vínculo.
-6. O acompanhamento fica disponível no PDV somente para os tamanhos ativos
-   configurados.
-
-**Fluxo H - Gerente altera unidade**
-
-1. O gerente acessa Configurações e altera a unidade.
-2. O sistema abre um diálogo de aviso.
-3. O diálogo informa que marcas, receitas, tamanhos e operações dependentes usam
-   a unidade do produto.
-4. O gerente cancela ou confirma.
-5. Se confirmar, o sistema salva a nova unidade conforme as regras de conversão
-   vigentes e sinaliza valores que exigem revisão.
-
-**Fluxo I - Gerente remove produto**
-
-1. O gerente clica em `Remover`.
-2. O sistema lista marcas, receita, tamanhos, acompanhamentos e configurações que
-   serão apagados.
-3. O gerente cancela ou confirma.
-4. Ao confirmar, o sistema apaga o produto e seus dados dependentes.
-5. Produtos e marcas de outros cadastros permanecem intactos.
+- **Header:** must display reference yield and Produce action.
+- **Table:** must display Input, Source/Brand, Quantity, Cost, % of COGS,
+  Stock and Movements.
+- **Units:** the design must use grams in quantities and projections.
+- **Source:** display chip of the main brand when stock is by brand.
+- **Sufficient stock:** show current balance and estimated capacity.
+- **Limiting input:** highlight the line with alert icon and background.
+- **Insufficient input:** the line itself must show necessary, available and
+  missing; do not rely on a separate list.
+- **Add:** `Add ingredient` button must insert or open the new
+  line configuration.
+- **Delete:** must require confirmation and inform that CMV and capacity will be
+  recalculated.
+- **Empty state:** guide the manager to add the first ingredient.
 
 ---
 
-### 4. Fora do Escopo (Out of Scope)
+#### REQ-07 Production Record
 
-- PDV, carrinho, processamento de venda e histórico de pedidos.
-- Modificadores de preço.
-- Formas de pagamento, caixa, troco e conciliação.
-- Valor total em estoque, lucro, margem e relatórios financeiros.
-- Inventário físico.
-- Lotes e validade.
-- Perdas e desperdícios.
-- Histórico de movimentações e auditoria de estoque.
-- Notificações automáticas de estoque mínimo por email, SMS ou push.
-- Ordens de compra e previsão de chegada.
-- Marcas compartilhadas entre produtos.
-- Múltiplas receitas para o mesmo produto Fabricável.
-- Conversão automática entre g↔kg ou ml↔l.
-- Multi-loja e múltiplas unidades operacionais.
-- Autenticação, usuários, perfis e permissões.
-- Billing, planos e assinaturas.
-- Dashboard gerencial e BI.
-- Composição automática de copos, tampas, colheres e descartáveis.
-- Acompanhamentos em produtos de Revenda.
-- Tipo `Base` como acompanhamento; a Porção já é a base do pedido.
+- [ ] **Production Record**
 
-#### Descartado durante a definição
+**Description:** The manager or authorized employee must record the production of
+  a Manufacturable, consuming the ingredients and adding the produced product to the
+  stock.
 
-- **Permitir estoque negativo:** removido; toda operação que deixaria o saldo
-  negativo é bloqueada.
-- **Valor em estoque no MRP:** removido; custos, lucros e movimentações
-  financeiras pertencem a uma tela financeira.
-- **Estoque físico, lotes e validade:** removidos do escopo desta versão.
-- **Histórico e auditoria de estoque:** removidos do escopo; o módulo mantém
-  somente os dados operacionais necessários para produzir.
-- **Porção sem tamanho:** descartada; toda Porção vendável precisa de pelo menos
-  um tamanho.
-- **Acompanhamento obrigatório:** descartado; uma Porção pode ser vendida sem
-  acompanhamento.
-- **Marca fixa permanente na receita:** substituída pela marca principal vigente
-  para baixas automáticas por marca.
-- **Preço global de acompanhamento:** substituído pelo preço por produto +
-  tamanho + acompanhamento.
-- **Unidade visual misturada:** o design atual mantém quantidades de peso em
-  gramas.
+##### Business Rules
+
+- **Access:** Produce action is available in the recipe or Manufacturable product.
+- **Modes:** the operator can inform production by Batch or by Quantity.
+- **Switch:** the change between modes is made by a switch.
+- **Lot:** exactly represents the reference yield of the recipe.
+- **Quantity:** must be informed in the product unit; the current design uses
+  grams.
+- **Synchronization:** changing batches updates the quantity and changing quantity
+  updates batches when there is equivalence.
+- **Consumption:**
+  `quantity_of_ingredient × (quantity_produced ÷ reference_yield)`.
+- **Projection:** must calculate consumption, current stock and stock after production for
+  each main ingredient or brand.
+- **Insufficiency:** if any ingredient is insufficient, confirmation
+  is blocked.
+- **Low:** occurs in the ingredient product or in the main brand, depending on the
+  stock control.
+- **Input:** the quantity produced is added to the Fabricable stock.
+- **Side dishes:** are not consumed in production.
+- **Cost:** production cost can be calculated by COGS multiplied by
+  number of lots; stock value and profit belong to the financial module.
+- **Atomic:** ingredient write-off and Manufacture input must occur at
+  same transaction.
+- **Failure:** If any operation fails, no changes remain.
+- **Negative stock:** never allow confirmation that generates a negative balance.
+
+##### UI/UX rules
+
+- **Modal:** must display product, yield and Lot/Quantity switch.
+- **Batch:** show the batch field and, below it, the textual preview of the
+  equivalent quantity, such as `Equivalent to 2,000 g`.
+- **Quantity:** show input with suffix `g`.
+- **Layout:** mode and input controls must be arranged side by side
+  when there is space.
+- **Shortcuts:** There may be `1 batch`, `2 batches` and `Maximum` options.
+- **Projection table:** must display Input/Brand, Consumption, Current and After.
+- **Insufficient line:** should turn red and show needed, available and
+  missing from the table itself.
+- **Button:** `Confirm production` must be disabled when there is a shortage.
+- **Success:** close the modal, update stocks and confirm production.
+- **Failed:** maintain the context, inform that no changes were applied and
+  allow retry.
+
+---
+
+#### REQ-08 Accompaniments and Types of Accompaniment
+
+- [ ] **Accompaniments and Types of Accompaniment**
+
+**Description:** The manager must configure which Accompaniment products can be
+  offered in each Portion.
+
+##### Business Rules
+
+- **Link:** a Portion may have zero or more accompaniments.
+- **Multiple use:** a Side dish can be linked to multiple Portions.
+- **Eligible product:** only the Accompaniment category can be linked.
+- **Type:** each bond has a type, such as Coverage, Extra or Free.
+- **Contextual type:** the type may vary between Portion products.
+- **Quantity per portion:** defines consumption in each unit sold.
+- **Price:** is configured by the combination of product + size + accompaniment and
+  belongs to the POS commercial flow.
+- **Brand:** consumption uses the main brand of the accompaniment when stock
+  It's by brand.
+- **Removal:** deleting the link does not change current balances.
+- **Type in use:** a type used in links cannot be deleted without the
+  links are resolved.
+
+##### UI/UX rules
+
+- **Table:** must display Accompaniment, Type, Brand, Quantity per serving and
+  Actions.
+- **Link:** `Link accompaniment` button must open modal.
+- **Modal:** Accompaniment, Type, Quantity per serving and preview fields
+  cost; mark appears when applicable.
+- **Main brand:** display the main brand used in the registration.
+- **Price:** can be displayed by size, but the commercial configuration must
+  remain consistent with the POS PRD.
+- **Types:** dropdown should offer `Manage types` link.
+- **Optional monitoring:** no component should require the creation of a
+  accompaniment to a Portion.
+- **Exclusion:** removal of the link requires confirmation.
+
+---
+
+#### REQ-09 Integrated Commercial Settings
+
+- [ ] **Integrated Business Settings**
+
+**Description:** The product page must present the necessary settings
+  so that the POS uses sizes and Resales, without duplicating the sales logic.
+
+##### Business Rules
+
+- **Portion:** each size has a name, quantity in stock unit, price
+  sales and status.
+- **Mandatory:** every salable portion must be at least one size
+  active.
+- **Resale:** has sales price, packaging quantity and availability.
+- **Resale by brand:** each brand may have its own price and availability.
+- **Accompaniment:** the price is specific to product + size + accompaniment.
+- **Update:** changes do not modify previous orders.
+- **Responsibility:** calculation rules, cart, sales write-off and history
+  of orders belong to the POS PRD.
+
+##### UI/UX rules
+
+- **Conditional tabs:** Prices — Sizes appear only for Portion; Prices —
+  Resale appears only for Resale.
+- **Sizes:** table must display Name, Quantity, Operating Cost, Price,
+  Profit/Margin when the financial module is available and Movements.
+- **Financial:** the total value in stock, profits and financial reports
+  must be presented as MRP KPI.
+- **Status:** sizes and brands must allow activation and deactivation without deleting
+  settings automatically.
+- **POS:** products without active commercial configuration do not appear in the POS.
+
+---
+
+#### REQ-10 Navigation, States and Confirmations
+
+- [ ] **Navigation, Status and Confirmations**
+
+**Description:** MRP must offer consistent navigation, clear statuses and
+  commits for destructive or high-impact changes.
+
+##### Business Rules
+
+- **Main navigation:** Dashboard, Products, POS, Order History and
+  Price Modifiers.
+- **No sub-buttons:** the main navigation should not create unnecessary sub-navigation.
+- **Product:** opening the Details line or action takes you to the dedicated page.
+- **Categories in use:** removal attempt must be blocked until resolved
+  dependencies.
+- **Exclusions:** products, brands, ingredients, accompaniments and sizes are
+  deleted after notice and confirmation.
+- **Danger zone:** must list what will be deleted before confirmation.
+- **Authentication:** profiles, permissions and users belong to the Auth module.
+- **Unit:** unit change requires warning dialog before saving.
+
+##### UI/UX rules
+
+- **Breadcrumb:** maintain the `Stock > Products > Product` context.
+- **Loading states:** search, rescue, calculation and production must have
+  visual feedback.
+- **Empty state:** each table must guide the next action.
+- **Unit Dialog:** inform that the unit is shared by brands,
+  dependent recipes, sizes and operations.
+- **Delete Dialog:** use clear destructive language, with Cancel and
+  Remove.
+- **Responsiveness:** tables, cards and modals cannot overlap or cut
+  content on smaller screens.
+- **Visual consistency:** use the components, tokens and icons defined in the guide
+  of design.
+
+---
+
+### 3. User Flow
+
+**Flow A - User consults Products**
+
+1. The user accesses `Products`.
+2. The system displays operational cards, filters, search and tables.
+3. The user filters by category, stock or status.
+4. The system applies combined filters and recalculates the cards.
+5. User sorts by Name, Stock quantity, Number of brands,
+   Categories or Unit.
+6. The user opens `Details` of a product.
+7. The system opens the dedicated page in the Stock tab.
+
+**Flow B - User registers product**
+
+1. The manager clicks on `New Product`.
+2. The system displays Name, Unit, Categories and Inventory control.
+3. The manager fills in the fields.
+4. The system validates:
+   - **Success:** creates the active product with zero balance and opens its page.
+   - **Duplicate name:** informs that the name already exists.
+   - **No unit:** requests a unit.
+   - **No category:** requests at least one category.
+5. The manager configures brands, recipe or prices after registration.
+
+**Flow C - Manager manages brands**
+
+1. The manager opens a product with `By Brand` control.
+2. Click on `Link brand`.
+3. Enters the name, packaging quantity, packaging value and initial stock.
+4. The system calculates the unit price and updates the total stock.
+5. The first mark automatically receives the `Main` chip.
+6. To change the main one, the manager uses the new brand switch.
+7. To delete, open the actions menu and confirm the dialog.
+8. The system recalculates the dependent data.
+
+**Flow D - Manager adjusts stock**
+
+1. The manager opens the Inventory tab.
+2. Choose Entry or Low.
+3. If there is a brand, choose the balance of the corresponding brand.
+4. Select Packaging or Base Unit.
+5. Enter the quantity.
+6. The system displays the total in grams.
+7. The system validates:
+   - **Valid entry:** adds to the balance.
+   - **Valid write-off:** subtracts from the balance.
+   - **Write-off greater than balance:** blocks and informs the available quantity.
+8. The system recalculates production status and capacity.
+
+**Flow E - Manager assembles recipe**
+
+1. The manager opens a Manufacturable product and accesses Recipe.
+2. Sets the reference yield in grams.
+3. Add an Ingredient.
+4. Select the quantity; the unit is inherited.
+5. If the ingredient is by brand, the system shows the main brand.
+6. The system calculates cost, COGS percentage, balance and capacity.
+7. The manager saves the line.
+8. The system updates COGS and maximum producible quantity.
+
+**Flow F - Manager or employee records production**
+
+1. Authorized user clicks `Produce`.
+2. The system opens the modal with the Lot/Quantity switch.
+3. The user enters batches or quantity in grams.
+4. The system shows the equivalent preview and projection table.
+5. If any ingredient is insufficient, the line itself shows necessary,
+   available and missing; confirm is blocked.
+6. If there is sufficient balance, the user confirms.
+7. The system downloads the ingredients and adds the product produced in the same
+   transaction.
+8. If successful, refresh the page and close the modal.
+9. On failure, no changes remain.
+
+**Flow G - Manager configures accompaniments**
+
+1. The manager opens a Portion product.
+2. Access Accompaniments and click on `Link accompaniment`.
+3. Select product, type, quantity per serving and, when applicable, brand.
+4. Configure the price per product + size + accompaniment in the commercial section.
+5. The system displays the expected cost and saves the link.
+6. Accompaniment is available at the POS only for active sizes
+   configured.
+
+**Flow H - Manager changes unit**
+
+1. The manager goes to Settings and changes the unit.
+2. The system opens a warning dialog.
+3. The dialog tells you which dependent brands, recipes, sizes, and operations use
+   the product unit.
+4. The manager cancels or confirms.
+5. If confirmed, the system saves the new unit according to the conversion rules
+   in force and signals values that require review.
+
+**Flow I - Manager removes product**
+
+1. The manager clicks `Remove`.
+2. The system lists brands, recipes, sizes, accompaniments and configurations that
+   will be deleted.
+3. The manager cancels or confirms.
+4. Upon confirmation, the system deletes the product and its dependent data.
+5. Products and brands from other registrations remain intact.
+
+---
+
+### 4. Out of Scope
+
+- POS, cart, sales processing and order history.
+- Price modifiers.
+- Payment methods, cash, change and reconciliation.
+- Total value in stock, profit, margin and financial reports.
+- Physical inventory.
+- Batches and validity.
+- Losses and waste.
+- Movement history and stock audit.
+- Automatic minimum stock notifications by email, SMS or push.
+- Purchase orders and estimated arrival.
+- Brands shared between products.
+- Multiple recipes for the same manufacturable product.
+- Automatic conversion between g↔kg or ml↔l.
+- Multi-store and multiple operational units.
+- Authentication, users, profiles and permissions.
+- Billing, plans and subscriptions.
+- Management dashboard and BI.
+- Automatic composition of cups, lids, spoons and disposables.
+- Monitoring of resale products.
+- Type `Base` as accompaniment; the Portion is already the basis of the order.
+
+#### Discarded during definition
+
+- **Allow negative stock:** removed; any operation that would leave the balance
+  negative is blocked.
+- **Stock value in MRP:** removed; costs, profits and movements
+  Financial data belongs to a financial view.
+- **Physical stock, batches and expiration date:** removed from the scope of this version.
+- **History and stock audit:** removed from scope; the module maintains
+  only the operational data necessary to produce.
+- **Portion not sized:** discarded; every salable Portion needs at least
+  one size.
+- **Mandatory monitoring:** discarded; a Portion may be sold without
+  accompaniment.
+- **Permanent fixed brand on the recipe:** replaced by the current main brand
+  for automatic write-offs by brand.
+- **Global accompaniment price:** replaced by price per product +
+  size + accompaniment.
+- **Mixed visual unit:** current design maintains weight amounts in
+  grams.

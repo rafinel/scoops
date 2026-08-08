@@ -1,153 +1,153 @@
-# PRD — Módulo de Comunicação
+# PRD — Communication Module
 
-## Visão Geral
+## Overview
 
-O módulo de Comunicação centraliza o envio de mensagens importantes do Scoops.
+The Communication module centralizes the sending of important Scoops messages.
 
-Ele será responsável por enviar e-mails e exibir notificações dentro do produto quando acontecimentos relevantes ocorrerem em outros módulos, como Identity, Billing e Estoque.
+It is responsible for sending emails and displaying notifications within the product when relevant events occur in other modules, such as Identity, Billing and Inventory.
 
-O objetivo é garantir que cada usuário receba informações claras, no momento adequado e pelo canal correto.
+The objective is to ensure that each user receives clear information, at the appropriate time and through the correct channel.
 
-## Público-alvo
+## Target audience
 
-- Gerentes de sorveterias.
-- Usuários convidados ou afetados por alterações de acesso.
-- Responsáveis financeiros.
-- Usuários que precisam acompanhar alertas operacionais da sorveteria.
+- Ice cream parlor managers.
+- Users invited or affected by access changes.
+- Financial managers.
+- Users who need to follow operational alerts from the ice cream shop.
 
-## Cenário Competitivo
+## Competitive Landscape
 
-Soluções para restaurantes e varejo já utilizam alertas de estoque e comunicações centralizadas para reduzir rupturas e apoiar decisões operacionais. Esse comportamento aparece em produtos como [Consumer](https://consumer.com.br/reduzir-desperdicio-restaurante) e [Saipos](https://saipos.com/sistema/sorveteria).
+Solutions for restaurants and retail already use inventory alerts and centralized communications to reduce stockouts and support operational decisions. This behavior appears in products such as [Consumer](https://consumer.com.br/reduzir-desperdicio-restaurante) and [Saipos](https://saipos.com/sistema/sorveteria).
 
-O diferencial do Scoops será reunir comunicações de diferentes módulos em uma experiência única, com mensagens específicas para cada destinatário e histórico permanente dentro do produto.
+Scoops' difference will be to bring together communications from different modules into a unique experience, with specific messages for each recipient and permanent history within the product.
 
-## Requisitos
+## Requirements
 
-### REQ-01 — Canais de comunicação
+### REQ-01 — Communication channels
 
-O módulo deve permitir:
+The module must allow:
 
-- Envio de e-mails.
-- Exibição de notificações dentro do produto.
-- Uso de um ou dos dois canais para cada tipo de mensagem.
-- Destinatários diferentes conforme o contexto da mensagem.
+- Sending emails.
+- Display of notifications within the product.
+- Use of one or both channels for each type of message.
+- Different recipients depending on the context of the message.
 
-SMS, WhatsApp e notificações push não fazem parte do MVP.
+SMS, WhatsApp and push notifications are not part of the MVP.
 
-### REQ-02 — Mensagens de Estoque
+### REQ-02 — Stock Messages
 
-O módulo deve exibir notificações internas para:
+The module must display internal notifications for:
 
-- Estoque abaixo do ideal: informar o produto, a quantidade disponível e a quantidade ideal.
-- Estoque zerado: informar o produto que não possui quantidade disponível.
+- Stock below ideal: inform the product, the quantity available and the ideal quantity.
+- Zero stock: inform the product that has no quantity available.
 
-### REQ-03 — Mensagens de Billing
+### REQ-03 — Billing Messages
 
-O módulo deve enviar ou exibir mensagens relacionadas a:
+The module must send or display messages related to:
 
-- Fim do período de teste, com avisos 7, 3 e 1 dia antes.
-- Pagamento em processamento.
-- Falha de cobrança.
-- Período de tolerância por inadimplência.
-- Bloqueio da sorveteria.
-- Cancelamento da assinatura.
-- Reativação da assinatura.
-- Reajuste de preço, com aviso mínimo de 30 dias.
-- Exclusão automática, com avisos 30, 7 e 1 dia antes.
-- Comprovantes de cobrança.
+- End of the trial period, with notices 7, 3 and 1 day before.
+- Payment in processing.
+- Billing failure.
+- Tolerance period for default.
+- Blockade of the ice cream shop.
+- Cancellation of subscription.
+- Reactivation of the subscription.
+- Price adjustment, with a minimum notice of 30 days.
+- Automatic exclusion, with notices 30, 7 and 1 day in advance.
+- Billing receipts.
 - NFS-e.
-- Comunicações de cobrança para o responsável financeiro.
-- Chargeback para os Gerentes.
-- Falhas fiscais e operacionais relevantes.
+- Billing communications to the financial person responsible.
+- Chargeback for Managers.
+- Relevant fiscal and operational failures.
 
-As mensagens devem informar a situação, o prazo aplicável e o que o destinatário precisa fazer, quando houver uma ação necessária.
+Messages should state the situation, the applicable deadline, and what the recipient needs to do when action is required.
 
-### REQ-04 — Mensagens de Identity
+### REQ-04 — Identity Messages
 
-O módulo deve enviar e-mails para:
+The module must send emails to:
 
-- Confirmação do onboarding.
-- Confirmação após alteração do e-mail.
-- Convite de usuário.
-- Reenvio de convite.
-- Recuperação de senha.
-- Promoção ou rebaixamento de usuário.
-- Inativação ou reativação de usuário.
-- Exclusão da sorveteria para os Gerentes.
+- Confirmation of onboarding.
+- Confirmation after changing the email.
+- User invitation.
+- Resending invitation.
+- Password recovery.
+- User promotion or demotion.
+- User inactivation or reactivation.
+- Exclusion of the ice cream shop for Managers.
 
-### REQ-05 — Conteúdo das mensagens
+### REQ-05 — Message content
 
-Cada mensagem deve ter conteúdo adequado ao canal e ao destinatário.
+Each message must have content appropriate to the channel and recipient.
 
-As notificações internas devem apresentar:
+Internal notifications must present:
 
-- Título objetivo.
-- Mensagem com o contexto necessário.
-- Data e hora de recebimento.
+- Objective title.
+- Message with the necessary context.
+- Date and time of receipt.
 
-Os e-mails devem apresentar assunto, conteúdo em HTML e, quando necessário, documentos anexos.
+E-mails must have a subject, HTML content and, when necessary, attached documents.
 
-As mensagens devem ser escritas em português do Brasil no MVP.
+Messages must be written in Brazilian Portuguese in MVP.
 
-### REQ-06 — Central de notificações
+### REQ-06 — Notification Center
 
-O produto deve possuir uma central de notificações acessível pelo Header.
+The product must have a notification center accessible through the Header.
 
-A central deve:
+The center must:
 
-- Exibir somente as notificações do usuário autenticado.
-- Organizar as notificações por data.
-- Permitir filtrar por período.
-- Carregar notificações antigas por meio do botão “Ver mais”.
-- Manter o histórico sem limite de retenção.
-- Apresentar estado vazio quando não houver notificações.
+- Only display notifications from the authenticated user.
+- Organize notifications by date.
+- Allow filtering by period.
+- Upload old notifications via the “See more” button.
+- Keep history without retention limit.
+- Display empty status when there are no notifications.
 
-Não deve existir filtro separado para notificações lidas e não lidas.
+There should be no separate filter for read and unread notifications.
 
-### REQ-07 — Leitura das notificações
+### REQ-07 — Reading notifications
 
-Uma notificação deve ser considerada lida quando ficar visível para o usuário.
+A notification should be considered read when it is visible to the user.
 
-A leitura deve ser individual. Marcar uma notificação como lida para um usuário não pode alterar o estado dela para outro usuário.
+Reading must be individual. Marking a notification as read for one user cannot change its status for another user.
 
-### REQ-08 — Consistência das comunicações
+### REQ-08 — Consistency of communications
 
-Cada acontecimento relevante deve gerar uma comunicação obrigatória conforme sua definição.
+Each relevant event must generate mandatory communication according to its definition.
 
-Se a comunicação não puder ser iniciada, a ação que originou a mensagem não deve ser concluída.
+If communication cannot be initiated, the action that originated the message must not be completed.
 
-Depois de iniciada, a comunicação deve ser processada sem exigir que o usuário permaneça na tela.
+Once initiated, the communication must be processed without requiring the user to remain on the screen.
 
-### REQ-09 — Histórico e clareza
+### REQ-09 — History and clarity
 
-As mensagens exibidas no produto devem permanecer disponíveis para consulta.
+Messages displayed on the product must remain available for consultation.
 
-O conteúdo deve ser claro, direto e suficiente para que o usuário entenda:
+The content must be clear, direct and sufficient for the user to understand:
 
-- O que aconteceu.
-- Quando aconteceu.
-- Quem foi afetado.
-- O que precisa ser feito, quando aplicável.
+- What happened.
+- When it happened.
+- Who was affected.
+- What needs to be done, when applicable.
 
-## User Flow
+##UserFlow
 
-1. Um acontecimento relevante ocorre em um módulo do Scoops.
-2. O sistema identifica os destinatários e os canais adequados.
-3. A comunicação é iniciada.
-4. O destinatário recebe um e-mail, uma notificação interna ou ambos.
-5. A notificação interna aparece no dropdown do Header.
-6. O usuário pode abrir a central para consultar o histórico.
-7. Ao ficar visível, a notificação é marcada como lida para aquele usuário.
-8. O usuário pode filtrar o histórico por data e carregar notificações antigas.
+1. A relevant event occurs in a Scoops module.
+2. The system identifies appropriate recipients and channels.
+3. Communication starts.
+4. The recipient receives an email, an internal notification, or both.
+5. The internal notification appears in the Header dropdown.
+6. The user can open the center to check the history.
+7. When visible, the notification is marked as read for that user.
+8. User can filter history by date and load old notifications.
 
 ## Out of Scope
 
-- SMS, WhatsApp e push.
-- Filtro de lidas e não lidas.
-- Limite de retenção do histórico.
-- Personalização de mensagens pelo usuário.
-- Escolha de canais pelo usuário.
-- Painel administrativo para acompanhar status de envio.
-- Exibição de tentativas ou falhas técnicas para o usuário.
-- Suporte a múltiplos idiomas no MVP.
-- E-mails em texto simples no MVP.
+- SMS, WhatsApp and push.
+- Read and unread filter.
+- History retention limit.
+- Customization of messages by the user.
+- Choice of channels by the user.
+- Administrative panel to monitor shipping status.
+- Display of attempts or technical failures to the user.
+- Support for multiple languages ​​in MVP.
+- Plain text emails in MVP.
