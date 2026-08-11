@@ -1,5 +1,5 @@
 {
-  "version": "2.15",
+  "version": "2.17",
   "children": [
     {
       "type": "frame",
@@ -59592,7 +59592,7 @@
       "y": 13324,
       "name": "Identity / Configurações da sorveteria — Desktop",
       "clip": true,
-      "width": 1481,
+      "width": 1551,
       "height": 1050,
       "fill": "$bg-page",
       "children": [
@@ -59641,6 +59641,7 @@
               "ref": "d8DadK",
               "name": "Header da aplicação",
               "width": "fill_container",
+              "clip": false,
               "descendants": {
                 "ni8Ri": {
                   "content": "Buscar no Scoops..."
@@ -66337,8 +66338,8 @@
     {
       "type": "frame",
       "id": "n5xnGg",
-      "x": -138,
-      "y": -3038,
+      "x": 88,
+      "y": -3077,
       "name": "NotificationDropdown",
       "reusable": true,
       "width": 403,
@@ -71881,7 +71882,7 @@
       "type": "frame",
       "id": "B2aXS",
       "x": -4402,
-      "y": 11195,
+      "y": 12435,
       "name": "Tela Adicionar desconto — Combo",
       "clip": true,
       "width": 1543,
@@ -74267,8 +74268,8 @@
     {
       "type": "frame",
       "id": "zBoAn",
-      "x": -2683,
-      "y": 11544,
+      "x": -2445,
+      "y": 12770,
       "name": "Modal Adicionar produto",
       "reusable": true,
       "width": 900,
@@ -78076,8 +78077,8 @@
       "type": "ref",
       "ref": "zBoAn",
       "name": "Modal Adicionar produto — Revenda",
-      "x": -1663,
-      "y": 11544,
+      "x": -1393,
+      "y": 12834,
       "descendants": {
         "Gi2bW": {
           "fill": "$bg-card",
@@ -78168,7 +78169,7 @@
       "type": "frame",
       "id": "XkdtM",
       "x": -4402,
-      "y": 12485,
+      "y": 11256,
       "name": "Tela Lista de descontos",
       "clip": true,
       "width": 1481,
@@ -80726,6 +80727,325 @@
               ]
             }
           ]
+        }
+      }
+    },
+    {
+      "id": "OjX10",
+      "type": "ref",
+      "ref": "lSA6c",
+      "name": "Diálogo Escolher tipo de desconto",
+      "x": -2436,
+      "y": 11374,
+      "width": 520,
+      "descendants": {
+        "Qqe3C": {
+          "icon": "tags"
+        },
+        "UHogL": {
+          "content": "Criar desconto"
+        },
+        "b4Gib": {
+          "content": "Escolha o tipo de desconto para continuar."
+        },
+        "ol2IG": {
+          "type": "frame",
+          "id": "J8I07i",
+          "name": "Tipos de desconto",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            20,
+            24,
+            24,
+            24
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "gFL16",
+              "name": "Opção Combo",
+              "width": "fill_container",
+              "fill": "$bg-card",
+              "cornerRadius": 12,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 14,
+              "padding": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "tvudU",
+                  "name": "Ícone Combo",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "$primary-soft",
+                  "cornerRadius": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "TTrqW",
+                      "name": "Ícone Tipo Combo",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "package-plus",
+                      "library": "lucide",
+                      "fill": "$primary"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "a9MWiz",
+                  "name": "Texto Combo",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "xV4xx",
+                      "name": "Título Combo",
+                      "fill": "$text-primary",
+                      "content": "Combo",
+                      "fontFamily": "Manrope",
+                      "fontSize": 14,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "g5iAV",
+                      "name": "Descrição Combo",
+                      "fill": "$text-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Combine dois ou mais produtos por um preço fixo.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "Manrope",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "icon",
+                  "id": "u8Mgoh",
+                  "name": "Ir para criar Combo",
+                  "width": 18,
+                  "height": 18,
+                  "icon": "arrow-right",
+                  "library": "lucide",
+                  "fill": "$primary"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "y7rynU",
+              "name": "Opção Leve X, pague Y",
+              "opacity": 0.86,
+              "width": "fill_container",
+              "fill": "$bg-muted",
+              "cornerRadius": 12,
+              "stroke": "$border-soft",
+              "strokeWidth": 1,
+              "gap": 14,
+              "padding": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "TRnmc",
+                  "name": "Ícone Combo",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "$border-soft",
+                  "cornerRadius": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "yO5uy",
+                      "name": "Ícone Tipo Combo",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "gift",
+                      "library": "lucide",
+                      "fill": "$text-tertiary"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "SjR0e",
+                  "name": "Texto Combo",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "tqtPx",
+                      "name": "Título Combo",
+                      "fill": "$text-secondary",
+                      "content": "Leve X, pague Y",
+                      "fontFamily": "Manrope",
+                      "fontSize": 14,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "HnM7X",
+                      "name": "Descrição Combo",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Defina quantos itens o cliente leva e quantos paga.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "Manrope",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "scOrO",
+                  "name": "Badge Em breve",
+                  "fill": "$bg-card",
+                  "cornerRadius": 999,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    4,
+                    8
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "LmNzn",
+                      "name": "Texto Em breve",
+                      "fill": "$text-secondary",
+                      "content": "Em breve",
+                      "fontFamily": "Manrope",
+                      "fontSize": 11,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "KAh8T",
+              "name": "Opção Forma de pagamento",
+              "opacity": 0.86,
+              "width": "fill_container",
+              "fill": "$bg-muted",
+              "cornerRadius": 12,
+              "stroke": "$border-soft",
+              "strokeWidth": 1,
+              "gap": 14,
+              "padding": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "RaN0H",
+                  "name": "Ícone Combo",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "$border-soft",
+                  "cornerRadius": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "Xe49b",
+                      "name": "Ícone Tipo Combo",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "credit-card",
+                      "library": "lucide",
+                      "fill": "$text-tertiary"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "fE5tc",
+                  "name": "Texto Combo",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "eIZIq",
+                      "name": "Título Combo",
+                      "fill": "$text-secondary",
+                      "content": "Forma de pagamento",
+                      "fontFamily": "Manrope",
+                      "fontSize": 14,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "gfmKG",
+                      "name": "Descrição Combo",
+                      "fill": "$text-tertiary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Aplique um desconto conforme a forma de pagamento.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "Manrope",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZmE42",
+                  "name": "Badge Em breve",
+                  "fill": "$bg-card",
+                  "cornerRadius": 999,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    4,
+                    8
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "KZoC4",
+                      "name": "Texto Em breve",
+                      "fill": "$text-secondary",
+                      "content": "Em breve",
+                      "fontFamily": "Manrope",
+                      "fontSize": 11,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "faQ7y": {
+          "enabled": false,
+          "width": 520
         }
       }
     }
