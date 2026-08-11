@@ -27,7 +27,7 @@ This is a pnpm + Turborepo monorepo:
 - `packages/core` — shared domain (entities, errors, events) consumed by both apps
 
 Commits follow **Conventional Commits**, enforced by commitlint + husky. Prefer
-these scopes when they represent the affected workspace:
+these scopes when they represent the affected workspac   e:
 
 - `web`
 - `server`

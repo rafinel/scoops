@@ -42,7 +42,10 @@ Unit tests in `packages/core` are written for use cases. Do not create isolated
 unit tests for entities, structures, fakers, repository interfaces, providers,
 mappers, controllers, or database repositories.
 
-Controller and persistence behavior is covered through server integration tests.
+Repository implementations do not receive test files of their own. Do not create
+unit or integration tests whose subject is a repository, mapper, Drizzle model, or
+database adapter. Persistence is exercised indirectly through the server integration
+tests for the controller or application flow that consumes it.
 
 ## One test file per use case
 

@@ -6,78 +6,46 @@ description: Source organization rules for the shared core domain package.
 
 These rules apply to TypeScript source files under `packages/core`.
 
-## Internal imports use core aliases
+## One exported type per file
 
-Imports between files inside `packages/core/src` must use the package aliases
-declared in `packages/core/tsconfig.json`:
+Every declaration written with `export type` must live in its own source file.
+The filename must describe that exported type using kebab-case.
 
-- `#identity/*` for Identity module declarations;
-- `#shared/*` for shared declarations;
-- the equivalent module alias for every other core module.
-
-Do not use relative imports such as `../domain/entities/user` or
-`./user-repository` inside the core. Include the `.ts` extension in alias imports:
+Do not declare two or more exported types in the same file:
 
 ```ts
-import type { Entity } from '#shared/domain/entities/entity.ts'
-import type { UserProfile } from '#identity/domain/structures/user-profile.ts'
-```
-
-Barrel files must also re-export through aliases. This keeps imports stable when a
-file moves within its module and makes the module boundary explicit.
-
-## Entity lifecycle types stay together
-
-An entity and its lifecycle variants must live in the entity's file. Do not create
-separate files for `EntityCreate` or `EntityUpdate` variants:
-
-```ts
-export type User = Entity & {
+// legal-catalog.ts — invalid
+export type LegalArea = {
+  id: string
   name: string
-  email: string
-  createdAt: Date
-  updatedAt: Date
 }
 
-export type UserCreate = Omit<User, 'id' | 'createdAt' | 'updatedAt'>
-
-export type UserUpdate = Partial<Pick<User, 'name' | 'email'>>
+export type LegalTopic = {
+  id: string
+  name: string
+}
 ```
 
-Other exported types should remain in their own source file when they represent
-an independent domain concept. Non-exported helper types may remain in the file
-where they are used. Barrel files named `index.ts` must only re-export
-declarations and must not declare types of their own.
-
-Types that are not actual behavioral contracts must not be placed in an
-`interfaces` directory. Move them to the appropriate domain boundary:
-
-- entities for entity-shaped data and entity lifecycle variants such as
-  `UserCreate`, `UserUpdate`, `EstablishmentCreate`, and `EstablishmentUpdate`;
-- structures for values, filters, parameters, configurations, and relationships.
-
-Test helpers must reuse these domain entities and structures instead of declaring
-parallel data shapes. An interface file should contain an `interface` contract, not
-an arbitrary object type merely because the file is named `interfaces`.
-
-## Entities use the shared Entity contract
-
-Every domain entity must extend the shared `Entity` type with an intersection:
+Create one file for each exported type instead:
 
 ```ts
-import type { Entity } from '#shared/domain/entities/entity.ts'
-
-export type Intake = Entity & {
-  sequenceNumber: number
-  clientId: string
-  createdAt: Date
-  updatedAt: Date
+// legal-area.ts
+export type LegalArea = {
+  id: string
+  name: string
 }
 ```
 
-Do not redeclare `id` inside the entity body. The identity comes from `Entity`.
-Entity files belong under the owning module's `domain/entities` directory and
-must have one exported type per file.
+```ts
+// legal-topic.ts
+export type LegalTopic = {
+  id: string
+  name: string
+}
+```
+
+Non-exported helper types may remain in the file where they are used. Barrel files named
+`index.ts` must only re-export declarations and must not declare types of their own.
 
 ## Business rules belong to use cases
 
@@ -145,36 +113,3 @@ exception: `AuthUser` may expose the provider's subject `id` because it represen
 an external authentication identity, not a core aggregate entity. No other
 structure should add a bare `id` field without documenting the same external
 identity rationale.
-
-## Structures represent values and configurations
-
-Structures do not have identity of their own. Use them for filters, request
-parameters, value objects, relationships, and configuration data:
-
-```ts
-export type LegalExpertise = {
-  readonly legalAreaId: string
-  readonly legalTopicIds: readonly [string, ...string[]]
-}
-```
-
-Normal structures should expose readonly properties. They must not contain a bare
-`id` field; use an explicitly named reference such as `userId` or `establishmentId`
-when the relationship itself is part of the value.
-
-## Enum-like values use const objects
-
-Do not model application enums as string-union types alone. Define the runtime
-values and derive the type from the const object:
-
-```ts
-export const UserProfile = {
-  Manager: 'manager',
-  Operator: 'operator',
-} as const
-
-export type UserProfile = (typeof UserProfile)[keyof typeof UserProfile]
-```
-
-Use this pattern for statuses, profiles, categories, origins, and other finite
-sets of values. Keep the const object and its derived type in the same file.

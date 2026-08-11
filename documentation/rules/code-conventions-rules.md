@@ -16,28 +16,6 @@ All code is written in English, including variable names, functions, types,
 comments, and exported contracts. User-facing copy may use the product's
 language.
 
-## Import order
-
-TypeScript source files order imports in these groups:
-
-1. framework packages, such as `@nestjs/common`;
-2. third-party libraries, such as `inngest` and `zod`;
-3. workspace packages, such as `@scoops/core`;
-4. one blank line;
-5. internal application imports, such as paths using the `@/` alias.
-
-Keep the first three package groups contiguous. Do not insert a blank line between
-third-party and workspace package imports.
-
-```ts
-import { Injectable } from '@nestjs/common'
-import { type Context, eventType, type InngestFunction } from 'inngest'
-import { z } from 'zod'
-import { UserRegistrationAttemptCreatedEvent } from '@scoops/core/identity/domain/events'
-
-import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
-```
-
 ## Naming variables, types, objects, and functions
 
 ### `camelCase`
@@ -164,6 +142,70 @@ export const SignInPage = () => {
 
 Factory functions follow the dedicated factory convention below and are declared
 as PascalCase arrow functions assigned to constants.
+
+## Class-owned functions stay inside the class
+
+Do not declare a loose module-level function when it exists only to support one
+class in the same file. Serialization, mapping, normalization, validation, and
+other behavior owned exclusively by that class must be implemented as a private
+method of the class.
+
+```ts
+export class DocumentTool {
+  execute() {
+    return this.serializeDocument()
+  }
+
+  private serializeDocument() {
+    // ...
+  }
+}
+```
+
+Do not place the helper after or before the class as an unexported standalone
+function:
+
+```ts
+export class DocumentTool {
+  execute() {
+    return serializeDocument()
+  }
+}
+
+function serializeDocument() {
+  // Invalid: this behavior belongs only to DocumentTool.
+}
+```
+
+A module-level function is allowed only when it is genuinely independent of a
+class, is shared by multiple declarations, or is intentionally exposed as the
+module's functional API. Do not move class-owned behavior out of a class merely
+to shorten the class body.
+
+## Known application failures use AppError
+
+Do not throw the native `Error` class directly from application, domain,
+infrastructure, provider, repository, controller, job, tool, agent, or workflow
+code when the failure is known and can be described by the application.
+
+Use `AppError` or a specific subclass owned by the appropriate module:
+
+```ts
+throw new AppError(
+  'A credencial do provedor é obrigatória.',
+  'Erro de Configuração',
+)
+```
+
+Prefer a named `AppError` subclass when the same failure can occur in more than
+one location, participates in control flow, needs distinct REST mapping, or is a
+business error. Do not use a generic native error merely because the failure is
+technical rather than business-related.
+
+Errors received from third-party libraries may remain native while being caught,
+but application code must translate a known failure before exposing or throwing
+it across an HMS boundary. Test assertions and fixture guards are outside this
+rule because they do not represent runtime application failures.
 
 ## Declaration and destructuring order
 

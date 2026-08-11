@@ -1,256 +1,147 @@
 ---
-description: Ownership, registration, event schema, job implementation, endpoint, and testing rules for server messaging.
+description: Domain-event, broker, Inngest job, fan-out, and NestJS messaging composition rules.
 ---
 
 # Messaging Layer Rules
 
-These rules apply to messaging infrastructure under
-`apps/server/src/shared/messaging` and module-owned jobs under
-`apps/server/src/<module>/messaging`.
+These rules apply to shared messaging infrastructure, module-owned messaging
+adapters, domain events consumed asynchronously, and application composition of
+Inngest functions.
 
-## AppModule is the messaging composition root
+## Core owns domain events and the broker contract
 
-The root `AppModule` owns the single application-wide Inngest registration:
+Domain events belong to the module that defines their meaning under:
+
+```text
+packages/core/src/<module>/domain/events/
+```
+
+Each event is a class that extends the shared `Event`, declares a static `_NAME`,
+and types its complete payload. Event names must describe the domain occurrence;
+do not expose an implementation detail such as the AI provider in the name.
 
 ```ts
-InngestModule.forRoot({
-  client: inngest,
-  functions: inngestFunctions,
-})
+export class DocumentGenerationRequestedEvent extends Event<Payload> {
+  static readonly _NAME = 'document-production/document.generation-requested'
+}
 ```
 
-Keep this call in `apps/server/src/app.module.ts`. Do not move feature job imports
-into `shared/messaging`, and do not call `InngestModule.forRoot` from feature
-modules. The root module is the boundary that may compose shared infrastructure
-with functions exported by feature modules.
+Publishers and consumers import `_NAME`; they must not repeat the event-name
+literal. When a job creates a child event, instantiate the domain event and send
+its `name` and `payload` instead of recreating an untyped object.
 
-There must be exactly one root Inngest registration. Calling `forRoot` more than
-once may create duplicate endpoints, clients, or function registrations.
+The shared broker contract remains deliberately small:
 
-## Shared messaging owns only transport infrastructure
+```ts
+export interface Broker {
+  publish(event: Event): Promise<void>
+}
+```
 
-Reusable Inngest integration code belongs under:
+Core use cases depend on `Broker`, never on `InngestClient`. `InngestBroker` is
+the shared server implementation.
+
+## The originating module builds authoritative event data
+
+A module that requests asynchronous work must load and authorize its own data
+before publishing the event. Consumers must not reach into repositories owned by
+the originating module merely to reconstruct the request.
+
+For document generation, Consulta, Formalização, or Caso builds the complete
+`DocumentGenerationSource` snapshot before publishing. The snapshot contains a
+discriminated `type`, the owning entity reference, and its unstructured `data`.
+Document Production may persist that snapshot for traceability, but it must not
+replace it by reading repositories from those modules.
+
+Do not accept an authoritative source snapshot assembled by the browser. A
+controller receives references and action options; its module use case validates
+permission, loads domain data, builds the snapshot, and then publishes.
+
+## Shared messaging owns the Inngest infrastructure
+
+Shared infrastructure belongs under:
 
 ```text
-apps/server/src/shared/messaging/inngest/
-├── inngest-client.ts
-├── inngest-controller.ts
-├── inngest-job.ts
-├── inngest-options.ts
-└── inngest.module.ts
+apps/server/src/shared/messaging/
+├── inngest/
+│   ├── inngest-broker.ts
+│   ├── inngest-client.ts
+│   ├── inngest-job.ts
+│   ├── inngest-options.ts
+│   └── inngest.module.ts
+└── shared-messaging.module.ts
 ```
 
-This layer owns the configured client, dynamic Nest module, serve endpoint,
-registration options, and base job contract. It must not import a feature module
-or a feature-owned job.
+There is exactly one Inngest HTTP endpoint, served by the controller under the
+shared REST layer. A feature must not create its own Inngest controller or reuse
+another feature's controller. Adding a job must not alter the behavior or route
+of existing jobs such as WhatsApp processing.
 
-Shared messaging may translate between NestJS and the Inngest SDK. It must not
-contain business rules, email content, billing policy, inventory decisions, or
-other module-specific behavior.
+The application composition registers every exported job function in the single
+Inngest endpoint. A feature messaging module owns and exports its jobs; the
+feature root module imports that messaging module.
 
-## Feature modules own their jobs
+## Jobs expose `this.function`
 
-An Inngest job belongs to the module whose capability performs the work:
-
-```text
-apps/server/src/<module>/messaging/inngest/jobs/<action>-job.ts
-```
-
-For example, sending an invitation email belongs to Communication:
-
-```text
-apps/server/src/communication/messaging/inngest/jobs/send-invitation-email-job.ts
-```
-
-Use kebab-case filenames ending in `-job.ts` and PascalCase class names ending in
-`Job`. Correct spelling is part of the public job identity; do not keep duplicate
-or misspelled job files.
-
-## Every job extends InngestJob
-
-Each job class must extend the shared `InngestJob` base and retain exactly one
-created function in its readonly `function` property:
+Every Inngest job is an injectable class that extends `InngestJob` and assigns a
+typed function in its constructor:
 
 ```ts
 @Injectable()
-export class SendInvitationEmailJob extends InngestJob {
+export class ExampleJob extends InngestJob {
   readonly function: InngestFunction.Like
 
-  constructor(inngest: InngestClient) {
+  constructor(inngest: InngestClient, dependency: Dependency) {
     super(inngest)
-
-    this.function = this.inngest.createFunction(
-      {
-        id: 'communication/send-invitation-email',
-        triggers: [sendInvitationEmailEvent],
-      },
-      SendInvitationEmailJob.handle,
-    )
+    this.function = this.inngest.createFunction(/* ... */)
   }
 }
 ```
 
-Do not call `createFunction` without retaining its result. The function registry
-must receive the returned `InngestFunction`, not the job instance.
+Do not put a generic `handle(context)` method in the base class and do not pass a
+handler through `super`. Those shapes erase the event-specific inference that
+`createFunction` provides. Dependencies, including repository tokens or core
+interfaces, may be injected normally through NestJS.
 
-A job class defines transport orchestration only. Domain decisions belong in
-core use cases, and reusable external capabilities belong behind core contracts
-and server adapters.
+Jobs coordinate durable execution and translation between events. Business
+decisions belong to core use cases. A job may invoke a workflow or use case, but
+must not reproduce its rules inline.
 
-## Function identifiers are stable and namespaced
+## Event schemas validate transport payloads
 
-Function identifiers use this form:
+An Inngest trigger uses `eventType` with the domain event's `_NAME` and a Zod
+schema for its serialized payload. Dates cross the transport boundary as ISO
+date-time strings and are converted back to `Date` only when constructing a
+domain event or domain input that requires it.
 
-```text
-<owning-module>/<imperative-action>
-```
+The transport schema and domain payload must describe the same fields. A job
+must forward the full validated input required by the next workflow rather than
+silently loading an alternative payload from unrelated modules.
 
-Examples include `communication/send-invitation-email` and
-`billing/process-payment-webhook`.
+## Fan-out publishes individual domain events
 
-An identifier is an operational identity visible to Inngest. Do not rename it as
-part of an unrelated refactor. A deliberate rename requires checking deployment,
-in-flight runs, observability, and cancellation references.
-
-## Trigger names come from core event classes
-
-Every Inngest trigger that consumes an application event must import its event
-class from `@scoops/core` and use the class's static `_NAME` value:
-
-```ts
-import { UserRegistrationAttemptCreatedEvent } from '@scoops/core/identity/domain/events'
-
-const event = eventType(UserRegistrationAttemptCreatedEvent._NAME, {
-  schema: z.object({
-    // Event payload schema
-  }),
-})
-```
-
-Do not repeat an event name as an inline string in a job. The core event class is
-the canonical source for its name and prevents the producer and consumer from
-silently drifting apart.
-
-When a required event class does not exist, define it in the owning module under
-`packages/core/src/<module>/domain/events`, export it through the module's events
-barrel and package export, and then consume `_NAME` from the server job. Do not
-create an infrastructure-only event class inside `apps/server`.
-
-Core event names use a stable, namespaced form:
+Batch work uses a dedicated batch domain event and a dedicated fan-out job. The
+fan-out job publishes one existing individual event per item with
+`step.sendEvent`; it does not call another job's function directly and does not
+use `step.invoke`.
 
 ```text
-identity/user-registration-attempt.created
-billing/subscription.activated
+DocumentBatchGenerationRequestedEvent
+  -> GenerateDocumentsInBatchJob
+      -> DocumentGenerationRequestedEvent (one per document)
+          -> GenerateDocumentJob
 ```
 
-Do not attach a job to an unrelated event merely because its payload is
-convenient. The selected event must represent the fact that starts the job.
+Use the array form of `step.sendEvent` so the fan-out is a durable, memoized
+Inngest step. Each child event must remain independently retryable and
+reprocessable. Success or failure of one child must not erase successful sibling
+work.
 
-## Every external event has a runtime schema
+## Direct publication is the MVP reliability boundary
 
-Declare each trigger with `eventType` and a Zod object schema. The schema is the
-runtime boundary for data delivered by Inngest:
+The MVP publishes through `Broker` without a transactional outbox. Do not add an
+event table, polling relay, or outbox framework unless a requirement explicitly
+changes the delivery guarantee. Revisit an outbox when database mutation and
+event publication must become atomic or when observed event loss justifies the
+additional operational complexity.
 
-```ts
-export const sendInvitationEmailEvent = eventType(
-  UserRegistrationAttemptCreatedEvent._NAME,
-  {
-    schema: z.object({
-      registrationAttemptId: z.string(),
-      establishmentId: z.string(),
-      type: z.enum(RegistrationAttemptType),
-      status: z.enum(RegistrationAttemptStatus),
-      createdAt: z.iso.datetime(),
-      expiresAt: z.iso.datetime(),
-    }),
-  },
-)
-```
-
-Event payloads must be JSON-safe, minimal, and versionable. Do not include
-passwords, access tokens, secret keys, raw provider credentials, or an entire
-domain entity when identifiers and required values are sufficient. Avoid Zod
-transforms because Inngest event schemas require matching input and output
-shapes.
-
-Schema changes must remain compatible with events already queued or in flight.
-Add optional fields for compatible evolution. Use a new event name or explicit
-event version for a breaking payload change.
-
-## Handlers use durable steps for side effects
-
-The handler receives the Inngest context and coordinates durable work. External
-effects such as sending email, writing to storage, or calling another service
-must run through a named Inngest step:
-
-```ts
-static async handle({ event, step }: Context) {
-  return step.run('send-invitation-email', async () => {
-    // Delegate to the appropriate provider or application operation.
-  })
-}
-```
-
-Step identifiers must be stable and describe the action. Code executed by a step
-must be safe to retry. Do not place a non-idempotent effect outside a step or
-silently swallow an error that Inngest should retry.
-
-Handlers must not duplicate core business rules. They validate transport input,
-delegate work, and return a small serializable result.
-
-## Feature registries export functions
-
-Each module with jobs exposes a registry from its `jobs/index.ts`. The registry
-constructs each job with the shared client and exports only retained functions:
-
-```ts
-const sendInvitationEmailJob = new SendInvitationEmailJob(inngest)
-
-export const inngestFunctions = [sendInvitationEmailJob.function]
-```
-
-Keep registration explicit. Do not discover jobs through filesystem scanning,
-decorator reflection, glob imports, or hidden module side effects. When several
-feature registries exist, `AppModule` is responsible for combining their function
-arrays before passing them to `InngestModule.forRoot`.
-
-## The serve endpoint is infrastructure-only
-
-The shared Inngest controller owns the `/api/inngest` endpoint and delegates the
-request directly to the official `inngest/express` serve handler. Do not add
-business behavior, feature routing, response mapping, or application use cases to
-this controller.
-
-Feature modules must not create their own Inngest HTTP endpoints. The single
-shared endpoint serves every function supplied at the root registration.
-
-## Environment variables follow the SDK boundary
-
-Local development sets `INNGEST_DEV=1`. Production removes `INNGEST_DEV` and
-provides `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY` through the deployment
-environment.
-
-Document these variables in `apps/server/.env.example`, but never commit real
-keys. Application code must not log the values or include them in events.
-
-## Messaging tests verify boundaries
-
-Job tests must verify:
-
-- the stable function identifier and trigger event;
-- acceptance of a valid event payload and rejection of an invalid payload;
-- durable step names and calls to mocked providers or application operations;
-- retry-safe behavior for side effects.
-
-Endpoint tests must verify that `/api/inngest` is registered once and exposes all
-functions passed to `InngestModule.forRoot`. Tests use development mode and must
-not require cloud signing or event keys.
-
-Do not call live email, payment, storage, or Inngest cloud services from unit or
-integration tests.
-
-## Server imports use aliases
-
-Imports between files inside `apps/server/src` use the `@/` alias. External
-package imports such as `@nestjs/common`, `inngest`, and `inngest/express` retain
-their package paths.

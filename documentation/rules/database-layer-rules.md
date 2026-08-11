@@ -157,6 +157,17 @@ domain, and implement exactly the semantics declared by the core contract.
 Repositories may compose queries and enforce persistence concerns such as
 optimistic version matching, but they must not decide business policy.
 
+## Repositories do not receive tests
+
+Do not create test files for repository implementations, mappers, Drizzle models,
+or database adapters. This prohibition applies to both isolated unit tests and
+Testcontainers integration tests whose direct subject is a repository.
+
+Business behavior must be covered by core use-case tests with mocked repository
+contracts. Database behavior is validated indirectly through the server integration
+tests for controllers or complete application flows that consume the repository.
+Do not expose a concrete repository through a fixture solely to test it directly.
+
 ## Repository injection uses module tokens
 
 Each module must declare its repository tokens under
