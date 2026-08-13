@@ -136,10 +136,12 @@ record alignment details.
 Give clear reviewer steps and relevant commands, such as `pnpm install`, the
 web/server development commands, and workspace type checks.
 
-### Related Jira tickets
+### Related issues
 
-List all known keys or URLs without GitHub closing keywords. If none exist,
-write `No Jira ticket associated.` Do not create a ticket automatically.
+List each related GitHub Issue using GitHub's closing syntax, for example
+`Resolves #123`. Replace `123` with the actual issue number; do not invent an
+issue number. If no GitHub Issue exists, write `No GitHub Issue associated.`
+Do not create an issue automatically.
 
 ### Confluence PRD
 
