@@ -59,7 +59,7 @@ non-React hooks, types, constants, and utilities remain in `.ts` files.
 
 Apply [`code-conventions-rules.md`](code-conventions-rules.md) for function
 declarations, naming, handler prefixes, and the order of values and functions in
-hook/controller destructuring. The UI-specific rules below refine those shared
+hook-result destructuring. The UI-specific rules below refine those shared
 conventions where necessary.
 
 ### Action hooks
@@ -133,7 +133,8 @@ must be declared as an exported `const` using the widget-specific props type:
 export const CollaboratorRegisterDialog = (
   props: CollaboratorRegisterDialogProps,
 ) => {
-  const controller = useCollaboratorRegisterDialog(props)
+  const { state, error, handleClose, handleSubmit } =
+    useCollaboratorRegisterDialog(props)
 
   return <DialogContent>{/* markup and hook wiring */}</DialogContent>
 }
@@ -165,7 +166,7 @@ export function useCollaboratorRegisterDialog(props: CollaboratorRegisterDialogP
 ```
 
 Do not declare widget-hook behavior as arrow-function variables. This rule
-applies to widget and page controller hooks; the exported-arrow convention for
+applies to widget and page hooks; the exported-arrow convention for
 `use<Name>Action` hooks remains the explicit exception described above.
 
 All UI logic belongs in the owning widget's hook. This includes local state,
@@ -175,18 +176,20 @@ point is responsible for rendering markup, passing props, and wiring DOM events
 to handlers exposed by the hook; it must not contain the logic behind those
 handlers.
 
-Prefer a widget controller returned by the hook when a widget has multiple
-states or interactions:
+Consume every page and widget hook through direct named destructuring. Do not
+assign a hook result to `controller`, `viewModel`, or another aggregate variable
+and then dereference it throughout the component. The hook's returned object is
+the public UI contract, so its values and handlers must be visible at the call
+site and kept in the shared value-before-handler order:
 
 ```ts
-export function useClientCard(client: Client) {
-  function handleOpen() {
-    // interaction logic
-  }
-
-  return { handleOpen }
-}
+const { state, error, onboarding, handleRestart } =
+  useOnboardingConfirmationPage(confirmationToken)
 ```
+
+This rule applies to all hooks consumed by UI widgets, including hooks that
+return a single state value or action contract. A `controller` variable is not a
+UI hook convention.
 
 The hook must remain the single owner of the widget's behavior. Nested widgets
 apply the same rule in their own hooks and must not reach into a parent's local

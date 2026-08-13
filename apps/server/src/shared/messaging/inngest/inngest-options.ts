@@ -1,5 +1,10 @@
-import type { ServeHandlerOptions } from 'inngest'
+import type { Type } from '@nestjs/common'
+import type { InngestFunction, ServeHandlerOptions } from 'inngest'
 
-export type InngestOptions = Pick<ServeHandlerOptions, 'client' | 'functions'>
+import type { InngestJob } from '@/shared/messaging/inngest/inngest-job'
+
+export type InngestOptions = Omit<ServeHandlerOptions, 'client' | 'functions'> & {
+  functions: Array<InngestFunction.Like | Type<InngestJob>>
+}
 
 export const INNGEST_OPTIONS = Symbol('INNGEST_OPTIONS')

@@ -1,18 +1,20 @@
-import { type DynamicModule, Module } from '@nestjs/common'
+import { Global, type DynamicModule, Module } from '@nestjs/common'
 
-import { InngestController } from '@/shared/messaging/inngest/inngest-controller'
+import { SharedMessagingModule } from '@/shared/messaging/shared-messaging.module'
 import {
   INNGEST_OPTIONS,
   type InngestOptions,
 } from '@/shared/messaging/inngest/inngest-options'
 
+@Global()
 @Module({})
 export class InngestModule {
   static forRoot(options: InngestOptions): DynamicModule {
     return {
       module: InngestModule,
-      controllers: [InngestController],
+      imports: [SharedMessagingModule],
       providers: [{ provide: INNGEST_OPTIONS, useValue: options }],
+      exports: [INNGEST_OPTIONS],
     }
   }
 }

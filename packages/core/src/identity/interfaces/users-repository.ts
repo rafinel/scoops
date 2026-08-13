@@ -16,4 +16,5 @@ export interface UsersRepository {
   countActiveManagers(establishmentId: string): Promise<number>
   replace(establishmentId: string, userId: string, changes: UserUpdate): Promise<User>
   removeAll(): Promise<void>
+  remove(establishmentId: string, userId: string): Promise<void>
 }

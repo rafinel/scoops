@@ -26,7 +26,7 @@ export class CreateProductUseCase implements UseCase<ProductCreate, Product> {
 
     const product = await this.productsRepository.add(request)
 
-    this.broker.publish(
+    await this.broker.publish(
       new ProductCreatedEvent({
         productId: product.id,
         establishmentId: product.establishmentId,

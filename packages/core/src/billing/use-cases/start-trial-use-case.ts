@@ -51,7 +51,7 @@ export class StartTrialUseCase implements UseCase<StartTrialRequest, Subscriptio
       })
     })
 
-    this.broker.publish(
+    await this.broker.publish(
       new TrialStartedEvent({
         establishmentId: subscription.establishmentId,
         trialStartedAt: subscription.trialStartedAt as Date,

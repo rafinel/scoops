@@ -1,3 +1,8 @@
 export * from '@/identity/provision/identity-provision.module'
 export * from '@/identity/provision/errors'
 export * from '@/identity/provision/supabase/supabase-auth-identity-provider'
+export { IdentityProvisionModule } from '@/identity/provision/identity-provision.module'
+export * from '@/identity/provision/errors'
+export * from '@/identity/provision/identifier'
+export * from '@/identity/provision/supabase/supabase-onboarding-identity-provider'
+export * from '@/identity/provision/token'

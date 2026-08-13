@@ -5,10 +5,10 @@ import { CommunicationModule } from '@/communication/communication.module'
 import { IdentityModule } from '@/identity/identity.module'
 import { MrpModule } from '@/mrp/mrp.module'
 import { PdvModule } from '@/pdv/pdv.module'
-import { inngest } from '@/shared/messaging/inngest/inngest-client'
 import { InngestModule } from '@/shared/messaging/inngest/inngest.module'
 import { SharedModule } from '@/shared/shared.module'
-import { communicationInngestFunctions } from './communication/messaging/inngest/jobs'
+import { SendInvitationEmailJob } from '@/communication/messaging/inngest/jobs'
+import { ExpireIceCreamShopOnboardingsJob } from '@/identity/messaging/inngest/jobs'
 
 @Module({
   imports: [
@@ -19,8 +19,7 @@ import { communicationInngestFunctions } from './communication/messaging/inngest
     PdvModule,
     CommunicationModule,
     InngestModule.forRoot({
-      client: inngest,
-      functions: [...communicationInngestFunctions],
+      functions: [SendInvitationEmailJob, ExpireIceCreamShopOnboardingsJob],
     }),
   ],
 })

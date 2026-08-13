@@ -1,13 +1,9 @@
-import { expect, test } from '@playwright/test'
-
-import { mockAnonymousProvider } from './test-helpers'
+import { expect, test } from './test-helpers'
 
 test.describe('Reset-password route', () => {
   test('renders the invalid recovery state without protected content', async ({
     page,
   }) => {
-    await mockAnonymousProvider(page)
-
     await page.goto('/reset-password')
     await expect(page.getByRole('alert')).toContainText('expirou ou não é válido')
     await expect(page.getByRole('textbox', { name: 'Nova senha' })).toHaveCount(0)

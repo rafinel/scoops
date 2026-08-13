@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetPasswordIndexRouteImport } from './routes/reset-password/index'
+import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as ForgotPasswordIndexRouteImport } from './routes/forgot-password/index'
 import { Route as AccessDeniedIndexRouteImport } from './routes/access-denied/index'
+import { Route as OnboardingConfirmRouteImport } from './routes/onboarding/confirm'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -29,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
 const ResetPasswordIndexRoute = ResetPasswordIndexRouteImport.update({
   id: '/reset-password/',
   path: '/reset-password/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingIndexRoute = OnboardingIndexRouteImport.update({
+  id: '/onboarding/',
+  path: '/onboarding/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginIndexRoute = LoginIndexRouteImport.update({
@@ -46,6 +53,11 @@ const AccessDeniedIndexRoute = AccessDeniedIndexRouteImport.update({
   path: '/access-denied/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingConfirmRoute = OnboardingConfirmRouteImport.update({
+  id: '/onboarding/confirm',
+  path: '/onboarding/confirm',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/app/',
   path: '/app/',
@@ -54,17 +66,21 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/onboarding/confirm': typeof OnboardingConfirmRoute
   '/access-denied/': typeof AccessDeniedIndexRoute
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/onboarding/': typeof OnboardingIndexRoute
   '/reset-password/': typeof ResetPasswordIndexRoute
   '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/onboarding/confirm': typeof OnboardingConfirmRoute
   '/access-denied': typeof AccessDeniedIndexRoute
   '/forgot-password': typeof ForgotPasswordIndexRoute
   '/login': typeof LoginIndexRoute
+  '/onboarding': typeof OnboardingIndexRoute
   '/reset-password': typeof ResetPasswordIndexRoute
   '/app': typeof AuthenticatedAppIndexRoute
 }
@@ -72,9 +88,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/onboarding/confirm': typeof OnboardingConfirmRoute
   '/access-denied/': typeof AccessDeniedIndexRoute
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/onboarding/': typeof OnboardingIndexRoute
   '/reset-password/': typeof ResetPasswordIndexRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
@@ -82,26 +100,32 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/onboarding/confirm'
     | '/access-denied/'
     | '/forgot-password/'
     | '/login/'
+    | '/onboarding/'
     | '/reset-password/'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/onboarding/confirm'
     | '/access-denied'
     | '/forgot-password'
     | '/login'
+    | '/onboarding'
     | '/reset-password'
     | '/app'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/onboarding/confirm'
     | '/access-denied/'
     | '/forgot-password/'
     | '/login/'
+    | '/onboarding/'
     | '/reset-password/'
     | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
@@ -109,9 +133,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  OnboardingConfirmRoute: typeof OnboardingConfirmRoute
   AccessDeniedIndexRoute: typeof AccessDeniedIndexRoute
   ForgotPasswordIndexRoute: typeof ForgotPasswordIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
+  OnboardingIndexRoute: typeof OnboardingIndexRoute
   ResetPasswordIndexRoute: typeof ResetPasswordIndexRoute
 }
 
@@ -138,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding/': {
+      id: '/onboarding/'
+      path: '/onboarding'
+      fullPath: '/onboarding/'
+      preLoaderRoute: typeof OnboardingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login/': {
       id: '/login/'
       path: '/login'
@@ -157,6 +190,13 @@ declare module '@tanstack/react-router' {
       path: '/access-denied'
       fullPath: '/access-denied/'
       preLoaderRoute: typeof AccessDeniedIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/confirm': {
+      id: '/onboarding/confirm'
+      path: '/onboarding/confirm'
+      fullPath: '/onboarding/confirm'
+      preLoaderRoute: typeof OnboardingConfirmRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/': {
@@ -183,9 +223,11 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  OnboardingConfirmRoute: OnboardingConfirmRoute,
   AccessDeniedIndexRoute: AccessDeniedIndexRoute,
   ForgotPasswordIndexRoute: ForgotPasswordIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
+  OnboardingIndexRoute: OnboardingIndexRoute,
   ResetPasswordIndexRoute: ResetPasswordIndexRoute,
 }
 export const routeTree = rootRouteImport

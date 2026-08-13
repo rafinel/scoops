@@ -6,7 +6,7 @@ import { useAppLayout } from './use-app-layout'
 export type AppLayoutProps = PropsWithChildren
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const controller = useAppLayout()
+  const { account, error, isPending, handleLogout } = useAppLayout()
 
   return (
     <div className='min-h-screen bg-background font-sans text-foreground'>
@@ -15,12 +15,12 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           <p className='text-sm font-extrabold uppercase tracking-[0.18em] text-primary'>
             Scoops
           </p>
-          {controller.account ? (
+          {account ? (
             <UserMenu
-              account={controller.account}
-              error={controller.error instanceof Error ? controller.error : null}
-              isPending={controller.isPending}
-              onLogout={controller.handleLogout}
+              account={account}
+              error={error instanceof Error ? error : null}
+              isPending={isPending}
+              onLogout={handleLogout}
             />
           ) : null}
         </div>

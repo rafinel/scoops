@@ -1,2 +1,7 @@
 export * from '@/identity/rest/controllers/change-user-profile.controller'
 export * from '@/identity/rest/controllers/get-auth-session.controller'
+export * from '@/identity/rest/controllers/register-ice-cream-shop-onboarding.controller'
+export * from '@/identity/rest/controllers/get-ice-cream-shop-onboarding.controller'
+export * from '@/identity/rest/controllers/resend-ice-cream-shop-confirmation.controller'
+export * from '@/identity/rest/controllers/correct-ice-cream-shop-onboarding-email.controller'
+export * from '@/identity/rest/controllers/confirm-ice-cream-shop-onboarding.controller'

@@ -8,6 +8,10 @@ export type AuthVisualVariant =
   | 'password-updated'
   | 'recovery'
   | 'verify-email'
+  | 'onboarding-create'
+  | 'onboarding-pending'
+  | 'onboarding-success'
+  | 'onboarding-unavailable'
 
 type AuthVisualCardConfig = {
   eyebrow: string
@@ -53,6 +57,144 @@ const card = (
 })
 
 const visualConfigs: Record<AuthVisualVariant, AuthVisualConfig> = {
+  'onboarding-create': {
+    badge: 'NOVA SORVETERIA',
+    badgeIcon: 'store',
+    badgeTextClass: 'text-primary',
+    centerIcon: 'store',
+    centerIconClass: 'text-primary',
+    haloClass: 'bg-primary opacity-10',
+    title: 'Sua sorveteria começa aqui.',
+    subtitle: 'Crie seu espaço de gestão e acompanhe cada detalhe da operação.',
+    cards: [
+      card('CADASTRO', 'Dados da sorveteria', 'store', 'left-4 top-[134px]'),
+      card(
+        'ACESSO',
+        'Primeiro gerente',
+        'user-plus',
+        'left-[352px] top-[244px]',
+        'text-success',
+        'bg-success-soft',
+      ),
+      card(
+        'PRÓXIMO PASSO',
+        'Confirmar o e-mail',
+        'mail-check',
+        'left-[100px] top-[346px]',
+        'text-primary',
+        'bg-primary-soft',
+        true,
+        'arrow',
+      ),
+    ],
+  },
+  'onboarding-pending': {
+    badge: 'CONFIRMAÇÃO PENDENTE',
+    badgeIcon: 'mail-check',
+    badgeTextClass: 'text-warning',
+    centerIcon: 'mail-check',
+    centerIconClass: 'text-warning',
+    haloClass: 'bg-warning opacity-10',
+    title: 'Só falta confirmar seu e-mail.',
+    subtitle: 'Abra a mensagem que enviamos para liberar sua sorveteria.',
+    cards: [
+      card('CAIXA DE ENTRADA', 'Confira suas mensagens', 'mail', 'left-4 top-[134px]'),
+      card(
+        'SEGURANÇA',
+        'Acesso protegido',
+        'shield-check',
+        'left-[352px] top-[244px]',
+        'text-success',
+        'bg-success-soft',
+      ),
+      card(
+        'PRÓXIMO PASSO',
+        'Ativar a conta',
+        'user-check',
+        'left-[100px] top-[346px]',
+        'text-primary',
+        'bg-primary-soft',
+        true,
+        'arrow',
+      ),
+    ],
+  },
+  'onboarding-success': {
+    badge: 'CADASTRO CONCLUÍDO',
+    badgeIcon: 'circle-check',
+    badgeTextClass: 'text-success',
+    centerIcon: 'circle-check',
+    centerIconClass: 'text-success',
+    haloClass: 'bg-success opacity-10',
+    title: 'Tudo pronto para começar.',
+    subtitle: 'Sua sorveteria está ativa. Entre para acessar o painel de gestão.',
+    cards: [
+      card(
+        'SORVETERIA',
+        'Cadastro ativo',
+        'store',
+        'left-4 top-[134px]',
+        'text-success',
+        'bg-success-soft',
+      ),
+      card(
+        'GERENTE',
+        'Acesso liberado',
+        'user-check',
+        'left-[352px] top-[244px]',
+        'text-success',
+        'bg-success-soft',
+      ),
+      card(
+        'PRÓXIMO PASSO',
+        'Entrar no Scoops',
+        'arrow',
+        'left-[100px] top-[346px]',
+        'text-success',
+        'bg-success-soft',
+        true,
+        'arrow',
+      ),
+    ],
+  },
+  'onboarding-unavailable': {
+    badge: 'LINK INDISPONÍVEL',
+    badgeIcon: 'triangle-alert',
+    badgeTextClass: 'text-danger',
+    centerIcon: 'triangle-alert',
+    centerIconClass: 'text-danger',
+    haloClass: 'bg-danger opacity-10',
+    title: 'Esse link não está disponível.',
+    subtitle: 'Solicite uma nova confirmação ou recomece seu cadastro com segurança.',
+    cards: [
+      card(
+        'LINK',
+        'Expirado ou usado',
+        'link-off',
+        'left-4 top-[134px]',
+        'text-danger',
+        'bg-danger-bg',
+      ),
+      card(
+        'SEGURANÇA',
+        'Dados protegidos',
+        'shield-check',
+        'left-[352px] top-[244px]',
+        'text-success',
+        'bg-success-soft',
+      ),
+      card(
+        'PRÓXIMO PASSO',
+        'Solicitar ajuda',
+        'route',
+        'left-[100px] top-[346px]',
+        'text-primary',
+        'bg-primary-soft',
+        true,
+        'arrow',
+      ),
+    ],
+  },
   recovery: {
     badge: 'RECUPERAÇÃO DE ACESSO',
     badgeIcon: 'key',

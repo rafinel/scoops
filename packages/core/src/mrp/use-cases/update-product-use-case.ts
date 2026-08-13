@@ -48,7 +48,7 @@ export class UpdateProductUseCase implements UseCase<UpdateProductRequest, Produ
 
     const savedProduct = await this.productsRepository.replace(productId, changes)
 
-    this.broker.publish(
+    await this.broker.publish(
       new ProductUpdatedEvent({
         productId: savedProduct.id,
         establishmentId: savedProduct.establishmentId,

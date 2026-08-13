@@ -1,11 +1,7 @@
-import { expect, test } from '@playwright/test'
-
-import { mockAnonymousProvider } from './test-helpers'
+import { expect, test } from './test-helpers'
 
 test.describe('App route', () => {
   test('redirects anonymous users with a sanitized return path', async ({ page }) => {
-    await mockAnonymousProvider(page)
-
     await page.goto('/app')
 
     await expect(page).toHaveURL(/\/login\/?(?:\?returnTo=%2Fapp)?$/)

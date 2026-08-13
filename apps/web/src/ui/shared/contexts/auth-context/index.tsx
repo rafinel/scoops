@@ -1,9 +1,9 @@
-import { createContext, useEffect, useState, type PropsWithChildren } from 'react'
+import { createContext, useEffect, type PropsWithChildren } from 'react'
 
 import {
   AUTH_IDENTITY_SERVICE,
   AUTH_PROVIDER,
-  hasAuthPasswordRecoveryRedirect,
+  resolveInitialAuthRedirect,
 } from '@/provision/auth/auth-composition'
 import { clearPasswordRecoveryRedirect } from '@/provision/auth/supabase/supabase-client'
 
@@ -15,11 +15,10 @@ export type AuthContextProviderProps = PropsWithChildren
 export const AuthContext = createContext<AuthContextValue | null>(null)
 
 export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
-  const [initialRecovery] = useState(hasAuthPasswordRecoveryRedirect)
   const value = useAuthContextProvider(
     AUTH_PROVIDER,
     AUTH_IDENTITY_SERVICE,
-    initialRecovery,
+    resolveInitialAuthRedirect,
   )
 
   useEffect(() => {

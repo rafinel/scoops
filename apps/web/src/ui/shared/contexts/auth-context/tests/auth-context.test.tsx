@@ -74,6 +74,22 @@ describe('AuthContext', () => {
     )
   })
 
+  it('promotes the pending confirmation session after local activation succeeds', async () => {
+    const authProvider = createAuthProvider(createSession('confirmation-token'))
+    const identityService = createIdentityService()
+
+    renderWithDependencies(authProvider, identityService, () => 'onboarding-confirmation')
+
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('anonymous'))
+    fireEvent.click(screen.getByRole('button', { name: 'Activate onboarding' }))
+
+    await waitFor(() =>
+      expect(screen.getByRole('status').textContent).toBe('authenticated'),
+    )
+    expect(authProvider.signOut).not.toHaveBeenCalled()
+    expect(screen.getByText('Manager account').textContent).toBe('Manager account')
+  })
+
   it('does not republish authenticated state when validation resolves after sign-out', async () => {
     const session = createSession('stale-token')
     const authProvider = createAuthProvider(null, session)
@@ -138,20 +154,25 @@ const AuthContextProbe = () => {
       <button type='button' onClick={() => void auth.retryLocalAccess()}>
         Retry local access
       </button>
+      <button type='button' onClick={() => void auth.activateOnboardingConfirmation()}>
+        Activate onboarding
+      </button>
     </>
   )
 }
 
 function renderWithDependencies(
   authProvider: AuthProvider,
-  identityService: IdentityService,
-  initialRecovery = false,
+  identityService: Pick<IdentityService, 'getAccount'>,
+  initialRedirect:
+    | boolean
+    | (() => 'none' | 'password-recovery' | 'onboarding-confirmation') = false,
 ) {
   return render(
     <AuthContextTestProvider
       authProvider={authProvider}
       identityService={identityService}
-      initialRecovery={initialRecovery}
+      initialRedirect={initialRedirect}
     >
       <AuthContextProbe />
     </AuthContextTestProvider>,
@@ -161,15 +182,17 @@ function renderWithDependencies(
 const AuthContextTestProvider = ({
   authProvider,
   identityService,
-  initialRecovery,
+  initialRedirect,
   children,
 }: {
   authProvider: AuthProvider
-  identityService: IdentityService
-  initialRecovery: boolean
+  identityService: Pick<IdentityService, 'getAccount'>
+  initialRedirect:
+    | boolean
+    | (() => 'none' | 'password-recovery' | 'onboarding-confirmation')
   children: React.ReactNode
 }) => {
-  const value = useAuthContextProvider(authProvider, identityService, initialRecovery)
+  const value = useAuthContextProvider(authProvider, identityService, initialRedirect)
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
@@ -204,7 +227,7 @@ function createIdentityService(
       async () =>
         responses[responseIndex++] ?? new RestResponse({ body: createAccount() }),
     ),
-  } satisfies IdentityService
+  } satisfies Pick<IdentityService, 'getAccount'>
 }
 
 function createSession(accessToken: string): AuthSession {

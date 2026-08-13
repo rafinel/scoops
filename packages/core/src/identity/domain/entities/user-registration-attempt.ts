@@ -4,6 +4,7 @@ import type { RegistrationAttemptType } from '#identity/domain/structures/regist
 import type { UserProfile } from '#identity/domain/structures/user-profile.ts'
 
 export type UserRegistrationAttempt = Entity & {
+  userId: string
   establishmentId: string
   name: string
   email: string
@@ -14,6 +15,10 @@ export type UserRegistrationAttempt = Entity & {
   expiresAt: Date
   createdAt: Date
   updatedAt: Date
+  confirmationTokenHash?: string
+  supersededProviderSubject?: string
+  cleanupClaimToken?: string
+  cleanupClaimedAt?: Date
 }
 
 export type UserRegistrationAttemptCreate = UserRegistrationAttempt
@@ -21,6 +26,17 @@ export type UserRegistrationAttemptCreate = UserRegistrationAttempt
 export type UserRegistrationAttemptUpdate = Partial<
   Pick<
     UserRegistrationAttempt,
-    'email' | 'name' | 'profile' | 'status' | 'tokenHash' | 'expiresAt' | 'updatedAt'
+    | 'userId'
+    | 'email'
+    | 'name'
+    | 'profile'
+    | 'status'
+    | 'tokenHash'
+    | 'expiresAt'
+    | 'updatedAt'
+    | 'confirmationTokenHash'
+    | 'supersededProviderSubject'
+    | 'cleanupClaimToken'
+    | 'cleanupClaimedAt'
   >
 >

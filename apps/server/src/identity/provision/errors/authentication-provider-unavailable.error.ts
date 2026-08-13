@@ -1,7 +1,7 @@
-import { AppError } from '@scoops/core/shared/domain/errors'
+import { ServiceUnavailableError } from '@scoops/core/shared/domain/errors'
 
-export class AuthenticationProviderUnavailableError extends AppError {
+export class AuthenticationProviderUnavailableError extends ServiceUnavailableError {
   constructor() {
-    super('Authentication service unavailable', 'Authentication service unavailable')
+    super('Authentication service unavailable')
   }
 }

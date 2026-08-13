@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   Check,
+  CircleCheck,
   DoorOpen,
   Eye,
   EyeOff,
@@ -11,10 +12,14 @@ import {
   Mail,
   MailCheck,
   MailWarning,
+  Route,
   Send,
   ShieldCheck,
   Sparkles,
   Store,
+  TriangleAlert,
+  UserCheck,
+  UserPlus,
   Users,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -24,6 +29,7 @@ import type { IconName } from '../types'
 export const ICONS: Record<IconName, LucideIcon> = {
   arrow: ArrowRight,
   check: Check,
+  'circle-check': CircleCheck,
   'door-open': DoorOpen,
   eye: Eye,
   'eye-off': EyeOff,
@@ -34,9 +40,13 @@ export const ICONS: Record<IconName, LucideIcon> = {
   mail: Mail,
   'mail-check': MailCheck,
   'mail-warning': MailWarning,
+  route: Route,
   send: Send,
   'shield-check': ShieldCheck,
   sparkles: Sparkles,
   store: Store,
+  'triangle-alert': TriangleAlert,
+  'user-check': UserCheck,
+  'user-plus': UserPlus,
   users: Users,
 }
