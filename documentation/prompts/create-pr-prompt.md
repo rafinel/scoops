@@ -43,6 +43,9 @@ similar branch names contain cumulative changes.
    Compare the final PR with `origin/main` and include the complete accepted set.
 5. If a delivery PR already exists, update its head instead of opening a duplicate.
 
+6. After creating or updating the delivery PR, always add the exact GitHub PR
+   comment `@codex review` to request the Codex review workflow.
+
 Use a clean temporary worktree for integration when the main worktree is dirty.
 Preserve user changes and copy only ignored local environment files; never copy
 tracked `.env.example`. Do not use `reset --hard`, `checkout --`, or rebase to
