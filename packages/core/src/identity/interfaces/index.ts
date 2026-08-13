@@ -1,4 +1,7 @@
+export * from '#identity/interfaces/auth-identity-provider.ts'
+export * from '#identity/interfaces/auth-provider.ts'
 export * from '#identity/interfaces/establishments-repository.ts'
 export * from '#identity/interfaces/identity-database.ts'
+export * from '#identity/interfaces/identity-service.ts'
 export * from '#identity/interfaces/registration-attempts-repository.ts'
 export * from '#identity/interfaces/users-repository.ts'

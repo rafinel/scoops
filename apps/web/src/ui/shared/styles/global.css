@@ -25,6 +25,13 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
@@ -191,5 +198,306 @@ button:disabled,
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+@keyframes auth-enter-badge {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -14px, 0) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes auth-enter-title {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes auth-enter-subtitle {
+  from {
+    opacity: 0;
+    transform: translate3d(16px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes auth-enter-halo {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  to {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+}
+
+@keyframes auth-enter-medallion {
+  from {
+    opacity: 0;
+    transform: scale(0.55) rotate(-10deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes auth-enter-center {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes auth-enter-door {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.76);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes auth-enter-sparkle-top {
+  from {
+    opacity: 0;
+    transform: translate3d(8px, -10px, 0) rotate(-25deg) scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes auth-enter-sparkle-side {
+  from {
+    opacity: 0;
+    transform: translate3d(-10px, 6px, 0) rotate(25deg) scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes auth-enter-dot-yellow {
+  from {
+    opacity: 0;
+    transform: translate3d(-8px, -8px, 0) scale(0.2);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes auth-enter-dot-green {
+  from {
+    opacity: 0;
+    transform: translate3d(8px, 6px, 0) scale(0.2);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes auth-enter-card-store {
+  from {
+    opacity: 0;
+    transform: translate3d(-36px, 0, 0) rotate(-3deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+}
+
+@keyframes auth-enter-card-profile {
+  from {
+    opacity: 0;
+    transform: translate3d(36px, 8px, 0) rotate(3deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+}
+
+@keyframes auth-enter-card-recovery {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes auth-enter-form {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translate3d(0, 18px, 0);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.auth-form-entrance {
+  animation: auth-enter-form 680ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+}
+
+@keyframes auth-float-store {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-0.4deg);
+  }
+
+  50% {
+    transform: translate3d(-3px, -8px, 0) rotate(0.4deg);
+  }
+}
+
+@keyframes auth-float-profile {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0.35deg);
+  }
+
+  50% {
+    transform: translate3d(4px, 7px, 0) rotate(-0.45deg);
+  }
+}
+
+@keyframes auth-float-recovery {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-0.25deg);
+  }
+
+  50% {
+    transform: translate3d(2px, -5px, 0) rotate(0.3deg);
+  }
+}
+
+.auth-entrance-badge {
+  animation: auth-enter-badge 520ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
+}
+
+.auth-entrance-title {
+  animation: auth-enter-title 620ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
+}
+
+.auth-entrance-subtitle {
+  animation: auth-enter-subtitle 560ms cubic-bezier(0.16, 1, 0.3, 1) 230ms both;
+}
+
+.auth-entrance-halo {
+  animation: auth-enter-halo 760ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
+}
+
+.auth-entrance-medallion {
+  animation: auth-enter-medallion 680ms cubic-bezier(0.16, 1, 0.3, 1) 270ms both;
+}
+
+.auth-entrance-center {
+  animation: auth-enter-center 560ms cubic-bezier(0.16, 1, 0.3, 1) 350ms both;
+}
+
+.auth-entrance-door {
+  animation: auth-enter-door 620ms cubic-bezier(0.16, 1, 0.3, 1) 420ms both;
+}
+
+.auth-entrance-sparkle-top {
+  animation: auth-enter-sparkle-top 500ms cubic-bezier(0.16, 1, 0.3, 1) 470ms both;
+}
+
+.auth-entrance-sparkle-side {
+  animation: auth-enter-sparkle-side 500ms cubic-bezier(0.16, 1, 0.3, 1) 510ms both;
+}
+
+.auth-entrance-dot-yellow {
+  animation: auth-enter-dot-yellow 420ms cubic-bezier(0.16, 1, 0.3, 1) 430ms both;
+}
+
+.auth-entrance-dot-green {
+  animation: auth-enter-dot-green 420ms cubic-bezier(0.16, 1, 0.3, 1) 500ms both;
+}
+
+.auth-float-card-store {
+  animation:
+    auth-enter-card-store 620ms cubic-bezier(0.16, 1, 0.3, 1) 360ms both,
+    auth-float-store 6.8s ease-in-out 1.05s infinite;
+}
+
+.auth-float-card-profile {
+  animation:
+    auth-enter-card-profile 620ms cubic-bezier(0.16, 1, 0.3, 1) 460ms both,
+    auth-float-profile 7.6s ease-in-out 1.2s infinite;
+}
+
+.auth-float-card-recovery {
+  animation:
+    auth-enter-card-recovery 640ms cubic-bezier(0.16, 1, 0.3, 1) 540ms both,
+    auth-float-recovery 6.1s ease-in-out 1.35s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-form-entrance,
+  .auth-entrance-badge,
+  .auth-entrance-title,
+  .auth-entrance-subtitle,
+  .auth-entrance-halo,
+  .auth-entrance-medallion,
+  .auth-entrance-center,
+  .auth-entrance-door,
+  .auth-entrance-sparkle-top,
+  .auth-entrance-sparkle-side,
+  .auth-entrance-dot-yellow,
+  .auth-entrance-dot-green,
+  .auth-float-card-store,
+  .auth-float-card-profile,
+  .auth-float-card-recovery {
+    animation: none;
   }
 }

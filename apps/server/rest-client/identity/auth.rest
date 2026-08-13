@@ -1,0 +1,7 @@
+@baseUrl = http://localhost:3333
+@accessToken = replace-with-a-supabase-access-token
+
+### Get the authenticated local account
+GET {{baseUrl}}/auth/session
+Authorization: Bearer {{accessToken}}
+Accept: application/json

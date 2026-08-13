@@ -6,13 +6,16 @@
   "scripts": {
     "format": "biome format --write .",
     "check:code": "biome check src",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "test": "vitest run"
   },
   "exports": {
     "./identity/domain/entities": "./src/identity/domain/entities/index.ts",
+    "./identity/domain/errors": "./src/identity/domain/errors/index.ts",
     "./identity/domain/events": "./src/identity/domain/events/index.ts",
     "./identity/domain/structures": "./src/identity/domain/structures/index.ts",
     "./identity/interfaces": "./src/identity/interfaces/index.ts",
+    "./identity/use-cases": "./src/identity/use-cases/index.ts",
     "./billing/domain/entities": "./src/billing/domain/entities/index.ts",
     "./billing/domain/events": "./src/billing/domain/events/index.ts",
     "./billing/domain/structures": "./src/billing/domain/structures/index.ts",
@@ -43,5 +46,10 @@
     "#mrp/*": "./src/mrp/*",
     "#pdv/*": "./src/pdv/*",
     "#shared/*": "./src/shared/*"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.5.0",
+    "vitest": "^4.1.10",
+    "vitest-mock-extended": "^5.1.1"
   }
 }

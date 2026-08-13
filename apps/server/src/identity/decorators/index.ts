@@ -1,3 +1,6 @@
+export * from '@/identity/decorators/auth-controller'
+export * from '@/identity/decorators/current-account'
 export * from '@/identity/decorators/establishments-controller'
 export * from '@/identity/decorators/registration-attempts-controller'
+export * from '@/identity/decorators/required-profiles'
 export * from '@/identity/decorators/users-controller'

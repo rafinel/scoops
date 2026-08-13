@@ -1,102 +1,123 @@
 ---
 name: create-spec
-description: Criar e julgar uma Spec de feature, compacta ou completa, a partir de PRD do Confluence, ticket Jira, report ou demanda direta.
+description: Create and judge a compact or complete feature Spec from a Confluence PRD, Jira ticket, report, or direct request.
 ---
 
-# Criar Spec
+# Create a Spec
 
-O Orchestrator conduz a autoria na task atual. Não crie nova thread. Use Spec
-somente para uma entrega relacionada a uma feature. Para manutenção transversal
-sem Contract de feature, use fluxo direto.
+The Orchestrator authors the Spec in the current task. Do not create a new
+thread. Use a Spec only for feature-related delivery; use a direct workflow for
+cross-cutting maintenance without a feature Contract.
 
-## Classificação
+## Classification
 
-Identifique a origem: `prd`, `jira-ticket`, `report` ou `direct-request`. O PRD
-é uma página do Confluence e toda demanda rastreável deve usar um ticket Jira;
-não use GitHub Issue ou milestone como fonte de produto. Defina `scope` com
-workspaces, diretórios ou arquivos. Use modo compacto para uma
-mudança pequena e coesa; use modo completo quando houver múltiplos fluxos,
-risco, integrações ou fases.
+Identify the source as `prd`, `jira-ticket`, `report`, or `direct-request`. A PRD
+is a Confluence page, and every traceable request must use a Jira ticket; do not
+use a GitHub Issue or milestone as the product source. Define `scope` with
+workspaces, directories, or files. Use compact mode for a small, cohesive
+change; use complete mode for multiple flows, risk, integrations, or phases.
 
-## Fontes
+## Sources
 
-Leia a origem da demanda no Confluence/Jira, `documentation/architecture.md`,
-Rules aplicáveis, `documentation/sdd.md` e os paths reais da codebase. Use os
-MCPs disponíveis quando aplicáveis. Se o Confluence ou Jira não estiver
-acessível, registre a limitação e não invente requisitos ou critérios.
+Read the request source in Confluence/Jira, `documentation/architecture.md`,
+applicable Rules, `documentation/sdd.md`, and the actual codebase paths. Use
+available MCPs when applicable. If Confluence or Jira is unavailable, record
+the limitation and do not invent requirements or criteria.
 
-Resolva ambiguidades materiais antes da solução técnica. Registre premissas e
-questões pendentes; antes de `open`, questões pendentes devem estar resolvidas
-e premissas críticas confirmadas ou explicitamente aceitas com risco.
+Resolve material ambiguities before the technical solution. Record assumptions
+and pending questions; before `open`, pending questions must be resolved and
+critical assumptions confirmed or explicitly accepted with risk.
 
-## Arquivo e Contract
+## File and Contract
 
-Crie `documentation/features/<domínio>/<feature>/spec.md`. O `plan.md` é
-opcional e só deve ser criado quando o tamanho, risco ou dependências exigirem
-fases e ledger; `evaluation.md` é obrigatório após a implementação/julgamento,
-mesmo sem Plan. A única exceção é uma Spec abandonada antes da implementação.
-Para qualquer
-alteração em feature já implementada, use
-`documentation/features/<domínio>/<feature>/changes/<nome-da-mudanca>/`. Use um
-nome curto em kebab-case; o ticket permanece no frontmatter. Em bugs ou
-security, não copie o relatório privado para o repositório; em evolução de
-produto, registre a demanda do ticket como origem da mudança.
+Create `documentation/features/<domain>/<feature>/spec.md`. `plan.md` is
+optional and should be created only when size, risk, or dependencies require
+phases and a ledger; `evaluation.md` is mandatory after implementation/judgment,
+even without a Plan. The only exception is a Spec abandoned before implementation.
+For changes to an already implemented feature, use
+`documentation/features/<domain>/<feature>/changes/<change-name>/`. Use a short
+kebab-case name and keep the ticket in frontmatter. For bugs or security, do
+not copy the private report into the repository; for product evolution, record
+the ticket request as the source of the change.
 
 ```yaml
 ---
-title: <título>
+title: <title>
 status: draft
 revision: 1
 source:
   type: <prd|jira-ticket|report|direct-request>
   ref: <confluence-url|jira-url|report-url|path|codex-task>
-prd: <confluence-url, opcional>
+prd: <confluence-url, optional>
 jira_tickets:
   - <PROJ-123>
 scope:
-  - <workspace|diretório|arquivo>
+  - <workspace|directory|file>
 last_updated_at: YYYY-MM-DD
 ---
 ```
 
-O corpo deve conter contexto, escopo, Contract, estado atual, solução técnica,
-plano de validação, referência para `evaluation.md`, alinhamento documental e
-amendments. As avaliações e evidências finais não são duplicadas na Spec: são
-registradas em `evaluation.md` após a implementação ou julgamento.
+The body must contain context, scope, Contract, current state, technical
+solution, validation plan, a reference to `evaluation.md`, documentation
+alignment, and amendments. Do not duplicate final assessments or evidence in
+the Spec; record them in `evaluation.md` after implementation or judgment.
 
-Use somente `RF-*` e `CA-*` como IDs obrigatórios:
+Use only `RF-*` and `CA-*` as required IDs:
 
 ```md
-| CA | RF | Dado | Quando | Então | Evidência esperada |
+| CA | RF | Given | When | Then | Expected evidence |
 |---|---|---|---|---|---|
-| CA-01 | RF-01 | pré-condição | ação | resultado | teste/browser/sensor |
+| CA-01 | RF-01 | precondition | action | result | test/browser/sensor |
 ```
 
-Segurança, performance e arquitetura entram como critérios de aceitação ou
-restrições técnicas. Não use `RN-*`, `RNF-*`, `RA-*`, comentários
-`harness:evidence`, gates próprios ou baselines.
+Treat security, performance, and architecture as acceptance criteria or
+technical constraints. Do not use `RN-*`, `RNF-*`, `RA-*`, `harness:evidence`
+comments, custom gates, or baselines.
 
-Quando `source.type` for `report`, prefira a URL direta do ticket Jira. Para
-Security Reports, só use a URL se o repositório tiver controle de acesso
-compatível; nunca copie o conteúdo sensível do ticket.
+When `source.type` is `report`, prefer the direct Jira ticket URL. For Security
+Reports, use the URL only if repository access control is compatible; never
+copy sensitive ticket content.
 
-Declare as validações aplicáveis conforme `documentation/tooling.md`: `pnpm format`,
-lint, typecheck, testes e, quando houver UI ou REST, integração/e2e e validação
-no navegador. Build é validação final do CI.
+Declare applicable validation according to `documentation/tooling.md`: format,
+lint, typecheck, tests, and, for UI or REST, integration/e2e and browser
+validation. Build is the final CI validation.
 
-## Rastreabilidade
+## Pencil design fidelity
 
-Relacione cada requisito ao PRD do Confluence e aos tickets Jira aplicáveis.
-Preserve todas as chaves em `jira_tickets` na Spec e não altere o status dos
-tickets automaticamente.
+For UI work with Pencil frames or node IDs, treat the Pencil design as the
+normative visual source, not general inspiration. Before implementation:
 
-## Judge Spec
+1. Inspect the Pencil editor state, relevant node trees, reusable components,
+   variables, and the exact target viewport through Pencil MCP.
+2. Map every implemented page or state to its specific Pencil node ID and record
+   the mapping in the Spec's current state or validation plan.
+3. Identify which elements are genuinely shared and which are intentionally
+   different. Do not generalize distinct page visuals, right-side compositions,
+   copy, spacing, or motion into one approximation.
 
-Acione `judge-spec-agent` como subagente read-only `Judge Spec` na task atual.
-Envie a origem, Spec, pesquisa, Architecture e Rules, sem narrativa persuasiva.
+For every Pencil-backed page, require Browser-use CDP validation at the design
+viewport. Capture the rendered result, inspect the accessibility tree and DOM,
+compare layout and visual details against the mapped Pencil node, and iterate
+until discrepancies are resolved. Manual UI validation uses Browser-use, not
+Playwright. Visual parity is an acceptance criterion and the evidence must be
+recorded with the route, node ID, viewport, screenshot or comparison, and
+remaining findings. A UI Spec is not ready for implementation judgment while
+material Pencil-to-browser differences remain unresolved.
 
-- `failed`: encaminhe findings ao Orchestrator, corrija e avalie novamente;
-- `accepted`: altere a Spec para `status: open` e roteie para `implement-spec`
-  ou `create-plan`.
+## Traceability
 
-Não crie nova thread para pesquisa ou julgamento.
+Relate every requirement to the Confluence PRD and applicable Jira tickets.
+Preserve every `jira_tickets` key in the Spec and do not change ticket status
+automatically.
+
+## Spec Judge
+
+Trigger `judge-spec-agent` as a read-only `Judge Spec` subagent in the current
+task. Send the source, Spec, research, Architecture, and Rules without
+persuasive narrative.
+
+- `failed`: send findings to the Orchestrator, correct them, and reevaluate;
+- `accepted`: change the Spec to `status: open` and route to `implement-spec` or
+  `create-plan`.
+
+Do not create a new thread for research or judgment.

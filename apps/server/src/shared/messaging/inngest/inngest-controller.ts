@@ -6,8 +6,10 @@ import {
   INNGEST_OPTIONS,
   type InngestOptions,
 } from '@/shared/messaging/inngest/inngest-options'
+import { PublicRoute } from '@/shared/rest/decorators/public-route'
 
 @Controller('api/inngest')
+@PublicRoute()
 export class InngestController {
   private readonly handler: ReturnType<typeof serve>
 

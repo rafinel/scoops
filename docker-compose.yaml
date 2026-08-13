@@ -60,6 +60,10 @@ services:
       GOTRUE_MAILER_TEMPLATES_RECOVERY: http://auth-templates/recovery.html
       GOTRUE_MAILER_TEMPLATES_MAGIC_LINK: http://auth-templates/magic_link.html
       GOTRUE_MAILER_TEMPLATES_EMAIL_CHANGE: http://auth-templates/email_change.html
+      GOTRUE_MAILER_URLPATHS_INVITE: ${SUPABASE_PUBLIC_URL:-http://127.0.0.1:54321}/auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: ${SUPABASE_PUBLIC_URL:-http://127.0.0.1:54321}/auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_RECOVERY: ${SUPABASE_PUBLIC_URL:-http://127.0.0.1:54321}/auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: ${SUPABASE_PUBLIC_URL:-http://127.0.0.1:54321}/auth/v1/verify
     healthcheck:
       test:
         [

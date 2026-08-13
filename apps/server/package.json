@@ -20,7 +20,8 @@
     "db:studio": "drizzle-kit studio",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
-    "test:cov": "vitest run --coverage"
+    "test:cov": "vitest run --coverage",
+    "db:seed": "tsx src/shared/database/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -29,6 +30,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.1",
     "@scoops/core": "workspace:*",
+    "@supabase/supabase-js": "^2.112.3",
     "drizzle-orm": "^0.45.2",
     "inngest": "^4.13.0",
     "postgres": "^3.4.9",

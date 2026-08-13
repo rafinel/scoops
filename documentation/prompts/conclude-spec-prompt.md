@@ -1,60 +1,67 @@
 ---
 name: conclude-spec
-description: Fechar uma Spec de feature com evidências finais, CI Quality Gate e build, usando Judge Implementation final quando necessário.
+description: Close a feature Spec with final evidence, the CI Quality Gate, and the build, using a final Implementation Judge when necessary.
 ---
 
-# Concluir Spec
+# Close a Spec
 
-O Orchestrator conduz o fechamento na task atual. Não crie nova thread.
+The Orchestrator conducts the closing in the current task. Do not create a new thread.
 
-## Pré-condições
+## Preconditions
 
-- Spec `in_progress`;
-- implementação direta aceita ou todas as fases aceitas;
-- nenhuma tarefa ou finding bloqueante pendente;
-- revisão da Spec correspondente ao diff atual.
+- Spec is `in_progress`;
+- direct implementation is accepted or all phases are accepted;
+- no blocking task or finding remains pending;
+- the corresponding Spec reflects the current diff.
 
-## Validação final
+## Final validation
 
-1. Execute `pnpm format` se ainda houver alterações.
-2. Execute `pnpm lint`, `pnpm check-types` e `pnpm test` no escopo integrado.
-3. Execute a revisão arquitetural documentada em `documentation/rules/rules.md`
-   quando fronteiras ou dependências mudarem.
-4. Execute integração/e2e conforme declarado pela Spec ou aplicável.
-5. Classifique todas as mudanças e findings descobertos e confirme que cada um
-   está registrado na Spec, no Plan, em `evaluation.md` ou em uma
-   Rule/Architecture/tooling apropriada.
-6. Atualize `evaluation.md` com a matriz de evidências reais, os vereditos dos
-   Judges, o resultado do Quality Gate/build e os findings remanescentes.
-7. Crie `Judge Implementation Final` quando houver Plan, múltiplas fases, alto
-   risco ou mudança após o último veredito.
-8. Registre na Spec apenas o status, o veredito resumido, o commit avaliado e o
-   link para `evaluation.md`.
+1. Run `pnpm format` if changes still exist.
+2. Run `pnpm lint`, `pnpm check-types`, and `pnpm test` for the integrated scope.
+3. Run the architectural review documented in `documentation/rules/rules.md`
+   when boundaries or dependencies change.
+4. Run integration/e2e as declared by the Spec or otherwise applicable.
+5. Classify all changes and discovered findings and confirm that each is recorded
+   in the Spec, Plan, `evaluation.md`, or an appropriate Rule/Architecture/tooling document.
+6. Update `evaluation.md` with the matrix of actual evidence, Judge verdicts,
+   the Quality Gate/build result, and remaining findings.
+7. Create `Judge Implementation Final` when there is a Plan, multiple phases,
+   high risk, or a change after the last verdict.
+8. Record in the Spec only the status, summarized verdict, evaluated commit,
+   and link to `evaluation.md`.
 
-Em uma Spec pequena, o `Judge Implementation Direct` pode ser o veredito final
-e não há segundo Judge.
+For UI work with Pencil references, the final evidence must include a route-by-
+route audit of every mapped page/state: Pencil node ID, target viewport,
+Browser-use CDP result, screenshot or visual comparison, accessibility/DOM
+inspection, and unresolved findings. Do not conclude the Spec while material
+Pencil-to-browser differences remain. Manual UI validation must use Browser-use,
+not Playwright; Playwright remains available for automated repository tests.
 
-## Documentação e entrega
+For a small Spec, `Judge Implementation Direct` may be the final verdict and no
+second Judge is needed.
 
-Verifique o PRD na página do Confluence, as Rules, Architecture, modules,
-tooling e overview conforme os fatos. Quando houver autorização para atualizar
-fontes externas, altere o PRD no Confluence e preserve todas as chaves Jira da
-Spec/Plan. Não crie ou atualize milestones/GitHub Issues e não altere status de
-tickets Jira sem instrução explícita.
-Atualizações normativas que alteram produto, Contract, Rules globais ou
-fronteiras arquiteturais exigem decisão do usuário.
+## Documentation and delivery
 
-Crie o commit e PR, solicite Codex Review e aguarde Quality Gate e build do
-`HEAD` atual. O Quality Gate repete os sensores oficiais; build é a validação
-final do artefato no CI.
+Check the PRD in Confluence, Rules, Architecture, modules, tooling, and the
+overview against the facts. When authorized to update external sources, update
+the PRD in Confluence and preserve every Jira key from the Spec/Plan. Do not
+create or update milestones/GitHub Issues or change Jira ticket status without
+explicit instruction.
+Normative updates that change the product, Contract, global Rules, or
+architectural boundaries require a user decision.
 
-Se Quality Gate ou build falhar, mantenha a Spec `in_progress`, registre a
-falha em `evaluation.md`; crie `Builder Fix QG-<n>` quando a correção estiver no
-escopo, reexecute sensores invalidados e reavalie se o diff mudar.
+Create the commit and PR, request Codex Review, and wait for the Quality Gate
+and build of the current `HEAD`. The Quality Gate repeats the official sensors;
+the build is the final artifact validation in CI.
 
-Somente depois de CI verde, conversas bloqueantes resolvidas e PR mergeable:
+If the Quality Gate or build fails, keep the Spec `in_progress`, record the
+failure in `evaluation.md`, create `Builder Fix QG-<n>` when the correction is
+in scope, rerun invalidated sensors, and reevaluate if the diff changes.
 
-- preencha as evidências finais em `evaluation.md`;
-- registre alinhamento documental;
-- atualize a Spec para `completed` e aponte para `evaluation.md`;
-- conclua o Plan, quando existir.
+Only after CI is green, blocking conversations are resolved, and the PR is
+mergeable:
+
+- fill in final evidence in `evaluation.md`;
+- record documentation alignment;
+- update the Spec to `completed` and point to `evaluation.md`;
+- complete the Plan, when one exists.

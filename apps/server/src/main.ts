@@ -23,14 +23,29 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalErrorHandler(app.get(HttpAdapterHost)))
 
   const envProvider = app.get(EnvProvider)
+  const webAppUrl = envProvider.get('SCOOPS_WEB_APP_URL')
 
   app.enableCors({
-    origin: envProvider.get('SCOOPS_WEB_APP_URL'),
+    origin: getAllowedWebOrigins(webAppUrl),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   })
 
   await app.listen(envProvider.get('PORT') ?? envProvider.get('SCOOPS_SERVER_APP_PORT'))
+}
+
+function getAllowedWebOrigins(webAppUrl: string): string[] {
+  const configuredUrl = new URL(webAppUrl)
+
+  if (!['localhost', '127.0.0.1'].includes(configuredUrl.hostname)) {
+    return [webAppUrl]
+  }
+
+  const loopbackHostname =
+    configuredUrl.hostname === 'localhost' ? '127.0.0.1' : 'localhost'
+  configuredUrl.hostname = loopbackHostname
+
+  return [webAppUrl, configuredUrl.toString().replace(/\/$/, '')]
 }
 
 bootstrap()

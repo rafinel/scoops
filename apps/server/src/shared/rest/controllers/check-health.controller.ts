@@ -1,8 +1,15 @@
-import { Controller, Get, HttpStatus, ServiceUnavailableException } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Inject,
+  ServiceUnavailableException,
+} from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
 
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
+import { PublicRoute } from '@/shared/rest/decorators/public-route'
 import {
   HealthErrorResponseDto,
   HealthResponseDto,
@@ -10,10 +17,11 @@ import {
 } from '@/shared/rest/dtos'
 
 @Controller()
+@PublicRoute()
 export class CheckHealthController {
   constructor(
-    private readonly drizzleClient: DrizzleClient,
-    private readonly envProvider: EnvProvider,
+    @Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient,
+    @Inject(EnvProvider) private readonly envProvider: EnvProvider,
   ) {}
 
   @Get('/health')
