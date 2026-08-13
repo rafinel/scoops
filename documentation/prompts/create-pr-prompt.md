@@ -12,11 +12,15 @@ do not turn those records into GitHub Issues or milestones.
 ## Input
 
 - Implemented and validated Spec or Bug Report;
-- work branch based on `develop`;
+- work branch based on `main`;
 - Confluence PRD link, when applicable;
 - every `jira_tickets` key/URL, when applicable.
 
 ## Branch integration and topology
+
+In this repository, `main` is the integration branch and is the equivalent of
+the generic `develop` branch referenced by this workflow. Use `main` and
+`origin/main` for branch, ancestry, migration, and diff operations.
 
 Discover the real topology before creating or updating a PR. Do not assume that
 similar branch names contain cumulative changes.
@@ -24,19 +28,19 @@ similar branch names contain cumulative changes.
 1. Refresh remote references without changing the user's worktree:
 
    ```bash
-   git fetch origin develop --prune
+   git fetch origin main --prune
    gh pr list --state all --search "<Spec terms>"
    ```
 
 2. For every related PR or branch, record base, head, SHA, state, and merge.
    Verify ancestry with `git merge-base --is-ancestor`; names and visual order
    do not prove that a change was incorporated.
-3. Normally use a delivery branch based on `origin/develop`. Do not create
+3. Normally use a delivery branch based on `origin/main`. Do not create
    intermediate branches or accidental chains of dependent worktrees.
 4. If several PRs are required, each must declare its base and dependencies.
    After acceptance, create or update an integration branch from the current
-   `develop`, explicitly incorporating every accepted head in dependency order.
-   Compare the final PR with `origin/develop` and include the complete accepted set.
+   `main`, explicitly incorporating every accepted head in dependency order.
+   Compare the final PR with `origin/main` and include the complete accepted set.
 5. If a delivery PR already exists, update its head instead of opening a duplicate.
 
 Use a clean temporary worktree for integration when the main worktree is dirty.
@@ -73,8 +77,8 @@ additional integration/e2e checks. For a composed delivery, validate the
 integrated state and calculate the real diff against the PR base:
 
 ```bash
-git diff --stat origin/develop...HEAD
-git diff --name-status origin/develop...HEAD
+git diff --stat origin/main...HEAD
+git diff --name-status origin/main...HEAD
 ```
 
 Do not impose an artificial line limit or split a coherent PR only to bypass a
@@ -83,7 +87,7 @@ size check. If a policy check remains red, report it rather than bypassing it.
 ## Migrations and generated files
 
 For database changes, compare migration numbers and `meta/_journal.json` across
-`develop` and accepted branches. Resolve numbering collisions explicitly and
+`main` and accepted branches. Resolve numbering collisions explicitly and
 update snapshots, journals, tests, and references. Never blindly choose `ours`
 or `theirs`. Run migration generation/verification and relevant tests. Record
 Docker/Testcontainers limitations instead of treating them as approval.
