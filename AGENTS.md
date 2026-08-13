@@ -14,6 +14,16 @@ instructions for files inside its directory. Read every applicable instruction
 file before changing code. In particular, `apps/web/AGENTS.md` contains mandatory
 TanStack Intent commands for matching web tasks.
 
+## External traceability
+
+This project does not use Jira tickets. When external issue traceability exists,
+use the corresponding GitHub Issue URL and preserve it through Specs, Plans,
+implementation evidence, commits, and pull requests as applicable. Do not invent
+Jira keys, add `jira_tickets` metadata, migrate GitHub Issues into Jira, or treat
+Jira/Confluence workflow requirements from generic prompts as applicable to this
+repository. If no GitHub Issue exists, record the direct request or other actual
+source without fabricating an issue.
+
 If `AGENTS.local.md` exists, read it before repository work and apply it alongside
 this file. When it is absent, continue with the instructions below.
 
@@ -70,6 +80,14 @@ before applying documentation examples.
 Use Playwright MCP to validate real browser behavior in `apps/web`, especially
 after changes to UI, routes, forms, responsive layouts, accessibility,
 authentication, or REST integration.
+
+For manual or interactive UI validation requested by the user or specified by a
+feature Plan, use the `browser-use` skill and its CDP workflow instead of
+Playwright. Prefer the accessibility tree for interaction and inspect the DOM,
+final URL, network requests, console messages, viewport behavior, and keyboard
+paths. Keep Playwright for the repository's automated browser test suite; do not
+present mocked Playwright coverage as evidence of a real authenticated,
+server-backed flow.
 
 Playwright can navigate the running application, inspect accessibility snapshots,
 interact with controls, inspect console messages and network requests, and capture

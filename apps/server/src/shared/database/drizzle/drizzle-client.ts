@@ -1,4 +1,4 @@
-import { Injectable, type OnModuleDestroy } from '@nestjs/common'
+import { Inject, Injectable, type OnModuleDestroy } from '@nestjs/common'
 import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import postgres, { type Sql } from 'postgres'
 
@@ -12,7 +12,7 @@ export class DrizzleClient implements OnModuleDestroy {
   private readonly client: Sql
   private readonly database: Database
 
-  constructor(envProvider: EnvProvider) {
+  constructor(@Inject(EnvProvider) envProvider: EnvProvider) {
     this.client = postgres(envProvider.get('DATABASE_URL'), {
       connect_timeout: 5,
       idle_timeout: 10,

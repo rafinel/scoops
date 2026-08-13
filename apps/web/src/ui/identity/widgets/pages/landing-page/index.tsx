@@ -1,6 +1,10 @@
 import { AppLayout } from '@/ui/shared/widgets/layouts/app-layout'
 
+import { useLandingPage } from './use-landing-page'
+
 export const LandingPage = () => {
+  useLandingPage()
+
   return (
     <AppLayout>
       <section className='flex flex-1 items-center justify-center'>

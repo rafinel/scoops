@@ -1,0 +1,12 @@
+@baseUrl = http://localhost:3333
+@accessToken = replace-with-a-supabase-access-token
+@userId = 00000000-0000-0000-0000-000000000000
+
+### Change another user's profile
+PATCH {{baseUrl}}/users/{{userId}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "profile": "operator"
+}

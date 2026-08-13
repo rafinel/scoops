@@ -1,56 +1,73 @@
 ---
 name: implement-plan
-description: Orquestrar um Plan de feature com Builders irmãos, sensores e um único Judge da implementação inteira na task atual.
+description: Orchestrate a feature Plan with sibling Builders, sensors, and a single Judge for the entire implementation in the current task.
 ---
 
-# Implementar Plan
+# Implement a Plan
 
-Leia Plan, Spec, Architecture, Rules e `documentation/tooling.md`. Use
-`documentation/rules/rules.md` para descobrir as regras das camadas tocadas. O
-Orchestrator mantém o Plan e todo o fluxo ocorre na task atual.
+Read the Plan, Spec, Architecture, Rules, and `documentation/tooling.md`. Use
+`documentation/rules/rules.md` to discover rules for the touched layers. The
+Orchestrator maintains the Plan and the entire flow occurs in the current task.
 
-Preserve no Plan o link do PRD no Confluence e todas as chaves de
-`jira_tickets` da Spec. Consulte esses registros quando a integração estiver
-disponível, mas não altere status, comentários ou critérios de aceite no Jira
-ou no Confluence automaticamente.
+Preserve the Confluence PRD link and every `jira_tickets` key from the Spec in
+the Plan. Consult those records when integration is available, but do not
+automatically change Jira or Confluence status, comments, or acceptance criteria.
 
-Para cada fase:
+For each phase:
 
-1. confirme revisão da Spec, dependências, critérios, paths e evidências;
-2. marque fase/tarefa como `in_progress`/`implementing`;
-3. crie `Builder F<n>` para o escopo principal;
-4. identifique tarefas prontas, independentes e sem paths sobrepostos;
-5. quando houver paralelismo real, crie até dois `Builder F<n>-T<m>` irmãos;
-6. aguarde os Builders, inspecione e integre o diff;
-7. execute os comandos reais de validação do workspace descritos em
-   `documentation/tooling.md` (`lint`/`check:code`, `check-types`/`check:types`
-   e `test`); execute integração ou e2e quando a fase exigir;
-   não execute `build` por fase ou por retry, salvo alteração em bundler,
-   exports, ambiente, Docker, workflows ou artefatos gerados;
-8. marque tarefas `verified` somente após os sensores aplicáveis;
-9. não crie Judge por fase; após os sensores, registre a fase como `verified` e
-   avance somente quando não houver falha de sensor ou finding bloqueante;
-10. em caso de falha, registre imediatamente o finding no Plan e em
-    `evaluation.md`, crie Builder Fix, reabra as tarefas afetadas e repita
-    somente os sensores invalidados.
+1. confirm the Spec revision, dependencies, criteria, paths, and evidence;
+2. mark the phase/task as `in_progress`/`implementing`;
+3. create `Builder F<n>` for the main scope;
+4. identify ready, independent tasks with no overlapping paths;
+5. when real parallelism exists, create up to two sibling `Builder F<n>-T<m>` agents;
+6. wait for Builders, inspect, and integrate the diff;
+7. run the actual workspace validation commands documented in
+   `documentation/tooling.md` (`lint`/`check:code`, `check-types`/`check:types`,
+   and `test`); run integration or e2e when the phase requires it. Do not run
+   `build` per phase or retry unless the change touches the bundler, exports,
+   environment, Docker, workflows, or generated artifacts;
+8. mark tasks `verified` only after applicable sensors pass;
+9. do not create a Judge per phase; record the phase as `verified` after sensors
+   and advance only when no sensor failure or blocking finding remains;
+10. on failure, immediately record the finding in the Plan and `evaluation.md`,
+    create Builder Fix, reopen affected tasks, and repeat only invalidated sensors.
 
-Builders não criam subagentes nem editam Plan. Judges não editam arquivos. O
-Orchestrator registra no Plan decisões, evidências resumidas, findings,
-tentativas e próxima ação; registra as avaliações formais e evidências finais em
-`evaluation.md`, mantendo na Spec apenas o resumo e a referência para esse
-arquivo. Fases não recebem veredito de Judge.
+For UI phases backed by Pencil, enforce this additional loop before marking the
+phase verified:
 
-Após todas as fases verificadas, execute sensores integrados. Quando a
-integração exigir avaliação adicional, faça antes um preflight de banco, Auth,
-serviços locais, credenciais de teste e Playwright. Então crie exatamente um
-`Judge Implementation Final` read-only para avaliar a implementação inteira; o
-`build` roda somente no Quality Gate final. Depois encaminhe para
-`conclude-spec`.
+1. Inspect the relevant Pencil nodes, reusable components, variables, and target
+   viewport before coding.
+2. Map each page and state to its exact Pencil node ID. Implement distinct
+   compositions independently; share only structures that are actually shared
+   by the design.
+3. Validate every mapped route manually with Browser-use over CDP at the exact
+   design viewport. Use the accessibility tree and DOM/layout inspection plus
+   screenshots to compare the browser result with the Pencil node.
+4. Iterate on material discrepancies and record route, node ID, viewport,
+   evidence, and remaining findings in the Plan/evaluation. Manual UI validation
+   must use Browser-use, not Playwright.
 
-O Judge final é a única unidade de julgamento da implementação. Se ele retornar
-`failed`, crie Builder Fix, reexecute os sensores invalidados e reutilize o mesmo
-Judge para reavaliar o diff atualizado. Não crie Judge por fase, Judge de retry,
-Judge de conclusão separado ou um segundo Judge para a mesma implementação.
+Visual parity is an exit condition, not optional polish. Do not mark a UI phase
+or the implementation accepted while material Pencil-to-browser differences
+remain unresolved.
 
-Não crie outro papel de implementação ou Judge de conclusão separado, fork ou
-nova thread.
+Builders do not create subagents or edit the Plan. Judges do not edit files. The
+Orchestrator records decisions, summarized evidence, findings, attempts, and
+the next action in the Plan; formal assessments and final evidence belong in
+`evaluation.md`, leaving only the summary and reference in the Spec. Phases do
+not receive Judge verdicts.
+
+After all phases are verified, run integrated sensors. When integration needs
+additional assessment, first perform a preflight of the database, Auth, local
+services, test credentials, and Browser-use CDP for manual UI flows. Then create
+exactly one read-only
+`Judge Implementation Final` to assess the entire implementation; `build` runs
+only in the final Quality Gate. Then route to `conclude-spec`.
+
+The final Judge is the only implementation-judgment unit. If it returns
+`failed`, create Builder Fix, rerun invalidated sensors, and reuse the same Judge
+to reassess the updated diff. Do not create a phase Judge, retry Judge,
+separate completion Judge, or second Judge for the same implementation.
+
+Do not create another implementation role or separate completion Judge, fork,
+or new thread.

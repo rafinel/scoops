@@ -1,29 +1,29 @@
 ---
 name: resolve-pr-pendencies
-description: Resolver checks de CI e conversas de review até o PR ficar mergeable.
+description: Resolve CI checks and review conversations until the PR is mergeable.
 ---
 
-# Resolver pendências de PR
+# Resolve PR Pending Items
 
-Trabalhe na sessão atual e sempre contra o `HEAD` mais recente.
+Work in the current session and always target the latest `HEAD`.
 
-Use o PR, a Spec, o PRD no Confluence e os tickets Jira associados como contexto
-de rastreabilidade. GitHub Issues e milestones não fazem parte desse fluxo.
-Consulte o Confluence/Jira quando necessário, mas não altere status ou conteúdo
-sem instrução explícita.
+Use the PR, Spec, Confluence PRD, and associated Jira tickets as traceability
+context. GitHub Issues and milestones are not part of this flow. Consult
+Confluence/Jira when needed, but do not change status or content without explicit
+instruction.
 
-1. Inspecione status mergeable, checks e conversas não resolvidas.
-2. Classifique cada pendência como falha determinística, teste, build, ambiente,
-   feedback de review ou conflito com Spec/Architecture.
-3. Reproduza localmente usando os scripts reais documentados em
-   `documentation/tooling.md`: `pnpm lint`, `pnpm check-types`, `pnpm test` e
-   `pnpm build`, além de integração/e2e quando aplicável.
-4. Corrija a causa no menor escopo seguro; não desative regras nem adicione
-   exclusões para esconder regressões.
-5. Aplique `format`, reexecute os sensores invalidados e faça revisão do diff.
-6. Responda/resolva conversas apenas após a correção existir no branch.
-7. Faça push e aguarde novamente Quality Gate, testes e build do novo `HEAD`.
+1. Inspect mergeable status, checks, and unresolved conversations.
+2. Classify each pending item as a deterministic failure, test, build,
+   environment, review feedback, or Spec/Architecture conflict.
+3. Reproduce locally using the real scripts documented in
+   `documentation/tooling.md`: `pnpm lint`, `pnpm check-types`, `pnpm test`, and
+   `pnpm build`, plus integration/e2e when applicable.
+4. Fix the cause within the smallest safe scope; do not disable rules or add
+   exclusions to hide regressions.
+5. Apply `format`, rerun invalidated sensors, and review the diff.
+6. Reply to or resolve conversations only after the fix exists on the branch.
+7. Push and wait again for the Quality Gate, tests, and build of the new `HEAD`.
 
-Mudança de produto, Contract, arquitetura ou segurança precisa atualizar as
-fontes normativas antes de prosseguir. Encerre somente com checks verdes,
-conversas bloqueantes resolvidas e PR mergeable.
+A product, Contract, architecture, or security change must update normative
+sources before proceeding. Finish only with green checks, resolved blocking
+conversations, and a mergeable PR.

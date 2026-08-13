@@ -1,12 +1,18 @@
 import axios from 'axios'
 
+import type { AuthSession } from '@scoops/core/identity/domain/structures'
 import type { RestClient } from '@scoops/core/shared/interfaces'
 
 import { request } from '@/rest/axios/utils'
 
 const REST_REQUEST_TIMEOUT_MS = 15_000
 
-export const AxiosRestClient = (baseUrl?: string): RestClient => {
+type SessionAccessor = () => Promise<AuthSession | null>
+
+export const AxiosRestClient = (
+  baseUrl?: string,
+  sessionAccessor?: SessionAccessor,
+): RestClient => {
   const client = axios.create({
     baseURL: baseUrl,
     timeout: REST_REQUEST_TIMEOUT_MS,
@@ -14,31 +20,55 @@ export const AxiosRestClient = (baseUrl?: string): RestClient => {
 
   return {
     get<ResponseBody>(url: string) {
-      return request<ResponseBody>(client, { method: 'get', url })
+      return request<ResponseBody>(client, { method: 'get', url }, sessionAccessor)
     },
 
     getFile(url) {
-      return request<File>(client, { method: 'get', url, responseType: 'blob' })
+      return request<File>(
+        client,
+        { method: 'get', url, responseType: 'blob' },
+        sessionAccessor,
+      )
     },
 
     post<ResponseBody>(url: string, body?: unknown) {
-      return request<ResponseBody>(client, { method: 'post', url, data: body })
+      return request<ResponseBody>(
+        client,
+        { method: 'post', url, data: body },
+        sessionAccessor,
+      )
     },
 
     postFormData<ResponseBody>(url: string, body: FormData) {
-      return request<ResponseBody>(client, { method: 'post', url, data: body })
+      return request<ResponseBody>(
+        client,
+        { method: 'post', url, data: body },
+        sessionAccessor,
+      )
     },
 
     patch<ResponseBody>(url: string, body?: unknown) {
-      return request<ResponseBody>(client, { method: 'patch', url, data: body })
+      return request<ResponseBody>(
+        client,
+        { method: 'patch', url, data: body },
+        sessionAccessor,
+      )
     },
 
     put<ResponseBody>(url: string, body?: unknown) {
-      return request<ResponseBody>(client, { method: 'put', url, data: body })
+      return request<ResponseBody>(
+        client,
+        { method: 'put', url, data: body },
+        sessionAccessor,
+      )
     },
 
     delete<ResponseBody>(url: string, body?: unknown) {
-      return request<ResponseBody>(client, { method: 'delete', url, data: body })
+      return request<ResponseBody>(
+        client,
+        { method: 'delete', url, data: body },
+        sessionAccessor,
+      )
     },
 
     setBaseUrl(url) {

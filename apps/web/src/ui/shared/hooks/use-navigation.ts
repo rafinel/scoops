@@ -9,5 +9,9 @@ export function useNavigation() {
     return navigate({ to: ROUTES[route] })
   }
 
-  return { navigateTo }
+  function navigateToPath(path: string): Promise<void> {
+    return navigate({ to: path })
+  }
+
+  return { navigateTo, navigateToPath }
 }

@@ -6,10 +6,13 @@ import {
   type ExceptionFilter,
 } from '@nestjs/common'
 import { HttpAdapterHost } from '@nestjs/core'
-
-type CoreError = Error & {
-  readonly title: string
-}
+import {
+  AppError,
+  AuthorizationError,
+  BadRequestError,
+  ConflictError,
+  NotFoundError,
+} from '@scoops/core/shared/domain/errors'
 
 export type ErrorResponse = {
   readonly statusCode: number
@@ -49,19 +52,23 @@ export class GlobalErrorHandler implements ExceptionFilter {
       }
     }
 
-    if (this.isCoreError(exception, 'NotFoundError')) {
+    if (exception instanceof NotFoundError) {
       return this.createSharedErrorResponse(exception, HttpStatus.NOT_FOUND, path)
     }
 
-    if (this.isCoreError(exception, 'BadRequestError')) {
+    if (exception instanceof AuthorizationError) {
+      return this.createSharedErrorResponse(exception, HttpStatus.UNAUTHORIZED, path)
+    }
+
+    if (exception instanceof BadRequestError) {
       return this.createSharedErrorResponse(exception, HttpStatus.BAD_REQUEST, path)
     }
 
-    if (this.isCoreError(exception, 'ConflictError')) {
+    if (exception instanceof ConflictError) {
       return this.createSharedErrorResponse(exception, HttpStatus.CONFLICT, path)
     }
 
-    if (this.isCoreError(exception)) {
+    if (exception instanceof AppError) {
       return this.createSharedErrorResponse(
         exception,
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -79,7 +86,7 @@ export class GlobalErrorHandler implements ExceptionFilter {
   }
 
   private createSharedErrorResponse(
-    exception: CoreError,
+    exception: AppError,
     statusCode: number,
     path: string,
   ): ErrorResponse {
@@ -111,14 +118,6 @@ export class GlobalErrorHandler implements ExceptionFilter {
     if (typeof message === 'string') return message
 
     return fallback
-  }
-
-  private isCoreError(exception: unknown, name?: string): exception is CoreError {
-    return (
-      exception instanceof Error &&
-      typeof (exception as Partial<CoreError>).title === 'string' &&
-      (!name || exception.constructor.name === name)
-    )
   }
 
   private isRecord(value: unknown): value is Record<string, unknown> {

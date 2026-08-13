@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios'
 
+import type { AuthSession } from '@scoops/core/identity/domain/structures'
 import { RestResponse } from '@scoops/core/shared/responses/rest-response'
 
 import { getErrorMessage } from './get-error-message'
@@ -8,9 +9,20 @@ import { normalizeHeaders } from './normalize-headers'
 export async function request<ResponseBody>(
   client: AxiosInstance,
   config: AxiosRequestConfig,
+  sessionAccessor?: () => Promise<AuthSession | null>,
 ): Promise<RestResponse<ResponseBody>> {
   try {
-    const response = await client.request<ResponseBody>(config)
+    const session = sessionAccessor ? await sessionAccessor() : null
+    const requestConfig: AxiosRequestConfig = {
+      ...config,
+      headers: {
+        ...(config.headers ?? {}),
+        ...(sessionAccessor
+          ? { Authorization: session ? `Bearer ${session.accessToken}` : undefined }
+          : {}),
+      },
+    }
+    const response = await client.request<ResponseBody>(requestConfig)
 
     return new RestResponse<ResponseBody>({
       body: response.data,

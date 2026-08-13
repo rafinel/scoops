@@ -1,242 +1,145 @@
 ---
-description: Prompt para transformar relatos informais em bug reports técnicos claros, acionáveis e orientados a correção.
+description: Prompt for turning informal reports into clear, actionable, correction-oriented technical bug reports.
 ---
 
-# Prompt: Criar Bug Report
+# Prompt: Create a Bug Report
 
-## Objetivo
+## Goal
 
-Transformar um esboço ou relato informal de um erro em um **Bug Report profissional**, claro, acionável e tecnicamente orientado, pronto para ser consumido pela equipe de desenvolvimento sem necessidade de interpretação adicional.
+Turn an error sketch or informal report into a professional, clear, actionable,
+technically focused Bug Report that the development team can consume without
+additional interpretation.
 
-O bug report deve:
-- Explicar **o que está quebrado**
-- Indicar **onde e por que provavelmente está quebrado**
-- Indicar um **direcionamento de correção** curto, sem detalhar implementação como Spec
+The report must explain what is broken, indicate where and why it is probably
+broken, and provide brief correction guidance without specifying implementation
+as a Spec. The result is always one Markdown document containing only the Bug
+Report. This prompt does not create a correction Spec; request that separately
+with `documentation/prompts/create-spec-prompt.md`.
 
-O resultado desta tarefa é **sempre um único arquivo Markdown** contendo apenas o **Bug Report**.
+## Input
 
-Este prompt **não cria Spec de correção**. Quando uma Spec for necessária, ela deve ser solicitada e executada em outro fluxo, usando `documentation/prompts/create-spec-prompt.md`.
+- **Problem sketch:** free-form description of the observed error (symptom).
+- **Technical context (optional):** device/OS/browser, environment (local,
+  staging, production), and affected feature or flow.
 
-> O papel desta tarefa termina quando o Bug Report estiver estruturado, claro e
-> acionável no ticket Jira.
-> Não crie, edite nem antecipe uma Spec durante a execução deste prompt.
+## Applicable rules
 
----
+Before diagnosing the bug, read `documentation/rules/rules.md`, the general
+code-conventions rules, and every rule for the layers involved. Use rules only
+to validate technical boundaries and patterns; do not turn the report into an
+implementation Spec.
 
-## Entrada
+## Execution guidelines
 
-- **Esboço do Problema:** relato livre descrevendo o erro observado (sintoma)
-- **Contexto Técnico (opcional):**
-  - Dispositivo / OS / Browser
-  - Ambiente (local, staging, produção)
-  - Feature ou fluxo afetado
+1. Analyze the report by separating observed behavior from expected behavior
+   and removing ambiguity.
+2. Diagnose probable causes using `documentation/architecture.md`, the relevant
+   PRD, the source of truth for affected data, contracts, and cross-layer
+   mappings. Locate real critical nodes in the code: feature entry point,
+   state control, remote call, use case, and persistence/integration. Look for
+   similar implementations and established validation, error, and loading patterns.
+3. Map only these layers: `core` (Use Cases), `rest` (HTTP Controllers and
+   Services), `database` (Repositories, Mappers, Types), `provision` (Providers
+   and external integrations), `rpc` (Actions), `ui` (Widgets, Stores,
+   Contexts), `ai` (Workflows, Tools), `queue` (Inngest Functions), `web`
+   (Pages, Layouts), and `studio` (Pages, Layouts).
+4. Include only brief technical guidance about where the correction should act.
+   Do not detail phases, tasks, signatures, new files, or a structured
+   implementation list. Do not use sections such as “What already exists” or
+   “What should be created/modified/removed”; those belong to a Spec.
+5. After structuring the report, create or update the appropriate Jira ticket
+   and finish by reporting its identifier or URL. Do not save individual Bug
+   Reports in `documentation/` or create `documentation/features/**/reports/`.
 
----
+Do not create or edit a Spec, include a Spec in the Bug Report, or treat the
+task as incomplete because no Spec exists. The only deliverable is the Bug Report.
 
-## Regras Aplicáveis
+## Required output template
 
-Antes de diagnosticar o bug, leia:
-
-- `documentation/rules/rules.md` — índice para selecionar as rules das camadas envolvidas.
-- `documentation/rules/code-conventions-rules.md` — referência geral para nomeação, factories, erros e eventos.
-- Rules específicas das camadas citadas no diagnóstico, por exemplo:
-  - `documentation/rules/core-package-rules.md`
-  - `documentation/rules/database-rules.md`
-  - `documentation/rules/rest-layer-rules.md`
-  - `documentation/rules/rpc-layer-rules.md`
-  - `documentation/rules/ui-layer-rules.md`
-  - `documentation/rules/web-application-rules.md`
-  - `documentation/rules/server-application-rules.md`
-  - `documentation/rules/studio-appllication-rules.md`
-  - `documentation/rules/ai-layer-rules.md`
-  - `documentation/rules/queue-layer-rules.md`
-  - `documentation/rules/realtime-rules.md`
-  - `documentation/rules/validation-layer-rules.md`
-
-Use as rules apenas para validar fronteiras e padrões técnicos; o bug report não deve virar uma spec de implementação.
-
----
-
-## Diretrizes de Execução
-
-### 1. Análise do Relato
-
-- Interprete o problema focando em **comportamento observado vs comportamento esperado**.
-- Elimine ambiguidades do relato original.
-
-### 2. Diagnóstico
-
-- Identifique causas prováveis com base na arquitetura descrita em `documentation/architecture.md`.
-- Se o bug estiver associado a uma funcionalidade existente, consulte o PRD correspondente na milestone do GitHub que representa a fonte de verdade do produto.
-- Identifique o **ponto de verdade** dos dados afetados: fonte (DB, API, cache), contratos (schemas/DTOs), normalização (mapeamentos entre camadas).
-- Localize os nós críticos no código:
-  - Onde a feature é iniciada (page/widget/route)
-  - Onde o estado é controlado (store/context)
-  - Onde a chamada remota acontece (action/service)
-  - Onde regras são aplicadas (use case)
-  - Onde persistência/integração é feita (driver/repo)
-- Procure implementações similares na codebase para identificar padrões de validação, erro e loading já estabelecidos.
-
-### 3. Mapeamento de Camadas
-
-- Determine quais camadas estão envolvidas direta ou indiretamente.
-- Sempre que possível, associe o problema a **arquivos reais** da codebase.
-- Use exclusivamente as camadas definidas abaixo:
-  - `core` — Use Cases
-  - `rest` — Controllers e Services HTTP
-  - `database` — Repositories, Mappers e Types
-  - `provision` — Providers e integrações externas
-  - `rpc` — Actions
-  - `ui` — Widgets, Stores e Contexts
-  - `ai` — Workflows e Tools
-  - `queue` — Inngest Functions
-  - `web` — Pages e Layouts Next.js
-  - `studio` — Pages e Layouts React Router
-
-### 4. Direcionamento de Correção
-
-- Inclua apenas uma orientação técnica breve sobre onde a correção provavelmente deve atuar.
-- Não detalhe fases, tarefas, assinaturas, novos arquivos ou lista estruturada de implementação.
-- Não use seções do tipo **O que já existe**, **O que deve ser criado**, **O que deve ser modificado** ou **O que deve ser removido**; isso pertence à Spec.
-- O direcionamento deve ajudar a próxima etapa, mas não substituir a Spec.
-
-### 5. Encerramento
-
-Após estruturar o relato, crie ou atualize o ticket no Jira apropriado e encerre
-a tarefa informando o identificador ou URL do ticket. Não salve Bug Reports
-individuais em `documentation/` nem crie `documentation/features/**/reports/`.
-
-- Não crie Spec.
-- Não edite arquivos de Spec.
-- Não inclua uma Spec dentro do Bug Report.
-- Se o usuário pedir a Spec depois, trate como uma nova tarefa usando o prompt apropriado.
-
----
-
-## Template de Saída (Estrutura Obrigatória)
-
-Use o template abaixo como conteúdo do ticket Jira. O relatório completo deve
-ficar no Jira; o repositório não deve receber um arquivo individual de Bug
-Report.
+Use the following as the Jira ticket content. The complete report belongs in
+Jira; the repository must not receive an individual Bug Report file.
 
 ```md
 ---
-title: {Titulo Curto e Descritivo}
-prd: <link para o PRD ou milestone referente ao bug, se houver>
-issue: <link para o issue referente ao bug>
+title: {Short Descriptive Title}
+prd: <link to the relevant PRD, if any>
+issue: <link to the bug issue>
 apps: {web|server|studio}
 status: {open|closed}
 last_updated_at: {YYYY-MM-DD}
 ---
 
-# Bug Report: {Titulo Curto e Descritivo}
+# Bug Report: {Short Descriptive Title}
 
-## Problema Identificado
+## Identified Problem
 
-{Descrição objetiva do comportamento incorreto observado. Evite suposições técnicas nesta seção.}
+{Objective description of the incorrect observed behavior. Avoid technical assumptions here.}
 
-## Causas
+## Causes
 
-{Lista concisa das causas técnicas prováveis. Exemplo: validação ausente, estado inconsistente, contrato quebrado, erro de mapeamento.}
+{Concise list of probable technical causes, such as missing validation, inconsistent state, broken contract, or mapping error.}
 
-## Contexto e Análise
+## Context and Analysis
 
-### Camada Core (Use Cases)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
+### Core Layer (Use Cases)
+<!-- Include only when applicable -->
+- **File:** `{relative/path/to/file}`
+- **Diagnosis:** {Explain what is wrong at this point.}
 
-### Camada REST (Controllers)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
+### REST Layer (Controllers and Services)
+<!-- Include only when applicable -->
+- **File:** `{relative/path/to/file}`
+- **Diagnosis:** {Explain what is wrong at this point.}
 
-### Camada REST (Services)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
+### Database Layer (Repositories, Mappers, and Types)
+<!-- Include only when applicable -->
+- **File:** `{relative/path/to/file}`
+- **Diagnosis:** {Explain what is wrong at this point.}
 
-### Camada Banco de Dados (Repositories)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
+### Provision Layer (Providers)
+<!-- Include only when applicable -->
+- **File:** `{relative/path/to/file}`
+- **Diagnosis:** {Explain what is wrong at this point.}
 
-### Camada Banco de Dados (Mappers)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
+### RPC Layer (Actions)
+<!-- Include only when applicable -->
+- **File:** `{relative/path/to/file}`
+- **Diagnosis:** {Explain what is wrong at this point.}
 
-### Camada Banco de Dados (Types)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
+### UI Layer (Widgets, Stores, and Contexts)
+<!-- Include only when applicable -->
+- **File:** `{relative/path/to/file}`
+- **Diagnosis:** {Explain what is wrong at this point.}
 
-### Camada Provision (Providers)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
+### AI Layer (Workflows and Tools)
+<!-- Include only when applicable -->
+- **File:** `{relative/path/to/file}`
+- **Diagnosis:** {Explain what is wrong at this point.}
 
-### Camada RPC (Actions)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
+### Queue Layer (Inngest Functions)
+<!-- Include only when applicable -->
+- **File:** `{relative/path/to/file}`
+- **Diagnosis:** {Explain what is wrong at this point.}
 
-### Camada UI (Widgets)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
+### Web Layer (Pages and Layouts)
+<!-- Include only when applicable -->
+- **File:** `{relative/path/to/file}`
+- **Diagnosis:** {Explain what is wrong at this point.}
 
-### Camada UI (Stores)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
+### Studio Layer (Pages and Layouts)
+<!-- Include only when applicable -->
+- **File:** `{relative/path/to/file}`
+- **Diagnosis:** {Explain what is wrong at this point.}
 
-### Camada UI (Contexts)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
+## Correction Guidance
 
-### Camada AI (Workflows)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
-
-### Camada AI (Tools)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
-
-### Camada Inngest App (Functions)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
-
-### Camada Next.js App (Pages, Layouts)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
-
-### Camada React Router App (Pages, Layouts)
-<!-- Incluir apenas se aplicável -->
-- **Arquivo:** `{caminho/relativo/do/arquivo}`
-- **Diagnóstico:** {Explique o que está errado neste ponto.}
-
-## Direcionamento de Correção
-
-{Parágrafo ou lista curta com a direção provável da correção. Deve apontar camada(s) e arquivo(s) relevantes, mas não deve detalhar tarefas de implementação como uma Spec.}
+{Short paragraph or list indicating the probable correction layer(s) and relevant file(s), without implementation tasks.}
 ```
 
----
+## Constraints
 
-## Restrições
-
-- Não invente caminhos de arquivo, métodos ou contratos sem evidência na codebase.
-- Cite sempre o arquivo do problema — sem diagnósticos genéricos sem localização.
-- Separe fato (evidência encontrada no código) de hipótese (suspeita sem confirmação).
-- Não proponha correções que violem os contratos entre camadas definidos em `documentation/rules/`.
-- Use apenas as camadas listadas na seção 3. Mapeamento de Camadas — não crie camadas arbitrárias.
-- Omita do template as camadas que não forem aplicáveis ao bug em questão.
-- Não incorpore Spec de correção no arquivo do bug report.
-- Não inclua seções de planejamento de Spec, como **O que já existe**, **O que deve ser criado**, **O que deve ser modificado** ou **O que deve ser removido**.
-- Não crie, edite ou atualize Specs durante esta tarefa.
-- Não trate a tarefa como incompleta por ausência de Spec; o entregável final é somente o Bug Report.
+- Do not invent file paths, methods, or contracts without codebase evidence.
+- Always cite the problematic file; separate facts from hypotheses.
+- Do not propose corrections that violate cross-layer contracts in `documentation/rules/`.
+- Use only the listed layers and omit layers that do not apply.
+- Do not incorporate a correction Spec or Spec-planning sections.
