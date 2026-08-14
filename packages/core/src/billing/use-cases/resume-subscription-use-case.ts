@@ -50,7 +50,7 @@ export class ResumeSubscriptionUseCase
       }),
     )
 
-    this.broker.publish(
+    await this.broker.publish(
       new SubscriptionReactivatedEvent({
         subscriptionId: resumedSubscription.id,
         establishmentId: resumedSubscription.establishmentId,

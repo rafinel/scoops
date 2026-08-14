@@ -17,7 +17,7 @@ import { parseSeedEnv } from '@/shared/database/seed-env'
 
 const SEED_ESTABLISHMENT_ID = '00000000-0000-4000-8000-000000000001'
 const SEED_TIMESTAMP = new Date('2026-01-01T00:00:00.000Z')
-const SEED_PASSWORD = '123456'
+const SEED_PASSWORD = '12345678'
 const SEED_USERS = {
   manager: {
     id: '3d2396d2-b747-45cb-bb4a-89b25ed6b457',
@@ -37,8 +37,10 @@ async function seedDatabase() {
   let app: INestApplicationContext | undefined
 
   try {
+    app = await NestFactory.createApplicationContext(AppModule, {
+      logger: ['error', 'warn'],
+    })
     parseSeedEnv()
-    app = await NestFactory.createApplicationContext(AppModule, { logger: false })
     const envProvider = app.get(EnvProvider)
     const identitySeeder = app.get(IdentitySeeder)
 
@@ -127,28 +129,31 @@ async function resetSeedUsers(envProvider: EnvProvider): Promise<void> {
     },
   )
 
-  const { data, error: listError } = await client.auth.admin.listUsers({
-    page: 1,
-    perPage: 1000,
-  })
+  const users: Array<{ id: string }> = []
+  let page = 1
 
-  if (listError) {
-    throw listError
+  while (true) {
+    const { data, error: listError } = await client.auth.admin.listUsers({
+      page,
+      perPage: 1000,
+    })
+
+    if (listError) throw listError
+
+    users.push(...data.users)
+    if (data.users.length < 1000) break
+    page += 1
+  }
+
+  for (const user of users) {
+    const { error } = await client.auth.admin.deleteUser(user.id)
+
+    if (error) {
+      throw error
+    }
   }
 
   for (const seedUser of Object.values(SEED_USERS)) {
-    const usersToDelete = data.users.filter(
-      (user) => user.id === seedUser.id || user.email === seedUser.email,
-    )
-
-    for (const user of usersToDelete) {
-      const { error } = await client.auth.admin.deleteUser(user.id)
-
-      if (error) {
-        throw error
-      }
-    }
-
     const { error } = await client.auth.admin.createUser({
       id: seedUser.id,
       email: seedUser.email,
@@ -165,4 +170,7 @@ async function resetSeedUsers(envProvider: EnvProvider): Promise<void> {
   }
 }
 
-void seedDatabase()
+void seedDatabase().catch((error: unknown) => {
+  console.error(error)
+  process.exitCode = 1
+})

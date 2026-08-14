@@ -1,11 +1,17 @@
 import type { INestApplication, Type } from '@nestjs/common'
-import type { AuthIdentityProvider } from '@scoops/core/identity/interfaces'
+import type {
+  AuthIdentityProvider,
+  OnboardingIdentityProvider,
+  OnboardingIdentifierProvider,
+  OnboardingTokenProvider,
+} from '@scoops/core/identity/interfaces'
 import type { TestingModuleBuilder } from '@nestjs/testing'
 
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
 import { IdentityModule } from '@/identity/identity.module'
 import { SharedModule } from '@/shared/shared.module'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
+import { InngestModule } from '@/shared/messaging/inngest/inngest.module'
 import { RestFixture } from '@/shared/rest/tests/rest-fixture'
 
 export class IdentityModuleFixture {
@@ -14,19 +20,52 @@ export class IdentityModuleFixture {
     private readonly originalAnonKey: string | undefined,
   ) {}
 
-  static async register(authIdentityProvider: AuthIdentityProvider) {
+  static async register(
+    authIdentityProvider: AuthIdentityProvider,
+    overrides: Partial<{
+      onboardingIdentity: OnboardingIdentityProvider
+      onboardingIdentifier: OnboardingIdentifierProvider
+      onboardingToken: OnboardingTokenProvider
+    }> = {},
+  ) {
     const originalAnonKey = process.env.SUPABASE_ANON_KEY
     process.env.SUPABASE_ANON_KEY ??= 'test-anon-key'
 
     try {
       const restFixture = await RestFixture.register(
         {
-          imports: [SharedModule, IdentityModule],
+          imports: [
+            SharedModule,
+            IdentityModule,
+            InngestModule.forRoot({ functions: [] }),
+          ],
         },
-        (builder: TestingModuleBuilder) =>
+        (builder: TestingModuleBuilder) => {
           builder
             .overrideProvider(IDENTITY_PROVIDERS.authIdentity)
-            .useValue(authIdentityProvider),
+            .useValue(authIdentityProvider)
+
+          if (overrides.onboardingIdentity) {
+            // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
+            builder
+              .overrideProvider(IDENTITY_PROVIDERS.onboardingIdentity)
+              .useValue(overrides.onboardingIdentity)
+          }
+          if (overrides.onboardingIdentifier) {
+            // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
+            builder
+              .overrideProvider(IDENTITY_PROVIDERS.onboardingIdentifier)
+              .useValue(overrides.onboardingIdentifier)
+          }
+          if (overrides.onboardingToken) {
+            // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
+            builder
+              .overrideProvider(IDENTITY_PROVIDERS.onboardingToken)
+              .useValue(overrides.onboardingToken)
+          }
+
+          return builder
+        },
       )
 
       return new IdentityModuleFixture(restFixture, originalAnonKey)

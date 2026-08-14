@@ -145,4 +145,12 @@ export class DrizzleUsersRepository extends DrizzleRepository implements UsersRe
   async removeAll(): Promise<void> {
     await this.database.delete(userModel)
   }
+
+  async remove(establishmentId: string, userId: string): Promise<void> {
+    await this.database
+      .delete(userModel)
+      .where(
+        and(eq(userModel.establishmentId, establishmentId), eq(userModel.id, userId)),
+      )
+  }
 }

@@ -8,6 +8,13 @@
       "when": 1786533743593,
       "tag": "0000_cold_edwin_jarvis",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786632710258,
+      "tag": "0001_ice-cream-shop-onboarding",
+      "breakpoints": true
     }
   ]
 }

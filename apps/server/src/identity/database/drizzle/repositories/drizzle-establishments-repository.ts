@@ -50,6 +50,12 @@ export class DrizzleEstablishmentsRepository
     await this.database.delete(establishmentModel)
   }
 
+  async remove(establishmentId: string): Promise<void> {
+    await this.database
+      .delete(establishmentModel)
+      .where(eq(establishmentModel.id, establishmentId))
+  }
+
   async replace(
     establishmentId: string,
     changes: EstablishmentUpdate,

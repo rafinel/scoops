@@ -115,7 +115,7 @@ export class RegisterProductionUseCase
       }
     })
 
-    this.broker.publish(new ProductionRegisteredEvent(request))
+    await this.broker.publish(new ProductionRegisteredEvent(request))
 
     return preview
   }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { type Context, eventType, type InngestFunction } from 'inngest'
 import { z } from 'zod'
 import { UserRegistrationAttemptCreatedEvent } from '@scoops/core/identity/domain/events'
@@ -28,7 +28,7 @@ export const sendInvitationEmailEvent = eventType(
 export class SendInvitationEmailJob extends InngestJob {
   readonly function: InngestFunction.Like
 
-  constructor(inngest: InngestClient) {
+  constructor(@Inject(InngestClient) inngest: InngestClient) {
     super(inngest)
 
     this.function = this.inngest.createFunction(

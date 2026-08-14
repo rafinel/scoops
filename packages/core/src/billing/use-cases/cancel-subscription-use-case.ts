@@ -50,7 +50,7 @@ export class CancelSubscriptionUseCase
       }),
     )
 
-    this.broker.publish(
+    await this.broker.publish(
       new SubscriptionCancellationScheduledEvent({
         subscriptionId: cancelledSubscription.id,
         establishmentId: cancelledSubscription.establishmentId,

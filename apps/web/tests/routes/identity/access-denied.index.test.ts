@@ -1,11 +1,7 @@
-import { expect, test } from '@playwright/test'
-
-import { mockAnonymousProvider } from './test-helpers'
+import { expect, test } from './test-helpers'
 
 test.describe('Access-denied route', () => {
   test('renders the access-denied state', async ({ page }) => {
-    await mockAnonymousProvider(page)
-
     await page.goto('/access-denied')
 
     await expect(page.getByRole('heading', { name: 'Acesso negado' })).toBeVisible()

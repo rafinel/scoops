@@ -9,6 +9,15 @@ Read the Plan, Spec, Architecture, Rules, and `documentation/tooling.md`. Use
 `documentation/rules/rules.md` to discover rules for the touched layers. The
 Orchestrator maintains the Plan and the entire flow occurs in the current task.
 
+Evidence is a living implementation ledger, not a one-time completion note. After
+every implementation change—including Builder Fixes, post-Judge fixes, generated
+artifacts, environment or seed changes, and added tests—the Orchestrator must update
+the Plan and `evaluation.md` before claiming the phase or feature is complete. The
+update must reconcile commands, test counts, affected findings, screenshots/browser
+evidence, and the evaluated revision. Stale evidence must be marked historical or
+replaced; never report completion using counts or findings from before the latest
+diff.
+
 Preserve the Confluence PRD link and every `jira_tickets` key from the Spec in
 the Plan. Consult those records when integration is available, but do not
 automatically change Jira or Confluence status, comments, or acceptance criteria.

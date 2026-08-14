@@ -26,7 +26,7 @@ export class ChangeUserProfileController {
   constructor(
     @Inject(IDENTITY_REPOSITORIES.database)
     identityDatabase: IdentityDatabase,
-    datetimeProvider: DatetimeProvider,
+    @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
   ) {
     this.useCase = new ChangeUserProfileUseCase(identityDatabase, datetimeProvider)
   }

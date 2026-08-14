@@ -5,6 +5,8 @@ export const ROUTES = {
   resetPassword: '/reset-password',
   accessDenied: '/access-denied',
   app: '/app',
+  onboarding: '/onboarding',
+  onboardingConfirm: '/onboarding/confirm',
 } as const
 
 export type RouteName = keyof typeof ROUTES

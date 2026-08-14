@@ -10,23 +10,31 @@ import type { Account } from '@scoops/core/identity/domain/entities'
 import type { IdentityService } from '@scoops/core/identity/interfaces'
 import { HTTP_STATUS_CODE } from '@scoops/core/shared/constants'
 
+import { clearOnboardingConfirmationRedirect } from '@/provision/auth/supabase/supabase-client'
+
 import type { AuthContextValue, AuthStatus } from './types'
 
 export function useAuthContextProvider(
   authProvider: AuthProvider,
-  identityService: IdentityService,
-  initialRecovery = false,
+  identityService: Pick<IdentityService, 'getAccount'>,
+  resolveInitialRedirect:
+    | (() => 'none' | 'password-recovery' | 'onboarding-confirmation')
+    | boolean = false,
 ): AuthContextValue {
   const [status, setStatus] = useState<AuthStatus>('resolving')
   const [session, setSession] = useState<AuthSession | null>(null)
   const [account, setAccount] = useState<Account | null>(null)
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false)
+  const [isOnboardingConfirmation, setIsOnboardingConfirmation] = useState(false)
   const authGenerationRef = useRef(0)
   const isMountedRef = useRef(false)
   const sessionRef = useRef<AuthSession | null>(null)
   const statusRef = useRef<AuthStatus>('resolving')
   const isLocalRejectionRef = useRef(false)
-  const isPasswordRecoveryRef = useRef(initialRecovery)
+  const isPasswordRecoveryRef = useRef(
+    typeof resolveInitialRedirect === 'boolean' ? resolveInitialRedirect : false,
+  )
+  const isOnboardingConfirmationRef = useRef(false)
   const isInitialResolutionPendingRef = useRef(true)
 
   const commitState = useCallback(function commitState(
@@ -34,6 +42,7 @@ export function useAuthContextProvider(
     nextSession: AuthSession | null,
     nextAccount: Account | null,
     nextRecovery = isPasswordRecoveryRef.current,
+    nextOnboardingConfirmation = isOnboardingConfirmationRef.current,
   ) {
     if (!isMountedRef.current) return
 
@@ -44,6 +53,8 @@ export function useAuthContextProvider(
     setAccount(nextAccount)
     isPasswordRecoveryRef.current = nextRecovery
     setIsPasswordRecovery(nextRecovery)
+    isOnboardingConfirmationRef.current = nextOnboardingConfirmation
+    setIsOnboardingConfirmation(nextOnboardingConfirmation)
   }, [])
 
   const canCommit = useCallback(function canCommit(generation: number) {
@@ -92,17 +103,17 @@ export function useAuthContextProvider(
       candidateSession: AuthSession,
       generation: number,
       recovery = false,
-    ) {
-      if (!canCommit(generation)) return
+    ): Promise<boolean> {
+      if (!canCommit(generation)) return false
 
       try {
         const response = await identityService.getAccount()
 
-        if (!canCommit(generation)) return
+        if (!canCommit(generation)) return false
 
         if (response.statusCode === HTTP_STATUS_CODE.unauthorized) {
           await rejectLocalAccess(generation, recovery)
-          return
+          return false
         }
 
         if (
@@ -110,19 +121,21 @@ export function useAuthContextProvider(
           response.isFailure
         ) {
           publishUnavailable(candidateSession, generation, recovery)
-          return
+          return false
         }
 
         const nextAccount = response.body
 
         if (!nextAccount) {
           publishUnavailable(candidateSession, generation, recovery)
-          return
+          return false
         }
 
         commitState('authenticated', candidateSession, nextAccount, recovery)
+        return true
       } catch {
         publishUnavailable(candidateSession, generation, recovery)
+        return false
       }
     },
     [canCommit, commitState, identityService, publishUnavailable, rejectLocalAccess],
@@ -141,20 +154,22 @@ export function useAuthContextProvider(
           return
         }
 
-        await validateLocalAccess(restoredSession, generation, initialRecovery)
+        if (isOnboardingConfirmationRef.current) {
+          commitState('anonymous', restoredSession, null, false, true)
+          return
+        }
+
+        await validateLocalAccess(
+          restoredSession,
+          generation,
+          isPasswordRecoveryRef.current,
+        )
       } catch {
         isInitialResolutionPendingRef.current = false
         publishUnavailable(null, generation)
       }
     },
-    [
-      authProvider,
-      canCommit,
-      commitState,
-      initialRecovery,
-      publishUnavailable,
-      validateLocalAccess,
-    ],
+    [authProvider, canCommit, commitState, publishUnavailable, validateLocalAccess],
   )
 
   const processProviderEvent = useCallback(
@@ -182,6 +197,13 @@ export function useAuthContextProvider(
         return
       }
 
+      if (isOnboardingConfirmationRef.current) {
+        if (nextSession) {
+          commitState('anonymous', nextSession, null, false, true)
+        }
+        return
+      }
+
       const generation = ++authGenerationRef.current
       const recovery = event === 'PASSWORD_RECOVERY' || isPasswordRecoveryRef.current
 
@@ -202,6 +224,16 @@ export function useAuthContextProvider(
 
   useEffect(() => {
     isMountedRef.current = true
+    const initialRedirect =
+      typeof resolveInitialRedirect === 'function'
+        ? resolveInitialRedirect()
+        : resolveInitialRedirect === true
+          ? 'password-recovery'
+          : 'none'
+    isPasswordRecoveryRef.current = initialRedirect === 'password-recovery'
+    isOnboardingConfirmationRef.current = initialRedirect === 'onboarding-confirmation'
+    setIsPasswordRecovery(isPasswordRecoveryRef.current)
+    setIsOnboardingConfirmation(isOnboardingConfirmationRef.current)
     const generation = authGenerationRef.current
     const unsubscribe = authProvider.onAuthStateChange((event, nextSession) => {
       void processProviderEvent(event, nextSession)
@@ -214,7 +246,7 @@ export function useAuthContextProvider(
       authGenerationRef.current += 1
       unsubscribe()
     }
-  }, [authProvider, processProviderEvent, restoreSession])
+  }, [authProvider, processProviderEvent, resolveInitialRedirect, restoreSession])
 
   const getSession = useCallback(
     function getSession() {
@@ -291,16 +323,51 @@ export function useAuthContextProvider(
     [commitState, isPasswordRecovery, restoreSession, validateLocalAccess],
   )
 
+  const activateOnboardingConfirmation = useCallback(
+    async function activateOnboardingConfirmation(): Promise<boolean> {
+      const generation = ++authGenerationRef.current
+      isOnboardingConfirmationRef.current = false
+      clearOnboardingConfirmationRedirect()
+
+      const candidateSession = sessionRef.current ?? (await authProvider.getSession())
+
+      if (!canCommit(generation)) return false
+
+      if (!candidateSession) {
+        commitState('anonymous', null, null, false, false)
+        return false
+      }
+
+      commitState('resolving', candidateSession, null, false, false)
+      return validateLocalAccess(candidateSession, generation)
+    },
+    [authProvider, canCommit, commitState, validateLocalAccess],
+  )
+
+  const completeOnboardingConfirmation = useCallback(
+    async function completeOnboardingConfirmation() {
+      authGenerationRef.current += 1
+      isOnboardingConfirmationRef.current = false
+      clearOnboardingConfirmationRedirect()
+      commitState('anonymous', null, null, false, false)
+      await authProvider.signOut('local')
+    },
+    [authProvider, commitState],
+  )
+
   return {
     status,
     session,
     account,
     isPasswordRecovery,
+    isOnboardingConfirmation,
     getSession,
     signIn,
     signOut,
     requestPasswordReset,
     resetPassword,
     retryLocalAccess,
+    activateOnboardingConfirmation,
+    completeOnboardingConfirmation,
   }
 }

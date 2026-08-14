@@ -12,6 +12,8 @@ import {
   BadRequestError,
   ConflictError,
   NotFoundError,
+  ServiceUnavailableError,
+  TooManyRequestsError,
 } from '@scoops/core/shared/domain/errors'
 
 export type ErrorResponse = {
@@ -66,6 +68,18 @@ export class GlobalErrorHandler implements ExceptionFilter {
 
     if (exception instanceof ConflictError) {
       return this.createSharedErrorResponse(exception, HttpStatus.CONFLICT, path)
+    }
+
+    if (exception instanceof TooManyRequestsError) {
+      return this.createSharedErrorResponse(exception, HttpStatus.TOO_MANY_REQUESTS, path)
+    }
+
+    if (exception instanceof ServiceUnavailableError) {
+      return this.createSharedErrorResponse(
+        exception,
+        HttpStatus.SERVICE_UNAVAILABLE,
+        path,
+      )
     }
 
     if (exception instanceof AppError) {

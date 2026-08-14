@@ -1,6 +1,4 @@
-import { expect, test } from '@playwright/test'
-
-import { mockAnonymousProvider } from './test-helpers'
+import { expect, test } from './test-helpers'
 
 test('renders the Scoops landing route', async ({ page }) => {
   await page.goto('/')
@@ -13,8 +11,6 @@ test('renders the Scoops landing route', async ({ page }) => {
 })
 
 test('redirects expired recovery links to the reset-password route', async ({ page }) => {
-  await mockAnonymousProvider(page)
-
   await page.goto(
     '/#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired',
   )

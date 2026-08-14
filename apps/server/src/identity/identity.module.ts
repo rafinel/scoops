@@ -7,11 +7,32 @@ import { GetAuthSessionController } from '@/identity/rest/controllers/get-auth-s
 import { AuthenticationGuard } from '@/identity/rest/guards/authentication.guard'
 import { ProfilesGuard } from '@/identity/rest/guards/profiles.guard'
 import { IdentityProvisionModule } from '@/identity/provision/identity-provision.module'
+import { IdentityMessagingModule } from '@/identity/messaging/identity-messaging.module'
+import {
+  ConfirmIceCreamShopOnboardingController,
+  CorrectIceCreamShopOnboardingEmailController,
+  GetIceCreamShopOnboardingController,
+  RegisterIceCreamShopOnboardingController,
+  ResendIceCreamShopConfirmationController,
+} from '@/identity/rest/controllers'
 import { ProvisionModule } from '@/shared/provision/provision.module'
 
 @Module({
-  imports: [IdentityDatabaseModule, IdentityProvisionModule, ProvisionModule],
-  controllers: [GetAuthSessionController, ChangeUserProfileController],
+  imports: [
+    IdentityDatabaseModule,
+    IdentityProvisionModule,
+    IdentityMessagingModule,
+    ProvisionModule,
+  ],
+  controllers: [
+    GetAuthSessionController,
+    ChangeUserProfileController,
+    RegisterIceCreamShopOnboardingController,
+    GetIceCreamShopOnboardingController,
+    ResendIceCreamShopConfirmationController,
+    CorrectIceCreamShopOnboardingEmailController,
+    ConfirmIceCreamShopOnboardingController,
+  ],
   providers: [
     {
       provide: APP_GUARD,
@@ -22,6 +43,6 @@ import { ProvisionModule } from '@/shared/provision/provision.module'
       useClass: ProfilesGuard,
     },
   ],
-  exports: [IdentityDatabaseModule, IdentityProvisionModule],
+  exports: [IdentityDatabaseModule, IdentityProvisionModule, IdentityMessagingModule],
 })
 export class IdentityModule {}

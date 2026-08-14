@@ -9,5 +9,6 @@ export interface EstablishmentsRepository {
   addMany(inputs: EstablishmentCreate[]): Promise<Establishment[]>
   findById(establishmentId: string): Promise<Establishment | undefined>
   removeAll(): Promise<void>
+  remove(establishmentId: string): Promise<void>
   replace(establishmentId: string, changes: EstablishmentUpdate): Promise<Establishment>
 }

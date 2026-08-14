@@ -5,16 +5,32 @@ import { Icon } from '@/ui/shared/widgets/components/icon'
 import { MIN_PASSWORD_LENGTH, useResetPasswordPage } from './use-reset-password-page'
 
 export const ResetPasswordPage = () => {
-  const controller = useResetPasswordPage()
+  const {
+    actionError,
+    confirmation,
+    isPasswordRecovery,
+    isResolving,
+    isPasswordVisible,
+    isConfirmationVisible,
+    isPending,
+    isSuccess,
+    password,
+    validationError,
+    handleConfirmationChange,
+    handlePasswordChange,
+    handleSubmit,
+    handleTogglePasswordVisibility,
+    handleToggleConfirmationVisibility,
+  } = useResetPasswordPage()
 
   return (
     <AuthLayout
       visual={
-        controller.isResolving
+        isResolving
           ? 'new-password'
-          : !controller.isPasswordRecovery
+          : !isPasswordRecovery
             ? 'invalid-recovery'
-            : controller.isSuccess
+            : isSuccess
               ? 'password-updated'
               : 'new-password'
       }
@@ -26,7 +42,7 @@ export const ResetPasswordPage = () => {
         </p>
       </header>
 
-      {controller.isResolving ? (
+      {isResolving ? (
         <p
           aria-live='polite'
           className='mt-6 rounded-lg border bg-muted/50 p-4 text-sm text-muted-foreground'
@@ -34,7 +50,7 @@ export const ResetPasswordPage = () => {
         >
           Validando seu link de recuperação…
         </p>
-      ) : !controller.isPasswordRecovery ? (
+      ) : !isPasswordRecovery ? (
         <div className='mt-6 space-y-4' role='alert'>
           <p className='rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive'>
             Este link de recuperação expirou ou não é válido.
@@ -46,7 +62,7 @@ export const ResetPasswordPage = () => {
             Solicitar novo link
           </Anchor>
         </div>
-      ) : controller.isSuccess ? (
+      ) : isSuccess ? (
         <p
           className='mt-6 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm'
           role='status'
@@ -54,16 +70,16 @@ export const ResetPasswordPage = () => {
           Sua senha foi atualizada. Redirecionando para entrar…
         </p>
       ) : (
-        <form className='mt-6 space-y-4' onSubmit={controller.handleSubmit} noValidate>
-          {controller.validationError ? (
+        <form className='mt-6 space-y-4' onSubmit={handleSubmit} noValidate>
+          {validationError ? (
             <p
               className='rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive'
               role='alert'
             >
-              {controller.validationError}
+              {validationError}
             </p>
           ) : null}
-          {controller.actionError ? (
+          {actionError ? (
             <p
               className='rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive'
               role='alert'
@@ -83,24 +99,22 @@ export const ResetPasswordPage = () => {
                 id='new-password'
                 minLength={MIN_PASSWORD_LENGTH}
                 name='new-password'
-                onChange={(event) => controller.handlePasswordChange(event.target.value)}
+                onChange={(event) => handlePasswordChange(event.target.value)}
                 required
-                type={controller.isPasswordVisible ? 'text' : 'password'}
-                value={controller.password}
+                type={isPasswordVisible ? 'text' : 'password'}
+                value={password}
               />
               <button
-                aria-label={
-                  controller.isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'
-                }
-                aria-pressed={controller.isPasswordVisible}
+                aria-label={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+                aria-pressed={isPasswordVisible}
                 className='absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50'
-                disabled={controller.isPending}
-                onClick={controller.handleTogglePasswordVisibility}
+                disabled={isPending}
+                onClick={handleTogglePasswordVisibility}
                 type='button'
               >
                 <Icon
                   className='size-[18px]'
-                  name={controller.isPasswordVisible ? 'eye-off' : 'eye'}
+                  name={isPasswordVisible ? 'eye-off' : 'eye'}
                 />
               </button>
             </div>
@@ -116,36 +130,32 @@ export const ResetPasswordPage = () => {
                 id='confirm-password'
                 minLength={MIN_PASSWORD_LENGTH}
                 name='confirm-password'
-                onChange={(event) =>
-                  controller.handleConfirmationChange(event.target.value)
-                }
+                onChange={(event) => handleConfirmationChange(event.target.value)}
                 required
-                type={controller.isConfirmationVisible ? 'text' : 'password'}
-                value={controller.confirmation}
+                type={isConfirmationVisible ? 'text' : 'password'}
+                value={confirmation}
               />
               <button
-                aria-label={
-                  controller.isConfirmationVisible ? 'Ocultar senha' : 'Mostrar senha'
-                }
-                aria-pressed={controller.isConfirmationVisible}
+                aria-label={isConfirmationVisible ? 'Ocultar senha' : 'Mostrar senha'}
+                aria-pressed={isConfirmationVisible}
                 className='absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50'
-                disabled={controller.isPending}
-                onClick={controller.handleToggleConfirmationVisibility}
+                disabled={isPending}
+                onClick={handleToggleConfirmationVisibility}
                 type='button'
               >
                 <Icon
                   className='size-[18px]'
-                  name={controller.isConfirmationVisible ? 'eye-off' : 'eye'}
+                  name={isConfirmationVisible ? 'eye-off' : 'eye'}
                 />
               </button>
             </div>
           </div>
           <button
             className='min-h-11 w-full rounded-lg bg-primary px-4 text-sm font-extrabold text-primary-foreground shadow-primary disabled:opacity-60'
-            disabled={controller.isPending}
+            disabled={isPending}
             type='submit'
           >
-            {controller.isPending ? 'Atualizando…' : 'Atualizar senha'}
+            {isPending ? 'Atualizando…' : 'Atualizar senha'}
           </button>
         </form>
       )}

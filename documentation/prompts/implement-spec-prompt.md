@@ -11,6 +11,13 @@ Use for a small, cohesive Spec with `open` status:
 Orchestrator → Builder Direct → sensors → Judge Implementation Direct
 ```
 
+Treat `evaluation.md` as a living evidence ledger. Any implementation change after
+the initial sensor run or Judge assessment—including fixes, generated artifacts,
+environment or seed behavior, and added tests—requires an evidence reconciliation
+before completion: rerun the affected sensors, update test counts and findings, and
+record the current evaluated revision. Do not claim an accepted Spec while
+`evaluation.md` still describes an earlier diff.
+
 1. Read the Spec, Architecture, Rules, and `documentation/tooling.md`. Preserve
    the PRD link in Confluence and all `jira_tickets` keys; consult them when
    the integration is available, without changing their states automatically.
@@ -29,8 +36,9 @@ Orchestrator → Builder Direct → sensors → Judge Implementation Direct
    `Builder Fix QG-<n>`, rerun only invalidated sensors, and invoke a new Judge
    only when the diff or evidence changes. After three identical failures,
    escalate to the user.
-8. If `accepted`, record the assessment and evidence in `evaluation.md` and
-   route to `conclude-spec`.
+8. If `accepted`, record the assessment and evidence in `evaluation.md`, reconcile
+   the final diff, validation counts, findings and evaluated revision, then route to
+   `conclude-spec`.
 
 For UI Specs backed by Pencil, the Builder and Orchestrator must also:
 

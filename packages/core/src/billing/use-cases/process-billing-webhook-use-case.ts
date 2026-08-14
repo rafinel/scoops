@@ -60,7 +60,7 @@ export class ProcessBillingWebhookUseCase
       return { event }
     })
 
-    if (result.event) this.broker.publish(result.event)
+    if (result.event) await this.broker.publish(result.event)
   }
 
   private async handleEvent(

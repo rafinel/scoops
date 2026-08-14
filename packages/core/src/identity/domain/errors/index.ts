@@ -1,2 +1,5 @@
 export * from '#identity/domain/errors/invalid-credentials-error.ts'
 export * from '#identity/domain/errors/profile-change-not-allowed-error.ts'
+export * from '#identity/domain/errors/onboarding-email-unavailable-error.ts'
+export * from '#identity/domain/errors/onboarding-expired-error.ts'
+export * from '#identity/domain/errors/invalid-onboarding-credentials-error.ts'

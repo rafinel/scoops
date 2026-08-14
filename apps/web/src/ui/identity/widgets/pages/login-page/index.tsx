@@ -8,8 +8,19 @@ export type LoginPageProps = {
 }
 
 export const LoginPage = ({ returnTo }: LoginPageProps) => {
-  const controller = useLoginPage(returnTo)
-  const errorMessage = controller.error
+  const {
+    error,
+    identifier,
+    isPasswordVisible,
+    isPending,
+    password,
+    validationError,
+    handleIdentifierChange,
+    handlePasswordChange,
+    handleSubmit,
+    handleTogglePasswordVisibility,
+  } = useLoginPage(returnTo)
+  const errorMessage = error
     ? 'Não foi possível entrar. Confira seus dados e tente novamente.'
     : null
 
@@ -28,11 +39,7 @@ export const LoginPage = ({ returnTo }: LoginPageProps) => {
           </p>
         </div>
 
-        <form
-          className='flex flex-col gap-4'
-          onSubmit={controller.handleSubmit}
-          noValidate
-        >
+        <form className='flex flex-col gap-4' onSubmit={handleSubmit} noValidate>
           <div className='flex h-[75px] flex-col'>
             <label className='text-[13px] font-bold leading-[18px]' htmlFor='login-email'>
               E-mail
@@ -43,11 +50,11 @@ export const LoginPage = ({ returnTo }: LoginPageProps) => {
               type='email'
               autoComplete='email'
               inputMode='email'
-              value={controller.identifier}
-              onChange={(event) => controller.handleIdentifierChange(event.target.value)}
+              value={identifier}
+              onChange={(event) => handleIdentifierChange(event.target.value)}
               className='mt-[9px] h-12 w-full rounded-xl border bg-card px-[14px] text-sm font-medium text-foreground shadow-none outline-none transition placeholder:text-text-tertiary focus:border-primary focus:ring-2 focus:ring-ring/25'
               placeholder='voce@exemplo.com'
-              disabled={controller.isPending}
+              disabled={isPending}
               required
             />
           </div>
@@ -64,30 +71,26 @@ export const LoginPage = ({ returnTo }: LoginPageProps) => {
                 <input
                   id='login-password'
                   name='password'
-                  type={controller.isPasswordVisible ? 'text' : 'password'}
+                  type={isPasswordVisible ? 'text' : 'password'}
                   autoComplete='current-password'
-                  value={controller.password}
-                  onChange={(event) =>
-                    controller.handlePasswordChange(event.target.value)
-                  }
+                  value={password}
+                  onChange={(event) => handlePasswordChange(event.target.value)}
                   className='h-full w-full rounded-xl border bg-card px-[14px] pr-12 text-sm font-medium text-foreground shadow-none outline-none transition placeholder:text-text-tertiary focus:border-primary focus:ring-2 focus:ring-ring/25'
                   placeholder='Digite sua senha'
-                  disabled={controller.isPending}
+                  disabled={isPending}
                   required
                 />
                 <button
-                  aria-label={
-                    controller.isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'
-                  }
-                  aria-pressed={controller.isPasswordVisible}
+                  aria-label={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+                  aria-pressed={isPasswordVisible}
                   className='absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50'
-                  disabled={controller.isPending}
-                  onClick={controller.handleTogglePasswordVisibility}
+                  disabled={isPending}
+                  onClick={handleTogglePasswordVisibility}
                   type='button'
                 >
                   <Icon
                     className='size-[18px]'
-                    name={controller.isPasswordVisible ? 'eye-off' : 'eye'}
+                    name={isPasswordVisible ? 'eye-off' : 'eye'}
                   />
                 </button>
               </div>
@@ -102,23 +105,23 @@ export const LoginPage = ({ returnTo }: LoginPageProps) => {
             </div>
           </div>
 
-          {(controller.validationError || errorMessage) && (
+          {(validationError || errorMessage) && (
             <p
               className='rounded-md border border-danger/20 bg-danger-bg px-3 py-2 text-sm font-semibold text-danger'
               role='alert'
             >
-              {controller.validationError ?? errorMessage}
+              {validationError ?? errorMessage}
             </p>
           )}
 
           <button
             type='submit'
             className='flex h-12 w-full items-center justify-center gap-1.5 rounded-[10px] bg-primary px-[14px] text-sm font-bold text-primary-foreground shadow-primary transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60'
-            disabled={controller.isPending}
-            aria-busy={controller.isPending}
+            disabled={isPending}
+            aria-busy={isPending}
           >
             <Icon className='size-4' name='arrow' />
-            {controller.isPending ? 'Entrando…' : 'Entrar no Scoops'}
+            {isPending ? 'Entrando…' : 'Entrar no Scoops'}
           </button>
         </form>
       </section>

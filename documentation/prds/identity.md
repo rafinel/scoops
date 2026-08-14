@@ -152,6 +152,9 @@ First Manager via a public stream.
   account.
 - **Joint activation:** confirmation must activate the ice cream shop and the first
   Manager.
+- **Post-confirmation session:** after the confirmation link activates the onboarding,
+  the current verified session must become authenticated local access and open the main
+  Scoops page without requiring the Manager to enter their credentials again.
 - **Correction of pending email:** before activation, the person responsible must be able to
   return to the initial step to correct only the first Manager's email;
   the name of the ice cream shop and the name of the Manager must remain filled in.
@@ -181,6 +184,8 @@ First Manager via a public stream.
   aimed at the person responsible for the ice cream shop.
 - **Feedback:** after sending, inform that the account depends on confirmation and
   indicate the address used.
+- **Confirmation completion:** after a valid confirmation, redirect the Manager directly
+  to the authenticated main page; do not require a second login.
 - **Correction:** in the pending confirmation step, present the action `Back and
   fix`; when activating it, return to the initial step in editing mode, keep the
   filled data and focus on the email field.

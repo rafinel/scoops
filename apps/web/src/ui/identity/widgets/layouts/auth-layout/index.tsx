@@ -1,17 +1,27 @@
 import type { PropsWithChildren } from 'react'
 
+import { Anchor } from '@/ui/shared/widgets/components/anchor'
+
 import {
-  AuthVisual,
-  type AuthVisualVariant,
-} from '@/ui/identity/widgets/layouts/auth-visual'
+  AuthVisualLayout,
+  type AuthVisualLayoutVariant,
+} from '@/ui/identity/widgets/layouts/auth-visual-layout'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 export type AuthLayoutProps = PropsWithChildren<{
-  eyebrow?: string
-  visual?: AuthVisualVariant
+  headerAction?: {
+    label: string
+    prompt: string
+    route: keyof typeof import('@/constants/routes').ROUTES
+  }
+  visual?: AuthVisualLayoutVariant
 }>
 
-export const AuthLayout = ({ children, visual = 'login' }: AuthLayoutProps) => {
+export const AuthLayout = ({
+  children,
+  headerAction,
+  visual = 'login',
+}: AuthLayoutProps) => {
   return (
     <main className='flex min-h-screen min-w-80 flex-col bg-card lg:flex-row'>
       <section className='flex min-h-screen w-full flex-col bg-card px-5 pb-8 pt-5 sm:px-10 lg:w-[620px] lg:shrink-0 lg:px-16 lg:pt-7'>
@@ -28,8 +38,13 @@ export const AuthLayout = ({ children, visual = 'login' }: AuthLayoutProps) => {
             </span>
           </div>
           <div className='hidden shrink-0 items-center gap-1.5 text-[13px] font-medium text-muted-foreground sm:flex'>
-            <span>Ainda não tem uma sorveteria?</span>
-            <span className='font-extrabold text-primary'>Criar conta</span>
+            <span>{headerAction?.prompt ?? 'Ainda não tem uma sorveteria?'}</span>
+            <Anchor
+              route={headerAction?.route ?? 'onboarding'}
+              className='font-extrabold text-primary hover:underline'
+            >
+              {headerAction?.label ?? 'Criar conta'}
+            </Anchor>
           </div>
         </header>
 
@@ -38,7 +53,7 @@ export const AuthLayout = ({ children, visual = 'login' }: AuthLayoutProps) => {
         </div>
       </section>
 
-      <AuthVisual variant={visual} />
+      <AuthVisualLayout variant={visual} />
     </main>
   )
 }

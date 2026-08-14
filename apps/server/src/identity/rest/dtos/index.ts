@@ -1,2 +1,3 @@
 export * from '@/identity/rest/dtos/account-response.dto'
 export * from '@/identity/rest/dtos/user-response.dto'
+export * from '@/identity/rest/dtos/onboarding-response.dto'

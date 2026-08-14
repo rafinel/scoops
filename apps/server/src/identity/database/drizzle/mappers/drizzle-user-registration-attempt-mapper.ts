@@ -6,6 +6,7 @@ export class DrizzleUserRegistrationAttemptMapper {
   static toDomain(record: DrizzleUserRegistrationAttempt): UserRegistrationAttempt {
     return {
       id: record.id,
+      userId: record.userId,
       establishmentId: record.establishmentId,
       name: record.name,
       email: record.email,
@@ -13,6 +14,10 @@ export class DrizzleUserRegistrationAttemptMapper {
       type: record.type,
       status: record.status,
       tokenHash: record.tokenHash,
+      confirmationTokenHash: record.confirmationTokenHash ?? undefined,
+      supersededProviderSubject: record.supersededProviderSubject ?? undefined,
+      cleanupClaimToken: record.cleanupClaimToken ?? undefined,
+      cleanupClaimedAt: record.cleanupClaimedAt ?? undefined,
       expiresAt: record.expiresAt,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
