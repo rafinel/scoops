@@ -29,6 +29,15 @@ invent external records.
 Evaluation uses only `in_progress`, `ready` and `completed`; Reviewer verdicts remain in its
 evidence/history rather than metadata.
 
+## Persistence and user questions
+
+Continue the implementation loop until the Spec evaluation is `ready`. Ask the user only when
+an unresolved product, authority, environment or safety decision is genuinely required for the
+next change; state the blocker and the smallest decision needed. Do not pause for a pending
+Reviewer, a routine validation step, or a choice that can be inferred safely from the Spec,
+Rules, repository, or existing evidence. After the answer, resume immediately and keep cycling
+through fixes, sensors, evidence refresh, and Reviewer dispatches until `ready`.
+
 ## Phase execution
 
 For each dependency-ready phase:
@@ -195,8 +204,9 @@ verdict, task identifier, reviewed commit and evidence to `evaluation.md`.
   the Reviewer to reassess the updated commit.
 - On `accepted`, mark the integrated phase `completed`, reconcile Plan/evaluation to the exact
   commit, set the Plan `completed`, set evaluation `ready` and route to `conclude-spec`.
-- After three materially identical failures, present the attempts and ask the user for the
-  unresolved authority or environment decision.
+- After three materially identical failures, ask the user only if the repeated blocker requires
+  a decision unavailable in the repository or environment; otherwise continue with the next
+  safe corrective action and Reviewer cycle. Never stop merely because the Reviewer is pending.
 
 Do not create task/phase Reviewers or a conclusion Reviewer, another implementation role,
 fork or user-owned thread. The single final Reviewer is a separate internal subagent/task,

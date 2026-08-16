@@ -35,6 +35,15 @@ implementation screenshots, findings and verdicts belong in `evaluation.md`.
 Evaluation uses only `in_progress`, `ready` and `completed`; Reviewer verdicts remain in its
 evidence/history rather than metadata.
 
+## Persistence and user questions
+
+Continue the implementation loop until the Spec evaluation is `ready`. Ask the user only when
+an unresolved product, authority, environment or safety decision is genuinely required for the
+next change; state the blocker and the smallest decision needed. Do not pause for a pending
+Reviewer, a routine validation step, or a choice that can be inferred safely from the Spec,
+Rules, repository, or existing evidence. After the answer, resume immediately and keep cycling
+through fixes, sensors, evidence refresh, and Reviewer dispatches until `ready`.
+
 ## Direct implementation loop
 
 1. Create `Builder Direct` with the current Spec revision, mapped RF/CA, observable outcome,
@@ -172,8 +181,9 @@ verdict, task identifier, reviewed commit and evidence in `evaluation.md`.
   commit.
 - On `accepted`, reconcile all evidence to the exact current commit, set evaluation to
   `ready` and route to `conclude-spec`.
-- After three materially identical failures, present the attempts and ask the user for the
-  unresolved authority or environment decision.
+- After three materially identical failures, ask the user only if the repeated blocker requires
+  a decision unavailable in the repository or environment; otherwise continue with the next
+  safe corrective action and Reviewer cycle. Never stop merely because the Reviewer is pending.
 
 Do not create a task/phase Reviewer or conclusion Reviewer, an extra implementation role,
 fork or user-owned task. The single final Reviewer is a separate internal subagent/task,
