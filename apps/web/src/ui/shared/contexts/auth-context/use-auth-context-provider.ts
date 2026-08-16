@@ -15,6 +15,7 @@ import {
   clearInvitationAcceptanceRedirect,
   clearOnboardingConfirmationRedirect,
 } from '@/provision/auth/supabase/supabase-client'
+import { showWarningToast } from '@/ui/shared/notifications'
 
 import type { AuthContextValue, AuthStatus } from './types'
 
@@ -100,7 +101,9 @@ export function useAuthContextProvider(
       try {
         await authProvider.signOut('local')
       } catch {
-        // The provider session is unusable locally even when provider cleanup fails.
+        showWarningToast(
+          'Sua sessão local foi encerrada, mas a limpeza do provedor não foi confirmada.',
+        )
       } finally {
         isLocalRejectionRef.current = false
       }
@@ -292,6 +295,24 @@ export function useAuthContextProvider(
     [authProvider],
   )
 
+  const refreshAccount = useCallback(
+    async function refreshAccount(): Promise<Account | null> {
+      const candidateSession = sessionRef.current
+      if (!candidateSession) return null
+
+      const response = await identityService.getAccount()
+      if (!response.isSuccessful || !response.body) {
+        response.throwError()
+      }
+
+      if (!isMountedRef.current) return null
+
+      setAccount(response.body)
+      return response.body
+    },
+    [identityService],
+  )
+
   const signIn = useCallback(
     async function signIn(credentials: AuthCredentials) {
       const generation = ++authGenerationRef.current
@@ -413,7 +434,9 @@ export function useAuthContextProvider(
         try {
           await authProvider.signOut('global')
         } catch {
-          // The local state is cleared even when provider cleanup fails.
+          showWarningToast(
+            'A conta foi protegida localmente, mas o encerramento remoto não foi confirmado.',
+          )
         }
         throw error
       }
@@ -430,7 +453,9 @@ export function useAuthContextProvider(
       try {
         await authProvider.signOut('global')
       } catch {
-        // Local state and the redirect marker are cleared even if provider cleanup fails.
+        showWarningToast(
+          'A sessão local foi encerrada, mas o encerramento remoto não foi confirmado.',
+        )
       }
     },
     [authProvider, commitState],
@@ -458,7 +483,9 @@ export function useAuthContextProvider(
         try {
           await authProvider.signOut('global')
         } catch {
-          // The target session must not remain usable after failed confirmation.
+          showWarningToast(
+            'A sessão não pôde ser confirmada completamente e foi encerrada localmente.',
+          )
         }
         commitState('anonymous', null, null, false, false, false)
       }
@@ -476,6 +503,7 @@ export function useAuthContextProvider(
     isOnboardingConfirmation,
     isInvitationAcceptance,
     getSession,
+    refreshAccount,
     signIn,
     signOut,
     requestPasswordReset,

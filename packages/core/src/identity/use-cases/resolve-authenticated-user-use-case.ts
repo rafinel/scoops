@@ -32,6 +32,7 @@ export class ResolveAuthenticatedUserUseCase
       return {
         id: user.id,
         establishmentId: user.establishmentId,
+        establishmentName: establishment.name,
         name: user.name,
         email: user.email,
         profile: user.profile,

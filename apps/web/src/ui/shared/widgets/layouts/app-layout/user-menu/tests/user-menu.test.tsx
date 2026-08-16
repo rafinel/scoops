@@ -12,6 +12,7 @@ describe('UserMenu', () => {
         account={{
           id: 'account-id',
           establishmentId: 'establishment-id',
+          establishmentName: 'Scoops',
           name: 'Operator Example',
           email: 'operator@example.com',
           profile: 'operator',
@@ -38,6 +39,7 @@ describe('UserMenu', () => {
         account={{
           id: 'account-id',
           establishmentId: 'establishment-id',
+          establishmentName: 'Scoops',
           name: 'Manager Example',
           email: 'manager@example.com',
           profile: 'manager',

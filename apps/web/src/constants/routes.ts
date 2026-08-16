@@ -16,6 +16,8 @@ export const ROUTES = {
   salesChannels: '/sales-channels',
   discounts: '/discounts',
   subscription: '/subscription',
+  account: '/account',
+  shopSettings: '/shop-settings',
 } as const
 
 export type RouteName = keyof typeof ROUTES

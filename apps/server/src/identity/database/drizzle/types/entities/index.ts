@@ -2,3 +2,4 @@ export type { DrizzleEstablishment } from '@/identity/database/drizzle/types/ent
 export type { DrizzleUser } from '@/identity/database/drizzle/types/entities/drizzle-user'
 export type { DrizzleUserAuditRecord } from '@/identity/database/drizzle/types/entities/drizzle-user-audit-record'
 export type { DrizzleUserRegistrationAttempt } from '@/identity/database/drizzle/types/entities/drizzle-user-registration-attempt'
+export type { DrizzleEstablishmentAuditRecord } from '@/identity/database/drizzle/types/entities/drizzle-establishment-audit-record'

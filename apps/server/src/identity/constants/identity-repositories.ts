@@ -4,4 +4,5 @@ export const IDENTITY_REPOSITORIES = {
   registrationAttempts: Symbol('IDENTITY_REPOSITORIES.registrationAttempts'),
   users: Symbol('IDENTITY_REPOSITORIES.users'),
   userAuditRecords: Symbol('IDENTITY_REPOSITORIES.userAuditRecords'),
+  establishmentAuditRecords: Symbol('IDENTITY_REPOSITORIES.establishmentAuditRecords'),
 } as const

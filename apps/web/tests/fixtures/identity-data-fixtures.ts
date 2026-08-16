@@ -24,6 +24,19 @@ export function accountResponse(overrides: Partial<Account> = {}) {
   })
 }
 
+export function establishmentSettingsJson(overrides: { name?: string } = {}) {
+  return {
+    establishment: {
+      id: 'browser-establishment-id',
+      name: overrides.name ?? 'Scoops Central',
+      status: 'active',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    },
+    responsibleManager: { id: 'browser-manager-id', name: 'Manager Browser' },
+  }
+}
+
 export function userResponse(overrides: Partial<User> = {}) {
   const user = UserFaker.fake({
     id: 'user-operator',

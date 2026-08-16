@@ -3,6 +3,9 @@ import { Event } from '#shared/domain/events/event.ts'
 
 export class EstablishmentUpdatedEvent extends Event<{
   establishmentId: Establishment['id']
+  actorUserId: string
+  previousName: string
+  name: Establishment['name']
   updatedAt: Establishment['updatedAt']
 }> {
   static readonly _NAME = 'identity/establishment.updated'

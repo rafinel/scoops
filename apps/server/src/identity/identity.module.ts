@@ -3,6 +3,9 @@ import { APP_GUARD } from '@nestjs/core'
 
 import { IdentityDatabaseModule } from '@/identity/database/identity-database.module'
 import { ChangeUserProfileController } from '@/identity/rest/controllers/change-user-profile.controller'
+import { ChangeOwnUserNameController } from '@/identity/rest/controllers/change-own-user-name.controller'
+import { ChangeEstablishmentNameController } from '@/identity/rest/controllers/change-establishment-name.controller'
+import { GetEstablishmentSettingsController } from '@/identity/rest/controllers/get-establishment-settings.controller'
 import { GetAuthSessionController } from '@/identity/rest/controllers/get-auth-session.controller'
 import { AuthenticationGuard } from '@/identity/rest/guards/authentication.guard'
 import { ProfilesGuard } from '@/identity/rest/guards/profiles.guard'
@@ -50,6 +53,9 @@ import { ProvisionModule } from '@/shared/provision/provision.module'
     AcceptUserInvitationController,
     ChangeUserStatusController,
     CorrectUserNameController,
+    ChangeOwnUserNameController,
+    GetEstablishmentSettingsController,
+    ChangeEstablishmentNameController,
   ],
   providers: [
     {

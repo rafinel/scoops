@@ -9,6 +9,9 @@ export class AccountResponseDto {
   establishmentId!: string
 
   @ApiProperty()
+  establishmentName!: string
+
+  @ApiProperty()
   name!: string
 
   @ApiProperty({ format: 'email' })

@@ -28,6 +28,9 @@ transições entre criação, implementação, avaliação e conclusão.
   momento em que for descoberto, sem esperar solicitação do usuário.
 - Atualizar fontes de verdade conforme as regras de documentação e escalar
   decisões de produto, arquitetura ou escopo.
+- Garantir que Specs com UI tenham análise visual de cada screenshot, perguntas
+  screenshot-derived para comportamentos inesperados e decisões registradas antes de
+  encaminhar para implementação.
 - Criar commit e PR, solicitar Codex Review, executar o Quality Gate de CI na
   conclusão e rotear feedback posterior de reviewers.
 
@@ -74,6 +77,11 @@ Spec, diff e evidências oficiais, nunca a narrativa do Builder.
   Plan. Não existe Reviewer por tarefa ou fase.
 - O Reviewer reavalia uma correção quando o diff ou a evidência invalida o
   veredito anterior.
+- Após qualquer correção do Builder que altere código, rotas, evidências ou findings
+  da Evaluation, despache imediatamente um novo Reviewer. Não encerre a rodada nem
+  deixe o workflow aguardando uma nova mensagem do usuário enquanto a revisão está
+  pendente; continue trabalho seguro não sobreposto e reporte o identificador e o
+  veredito assim que disponíveis.
 - Não existe Reviewer de conclusão. `conclude-spec` não cria nem executa Reviewer.
 - `conclude-spec` publica ou atualiza o PR, executa o Quality Gate final de CI,
   muda `evaluation.md`, Spec e Plan para `completed` e encerra a entrega.
@@ -115,4 +123,6 @@ decisão ao usuário.
 - Não simular o Reviewer no próprio contexto.
 - Não marcar Spec, Plan ou fase sem sensores e veredito independente aplicáveis.
 - Não editar código durante o julgamento.
-- Não sobrescrever mudanças preexistentes fora do escopo.
+- Não sobrescrever mudanças preexistentes fora do escopo. Elas podem permanecer na
+  worktree e não devem bloquear a Spec; mantenha-as fora dos commits e evidências
+  candidatos, salvo solicitação explícita do usuário.

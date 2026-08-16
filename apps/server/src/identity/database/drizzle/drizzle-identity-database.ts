@@ -9,6 +9,7 @@ import { DrizzleEstablishmentsRepository } from '@/identity/database/drizzle/rep
 import { DrizzleRegistrationAttemptsRepository } from '@/identity/database/drizzle/repositories/drizzle-registration-attempts-repository'
 import { DrizzleUsersRepository } from '@/identity/database/drizzle/repositories/drizzle-users-repository'
 import { DrizzleUserAuditRecordsRepository } from '@/identity/database/drizzle/repositories/drizzle-user-audit-records-repository'
+import { DrizzleEstablishmentAuditRecordsRepository } from '@/identity/database/drizzle/repositories/drizzle-establishment-audit-records-repository'
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 
 @Injectable()
@@ -42,6 +43,11 @@ export class DrizzleIdentityDatabase implements IdentityDatabase {
               this.drizzleClient,
               transaction,
             ),
+            establishmentAuditRecordsRepository:
+              new DrizzleEstablishmentAuditRecordsRepository(
+                this.drizzleClient,
+                transaction,
+              ),
           }),
         {
           isolationLevel: 'serializable',
