@@ -5,7 +5,7 @@ spec: ./spec.md
 plan: ./plan.md
 spec_revision: 3
 base_commit: ae06899eedc093532b6abd5bcb57e6443d5ffa94
-current_commit: d9de1d2
+current_commit: c289918
 updated_at: 2026-08-16
 ---
 
