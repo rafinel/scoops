@@ -53,6 +53,24 @@ For each dependency-ready phase:
 
 Do not create a Reviewer per task or ordinary phase. Phase completion is sensor-backed.
 
+### Rule reinforcement after implementation findings
+
+When a Builder or Reviewer finding exposes a missing, ambiguous or repeatedly violated
+Rule, distinguish it from an ordinary implementation correction:
+
+- if the Rule already states the requirement clearly, fix the implementation and keep the
+  Rule unchanged;
+- if the reusable convention is not stated clearly enough, pause dependent work and route
+  a Rule-document change through the authority gate before creating the next Builder Fix;
+- add a focused `## Antipatterns to Avoid` entry to the relevant Rule document, stating the
+  prohibited pattern, required alternative and validation evidence;
+- reread the changed Rule, recompute every affected Rule Pack/task reference, record the
+  authority change and finding in the Plan/evaluation, invalidate affected evidence and
+  rerun the scoped Builder Fix and its sensors.
+
+Builders do not edit Rules, Specs, Plans or evaluation artifacts. A feature-specific
+behavior belongs in the Spec rather than in a reusable antipattern entry.
+
 ## Design-backed UI phases
 
 When a Design Contract exists:

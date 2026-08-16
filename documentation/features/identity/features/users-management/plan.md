@@ -1,6 +1,6 @@
 ---
 title: Identity user management — implementation plan
-status: accepted
+status: completed
 spec: ./spec.md
 evaluation: ./evaluation.md
 spec_revision: 2
@@ -12,13 +12,13 @@ updated_at: 2026-08-16
 
 ## Operational state
 
-- **Plan status:** `accepted`
-- **Spec:** `in_progress`, revision `2` (implementation accepted; formal closure requires the authorized commit/PR quality gate).
+- **Plan status:** `completed`
+- **Spec:** `completed`, revision `2`.
 - **Source:** direct implementation of [GitHub Issue #5](https://github.com/rafinel/scoops/issues/5), represented by `spec.md`.
 - **Current phase:** Wave 4 — F6 integrated validation and evidence, accepted.
-- **Next action:** none for implementation; run the authorized `conclude-spec` publication flow when commit/PR authority is provided.
+- **Next action:** none. PR #7 and its final CI Quality Gate are recorded in `evaluation.md`.
 - **Attempts:** implementation completed through Core, Server, and Web lanes; final quality gates, canonical Browser-use validation, and Pencil MCP reconnection pass on 2026-08-16.
-- **Findings active:** no blocking implementation findings. Historical rejected verdicts and their resolved findings remain in `evaluation.md`.
+- **Findings active:** no blocking findings. Historical rejected verdicts and their resolved findings remain in `evaluation.md`.
 - **Judge policy:** no phase receives a Judge verdict. One `Judge Implementation Final` is reserved for the integrated implementation after every phase sensor and cross-workspace evidence requirement passes.
 
 This Plan is necessary because the Spec is complete mode and crosses `packages/core`,
@@ -620,8 +620,8 @@ reserved for F6.
 - **Final Judge Implementation:** the read-only final reevaluation on 2026-08-16 returned
   **ACCEPTED** with no blocking findings. Core 40 tests, Server 36 tests, Web 85 tests,
   Browser integration 50/50, type/code checks, build and diff hygiene all passed.
-- **Next action:** none for implementation. Formal Spec closure remains subject to the
-  authorized commit/PR Quality Gate described by `conclude-spec`.
+- **Next action:** none. The Spec, Plan and evaluation are closed through PR #7; merge and
+  deployment remain outside this request.
 
 ## Handoff contract
 

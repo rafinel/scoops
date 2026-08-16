@@ -103,13 +103,14 @@ Below the table, group concise task cards by phase:
 - **Paths:** <exact owned paths or coherent path groups>
 - **Contract:** <RF-* and CA-*>
 - **Outcome:** <observable result>
-- **Rules:** <exact applicable Rule paths>
+- **Rules:** <exact applicable Rule paths and relevant `Antipatterns to Avoid` subsections, when present>
 - **Exit:** <focused commands/sensors and required evidence>
 ```
 
 Every task has exactly these seven concerns: status/owner, dependency/parallelism, owned
-paths, RF/CA coverage, observable outcome, applicable Rules and validation/exit. Reference
-the Spec for technical detail. Paths may not overlap between active Builders.
+paths, RF/CA coverage, observable outcome, applicable Rules (including relevant
+`Antipatterns to Avoid` subsections) and validation/exit. Reference the Spec for technical
+detail. Paths may not overlap between active Builders.
 
 Status vocabulary:
 

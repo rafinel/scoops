@@ -33,7 +33,8 @@ cria hierarquia entre Builders.
 
 ## Execução
 
-1. Leia `documentation/rules.md`, a Spec e todos os documentos do Rule Pack.
+1. Leia `documentation/rules.md`, a Spec e todos os documentos do Rule Pack, incluindo
+   cada subseção `Antipatterns to Avoid` aplicável ao escopo.
 2. Confirme paths, contratos e implementações similares na codebase.
 3. Verifique se a solução respeita o Contract vigente.
 4. Implemente somente o escopo recebido.
@@ -62,6 +63,8 @@ coordena a integração de seus diffs.
   afetado e reporte a decisão necessária.
 - Violação de Rule existente: corrija a implementação conforme a Rule; não
   duplique nem enfraqueça a Rule.
+- Antipattern aplicável: trate a entrada como uma restrição executável e valide a
+  alternativa exigida; não substitua a regra por uma preferência local.
 - Lacuna documental: reporte tipo, evidência, documento e ação sugerida.
 
 ## Restrições

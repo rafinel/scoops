@@ -1,6 +1,6 @@
 ---
 title: Identity user management
-status: in_progress
+status: completed
 revision: 2
 source:
   type: issue
@@ -28,6 +28,14 @@ last_updated_at: 2026-08-16
 ---
 
 # Identity user management
+
+## Closure
+
+Spec revision 2 is completed. The implementation was accepted by the final read-only
+Implementation Judge, the current PR head passed Core, Server and Web CI plus Vercel
+preview checks, and the detailed evidence is recorded in
+[`evaluation.md`](./evaluation.md). Delivery is published in
+[PR #7](https://github.com/rafinel/scoops/pull/7); it has not been merged or deployed.
 
 ## Context
 

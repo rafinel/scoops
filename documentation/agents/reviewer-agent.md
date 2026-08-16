@@ -40,6 +40,8 @@ Verifique:
 - resultado observável e comportamento integrado;
 - integração entre contratos, produtores e consumidores;
 - aderência às Rules e fronteiras arquiteturais;
+- conformidade específica com cada subseção `Antipatterns to Avoid` aplicável,
+  verificando também a validação declarada pela entrada;
 - leitura direta e evidência de conformidade para cada documento do Rule Pack;
 - paths fora do escopo;
 - testes removidos, enfraquecidos ou ausentes;

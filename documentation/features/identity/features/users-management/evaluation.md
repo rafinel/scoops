@@ -3,12 +3,26 @@ title: Identity user management — implementation evidence
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 2
-status: ready
+status: completed
 github_issue: https://github.com/rafinel/scoops/issues/5
 updated_at: 2026-08-16
 ---
 
 # Identity user management — implementation evaluation
+
+## PR Quality Gate and closure — 2026-08-16
+
+- Pull request: [#7](https://github.com/rafinel/scoops/pull/7)
+- CI-tested head: `0d32461caf6a67e6bad517cdf256c38230da4db9`
+- Core CI: passed — [run](https://github.com/rafinel/scoops/actions/runs/31960905575)
+- Server CI: passed — [run](https://github.com/rafinel/scoops/actions/runs/31960905547)
+- Web CI, including browser integration: passed — [run](https://github.com/rafinel/scoops/actions/runs/31960904245)
+- Vercel preview checks: passed for Web and Server.
+
+The earlier Server CI failure was caused by missing non-secret test configuration on
+GitHub-hosted runners and was resolved in `1ade8a0`. The earlier Web startup timeout and
+listener mismatch were resolved in `8ad1e89` and `0d32461`. The final PR quality gate is
+green on the current head. The Spec is now completed; no merge or deployment was performed.
 
 ## Final implementation reevaluation — 2026-08-16
 

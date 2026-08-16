@@ -70,6 +70,15 @@ When research shows that authoritative documentation must change:
 3. update the PRD, Rule, Architecture, Modules, Design or Tooling document first;
 4. reread the changed authority and recompute the Rule Pack before writing the Spec.
 
+When an implementation finding shows that a reusable Rule was missing, ambiguous or
+too easy to misapply, reinforce the relevant Rule document with a focused
+`## Antipatterns to Avoid` section before continuing implementation. Each entry should
+state the prohibited pattern, the required alternative and the validation that proves
+compliance. Keep the entry reusable across features; feature-specific behavior remains
+in the Spec's acceptance criteria. Record the evidence and authority change in the
+Spec's Documentation alignment and revision history, then reread the Rule and rebuild
+the Rule Pack.
+
 Feature-specific behavior and technical choices stay in the Spec. Reusable conventions
 belong in their authoritative documentation.
 
