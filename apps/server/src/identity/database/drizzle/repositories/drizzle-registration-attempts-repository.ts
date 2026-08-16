@@ -4,8 +4,24 @@ import type {
   UserRegistrationAttemptUpdate,
 } from '@scoops/core/identity/domain/entities'
 import type { RegistrationAttemptsRepository } from '@scoops/core/identity/interfaces'
-import { RegistrationAttemptStatus } from '@scoops/core/identity/domain/structures'
-import { and, asc, eq, inArray, isNotNull, isNull, lte, lt, or, sql } from 'drizzle-orm'
+import {
+  InvitationOperation,
+  RegistrationAttemptType,
+  RegistrationAttemptStatus,
+} from '@scoops/core/identity/domain/structures'
+import {
+  and,
+  asc,
+  eq,
+  gt,
+  inArray,
+  isNotNull,
+  isNull,
+  lte,
+  lt,
+  or,
+  sql,
+} from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
@@ -86,6 +102,52 @@ export class DrizzleRegistrationAttemptsRepository
     return record ? DrizzleUserRegistrationAttemptMapper.toDomain(record) : undefined
   }
 
+  async findPendingExpiredByType(input: {
+    type: (typeof RegistrationAttemptType)[keyof typeof RegistrationAttemptType]
+    cutoff: Date
+    limit: number
+  }): Promise<UserRegistrationAttempt[]> {
+    if (input.limit <= 0) return []
+
+    const records = await this.database
+      .select()
+      .from(userRegistrationAttemptModel)
+      .where(
+        and(
+          eq(userRegistrationAttemptModel.type, input.type),
+          eq(userRegistrationAttemptModel.status, RegistrationAttemptStatus.Pending),
+          lte(userRegistrationAttemptModel.expiresAt, input.cutoff),
+        ),
+      )
+      .orderBy(asc(userRegistrationAttemptModel.expiresAt))
+      .limit(input.limit)
+
+    return records.map(DrizzleUserRegistrationAttemptMapper.toDomain)
+  }
+
+  async findStaleInvitationOperations(input: {
+    staleBefore: Date
+    limit: number
+  }): Promise<UserRegistrationAttempt[]> {
+    if (input.limit <= 0) return []
+
+    const records = await this.database
+      .select()
+      .from(userRegistrationAttemptModel)
+      .where(
+        and(
+          eq(userRegistrationAttemptModel.type, RegistrationAttemptType.UserInvitation),
+          eq(userRegistrationAttemptModel.status, RegistrationAttemptStatus.Pending),
+          isNotNull(userRegistrationAttemptModel.operation),
+          lt(userRegistrationAttemptModel.operationClaimedAt, input.staleBefore),
+        ),
+      )
+      .orderBy(asc(userRegistrationAttemptModel.operationClaimedAt))
+      .limit(input.limit)
+
+    return records.map(DrizzleUserRegistrationAttemptMapper.toDomain)
+  }
+
   async claimForCleanup(input: {
     cutoff: Date
     staleBefore: Date
@@ -97,20 +159,40 @@ export class DrizzleRegistrationAttemptsRepository
 
     const candidateCondition = or(
       and(
+        eq(
+          userRegistrationAttemptModel.type,
+          RegistrationAttemptType.EstablishmentOnboarding,
+        ),
         eq(userRegistrationAttemptModel.status, RegistrationAttemptStatus.Pending),
         lte(userRegistrationAttemptModel.expiresAt, input.cutoff),
       ),
-      eq(userRegistrationAttemptModel.status, RegistrationAttemptStatus.Expired),
-      isNotNull(userRegistrationAttemptModel.supersededProviderSubject),
+      and(
+        eq(
+          userRegistrationAttemptModel.type,
+          RegistrationAttemptType.EstablishmentOnboarding,
+        ),
+        eq(userRegistrationAttemptModel.status, RegistrationAttemptStatus.Expired),
+      ),
+      and(
+        eq(
+          userRegistrationAttemptModel.type,
+          RegistrationAttemptType.EstablishmentOnboarding,
+        ),
+        isNotNull(userRegistrationAttemptModel.supersededProviderSubject),
+      ),
     )
     const leaseCondition = or(
       isNull(userRegistrationAttemptModel.cleanupClaimedAt),
       lt(userRegistrationAttemptModel.cleanupClaimedAt, input.staleBefore),
     )
+    const operationLeaseCondition = or(
+      isNull(userRegistrationAttemptModel.operationClaimedAt),
+      lt(userRegistrationAttemptModel.operationClaimedAt, input.staleBefore),
+    )
     const candidates = await this.database
       .select({ id: userRegistrationAttemptModel.id })
       .from(userRegistrationAttemptModel)
-      .where(and(candidateCondition, leaseCondition))
+      .where(and(candidateCondition, leaseCondition, operationLeaseCondition))
       .orderBy(asc(userRegistrationAttemptModel.expiresAt))
       .limit(input.limit)
       .for('update', { skipLocked: true })
@@ -184,6 +266,110 @@ export class DrizzleRegistrationAttemptsRepository
         and(
           eq(userRegistrationAttemptModel.id, input.attemptId),
           eq(userRegistrationAttemptModel.cleanupClaimToken, input.claimToken),
+        ),
+      )
+      .returning({ id: userRegistrationAttemptModel.id })
+
+    return records.length > 0
+  }
+
+  async claimInvitationOperation(input: {
+    attemptId: string
+    expectedRevision: number
+    operation: InvitationOperation
+    operationToken: string
+    claimedAt: Date
+    staleBefore: Date
+    pendingEmail?: string
+    pendingTokenHash?: string
+    pendingExpiresAt?: Date
+  }): Promise<UserRegistrationAttempt | undefined> {
+    const operationIsExpiry = input.operation === InvitationOperation.Expire
+    const expiryCondition = operationIsExpiry
+      ? lte(userRegistrationAttemptModel.expiresAt, input.claimedAt)
+      : gt(userRegistrationAttemptModel.expiresAt, input.claimedAt)
+    const [record] = await this.database
+      .update(userRegistrationAttemptModel)
+      .set({
+        operation: input.operation,
+        operationToken: input.operationToken,
+        operationClaimedAt: input.claimedAt,
+        pendingEmail: input.pendingEmail ?? null,
+        pendingTokenHash: input.pendingTokenHash ?? null,
+        pendingExpiresAt: input.pendingExpiresAt ?? null,
+        revision: sql`${userRegistrationAttemptModel.revision} + 1`,
+        updatedAt: input.claimedAt,
+      })
+      .where(
+        and(
+          eq(userRegistrationAttemptModel.id, input.attemptId),
+          eq(userRegistrationAttemptModel.status, RegistrationAttemptStatus.Pending),
+          eq(userRegistrationAttemptModel.revision, input.expectedRevision),
+          expiryCondition,
+          or(
+            isNull(userRegistrationAttemptModel.operation),
+            lt(userRegistrationAttemptModel.operationClaimedAt, input.staleBefore),
+          ),
+        ),
+      )
+      .returning()
+
+    return record ? DrizzleUserRegistrationAttemptMapper.toDomain(record) : undefined
+  }
+
+  async finalizeInvitationOperation(input: {
+    attemptId: string
+    operationToken: string
+    changes: UserRegistrationAttemptUpdate
+  }): Promise<UserRegistrationAttempt | undefined> {
+    const persistenceChanges = Object.fromEntries(
+      Object.entries(input.changes).map(([key, value]) => [
+        key,
+        value === undefined ? null : value,
+      ]),
+    )
+    const [record] = await this.database
+      .update(userRegistrationAttemptModel)
+      .set({
+        ...persistenceChanges,
+        operation: null,
+        operationToken: null,
+        operationClaimedAt: null,
+        pendingEmail: null,
+        pendingTokenHash: null,
+        pendingExpiresAt: null,
+      })
+      .where(
+        and(
+          eq(userRegistrationAttemptModel.id, input.attemptId),
+          eq(userRegistrationAttemptModel.operationToken, input.operationToken),
+        ),
+      )
+      .returning()
+
+    return record ? DrizzleUserRegistrationAttemptMapper.toDomain(record) : undefined
+  }
+
+  async clearInvitationOperation(input: {
+    attemptId: string
+    operationToken: string
+    updatedAt: Date
+  }): Promise<boolean> {
+    const records = await this.database
+      .update(userRegistrationAttemptModel)
+      .set({
+        operation: null,
+        operationToken: null,
+        operationClaimedAt: null,
+        pendingEmail: null,
+        pendingTokenHash: null,
+        pendingExpiresAt: null,
+        updatedAt: input.updatedAt,
+      })
+      .where(
+        and(
+          eq(userRegistrationAttemptModel.id, input.attemptId),
+          eq(userRegistrationAttemptModel.operationToken, input.operationToken),
         ),
       )
       .returning({ id: userRegistrationAttemptModel.id })

@@ -1,26 +1,27 @@
 import { AuthLayout } from '@/ui/identity/widgets/layouts/auth-layout'
 import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Icon } from '@/ui/shared/widgets/components/icon'
+import { Button } from '@/ui/shadcn/button'
+import { Input } from '@/ui/shadcn/input'
+import { Label } from '@/ui/shadcn/label'
 
 import { MIN_PASSWORD_LENGTH, useResetPasswordPage } from './use-reset-password-page'
 
 export const ResetPasswordPage = () => {
   const {
     actionError,
-    confirmation,
     isPasswordRecovery,
     isResolving,
     isPasswordVisible,
     isConfirmationVisible,
     isPending,
     isSuccess,
-    password,
     validationError,
-    handleConfirmationChange,
-    handlePasswordChange,
     handleSubmit,
     handleTogglePasswordVisibility,
     handleToggleConfirmationVisibility,
+    passwordField,
+    confirmationField,
   } = useResetPasswordPage()
 
   return (
@@ -89,74 +90,70 @@ export const ResetPasswordPage = () => {
             </p>
           ) : null}
           <div className='space-y-2'>
-            <label className='text-sm font-bold' htmlFor='new-password'>
+            <Label className='text-sm font-bold' htmlFor='new-password'>
               Nova senha
-            </label>
+            </Label>
             <div className='relative'>
-              <input
+              <Input
+                {...passwordField}
                 autoComplete='new-password'
-                className='min-h-11 w-full rounded-lg border bg-background px-3 pr-12 text-sm'
+                className='min-h-11 rounded-lg bg-background px-3 pr-12 text-sm'
                 id='new-password'
                 minLength={MIN_PASSWORD_LENGTH}
-                name='new-password'
-                onChange={(event) => handlePasswordChange(event.target.value)}
-                required
                 type={isPasswordVisible ? 'text' : 'password'}
-                value={password}
               />
-              <button
+              <Button
                 aria-label={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
                 aria-pressed={isPasswordVisible}
-                className='absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50'
+                className='absolute right-1 top-1/2 size-9 -translate-y-1/2 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/40'
                 disabled={isPending}
                 onClick={handleTogglePasswordVisibility}
                 type='button'
+                variant='ghost'
               >
                 <Icon
                   className='size-[18px]'
                   name={isPasswordVisible ? 'eye-off' : 'eye'}
                 />
-              </button>
+              </Button>
             </div>
           </div>
           <div className='space-y-2'>
-            <label className='text-sm font-bold' htmlFor='confirm-password'>
+            <Label className='text-sm font-bold' htmlFor='confirm-password'>
               Confirmar nova senha
-            </label>
+            </Label>
             <div className='relative'>
-              <input
+              <Input
+                {...confirmationField}
                 autoComplete='new-password'
-                className='min-h-11 w-full rounded-lg border bg-background px-3 pr-12 text-sm'
+                className='min-h-11 rounded-lg bg-background px-3 pr-12 text-sm'
                 id='confirm-password'
                 minLength={MIN_PASSWORD_LENGTH}
-                name='confirm-password'
-                onChange={(event) => handleConfirmationChange(event.target.value)}
-                required
                 type={isConfirmationVisible ? 'text' : 'password'}
-                value={confirmation}
               />
-              <button
+              <Button
                 aria-label={isConfirmationVisible ? 'Ocultar senha' : 'Mostrar senha'}
                 aria-pressed={isConfirmationVisible}
-                className='absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50'
+                className='absolute right-1 top-1/2 size-9 -translate-y-1/2 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/40'
                 disabled={isPending}
                 onClick={handleToggleConfirmationVisibility}
                 type='button'
+                variant='ghost'
               >
                 <Icon
                   className='size-[18px]'
                   name={isConfirmationVisible ? 'eye-off' : 'eye'}
                 />
-              </button>
+              </Button>
             </div>
           </div>
-          <button
-            className='min-h-11 w-full rounded-lg bg-primary px-4 text-sm font-extrabold text-primary-foreground shadow-primary disabled:opacity-60'
+          <Button
+            className='min-h-11 w-full rounded-lg px-4 text-sm font-extrabold shadow-primary'
             disabled={isPending}
             type='submit'
           >
             {isPending ? 'Atualizando…' : 'Atualizar senha'}
-          </button>
+          </Button>
         </form>
       )}
     </AuthLayout>

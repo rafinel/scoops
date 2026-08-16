@@ -7,9 +7,9 @@ import {
   type ExecutionContext,
 } from '@nestjs/common'
 import type { AuthIdentityProvider } from '@scoops/core/identity/interfaces'
+import { AuthenticationProviderUnavailableError } from '@scoops/core/identity/domain/errors'
 
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
-import { AuthenticationProviderUnavailableError } from '@/identity/provision/errors'
 import type { PendingAuthenticatedRequest } from '@/identity/rest/types/pending-authenticated-request'
 
 @Injectable()

@@ -1,60 +1,153 @@
 ---
 name: implement-spec
-description: Orchestrate the direct implementation of a small Spec with Builder Direct, sensors, and an Implementation Judge in the current task.
+description: Orchestrate direct implementation of a small open Spec with a Builder, living evaluation evidence, user-change handling and one final Reviewer.
 ---
 
 # Implement a Spec Directly
 
-Use for a small, cohesive Spec with `open` status:
+Use for a small cohesive Spec whose author summary recommends `implement-spec`:
 
 ```text
-Orchestrator → Builder Direct → sensors → Judge Implementation Direct
+Orchestrator → Builder Direct → sensors/manual preflight → Reviewer → conclude-spec
 ```
 
-Treat `evaluation.md` as a living evidence ledger. Any implementation change after
-the initial sensor run or Judge assessment—including fixes, generated artifacts,
-environment or seed behavior, and added tests—requires an evidence reconciliation
-before completion: rerun the affected sensors, update test counts and findings, and
-record the current evaluated revision. Do not claim an accepted Spec while
-`evaluation.md` still describes an earlier diff.
+Run the workflow in the current task. Do not create another user-owned thread.
 
-1. Read the Spec, Architecture, Rules, and `documentation/tooling.md`. Preserve
-   the PRD link in Confluence and all `jira_tickets` keys; consult them when
-   the integration is available, without changing their states automatically.
-2. Freeze the revision and base commit.
-3. Create `Builder Direct` as a subagent and send the Contract, observable
-   outcome, paths, Rules, Architecture, and applicable MCPs.
-4. Inspect the diff; the Builder does not update the Spec, Plan, or state.
-5. Run the actual workspace validation commands described in
-   `documentation/tooling.md` (`lint`/`check:code`, `check-types`/`check:types`,
-   and `test`); run integration or e2e when applicable. Do not run `build` on every
-   retry; reserve it for the final Quality Gate, except when the change touches
-   the bundler, exports, environment, Docker, workflows, or generated artifacts.
-6. Create a read-only `Judge Implementation` sibling of the Builder. Send the
-   Spec, revision, diff, criteria, Rules, Architecture, and official evidence.
-7. If `failed`, immediately record the finding in `evaluation.md`, create
-   `Builder Fix QG-<n>`, rerun only invalidated sensors, and invoke a new Judge
-   only when the diff or evidence changes. After three identical failures,
-   escalate to the user.
-8. If `accepted`, record the assessment and evidence in `evaluation.md`, reconcile
-   the final diff, validation counts, findings and evaluated revision, then route to
-   `conclude-spec`.
+## Preflight and evaluation kickoff
 
-For UI Specs backed by Pencil, the Builder and Orchestrator must also:
+Read the Spec, Rule Pack, Architecture and `documentation/tooling.md`. Confirm the Spec is
+`open`, its revision is current, the direct route remains appropriate, required design
+references exist and no material ambiguity remains. Preserve actual source/GitHub Issue
+traceability without inventing external records.
 
-- inspect the relevant Pencil nodes, reusable components, variables, and target
-  viewport before implementation;
-- record an exact page/state → Pencil node ID mapping;
-- preserve intentionally different page compositions instead of collapsing them
-  into a generic shared visual;
-- validate every mapped route manually with Browser-use via CDP at the exact
-  design viewport, using screenshots plus accessibility-tree and DOM/layout
-  comparison;
-- iterate until material discrepancies are resolved and record the route, node
-  ID, viewport, evidence, and findings in `evaluation.md`.
+Before the first implementation change:
 
-Manual UI validation uses Browser-use, not Playwright. Visual parity with the
-mapped Pencil nodes is a required acceptance criterion for the Spec.
+1. record the base commit and freeze the Spec revision;
+2. set the Spec to `in_progress`;
+3. create colocated `evaluation.md` when absent, or reconcile it when resuming;
+4. initialize it with the Spec revision, base/current commit, `status: in_progress`,
+   acceptance-evidence matrix, validation evidence, Rule/documentation compliance, findings
+   and evaluation history;
+5. record required services, accounts, fixtures, design references and evidence targets.
 
-Do not create another implementation role or separate completion Judge, fork,
-or new task.
+Do not overwrite historical evidence. Actual command results, runtime observations,
+implementation screenshots, findings and verdicts belong in `evaluation.md`.
+Evaluation uses only `in_progress`, `ready` and `completed`; Reviewer verdicts remain in its
+evidence/history rather than metadata.
+
+## Direct implementation loop
+
+1. Create `Builder Direct` with the current Spec revision, mapped RF/CA, observable outcome,
+   allowed/prohibited paths, Rule Pack, Architecture, design bundle and applicable tools.
+2. Inspect and integrate the Builder diff. The Builder does not edit Spec, state, Plan or
+   evaluation artifacts.
+3. Run focused repository-approved generation, code, type, unit and applicable integration
+   checks. Reserve repeated full builds for the final Quality Gate unless bundler, exports,
+   environment, Docker, workflow or generated-artifact changes require an earlier build.
+4. Update `evaluation.md` with exact commands/results, current commit, criterion coverage,
+   findings and evidence freshness.
+5. On a sensor failure or implementation discrepancy, record a finding, create
+   `Builder Fix QG-<n>`, mark only affected evidence stale, rerun invalidated checks and
+   repeat until the implementation is review-ready or user authority is required.
+
+Builder reports are not official evidence by themselves. The Orchestrator verifies the diff
+and records observed results.
+
+### Rule reinforcement after implementation findings
+
+When a Builder or Reviewer finding exposes a missing, ambiguous or repeatedly violated
+Rule, distinguish it from an ordinary implementation correction:
+
+- if the Rule already states the requirement clearly, fix the implementation and keep the
+  Rule unchanged;
+- if the reusable convention is not stated clearly enough, pause dependent work and route
+  a Rule-document change through the authority gate before creating the next Builder Fix;
+- add a focused `## Antipatterns to Avoid` entry to the relevant Rule document, stating the
+  prohibited pattern, required alternative and validation evidence;
+- reread the changed Rule, recompute the Rule Pack, record the authority change and finding
+  in `evaluation.md`, invalidate affected evidence and rerun the scoped Builder Fix and
+  its sensors.
+
+Builders do not edit Rules, Specs, Plans or evaluation artifacts. A feature-specific
+behavior belongs in the Spec rather than in a reusable antipattern entry.
+
+## Design-backed UI loop
+
+When a Design Contract exists:
+
+- read `design/manifest.md` and every saved reference screenshot before coding;
+- do not require live Pencil during implementation;
+- preserve each state → surface → viewport mapping and intentionally distinct compositions;
+- compare the running UI with the saved reference using Browser-use/CDP, accessibility tree
+  and DOM/layout inspection;
+- save implementation screenshots under
+  `evidence/screenshots/rev-<spec-revision>/` and record route, state, viewport and findings;
+- iterate until no material discrepancy remains.
+
+Builder/Orchestrator browser checks are implementation feedback. They do not replace the
+Reviewer's personal `MV-*` and visual validation.
+
+## User-requested change gate before conclusion
+
+Whenever the user requests a change after implementation has started but before the Spec is
+concluded, pause conclusion and classify the request against the current Spec, design bundle,
+Rules and implementation. Show the classification and evidence to the user before changing
+artifacts or code.
+
+### A. Implementation correction
+
+Use when the request makes the implementation comply with an existing RF/CA, Design
+Contract, Technical Contract or Rule.
+
+1. Keep the Spec revision unchanged.
+2. Record a finding in `evaluation.md` mapped to the affected criterion/rule/reference.
+3. Create a scoped Builder Fix.
+4. Set evaluation status to `in_progress` when `ready` evidence is invalidated and mark only
+   affected automated, runtime, manual and visual evidence stale.
+5. Rerun affected checks, `MV-*` scenarios and screenshots.
+6. Re-run the Reviewer when its evidence or verdict is invalidated.
+
+### B. Contract change
+
+Use when the user wants different product behavior, design intent or technical boundaries.
+
+1. Pause implementation and set the current Spec to `draft`.
+2. Route through `create-spec` clarification/authority alignment; update PRD, Rules,
+   Architecture, Modules, Design or Tooling first when required.
+3. Increment the Spec revision, update affected contracts/design bundle/validation and run
+   authoring integrity checks.
+4. Return the Spec directly to `open`; there is no Spec Reviewer.
+5. Mark affected implementation evidence and prior verdicts historical, then reconcile
+   `evaluation.md` to the new revision with `status: in_progress`.
+6. Re-evaluate the implementation route. If `implement-spec` remains appropriate, resume
+   this loop. If `implement-plan` is recommended, stop direct execution and route to
+   `create-plan` then `implement-plan`.
+
+If classification or expected behavior is ambiguous, ask the user; do not silently choose a
+product, design or architectural outcome.
+
+## Final Reviewer
+
+After the integrated diff and current evidence are ready, create one read-only
+`Reviewer Direct`. Send the exact Spec revision, evaluated commit/diff,
+Implementation and Technical Contracts, Rule Pack, Architecture, official sensor evidence,
+design bundle, all applicable `MV-*` scenarios and previous findings.
+
+The Reviewer must directly inspect code and Rules, assess every CA and technical contract area,
+personally execute every applicable `MV-*` scenario, and compare design-backed UI with saved
+references at exact viewports. Automated Playwright and Builder reports are supporting
+evidence only. Missing required manual evidence produces `failed`.
+
+The Reviewer returns `accepted | failed`; the Orchestrator persists the verdict and evidence
+in `evaluation.md`.
+
+- On `failed`, record findings, create scoped Builder Fixes, invalidate affected evidence,
+  keep evaluation `in_progress`, rerun it and ask the Reviewer to reassess the updated
+  commit.
+- On `accepted`, reconcile all evidence to the exact current commit, set evaluation to
+  `ready` and route to `conclude-spec`.
+- After three materially identical failures, present the attempts and ask the user for the
+  unresolved authority or environment decision.
+
+Do not create a task/phase Reviewer, conclusion Reviewer, extra implementation role, fork or
+new task.

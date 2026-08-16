@@ -4,6 +4,9 @@ import { Event } from '#shared/domain/events/event.ts'
 export class UserProfileUpdatedEvent extends Event<{
   userId: User['id']
   establishmentId: User['establishmentId']
+  email: User['email']
+  actorUserId: string
+  previousProfile: User['profile']
   profile: User['profile']
   updatedAt: User['updatedAt']
 }> {

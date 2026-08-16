@@ -1,7 +1,6 @@
 import type { INestApplication, Type } from '@nestjs/common'
 import type {
-  AuthIdentityProvider,
-  OnboardingIdentityProvider,
+  ServerAuthProvider,
   OnboardingIdentifierProvider,
   OnboardingTokenProvider,
 } from '@scoops/core/identity/interfaces'
@@ -13,6 +12,8 @@ import { SharedModule } from '@/shared/shared.module'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { InngestModule } from '@/shared/messaging/inngest/inngest.module'
 import { RestFixture } from '@/shared/rest/tests/rest-fixture'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
+import { InngestFixture } from '@/shared/messaging/inngest/inngest-fixture'
 
 export class IdentityModuleFixture {
   private constructor(
@@ -21,9 +22,8 @@ export class IdentityModuleFixture {
   ) {}
 
   static async register(
-    authIdentityProvider: AuthIdentityProvider,
+    authProvider: ServerAuthProvider,
     overrides: Partial<{
-      onboardingIdentity: OnboardingIdentityProvider
       onboardingIdentifier: OnboardingIdentifierProvider
       onboardingToken: OnboardingTokenProvider
     }> = {},
@@ -43,14 +43,14 @@ export class IdentityModuleFixture {
         (builder: TestingModuleBuilder) => {
           builder
             .overrideProvider(IDENTITY_PROVIDERS.authIdentity)
-            .useValue(authIdentityProvider)
+            .useValue(authProvider)
+            .overrideProvider(IDENTITY_PROVIDERS.onboardingIdentity)
+            .useValue(authProvider)
+            .overrideProvider(IDENTITY_PROVIDERS.userAccessIdentity)
+            .useValue(authProvider)
+            .overrideProvider(InngestBroker)
+            .useValue(new InngestFixture())
 
-          if (overrides.onboardingIdentity) {
-            // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
-            builder
-              .overrideProvider(IDENTITY_PROVIDERS.onboardingIdentity)
-              .useValue(overrides.onboardingIdentity)
-          }
           if (overrides.onboardingIdentifier) {
             // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
             builder
@@ -63,7 +63,6 @@ export class IdentityModuleFixture {
               .overrideProvider(IDENTITY_PROVIDERS.onboardingToken)
               .useValue(overrides.onboardingToken)
           }
-
           return builder
         },
       )

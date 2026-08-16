@@ -1,7 +1,16 @@
-@baseUrl = http://localhost:3333
-@accessToken = replace-with-a-supabase-access-token
+@supabaseAnonKey = {{$processEnv SUPABASE_ANON_KEY}}
+
+### Sign in with the seeded Manager account
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "{{seedEmail}}",
+  "password": "{{seedPassword}}"
+}
 
 ### Get the authenticated local account
 GET {{baseUrl}}/auth/session
-Authorization: Bearer {{accessToken}}
+Authorization: Bearer {{signIn.response.body.$.access_token}}
 Accept: application/json

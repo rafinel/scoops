@@ -19,6 +19,13 @@ export type UserRegistrationAttempt = Entity & {
   supersededProviderSubject?: string
   cleanupClaimToken?: string
   cleanupClaimedAt?: Date
+  revision: number
+  operation?: import('#identity/domain/structures/invitation-operation.ts').InvitationOperation
+  operationToken?: string
+  operationClaimedAt?: Date
+  pendingEmail?: string
+  pendingTokenHash?: string
+  pendingExpiresAt?: Date
 }
 
 export type UserRegistrationAttemptCreate = UserRegistrationAttempt
@@ -38,5 +45,12 @@ export type UserRegistrationAttemptUpdate = Partial<
     | 'supersededProviderSubject'
     | 'cleanupClaimToken'
     | 'cleanupClaimedAt'
+    | 'revision'
+    | 'operation'
+    | 'operationToken'
+    | 'operationClaimedAt'
+    | 'pendingEmail'
+    | 'pendingTokenHash'
+    | 'pendingExpiresAt'
   >
 >

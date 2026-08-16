@@ -1,6 +1,9 @@
 import { AuthLayout } from '@/ui/identity/widgets/layouts/auth-layout'
 import { useForgotPasswordPage } from './use-forgot-password-page'
 import { Anchor } from '@/ui/shared/widgets/components/anchor'
+import { Button } from '@/ui/shadcn/button'
+import { Input } from '@/ui/shadcn/input'
+import { Label } from '@/ui/shadcn/label'
 
 export const ForgotPasswordPage = () => {
   const {
@@ -48,21 +51,22 @@ export const ForgotPasswordPage = () => {
             >
               Voltar para entrar
             </Anchor>
-            <button
+            <Button
               type='button'
               onClick={handleRequestAgain}
-              className='h-12 w-full rounded-md border bg-card px-4 text-sm font-extrabold transition hover:bg-muted'
+              variant='outline'
+              className='h-12 w-full bg-card px-4 text-sm font-extrabold hover:bg-muted'
             >
               Tentar com outro email
-            </button>
+            </Button>
           </div>
         ) : (
           <form className='mt-8 space-y-5' onSubmit={handleSubmit} noValidate>
             <div>
-              <label className='mb-2 block text-sm font-bold' htmlFor='recovery-email'>
+              <Label className='mb-2 block text-sm font-bold' htmlFor='recovery-email'>
                 Email
-              </label>
-              <input
+              </Label>
+              <Input
                 id='recovery-email'
                 name='email'
                 type='email'
@@ -70,7 +74,7 @@ export const ForgotPasswordPage = () => {
                 inputMode='email'
                 value={email}
                 onChange={(event) => handleEmailChange(event.target.value)}
-                className='h-12 w-full rounded-md border bg-card px-3 text-sm shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/25'
+                className='h-12 rounded-md bg-card px-3 text-sm shadow-sm focus:border-primary focus:ring-2 focus:ring-ring/25'
                 placeholder='voce@empresa.com'
                 disabled={isPending}
                 required
@@ -85,14 +89,14 @@ export const ForgotPasswordPage = () => {
                   'Não foi possível enviar o email agora. Tente novamente.'}
               </p>
             )}
-            <button
+            <Button
               type='submit'
-              className='h-12 w-full rounded-md bg-primary px-4 text-sm font-extrabold text-primary-foreground shadow-primary transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60'
+              className='h-12 w-full rounded-md px-4 text-sm font-extrabold shadow-primary hover:brightness-105'
               disabled={isPending}
               aria-busy={isPending}
             >
               {isPending ? 'Enviando…' : 'Enviar instruções'}
-            </button>
+            </Button>
             <Anchor
               route='login'
               className='block text-center text-sm font-bold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline'

@@ -1,5 +1,8 @@
 import type { FormEvent } from 'react'
 
+import { Button } from '@/ui/shadcn/button'
+import { Input } from '@/ui/shadcn/input'
+import { Label } from '@/ui/shadcn/label'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 export type OnboardingRegistrationValues = {
@@ -54,14 +57,14 @@ export const OnboardingRegistrationForm = ({
       const errorId = `onboarding-${field}-error`
       return (
         <div className='flex min-h-[75px] flex-col' key={field}>
-          <label
+          <Label
             className='text-[13px] font-bold leading-[18px]'
             htmlFor={`onboarding-${field}`}
           >
             {label}
-          </label>
+          </Label>
           <div className='relative mt-[9px]'>
-            <input
+            <Input
               aria-describedby={errors[field] ? errorId : undefined}
               aria-invalid={Boolean(errors[field])}
               autoComplete={
@@ -73,7 +76,7 @@ export const OnboardingRegistrationForm = ({
                       ? 'name'
                       : 'organization'
               }
-              className={`h-12 w-full rounded-xl border bg-card px-[14px] text-sm font-medium text-foreground outline-none transition placeholder:text-text-tertiary focus:border-primary focus:ring-2 focus:ring-ring/25 ${isPassword ? 'pr-12' : ''}`}
+              className={`h-12 rounded-xl bg-card px-[14px] text-sm font-medium text-foreground placeholder:text-text-tertiary focus:border-primary focus:ring-2 focus:ring-ring/25 ${isPassword ? 'pr-12' : ''}`}
               disabled={isSubmitting}
               id={`onboarding-${field}`}
               inputMode={field === 'email' ? 'email' : undefined}
@@ -84,19 +87,20 @@ export const OnboardingRegistrationForm = ({
               value={values[field]}
             />
             {isPassword ? (
-              <button
+              <Button
                 aria-label={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
                 aria-pressed={isPasswordVisible}
-                className='absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50'
+                className='absolute right-2 top-1/2 size-8 -translate-y-1/2 rounded-md text-muted-foreground hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/40'
                 disabled={isSubmitting}
                 onClick={onTogglePasswordVisibility}
                 type='button'
+                variant='ghost'
               >
                 <Icon
                   className='size-[18px]'
                   name={isPasswordVisible ? 'eye-off' : 'eye'}
                 />
-              </button>
+              </Button>
             ) : null}
           </div>
           {errors[field] ? (
@@ -107,14 +111,14 @@ export const OnboardingRegistrationForm = ({
         </div>
       )
     })}
-    <button
+    <Button
       aria-busy={isSubmitting}
-      className='mt-2 flex h-12 items-center justify-center gap-2 rounded-[10px] bg-primary text-sm font-bold text-primary-foreground shadow-primary transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60'
+      className='mt-2 h-12 rounded-[10px] text-sm font-bold shadow-primary hover:brightness-105'
       disabled={isSubmitting}
       type='submit'
     >
       <Icon className='size-4' name='arrow' />
       {isSubmitting ? 'Criando…' : 'Criar sorveteria'}
-    </button>
+    </Button>
   </form>
 )

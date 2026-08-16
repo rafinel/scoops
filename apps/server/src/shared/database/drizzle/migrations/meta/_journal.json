@@ -15,6 +15,13 @@
       "when": 1786632710258,
       "tag": "0001_ice-cream-shop-onboarding",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786747070210,
+      "tag": "0002_rare_unus",
+      "breakpoints": true
     }
   ]
 }

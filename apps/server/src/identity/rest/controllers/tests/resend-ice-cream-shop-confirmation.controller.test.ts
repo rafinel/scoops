@@ -2,10 +2,9 @@ import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { TestAuthIdentityProvider } from '@/identity/fixtures/test-auth-identity-provider'
-import { TestOnboardingIdentifierProvider } from '@/identity/fixtures/test-onboarding-identifier-provider'
-import { TestOnboardingIdentityProvider } from '@/identity/fixtures/test-onboarding-identity-provider'
-import { TestOnboardingTokenProvider } from '@/identity/fixtures/test-onboarding-token-provider'
+import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { OnboardingIdentifierProviderFaker } from '@/identity/fixtures/onboarding-identifier-faker'
+import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
 
 import {
   continuationToken,
@@ -17,25 +16,20 @@ vi.hoisted(() => {
 })
 
 describe('Resend Ice Cream Shop Confirmation Controller [POST /registration-attempts/onboarding/resend]', () => {
-  const authIdentityProvider = new TestAuthIdentityProvider()
-  const onboardingIdentityProvider = new TestOnboardingIdentityProvider()
-  const onboardingIdentifierProvider = new TestOnboardingIdentifierProvider()
-  const onboardingTokenProvider = new TestOnboardingTokenProvider()
+  const auth = new SupabaseAuthFixture()
+  const onboardingIdentifierProvider = OnboardingIdentifierProviderFaker.fake()
+  const onboardingTokenProvider = OnboardingTokenProviderFaker.fake()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(authIdentityProvider, {
-      onboardingIdentity: onboardingIdentityProvider,
+    fixture = await IdentityModuleFixture.register(auth, {
       onboardingIdentifier: onboardingIdentifierProvider,
       onboardingToken: onboardingTokenProvider,
     })
   })
 
   beforeEach(async () => {
-    authIdentityProvider.clear()
-    onboardingIdentityProvider.clear()
-    onboardingIdentifierProvider.clear()
-    onboardingTokenProvider.clear()
+    auth.clear()
     await fixture.resetDatabase()
   })
 
@@ -56,10 +50,8 @@ describe('Resend Ice Cream Shop Confirmation Controller [POST /registration-atte
       managerName: 'Ana Manager',
       email: 'ana@example.com',
     })
-    expect(onboardingIdentityProvider.getCalls().resendConfirmation).toHaveLength(1)
-    expect(
-      onboardingIdentityProvider.getCalls().resendConfirmation[0]?.[0],
-    ).toMatchObject({
+    expect(auth.getCalls().resendConfirmation).toHaveLength(1)
+    expect(auth.getCalls().resendConfirmation[0]?.[0]).toMatchObject({
       email: 'ana@example.com',
       confirmationRedirectTo: expect.stringContaining(
         '/onboarding/confirm?confirmationToken=',
@@ -74,6 +66,6 @@ describe('Resend Ice Cream Shop Confirmation Controller [POST /registration-atte
 
     expect(response.status).toBe(422)
     expect(response.body).toMatchObject({ title: 'Invalid request' })
-    expect(onboardingIdentityProvider.getCalls().resendConfirmation).toHaveLength(0)
+    expect(auth.getCalls().resendConfirmation).toHaveLength(0)
   })
 })

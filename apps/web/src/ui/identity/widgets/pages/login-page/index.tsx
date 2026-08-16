@@ -1,6 +1,9 @@
 import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { AuthLayout } from '@/ui/identity/widgets/layouts/auth-layout'
 import { Icon } from '@/ui/shared/widgets/components/icon'
+import { Button } from '@/ui/shadcn/button'
+import { Input } from '@/ui/shadcn/input'
+import { Label } from '@/ui/shadcn/label'
 import { useLoginPage } from './use-login-page'
 
 export type LoginPageProps = {
@@ -10,15 +13,12 @@ export type LoginPageProps = {
 export const LoginPage = ({ returnTo }: LoginPageProps) => {
   const {
     error,
-    identifier,
     isPasswordVisible,
     isPending,
-    password,
     validationError,
-    handleIdentifierChange,
-    handlePasswordChange,
     handleSubmit,
     handleTogglePasswordVisibility,
+    register,
   } = useLoginPage(returnTo)
   const errorMessage = error
     ? 'Não foi possível entrar. Confira seus dados e tente novamente.'
@@ -41,18 +41,19 @@ export const LoginPage = ({ returnTo }: LoginPageProps) => {
 
         <form className='flex flex-col gap-4' onSubmit={handleSubmit} noValidate>
           <div className='flex h-[75px] flex-col'>
-            <label className='text-[13px] font-bold leading-[18px]' htmlFor='login-email'>
+            <Label className='text-[13px] font-bold leading-[18px]' htmlFor='login-email'>
               E-mail
-            </label>
-            <input
+            </Label>
+            <Input
+              {...register('identifier', {
+                validate: (value) =>
+                  value.trim().length > 0 || 'Informe seu email para continuar.',
+              })}
               id='login-email'
-              name='email'
               type='email'
               autoComplete='email'
               inputMode='email'
-              value={identifier}
-              onChange={(event) => handleIdentifierChange(event.target.value)}
-              className='mt-[9px] h-12 w-full rounded-xl border bg-card px-[14px] text-sm font-medium text-foreground shadow-none outline-none transition placeholder:text-text-tertiary focus:border-primary focus:ring-2 focus:ring-ring/25'
+              className='mt-[9px] h-12 rounded-xl bg-card px-[14px] text-sm font-medium text-foreground shadow-none placeholder:text-text-tertiary focus:border-primary focus:ring-2 focus:ring-ring/25'
               placeholder='voce@exemplo.com'
               disabled={isPending}
               required
@@ -61,38 +62,39 @@ export const LoginPage = ({ returnTo }: LoginPageProps) => {
 
           <div className='flex flex-col gap-2'>
             <div className='flex h-[75px] flex-col'>
-              <label
+              <Label
                 className='text-[13px] font-bold leading-[18px]'
                 htmlFor='login-password'
               >
                 Senha
-              </label>
+              </Label>
               <div className='relative mt-[9px] h-12'>
-                <input
+                <Input
+                  {...register('password', {
+                    required: 'Informe sua senha para continuar.',
+                  })}
                   id='login-password'
-                  name='password'
                   type={isPasswordVisible ? 'text' : 'password'}
                   autoComplete='current-password'
-                  value={password}
-                  onChange={(event) => handlePasswordChange(event.target.value)}
-                  className='h-full w-full rounded-xl border bg-card px-[14px] pr-12 text-sm font-medium text-foreground shadow-none outline-none transition placeholder:text-text-tertiary focus:border-primary focus:ring-2 focus:ring-ring/25'
+                  className='h-full rounded-xl bg-card px-[14px] pr-12 text-sm font-medium text-foreground shadow-none placeholder:text-text-tertiary focus:border-primary focus:ring-2 focus:ring-ring/25'
                   placeholder='Digite sua senha'
                   disabled={isPending}
                   required
                 />
-                <button
+                <Button
                   aria-label={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
                   aria-pressed={isPasswordVisible}
-                  className='absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50'
+                  className='absolute right-2 top-1/2 size-8 -translate-y-1/2 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/40'
                   disabled={isPending}
                   onClick={handleTogglePasswordVisibility}
                   type='button'
+                  variant='ghost'
                 >
                   <Icon
                     className='size-[18px]'
                     name={isPasswordVisible ? 'eye-off' : 'eye'}
                   />
-                </button>
+                </Button>
               </div>
             </div>
             <div className='flex justify-end'>
@@ -114,15 +116,15 @@ export const LoginPage = ({ returnTo }: LoginPageProps) => {
             </p>
           )}
 
-          <button
+          <Button
             type='submit'
-            className='flex h-12 w-full items-center justify-center gap-1.5 rounded-[10px] bg-primary px-[14px] text-sm font-bold text-primary-foreground shadow-primary transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60'
+            className='h-12 w-full rounded-[10px] px-[14px] text-sm font-bold shadow-primary hover:brightness-105'
             disabled={isPending}
             aria-busy={isPending}
           >
             <Icon className='size-4' name='arrow' />
             {isPending ? 'Entrando…' : 'Entrar no Scoops'}
-          </button>
+          </Button>
         </form>
       </section>
     </AuthLayout>

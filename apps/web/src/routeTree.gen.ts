@@ -17,7 +17,15 @@ import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as ForgotPasswordIndexRouteImport } from './routes/forgot-password/index'
 import { Route as AccessDeniedIndexRouteImport } from './routes/access-denied/index'
 import { Route as OnboardingConfirmRouteImport } from './routes/onboarding/confirm'
-import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
+import { Route as InvitationAcceptRouteImport } from './routes/invitation/accept'
+import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
+import { Route as AuthenticatedSubscriptionIndexRouteImport } from './routes/_authenticated/subscription/index'
+import { Route as AuthenticatedSalesChannelsIndexRouteImport } from './routes/_authenticated/sales-channels/index'
+import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authenticated/products/index'
+import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders/index'
+import { Route as AuthenticatedDiscountsIndexRouteImport } from './routes/_authenticated/discounts/index'
+import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users/$userId'
+import { Route as AuthenticatedSalesNewRouteImport } from './routes/_authenticated/sales/new'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -58,81 +66,176 @@ const OnboardingConfirmRoute = OnboardingConfirmRouteImport.update({
   path: '/onboarding/confirm',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
-  id: '/app/',
-  path: '/app/',
+const InvitationAcceptRoute = InvitationAcceptRouteImport.update({
+  id: '/invitation/accept',
+  path: '/invitation/accept',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSubscriptionIndexRoute =
+  AuthenticatedSubscriptionIndexRouteImport.update({
+    id: '/subscription/',
+    path: '/subscription/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSalesChannelsIndexRoute =
+  AuthenticatedSalesChannelsIndexRouteImport.update({
+    id: '/sales-channels/',
+    path: '/sales-channels/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProductsIndexRoute =
+  AuthenticatedProductsIndexRouteImport.update({
+    id: '/products/',
+    path: '/products/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedOrdersIndexRoute =
+  AuthenticatedOrdersIndexRouteImport.update({
+    id: '/orders/',
+    path: '/orders/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDiscountsIndexRoute =
+  AuthenticatedDiscountsIndexRouteImport.update({
+    id: '/discounts/',
+    path: '/discounts/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedUsersUserIdRoute =
+  AuthenticatedUsersUserIdRouteImport.update({
+    id: '/users/$userId',
+    path: '/users/$userId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSalesNewRoute = AuthenticatedSalesNewRouteImport.update({
+  id: '/sales/new',
+  path: '/sales/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/invitation/accept': typeof InvitationAcceptRoute
   '/onboarding/confirm': typeof OnboardingConfirmRoute
   '/access-denied/': typeof AccessDeniedIndexRoute
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/reset-password/': typeof ResetPasswordIndexRoute
-  '/app/': typeof AuthenticatedAppIndexRoute
+  '/sales/new': typeof AuthenticatedSalesNewRoute
+  '/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/discounts/': typeof AuthenticatedDiscountsIndexRoute
+  '/orders/': typeof AuthenticatedOrdersIndexRoute
+  '/products/': typeof AuthenticatedProductsIndexRoute
+  '/sales-channels/': typeof AuthenticatedSalesChannelsIndexRoute
+  '/subscription/': typeof AuthenticatedSubscriptionIndexRoute
+  '/users/': typeof AuthenticatedUsersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/invitation/accept': typeof InvitationAcceptRoute
   '/onboarding/confirm': typeof OnboardingConfirmRoute
   '/access-denied': typeof AccessDeniedIndexRoute
   '/forgot-password': typeof ForgotPasswordIndexRoute
   '/login': typeof LoginIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
   '/reset-password': typeof ResetPasswordIndexRoute
-  '/app': typeof AuthenticatedAppIndexRoute
+  '/sales/new': typeof AuthenticatedSalesNewRoute
+  '/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/discounts': typeof AuthenticatedDiscountsIndexRoute
+  '/orders': typeof AuthenticatedOrdersIndexRoute
+  '/products': typeof AuthenticatedProductsIndexRoute
+  '/sales-channels': typeof AuthenticatedSalesChannelsIndexRoute
+  '/subscription': typeof AuthenticatedSubscriptionIndexRoute
+  '/users': typeof AuthenticatedUsersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/invitation/accept': typeof InvitationAcceptRoute
   '/onboarding/confirm': typeof OnboardingConfirmRoute
   '/access-denied/': typeof AccessDeniedIndexRoute
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/reset-password/': typeof ResetPasswordIndexRoute
-  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/sales/new': typeof AuthenticatedSalesNewRoute
+  '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/_authenticated/discounts/': typeof AuthenticatedDiscountsIndexRoute
+  '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
+  '/_authenticated/products/': typeof AuthenticatedProductsIndexRoute
+  '/_authenticated/sales-channels/': typeof AuthenticatedSalesChannelsIndexRoute
+  '/_authenticated/subscription/': typeof AuthenticatedSubscriptionIndexRoute
+  '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/invitation/accept'
     | '/onboarding/confirm'
     | '/access-denied/'
     | '/forgot-password/'
     | '/login/'
     | '/onboarding/'
     | '/reset-password/'
-    | '/app/'
+    | '/sales/new'
+    | '/users/$userId'
+    | '/discounts/'
+    | '/orders/'
+    | '/products/'
+    | '/sales-channels/'
+    | '/subscription/'
+    | '/users/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/invitation/accept'
     | '/onboarding/confirm'
     | '/access-denied'
     | '/forgot-password'
     | '/login'
     | '/onboarding'
     | '/reset-password'
-    | '/app'
+    | '/sales/new'
+    | '/users/$userId'
+    | '/discounts'
+    | '/orders'
+    | '/products'
+    | '/sales-channels'
+    | '/subscription'
+    | '/users'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/invitation/accept'
     | '/onboarding/confirm'
     | '/access-denied/'
     | '/forgot-password/'
     | '/login/'
     | '/onboarding/'
     | '/reset-password/'
-    | '/_authenticated/app/'
+    | '/_authenticated/sales/new'
+    | '/_authenticated/users/$userId'
+    | '/_authenticated/discounts/'
+    | '/_authenticated/orders/'
+    | '/_authenticated/products/'
+    | '/_authenticated/sales-channels/'
+    | '/_authenticated/subscription/'
+    | '/_authenticated/users/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  InvitationAcceptRoute: typeof InvitationAcceptRoute
   OnboardingConfirmRoute: typeof OnboardingConfirmRoute
   AccessDeniedIndexRoute: typeof AccessDeniedIndexRoute
   ForgotPasswordIndexRoute: typeof ForgotPasswordIndexRoute
@@ -199,22 +302,92 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingConfirmRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/app/': {
-      id: '/_authenticated/app/'
-      path: '/app'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+    '/invitation/accept': {
+      id: '/invitation/accept'
+      path: '/invitation/accept'
+      fullPath: '/invitation/accept'
+      preLoaderRoute: typeof InvitationAcceptRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/users/': {
+      id: '/_authenticated/users/'
+      path: '/users'
+      fullPath: '/users/'
+      preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/subscription/': {
+      id: '/_authenticated/subscription/'
+      path: '/subscription'
+      fullPath: '/subscription/'
+      preLoaderRoute: typeof AuthenticatedSubscriptionIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sales-channels/': {
+      id: '/_authenticated/sales-channels/'
+      path: '/sales-channels'
+      fullPath: '/sales-channels/'
+      preLoaderRoute: typeof AuthenticatedSalesChannelsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/products/': {
+      id: '/_authenticated/products/'
+      path: '/products'
+      fullPath: '/products/'
+      preLoaderRoute: typeof AuthenticatedProductsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/orders/': {
+      id: '/_authenticated/orders/'
+      path: '/orders'
+      fullPath: '/orders/'
+      preLoaderRoute: typeof AuthenticatedOrdersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/discounts/': {
+      id: '/_authenticated/discounts/'
+      path: '/discounts'
+      fullPath: '/discounts/'
+      preLoaderRoute: typeof AuthenticatedDiscountsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/users/$userId': {
+      id: '/_authenticated/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/users/$userId'
+      preLoaderRoute: typeof AuthenticatedUsersUserIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sales/new': {
+      id: '/_authenticated/sales/new'
+      path: '/sales/new'
+      fullPath: '/sales/new'
+      preLoaderRoute: typeof AuthenticatedSalesNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedSalesNewRoute: typeof AuthenticatedSalesNewRoute
+  AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
+  AuthenticatedDiscountsIndexRoute: typeof AuthenticatedDiscountsIndexRoute
+  AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
+  AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
+  AuthenticatedSalesChannelsIndexRoute: typeof AuthenticatedSalesChannelsIndexRoute
+  AuthenticatedSubscriptionIndexRoute: typeof AuthenticatedSubscriptionIndexRoute
+  AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedSalesNewRoute: AuthenticatedSalesNewRoute,
+  AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,
+  AuthenticatedDiscountsIndexRoute: AuthenticatedDiscountsIndexRoute,
+  AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
+  AuthenticatedProductsIndexRoute: AuthenticatedProductsIndexRoute,
+  AuthenticatedSalesChannelsIndexRoute: AuthenticatedSalesChannelsIndexRoute,
+  AuthenticatedSubscriptionIndexRoute: AuthenticatedSubscriptionIndexRoute,
+  AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -223,6 +396,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  InvitationAcceptRoute: InvitationAcceptRoute,
   OnboardingConfirmRoute: OnboardingConfirmRoute,
   AccessDeniedIndexRoute: AccessDeniedIndexRoute,
   ForgotPasswordIndexRoute: ForgotPasswordIndexRoute,

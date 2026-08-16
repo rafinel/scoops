@@ -31,7 +31,7 @@ cleanup_stale_generated_artifacts() {
     for dest in "$dir"/*.md; do
       if [[ -L "$dest" ]]; then
         source="$(readlink "$dest")"
-        if [[ "$source" == ../../documentation/prompts/*-prompt.md && ! -e "$dest" ]]; then
+        if [[ "$source" == ../../documentation/prompts/*.md && ! -e "$dest" ]]; then
           rm -f "$dest"
           echo "removed: $dest (missing source)"
         fi

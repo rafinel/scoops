@@ -204,13 +204,13 @@ and `accepted`. Allowed task states are `pending`, `implementing`,
   - `apps/server/src/identity/constants/identity-providers.ts`
   - `apps/server/src/identity/constants/index.ts`
   - `apps/server/src/identity/provision/supabase/supabase-auth-identity-provider.ts`
-  - `apps/server/src/identity/provision/errors/authentication-provider-unavailable.error.ts`
+  - `packages/core/src/identity/domain/errors/authentication-provider-unavailable-error.ts`
   - `apps/server/src/identity/provision/identity-provision.module.ts`
   - `apps/server/src/shared/provision/env/env-provider.ts`
   - `apps/server/.env.example`
   - `apps/server/package.json`
 - **Requirements:** RF-02, RF-03, RF-12; CA-02, CA-03, CA-04, CA-17.
-- **Observable result:** The server adapter verifies one Bearer access token, returns only the provider subject, maps invalid/expired responses to `undefined`, translates provider/network availability failures to a server-local typed error and reads only `SUPABASE_URL` plus a server-safe anon/public verification key. No service-role key, JWT secret, database credential, provider payload or raw token crosses the boundary.
+- **Observable result:** The server adapter verifies one Bearer access token, returns only the provider subject, maps invalid/expired responses to `undefined`, translates provider/network availability failures to a Core Identity typed error and reads only `SUPABASE_URL` plus a server-safe anon/public verification key. No service-role key, JWT secret, database credential, provider payload or raw token crosses the boundary.
 - **Parallelizable:** `false` — it shares server package/environment changes with F2-T1 and must be integrated with the Identity module composition.
 - **Sensors:** `pnpm --filter server check:code`, `pnpm --filter server check:types`, migration generation review and a source/environment secret scan.
 - **Expected evidence:** generated migration diff, provider error-mapping tests or focused adapter evidence, package/lock diff and proof that secret-only variables are absent from runtime/browser paths.

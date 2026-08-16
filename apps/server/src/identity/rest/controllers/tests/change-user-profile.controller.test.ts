@@ -14,7 +14,7 @@ vi.hoisted(() => {
 
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { TestAuthIdentityProvider } from '@/identity/fixtures/test-auth-identity-provider'
+import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
 
 const establishmentId = '20000000-0000-0000-0000-000000000001'
 const otherEstablishmentId = '20000000-0000-0000-0000-000000000002'
@@ -59,15 +59,15 @@ function createUser(
 }
 
 describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => {
-  const authIdentityProvider = new TestAuthIdentityProvider()
+  const auth = new SupabaseAuthFixture()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(authIdentityProvider)
+    fixture = await IdentityModuleFixture.register(auth)
   })
 
   beforeEach(async () => {
-    authIdentityProvider.clear()
+    auth.clear()
     await fixture.resetDatabase()
   })
 
@@ -87,7 +87,7 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
   }
 
   function authenticateManager() {
-    authIdentityProvider.setUser(managerToken, {
+    auth.setUser(managerToken, {
       id: managerId,
       email: 'manager@example.com',
     })
@@ -97,7 +97,7 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
     const operator = createUser(operatorId, establishmentId, UserProfile.Operator)
     const target = createUser(managerId, establishmentId, UserProfile.Manager)
     await seedUsers([operator, target])
-    authIdentityProvider.setUser(operatorToken, {
+    auth.setUser(operatorToken, {
       id: operator.id,
       email: operator.email,
     })
@@ -207,7 +207,7 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
       .send({ profile: UserProfile.Manager })
 
     expect(response.status).toBe(200)
-    expect(response.body).toMatchObject({
+    expect(response.body.user).toMatchObject({
       id: target.id,
       establishmentId,
       profile: UserProfile.Manager,
@@ -227,7 +227,7 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
     )
     await seedUsers([firstManager, secondManager])
     authenticateManager()
-    authIdentityProvider.setUser('second-manager-token', {
+    auth.setUser('second-manager-token', {
       id: secondManager.id,
       email: secondManager.email,
     })
@@ -262,7 +262,7 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
     const manager = createUser(managerId, establishmentId, UserProfile.Manager)
     const target = createUser(operatorId, establishmentId, UserProfile.Operator)
     await seedUsers([manager, target])
-    authIdentityProvider.setUnavailable(true)
+    auth.setUnavailable(true)
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/users/${target.id}/profile`)

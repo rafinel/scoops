@@ -3,7 +3,7 @@ import type { UsersListParams } from '@scoops/core/identity/domain/structures'
 import type { UsersRepository } from '@scoops/core/identity/interfaces'
 import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
 import { PaginationResponse } from '@scoops/core/shared/responses/pagination-response'
-import { and, asc, count, eq, ilike, or, sql } from 'drizzle-orm'
+import { and, asc, count, eq, ilike, ne, or, sql } from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
@@ -73,6 +73,8 @@ export class DrizzleUsersRepository extends DrizzleRepository implements UsersRe
 
   async findMany(input: UsersListParams) {
     const filters = [eq(userModel.establishmentId, input.establishmentId)]
+
+    if (input.excludeUserId) filters.push(ne(userModel.id, input.excludeUserId))
 
     if (input.search) {
       const searchFilter = or(

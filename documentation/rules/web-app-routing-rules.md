@@ -268,6 +268,76 @@ composition. Do not mock the owning page or hook in a Playwright route test. Kee
 unit-level controller and hook tests under `apps/web/src/ui/**/tests`; do not use
 them as a substitute for route coverage.
 
+### Detailed integration-test standard
+
+Route integration tests must describe the complete user-visible contract of the
+route, not only its happy-path render. For every behavior that the route exposes,
+add the applicable success, validation, failure, loading, and recovery scenarios.
+At minimum, review each suite against these dimensions:
+
+- initial render, canonical URL, malformed or missing route/search values, and
+  access-control outcomes;
+- authenticated, unauthorized, anonymous, and role/status-specific behavior;
+- deferred requests, disabled or pending controls, duplicate-submit prevention,
+  and the state shown while transport is unresolved;
+- client validation for required, malformed, boundary, conflicting, and empty
+  values, including confirmation fields and invalid search parameters;
+- response handling for successful results, empty results, expected 4xx errors,
+  unexpected 5xx errors, malformed response bodies, and retry/recovery actions;
+- every meaningful user interaction: keyboard-accessible navigation, links,
+  buttons, dialogs, selects, cancel paths, confirmation paths, and state changes;
+- the REST contract: HTTP method, exact path, path parameters, query string,
+  request payload, relevant headers, response status/body, and the resulting URL,
+  visible state, refreshed data, or persisted browser state.
+
+Use deterministic faker-backed builders for domain entities, accounts, users,
+audit records, and API response bodies whenever a shared faker exists. Keep
+scenario-specific overrides local to the test so a fixture cannot accidentally
+hide the behavior under test. Do not scatter unrelated hand-written entity
+objects across suites, use one success fixture for every response state, or rely
+on arbitrary sleeps and implementation selectors.
+
+An integration test is complete only when it proves both sides of the interaction:
+the user can observe the outcome and the application made the expected transport
+or navigation decision. For mutations, assert the request and response contract,
+then assert the visible success/error state and any refresh or redirect. For
+authenticated flows, establish the session through the shared fixture, verify the
+account/authorization response, and cover at least one denied or unavailable
+state when that boundary is part of the route. If a real backend is not used,
+state clearly that the suite uses mocked transport; mocked browser coverage must
+not be presented as proof of server authorization, persistence, or external email
+delivery.
+
+Prefer one focused test per behavior over a large test with unrelated assertions.
+Before marking a route complete, inspect the suite for missing edge states and
+user paths rather than counting only the number of test cases. A route change
+without corresponding detailed integration coverage is incomplete.
+
+### Shared Playwright fixtures
+
+All browser tests under `apps/web/tests` must use the shared Playwright factory:
+
+```ts
+import { expect, test } from '../../playwright'
+```
+
+Do not import `test` or `expect` directly from `@playwright/test`, import a module
+fixture directly into a test file, or declare `test.extend` in a route suite.
+`apps/web/tests/playwright.ts` is the single composition point for the test
+factory and re-exports `expect`.
+
+Each bounded module owns its fixture implementation in a separate file under:
+
+```text
+apps/web/tests/fixtures/<module>-module-fixture.ts
+```
+
+Module fixture files export fixture classes or helpers only. The shared
+`playwright.ts` file imports those module fixtures, registers them with
+`test.extend`, and applies shared setup such as anonymous authentication. Route
+tests should consume the resulting fixtures through the shared factory so every
+suite uses the same browser setup and fixture lifecycle.
+
 If the backend is mocked, describe the suite as browser integration with mocked
 transport. It verifies the UI-to-REST contract and route behavior; server
 authorization, controller, and persistence behavior require their own server/core

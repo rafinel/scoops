@@ -39,7 +39,10 @@ describe('Onboarding action hooks', () => {
         .fn()
         .mockResolvedValue(new RestResponse({ body: registration })),
     }
-    useRestContextMock.mockReturnValue({ restClient: {} as never })
+    useRestContextMock.mockReturnValue({
+      restClient: {} as never,
+      identityService: {} as never,
+    })
     identityServiceMock.mockReturnValue(service as never)
     const { result } = renderHook(() => useRegisterIceCreamShopAction())
 
@@ -65,7 +68,10 @@ describe('Onboarding action hooks', () => {
           new RestResponse({ statusCode: 422, errorMessage: 'invalid' }),
         ),
     }
-    useRestContextMock.mockReturnValue({ restClient: {} as never })
+    useRestContextMock.mockReturnValue({
+      restClient: {} as never,
+      identityService: {} as never,
+    })
     identityServiceMock.mockReturnValue(service as never)
     const { result } = renderHook(() => useConfirmIceCreamShopOnboardingAction())
 
@@ -78,7 +84,10 @@ describe('Onboarding action hooks', () => {
   })
 
   it('keeps all onboarding actions domain-named', () => {
-    useRestContextMock.mockReturnValue({ restClient: {} as never })
+    useRestContextMock.mockReturnValue({
+      restClient: {} as never,
+      identityService: {} as never,
+    })
     identityServiceMock.mockReturnValue({} as never)
     expect(
       Object.keys(renderHook(() => useGetIceCreamShopOnboardingAction()).result.current),

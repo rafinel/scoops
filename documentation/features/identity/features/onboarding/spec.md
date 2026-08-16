@@ -1407,7 +1407,7 @@ Provider transport errors have an explicit global path:
 - add shared Core `ServiceUnavailableError` and `TooManyRequestsError` subclasses of
   `AppError`;
 - change `AuthenticationProviderUnavailableError` to extend
-  `ServiceUnavailableError` and add server
+  `ServiceUnavailableError` and add Core Identity
   `OnboardingConfirmationRateLimitedError extends TooManyRequestsError`;
 - update `GlobalErrorHandler` to map `ServiceUnavailableError` to `503` and
   `TooManyRequestsError` to `429` before its generic `AppError` branch;
@@ -1642,7 +1642,7 @@ viewports without changing the desktop split or other design semantics.
 - `apps/server/src/identity/provision/supabase/supabase-onboarding-identity-provider.ts`
 - `apps/server/src/identity/provision/token/node-onboarding-token-provider.ts`
 - `apps/server/src/identity/provision/identifier/node-onboarding-identifier-provider.ts`
-- `apps/server/src/identity/provision/errors/onboarding-confirmation-rate-limited.error.ts`
+- `packages/core/src/identity/domain/errors/onboarding-confirmation-rate-limited-error.ts`
 - `apps/server/src/identity/provision/supabase/tests/supabase-onboarding-identity-provider.test.ts`
 - `apps/server/src/identity/provision/token/tests/node-onboarding-token-provider.test.ts`
 - `apps/server/src/identity/provision/identifier/tests/node-onboarding-identifier-provider.test.ts`
@@ -1734,8 +1734,8 @@ viewports without changing the desktop split or other design semantics.
 - `apps/server/src/identity/constants/identity-providers.ts`,
   `apps/server/src/identity/provision/identity-provision.module.ts`, and
   `apps/server/src/identity/identity.module.ts`.
-- `apps/server/src/identity/provision/errors/authentication-provider-unavailable.error.ts`
-  and `apps/server/src/identity/provision/errors/index.ts`.
+- `packages/core/src/identity/domain/errors/authentication-provider-unavailable-error.ts`
+  and `packages/core/src/identity/domain/errors/index.ts`.
 - `apps/server/src/identity/rest/controllers/index.ts`,
   `apps/server/src/identity/rest/dtos/index.ts`, and
   `apps/server/src/identity/decorators/index.ts`.

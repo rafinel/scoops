@@ -1,9 +1,9 @@
 import { mock, type MockProxy } from 'vitest-mock-extended'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
-  fakeEstablishment,
-  fakeUser,
-  fakeUserRegistrationAttempt,
+  EstablishmentFaker,
+  UserFaker,
+  UserRegistrationAttemptFaker,
 } from '#identity/domain/entities/fakers/index.ts'
 import type {
   IdentityDatabase,
@@ -36,13 +36,13 @@ describe('Confirm Ice Cream Shop Onboarding Use Case', () => {
     }
     database.run.mockImplementation((operation) => operation(scope))
     tokens.hash.mockReturnValue('confirmation-hash')
-    const user = fakeUser({
+    const user = UserFaker.fake({
       id: 'subject',
       status: 'pending',
       establishmentId: 'establishment-id',
       email: 'maria@example.com',
     })
-    const attempt = fakeUserRegistrationAttempt({
+    const attempt = UserRegistrationAttemptFaker.fake({
       userId: 'subject',
       establishmentId: 'establishment-id',
       email: 'maria@example.com',
@@ -51,10 +51,10 @@ describe('Confirm Ice Cream Shop Onboarding Use Case', () => {
     users.findByProviderSubject.mockResolvedValue(user)
     attempts.findByUserId.mockResolvedValue(attempt)
     establishments.findById.mockResolvedValue(
-      fakeEstablishment({ id: 'establishment-id', status: 'pending' }),
+      EstablishmentFaker.fake({ id: 'establishment-id', status: 'pending' }),
     )
     establishments.replace.mockImplementation(async (id, changes) => ({
-      ...fakeEstablishment({ id }),
+      ...EstablishmentFaker.fake({ id }),
       ...changes,
     }))
     users.replace.mockImplementation(async (establishmentId, id, changes) => ({
@@ -95,7 +95,7 @@ describe('Confirm Ice Cream Shop Onboarding Use Case', () => {
   })
   it('is idempotent for a confirmed attempt', async () => {
     attempts.findByUserId.mockResolvedValue(
-      fakeUserRegistrationAttempt({
+      UserRegistrationAttemptFaker.fake({
         status: 'confirmed',
         userId: 'subject',
         email: 'maria@example.com',

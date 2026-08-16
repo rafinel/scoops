@@ -9,6 +9,7 @@ import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import type { EstablishmentsRepository } from '@scoops/core/identity/interfaces'
 import type { RegistrationAttemptsRepository } from '@scoops/core/identity/interfaces'
 import type { UsersRepository } from '@scoops/core/identity/interfaces'
+import type { UserAuditRecordsRepository } from '@scoops/core/identity/interfaces'
 
 export type IdentitySeed = {
   establishments: EstablishmentCreate[]
@@ -25,9 +26,12 @@ export class IdentitySeeder {
     private readonly usersRepository: UsersRepository,
     @Inject(IDENTITY_REPOSITORIES.registrationAttempts)
     private readonly registrationAttemptsRepository: RegistrationAttemptsRepository,
+    @Inject(IDENTITY_REPOSITORIES.userAuditRecords)
+    private readonly userAuditRecordsRepository: UserAuditRecordsRepository,
   ) {}
 
   async clear(): Promise<void> {
+    await this.userAuditRecordsRepository.removeAll()
     await this.registrationAttemptsRepository.removeAll()
     await this.usersRepository.removeAll()
     await this.establishmentsRepository.removeAll()

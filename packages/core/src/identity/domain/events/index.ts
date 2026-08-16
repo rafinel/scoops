@@ -13,3 +13,7 @@ export * from '#identity/domain/events/user-registration-attempt-created-event.t
 export * from '#identity/domain/events/user-registration-attempt-expired-event.ts'
 export * from '#identity/domain/events/user-registration-attempt-updated-event.ts'
 export * from '#identity/domain/events/user-updated-event.ts'
+export * from '#identity/domain/events/user-invited-event.ts'
+export * from '#identity/domain/events/user-invitation-resent-event.ts'
+export * from '#identity/domain/events/user-invitation-cancelled-event.ts'
+export * from '#identity/domain/events/user-invitation-accepted-event.ts'

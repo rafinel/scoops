@@ -331,10 +331,21 @@ automatically enforced by local Git hooks.
 
 ## CI/CD status
 
-The repository does not currently contain GitHub Actions workflows or Coolify
-deployment automation. Validation and deployment are manual until CI/CD files are
-added. New automation must use Scoops-specific workflow names, secrets, and
-environment variables.
+The repository contains three path-filtered GitHub Actions validation workflows:
+
+- `.github/workflows/core-package-ci.yml` (`Core CI`) runs Core code checks, type checks
+  and tests for Core and shared package inputs;
+- `.github/workflows/server-app-ci.yml` (`Server CI`) runs Server code checks, type checks,
+  tests and build for Server or Core inputs;
+- `.github/workflows/web-app-ci.yml` (`Web CI`) generates routes and runs Web code checks,
+  type checks, unit tests, Playwright browser integration tests and build for Web or Core
+  inputs.
+
+The workflows run on matching pushes and pull requests. Their checked-in `paths` filters are
+authoritative for deciding which checks apply to a candidate commit. The repository does not
+currently contain Coolify deployment automation; deployment remains a separate manual or
+externally managed action. New automation must use Scoops-specific workflow names, secrets
+and environment variables.
 
 ## Recommended local validation
 

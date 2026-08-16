@@ -1,6 +1,6 @@
 import { mock, type MockProxy } from 'vitest-mock-extended'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { fakeAccount, fakeUser } from '#identity/domain/entities/fakers/index.ts'
+import { AccountFaker, UserFaker } from '#identity/domain/entities/fakers/index.ts'
 import { ProfileChangeNotAllowedError } from '#identity/domain/errors/profile-change-not-allowed-error.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { UserStatus } from '#identity/domain/structures/user-status.ts'
@@ -38,8 +38,8 @@ describe('Change User Profile Use Case', () => {
   })
 
   it('changes another same-establishment user and captures time once before the transaction', async () => {
-    const actor = fakeAccount()
-    const target = fakeUser({
+    const actor = AccountFaker.fake()
+    const target = UserFaker.fake({
       id: 'target-id',
       establishmentId: actor.establishmentId,
       profile: UserProfile.Operator,
@@ -50,7 +50,7 @@ describe('Change User Profile Use Case', () => {
 
     await expect(
       useCase.execute({ actor, userId: target.id, profile: UserProfile.Manager }),
-    ).resolves.toEqual(updatedUser)
+    ).resolves.toMatchObject({ user: updatedUser, auditRecords: [] })
     expect(datetimeProvider.now).toHaveBeenCalledTimes(1)
     expect(usersRepository.replace).toHaveBeenCalledWith(
       actor.establishmentId,
@@ -63,8 +63,8 @@ describe('Change User Profile Use Case', () => {
   })
 
   it('returns the existing user without writing when the profile is unchanged', async () => {
-    const actor = fakeAccount()
-    const target = fakeUser({
+    const actor = AccountFaker.fake()
+    const target = UserFaker.fake({
       id: 'target-id',
       establishmentId: actor.establishmentId,
       profile: UserProfile.Operator,
@@ -73,13 +73,13 @@ describe('Change User Profile Use Case', () => {
 
     await expect(
       useCase.execute({ actor, userId: target.id, profile: UserProfile.Operator }),
-    ).resolves.toBe(target)
+    ).resolves.toMatchObject({ user: target, auditRecords: [] })
     expect(usersRepository.countActiveManagers).not.toHaveBeenCalled()
     expect(usersRepository.replace).not.toHaveBeenCalled()
   })
 
   it('rejects self-change before looking up the target', async () => {
-    const actor = fakeAccount()
+    const actor = AccountFaker.fake()
 
     await expect(
       useCase.execute({ actor, userId: actor.id, profile: UserProfile.Operator }),
@@ -88,7 +88,7 @@ describe('Change User Profile Use Case', () => {
   })
 
   it('rejects a missing target without writing', async () => {
-    const actor = fakeAccount()
+    const actor = AccountFaker.fake()
     usersRepository.findByIdInEstablishment.mockResolvedValue(undefined)
 
     await expect(
@@ -102,9 +102,9 @@ describe('Change User Profile Use Case', () => {
   })
 
   it('rejects a cross-establishment target even if the repository returns one', async () => {
-    const actor = fakeAccount()
+    const actor = AccountFaker.fake()
     usersRepository.findByIdInEstablishment.mockResolvedValue(
-      fakeUser({
+      UserFaker.fake({
         id: 'other-user',
         establishmentId: 'other-establishment',
       }),
@@ -117,8 +117,8 @@ describe('Change User Profile Use Case', () => {
   })
 
   it('rejects demoting the last active Manager', async () => {
-    const actor = fakeAccount()
-    const target = fakeUser({
+    const actor = AccountFaker.fake()
+    const target = UserFaker.fake({
       id: 'manager-id',
       establishmentId: actor.establishmentId,
       profile: UserProfile.Manager,
@@ -137,8 +137,8 @@ describe('Change User Profile Use Case', () => {
   })
 
   it('propagates a transaction conflict without performing a second transaction itself', async () => {
-    const actor = fakeAccount()
-    const target = fakeUser({
+    const actor = AccountFaker.fake()
+    const target = UserFaker.fake({
       id: 'manager-id',
       establishmentId: actor.establishmentId,
       profile: UserProfile.Manager,

@@ -47,6 +47,65 @@ export type LegalTopic = {
 Non-exported helper types may remain in the file where they are used. Barrel files named
 `index.ts` must only re-export declarations and must not declare types of their own.
 
+## Domain faker conventions
+
+Test fakers for core entities belong under the owning module's
+`domain/entities/fakers` directory. Keep one faker class per entity and name it
+`<EntityName>Faker`:
+
+```ts
+import { faker } from '@faker-js/faker'
+
+import type { Account } from '../account'
+import { UserProfile } from '../../structures/user-profile'
+
+export class AccountFaker {
+  static fake(overrides: Partial<Account> = {}): Account {
+    return {
+      id: faker.string.uuid(),
+      establishmentId: faker.string.uuid(),
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      profile: UserProfile.Manager,
+      ...overrides,
+    }
+  }
+
+  static fakeMany(count = 10): Account[] {
+    return Array.from({ length: count }, () => AccountFaker.fake())
+  }
+}
+```
+
+Every core faker must expose both methods:
+
+- `static fake(overrides: Partial<Entity> = {})` returns one valid entity;
+- `static fakeMany(count = 10)` returns exactly `count` independently generated
+  entities by delegating to `fake()`.
+
+Use `@faker-js/faker` for generated identity fields and realistic values. Keep
+defaults valid for the entity and stable where time-sensitive assertions depend
+on them. Apply overrides last so tests can express the state under examination
+without rebuilding unrelated entity fields. When a scenario contains related
+entities, override their IDs explicitly so the relationship remains coherent.
+
+Do not export free functions such as `fakeAccount()` or place faker logic in
+production entities, structures, use cases, interfaces, or application layers.
+Faker classes are test data builders only and must not add business behavior.
+Export every faker class from the module's `fakers/index.ts` barrel, and import
+it by class name in tests:
+
+```ts
+import { AccountFaker } from '#identity/domain/entities/fakers/index.ts'
+
+const manager = AccountFaker.fake({ profile: UserProfile.Manager })
+const operators = AccountFaker.fakeMany(3)
+```
+
+Do not scatter hand-written complete entities through tests when a core faker
+exists. Keep only the behavior-specific overrides in the test, and add or
+update the faker when a new valid default or entity state is needed.
+
 ## Business rules belong to use cases
 
 Every business rule in `packages/core` must be implemented exclusively inside a

@@ -371,6 +371,8 @@ profile, status and recent activity.
 - **States:** the listing must distinguish between `Pending`, `Active` and `Inactive`.
 - **Detail:** each user must have a view with data, available actions
   and administrative history.
+- **Current account:** the authenticated user must not appear in this management list or
+  be available through its detail route; personal data is managed through My Account.
 - **Isolation:** no results can include users from another ice cream shop.
 
 ##### UI/UX rules

@@ -1,84 +1,95 @@
 ---
 name: create-spec
-description: Create, refine, and judge an implementation-ready feature Spec from a PRD, GitHub Issue, report, existing reference, or direct request, grounded in repository rules and real code paths.
+description: Create or refine an implementation-ready feature Spec from a PRD, GitHub Issue, report, existing reference, or direct request, grounded in repository rules and real code paths.
 ---
 
 # Create a Spec
 
-Author the Spec in the current task. Do not create another user-owned thread. Use this
-workflow for feature delivery or a feature-scoped change; use a direct workflow for
-maintenance without a feature Contract.
+Create or revise the Spec in the current task. Do not create another user-owned thread.
+Use this workflow for a feature or feature-scoped change; use a direct maintenance workflow
+when no feature Contract is needed.
 
 ## Repository authority
 
-Read the root and applicable nested `AGENTS.md` files before research. Repository
-instructions override generic workflow assumptions, especially traceability, source
-systems, tests, architecture, design tools, commands, and terminology.
+Read the root and applicable nested `AGENTS.md` files, then use
+`documentation/rules.md` to select and read every applicable Rule. Read the source request,
+Architecture, Modules, affected PRD, Design, Tooling and actual code paths required by the
+repository. Repository authority overrides generic workflow assumptions.
 
-Do not assume Jira, Confluence, a specific migration path, framework, test taxonomy, or
-folder convention. Discover them from repository instructions, documentation, tooling,
-configuration, and source. Never invent an external ticket or migrate traceability to a
-system the repository does not use.
+Use the repository's real source system and terminology. Do not invent Jira, Confluence,
+migrations, commands, test categories, paths or framework conventions. Inspect the
+worktree and preserve unrelated changes.
 
-## Classify the delivery
+## Classify and research
 
-Identify the actual source as one of:
+Record the real source as `prd`, `issue`, `report` or `direct-request`. Use compact mode for
+a small cohesive delivery and complete mode when it crosses applications/layers, changes
+persistence or integrations, contains multiple UI states, or has meaningful security,
+concurrency, migration or operational risk.
 
-- `prd`: a product requirements document at the repository-approved URL or path;
-- `issue`: a repository-approved issue URL, such as a GitHub Issue;
-- `report`: a bug or security report that is safe to reference;
-- `direct-request`: the current task or another explicit user request.
+Before writing, inspect for every affected boundary:
 
-Use compact mode for a small cohesive change. Use complete mode when the delivery crosses
-workspaces/layers, adds persistence or external integration, includes multiple user states,
-or has meaningful security, concurrency, migration, or UI risk.
+- existing paths, declarations, exports, configuration and generated artifacts;
+- current control/data flow and the exact technical gap;
+- contracts crossing applications or layers;
+- existing references and patterns to reuse;
+- installed versions and current library documentation when an evolving API matters;
+- security, tenancy, concurrency, side-effect, SSR/hydration, provider and migration risk.
 
-Define `scope` with the workspaces, directories, configuration, generated outputs, and
-documentation expected to change. Revisit it when research expands the delivery.
+Treat documentation as intent when it conflicts with code and surface the discrepancy.
+Adopt supplied references only where they fit the target repository and state intentional
+deviations.
 
-## Research before writing
+## Clarification and authority gate
 
-Read in this order:
+Research may happen before clarification; Spec authoring may not. Before creating or
+modifying `spec.md`, identify unresolved choices that could materially change product
+behavior, scope, architecture, domain ownership, persistence, security, APIs, integrations,
+provider behavior, UI/design, validation or delivery risk.
 
-1. the request source and referenced implementation/design files;
-2. the repository rule router and every selected rule;
-3. Architecture, module ownership, affected PRD, design, and tooling documents required
-   by repository instructions;
-4. the actual code paths, package versions, configuration, exports, fixtures, and similar
-   implementations for every affected layer;
-5. current library documentation through the repository-approved documentation MCP when
-   an evolving framework or SDK decision matters.
+Resolve a choice from repository authority when one safe answer is already established.
+Otherwise ask the user concise questions covering the applicable areas:
 
-Inspect the worktree and preserve unrelated changes. Treat documentation as intent when it
-conflicts with code and surface the discrepancy.
+- **Product:** actors, permissions, success/rejection behavior, states, scope and deferrals;
+- **Technical:** ownership, contracts, transactions, concurrency, failure semantics,
+  integrations, dependencies and runtime constraints;
+- **Design:** authoritative frames/states, responsive behavior, allowed deviations and
+  missing references;
+- **Validation:** automated boundaries, manual flows, accounts/data, viewports and evidence.
 
-For each affected layer, record:
+For every material question, provide repository evidence, a recommendation, alternatives
+and impact. Do not ask the user to decide facts already fixed by Rules, Architecture or
+established code. Write only after every material ambiguity is answered or the user
+explicitly accepts a documented assumption.
 
-- real existing paths and their relevant declarations;
-- reference implementations to follow, including external/local references explicitly
-  supplied by the user;
-- current data/control flow and where it changes;
-- contracts crossing layers or applications;
-- generated files and their canonical commands;
-- risks, gaps, concurrency, security, tenancy, SSR/hydration, and external-provider
-  limitations where applicable.
+When research shows that authoritative documentation must change:
 
-When a supplied reference and the repository differ, preserve the requested pattern only
-where it fits the target repository. State intentional deviations instead of copying
-obsolete frameworks, migrations, test conventions, secrets, or out-of-scope operations.
+1. identify the current statement, evidence, proposed change and affected scope;
+2. obtain user approval for product behavior, global Rules, architecture boundaries,
+   module ownership or other normative changes;
+3. update the PRD, Rule, Architecture, Modules, Design or Tooling document first;
+4. reread the changed authority and recompute the Rule Pack before writing the Spec.
 
-Resolve material choices before finalizing. Ask only when local evidence and repository
-rules cannot produce a safe answer. Record accepted assumptions and explicitly deferred
-product requirements.
+When an implementation finding shows that a reusable Rule was missing, ambiguous or
+too easy to misapply, reinforce the relevant Rule document with a focused
+`## Antipatterns to Avoid` section before continuing implementation. Each entry should
+state the prohibited pattern, the required alternative and the validation that proves
+compliance. Keep the entry reusable across features; feature-specific behavior remains
+in the Spec's acceptance criteria. Record the evidence and authority change in the
+Spec's Documentation alignment and revision history, then reread the Rule and rebuild
+the Rule Pack.
 
-## File and frontmatter
+Feature-specific behavior and technical choices stay in the Spec. Reusable conventions
+belong in their authoritative documentation.
 
-Create `documentation/features/<domain>/<feature>/spec.md`. For a change to an already
-implemented feature, use
+## Location and metadata
+
+Create `documentation/features/<domain>/<feature>/spec.md`. For a new change to an already
+concluded feature, create
 `documentation/features/<domain>/<feature>/changes/<change-name>/spec.md`. Use short
 kebab-case names.
 
-Use only metadata supported by the repository. A typical frontmatter is:
+Use only supported metadata and omit empty fields:
 
 ```yaml
 ---
@@ -96,285 +107,219 @@ last_updated_at: YYYY-MM-DD
 ---
 ```
 
-Do not add empty metadata. Preserve existing traceability across revisions. Do not include
-Jira-specific metadata unless repository instructions explicitly require Jira.
+`plan.md` is optional and exists only when execution needs phases or a durable ledger.
+`evaluation.md` is created at implementation kickoff, not during Spec authoring. The Spec
+may reference the expected `./evaluation.md` path.
 
-`plan.md` is optional and recommended when phases, risk, or dependencies need a ledger.
-`evaluation.md` is required after implementation/final judgment unless the Spec is
-abandoned before implementation. The Spec defines intent; final logs and implementation
-evidence belong in `evaluation.md`.
+Use only these Spec statuses:
 
-## Required document structure
+- `draft` — contract authoring or amendment;
+- `open` — implementation-ready contract;
+- `in_progress` — implementation or conclusion is active;
+- `completed` — final PR CI passed and delivery closed.
 
-Write these sections:
+Findings, blockers and verdicts are recorded separately; they do not create more Spec
+statuses.
 
-1. **Context** — objective, source, why the chosen Spec mode applies, and documentation
-   limitations.
-2. **Scope** — explicit in-scope and out-of-scope behavior.
-3. **Product alignment** — delivered PRD requirements, partial slices, and deferred
-   outcomes without weakening the PRD.
-4. **Contract** — functional requirements and acceptance criteria.
-5. **Current state** — concise evidence from the repository.
-6. **Technical solution** — end-to-end responsibilities and flow per affected layer.
-7. **Implementation blueprint** — exact declarations, file inventory, decisions, runtime
-   flows, removals, and open technical questions.
-8. **Validation plan** — commands and real/manual validation proportional to risk.
-9. **Evaluation** — link to `evaluation.md`.
-10. **Documentation alignment** — PRD/Architecture/module documents changed or confirmed.
-11. **Premises and resolved questions**.
-12. **Amendments** — one dated entry per revision explaining material changes.
+## Required Spec structure
 
-Omit only a section that is genuinely inapplicable, and say why when its absence could be
-ambiguous.
+Write five top-level sections:
 
-## Contract rules
+1. **Context and scope**
+2. **Implementation Contract**
+3. **Technical Contract**
+4. **Validation Contract**
+5. **Documentation alignment and revision history**
 
-Use only `RF-*` and `CA-*` as required IDs. Keep acceptance criteria in list format, not a
-table:
+Keep compact Specs short. Omit conditional subsections instead of writing empty or “not
+applicable” sections. State each fact once and reference its ID, contract or path elsewhere.
+The Spec owns expected behavior and technical/evidence contracts; the Plan owns execution;
+`evaluation.md` owns actual evidence, findings and verdicts.
+
+### 1. Context and scope
+
+Include concise subsections for:
+
+- **Objective and source:** outcome, source and delivery mode;
+- **Current behavior and product gap:** user-visible baseline and missing behavior;
+- **Scope and product alignment:** in scope, out of scope, delivered/partial/deferred PRD
+  outcomes without weakening the PRD;
+- **Product decisions and assumptions:** resolved product choices and explicitly accepted
+  premises, not an interview transcript.
+
+Do not put repository implementation evidence or technical decisions here.
+
+### 2. Implementation Contract
+
+Define observable behavior with `RF-*` requirements and `CA-*` acceptance criteria. `MV-*`
+may identify manual scenarios but is not another requirement system.
 
 ```md
 - **CA-01 — RF-01**
   - **Given:** precondition.
   - **When:** action.
   - **Then:** observable result.
-  - **Expected evidence:** exact test, browser, sensor, or inspection boundary.
+  - **Expected evidence:** exact test boundary and/or `MV-01`.
 ```
 
-Every RF must have acceptance evidence. Cover success, rejection, authorization, tenant
-isolation, concurrency, provider failure, hydration/session restoration, accessibility,
-and secret boundaries when relevant. Evidence names must follow the repository's test
-taxonomy; do not invent test categories. If server integration tests are defined only for
-controllers and jobs, express persistence behavior through those boundaries and do not
-propose repository/database integration suites.
+Every RF must have acceptance evidence. Cover applicable success, rejection, authorization,
+tenant isolation, concurrency, provider failure, session/hydration restoration,
+accessibility, performance and secret boundaries. Keep internal paths and algorithms out of
+the behavioral requirements.
 
-Security, performance, architecture, and provider limitations may be acceptance criteria
-or technical restrictions. Do not add alternate ID systems, evidence comments, custom
-gates, or baselines unless repository instructions require them.
+Add **Cross-cutting restrictions** only for applicable security, privacy, accessibility,
+concurrency, idempotency, performance, provider or failure constraints.
 
-### Test creation is part of the Contract
+#### Design Contract — conditional
 
-Treat test creation as an implementation requirement, not as optional follow-up work.
-Before finalizing a Spec, derive the test boundary for every RF and CA from the actual
-repository taxonomy and name the concrete test file or suite that will provide its
-evidence. Include those paths in the implementation blueprint and file inventory.
+For design-backed UI, include a concise **Design Contract** subsection linking
+`design/manifest.md` and defining required frames/states, screenshot coverage, exact
+viewports, responsive behavior, implementation surfaces and allowed deviations. The
+manifest owns the detailed frame inventory; do not duplicate it in `spec.md`.
 
-For every behavior-owning UI page or widget, specify the appropriate component tests and
-hook tests for its rendered states, validation, interactions, async success/failure,
-loading, persistence, navigation, and stale-request behavior. A pure renderer still
-requires component tests for its props and state variants. Route-level browser tests are
-supplemental evidence and must not silently replace page/widget or hook tests when the
-Spec names those boundaries. If a browser test is the only appropriate boundary, state
-why and identify the behavior it uniquely proves.
+During Spec research, use the Pencil skill and MCP for `.pen` contents. Never inspect a
+`.pen` file with filesystem tools. Before the Spec becomes `open`:
 
-For server and Core changes, name the corresponding unit, provider, controller/job
-integration, persistence, concurrency, or browser test boundary only when that boundary
-is supported by repository rules and existing patterns. Do not describe a test as
-evidence unless the test is explicitly planned for creation or modification. A Spec is
-not implementation-ready if its required behavior has no named test path, fixture,
-controlled dependency, or observable assertion.
+1. inspect editor state/schema, every relevant frame/state, components, variables, viewport
+   and node name;
+2. save one reference screenshot per relevant frame/state under the feature-local
+   `design/` directory;
+3. create `design/manifest.md` mapping Pencil file, Node ID, state, viewport, screenshot,
+   implementation surface, code tokens/components and required validation;
+4. record layout-problem inspection for every mapped node;
+5. define responsive behavior when no mobile frame exists.
 
-The validation plan must run every newly named test boundary and the relevant workspace
-suite. Record mocked transport, real server-backed, and manual browser evidence as
-distinct categories; passing one category does not imply that another category exists.
+Builders and the Reviewer use the saved bundle and do not require live Pencil.
+Reopen Pencil only when the Design Contract changes or the user requests a refresh.
 
-## Implementation-ready technical detail
+### 3. Technical Contract
 
-The Spec must be implementable without rediscovering architecture. Include exact paths,
-TypeScript signatures, dependencies, input/output types, algorithms, status/error mapping,
-transaction semantics, state ownership, and generated commands where applicable. Do not
-write full implementation bodies.
+The Technical Contract translates the behavioral Contract into an implementable delta.
+Use these subsections:
 
-### Organize implementation by application and technical layer
+#### Current technical state
 
-The **Implementation blueprint** must begin with an implementation directory organized
-first by affected application or package and then by the technical layers that actually
-change. Use real repository names as headings, for example:
+Record only relevant existing paths/declarations, current control/data flow, reusable
+contracts and references, generated artifacts, material version constraints,
+documentation/code discrepancies and the exact technical gap. Do not inventory the
+repository or describe future implementation here.
 
-```md
-### Implementation map by application and technical layer
+#### Domain Contract — conditional
 
-#### `packages/core`
-##### Domain structures and errors
-##### Provider and repository contracts
-##### Use cases
+When domain concepts change, define entities and identity, structures/value objects,
+invariants, relationships and ownership, state transitions, domain errors, domain events
+and domain-owned interfaces/signatures. Do not include class bodies.
 
-#### `apps/server`
-##### Provision providers
-##### Database model, mapper, repositories and migration
-##### REST schemas, DTOs, guards and controllers
-##### Messaging and composition
+#### Solution and runtime flow
 
-#### `apps/web`
-##### Provision and REST adapters
-##### Application hooks and contexts
-##### UI widgets
-##### Routes and generated metadata
-```
+Explain end-to-end ownership, boundary crossings, state changes, transaction boundaries,
+side effects and material failure branches. Add one compact Mermaid flow only when three or
+more layers or branches make prose insufficient. Do not diagram every file or component.
 
-The example headings are not a fixed architecture. Include only applications/packages and
-layers proven by repository research, use their native terminology, and add other real
-layers when needed. Do not create empty or “not applicable” layer headings.
+#### Implementation map
 
-For every layer, group the relevant classes, functions, types and files and specify:
+Organize by affected application/package and actual technical layer. Each affected path
+appears once and is classified as **Create**, **Modify**, **Generate** or **Remove**. For
+each path include only applicable:
 
-- **Location:** exact existing or planned repository path;
-- **Declarations:** exact class, function, method, interface and type names/signatures;
-- **Dependencies:** injected contracts, providers, contexts or libraries;
-- **Input/output:** request, response, props, state or persisted shapes crossing the
-  boundary;
-- **Responsibility/algorithm:** what the declaration owns and what it must not own;
-- **Integration:** callers, consumers, exports, registration/composition and generated
-  artifacts affected by the change.
+- exact declarations and signatures;
+- responsibility and what it must not own;
+- dependencies;
+- input/output crossing the boundary;
+- callers, consumers, exports, registration/composition and generation.
 
-For multi-application delivery, finish the directory with the cross-application control
-and data flow: which application exposes a boundary, which consumes it, the transport or
-event format, state/serialization mapping, and ownership of side effects. A compact
-Mermaid flow is preferred when three or more layers participate.
+Do not create a second file inventory. Verify that create/modify/generate/remove
+classification matches the filesystem. For UI, identify page/widget boundaries, props,
+state owner or pure-renderer status, render variants, actions, child widgets, responsive
+behavior and tests. Follow the actual UI Rules and established repository structure.
 
-The directory complements rather than replaces exact contracts, technical decisions and
-the create/modify/generate/remove file inventory. All paths and declarations must remain
-consistent across those sections.
+#### Integration Contract — conditional
 
-For UI layers, make the widget implementation directly actionable. For every page,
-layout and nested widget, specify its component and widget-specific props type, path,
-owning hook (or explicitly state that it is a pure renderer), state/render variants,
-callbacks/actions, child widgets and complete directory tree. State which hook/context
-owns behavior so nested widgets do not infer business state or introduce a second source
-of truth. Map each design frame/state to the exact widget that implements it.
+When boundaries change, define only changed REST operations, events/jobs, provider
+interfaces and cross-application contracts: authentication/authorization, input/output
+types, validation/serialization, status/error mapping, idempotency and side effects. Use a
+JSON example only when a signature/schema would remain ambiguous.
 
-### Existing references
+#### Persistence Contract — conditional
 
-List the real paths and declarations used as patterns. Explain what each reference governs.
-When the user names a specific reference, inspect it and identify which aspects are adopted
-and which are intentionally not adopted.
+When persisted state changes, define only changed models/fields, indexes, constraints,
+repository operations, mappings, migrations, compatibility/rollout, transaction/isolation,
+locking, retries and concurrency. Do not reproduce unchanged tables or write migration
+bodies. Keep external side effects outside retryable transactions unless an approved
+outbox pattern says otherwise.
 
-### Core/domain
+#### Technical Decisions
 
-- Place concepts with identity in `domain/entities`; value/state/provider projections
-  without local identity belong in `domain/structures`, subject to repository rules.
-- Define domain entities, structures, repository/provider/service contracts, use cases,
-  and domain errors in their owning module.
-- Give exact signatures and use-case algorithms, including neutral not-found/auth behavior.
-- Keep business rules in use cases and infrastructure/framework types out of Core.
-- Prefer named domain error subclasses when failures participate in control flow or REST
-  mapping. Keep provider availability errors in infrastructure and HTTP parsing/validation
-  errors at the transport boundary.
-- Derive Zod enum values from runtime Core domain objects; do not duplicate string arrays.
-  Apply the same rule to persistence enums when repository conventions support it.
-- Add required entity/structure fakers and barrels when tests consume new domain types.
+Record only consequential choices with a real alternative: choice, reason and accepted
+trade-off. Standard repository conventions are not decisions and should not be repeated.
 
-### Transactions and side effects
+### 4. Validation Contract
 
-Preserve the repository's database abstraction. Do not introduce a second transaction
-method when one repository-approved transaction API can express the requirement. Specify
-isolation, locking, retry, conflict translation, and concurrency evidence in the adapter.
+Testing is part of implementation. Derive every test boundary from the repository taxonomy
+and name concrete test files/suites and the behavior/CA IDs they prove. Avoid speculative
+lists of every test function or arbitrary coverage percentages. Keep mocked transport,
+real integration and manual browser evidence distinct.
 
-For retryable transactions:
+Define executable `MV-*` scenarios for behavior requiring manual validation. Each includes:
 
-- capture deterministic inputs such as business time once before entering the callback;
-- restrict the replayable callback to repository work through its database scope;
-- never call providers or emit external side effects inside the callback;
-- publish messages, remote mutations, or other side effects only after a successful
-  commit, unless an established outbox pattern says otherwise.
+- mapped `CA-*`, services/health checks, accounts/fixtures and preconditions;
+- starting route/state, exact viewport and saved design reference when applicable;
+- numbered actions and keyboard path;
+- expected visible result, final URL, network and persistence/provider effect;
+- accessibility/DOM/layout, focus, console and failed-request checks;
+- evidence target and cleanup.
 
-### Application/server boundaries
+List actual repository generation, code, type, unit, integration, browser and final build
+commands that apply. Link the expected evidence record as `./evaluation.md`.
 
-Specify provider tokens/registration, environment variables, guards/middleware, request
-context, decorators, schemas, DTOs, controllers/jobs, repositories, mappers, models,
-migrations, modules, seeders, fixtures, and error translation that actually apply.
+The Reviewer personally executes every applicable `MV-*` scenario and compares
+design-backed UI against saved references at the declared viewports. Builder checks and
+automated Playwright are supporting evidence, not substitutes for manual review.
 
-Derive server-controlled values from authenticated context, route params, or server state;
-exclude them from request schemas. State exact public HTTP behavior without leaking local
-account status or provider payloads. Keep service-role credentials and signing secrets out
-of browser/runtime boundaries that do not need them.
+### 5. Documentation alignment and revision history
 
-### Web/UI boundaries
+Under **Documentation alignment**, list each governing PRD, Architecture, Modules, Design,
+Tooling and other authoritative document, its applicability and whether it changed or was
+confirmed.
 
-Specify provider factories, service adapters, context/state ownership, route protection,
-SSR/client behavior, token refresh, async race protection, return-URL sanitization,
-loading/error/empty/success states, widget tree, responsive behavior, accessibility, and
-browser evidence.
+Under **Rule Pack**, list exact applicable Rule paths and the evaluated repository revision.
+Builders and the Reviewer read the source documents directly.
 
-Every widget that is a layout must use the `Layout` suffix consistently across its full
-public contract:
+Under **Revision history**, record one dated entry per material Spec revision. Do not put
+implementation attempts, test results or verdicts here.
 
-- the React component name ends in `Layout`, for example `AuthVisualLayout`;
-- the widget-specific props type ends in `LayoutProps`, for example
-  `AuthVisualLayoutProps`;
-- related public types retain the layout identity, for example
-  `AuthVisualLayoutVariant` instead of `AuthVisualVariant`;
-- the kebab-case widget directory ends in `-layout`, for example
-  `widgets/layouts/auth-visual-layout/`.
+## Integrity and author handoff
 
-When an existing layout violates this invariant, the Spec must classify the change as a
-coherent rename/move: list the new path under **Files to create**, the old path under
-**Files to remove**, every importing consumer under **Files to modify**, and rename the
-component, props and related public types together. Do not leave compatibility aliases
-with names that omit `Layout` unless repository evidence requires a staged migration.
+There is no Spec Reviewer. Keep the Spec `draft` while clarification or integrity work
+remains.
+Before setting it to `open`, verify:
 
-Use one clear source of truth for state. Do not introduce a store, context, middleware, or
-parallel provider merely because it is common; follow the repository and explicit user
-direction. Describe cancellation/generation handling when stale async auth/data work could
-overwrite logout, navigation, or newer state.
+- metadata, source and revision consistency;
+- complete RF/CA traceability and named evidence;
+- filesystem-valid implementation-map classifications;
+- no unresolved material product or technical ambiguity;
+- complete/current design bundle when applicable;
+- executable manual scenarios and valid documentation/Rule Pack paths;
+- Markdown and artifact integrity.
 
-### File inventory
+After creating or materially revising the Spec, return a concise author summary containing:
 
-Separate paths under clear headings such as **Files to create**, **Files to modify**,
-**Files to generate**, and **Files to remove**. Do not use parenthetical `new file`
-annotations. Ensure every nonexistent path is under creation/generation and every path
-under modification exists.
+- clickable path, revision and status;
+- objective, user-visible outcome, scope and important exclusions;
+- key product and technical decisions;
+- affected applications/layers and technical approach;
+- design screenshot count/coverage when applicable;
+- automated boundaries and `MV-*` coverage;
+- accepted assumptions, risks or blockers;
+- recommended route: `implement-spec` or `implement-plan`, with rationale.
 
-Use visually clear Markdown:
+Recommend `implement-spec` for a small cohesive change with stable dependencies, limited
+ownership and no meaningful waves. Recommend `implement-plan` for dependent phases,
+multiple applications/shared ownership, migration/provider/concurrency/security risk,
+multiple design-backed surfaces/manual environments, useful parallel lanes or a needed
+recovery ledger. Do not choose by file count alone.
 
-- one top-level list item per file or coherent file group;
-- a blank line before nested responsibilities or code blocks;
-- bold labels such as **Dependencies**, **Request**, **Response**, **Algorithm**,
-  **Route**, **Input**, **Output**, **Errors**, and **Metadata**;
-- balanced fenced blocks nested under their owning item;
-- no orphan punctuation, duplicate continuation text, or mixed create/modify lists.
-
-## Pencil-backed UI
-
-When UI is tied to Pencil, use the Pencil skill and MCP. Treat `.pen` files as encrypted
-and never inspect them with filesystem tools.
-
-1. Inspect editor state/schema, supplied Node IDs, reusable components, variables, exact
-   viewport, and node names.
-2. Add a mapping table: Pencil file, Node ID, frame/state, feature surface, and required UI
-   validation.
-3. Mark design-only references that must not expand functional scope.
-4. Require mapping to existing code tokens/components rather than hardcoded Pencil values.
-5. Require a Pencil screenshot and layout-problem inspection for every mapped node.
-6. Require manual browser validation through the repository-approved interactive workflow
-   at the design viewport, plus accessibility tree/DOM, URL, network, console, keyboard,
-   and narrow-viewport checks.
-7. Record route, Node ID, viewport, comparison, screenshot/layout result, and remaining
-   findings in `evaluation.md`.
-
-Desktop-only frames do not waive responsive validation and must not be treated as mobile
-specifications.
-
-## Validation plan
-
-Use commands from repository tooling. Include only applicable generation, format,
-code-check, typecheck, unit, controller/job integration, automated browser, manual browser,
-and build commands. State the distinction between mocked browser coverage and a real
-authenticated/server-backed flow.
-
-For real UI validation, name required services, health checks, target routes/states,
-viewport, keyboard path, accessibility checks, console/network inspection, persisted
-effect, design Node IDs, and process cleanup.
-
-## Judge Spec
-
-Trigger `judge-spec-agent` as a read-only `Judge Spec` subagent in the current task. Send
-the source, current Spec, research, Architecture, applicable Rules, reference
-implementations, and explicit repository/user constraints without persuasive framing.
-
-- On `failed`, correct every concrete blocker and submit the current file again.
-- On `accepted`, set `status: open` and recommend `implement-spec` or `create-plan` based
-  on size/risk.
-
-After every user-requested amendment, increment `revision`, update documentation alignment
-and amendment history, rerun Markdown integrity checks, and repeat Judge Spec. Do not call
-an earlier accepted revision current after the Contract or blueprint changes.
+For a material amendment before conclusion, set the current Spec to `draft`, increment the
+revision, repeat clarification and authority alignment, refresh affected design/evidence
+contracts, run integrity checks and return it directly to `open`. Re-evaluate the
+implementation route. Earlier affected implementation evidence becomes historical.

@@ -14,6 +14,6 @@ import { SharedMessagingModule } from '@/shared/messaging/shared-messaging.modul
     SharedMessagingModule,
   ],
   providers: [ExpireIceCreamShopOnboardingsJob],
-  exports: [ExpireIceCreamShopOnboardingsJob],
+  exports: [ExpireIceCreamShopOnboardingsJob, SharedMessagingModule],
 })
 export class IdentityMessagingModule {}

@@ -228,7 +228,7 @@ the Core sensors below.
   - `apps/server/src/identity/provision/supabase/`
   - `apps/server/src/identity/provision/token/`
   - `apps/server/src/identity/provision/identifier/`
-  - `apps/server/src/identity/provision/errors/`
+  - `packages/core/src/identity/domain/errors/`
   - `apps/server/src/identity/constants/identity-providers.ts`
   - `apps/server/src/identity/provision/identity-provision.module.ts`
   - provider-focused tests and test doubles under `apps/server/src/identity/`

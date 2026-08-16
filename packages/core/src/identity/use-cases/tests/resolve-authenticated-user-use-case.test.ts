@@ -1,6 +1,6 @@
 import { mock, type MockProxy } from 'vitest-mock-extended'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { fakeEstablishment, fakeUser } from '#identity/domain/entities/fakers/index.ts'
+import { EstablishmentFaker, UserFaker } from '#identity/domain/entities/fakers/index.ts'
 import { EstablishmentStatus } from '#identity/domain/structures/establishment-status.ts'
 import { UserStatus } from '#identity/domain/structures/user-status.ts'
 import type {
@@ -33,8 +33,8 @@ describe('Resolve Authenticated User Use Case', () => {
   })
 
   it('returns a safe account for active local access', async () => {
-    const user = fakeUser({ profile: 'manager' })
-    const establishment = fakeEstablishment({ id: user.establishmentId })
+    const user = UserFaker.fake({ profile: 'manager' })
+    const establishment = EstablishmentFaker.fake({ id: user.establishmentId })
     usersRepository.findByProviderSubject.mockResolvedValue(user)
     establishmentsRepository.findById.mockResolvedValue(establishment)
 
@@ -51,8 +51,8 @@ describe('Resolve Authenticated User Use Case', () => {
 
   it.each([
     ['missing', undefined],
-    ['pending', fakeUser({ status: UserStatus.Pending })],
-    ['inactive', fakeUser({ status: UserStatus.Inactive })],
+    ['pending', UserFaker.fake({ status: UserStatus.Pending })],
+    ['inactive', UserFaker.fake({ status: UserStatus.Inactive })],
   ])('returns undefined for a %s local user', async (_description, user) => {
     usersRepository.findByProviderSubject.mockResolvedValue(user)
 
@@ -64,9 +64,9 @@ describe('Resolve Authenticated User Use Case', () => {
 
   it.each([
     ['missing', undefined],
-    ['deleted', fakeEstablishment({ status: EstablishmentStatus.Deleted })],
+    ['deleted', EstablishmentFaker.fake({ status: EstablishmentStatus.Deleted })],
   ])('returns undefined for a %s establishment', async (_description, establishment) => {
-    const user = fakeUser()
+    const user = UserFaker.fake()
     usersRepository.findByProviderSubject.mockResolvedValue(user)
     establishmentsRepository.findById.mockResolvedValue(establishment)
 
@@ -75,10 +75,10 @@ describe('Resolve Authenticated User Use Case', () => {
   })
 
   it('uses the provider subject for bootstrap and derives establishment scope from the user', async () => {
-    const user = fakeUser({ id: 'provider-subject' })
+    const user = UserFaker.fake({ id: 'provider-subject' })
     usersRepository.findByProviderSubject.mockResolvedValue(user)
     establishmentsRepository.findById.mockResolvedValue(
-      fakeEstablishment({ id: user.establishmentId }),
+      EstablishmentFaker.fake({ id: user.establishmentId }),
     )
 
     await useCase.execute({ providerSubject: user.id })

@@ -4,9 +4,18 @@ export const ROUTES = {
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
   accessDenied: '/access-denied',
-  app: '/app',
+  app: '/',
   onboarding: '/onboarding',
   onboardingConfirm: '/onboarding/confirm',
+  users: '/users',
+  userDetails: '/users/$userId',
+  invitationAccept: '/invitation/accept',
+  products: '/products',
+  newSale: '/sales/new',
+  orders: '/orders',
+  salesChannels: '/sales-channels',
+  discounts: '/discounts',
+  subscription: '/subscription',
 } as const
 
 export type RouteName = keyof typeof ROUTES

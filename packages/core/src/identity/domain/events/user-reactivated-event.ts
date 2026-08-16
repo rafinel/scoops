@@ -4,6 +4,9 @@ import { Event } from '#shared/domain/events/event.ts'
 export class UserReactivatedEvent extends Event<{
   userId: User['id']
   establishmentId: User['establishmentId']
+  email: User['email']
+  actorUserId: string
+  previousStatus: User['status']
   profile: User['profile']
   status: User['status']
   updatedAt: User['updatedAt']

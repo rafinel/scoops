@@ -5,6 +5,7 @@ import { IdentityService } from '@/rest/services/identity-service'
 import { SupabaseAuthProvider } from './supabase/supabase-auth-provider'
 import {
   INITIAL_AUTH_REDIRECT_KIND,
+  hasInvitationAcceptanceRedirect,
   hasOnboardingConfirmationRedirect,
   hasPasswordRecoveryRedirect,
   type InitialAuthRedirectKind,
@@ -18,6 +19,7 @@ export function hasAuthPasswordRecoveryRedirect(): boolean {
 
 export function resolveInitialAuthRedirect(): InitialAuthRedirectKind {
   if (INITIAL_AUTH_REDIRECT_KIND !== 'none') return INITIAL_AUTH_REDIRECT_KIND
+  if (hasInvitationAcceptanceRedirect()) return 'invitation-acceptance'
   if (hasOnboardingConfirmationRedirect()) return 'onboarding-confirmation'
   if (hasPasswordRecoveryRedirect()) return 'password-recovery'
   return 'none'
