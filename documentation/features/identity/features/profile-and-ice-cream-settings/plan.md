@@ -155,13 +155,13 @@ updated_at: 2026-08-16
 | Type | Scenario/surface | Criteria | Reference | Evidence target | Status |
 | --- | --- | --- | --- | --- | --- |
 | Automated | Core contracts and use cases | CA-01, CA-02, CA-06, CA-08, CA-09, CA-12 | F1-T1/F1-T2; Core Rule Pack | `./evaluation.md` | `pending` |
-| Runtime | Server REST and persistence | CA-01, CA-02, CA-04, CA-06, CA-07, CA-08, CA-09, CA-12 | F4-T1/F4-T2; REST and Controller Testing Rules | `./evaluation.md` | `pending` |
+| Runtime | Server REST and persistence | CA-01, CA-02, CA-04, CA-06, CA-07, CA-08, CA-09, CA-12 | F4-T1/F4-T2; REST and Controller Testing Rules | `./evaluation.md` | `completed` |
 | Runtime | Web REST/auth boundary | CA-01, CA-04, CA-05, CA-10 | F3-T1/F3-T2; REST/Provision Rules | `./evaluation.md` | `pending` |
 | Automated | Web widgets, hooks, layout and auth context | CA-01, CA-02, CA-03, CA-04, CA-05, CA-06, CA-10, CA-11, CA-12 | F5-T1; UI and Widget Testing Rules | `./evaluation.md` | `pending` |
-| Runtime | Protected route and browser transport behavior | CA-01, CA-04–CA-07, CA-10–CA-12 | F5-T2; MV-01–MV-05 route portions | `./evaluation.md` | `pending` |
-| Visual | My Account default desktop — `1481 × 1050` | CA-11 | `./design/BRpGr.png` | `./evidence/screenshots/rev-3/my-account-desktop-1481x1050.png` | `pending` |
-| Visual | My Account name-correction dialog — `676 × 502` | CA-02, CA-03, CA-04, CA-10, CA-11 | `./design/Ih9Qc.png` | `./evidence/screenshots/rev-3/my-account-name-dialog-676x502.png` | `pending` |
-| Visual | Ice Cream Shop Settings default desktop — `1551 × 1050` | CA-06, CA-07, CA-11, CA-12 | `./design/m7W867.png` | `./evidence/screenshots/rev-3/shop-settings-desktop-1551x1050.png` | `pending` |
+| Runtime | Protected route and browser transport behavior | CA-01, CA-04–CA-07, CA-10–CA-12 | F5-T2; MV-01–MV-05 route portions | `./evaluation.md` | `completed` |
+| Visual | My Account default desktop — `1481 × 1050` | CA-11 | `./design/BRpGr.png` | `./evidence/screenshots/rev-3/real-my-account-desktop-1481x1050.png` | `completed` |
+| Visual | My Account name-correction dialog — `676 × 502` | CA-02, CA-03, CA-04, CA-10, CA-11 | `./design/Ih9Qc.png` | `./evidence/screenshots/rev-3/real-my-account-name-dialog-676x502.png` | `completed` |
+| Visual | Ice Cream Shop Settings default desktop — `1551 × 1050` | CA-06, CA-07, CA-11, CA-12 | `./design/m7W867.png` | `./evidence/screenshots/rev-3/real-shop-settings-desktop-1551x1050.png` | `completed` |
 | Manual | MV-01 — Manager account desktop | CA-01, CA-02, CA-04, CA-05, CA-10, CA-11, CA-12 | Spec MV-01 | `./evaluation.md` | `pending` |
 | Manual | MV-02 — Operator account at `320 × 800` | CA-02, CA-03, CA-04, CA-05, CA-10, CA-11 | Spec MV-02 | `./evaluation.md` | `pending` |
 | Manual | MV-03 — Manager shop settings desktop and `320 × 800` | CA-06, CA-08, CA-10, CA-11, CA-12 | Spec MV-03 | `./evaluation.md` | `pending` |

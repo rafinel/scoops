@@ -19,18 +19,18 @@ browser, and generated-artifact evidence.
 
 | Criterion | Coverage owner | Evidence | Status |
 | --- | --- | --- | --- |
-| CA-01 | F1, F3, F4, F5 | Core account projection, REST response, protected `/account` route | `in_progress` |
-| CA-02 | F1, F3, F4, F5 | Self-name use case, HTTP mapping, account form/widget | `in_progress` |
-| CA-03 | F5, F6 | Failed mutation state, retained input, retry and recovery | `in_progress` |
-| CA-04 | F3, F4, F5 | Safe response shape and read-only account UI | `in_progress` |
-| CA-05 | F3, F5, F6 | Local Supabase sign-out and login redirect | `in_progress` |
-| CA-06 | F1, F2, F4, F5 | Manager settings read/rename, duplicate acceptance and persistence | `in_progress` |
-| CA-07 | F4, F5, F6 | Manager/Operator route and API authorization | `in_progress` |
+| CA-01 | F1, F3, F4, F5 | Core account projection, REST response, protected `/account` route | `completed` |
+| CA-02 | F1, F3, F4, F5 | Self-name use case, HTTP mapping, account form/widget | `completed` |
+| CA-03 | F5, F6 | Failed mutation state, retained input, retry and recovery | `completed` |
+| CA-04 | F3, F4, F5 | Safe response shape and read-only account UI | `completed` |
+| CA-05 | F3, F5, F6 | Local Supabase sign-out and login redirect | `completed` |
+| CA-06 | F1, F2, F4, F5 | Manager settings read/rename, duplicate acceptance and persistence | `completed` |
+| CA-07 | F4, F5, F6 | Manager/Operator route and API authorization | `completed` |
 | CA-08 | F1, F2, F4, F6 | Immutable user/establishment audit snapshots and timestamps | `completed` |
 | CA-09 | F1, F2, F4, F6 | Serializable rollback, concurrency and tenant isolation | `completed` |
-| CA-10 | F3, F5, F6 | Loading, pending, error, retry, expiry, focus and console/network evidence | `in_progress` |
-| CA-11 | F5, F6 | Exact design references, responsive and accessibility evidence | `in_progress` |
-| CA-12 | F1–F6 | Negative source/API review for delete/logo mutations | `in_progress` |
+| CA-10 | F3, F5, F6 | Loading, pending, error, retry, expiry, focus and console/network evidence | `completed` |
+| CA-11 | F5, F6 | Exact design references, responsive and accessibility evidence | `completed` |
+| CA-12 | F1–F6 | Negative source/API review for delete/logo mutations | `completed` |
 
 ## Automated and runtime evidence
 
