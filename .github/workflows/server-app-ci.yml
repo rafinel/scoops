@@ -31,6 +31,10 @@ jobs:
   server:
     name: Server
     runs-on: ubuntu-latest
+    env:
+      INNGEST_BASE_URL: http://127.0.0.1:8288
+      SUPABASE_ANON_KEY: ci-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: ci-service-role-key
 
     steps:
       - name: Checkout
