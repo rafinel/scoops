@@ -5,7 +5,10 @@ import {
   AUTH_PROVIDER,
   resolveInitialAuthRedirect,
 } from '@/provision/auth/auth-composition'
-import { clearPasswordRecoveryRedirect } from '@/provision/auth/supabase/supabase-client'
+import {
+  clearInvitationAcceptanceRedirect,
+  clearPasswordRecoveryRedirect,
+} from '@/provision/auth/supabase/supabase-client'
 
 import type { AuthContextValue } from './types'
 import { useAuthContextProvider } from './use-auth-context-provider'
@@ -24,6 +27,12 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   useEffect(() => {
     if (value.status !== 'resolving') clearPasswordRecoveryRedirect()
   }, [value.status])
+
+  useEffect(() => {
+    if (value.status !== 'resolving' && !value.isInvitationAcceptance) {
+      clearInvitationAcceptanceRedirect()
+    }
+  }, [value.isInvitationAcceptance, value.status])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

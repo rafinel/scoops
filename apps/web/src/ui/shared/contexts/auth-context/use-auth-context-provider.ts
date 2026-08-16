@@ -7,10 +7,14 @@ import type {
   AuthStateChange,
 } from '@scoops/core/identity/domain/structures'
 import type { Account } from '@scoops/core/identity/domain/entities'
+import { InvalidCredentialsError } from '@scoops/core/identity/domain/errors'
 import type { IdentityService } from '@scoops/core/identity/interfaces'
 import { HTTP_STATUS_CODE } from '@scoops/core/shared/constants'
 
-import { clearOnboardingConfirmationRedirect } from '@/provision/auth/supabase/supabase-client'
+import {
+  clearInvitationAcceptanceRedirect,
+  clearOnboardingConfirmationRedirect,
+} from '@/provision/auth/supabase/supabase-client'
 
 import type { AuthContextValue, AuthStatus } from './types'
 
@@ -18,7 +22,11 @@ export function useAuthContextProvider(
   authProvider: AuthProvider,
   identityService: Pick<IdentityService, 'getAccount'>,
   resolveInitialRedirect:
-    | (() => 'none' | 'password-recovery' | 'onboarding-confirmation')
+    | (() =>
+        | 'none'
+        | 'password-recovery'
+        | 'onboarding-confirmation'
+        | 'invitation-acceptance')
     | boolean = false,
 ): AuthContextValue {
   const [status, setStatus] = useState<AuthStatus>('resolving')
@@ -26,15 +34,18 @@ export function useAuthContextProvider(
   const [account, setAccount] = useState<Account | null>(null)
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false)
   const [isOnboardingConfirmation, setIsOnboardingConfirmation] = useState(false)
+  const [isInvitationAcceptance, setIsInvitationAcceptance] = useState(false)
   const authGenerationRef = useRef(0)
   const isMountedRef = useRef(false)
   const sessionRef = useRef<AuthSession | null>(null)
   const statusRef = useRef<AuthStatus>('resolving')
   const isLocalRejectionRef = useRef(false)
+  const isSignInPendingRef = useRef(false)
   const isPasswordRecoveryRef = useRef(
     typeof resolveInitialRedirect === 'boolean' ? resolveInitialRedirect : false,
   )
   const isOnboardingConfirmationRef = useRef(false)
+  const isInvitationAcceptanceRef = useRef(false)
   const isInitialResolutionPendingRef = useRef(true)
 
   const commitState = useCallback(function commitState(
@@ -43,6 +54,7 @@ export function useAuthContextProvider(
     nextAccount: Account | null,
     nextRecovery = isPasswordRecoveryRef.current,
     nextOnboardingConfirmation = isOnboardingConfirmationRef.current,
+    nextInvitationAcceptance = isInvitationAcceptanceRef.current,
   ) {
     if (!isMountedRef.current) return
 
@@ -55,6 +67,8 @@ export function useAuthContextProvider(
     setIsPasswordRecovery(nextRecovery)
     isOnboardingConfirmationRef.current = nextOnboardingConfirmation
     setIsOnboardingConfirmation(nextOnboardingConfirmation)
+    isInvitationAcceptanceRef.current = nextInvitationAcceptance
+    setIsInvitationAcceptance(nextInvitationAcceptance)
   }, [])
 
   const canCommit = useCallback(function canCommit(generation: number) {
@@ -154,8 +168,15 @@ export function useAuthContextProvider(
           return
         }
 
-        if (isOnboardingConfirmationRef.current) {
-          commitState('anonymous', restoredSession, null, false, true)
+        if (isOnboardingConfirmationRef.current || isInvitationAcceptanceRef.current) {
+          commitState(
+            'anonymous',
+            restoredSession,
+            null,
+            false,
+            isOnboardingConfirmationRef.current,
+            isInvitationAcceptanceRef.current,
+          )
           return
         }
 
@@ -189,17 +210,28 @@ export function useAuthContextProvider(
         isInitialResolutionPendingRef.current = false
       }
 
+      if (event === 'SIGNED_IN' && isSignInPendingRef.current) return
+
       if (event === 'SIGNED_OUT') {
         if (isLocalRejectionRef.current || statusRef.current === 'denied') return
 
         authGenerationRef.current += 1
-        commitState('anonymous', null, null, false)
+        isInvitationAcceptanceRef.current = false
+        clearInvitationAcceptanceRedirect()
+        commitState('anonymous', null, null, false, false, false)
         return
       }
 
-      if (isOnboardingConfirmationRef.current) {
+      if (isOnboardingConfirmationRef.current || isInvitationAcceptanceRef.current) {
         if (nextSession) {
-          commitState('anonymous', nextSession, null, false, true)
+          commitState(
+            'anonymous',
+            nextSession,
+            null,
+            false,
+            isOnboardingConfirmationRef.current,
+            isInvitationAcceptanceRef.current,
+          )
         }
         return
       }
@@ -232,16 +264,21 @@ export function useAuthContextProvider(
           : 'none'
     isPasswordRecoveryRef.current = initialRedirect === 'password-recovery'
     isOnboardingConfirmationRef.current = initialRedirect === 'onboarding-confirmation'
+    isInvitationAcceptanceRef.current = initialRedirect === 'invitation-acceptance'
     setIsPasswordRecovery(isPasswordRecoveryRef.current)
     setIsOnboardingConfirmation(isOnboardingConfirmationRef.current)
+    setIsInvitationAcceptance(isInvitationAcceptanceRef.current)
     const generation = authGenerationRef.current
     const unsubscribe = authProvider.onAuthStateChange((event, nextSession) => {
       void processProviderEvent(event, nextSession)
     })
 
-    void restoreSession(generation)
+    const restoreTimer = setTimeout(() => {
+      void restoreSession(generation)
+    }, 0)
 
     return () => {
+      clearTimeout(restoreTimer)
       isMountedRef.current = false
       authGenerationRef.current += 1
       unsubscribe()
@@ -258,6 +295,7 @@ export function useAuthContextProvider(
   const signIn = useCallback(
     async function signIn(credentials: AuthCredentials) {
       const generation = ++authGenerationRef.current
+      isSignInPendingRef.current = true
       commitState('resolving', null, null, false)
 
       try {
@@ -265,10 +303,16 @@ export function useAuthContextProvider(
 
         if (!canCommit(generation)) return
 
-        await validateLocalAccess(signedInSession, generation)
+        const isAuthenticated = await validateLocalAccess(signedInSession, generation)
+
+        if (!isAuthenticated && statusRef.current === 'denied') {
+          throw new InvalidCredentialsError()
+        }
       } catch (error) {
         if (canCommit(generation)) commitState('anonymous', null, null, false)
         throw error
+      } finally {
+        isSignInPendingRef.current = false
       }
     },
     [authProvider, canCommit, commitState, validateLocalAccess],
@@ -277,7 +321,9 @@ export function useAuthContextProvider(
   const signOut = useCallback(
     async function signOut() {
       ++authGenerationRef.current
-      commitState('anonymous', null, null, false)
+      isInvitationAcceptanceRef.current = false
+      clearInvitationAcceptanceRedirect()
+      commitState('anonymous', null, null, false, false, false)
       await authProvider.signOut('local')
     },
     [authProvider, commitState],
@@ -355,12 +401,80 @@ export function useAuthContextProvider(
     [authProvider, commitState],
   )
 
+  const setInvitationPassword = useCallback(
+    async function setInvitationPassword(password: string) {
+      try {
+        await authProvider.updatePassword(password)
+      } catch (error) {
+        authGenerationRef.current += 1
+        isInvitationAcceptanceRef.current = false
+        clearInvitationAcceptanceRedirect()
+        commitState('anonymous', null, null, false, false, false)
+        try {
+          await authProvider.signOut('global')
+        } catch {
+          // The local state is cleared even when provider cleanup fails.
+        }
+        throw error
+      }
+    },
+    [authProvider, commitState],
+  )
+
+  const clearInvitationAcceptance = useCallback(
+    async function clearInvitationAcceptance() {
+      authGenerationRef.current += 1
+      isInvitationAcceptanceRef.current = false
+      clearInvitationAcceptanceRedirect()
+      commitState('anonymous', null, null, false, false, false)
+      try {
+        await authProvider.signOut('global')
+      } catch {
+        // Local state and the redirect marker are cleared even if provider cleanup fails.
+      }
+    },
+    [authProvider, commitState],
+  )
+
+  const activateInvitationAcceptance = useCallback(
+    async function activateInvitationAcceptance(): Promise<boolean> {
+      const generation = ++authGenerationRef.current
+      isInvitationAcceptanceRef.current = false
+      clearInvitationAcceptanceRedirect()
+
+      const candidateSession = sessionRef.current ?? (await authProvider.getSession())
+
+      if (!canCommit(generation)) return false
+
+      if (!candidateSession) {
+        commitState('anonymous', null, null, false, false, false)
+        return false
+      }
+
+      commitState('resolving', candidateSession, null, false, false, false)
+      const isAuthenticated = await validateLocalAccess(candidateSession, generation)
+
+      if (!isAuthenticated && canCommit(generation)) {
+        try {
+          await authProvider.signOut('global')
+        } catch {
+          // The target session must not remain usable after failed confirmation.
+        }
+        commitState('anonymous', null, null, false, false, false)
+      }
+
+      return isAuthenticated
+    },
+    [authProvider, canCommit, commitState, validateLocalAccess],
+  )
+
   return {
     status,
     session,
     account,
     isPasswordRecovery,
     isOnboardingConfirmation,
+    isInvitationAcceptance,
     getSession,
     signIn,
     signOut,
@@ -369,5 +483,8 @@ export function useAuthContextProvider(
     retryLocalAccess,
     activateOnboardingConfirmation,
     completeOnboardingConfirmation,
+    setInvitationPassword,
+    clearInvitationAcceptance,
+    activateInvitationAcceptance,
   }
 }

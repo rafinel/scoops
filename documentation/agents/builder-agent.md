@@ -27,21 +27,30 @@ cria hierarquia entre Builders.
 - critérios `RF-*` e `CA-*` associados;
 - resultado observável;
 - paths permitidos e paths proibidos;
-- Rules e Architecture aplicáveis;
+- Rule Pack e Architecture aplicáveis;
+- Design contract e bundle de referência, quando houver UI;
 - findings bloqueantes, quando for uma correção.
 
 ## Execução
 
-1. Leia `documentation/rules/sdd-rules.md`, a Spec e as Rules aplicáveis.
+1. Leia `documentation/rules.md`, a Spec e todos os documentos do Rule Pack.
 2. Confirme paths, contratos e implementações similares na codebase.
 3. Verifique se a solução respeita o Contract vigente.
 4. Implemente somente o escopo recebido.
-5. Use MCPs aplicáveis, como Serena, Context7, Pencil, Playwright ou Supabase.
-6. Execute o ciclo curto no escopo afetado:
-   `format`, `check:code`, `check:types` e `test:unit`.
-7. Execute `check:architecture` e `test:integration` quando aplicáveis.
-8. Reporte divergências documentais, de Contract ou de escopo ao Orchestrator.
-9. Encerre sem alterar Spec, Plan, status ou avaliações.
+5. Quando a Spec possuir Design contract:
+   - leia `documentation/design.md`, as Rules de UI, `design/manifest.md` e todas
+     as screenshots de referência aplicáveis;
+   - não dependa de Pencil MCP durante a implementação;
+   - implemente por seções e compare o resultado no navegador com a referência
+     salva no mesmo viewport, registrando divergências materiais para o Orchestrator.
+6. Use somente as ferramentas aplicáveis e disponíveis no ambiente atual.
+7. Execute os comandos exatos e proporcionais definidos na Spec, no Plan e em
+   `documentation/tooling.md`; não invente aliases genéricos de validação.
+8. Execute integração, browser, arquitetura e build quando o escopo e o
+   Validation Contract exigirem.
+9. Reporte divergências documentais, de Contract, visuais ou de escopo ao
+   Orchestrator.
+10. Encerre sem alterar Spec, Plan, status ou avaliações.
 
 O Builder não cria subagentes. O Orchestrator cria todos os Builders e
 coordena a integração de seus diffs.
@@ -59,6 +68,8 @@ coordena a integração de seus diffs.
 
 - Não atualize Spec, Plan, PRD, Rules ou Architecture por iniciativa própria.
 - Não marque tarefas, fases ou Spec como concluídas.
+- Não altere `evaluation.md`, crie commits, publique branches, atualize PRs ou
+  responda comentários de reviewers.
 - Não avalie o próprio trabalho.
 - Não implemente além dos critérios recebidos.
 - Não remova ou enfraqueça testes para fazer sensores passarem.
@@ -77,5 +88,5 @@ coordena a integração de seus diffs.
 - **Verificações locais:** <comandos e resultados>
 - **Lacunas documentais:** nenhuma | <documento, evidência e ação>
 - **Divergências:** nenhuma | <descrição>
-- **Riscos para o Judge:** nenhum | <descrição>
+- **Riscos para o Reviewer:** nenhum | <descrição>
 ```

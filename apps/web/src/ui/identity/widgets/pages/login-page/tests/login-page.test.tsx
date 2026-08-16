@@ -45,7 +45,7 @@ describe('LoginPage', () => {
   it('renders accessible credentials and navigates to the sanitized destination', async () => {
     loginMock.mockResolvedValue(undefined)
 
-    render(<LoginPage returnTo='/app' />)
+    render(<LoginPage returnTo='/' />)
 
     expect(screen.getByRole('textbox', { name: 'E-mail' }).getAttribute('id')).toBe(
       'login-email',
@@ -65,7 +65,7 @@ describe('LoginPage', () => {
         identifier: 'manager@example.com',
         password: 'password',
       })
-      expect(navigateToPathMock).toHaveBeenCalledWith('/app')
+      expect(navigateToPathMock).toHaveBeenCalledWith('/')
     })
   })
 
@@ -93,5 +93,15 @@ describe('LoginPage', () => {
     expect(
       screen.getByRole('button', { name: 'Ocultar senha' }).getAttribute('aria-pressed'),
     ).toBe('true')
+  })
+
+  it('shows the neutral error when authentication is rejected', () => {
+    loginActionState.error = new Error('Identifier or password is invalid')
+
+    render(<LoginPage />)
+
+    expect(screen.getByRole('alert').textContent).toContain(
+      'Não foi possível entrar. Confira seus dados e tente novamente.',
+    )
   })
 })

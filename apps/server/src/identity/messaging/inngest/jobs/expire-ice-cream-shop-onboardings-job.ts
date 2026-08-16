@@ -5,6 +5,7 @@ import type {
   IdentityDatabase,
   OnboardingIdentityProvider,
   OnboardingIdentifierProvider,
+  UserAccessIdentityProvider,
 } from '@scoops/core/identity/interfaces'
 
 import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
@@ -26,12 +27,15 @@ export class ExpireIceCreamShopOnboardingsJob extends InngestJob {
     onboardingIdentityProvider: OnboardingIdentityProvider,
     @Inject(IDENTITY_PROVIDERS.onboardingIdentifier)
     onboardingIdentifierProvider: OnboardingIdentifierProvider,
+    @Inject(IDENTITY_PROVIDERS.userAccessIdentity)
+    userAccessIdentityProvider: UserAccessIdentityProvider,
   ) {
     super(inngest)
     this.useCase = new ExpireIceCreamShopOnboardingsUseCase(
       identityDatabase,
       datetimeProvider,
       onboardingIdentityProvider,
+      userAccessIdentityProvider,
     )
     this.function = this.inngest.createFunction(
       { id: 'identity/expire-ice-cream-shop-onboardings', triggers: [cron('0 * * * *')] },

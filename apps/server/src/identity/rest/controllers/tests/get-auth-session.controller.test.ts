@@ -17,7 +17,7 @@ vi.hoisted(() => {
 })
 
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { TestAuthIdentityProvider } from '@/identity/fixtures/test-auth-identity-provider'
+import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
 
 const managerId = '00000000-0000-0000-0000-000000000001'
 const establishmentId = '10000000-0000-0000-0000-000000000001'
@@ -52,15 +52,15 @@ function createActiveManager(overrides: Partial<User> = {}) {
 }
 
 describe('Get Auth Session Controller [GET /auth/session]', () => {
-  const authIdentityProvider = new TestAuthIdentityProvider()
+  const auth = new SupabaseAuthFixture()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(authIdentityProvider)
+    fixture = await IdentityModuleFixture.register(auth)
   })
 
   beforeEach(async () => {
-    authIdentityProvider.clear()
+    auth.clear()
     await fixture.resetDatabase()
   })
 
@@ -95,7 +95,7 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
     )
     const usersRepository = fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users)
 
-    authIdentityProvider.setUser(activeToken, { id: user.id, email: user.email })
+    auth.setUser(activeToken, { id: user.id, email: user.email })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/auth/session')
@@ -121,7 +121,7 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
       users: [user],
       registrationAttempts: [],
     })
-    authIdentityProvider.setUser(activeToken, { id: user.id, email: user.email })
+    auth.setUser(activeToken, { id: user.id, email: user.email })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/auth/session')
@@ -146,7 +146,7 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
       users: [user],
       registrationAttempts: [],
     })
-    authIdentityProvider.setUser(activeToken, { id: user.id, email: user.email })
+    auth.setUser(activeToken, { id: user.id, email: user.email })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/auth/session')
@@ -157,7 +157,7 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
   })
 
   it('maps provider availability failures to a retryable response', async () => {
-    authIdentityProvider.setUnavailable(true)
+    auth.setUnavailable(true)
 
     const response = await request(fixture.app.getHttpServer())
       .get('/auth/session')

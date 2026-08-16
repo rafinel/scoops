@@ -1,11 +1,20 @@
 import { sql } from 'drizzle-orm'
-import { index, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
+import {
+  index,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+  integer,
+} from 'drizzle-orm/pg-core'
 
 import { establishmentModel } from '@/identity/database/drizzle/models/establishment-model'
 import { registrationAttemptStatusModel } from '@/identity/database/drizzle/models/registration-attempt-status-model'
 import { registrationAttemptTypeModel } from '@/identity/database/drizzle/models/registration-attempt-type-model'
 import { userProfileModel } from '@/identity/database/drizzle/models/user-profile-model'
 import { userModel } from '@/identity/database/drizzle/models/user-model'
+import { invitationOperationModel } from '@/identity/database/drizzle/models/invitation-operation-model'
 
 export const userRegistrationAttemptModel = pgTable(
   'user_registration_attempts',
@@ -27,6 +36,19 @@ export const userRegistrationAttemptModel = pgTable(
     supersededProviderSubject: uuid('superseded_provider_subject'),
     cleanupClaimToken: uuid('cleanup_claim_token'),
     cleanupClaimedAt: timestamp('cleanup_claimed_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    revision: integer('revision').notNull().default(0),
+    operation: invitationOperationModel('operation'),
+    operationToken: uuid('operation_token'),
+    operationClaimedAt: timestamp('operation_claimed_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    pendingEmail: text('pending_email'),
+    pendingTokenHash: text('pending_token_hash'),
+    pendingExpiresAt: timestamp('pending_expires_at', {
       withTimezone: true,
       mode: 'date',
     }),

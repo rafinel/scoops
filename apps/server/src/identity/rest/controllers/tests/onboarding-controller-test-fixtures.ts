@@ -10,9 +10,9 @@ import {
   UserProfile,
   UserStatus,
 } from '@scoops/core/identity/domain/structures'
+import type { OnboardingTokenProvider } from '@scoops/core/identity/interfaces'
 
 import type { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import type { TestOnboardingTokenProvider } from '@/identity/fixtures/test-onboarding-token-provider'
 
 export const continuationToken = 'c'.repeat(43)
 export const confirmationToken = 'f'.repeat(43)
@@ -21,7 +21,7 @@ export const establishmentId = '50000000-0000-0000-0000-000000000001'
 export const userId = '50000000-0000-0000-0000-000000000002'
 export const attemptId = '50000000-0000-0000-0000-000000000003'
 
-export function createPendingOnboardingSeed(tokenProvider: TestOnboardingTokenProvider) {
+export function createPendingOnboardingSeed(tokenProvider: OnboardingTokenProvider) {
   const now = new Date()
   const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
   const establishment = {
@@ -62,7 +62,7 @@ export function createPendingOnboardingSeed(tokenProvider: TestOnboardingTokenPr
 
 export async function seedPendingOnboarding(
   fixture: IdentityModuleFixture,
-  tokenProvider: TestOnboardingTokenProvider,
+  tokenProvider: OnboardingTokenProvider,
 ) {
   const seed = createPendingOnboardingSeed(tokenProvider)
   await fixture.seeder.run({

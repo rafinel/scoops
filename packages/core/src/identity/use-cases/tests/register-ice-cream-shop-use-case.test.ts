@@ -1,6 +1,6 @@
 import { mock, type MockProxy } from 'vitest-mock-extended'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { fakeUser } from '#identity/domain/entities/fakers/user-faker.ts'
+import { UserFaker } from '#identity/domain/entities/fakers/user-faker.ts'
 import type {
   IdentityDatabase,
   IdentityDatabaseScope,
@@ -96,7 +96,7 @@ describe('Register Ice Cream Shop Use Case', () => {
 
   it('rejects an email already used locally before calling the provider', async () => {
     usersRepository.findByEmail.mockResolvedValue(
-      fakeUser({ email: 'maria@example.com' }),
+      UserFaker.fake({ email: 'maria@example.com' }),
     )
     await expect(
       useCase.execute({

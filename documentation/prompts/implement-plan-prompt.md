@@ -1,82 +1,155 @@
 ---
 name: implement-plan
-description: Orchestrate a feature Plan with sibling Builders, sensors, and a single Judge for the entire implementation in the current task.
+description: Orchestrate an open Spec through its concise Plan with scoped Builders, living evidence, user-change handling and one integrated Reviewer.
 ---
 
 # Implement a Plan
 
-Read the Plan, Spec, Architecture, Rules, and `documentation/tooling.md`. Use
-`documentation/rules/rules.md` to discover rules for the touched layers. The
-Orchestrator maintains the Plan and the entire flow occurs in the current task.
+Read the Plan, current Spec, Architecture, Rule Pack and `documentation/tooling.md`. Use
+`documentation/rules.md` to discover additional Rules if execution expands into another
+layer. The Orchestrator owns the Plan and evaluation; all work remains in the current task.
 
-Evidence is a living implementation ledger, not a one-time completion note. After
-every implementation change—including Builder Fixes, post-Judge fixes, generated
-artifacts, environment or seed changes, and added tests—the Orchestrator must update
-the Plan and `evaluation.md` before claiming the phase or feature is complete. The
-update must reconcile commands, test counts, affected findings, screenshots/browser
-evidence, and the evaluated revision. Stale evidence must be marked historical or
-replaced; never report completion using counts or findings from before the latest
-diff.
+## Preflight and evaluation kickoff
 
-Preserve the Confluence PRD link and every `jira_tickets` key from the Spec in
-the Plan. Consult those records when integration is available, but do not
-automatically change Jira or Confluence status, comments, or acceptance criteria.
+Before implementation:
 
-For each phase:
+1. confirm the Spec is `open`, the Plan references its exact revision and `implement-plan`
+   remains appropriate;
+2. validate phase dependencies, task ownership, non-overlapping parallel paths, exits and
+   manual/runtime/visual coverage;
+3. verify required design references, services, accounts, fixtures and generated commands;
+4. record the base commit, set the Spec and Plan to `in_progress`;
+5. create colocated `evaluation.md` when absent, or reconcile it when resuming;
+6. initialize it with Spec/Plan references, revision, base/current commit,
+   `status: in_progress`, acceptance matrix, automated/runtime/manual/visual evidence,
+   Rule/documentation compliance, findings and history.
 
-1. confirm the Spec revision, dependencies, criteria, paths, and evidence;
-2. mark the phase/task as `in_progress`/`implementing`;
-3. create `Builder F<n>` for the main scope;
-4. identify ready, independent tasks with no overlapping paths;
-5. when real parallelism exists, create up to two sibling `Builder F<n>-T<m>` agents;
-6. wait for Builders, inspect, and integrate the diff;
-7. run the actual workspace validation commands documented in
-   `documentation/tooling.md` (`lint`/`check:code`, `check-types`/`check:types`,
-   and `test`); run integration or e2e when the phase requires it. Do not run
-   `build` per phase or retry unless the change touches the bundler, exports,
-   environment, Docker, workflows, or generated artifacts;
-8. mark tasks `verified` only after applicable sensors pass;
-9. do not create a Judge per phase; record the phase as `verified` after sensors
-   and advance only when no sensor failure or blocking finding remains;
-10. on failure, immediately record the finding in the Plan and `evaluation.md`,
-    create Builder Fix, reopen affected tasks, and repeat only invalidated sensors.
+Preserve actual source/GitHub Issue traceability. Do not overwrite historical evidence or
+invent external records.
+Evaluation uses only `in_progress`, `ready` and `completed`; Reviewer verdicts remain in its
+evidence/history rather than metadata.
 
-For UI phases backed by Pencil, enforce this additional loop before marking the
-phase verified:
+## Phase execution
 
-1. Inspect the relevant Pencil nodes, reusable components, variables, and target
-   viewport before coding.
-2. Map each page and state to its exact Pencil node ID. Implement distinct
-   compositions independently; share only structures that are actually shared
-   by the design.
-3. Validate every mapped route manually with Browser-use over CDP at the exact
-   design viewport. Use the accessibility tree and DOM/layout inspection plus
-   screenshots to compare the browser result with the Pencil node.
-4. Iterate on material discrepancies and record route, node ID, viewport,
-   evidence, and remaining findings in the Plan/evaluation. Manual UI validation
-   must use Browser-use, not Playwright.
+For each dependency-ready phase:
 
-Visual parity is an exit condition, not optional polish. Do not mark a UI phase
-or the implementation accepted while material Pencil-to-browser differences
-remain unresolved.
+1. confirm the current Spec revision, task dependencies, criteria, paths, Rules and exits;
+2. mark the phase and assigned tasks `in_progress`;
+3. create `Builder F<n>` for a cohesive phase or scoped sibling `Builder F<n>-T<m>` agents
+   only for genuinely independent, non-overlapping tasks;
+4. coordinate shared/generated files, package installation and lockfile changes through the
+   Orchestrator before parallel application edits;
+5. inspect and integrate Builder diffs; Builders do not edit Spec, Plan or evaluation;
+6. run focused repository-approved generation, code, type, unit and applicable integration
+   checks from the task exits;
+7. update `evaluation.md` with exact commands/results and the Plan with status, finding IDs,
+   attempts and next action;
+8. mark tasks `completed` only when their exits pass; mark the phase `completed` only when
+   all tasks and its phase exit pass;
+9. on failure, record the formal finding in `evaluation.md`, keep affected tasks/phase
+   `in_progress`,
+   create a scoped Builder Fix, mark affected evidence stale and rerun only invalidated
+   checks.
 
-Builders do not create subagents or edit the Plan. Judges do not edit files. The
-Orchestrator records decisions, summarized evidence, findings, attempts, and
-the next action in the Plan; formal assessments and final evidence belong in
-`evaluation.md`, leaving only the summary and reference in the Spec. Phases do
-not receive Judge verdicts.
+Do not create a Reviewer per task or ordinary phase. Phase completion is sensor-backed.
 
-After all phases are verified, run integrated sensors. When integration needs
-additional assessment, first perform a preflight of the database, Auth, local
-services, test credentials, and Browser-use CDP for manual UI flows. Then create
-exactly one read-only
-`Judge Implementation Final` to assess the entire implementation; `build` runs
-only in the final Quality Gate. Then route to `conclude-spec`.
+## Design-backed UI phases
 
-The final Judge is the only implementation-judgment unit. If it returns
-`failed`, create Builder Fix, rerun invalidated sensors, and reuse the same Judge
-to reassess the updated diff. Do not create a phase Judge, retry Judge,
-separate completion Judge, or second Judge for the same implementation.
+When a Design Contract exists:
 
-Do not create another implementation role or separate completion Judge, fork,
+- read `design/manifest.md` and all mapped reference screenshots before coding;
+- do not depend on live Pencil during implementation;
+- preserve exact state/surface/viewport mappings and intentionally distinct compositions;
+- compare each running route/state with its saved reference using Browser-use/CDP,
+  accessibility tree and DOM/layout inspection;
+- save implementation screenshots under
+  `evidence/screenshots/rev-<spec-revision>/` and update the Plan coverage status and
+  `evaluation.md` evidence;
+- keep a UI task/phase `in_progress` while a material reference discrepancy remains.
+
+Builder/Orchestrator checks do not replace the final Reviewer's personal manual
+and visual validation.
+
+## Living evidence
+
+After every implementation change—including Builder Fixes, generated artifacts, environment
+or seed changes and added tests—reconcile the Plan and `evaluation.md` before claiming
+progress. Update current commit, commands, test results, affected criteria, findings,
+screenshots and manual/runtime evidence. Mark stale evidence historical or replace it; never
+accept a phase or implementation using evidence from an earlier affected diff.
+
+The Plan owns sequencing, status, attempts and next action. `evaluation.md` owns actual
+evidence, full findings and verdicts. The Spec owns contracts only.
+
+## User-requested change gate before conclusion
+
+Whenever the user requests a change after implementation has started but before conclusion,
+pause dependent execution and classify the request against the current Spec, design bundle,
+Rules and implementation. Show the classification and evidence before changing artifacts or
+code.
+
+### A. Implementation correction
+
+Use when the request makes implementation comply with an existing RF/CA, Design Contract,
+Technical Contract or Rule.
+
+1. Keep the Spec revision unchanged.
+2. Record a mapped finding in `evaluation.md`.
+3. Set affected tasks/phases to `in_progress` and create scoped Builder Fixes.
+4. Set evaluation status to `in_progress` when `ready` evidence is invalidated and mark only
+   affected automated, runtime, manual and visual evidence stale.
+5. Rerun affected exits, integrated checks, `MV-*` scenarios and screenshots.
+6. Re-run the final Reviewer if its evidence or verdict was invalidated.
+
+### B. Contract change
+
+Use when the user wants different product behavior, design intent or technical boundaries.
+
+1. Pause affected/dependent Plan work, record the revision mismatch and set the Spec to
+   `draft`.
+2. Route through `create-spec` clarification/authority alignment; update PRD, Rules,
+   Architecture, Modules, Design or Tooling first when required.
+3. Increment the Spec revision, update affected contracts/design bundle/validation and run
+   authoring integrity checks.
+4. Return the Spec directly to `open`; there is no Spec Reviewer.
+5. Mark affected evidence and prior verdicts historical and set evaluation to
+   `in_progress`.
+6. Re-evaluate the implementation route. If `implement-plan` remains appropriate, revise
+   `plan.md` against the new revision, reconcile phases/tasks/paths/criteria/evidence and
+   resume only after Plan integrity passes. If `implement-spec` is now appropriate, set the
+   Plan to `superseded` and route to the direct workflow.
+
+If classification or expected behavior is ambiguous, ask the user; do not silently choose a
+product, design or architectural outcome.
+
+## Integrated validation and final Reviewer
+
+After all ordinary phases are completed:
+
+1. run integrated sensors on the current commit;
+2. review generated artifacts/migrations and run the final build Quality Gate;
+3. preflight real services, database/Auth/provider state, accounts, fixtures and
+   Browser-use/CDP for every applicable `MV-*`;
+4. keep the final integrated phase `in_progress` and record review as the next action;
+5. create one read-only `Reviewer Final` with the exact Spec revision,
+   Plan/diff/commit, contracts, Rule Pack, Architecture, official evidence, design bundle,
+   manual scenarios and findings.
+
+The Reviewer directly inspects code and Rules, assesses every CA and technical contract area,
+personally executes all applicable `MV-*` scenarios and compares design-backed UI with saved
+references at exact viewports. Automated Playwright and Builder reports are supporting
+evidence only. Missing required manual evidence produces `failed`.
+
+The Reviewer returns `accepted | failed`; the Orchestrator writes the verdict and evidence
+to `evaluation.md`.
+
+- On `failed`, record findings, set affected tasks/phases to `in_progress`, create scoped
+  Builder Fixes, keep evaluation `in_progress`, invalidate/rerun affected evidence and ask
+  the Reviewer to reassess the updated commit.
+- On `accepted`, mark the integrated phase `completed`, reconcile Plan/evaluation to the exact
+  commit, set the Plan `completed`, set evaluation `ready` and route to `conclude-spec`.
+- After three materially identical failures, present the attempts and ask the user for the
+  unresolved authority or environment decision.
+
+Do not create task/phase Reviewers, a conclusion Reviewer, another implementation role, fork
 or new thread.

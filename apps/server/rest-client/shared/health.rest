@@ -1,4 +1,2 @@
-@baseUrl = http://localhost:3333
-
 ### Check application health
 GET {{baseUrl}}/health

@@ -99,6 +99,7 @@ export class RegisterIceCreamShopUseCase {
             expiresAt,
             createdAt: now,
             updatedAt: now,
+            revision: 0,
           })
         return {
           continuationToken: continuation.token,

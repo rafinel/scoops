@@ -18,6 +18,7 @@ export type AuthContextValue = {
   account: Account | null
   isPasswordRecovery: boolean
   isOnboardingConfirmation: boolean
+  isInvitationAcceptance: boolean
   getSession(): Promise<AuthSession | null>
   signIn(credentials: AuthCredentials): Promise<void>
   signOut(): Promise<void>
@@ -26,4 +27,7 @@ export type AuthContextValue = {
   retryLocalAccess(): Promise<void>
   activateOnboardingConfirmation(): Promise<boolean>
   completeOnboardingConfirmation(): Promise<void>
+  setInvitationPassword(password: string): Promise<void>
+  clearInvitationAcceptance(): Promise<void>
+  activateInvitationAcceptance(): Promise<boolean>
 }

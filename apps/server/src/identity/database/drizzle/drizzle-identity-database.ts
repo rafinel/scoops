@@ -8,6 +8,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { DrizzleEstablishmentsRepository } from '@/identity/database/drizzle/repositories/drizzle-establishments-repository'
 import { DrizzleRegistrationAttemptsRepository } from '@/identity/database/drizzle/repositories/drizzle-registration-attempts-repository'
 import { DrizzleUsersRepository } from '@/identity/database/drizzle/repositories/drizzle-users-repository'
+import { DrizzleUserAuditRecordsRepository } from '@/identity/database/drizzle/repositories/drizzle-user-audit-records-repository'
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 
 @Injectable()
@@ -37,6 +38,10 @@ export class DrizzleIdentityDatabase implements IdentityDatabase {
               transaction,
             ),
             usersRepository: new DrizzleUsersRepository(this.drizzleClient, transaction),
+            userAuditRecordsRepository: new DrizzleUserAuditRecordsRepository(
+              this.drizzleClient,
+              transaction,
+            ),
           }),
         {
           isolationLevel: 'serializable',

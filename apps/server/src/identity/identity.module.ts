@@ -14,6 +14,15 @@ import {
   GetIceCreamShopOnboardingController,
   RegisterIceCreamShopOnboardingController,
   ResendIceCreamShopConfirmationController,
+  AcceptUserInvitationController,
+  CancelUserInvitationController,
+  ChangeUserStatusController,
+  CorrectUserInvitationController,
+  CorrectUserNameController,
+  GetUserDetailsController,
+  InviteUserController,
+  ListUsersController,
+  ResendUserInvitationController,
 } from '@/identity/rest/controllers'
 import { ProvisionModule } from '@/shared/provision/provision.module'
 
@@ -32,6 +41,15 @@ import { ProvisionModule } from '@/shared/provision/provision.module'
     ResendIceCreamShopConfirmationController,
     CorrectIceCreamShopOnboardingEmailController,
     ConfirmIceCreamShopOnboardingController,
+    ListUsersController,
+    GetUserDetailsController,
+    InviteUserController,
+    CorrectUserInvitationController,
+    ResendUserInvitationController,
+    CancelUserInvitationController,
+    AcceptUserInvitationController,
+    ChangeUserStatusController,
+    CorrectUserNameController,
   ],
   providers: [
     {

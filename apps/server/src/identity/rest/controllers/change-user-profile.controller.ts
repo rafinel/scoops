@@ -1,18 +1,20 @@
-import { Body, HttpStatus, Inject, Param, Patch } from '@nestjs/common'
+import { Body, HttpStatus, Inject, Param, ParseUUIDPipe, Patch } from '@nestjs/common'
 import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger'
-import type { User } from '@scoops/core/identity/domain/entities'
+import type { UserDetails } from '@scoops/core/identity/domain/structures'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import { ChangeUserProfileUseCase } from '@scoops/core/identity/use-cases'
 
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { CurrentAccount, RequiredProfiles, UsersController } from '@/identity/decorators'
-import { UserResponseDto } from '@/identity/rest/dtos/user-response.dto'
+import { UserDetailsResponseDto } from '@/identity/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes/zod-validation.pipe'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import type { Account } from '@scoops/core/identity/domain/entities'
 import type { IdentityDatabase } from '@scoops/core/identity/interfaces'
+import type { Broker } from '@scoops/core/shared/interfaces'
 import { changeUserProfileSchema } from '@/identity/rest/schemas/change-user-profile-schema'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 type RequestBody = Omit<
   Parameters<ChangeUserProfileUseCase['execute']>[0],
@@ -27,13 +29,22 @@ export class ChangeUserProfileController {
     @Inject(IDENTITY_REPOSITORIES.database)
     identityDatabase: IdentityDatabase,
     @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
+    @Inject(InngestBroker) broker: Broker,
   ) {
-    this.useCase = new ChangeUserProfileUseCase(identityDatabase, datetimeProvider)
+    this.useCase = new ChangeUserProfileUseCase(
+      identityDatabase,
+      datetimeProvider,
+      broker,
+    )
   }
 
   @Patch(':userId/profile')
   @RequiredProfiles([UserProfile.Manager])
-  @ApiParam({ name: 'userId', description: 'The user whose profile is changed.' })
+  @ApiParam({
+    name: 'userId',
+    format: 'uuid',
+    description: 'The user whose profile is changed.',
+  })
   @ApiBody({
     schema: {
       type: 'object',
@@ -47,7 +58,7 @@ export class ChangeUserProfileController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'The user profile was changed.',
-    type: UserResponseDto,
+    type: UserDetailsResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -80,10 +91,10 @@ export class ChangeUserProfileController {
     type: ErrorResponseDto,
   })
   handle(
-    @Param('userId') userId: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
     @Body(new ZodValidationPipe(changeUserProfileSchema)) body: RequestBody,
     @CurrentAccount() actor: Account,
-  ): Promise<User> {
+  ): Promise<UserDetails> {
     return this.useCase.execute({ actor, userId, ...body })
   }
 }

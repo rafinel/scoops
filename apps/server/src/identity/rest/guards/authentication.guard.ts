@@ -9,10 +9,10 @@ import {
 import { Reflector } from '@nestjs/core'
 import type { AuthIdentityProvider } from '@scoops/core/identity/interfaces'
 import type { IdentityDatabase } from '@scoops/core/identity/interfaces'
+import { AuthenticationProviderUnavailableError } from '@scoops/core/identity/domain/errors'
 import { ResolveAuthenticatedUserUseCase } from '@scoops/core/identity/use-cases'
 
 import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
-import { AuthenticationProviderUnavailableError } from '@/identity/provision/errors'
 import type { AuthenticatedRequest } from '@/identity/rest/types/authenticated-request'
 import { PUBLIC_ROUTE_METADATA } from '@/shared/rest/decorators/public-route'
 

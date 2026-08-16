@@ -76,6 +76,17 @@ describe('SupabaseAuthProvider', () => {
     expect(client.auth.signOut).toHaveBeenNthCalledWith(2, { scope: 'global' })
   })
 
+  it('updates the current provider password without changing the session scope', async () => {
+    const client = createClient()
+    client.auth.updateUser = vi.fn().mockResolvedValue({ error: null })
+    const authProvider = SupabaseAuthProvider(client)
+
+    await authProvider.updatePassword('new-password')
+
+    expect(client.auth.updateUser).toHaveBeenCalledWith({ password: 'new-password' })
+    expect(client.auth.signOut).not.toHaveBeenCalled()
+  })
+
   it('forwards mapped auth events and unsubscribes the provider subscription', () => {
     const unsubscribeMock = vi.fn()
     let listener:

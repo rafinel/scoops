@@ -13,10 +13,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { TestAuthIdentityProvider } from '@/identity/fixtures/test-auth-identity-provider'
-import { TestOnboardingIdentifierProvider } from '@/identity/fixtures/test-onboarding-identifier-provider'
-import { TestOnboardingIdentityProvider } from '@/identity/fixtures/test-onboarding-identity-provider'
-import { TestOnboardingTokenProvider } from '@/identity/fixtures/test-onboarding-token-provider'
+import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { OnboardingIdentifierProviderFaker } from '@/identity/fixtures/onboarding-identifier-faker'
+import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
 
 import {
   accessToken,
@@ -30,25 +29,20 @@ vi.hoisted(() => {
 })
 
 describe('Confirm Ice Cream Shop Onboarding Controller [POST /registration-attempts/onboarding/confirm]', () => {
-  const authIdentityProvider = new TestAuthIdentityProvider()
-  const onboardingIdentityProvider = new TestOnboardingIdentityProvider()
-  const onboardingIdentifierProvider = new TestOnboardingIdentifierProvider()
-  const onboardingTokenProvider = new TestOnboardingTokenProvider()
+  const auth = new SupabaseAuthFixture()
+  const onboardingIdentifierProvider = OnboardingIdentifierProviderFaker.fake()
+  const onboardingTokenProvider = OnboardingTokenProviderFaker.fake()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(authIdentityProvider, {
-      onboardingIdentity: onboardingIdentityProvider,
+    fixture = await IdentityModuleFixture.register(auth, {
       onboardingIdentifier: onboardingIdentifierProvider,
       onboardingToken: onboardingTokenProvider,
     })
   })
 
   beforeEach(async () => {
-    authIdentityProvider.clear()
-    onboardingIdentityProvider.clear()
-    onboardingIdentifierProvider.clear()
-    onboardingTokenProvider.clear()
+    auth.clear()
     await fixture.resetDatabase()
   })
 
@@ -58,7 +52,7 @@ describe('Confirm Ice Cream Shop Onboarding Controller [POST /registration-attem
 
   it('activates the pending account after the provider verifies the confirmation session', async () => {
     const seed = await seedPendingOnboarding(fixture, onboardingTokenProvider)
-    authIdentityProvider.setUser(accessToken, {
+    auth.setUser(accessToken, {
       id: userId,
       email: seed.user.email,
     })
@@ -104,7 +98,7 @@ describe('Confirm Ice Cream Shop Onboarding Controller [POST /registration-attem
   })
 
   it('rejects malformed confirmation tokens before touching the database', async () => {
-    authIdentityProvider.setUser(accessToken, {
+    auth.setUser(accessToken, {
       id: userId,
       email: 'ana@example.com',
     })

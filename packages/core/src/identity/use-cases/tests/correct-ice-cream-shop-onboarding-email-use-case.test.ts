@@ -1,9 +1,9 @@
 import { mock, type MockProxy } from 'vitest-mock-extended'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
-  fakeEstablishment,
-  fakeUser,
-  fakeUserRegistrationAttempt,
+  EstablishmentFaker,
+  UserFaker,
+  UserRegistrationAttemptFaker,
 } from '#identity/domain/entities/fakers/index.ts'
 import type {
   IdentityDatabase,
@@ -48,7 +48,7 @@ describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
     provider.registerReplacementIdentity.mockResolvedValue({
       providerSubject: 'new-subject',
     })
-    const attempt = fakeUserRegistrationAttempt({
+    const attempt = UserRegistrationAttemptFaker.fake({
       tokenHash: 'hash',
       userId: 'old-subject',
       establishmentId: 'establishment-id',
@@ -57,7 +57,7 @@ describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
     attempts.findActiveByEmail.mockResolvedValue(undefined)
     users.findByEmail.mockResolvedValue(undefined)
     users.findById.mockResolvedValue(
-      fakeUser({ id: 'old-subject', establishmentId: 'establishment-id' }),
+      UserFaker.fake({ id: 'old-subject', establishmentId: 'establishment-id' }),
     )
     users.add.mockImplementation(async (input) => ({ ...input }))
     attempts.replace.mockImplementation(async (id, changes) => ({
@@ -66,7 +66,7 @@ describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
       ...changes,
     }))
     establishments.findById.mockResolvedValue(
-      fakeEstablishment({ id: 'establishment-id', name: 'Scoops' }),
+      EstablishmentFaker.fake({ id: 'establishment-id', name: 'Scoops' }),
     )
     useCase = new CorrectIceCreamShopOnboardingEmailUseCase(
       database,

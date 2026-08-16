@@ -6,6 +6,7 @@ import {
 } from '@/ui/identity/widgets/components/onboarding-detail-list'
 import { OnboardingProgress } from '@/ui/identity/widgets/components/onboarding-progress'
 import { Icon } from '@/ui/shared/widgets/components/icon'
+import { Button } from '@/ui/shadcn/button'
 
 export type OnboardingConfirmationSuccessProps = {
   onboarding?: PendingIceCreamShopOnboarding
@@ -43,14 +44,14 @@ export const OnboardingConfirmationSuccess = ({
         </p>
       </div>
       {details.length > 0 ? <OnboardingDetailList items={details} /> : null}
-      <button
-        className='flex h-12 items-center justify-center gap-2 rounded-[10px] bg-primary text-sm font-bold text-primary-foreground shadow-primary transition hover:brightness-105'
+      <Button
+        className='h-12 rounded-[10px] text-sm font-bold shadow-primary hover:brightness-105'
         onClick={onEnterApp}
         type='button'
       >
         <Icon className='size-4' name='arrow' />
         Abrir o Scoops
-      </button>
+      </Button>
     </section>
   )
 }

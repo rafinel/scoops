@@ -24,10 +24,10 @@ describe('UserMenu', () => {
 
     fireEvent.click(screen.getByText('Operator Example'))
 
-    expect(screen.getByText('Operator')).toBeDefined()
+    expect(screen.getByText('Operador')).toBeDefined()
     expect(screen.getByText('operator@example.com')).toBeDefined()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Sair deste dispositivo' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Sair deste dispositivo' }))
 
     expect(onLogoutMock).toHaveBeenCalledOnce()
   })
@@ -51,7 +51,7 @@ describe('UserMenu', () => {
     fireEvent.click(screen.getByText('Manager Example'))
 
     expect(
-      (screen.getByRole('button', { name: 'Saindo…' }) as HTMLButtonElement).disabled,
-    ).toBe(true)
+      screen.getByRole('menuitem', { name: 'Saindo…' }).getAttribute('aria-disabled'),
+    ).toBe('true')
   })
 })

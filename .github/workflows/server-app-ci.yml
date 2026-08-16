@@ -1,0 +1,63 @@
+name: Server CI
+
+on:
+  push:
+    paths:
+      - '.github/workflows/server-app-ci.yml'
+      - 'apps/server/**'
+      - 'biome.json'
+      - 'package.json'
+      - 'packages/core/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+  pull_request:
+    paths:
+      - '.github/workflows/server-app-ci.yml'
+      - 'apps/server/**'
+      - 'biome.json'
+      - 'package.json'
+      - 'packages/core/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: server-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  server:
+    name: Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check code
+        run: pnpm --filter server check:code
+
+      - name: Check types
+        run: pnpm --filter server check:types
+
+      - name: Run tests
+        run: pnpm --filter server test
+
+      - name: Build
+        run: pnpm --filter server build

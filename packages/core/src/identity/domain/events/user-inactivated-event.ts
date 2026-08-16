@@ -4,6 +4,9 @@ import { Event } from '#shared/domain/events/event.ts'
 export class UserInactivatedEvent extends Event<{
   userId: User['id']
   establishmentId: User['establishmentId']
+  email: User['email']
+  actorUserId: string
+  previousStatus: User['status']
   status: User['status']
   updatedAt: User['updatedAt']
 }> {

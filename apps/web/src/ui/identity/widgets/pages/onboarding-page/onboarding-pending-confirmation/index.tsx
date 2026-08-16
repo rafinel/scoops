@@ -12,6 +12,7 @@ import {
   OnboardingEmailCorrectionForm,
   type OnboardingEmailCorrectionFormProps,
 } from './onboarding-email-correction-form'
+import { Button } from '@/ui/shadcn/button'
 
 type OnboardingPendingConfirmationBaseProps = {
   correctionTriggerRef?: RefObject<HTMLButtonElement | null>
@@ -95,24 +96,25 @@ export const OnboardingPendingConfirmation = (
         </p>
       ) : null}
       <div className='flex flex-col gap-2'>
-        <button
+        <Button
           aria-busy={props.isResending}
-          className='h-12 rounded-[10px] bg-primary text-sm font-bold text-primary-foreground shadow-primary disabled:cursor-not-allowed disabled:opacity-60'
+          className='h-12 rounded-[10px] text-sm font-bold shadow-primary'
           disabled={props.isResending}
           onClick={props.onResend}
           type='button'
         >
           {props.isResending ? 'Reenviando…' : 'Reenviar confirmação'}
-        </button>
-        <button
-          className='h-10 text-sm font-bold text-primary hover:underline'
+        </Button>
+        <Button
+          variant='ghost'
+          className='h-10 text-sm font-bold text-primary hover:bg-transparent hover:underline'
           disabled={props.isResending}
           onClick={props.onOpenCorrection}
           ref={props.correctionTriggerRef}
           type='button'
         >
           Corrigir e-mail
-        </button>
+        </Button>
       </div>
     </section>
   )

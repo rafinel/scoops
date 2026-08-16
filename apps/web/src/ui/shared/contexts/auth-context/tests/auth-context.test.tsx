@@ -1,11 +1,20 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 
 import type { AuthProvider, IdentityService } from '@scoops/core/identity/interfaces'
 import type {
   AuthSession,
   AuthStateChangeListener,
 } from '@scoops/core/identity/domain/structures'
+import { InvalidCredentialsError } from '@scoops/core/identity/domain/errors'
 import { RestResponse } from '@scoops/core/shared/responses/rest-response'
 
 import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
@@ -53,6 +62,64 @@ describe('AuthContext', () => {
     expect(screen.getByText('No session').textContent).toBe('No session')
   })
 
+  it('rejects sign-in with invalid credentials when local access is inactive', async () => {
+    const authProvider = createAuthProvider(null, createSession('candidate-token'))
+    const identityService = createIdentityService(new RestResponse({ statusCode: 401 }))
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <AuthContextTestProvider
+        authProvider={authProvider}
+        identityService={identityService}
+        initialRedirect={false}
+      >
+        {children}
+      </AuthContextTestProvider>
+    )
+    const { result } = renderHook(() => useAuthContext(), { wrapper })
+
+    await act(async () => {
+      await expect(
+        result.current.signIn({ identifier: 'user@example.com', password: 'password' }),
+      ).rejects.toBeInstanceOf(InvalidCredentialsError)
+    })
+
+    await waitFor(() => expect(result.current.status).toBe('denied'))
+    expect(authProvider.signOut).toHaveBeenCalledWith('local')
+  })
+
+  it('does not let a provider sign-in event bypass local access rejection', async () => {
+    const authProvider = createAuthProvider(null, createSession('candidate-token'))
+    let providerListener: AuthStateChangeListener | undefined
+    vi.spyOn(authProvider, 'onAuthStateChange').mockImplementation(
+      (listener: AuthStateChangeListener) => {
+        providerListener = listener
+        return authProvider.unsubscribe
+      },
+    )
+    vi.spyOn(authProvider, 'signIn').mockImplementation(async () => {
+      providerListener?.('SIGNED_IN', createSession('candidate-token'))
+      return createSession('candidate-token')
+    })
+    const identityService = createIdentityService(new RestResponse({ statusCode: 401 }))
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <AuthContextTestProvider
+        authProvider={authProvider}
+        identityService={identityService}
+        initialRedirect={false}
+      >
+        {children}
+      </AuthContextTestProvider>
+    )
+    const { result } = renderHook(() => useAuthContext(), { wrapper })
+
+    await act(async () => {
+      await expect(
+        result.current.signIn({ identifier: 'user@example.com', password: 'password' }),
+      ).rejects.toBeInstanceOf(InvalidCredentialsError)
+    })
+
+    expect(authProvider.signOut).toHaveBeenCalledWith('local')
+  })
+
   it('preserves the provider session for 503 and retries local access', async () => {
     const authProvider = createAuthProvider(createSession('retry-token'))
     const identityService = createIdentityService(
@@ -88,6 +155,43 @@ describe('AuthContext', () => {
     )
     expect(authProvider.signOut).not.toHaveBeenCalled()
     expect(screen.getByText('Manager account').textContent).toBe('Manager account')
+  })
+
+  it('keeps invitation acceptance separate until password and local confirmation succeed', async () => {
+    const authProvider = createAuthProvider(createSession('invitation-token'))
+    const identityService = createIdentityService()
+
+    renderWithDependencies(authProvider, identityService, () => 'invitation-acceptance')
+
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('anonymous'))
+    expect(screen.getByText('Invitation session').textContent).toBe('Invitation session')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Set invitation password' }))
+    await waitFor(() =>
+      expect(authProvider.updatePassword).toHaveBeenCalledWith('password'),
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Activate invitation' }))
+
+    await waitFor(() =>
+      expect(screen.getByRole('status').textContent).toBe('authenticated'),
+    )
+    expect(authProvider.signOut).not.toHaveBeenCalled()
+  })
+
+  it('clears the invitation session when setting the password fails', async () => {
+    const authProvider = createAuthProvider(createSession('invitation-token'))
+    vi.spyOn(authProvider, 'updatePassword').mockRejectedValueOnce(
+      new Error('password rejected'),
+    )
+    const identityService = createIdentityService()
+
+    renderWithDependencies(authProvider, identityService, () => 'invitation-acceptance')
+
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('anonymous'))
+    fireEvent.click(screen.getByRole('button', { name: 'Set invitation password' }))
+
+    await waitFor(() => expect(authProvider.signOut).toHaveBeenCalledWith('global'))
+    expect(screen.getByRole('status').textContent).toBe('anonymous')
   })
 
   it('does not republish authenticated state when validation resolves after sign-out', async () => {
@@ -139,6 +243,7 @@ const AuthContextProbe = () => {
       <div role='status'>{auth.status}</div>
       <div>{auth.account ? `${auth.account.name} account` : 'No session'}</div>
       <div>{auth.isPasswordRecovery ? 'Recovery session' : 'Regular session'}</div>
+      {auth.isInvitationAcceptance && <div>Invitation session</div>}
       {auth.session && <div>Session preserved</div>}
       <button
         type='button'
@@ -157,6 +262,15 @@ const AuthContextProbe = () => {
       <button type='button' onClick={() => void auth.activateOnboardingConfirmation()}>
         Activate onboarding
       </button>
+      <button
+        type='button'
+        onClick={() => void auth.setInvitationPassword('password').catch(() => undefined)}
+      >
+        Set invitation password
+      </button>
+      <button type='button' onClick={() => void auth.activateInvitationAcceptance()}>
+        Activate invitation
+      </button>
     </>
   )
 }
@@ -166,7 +280,11 @@ function renderWithDependencies(
   identityService: Pick<IdentityService, 'getAccount'>,
   initialRedirect:
     | boolean
-    | (() => 'none' | 'password-recovery' | 'onboarding-confirmation') = false,
+    | (() =>
+        | 'none'
+        | 'password-recovery'
+        | 'onboarding-confirmation'
+        | 'invitation-acceptance') = false,
 ) {
   return render(
     <AuthContextTestProvider
@@ -189,7 +307,11 @@ const AuthContextTestProvider = ({
   identityService: Pick<IdentityService, 'getAccount'>
   initialRedirect:
     | boolean
-    | (() => 'none' | 'password-recovery' | 'onboarding-confirmation')
+    | (() =>
+        | 'none'
+        | 'password-recovery'
+        | 'onboarding-confirmation'
+        | 'invitation-acceptance')
   children: React.ReactNode
 }) => {
   const value = useAuthContextProvider(authProvider, identityService, initialRedirect)

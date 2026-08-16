@@ -3,6 +3,7 @@ import {
   type OnboardingDetailItem,
 } from '../onboarding-detail-list'
 import { OnboardingProgress } from '../onboarding-progress'
+import { Button } from '@/ui/shadcn/button'
 
 export type OnboardingRecoveryState =
   | 'expired-continuation'
@@ -42,11 +43,12 @@ export const OnboardingRecoveryPanel = ({
     <OnboardingDetailList items={details} />
     <div className='flex flex-col gap-2'>
       {actions.map((action) => (
-        <button
+        <Button
+          variant={action.kind === 'primary' ? 'default' : 'ghost'}
           className={
             action.kind === 'primary'
-              ? 'h-12 rounded-[10px] bg-primary text-sm font-bold text-primary-foreground'
-              : 'h-10 text-sm font-bold text-primary'
+              ? 'h-12 rounded-[10px] text-sm font-bold'
+              : 'h-10 text-sm font-bold text-primary hover:bg-transparent'
           }
           disabled={isBusy}
           key={`${state}-${action.label}`}
@@ -54,7 +56,7 @@ export const OnboardingRecoveryPanel = ({
           type='button'
         >
           {action.label}
-        </button>
+        </Button>
       ))}
     </div>
   </section>

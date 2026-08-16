@@ -1,0 +1,10 @@
+@confirmationToken = replace-with-the-43-character-confirmation-token
+
+### Accept a user invitation
+POST {{baseUrl}}/registration-attempts/invitation/accept
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "confirmationToken": "{{confirmationToken}}"
+}

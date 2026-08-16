@@ -1,8 +1,8 @@
 import { mock, type MockProxy } from 'vitest-mock-extended'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
-  fakeEstablishment,
-  fakeUserRegistrationAttempt,
+  EstablishmentFaker,
+  UserRegistrationAttemptFaker,
 } from '#identity/domain/entities/fakers/index.ts'
 import type {
   IdentityDatabase,
@@ -45,12 +45,15 @@ describe('Resend Ice Cream Shop Confirmation Use Case', () => {
     )
   })
   it('resends confirmation without changing the snapshot', async () => {
-    const attempt = fakeUserRegistrationAttempt({
+    const attempt = UserRegistrationAttemptFaker.fake({
       tokenHash: 'hash',
       establishmentId: 'establishment-id',
     })
     attempts.findPendingByTokenHash.mockResolvedValue(attempt)
-    const establishment = fakeEstablishment({ id: 'establishment-id', name: 'Scoops' })
+    const establishment = EstablishmentFaker.fake({
+      id: 'establishment-id',
+      name: 'Scoops',
+    })
     establishments.findById.mockResolvedValue(establishment)
     await expect(
       useCase.execute({

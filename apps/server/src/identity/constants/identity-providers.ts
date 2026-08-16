@@ -3,4 +3,5 @@ export const IDENTITY_PROVIDERS = {
   onboardingIdentity: Symbol('IDENTITY_PROVIDERS.onboardingIdentity'),
   onboardingToken: Symbol('IDENTITY_PROVIDERS.onboardingToken'),
   onboardingIdentifier: Symbol('IDENTITY_PROVIDERS.onboardingIdentifier'),
+  userAccessIdentity: Symbol('IDENTITY_PROVIDERS.userAccessIdentity'),
 } as const

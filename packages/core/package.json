@@ -11,6 +11,7 @@
   },
   "exports": {
     "./identity/domain/entities": "./src/identity/domain/entities/index.ts",
+    "./identity/domain/entities/fakers": "./src/identity/domain/entities/fakers/index.ts",
     "./identity/domain/errors": "./src/identity/domain/errors/index.ts",
     "./identity/domain/events": "./src/identity/domain/events/index.ts",
     "./identity/domain/structures": "./src/identity/domain/structures/index.ts",

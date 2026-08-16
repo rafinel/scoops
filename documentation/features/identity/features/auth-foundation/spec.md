@@ -778,9 +778,9 @@ Create `packages/core/src/identity/use-cases/index.ts` and add the
   - `verifyAccessToken(accessToken)` delegates to `auth.getUser(accessToken)`;
   - maps invalid/expired auth responses to `undefined` and provider/network failures to a
     provider-unavailable application error without leaking the Supabase payload.
-- `apps/server/src/identity/provision/errors/authentication-provider-unavailable.error.ts`
+- `packages/core/src/identity/domain/errors/authentication-provider-unavailable-error.ts`
 
-  - server-local typed error emitted only for provider/network availability failures;
+  - Core Identity typed error emitted only for provider/network availability failures;
   - the authentication guard catches this type and translates it to Nest's stable
     `ServiceUnavailableException`; no provider SDK error crosses the adapter boundary.
 - `apps/server/src/identity/provision/identity-provision.module.ts`

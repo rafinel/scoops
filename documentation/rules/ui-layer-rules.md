@@ -53,6 +53,31 @@ unit.
 File and directory names use kebab-case. React components remain in `.tsx` files;
 non-React hooks, types, constants, and utilities remain in `.ts` files.
 
+### Stateful widgets use an index and a colocated hook
+
+The default file boundary for every stateful or composed page, layout, dialog,
+form, table, and nested widget is a directory:
+
+```text
+user-invite-dialog/
+├── index.tsx
+└── use-user-invite-dialog.ts
+```
+
+This structure is mandatory even when the widget is currently used by only one
+page. The `index.tsx` file is the widget's rendering and composition entry point;
+the colocated `use-<widget-name>.ts` file is the single owner of local state,
+effects, form behavior, derived state, async orchestration, and interaction
+handlers. Consumers import the widget from the directory path, which resolves to
+`index.tsx`.
+
+Do not create a monolithic `<widget-name>.tsx` file for a behavior-owning widget,
+and do not keep its hook in a separate generic hooks directory. A single `.tsx`
+file is acceptable only for a genuinely pure prop-to-markup renderer with no
+state, effects, refs, form behavior, derived state, or event logic. Nested widgets
+follow the same rule and receive their own directory, `index.tsx`, and hook when
+they own behavior.
+
 ## UI implementation conventions
 
 ### Shared code conventions
