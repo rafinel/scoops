@@ -5,7 +5,7 @@ import type { PendingIceCreamShopOnboarding } from '@scoops/core/identity/domain
 import { IdentityService } from '@/rest/services/identity-service'
 import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 
-import { ensureSuccessfulResponse, toActionError } from './action-utils'
+import { useActionUtils } from './action-utils'
 
 type CorrectEmailInput = {
   continuationToken: string
@@ -16,6 +16,7 @@ type CorrectEmailInput = {
 export const useCorrectIceCreamShopOnboardingEmailAction = () => {
   const { restClient } = useRestContext()
   const identityService = IdentityService(restClient)
+  const { ensureSuccessfulResponse, toActionError } = useActionUtils()
   const [error, setError] = useState<Error | null>(null)
   const [isPending, setIsPending] = useState(false)
 

@@ -1,4 +1,5 @@
-import { Navigate, Outlet, useLocation } from '@tanstack/react-router'
+import { Outlet, useLocation, useNavigate } from '@tanstack/react-router'
+import { useEffect } from 'react'
 
 import { ROUTES } from '@/constants/routes'
 import { sanitizeReturnTo } from '@/middlewares/sanitize-return-to'
@@ -9,6 +10,25 @@ import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 export const AuthenticatedRoute = () => {
   const { status } = useAuthContext()
   const location = useLocation()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (
+      status === 'resolving' ||
+      status === 'authenticated' ||
+      status === 'unavailable'
+    ) {
+      return
+    }
+
+    void navigate({
+      replace: true,
+      search: {
+        returnTo: sanitizeReturnTo(`${location.pathname}${location.searchStr}`),
+      },
+      to: ROUTES.login,
+    })
+  }, [location.pathname, location.searchStr, navigate, status])
 
   if (status === 'resolving') {
     return (
@@ -34,15 +54,7 @@ export const AuthenticatedRoute = () => {
   }
 
   if (status !== 'authenticated') {
-    return (
-      <Navigate
-        replace
-        search={{
-          returnTo: sanitizeReturnTo(`${location.pathname}${location.searchStr}`),
-        }}
-        to={ROUTES.login}
-      />
-    )
+    return null
   }
 
   return (

@@ -35,6 +35,15 @@ implementation screenshots, findings and verdicts belong in `evaluation.md`.
 Evaluation uses only `in_progress`, `ready` and `completed`; Reviewer verdicts remain in its
 evidence/history rather than metadata.
 
+## Persistence and user questions
+
+Continue the implementation loop until the Spec evaluation is `ready`. Ask the user only when
+an unresolved product, authority, environment or safety decision is genuinely required for the
+next change; state the blocker and the smallest decision needed. Do not pause for a pending
+Reviewer, a routine validation step, or a choice that can be inferred safely from the Spec,
+Rules, repository, or existing evidence. After the answer, resume immediately and keep cycling
+through fixes, sensors, evidence refresh, and Reviewer dispatches until `ready`.
+
 ## Direct implementation loop
 
 1. Create `Builder Direct` with the current Spec revision, mapped RF/CA, observable outcome,
@@ -46,6 +55,10 @@ evidence/history rather than metadata.
    environment, Docker, workflow or generated-artifact changes require an earlier build.
 4. Update `evaluation.md` with exact commands/results, current commit, criterion coverage,
    findings and evidence freshness.
+
+Changes outside the Spec scope may remain in the shared worktree. Keep them out of the
+candidate commit and evidence, and do not convert their presence into a Reviewer finding
+unless they overlap evaluated paths, contaminate evidence, or cause a validation regression.
 5. On a sensor failure or implementation discrepancy, record a finding, create
    `Builder Fix QG-<n>`, mark only affected evidence stale, rerun invalidated checks and
    repeat until the implementation is review-ready or user authority is required.
@@ -76,16 +89,28 @@ behavior belongs in the Spec rather than in a reusable antipattern entry.
 When a Design Contract exists:
 
 - read `design/manifest.md` and every saved reference screenshot before coding;
+- confirm that the Spec contains a visual inventory for every supplied screenshot and a
+  recorded decision for every additional-screenshot suggestion before starting UI work;
 - do not require live Pencil during implementation;
 - preserve each state → surface → viewport mapping and intentionally distinct compositions;
-- compare the running UI with the saved reference using Browser-use/CDP, accessibility tree
-  and DOM/layout inspection;
+- compare the running UI with the saved reference using the Playwright CLI, accessible
+  locators and DOM/layout inspection;
 - save implementation screenshots under
   `evidence/screenshots/rev-<spec-revision>/` and record route, state, viewport and findings;
+- maintain one direct comparison record per supplied or supplemental reference; never use an
+  implementation-generated screenshot as the only visual oracle;
 - iterate until no material discrepancy remains.
+- If an approved implementation change intentionally introduces a visual element not present
+  in the supplied references, treat it as a Design Contract amendment: ask the user only if
+  the intended placement/scope is unclear, record the decision in the Spec, add a supplemental
+  reference or annotated design artifact to `design/manifest.md`, and recapture affected
+  implementation screenshots before dispatching the Reviewer. Never silently leave the
+  screenshots, manifest and Evaluation describing the old UI.
 
-Builder/Orchestrator browser checks are implementation feedback. They do not replace the
-Reviewer's personal `MV-*` and visual validation.
+Builder/Orchestrator Playwright CLI checks are implementation feedback. They do not replace the
+Reviewer's personal `MV-*` and visual validation. The Reviewer must be dispatched as a
+separate read-only subagent/task whenever final validation is required; the Orchestrator
+must not substitute its own review or an evaluation claim for that dispatch.
 
 ## User-requested change gate before conclusion
 
@@ -128,26 +153,44 @@ product, design or architectural outcome.
 
 ## Final Reviewer
 
-After the integrated diff and current evidence are ready, create one read-only
-`Reviewer Direct`. Send the exact Spec revision, evaluated commit/diff,
+After the integrated diff and current evidence are ready, dispatch one separate read-only
+`Reviewer Direct` subagent/task. Send the exact Spec revision, evaluated commit/diff,
 Implementation and Technical Contracts, Rule Pack, Architecture, official sensor evidence,
-design bundle, all applicable `MV-*` scenarios and previous findings.
+design bundle, all applicable `MV-*` scenarios and previous findings. Record the
+dispatch/task identifier and input commit in `evaluation.md` before accepting its verdict.
+
+The final Reviewer dispatch is mandatory before direct implementation can be completed,
+even when automated checks and Builder reports pass. Trigger it again whenever a fix,
+generated artifact, environment change, user-requested correction or contract amendment
+invalidates its evidence or verdict. If the subagent cannot be dispatched or does not
+return an independent verdict, keep evaluation `in_progress` and record the blocker; do
+not route to `conclude-spec` or mark the implementation complete.
+
+Dispatch the replacement Reviewer immediately after each correction that changes code, route
+behavior, generated evidence, or evaluation findings. Do not pause the workflow waiting for a
+later user turn; continue safe non-overlapping work while the Reviewer is pending and report
+the dispatch identifier and verdict when available.
 
 The Reviewer must directly inspect code and Rules, assess every CA and technical contract area,
-personally execute every applicable `MV-*` scenario, and compare design-backed UI with saved
-references at exact viewports. Automated Playwright and Builder reports are supporting
-evidence only. Missing required manual evidence produces `failed`.
+personally execute every applicable `MV-*` scenario, and independently validate every
+supplied and supplemental design screenshot at its exact viewport/state. The Reviewer must
+open the original reference, inspect the implementation capture beside it, and record
+missing, extra, altered or mismatched elements. Automated test reports and Builder reports are
+supporting evidence only. Missing required Playwright CLI evidence, missing screenshot comparison,
+or an unexplained material discrepancy produces `failed`.
 
-The Reviewer returns `accepted | failed`; the Orchestrator persists the verdict and evidence
-in `evaluation.md`.
+The separate Reviewer subagent returns `accepted | failed`; the Orchestrator persists its
+verdict, task identifier, reviewed commit and evidence in `evaluation.md`.
 
 - On `failed`, record findings, create scoped Builder Fixes, invalidate affected evidence,
   keep evaluation `in_progress`, rerun it and ask the Reviewer to reassess the updated
   commit.
 - On `accepted`, reconcile all evidence to the exact current commit, set evaluation to
   `ready` and route to `conclude-spec`.
-- After three materially identical failures, present the attempts and ask the user for the
-  unresolved authority or environment decision.
+- After three materially identical failures, ask the user only if the repeated blocker requires
+  a decision unavailable in the repository or environment; otherwise continue with the next
+  safe corrective action and Reviewer cycle. Never stop merely because the Reviewer is pending.
 
-Do not create a task/phase Reviewer, conclusion Reviewer, extra implementation role, fork or
-new task.
+Do not create a task/phase Reviewer or conclusion Reviewer, an extra implementation role,
+fork or user-owned task. The single final Reviewer is a separate internal subagent/task,
+not the Orchestrator and not the Builder.

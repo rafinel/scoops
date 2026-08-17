@@ -9,9 +9,13 @@ import type { UserSummary } from '#identity/domain/structures/user-summary.ts'
 import type { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { UserStatus } from '#identity/domain/structures/user-status.ts'
 import type { UsersListParams } from '#identity/domain/structures/users-list-params.ts'
+import type { EstablishmentSettings } from '#identity/domain/structures/establishment-settings.ts'
 
 export interface IdentityService {
   getAccount(): Promise<RestResponse<Account>>
+  changeOwnUserName(name: string): Promise<RestResponse<Account>>
+  getEstablishmentSettings(): Promise<RestResponse<EstablishmentSettings>>
+  changeEstablishmentName(name: string): Promise<RestResponse<EstablishmentSettings>>
   registerIceCreamShop(
     request: IceCreamShopOnboardingInput,
   ): Promise<RestResponse<IceCreamShopOnboardingRegistration>>

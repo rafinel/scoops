@@ -4,7 +4,7 @@ import type { UserDetails, UserStatus } from '@scoops/core/identity/domain/struc
 
 import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 
-import { ensureSuccessfulResponse, toActionError } from './action-utils'
+import { useActionUtils } from './action-utils'
 import { identityQueryKeys } from './identity-query-keys'
 
 export type ChangeUserStatusInput = {
@@ -15,6 +15,7 @@ export type ChangeUserStatusInput = {
 export const useChangeUserStatusAction = () => {
   const { identityService } = useRestContext()
   const queryClient = useQueryClient()
+  const { ensureSuccessfulResponse, toActionError } = useActionUtils()
   const mutation = useMutation({
     mutationFn: async ({
       userId,

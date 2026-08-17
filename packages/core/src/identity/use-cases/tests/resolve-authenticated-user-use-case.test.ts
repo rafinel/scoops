@@ -41,6 +41,7 @@ describe('Resolve Authenticated User Use Case', () => {
     await expect(useCase.execute({ providerSubject: user.id })).resolves.toEqual({
       id: user.id,
       establishmentId: user.establishmentId,
+      establishmentName: establishment.name,
       name: user.name,
       email: user.email,
       profile: user.profile,

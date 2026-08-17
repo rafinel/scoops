@@ -43,7 +43,9 @@ Verifique:
 - conformidade específica com cada subseção `Antipatterns to Avoid` aplicável,
   verificando também a validação declarada pela entrada;
 - leitura direta e evidência de conformidade para cada documento do Rule Pack;
-- paths fora do escopo;
+- paths fora do escopo que pertencem ao candidato revisado;
+- mudanças fora do escopo que permanecem apenas na worktree: ignore-as para o veredito
+  da Spec, mas não as inclua no commit ou nas evidências do candidato;
 - testes removidos, enfraquecidos ou ausentes;
 - regressões e efeitos colaterais;
 - segurança proporcional ao risco;
@@ -58,8 +60,8 @@ integrações REST, o Reviewer deve obter evidência nova no navegador antes do
 veredito e executar pessoalmente todos os cenários `MV-*` aplicáveis:
 
 - trate Playwright como evidência automatizada, não como validação manual;
-- use a skill `browser-use` com CDP para interação manual, inspeção visual e
-  validação exploratória;
+- use exclusivamente Playwright CLI para interação, inspeção visual e validação
+  exploratória quando essa restrição estiver definida pelo usuário ou pelo workflow;
 - não trate testes unitários, screenshots isolados ou o relato do Builder como
   substitutos da validação de navegador;
 - se a validação de navegador aplicável não puder ser executada, registre um
@@ -68,13 +70,21 @@ veredito e executar pessoalmente todos os cenários `MV-*` aplicáveis:
 Quando a Spec possuir Design contract, compare a implementação com o bundle
 visual salvo na pasta da feature:
 
-- leia `design/manifest.md` e todas as screenshots de referência aplicáveis;
-  não dependa de Pencil MCP durante a revisão;
+- leia `design/manifest.md` e todas as screenshots de referência aplicáveis, incluindo
+  screenshots suplementares sugeridas pelo Spec creator e estados explicitamente adicionados
+  ao bundle; não dependa de Pencil MCP durante a revisão;
 - capture a tela implementada no mesmo viewport e compare estrutura, hierarquia,
   tipografia, tokens de cor, espaçamento, dimensões, estados e responsividade;
-- use a referência salva e Browser-use para a implementação;
-- registre como finding bloqueante qualquer divergência material de layout,
-  componente, token, conteúdo ou estado definido no Design contract.
+- use a referência salva e Playwright CLI para capturar a implementação;
+- produza uma linha de comparação para cada screenshot, com referência original, captura
+  implementada, viewport, estado, itens ausentes/extras/alterados e resultado;
+- nunca use a screenshot gerada pela implementação como sua própria referência visual;
+- registre como finding bloqueante qualquer divergência material de layout, componente,
+  token, conteúdo ou estado definido no Design contract, ou qualquer screenshot obrigatória
+  sem comparação independente;
+- verifique também se o Spec creator documentou e resolveu perguntas sobre comportamentos
+  inesperados inferidos das imagens; uma decisão visual não documentada não pode ser aceita
+  como requisito implícito.
 
 ## Restrições
 
@@ -84,6 +94,9 @@ visual salvo na pasta da feature:
 - Não publique commits/PRs, monitore CI ou processe comentários de reviewers.
 - Sugestões fora do Contract são não bloqueantes.
 - Não falhe a revisão por preferência pessoal não sustentada por Spec ou Rule.
+- Não falhe a revisão apenas porque a worktree contém alterações fora do escopo. Falhe
+  somente se elas forem incluídas no candidato/commit revisado, alterarem arquivos
+  avaliados, contaminarem as evidências ou causarem regressões nos sensores.
 
 ## Saída
 
@@ -119,6 +132,12 @@ visual salvo na pasta da feature:
 | Cenário | Estado | Evidência |
 | --- | --- | --- |
 | MV-01 | passed | ... |
+
+### Comparação de screenshots
+
+| Referência | Estado/viewport | Captura implementada | Comparação independente | Estado |
+| --- | --- | --- | --- | --- |
+| `design/<reference>.png` | `<state> / <width × height>` | `evidence/screenshots/...` | `<ausentes, extras, alterações ou nenhum>` | `passed` / `failed` |
 
 ### Findings bloqueantes
 

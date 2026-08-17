@@ -45,6 +45,26 @@ known. Treat `.pen` files as encrypted design documents: never read, search, or
 modify them with shell commands or generic filesystem tools. Use only Pencil MCP
 operations for their contents.
 
+Before modifying a Pencil design, classify the request as either a visual-only
+change or a product-behavior change. A change to actors, permissions, workflow,
+states, validation, scope or business outcomes is a product-behavior change.
+
+For a product-behavior change requested outside an active Spec:
+
+1. Pause the Pencil edit and read the affected module PRD.
+2. Identify the current PRD statement, the proposed change and its product
+   impact; ask concise product questions for any unresolved behavior.
+3. Present the proposed PRD amendment and obtain explicit user approval.
+4. Update the PRD first, then reread it before editing Pencil.
+5. Apply and visually validate the approved Pencil change.
+
+Do not create or reopen a Spec solely for an out-of-Spec design request. If the
+change is later selected for implementation, create the normal issue and Spec
+from the updated PRD and Pencil design; `create-spec` then captures the required
+frame screenshots and manifest. When a Spec is already active, use its contract
+amendment workflow instead. Visual-only changes do not require a PRD amendment,
+but must remain consistent with the current PRD and Design documentation.
+
 When implementing a Pencil design:
 
 1. Read `documentation/design.md` and the applicable UI rules first.
@@ -101,7 +121,7 @@ visual evidence rather than the only assertion.
    `docker compose ps` and verify the relevant health endpoints before opening the
    browser. Default local endpoints are Supabase at
    `http://127.0.0.1:54321`, the server at `http://127.0.0.1:3333`, and the web
-   app at `http://127.0.0.1:3000`.
+   app at `http://127.0.0.1:4000`.
 2. Start `pnpm --filter server dev` and `pnpm --filter web dev` in persistent
    terminal sessions when the flow needs both applications. Wait for compilation
    and Nest bootstrap to finish before browser assertions.

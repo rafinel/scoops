@@ -131,6 +131,7 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
     expect(response.body).toEqual({
       id: user.id,
       establishmentId: user.establishmentId,
+      establishmentName: establishment.name,
       name: user.name,
       email: user.email,
       profile: user.profile,

@@ -14,3 +14,12 @@ Content-Type: application/json
 GET {{baseUrl}}/auth/session
 Authorization: Bearer {{signIn.response.body.$.access_token}}
 Accept: application/json
+
+### Change the authenticated user's own name
+PATCH {{baseUrl}}/auth/session/name
+Authorization: Bearer {{signIn.response.body.$.access_token}}
+Content-Type: application/json
+
+{
+  "name": "Scoops Manager"
+}

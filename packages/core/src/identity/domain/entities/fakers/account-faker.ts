@@ -7,6 +7,7 @@ export class AccountFaker {
     return {
       id: faker.string.uuid(),
       establishmentId: faker.string.uuid(),
+      establishmentName: faker.company.name(),
       name: faker.person.fullName(),
       email: faker.internet.email(),
       profile: UserProfile.Manager,

@@ -20,10 +20,12 @@ import { Route as OnboardingConfirmRouteImport } from './routes/onboarding/confi
 import { Route as InvitationAcceptRouteImport } from './routes/invitation/accept'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedSubscriptionIndexRouteImport } from './routes/_authenticated/subscription/index'
+import { Route as AuthenticatedShopSettingsIndexRouteImport } from './routes/_authenticated/shop-settings/index'
 import { Route as AuthenticatedSalesChannelsIndexRouteImport } from './routes/_authenticated/sales-channels/index'
 import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authenticated/products/index'
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders/index'
 import { Route as AuthenticatedDiscountsIndexRouteImport } from './routes/_authenticated/discounts/index'
+import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account/index'
 import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users/$userId'
 import { Route as AuthenticatedSalesNewRouteImport } from './routes/_authenticated/sales/new'
 
@@ -82,6 +84,12 @@ const AuthenticatedSubscriptionIndexRoute =
     path: '/subscription/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedShopSettingsIndexRoute =
+  AuthenticatedShopSettingsIndexRouteImport.update({
+    id: '/shop-settings/',
+    path: '/shop-settings/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSalesChannelsIndexRoute =
   AuthenticatedSalesChannelsIndexRouteImport.update({
     id: '/sales-channels/',
@@ -104,6 +112,12 @@ const AuthenticatedDiscountsIndexRoute =
   AuthenticatedDiscountsIndexRouteImport.update({
     id: '/discounts/',
     path: '/discounts/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAccountIndexRoute =
+  AuthenticatedAccountIndexRouteImport.update({
+    id: '/account/',
+    path: '/account/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedUsersUserIdRoute =
@@ -129,10 +143,12 @@ export interface FileRoutesByFullPath {
   '/reset-password/': typeof ResetPasswordIndexRoute
   '/sales/new': typeof AuthenticatedSalesNewRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/account/': typeof AuthenticatedAccountIndexRoute
   '/discounts/': typeof AuthenticatedDiscountsIndexRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
   '/products/': typeof AuthenticatedProductsIndexRoute
   '/sales-channels/': typeof AuthenticatedSalesChannelsIndexRoute
+  '/shop-settings/': typeof AuthenticatedShopSettingsIndexRoute
   '/subscription/': typeof AuthenticatedSubscriptionIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
 }
@@ -147,10 +163,12 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordIndexRoute
   '/sales/new': typeof AuthenticatedSalesNewRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/account': typeof AuthenticatedAccountIndexRoute
   '/discounts': typeof AuthenticatedDiscountsIndexRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
   '/products': typeof AuthenticatedProductsIndexRoute
   '/sales-channels': typeof AuthenticatedSalesChannelsIndexRoute
+  '/shop-settings': typeof AuthenticatedShopSettingsIndexRoute
   '/subscription': typeof AuthenticatedSubscriptionIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
 }
@@ -167,10 +185,12 @@ export interface FileRoutesById {
   '/reset-password/': typeof ResetPasswordIndexRoute
   '/_authenticated/sales/new': typeof AuthenticatedSalesNewRoute
   '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/discounts/': typeof AuthenticatedDiscountsIndexRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
   '/_authenticated/products/': typeof AuthenticatedProductsIndexRoute
   '/_authenticated/sales-channels/': typeof AuthenticatedSalesChannelsIndexRoute
+  '/_authenticated/shop-settings/': typeof AuthenticatedShopSettingsIndexRoute
   '/_authenticated/subscription/': typeof AuthenticatedSubscriptionIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
 }
@@ -187,10 +207,12 @@ export interface FileRouteTypes {
     | '/reset-password/'
     | '/sales/new'
     | '/users/$userId'
+    | '/account/'
     | '/discounts/'
     | '/orders/'
     | '/products/'
     | '/sales-channels/'
+    | '/shop-settings/'
     | '/subscription/'
     | '/users/'
   fileRoutesByTo: FileRoutesByTo
@@ -205,10 +227,12 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sales/new'
     | '/users/$userId'
+    | '/account'
     | '/discounts'
     | '/orders'
     | '/products'
     | '/sales-channels'
+    | '/shop-settings'
     | '/subscription'
     | '/users'
   id:
@@ -224,10 +248,12 @@ export interface FileRouteTypes {
     | '/reset-password/'
     | '/_authenticated/sales/new'
     | '/_authenticated/users/$userId'
+    | '/_authenticated/account/'
     | '/_authenticated/discounts/'
     | '/_authenticated/orders/'
     | '/_authenticated/products/'
     | '/_authenticated/sales-channels/'
+    | '/_authenticated/shop-settings/'
     | '/_authenticated/subscription/'
     | '/_authenticated/users/'
   fileRoutesById: FileRoutesById
@@ -323,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSubscriptionIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/shop-settings/': {
+      id: '/_authenticated/shop-settings/'
+      path: '/shop-settings'
+      fullPath: '/shop-settings/'
+      preLoaderRoute: typeof AuthenticatedShopSettingsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/sales-channels/': {
       id: '/_authenticated/sales-channels/'
       path: '/sales-channels'
@@ -351,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDiscountsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/account/': {
+      id: '/_authenticated/account/'
+      path: '/account'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AuthenticatedAccountIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/users/$userId': {
       id: '/_authenticated/users/$userId'
       path: '/users/$userId'
@@ -371,10 +411,12 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSalesNewRoute: typeof AuthenticatedSalesNewRoute
   AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
+  AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
   AuthenticatedDiscountsIndexRoute: typeof AuthenticatedDiscountsIndexRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
   AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
   AuthenticatedSalesChannelsIndexRoute: typeof AuthenticatedSalesChannelsIndexRoute
+  AuthenticatedShopSettingsIndexRoute: typeof AuthenticatedShopSettingsIndexRoute
   AuthenticatedSubscriptionIndexRoute: typeof AuthenticatedSubscriptionIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
 }
@@ -382,10 +424,12 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSalesNewRoute: AuthenticatedSalesNewRoute,
   AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,
+  AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
   AuthenticatedDiscountsIndexRoute: AuthenticatedDiscountsIndexRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
   AuthenticatedProductsIndexRoute: AuthenticatedProductsIndexRoute,
   AuthenticatedSalesChannelsIndexRoute: AuthenticatedSalesChannelsIndexRoute,
+  AuthenticatedShopSettingsIndexRoute: AuthenticatedShopSettingsIndexRoute,
   AuthenticatedSubscriptionIndexRoute: AuthenticatedSubscriptionIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
 }

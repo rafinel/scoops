@@ -1,6 +1,7 @@
 import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 
+import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Avatar } from '@/ui/shared/widgets/components/avatar'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import {
@@ -26,7 +27,7 @@ export const UserMenu = ({ account, error, isPending, onLogout }: UserMenuProps)
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label={`${account.name} — ${profileLabel}`}
-        className='flex min-h-12 shrink-0 items-center gap-2.5 rounded-xl border bg-card px-3 py-2 text-left text-sm font-bold focus-visible:outline-2 focus-visible:outline-primary sm:w-[198px] sm:gap-3 sm:px-3.5'
+        className='flex min-h-12 max-w-[calc(100vw-114px)] shrink-0 items-center gap-2.5 rounded-xl border bg-card px-3 py-2 text-left text-sm font-bold focus-visible:outline-2 focus-visible:outline-primary sm:w-[198px] sm:gap-3 sm:px-3.5'
       >
         <Avatar name={account.name} className='size-8 bg-success-soft text-success' />
         <span className='min-w-0 flex-1 truncate'>
@@ -47,6 +48,13 @@ export const UserMenu = ({ account, error, isPending, onLogout }: UserMenuProps)
             {account.email}
           </DropdownMenuLabel>
         </DropdownMenuGroup>
+        <DropdownMenuItem
+          className='mt-3 min-h-10 w-full rounded-lg border px-3 text-left text-sm font-bold'
+          render={<Anchor route='account' />}
+        >
+          <Icon name='user-round' className='size-4' />
+          Minha conta
+        </DropdownMenuItem>
         {error ? (
           <p className='mt-3 text-xs text-destructive' role='alert'>
             Não foi possível sair agora. Tente novamente.

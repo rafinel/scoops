@@ -20,6 +20,7 @@ export type AuthContextValue = {
   isOnboardingConfirmation: boolean
   isInvitationAcceptance: boolean
   getSession(): Promise<AuthSession | null>
+  refreshAccount(): Promise<Account | null>
   signIn(credentials: AuthCredentials): Promise<void>
   signOut(): Promise<void>
   requestPasswordReset(email: string): Promise<void>

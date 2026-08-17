@@ -1,24 +1,17 @@
-import { useEffect, useState, type PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { TanStackDevtools } from '@tanstack/react-devtools'
 import { ClientOnly, HeadContent, Scripts } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 
 import { AuthContextProvider } from '@/ui/shared/contexts/auth-context'
 import { RestContextProvider } from '@/ui/shared/contexts/rest-context'
+import { Toaster } from 'sonner'
 
 const queryClient = new QueryClient()
 
 export type RootLayoutProps = PropsWithChildren
 
 export const RootLayout = ({ children }: RootLayoutProps) => {
-  const [isHydrated, setIsHydrated] = useState(false)
-
-  useEffect(() => {
-    setIsHydrated(true)
-  }, [])
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthContextProvider>
@@ -29,17 +22,7 @@ export const RootLayout = ({ children }: RootLayoutProps) => {
             </head>
             <body className='antialiased [overflow-wrap:anywhere]'>
               <ClientOnly fallback={null}>{children}</ClientOnly>
-              {isHydrated ? (
-                <TanStackDevtools
-                  config={{ position: 'bottom-right' }}
-                  plugins={[
-                    {
-                      name: 'TanStack Router',
-                      render: <TanStackRouterDevtoolsPanel />,
-                    },
-                  ]}
-                />
-              ) : null}
+              <Toaster position='top-right' richColors />
               <Scripts />
             </body>
           </html>

@@ -233,6 +233,32 @@ describe('AuthContext', () => {
 
     expect(authProvider.unsubscribe).toHaveBeenCalledOnce()
   })
+
+  it('refreshes the server-authoritative account projection', async () => {
+    const authProvider = createAuthProvider(createSession('refresh-token'))
+    const identityService = createIdentityService(
+      new RestResponse({ body: createAccount() }),
+      new RestResponse({ body: { ...createAccount(), name: 'Updated Manager' } }),
+    )
+    const { result } = renderHook(() => useAuthContext(), {
+      wrapper: ({ children }: { children: React.ReactNode }) => (
+        <AuthContextTestProvider
+          authProvider={authProvider}
+          identityService={identityService}
+          initialRedirect={false}
+        >
+          {children}
+        </AuthContextTestProvider>
+      ),
+    })
+
+    await waitFor(() => expect(result.current.status).toBe('authenticated'))
+    await act(async () => {
+      await result.current.refreshAccount()
+    })
+
+    expect(result.current.account?.name).toBe('Updated Manager')
+  })
 })
 
 const AuthContextProbe = () => {
@@ -363,6 +389,7 @@ function createAccount() {
   return {
     id: 'user-id',
     establishmentId: 'establishment-id',
+    establishmentName: 'Scoops',
     name: 'Manager',
     email: 'manager@example.com',
     profile: 'manager' as const,

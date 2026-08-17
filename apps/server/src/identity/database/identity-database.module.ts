@@ -6,6 +6,7 @@ import { DrizzleEstablishmentsRepository } from '@/identity/database/drizzle/rep
 import { DrizzleRegistrationAttemptsRepository } from '@/identity/database/drizzle/repositories/drizzle-registration-attempts-repository'
 import { DrizzleUsersRepository } from '@/identity/database/drizzle/repositories/drizzle-users-repository'
 import { DrizzleUserAuditRecordsRepository } from '@/identity/database/drizzle/repositories/drizzle-user-audit-records-repository'
+import { DrizzleEstablishmentAuditRecordsRepository } from '@/identity/database/drizzle/repositories/drizzle-establishment-audit-records-repository'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
 
@@ -16,6 +17,7 @@ import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
     DrizzleRegistrationAttemptsRepository,
     DrizzleUsersRepository,
     DrizzleUserAuditRecordsRepository,
+    DrizzleEstablishmentAuditRecordsRepository,
     DrizzleIdentityDatabase,
     IdentitySeeder,
     {
@@ -38,6 +40,10 @@ import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
       provide: IDENTITY_REPOSITORIES.userAuditRecords,
       useExisting: DrizzleUserAuditRecordsRepository,
     },
+    {
+      provide: IDENTITY_REPOSITORIES.establishmentAuditRecords,
+      useExisting: DrizzleEstablishmentAuditRecordsRepository,
+    },
   ],
   exports: [
     IDENTITY_REPOSITORIES.database,
@@ -45,6 +51,7 @@ import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
     IDENTITY_REPOSITORIES.registrationAttempts,
     IDENTITY_REPOSITORIES.users,
     IDENTITY_REPOSITORIES.userAuditRecords,
+    IDENTITY_REPOSITORIES.establishmentAuditRecords,
     IdentitySeeder,
   ],
 })
