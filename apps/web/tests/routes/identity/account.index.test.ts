@@ -90,6 +90,36 @@ test.describe('Account route', () => {
     await expect(page.getByRole('link', { name: 'Usuários' })).toHaveCount(0)
   })
 
+  test('shows the Manager shop settings navigation and redirects to its route', async ({
+    page,
+    identity,
+  }) => {
+    await identity.mockManagerSession()
+    await identity.mockManagerAccount()
+    await page.route('**/establishments/current', async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        status: 200,
+        body: JSON.stringify({
+          establishment: {
+            id: 'browser-establishment-id',
+            name: 'Scoops Central',
+            status: 'active',
+            createdAt: '2026-01-01T00:00:00.000Z',
+          },
+          responsibleManager: {
+            id: 'browser-manager-id',
+            name: 'Scoops Manager',
+          },
+        }),
+      })
+    })
+
+    await page.goto('/account')
+    await page.getByRole('link', { name: 'Sorveteria' }).click()
+    await expect(page).toHaveURL(/\/shop-settings\/?$/)
+  })
+
   test('logs out the current device and returns to login', async ({ page, identity }) => {
     await identity.mockManagerSession()
     await identity.mockManagerAccount()

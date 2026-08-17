@@ -86,16 +86,18 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                   <Icon name='users' className='size-[18px]' />
                   Usuários
                 </Anchor>
-                {isShopSettings ? (
-                  <Anchor
-                    aria-current='page'
-                    className='flex min-h-11 items-center gap-3 rounded-[10px] bg-accent px-3 text-sm font-extrabold text-primary transition-colors'
-                    route='shopSettings'
-                  >
-                    <Icon name='store' className='size-[18px]' />
-                    Sorveteria
-                  </Anchor>
-                ) : null}
+                <Anchor
+                  aria-current={isShopSettings ? 'page' : undefined}
+                  className={`flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-sm font-extrabold transition-colors ${
+                    isShopSettings
+                      ? 'bg-accent text-primary'
+                      : 'text-foreground hover:bg-muted hover:text-foreground'
+                  }`}
+                  route='shopSettings'
+                >
+                  <Icon name='store' className='size-[18px]' />
+                  Sorveteria
+                </Anchor>
               </>
             ) : null}
             <Anchor
