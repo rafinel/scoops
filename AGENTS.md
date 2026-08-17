@@ -27,11 +27,13 @@ source without fabricating an issue.
 If `AGENTS.local.md` exists, read it before repository work and apply it alongside
 this file. When it is absent, continue with the instructions below.
 
-## MCP availability and usage
+## Tool availability and usage
 
-The development environment uses Pencil, Context7, and Playwright MCP servers.
-Use an MCP when the task matches its purpose; do not invoke one when local source,
-repository documentation, and normal validation commands are sufficient.
+The development environment uses Pencil and Context7 MCP servers. Use an MCP when
+the task matches its purpose; do not invoke one when local source, repository
+documentation, and normal validation commands are sufficient. Use the Playwright
+CLI for all browser interaction, inspection and validation; do not use
+`browser-use`, CDP workflows or Playwright MCP for repository implementation.
 
 ### Pencil (`mcp__pencil__*`)
 
@@ -72,8 +74,8 @@ When implementing a Pencil design:
 3. Map Pencil values to existing Scoops tokens instead of introducing parallel
    hardcoded colors, spacing, typography, radii, or shadows.
 4. Implement the smallest coherent screen or component boundary.
-5. Validate the result in the browser with Playwright when the application can
-   be run locally.
+5. Validate the result with the Playwright CLI when the application can be run
+   locally.
 
 Use the Pencil design skill whenever a task involves a Pencil workflow and that
 skill is available in the current agent environment.
@@ -95,45 +97,38 @@ project. Context7 supplements rather than replaces local evidence: inspect the
 installed package version, repository source, configuration, and project rules
 before applying documentation examples.
 
-### Playwright (`mcp__playwright__*`)
+### Playwright CLI
 
-Use Playwright MCP to validate real browser behavior in `apps/web`, especially
+Use the Playwright CLI to validate real browser behavior in `apps/web`, especially
 after changes to UI, routes, forms, responsive layouts, accessibility,
-authentication, or REST integration.
+authentication, or REST integration. Use the CLI for both automated suites and
+interactive/manual scenarios; do not use `browser-use`, CDP workflows or
+Playwright MCP instead.
 
-For manual or interactive UI validation requested by the user or specified by a
-feature Plan, use the `browser-use` skill and its CDP workflow instead of
-Playwright. Prefer the accessibility tree for interaction and inspect the DOM,
-final URL, network requests, console messages, viewport behavior, and keyboard
-paths. Keep Playwright for the repository's automated browser test suite; do not
-present mocked Playwright coverage as evidence of a real authenticated,
-server-backed flow.
+Use accessible role and name locators where possible. Inspect the DOM, final URL,
+network requests, console messages, viewport behavior and keyboard paths. Capture
+screenshots with the CLI when visual evidence is useful, but treat them as
+supporting evidence rather than the only assertion. Mocked transport coverage must
+not be presented as evidence that a real authenticated, server-backed flow works.
 
-Playwright can navigate the running application, inspect accessibility snapshots,
-interact with controls, inspect console messages and network requests, and capture
-screenshots when visual evidence is useful. Prefer accessibility snapshots,
-console output, and network evidence for diagnosis; screenshots are supporting
-visual evidence rather than the only assertion.
-
-#### Required browser-validation workflow
+#### Required Playwright CLI validation workflow
 
 1. Identify the services required by the flow. For full-stack behavior, inspect
-   `docker compose ps` and verify the relevant health endpoints before opening the
-   browser. Default local endpoints are Supabase at
+   `docker compose ps` and verify the relevant health endpoints before running the
+   Playwright CLI flow. Default local endpoints are Supabase at
    `http://127.0.0.1:54321`, the server at `http://127.0.0.1:3333`, and the web
    app at `http://127.0.0.1:4000`.
 2. Start `pnpm --filter server dev` and `pnpm --filter web dev` in persistent
    terminal sessions when the flow needs both applications. Wait for compilation
-   and Nest bootstrap to finish before browser assertions.
-3. Navigate to the target route and capture a fresh accessibility snapshot.
-   Snapshot references are ephemeral; do not reuse a reference after navigation
-   or a state-changing re-render.
-4. Exercise the user-visible behavior with the current snapshot, preferring
-   accessible role and name locators over CSS selectors.
+   and Nest bootstrap to finish before Playwright assertions.
+3. Run the applicable Playwright CLI suite or focused test against the target
+   route and capture fresh evidence after each state-changing interaction.
+4. Exercise the user-visible behavior with accessible role and name locators
+   rather than CSS selectors where possible.
 5. Verify both the visible result and the resulting URL, network request, or
    persisted state relevant to the behavior. A successful navigation alone is
    not sufficient evidence for a server-backed flow.
-6. Inspect browser console messages and failed network requests before calling a
+6. Inspect console messages and failed network requests before calling a
    flow successful. Classify console errors, hydration warnings, and HTTP 4xx/5xx
    responses as fixed, pre-existing, or blocking.
 7. For UI changes, exercise at least one narrow viewport and a keyboard path.
@@ -235,9 +230,9 @@ CI configuration, deployment secrets, or environment names from another project.
 - Add dependencies only to the workspace that uses them. Update and commit
   `pnpm-lock.yaml` with dependency changes.
 - Validate in proportion to risk. At minimum, run code and type checks for every
-  changed workspace; add unit, integration, browser, and build checks for the
+  changed workspace; add unit, integration, Playwright CLI, and build checks for the
   affected boundaries.
-- Do not claim a test or browser flow passed unless it was actually executed.
+- Do not claim a test or Playwright CLI flow passed unless it was actually executed.
 - Do not add CI/CD, external writes, deployments, or third-party mutations unless
   the user explicitly requests them.
 
