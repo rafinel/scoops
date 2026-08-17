@@ -17,7 +17,7 @@ export const envSchema = z.object({
   INNGEST_SIGNING_KEY: z.string().optional(),
   SCOOPS_SERVER_APP_MODE: z.enum(['dev', 'prod', 'stg', 'test']).default('dev'),
   SCOOPS_SERVER_APP_PORT: z.coerce.number().int().positive().default(3333),
-  SCOOPS_WEB_APP_URL: z.string().url().default('http://127.0.0.1:3000'),
+  SCOOPS_WEB_APP_URL: z.string().url().default('http://127.0.0.1:4000'),
   SUPABASE_URL: z.string().url().default('http://127.0.0.1:54321'),
   SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),

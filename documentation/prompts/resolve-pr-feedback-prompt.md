@@ -7,7 +7,7 @@ description: Resolve reviewer comments on an open Scoops pull request, reopening
 
 Process reviewer conversations that arrive after a delivery PR is open. This workflow owns
 feedback classification, replies and SDD reopening. It does not own the final CI gate, close
-the Spec, implement changes or run a Reviewer.
+the Spec, implement changes or run implementation validation.
 
 ## Inspect the current review state
 
@@ -44,8 +44,7 @@ Spec or Rules while the PR remains open:
 3. set `evaluation.md` to `status: in_progress`, append a review-cycle entry and record the
    comment URL as a mapped finding;
 4. route to `implement-spec` or `implement-plan` according to the existing delivery route;
-5. let that implementation workflow own fixes, invalidated evidence, manual validation and
-   any implementation review;
+5. let that implementation workflow own fixes, invalidated evidence and manual validation;
 6. after it returns evaluation to `ready`, invoke `conclude-spec` to commit, update the
    existing PR, run the final PR CI gate and close the Spec again.
 
@@ -61,7 +60,7 @@ boundaries while the delivery PR remains open:
 5. increment the Spec revision, reconcile the design bundle and validation, set
    `evaluation.md` to `status: in_progress`, set a
    reused Plan to `pending` or a replaced Plan to `superseded`, and return the Spec to `open`
-   without a Spec Reviewer;
+   without a separate Spec review stage;
 6. run the newly recommended implementation workflow;
 7. invoke `conclude-spec` again to update the existing PR, run CI and close the delivery.
 

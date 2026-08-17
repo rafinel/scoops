@@ -19,6 +19,9 @@ Read the current Spec, its Rule Pack, Architecture and Tooling. Confirm:
 - the Spec is `open` and its revision is current;
 - the Technical and Validation Contracts contain enough detail to schedule work;
 - every required design manifest/reference exists;
+- every supplied design screenshot has a completed visual inventory, and all required
+  supplemental-screenshot suggestions are captured or explicitly accepted as documented
+  assumptions;
 - `implement-plan` remains the appropriate route;
 - no material product or technical ambiguity remains.
 
@@ -118,8 +121,8 @@ Status vocabulary:
 - **Phase, task and coverage row:** `pending`, `in_progress`, `completed`.
 
 Keep a failed or blocked item `in_progress` and record its finding/blocker and next action;
-do not create failure statuses. Keep the final integrated phase `in_progress` while the
-single Reviewer is active. Use `superseded` only when a revised Spec replaces
+do not create failure statuses. Keep the final integrated phase `in_progress` while integrated
+validation is active. Use `superseded` only when a revised Spec replaces
 the Plan or switches to direct implementation.
 
 ### 3. Validation and handoff
@@ -132,16 +135,17 @@ Use one coverage table to schedule evidence without repeating the Spec's scenari
 | Visual | `<state>` | CA-02 | `./design/<reference>.png` | `./evidence/screenshots/rev-<n>/<state>.png` | `pending` |
 | Runtime | `<integration>` | CA-03 | Integration Contract | `./evaluation.md` | `pending` |
 
-Include only applicable rows. For design-backed UI, schedule every manifest state at its
-exact viewport and an implementation screenshot under the feature-local `evidence/`
-directory. Builders and the Reviewer use saved references and do not depend on
-Pencil MCP.
+Include only applicable rows. For design-backed UI, schedule every supplied and
+supplemental manifest state at its exact viewport and an implementation screenshot under
+the feature-local `evidence/` directory. Add a comparison row for each reference; do not
+allow one generic screenshot to stand in for multiple states or viewports. Builders and the
+Orchestrator use saved references and do not depend on Pencil MCP.
 
 Define the final handoff condition: all tasks and phases completed, Spec validation
 commands current on the integrated commit, generated artifacts/migrations reviewed,
 services/accounts/fixtures ready, every `MV-*` executable, required screenshot targets
-available and no blocking finding active. Then and only then run the single read-only
-Reviewer.
+available, every reference comparison recorded, all additional-screenshot decisions
+resolved and no blocking finding active. Then route directly to `conclude-spec`.
 
 ### 4. Execution log — conditional
 

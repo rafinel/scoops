@@ -4,6 +4,7 @@ import { HTTP_STATUS_CODE } from '@scoops/core/shared/constants'
 
 import { ROUTES } from '@/constants/routes'
 import { AUTH_IDENTITY_SERVICE, AUTH_PROVIDER } from '@/provision/auth/auth-composition'
+import { showWarningToast } from '@/ui/shared/notifications'
 
 import { AuthRouteUnavailableError } from './auth-route-unavailable-error'
 import { sanitizeReturnTo } from './sanitize-return-to'
@@ -45,6 +46,8 @@ async function signOutLocally() {
   try {
     await AUTH_PROVIDER.signOut('local')
   } catch {
-    // The local access rejection remains neutral even if provider cleanup fails.
+    showWarningToast(
+      'Sua sessão local foi encerrada, mas a limpeza do provedor não foi confirmada.',
+    )
   }
 }

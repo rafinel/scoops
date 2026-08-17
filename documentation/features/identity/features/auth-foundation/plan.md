@@ -26,7 +26,7 @@ remain authoritative in [`spec.md`](./spec.md).
 
 The execution is intentionally split into two Builder lanes after Core: the
 Server lane and the Web lane can run in parallel against the stable Core and
-Spec-defined REST contracts. They join only for integrated HTTP/browser evidence
+Spec-defined REST contracts. They join only for integrated HTTP/Playwright CLI evidence
 and the final quality gate.
 
 ## Objective
@@ -37,7 +37,7 @@ authentication, local-access resolution, fixed-profile authorization and tenant
 scope; Identity persistence with a serializable transaction boundary; browser
 session restoration, current-device logout and password recovery; protected
 TanStack routes and accessible Identity UI; and evidence from unit, controller,
-  automated route tests, manual `browser-use` validation, migration and build
+  automated route tests, manual Playwright CLI validation, migration and build
   sensors.
 
 ## Scope
@@ -93,7 +93,7 @@ every `RF-*` and `CA-*` attached to at least one phase and task.
 | --- | --- |
 | CA-01 | F1 Core unit tests and typecheck |
 | CA-02 | F3 controller integration through HTTP |
-| CA-03 | F2/F3 controller tests plus F5/F6 browser evidence |
+| CA-03 | F2/F3 controller tests plus F5/F6 Playwright CLI evidence |
 | CA-04 | F1 use-case test plus F3 HTTP bootstrap test |
 | CA-05 | F3 authenticated request-context integration test |
 | CA-06 | F3 Operator direct-call integration test |
@@ -101,14 +101,14 @@ every `RF-*` and `CA-*` attached to at least one phase and task.
 | CA-08 | F1 use-case tests plus F3 HTTP error assertions |
 | CA-09 | F2/F3 concurrent HTTP requests and persisted-state assertion |
 | CA-10 | F1 use-case test plus F3 subsequent authorization request |
-| CA-11 | F4 widget/context tests plus F5/F6 manual `browser-use` and console evidence |
-| CA-12 | F5/F6 direct `/app` browser-use redirect, HTML, network and console evidence |
-| CA-13 | F4 provider test plus F5/F6 two-session browser-use evidence |
-| CA-14 | F4 provider/context test plus F5/F6 recovery browser-use evidence |
-| CA-15 | F4 provider/context test plus F5/F6 invalid/expired-link browser-use evidence |
-| CA-16 | F4 provider/context test plus F5/F6 successful reset browser-use evidence |
+| CA-11 | F4 widget/context tests plus F5/F6 manual Playwright CLI and console evidence |
+| CA-12 | F5/F6 direct `/app` Playwright CLI redirect, HTML, network and console evidence |
+| CA-13 | F4 provider test plus F5/F6 two-session Playwright CLI evidence |
+| CA-14 | F4 provider/context test plus F5/F6 recovery Playwright CLI evidence |
+| CA-15 | F4 provider/context test plus F5/F6 invalid/expired-link Playwright CLI evidence |
+| CA-16 | F4 provider/context test plus F5/F6 successful reset Playwright CLI evidence |
 | CA-17 | F2/F4 source and environment checks plus F6 production builds/network inspection |
-| CA-18 | F4 auth-context test plus F5/F6 `503`/transport retry browser-use evidence |
+| CA-18 | F4 auth-context test plus F5/F6 `503`/transport retry Playwright CLI evidence |
 
 ## Phase and parallel execution ledger
 
@@ -118,8 +118,8 @@ every `RF-*` and `CA-*` attached to at least one phase and task.
 | 2 | Server | F2 | Identity persistence, transaction boundary and provider infrastructure | F1 | **Web F4**; lockfile coordinated before wave | `accepted` | Migration, repositories, seeder and server Supabase adapter are wired and static sensors pass. |
 | 2 | Web | F4 | Provider, REST transport and AuthContext | F1 + stable Spec/Core REST contract | **Server F2**; lockfile coordinated before wave | `accepted` | Provider, dynamic token transport and auth lifecycle tests pass. |
 | 3 | Server | F3 | Server authentication and REST authorization boundary | F2 | **Web F5** | `accepted` | Real HTTP controller tests prove authentication, profile checks, tenancy and concurrency. |
-| 3 | Web | F5 | Web routes, protected shell and Identity UI | F4 | **Server F3** | `accepted` | Generated routes, widget tests and focused mocked-transport browser suites pass. |
-| 4 | Integrated | F6 | Cross-workspace integration, real browser evidence and final quality gate | F1–F5 | — | `accepted` | Integrated sensors, Pencil evidence, real browser-use evidence and the reused final Judge pass. |
+| 3 | Web | F5 | Web routes, protected shell and Identity UI | F4 | **Server F3** | `accepted` | Generated routes, widget tests and focused mocked-transport Playwright suites pass. |
+| 4 | Integrated | F6 | Cross-workspace integration, real Playwright CLI evidence and final quality gate | F1–F5 | — | `accepted` | Integrated sensors, Pencil evidence, real Playwright CLI evidence and the reused final Judge pass. |
 
 Allowed phase states are `pending`, `in_progress`, `awaiting_judgment`, `failed`
 and `accepted`. Allowed task states are `pending`, `implementing`,
@@ -399,12 +399,12 @@ in `evaluation.md` during implementation.
 **F5 phase sensors and evidence:**
 
 - Sensors: route generation, web code/type checks, widget Vitest suites and the repository's focused automated Playwright suites with mocked transport.
-- Evidence: final URLs, visible accessible states, outgoing HTTP method/path/body, protected redirect, return-to behavior, role matrix, narrow viewport and keyboard checks. Manual UI validation is performed with `browser-use`, not Playwright.
+- Evidence: final URLs, visible accessible states, outgoing HTTP method/path/body, protected redirect, return-to behavior, role matrix, narrow viewport and keyboard checks. Manual UI validation is performed with the Playwright CLI.
 - Design evidence: before each mapped surface, inspect Pencil nodes `mA3b4`, `JMFTA`, `TCmT1`, `wxfmd`, `fmVfn`, `FvrFp` and `RZ6Ql` only through Pencil MCP; record node ID, screenshot/layout inspection result and token/component mapping in `evaluation.md`.
-- Sensor results: route generation passed; `pnpm --filter web check:code` passed with four pre-existing reduced-motion `!important` warnings in `global.css`; `pnpm --filter web check:types` passed; `pnpm --filter web test` passed with 4 files and 13 tests; `git diff --check` passed. F5 automated Playwright integration was not run in this phase; manual browser-use evidence remains required in F6.
+- Sensor results: route generation passed; `pnpm --filter web check:code` passed with four pre-existing reduced-motion `!important` warnings in `global.css`; `pnpm --filter web check:types` passed; `pnpm --filter web test` passed with 4 files and 13 tests; `git diff --check` passed. F5 automated Playwright integration was not run in this phase; manual Playwright CLI evidence remains required in F6.
 - Phase acceptance: F5 tasks are `verified`; no Judge per route or widget was created.
 
-### F6 — Cross-workspace integration, real browser evidence and final quality gate
+### F6 — Cross-workspace integration, real Playwright CLI evidence and final quality gate
 
 **Dependency:** F1–F5 verified. **Phase state:** `accepted`.
 
@@ -435,15 +435,15 @@ in `evaluation.md` during implementation.
 - **Paths:** no planned source path; evidence is written to `evaluation.md` and summarized in this Plan.
 - **Requirements:** RF-02 through RF-12; CA-02 through CA-18.
 - **Observable result:** With Docker/Supabase healthy, two temporary local Auth users seeded only by UUID subject, and server/web dev processes running, the real flow proves login, reload, local rejection, current-device logout, recovery/reset, protected `/app`, direct Manager-only HTTP authorization, `503` retry preservation, no protected HTML/account serialization, and no token/secret leakage.
-- **Parallelizable:** `false` — browser flows mutate shared local Auth/database state and must be executed serially with fresh seeded state where required.
+- **Parallelizable:** `false` — Playwright CLI flows mutate shared local Auth/database state and must be executed serially with fresh seeded state where required.
 - **Sensors:**
   - inspect `docker compose ps` and health endpoints before navigation;
   - verify the fixed local Supabase seed users and password configured in the seed entry point, then run `pnpm --filter server db:seed`;
   - start `pnpm --filter server dev` and `pnpm --filter web dev` in persistent sessions;
-  - use the `browser-use` CLI/CDP workflow for manual flows against `http://127.0.0.1:3000` and `http://127.0.0.1:3333`; navigate with `new_tab`, wait after navigation, prefer the accessibility tree for interaction, and inspect DOM/network/console evidence before each result;
+  - use the Playwright CLI for manual flows against `http://127.0.0.1:4000` and `http://127.0.0.1:3333`; wait after navigation, prefer accessible role/name locators for interaction, and inspect DOM/network/console evidence before each result;
   - inspect accessibility snapshots, final URL, request/response status and body, console messages, failed network requests and narrow viewport/keyboard behavior;
   - stop only the application processes started for validation; leave shared Docker services running.
-- **Expected evidence:** per-flow `browser-use` result with route, account role, HTTP/Auth evidence, console/network classification and cleanup confirmation. The repository's mocked Playwright suite remains labeled as automated UI/REST-contract evidence, not real authenticated integration; it does not replace the manual `browser-use` run.
+- **Expected evidence:** per-flow Playwright CLI result with route, account role, HTTP/Auth evidence, console/network classification and cleanup confirmation. The repository's mocked Playwright suite remains labeled as automated UI/REST-contract evidence, not real authenticated integration; it does not replace the real-service Playwright CLI run.
 
 #### F6-T3 — Run the final build/security gate and prepare the Judge handoff
 
@@ -453,12 +453,12 @@ in `evaluation.md` during implementation.
 - **Observable result:** Final artifacts build successfully and the current HEAD has complete, non-narrative evidence for every acceptance criterion.
 - **Parallelizable:** `false` — the build and security evidence must evaluate the exact integrated HEAD after all fixes.
 - **Sensors:** `pnpm --filter server build`, `pnpm --filter web build`, `pnpm build`, source/bundle/network/log scan for secrets and tokens.
-- **Expected evidence:** build output, bundle scan, browser network/console evidence, open findings list and a criterion-by-criterion handoff package.
+- **Expected evidence:** build output, bundle scan, Playwright CLI network/console evidence, open findings list and a criterion-by-criterion handoff package.
 - **Handoff:** after F6 sensors pass, create exactly one `Judge Implementation Final` in read-only mode against Spec revision 16, the integrated diff and official sensor evidence. Record its formal verdict in `evaluation.md`; do not add a Judge to any phase or retry.
 
 **F6 phase sensors and evidence:**
 
-- Sensors: integrated workspace checks, real local `browser-use` flow, Pencil UI evidence, final builds and secret scan.
+- Sensors: integrated workspace checks, real local Playwright CLI flow, Pencil UI evidence, final builds and secret scan.
 - Evidence: `evaluation.md` with criterion matrix, commands, URLs, HTTP/Auth/network/console observations, Pencil node references, and final build/security results.
 - Sensor results: `pnpm format` passed with one broken-symlink warning; Core checks and 14 tests passed; Server type/code checks and 12 tests passed, with the full Server suite passing on the clean rerun; Web route generation/checks and 31 tests passed; focused automated Playwright route integration passed 4 tests; local `db:seed` passed with UUID-only subjects; Web build passed; source/bundle/token scan and `git diff --check` passed; Pencil MCP inspection and manual `browser-use` CDP validation passed, including valid reset/global logout and isolated Manager/Operator sessions.
 - Phase acceptance: F6 is `accepted` after the reused final Judge returned
@@ -487,10 +487,10 @@ in `evaluation.md` during implementation.
 | Provider session is accepted without local active access | Cross-tenant or inactive-account access | Resolve local user and derived establishment on every protected request; prove neutral `401` and no protected-data read in F3/F6. |
 | Tenant selector leaks into bootstrap or target lookup | Cross-establishment data exposure | Keep provider-subject bootstrap narrow; require `establishmentId` in subsequent repository methods; prove `404` and no mutation. |
 | Concurrent Manager demotions remove the last Manager | Authorization invariant violation | Serializable `IdentityDatabase.run`, bounded `40001` retry, `409` loser and persisted-state assertion. |
-| Stale auth validation wins after logout/unmount | Protected UI or stale account reappears | Monotonic auth generation and mounted checks; deferred-resolution context test plus browser evidence. |
+| Stale auth validation wins after logout/unmount | Protected UI or stale account reappears | Monotonic auth generation and mounted checks; deferred-resolution context test plus Playwright CLI evidence. |
 | Refreshed token is not used by REST | Intermittent `401` after refresh | Resolve session accessor per request, never freeze Axios defaults; request-header test and browser network evidence. |
 | SSR serializes provider/session/account data | Secret or protected-content leak | Client-only `_authenticated` subtree, stable pending shell, HTML/source scan and direct `/app` browser inspection. |
-| Seed subjects do not match local Supabase users | Real browser validation cannot authenticate | In `dev`/`stg`, `db:seed` uses the server-only service-role key to reset only the fixed Auth users, verifies their UUIDs/password, then repopulates application data. |
+| Seed subjects do not match local Supabase users | Real Playwright CLI validation cannot authenticate | In `dev`/`stg`, `db:seed` uses the server-only service-role key to reset only the fixed Auth users, verifies their UUIDs/password, then repopulates application data. |
 | UI drifts from Pencil/tokens or fails narrow/keyboard use | Product and accessibility regression | Pencil MCP node inspection, token mapping, layout-problem inspection, 320px viewport and keyboard evidence. |
 | Generated route/migration artifacts are stale | Incorrect runtime graph or schema delivery | Run canonical generation commands and review generated diffs before marking the phase verified. |
 

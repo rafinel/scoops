@@ -82,38 +82,15 @@ concise and avoid duplicating the milestone name.
 Use the following structure:
 
 ```md
-## Goal
+## Outcome
 
 <The user or business outcome this feature enables.>
 
-## Context
-
-<Relevant PRD requirement, current behavior, architectural boundary, and
-constraints. Link the applicable PRD and milestone.>
-
 ## Scope
 
-- <User-visible behavior included.>
-- <Server, core, persistence, integration, or messaging behavior included.>
-- <Web pages, routes, states, or accessibility behavior included when applicable.>
-
-## Technical requirements
-
-### Core
-
-- <Domain contracts and use cases, if applicable.>
-
-### Server
-
-- <Controllers, repositories, adapters, jobs, or authorization, if applicable.>
-
-### Web
-
-- <Routes, pages, contexts, services, or UI states, if applicable.>
-
-### Validation
-
-- <Required unit, integration, browser, type, lint, or build checks.>
+- <Included product behavior or capability.>
+- <Important business, technical, design, or integration constraint.>
+- **Not included:** <Explicitly excluded adjacent behavior.>
 
 ## Acceptance criteria
 
@@ -121,20 +98,21 @@ constraints. Link the applicable PRD and milestone.>
 - [ ] <Validation and error behavior.>
 - [ ] <Authorization and tenant-isolation behavior, if applicable.>
 - [ ] <Responsive and accessible behavior, if applicable.>
-- [ ] <Relevant tests pass.>
-
-## Out of scope
-
-- <Explicitly excluded adjacent features.>
+- [ ] <Required automated and manual validation passes.>
 
 ## References
 
-- PRD: <GitHub link to the applicable PRD>
+- PRD requirement: <GitHub link to the applicable requirement>
 - Milestone: <GitHub link to the applicable milestone>
+- Design or dependency: <link, when applicable>
 ```
 
-Omit technical subsections that do not apply. Keep acceptance criteria
-observable and testable. Separate required behavior from implementation ideas.
+Keep the issue at product-delivery level. Include only technical constraints
+that materially limit the solution; the Spec owns layer-by-layer contracts,
+file choices, runtime flows, and detailed validation commands. Omit optional
+scope bullets, acceptance criteria, and references that do not apply. Keep
+acceptance criteria observable and testable, and separate required behavior
+from implementation ideas.
 
 ## Scope rules
 
@@ -146,12 +124,24 @@ observable and testable. Separate required behavior from implementation ideas.
   issue only when the feature needs them.
 - Treat the backend as authoritative for permissions, pricing, stock, tenancy,
   and other business decisions.
-- Do not include public sign-up or establishment onboarding in authentication
-  issues unless explicitly requested; those belong to Identity REQ-01.
 - Do not add unrelated cleanup, speculative future work, or unrequested
   dependencies.
 - Do not claim that a requirement is implemented; this prompt only creates the
   issue.
+
+## Approval gate
+
+Before writing to GitHub:
+
+1. Present the exact proposed title, body, labels, and milestone.
+2. Ask the user to approve the draft or request changes.
+3. If changes are requested, revise and present the complete draft again.
+4. Create the GitHub issue only after the user explicitly approves the current
+   draft.
+
+Do not create or update an issue while approval is pending. Approval authorizes
+only the proposed issue submission; it does not authorize implementation, a
+branch, a commit, or a pull request.
 
 ## Completion
 

@@ -75,7 +75,8 @@ commercial.
   chargeback.
 - Consultation of charges, receipts and NFS-e.
 - Cancellation, withdrawal from cancellation, refund or reactivation.
-- Manual or automatic deletion after the retention period.
+- Future operational retention and disposal after the retention period; no
+  customer-facing deletion action is available in the current product.
 
 #### Pains and needs
 
@@ -85,7 +86,7 @@ commercial.
 - Regularize your subscription without losing registrations or histories.
 - Obtain financial and tax documents in one place.
 - Cancel without commercial contact or artificial obstacles.
-- Know when access will be blocked and when data will be deleted.
+- Know when access will be blocked and what future retention lifecycle applies.
 - Preserve the authorship of changes made by different Managers.
 
 #### Jobs to Be Done
@@ -357,8 +358,8 @@ Enforce consistent access across all protected routes and actions.
 | `In tolerance` | Renewal failed or chargeback occurred no more than seven days ago | Full |
 | `Scheduled cancellation` | Renewal cancelled, paid period still valid | Full until the end date |
 | `Blocked` | Trial ended, tolerance expired, canceled period ended, or refund was issued | Subscription Only and My Account |
-| `Scheduled deletion` | Block achieved 90-day retention | Subscription only and My account until deletion |
-| `Deleted` | Operational data removed | None |
+| `Scheduled disposal` | Block achieved 90-day retention and an operational disposal job is scheduled | Subscription only and My account until operational completion |
+| `Disposed` | Operational data removed by the future operational lifecycle | None |
 
 - **Source of financial truth:** events and queries authenticated to Asaas
   determine payments; Scoops determines access from the state
@@ -366,7 +367,8 @@ Enforce consistent access across all protected routes and actions.
 - **Authorization:** every protected route and operation must validate the state, without
   depend only on the interface.
 - **Scope blocked:** a blocked ice cream shop can only access Subscription,
-  My Account, Sign Out and the Danger Zone for Deletion.
+  My Account and Sign Out. The current product exposes no customer-facing
+  deletion danger zone.
 - **Preservation:** blocking should not change or delete operational data.
 - **Application time:** the new state must affect access within 60 seconds
   upon receipt of a valid webhook.
@@ -492,15 +494,17 @@ period already paid and undo the cancellation before the end date.
   scheduled cancellation without immediate charge.
 - **Expiration:** at the end of the canceled cycle, change to `Blocked` and start
   90 day retention.
-- **Exclusion of the ice cream shop:** remains a separate action; must cancel the
-  signature before immediate removal of operational data.
+- **Exclusion of the ice cream shop:** a customer-facing manual deletion action
+  is not available in the current product. Any future operational deletion
+  lifecycle must cancel the subscription before removing operational data.
 - **Asaas failure:** does not show cancellation as completed until confirmed
   from the provider.
 
 ##### UI/UX rules
 
-- **Interface:** separate `Unsubscribe` from the `Delete danger zone
-  ice cream shop` and explain the difference.
+- **Interface:** keep subscription cancellation distinct from any future
+  operational retention or deletion lifecycle; the current product has no
+  customer-facing deletion danger zone.
 - **Feedback:** after canceling, show end date and `Keep subscription` action.
 - **Empty state:** do not show cancellation when there is no active subscription.
 - **Action blocked:** Provider failure must maintain previous state and offer
@@ -676,12 +680,14 @@ events that require knowledge or action.
 
 ---
 
-#### REQ-13 Retention, Reactivation and Automatic Deletion
+#### REQ-13 Retention, Reactivation and Future Operational Disposal
 
-- [ ] **Retention, Reactivation and Automatic Deletion**
+- [ ] **Retention, Reactivation and Future Operational Disposal**
 
 **Description:** Operational data for a locked ice cream shop must remain
-recoverable for 90 days and be securely deleted at the end of the period.
+recoverable for 90 days and be securely disposed of by an authorized future
+operational lifecycle at the end of the period. This is not a customer-facing
+Identity action.
 
 ##### Business Rules
 
@@ -689,30 +695,32 @@ recoverable for 90 days and be securely deleted at the end of the period.
   Confirmed refunds must initiate 90-day retention.
 - **Preservation:** users, products, inventory, orders, configurations and
   History must not be changed during retention.
-- **Reactivation:** confirmed payment must cancel the scheduled deletion and
-  restore full access.
+- **Reactivation:** confirmed payment must cancel the scheduled operational
+  disposal and restore full access.
 - **Exclusion:** after 90 days, cancel any remaining recurrence in the
   Asaas before removing operational data.
 - **Provider failure:** if the cancellation is not confirmed, maintain the
   blocked ice cream shop, preserve the data, alert the operation and repeat the action.
 - **No free access:** Asaas failure cannot reactivate operational modules.
-- **Backups:** Deleted data can only persist in encrypted backups
+- **Backups:** Disposed data can only persist in encrypted backups
   for up to 30 days.
-- **Restore:** restoring a backup must reapply previously recorded deletions
-  to return the environment to operation.
-- **Manual deletion:** Identity's danger zone continues to allow removal
-  immediate, conditional on successful cancellation of the subscription.
+- **Restore:** restoring a backup must reapply previously recorded operational
+  disposals to return the environment to operation.
+- **Customer action:** Identity does not expose a customer-facing deletion
+  action. Any future operational disposal remains conditional on successful
+  subscription cancellation and the applicable retention policy.
 - **Export:** there must be no operational export during the blockade in
   MVP.
 
 ##### UI/UX rules
 
-- **Interface:** display date of deletion and reactivation action during the 90
-  days.
+- **Interface:** when this future lifecycle is implemented, display the
+  scheduled operational-disposal date and reactivation action during the 90
+  days; this Spec does not add that UI.
 - **Feedback:** payment must remove the count only after confirmation.
 - **Empty state:** not applicable while data is retained.
-- **Action blocked:** if the provider prevents deletion, does not offer access
-  operational and does not state that the data has been removed.
+- **Action blocked:** if the provider prevents operational disposal, do not
+  offer operational access and do not state that data has been removed.
 - **Responsiveness:** deadline, consequences and contracting must be visible in
   cell phone.
 - **Accessibility:** count must include the exact date and not depend solely on
@@ -724,8 +732,9 @@ recoverable for 90 days and be securely deleted at the end of the period.
 
 - [ ] **Tax File and Privacy**
 
-**Description:** Deleting the ice cream shop should remove operational data, but
-separately preserve the tax minimum required by legal obligation.
+**Description:** Any future operational disposal of the ice cream shop must
+remove eligible operational data while separately preserving the tax minimum
+required by legal obligation.
 
 ##### Business Rules
 
@@ -744,13 +753,14 @@ separately preserve the tax minimum required by legal obligation.
   register queries.
 - **Disposal:** delete safely at the end of the applicable period, unless new
   legal obligation or documented dispute.
-- **Dependency:** the Identity PRD must be corrected, as its promise of
-  deletion of all data contradicts this legal exception.
+- **Dependency:** the Identity product does not expose manual deletion, and any
+  future operational-disposal contract must preserve this fiscal exception.
 
 ##### UI/UX rules
 
-- **Interface:** before deletion, inform that minimum tax records will be
-  preserved for the legal period and will remain unavailable in the product.
+- **Interface:** before any future operational disposal, inform that minimum tax
+  records will be preserved for the legal period and remain unavailable in the
+  product.
 - **Feedback:** the conclusion must distinguish operational data deleted from
   retained tax records.
 - **Empty state:** not applicable.
@@ -758,8 +768,8 @@ separately preserve the tax minimum required by legal obligation.
   Scoops.
 - **Responsiveness:** the legal explanation must remain legible on screens
   small.
-- **Accessibility:** the notice must use direct language and be announced before
-  of destructive confirmation.
+- **Accessibility:** any future legal-retention notice must use direct language
+  and be announced before an operational disposal state change.
 
 ---
 
@@ -953,7 +963,8 @@ evaluate conversion, default and retention.
 #### Flow C - Subscribe after trial expiration
 
 1. The Manager enters Scoops blocked.
-2. The system only allows Subscription, My Account, Logout and deletion.
+2. The system only allows Subscription, My Account and Logout; no deletion action
+   is shown to the customer.
 3. The Manager selects the plan and completes the checkout.
 4. While payment is pending, the block remains.
 5. After confirmation, the system reactivates all modules within 60 seconds.
@@ -1038,37 +1049,27 @@ evaluate conversion, default and retention.
 #### Flow K - Reactivate on hold
 
 1. The Manager enters an ice cream shop that has been locked for less than 90 days.
-2. The system shows the preserved data, the deletion date and the offer.
+2. The system shows the preserved data, the future operational-disposal date and
+   the offer.
 3. The Manager completes a new payment.
-4. After confirmation, the system cancels the scheduled deletion and reactivates all
+4. After confirmation, the system cancels the scheduled operational disposal and reactivates all
    modules in up to 60 seconds.
 5. Users, products, inventory, orders and settings reappear unchanged.
 
-#### Flow L - Automatically delete after 90 days
+#### Flow L - Operationally dispose after 90 days
 
-1. The system notifies Managers 30, 7 and 1 day before the deletion date.
+1. The system notifies Managers 30, 7 and 1 day before the operational-disposal date.
 2. After completing 90 days, try to cancel any remaining recurrence in the
    Asaas.
 3. Asaas responds:
-   - Success: the system removes operational and access data.
+   - Success: the authorized operational lifecycle removes eligible operational and access data.
    - Failure: keeps the ice cream shop blocked, preserves data, alerts the operation and
      try again.
 4. Minimum tax records are moved or maintained in the segregated file by
    five years.
 5. Operational backups age and expire within 30 days.
 
-#### Flow M - Delete ice cream shop manually
-
-1. The Manager initiates the deletion from the Identity danger zone.
-2. The system performs the identity and name confirmations defined in that
-   module.
-3. Billing unsubscribes to Asaas:
-   - Success: allows immediate deletion of operational data.
-   - Failure: does not remove data and preserves the previous state.
-4. The minimum tax file remains segregated by the legal term.
-5. Access ends and Managers receive applicable confirmation.
-
-#### Flow N - Asaas unavailability
+#### Flow M - Asaas unavailability
 
 1. A query or financial operation fails due to external unavailability.
 2. Scoops preserves the last committed state of the subscription.

@@ -245,7 +245,7 @@ Identity invitation, team-management, audit or later access-lifecycle requiremen
   - **Then:** the safe snapshot/current email is returned, resend produces a message,
     and `createdAt`/`expiresAt` do not change.
   - **Expected evidence:** get/resend use-case tests, one controller integration test per
-    action and Mailpit-backed browser validation.
+    action and Mailpit-backed Playwright CLI validation.
 - **CA-06 — RF-05, RF-13**
   - **Given:** forged tokens, oversized bodies or client-supplied tenant identifiers.
   - **When:** public routes are called.
@@ -375,7 +375,7 @@ Identity invitation, team-management, audit or later access-lifecycle requiremen
   - **Then:** content is understandable, controls are reachable, focus/announcements are
     correct, state is not color-only and no horizontal overflow occurs.
   - **Expected evidence:** widget tests, mocked Playwright route coverage and real
-    Browser-use accessibility-tree/DOM validation.
+    Playwright CLI accessibility/DOM validation.
 - **CA-19 — RF-15**
   - **Given:** a status/resend/correction request resolves after a newer action,
     navigation or unmount.
@@ -393,7 +393,7 @@ Identity invitation, team-management, audit or later access-lifecycle requiremen
     narrow layout remains operable and understandable without reproducing fixed desktop
     geometry.
   - **Expected evidence:** one Pencil screenshot and one Pencil layout-problem inspection
-    per mapped Node ID, plus Browser-use screenshots, accessibility tree, DOM overflow,
+    per mapped Node ID, plus Playwright CLI screenshots, accessibility inspection, DOM overflow,
     URL, network, console and keyboard findings recorded in `evaluation.md`.
 
 ## Current state
@@ -1439,7 +1439,7 @@ Provider transport errors have an explicit global path:
 - `docker-compose.yaml` sets `GOTRUE_MAILER_AUTOCONFIRM: "false"`, keeps SMTP pointed at
   Mailpit and includes `${ONBOARDING_CONFIRM_URL}` in `GOTRUE_URI_ALLOW_LIST` alongside
   the site URL. `.env.example` defines
-  `ONBOARDING_CONFIRM_URL=http://127.0.0.1:3000/onboarding/confirm`.
+  `ONBOARDING_CONFIRM_URL=http://127.0.0.1:4000/onboarding/confirm`.
 - The application seven-day deadline is not delegated to `GOTRUE_MAILER_OTP_EXP`; a
   provider token may expire earlier and the UI then offers resend while the local
   attempt remains inside its original deadline.
@@ -1466,10 +1466,10 @@ frame are not fixtures or new product rules.
 
 | Pencil file | Node ID | Frame/state | Feature surface | Required UI validation |
 | --- | --- | --- | --- | --- |
-| `design/onoreo.pen` | `ZVD15` | `Identity / Criar sorveteria — Desktop` (1440 × 1024) | `/onboarding`, initial/form and validation/submitting variants | Compare the 620 px form panel, 820 px visual panel, progress step 1, four Pencil fields plus the required password-confirmation control and create action; Pencil screenshot + layout-problem inspection; Browser-use at 1440 × 1024 and 320 px |
-| `design/onoreo.pen` | `t67NUw` | `Identity / Confirmar e-mail — Desktop` (1440 × 1024) | `/onboarding`, pending/resending/resent/correcting shell | Compare progress step 2, target email, guidance, resend/correction actions and pending illustration; Pencil screenshot + layout-problem inspection; Browser-use at 1440 × 1024 and 320 px |
-| `design/onoreo.pen` | `f9xhLm` | `Identity / Cadastro concluído — Desktop` (1440 × 1024) | `/onboarding/confirm`, successful confirmation | Compare progress step 3, active establishment/Manager summary, login action and success illustration; Pencil screenshot + layout-problem inspection; Browser-use at 1440 × 1024 and 320 px |
-| `design/onoreo.pen` | `r8AIM` | `Identity / Link de confirmação indisponível — Desktop` (1440 × 1024) | `/onboarding/confirm`, missing/malformed/invalid/used/expired provider link recovery | Compare danger-state progress, recovery choices, resend/restart actions and unavailable-link illustration; Pencil screenshot + layout-problem inspection; Browser-use at 1440 × 1024 and 320 px |
+| `design/onoreo.pen` | `ZVD15` | `Identity / Criar sorveteria — Desktop` (1440 × 1024) | `/onboarding`, initial/form and validation/submitting variants | Compare the 620 px form panel, 820 px visual panel, progress step 1, four Pencil fields plus the required password-confirmation control and create action; Pencil screenshot + layout-problem inspection; Playwright CLI at 1440 × 1024 and 320 px |
+| `design/onoreo.pen` | `t67NUw` | `Identity / Confirmar e-mail — Desktop` (1440 × 1024) | `/onboarding`, pending/resending/resent/correcting shell | Compare progress step 2, target email, guidance, resend/correction actions and pending illustration; Pencil screenshot + layout-problem inspection; Playwright CLI at 1440 × 1024 and 320 px |
+| `design/onoreo.pen` | `f9xhLm` | `Identity / Cadastro concluído — Desktop` (1440 × 1024) | `/onboarding/confirm`, successful confirmation | Compare progress step 3, active establishment/Manager summary, login action and success illustration; Pencil screenshot + layout-problem inspection; Playwright CLI at 1440 × 1024 and 320 px |
+| `design/onoreo.pen` | `r8AIM` | `Identity / Link de confirmação indisponível — Desktop` (1440 × 1024) | `/onboarding/confirm`, missing/malformed/invalid/used/expired provider link recovery | Compare danger-state progress, recovery choices, resend/restart actions and unavailable-link illustration; Pencil screenshot + layout-problem inspection; Playwright CLI at 1440 × 1024 and 320 px |
 
 Implementation maps `XJAAn` instances to existing form-field primitives/patterns,
 `j81wx` instances to the existing primary button primitive, Pencil Lucide icon names to
@@ -1484,7 +1484,7 @@ design system.
 requires password confirmation, so implementation adds a fifth control immediately
 after password, using the same `XJAAn`-mapped field styling and the existing responsive
 flow. This is an intentional functional/accessibility adaptation: it must be included in
-Pencil/browser comparison findings and may increase vertical content/scrolling on narrow
+Pencil/Playwright CLI comparison findings and may increase vertical content/scrolling on narrow
 viewports without changing the desktop split or other design semantics.
 
 - Extend Core `IdentityService` exactly as follows; every method returns the existing
@@ -1851,13 +1851,13 @@ pnpm --filter server build
 pnpm --filter web build
 ```
 
-### Real manual browser validation
+### Real Playwright CLI validation
 
-Use the repository `browser-use` CDP workflow against real local services.
+Run the applicable repository Playwright CLI flow against real local services.
 
 1. Inspect the resolved auth environment and `docker compose ps`; verify Supabase
    `http://127.0.0.1:54321`, server health
-   `http://127.0.0.1:3333/health`, web `http://127.0.0.1:3000` and Mailpit
+   `http://127.0.0.1:3333/health`, web `http://127.0.0.1:4000` and Mailpit
    `http://127.0.0.1:54324`. Start server/web in persistent sessions and wait for Nest
    bootstrap/Vite readiness.
 2. Register on `/onboarding` at desktop width. Verify `POST`, safe response/session
@@ -1886,8 +1886,8 @@ Use the repository `browser-use` CDP workflow against real local services.
 
 For every row in the Pencil mapping, first refresh the Pencil editor state/schema, then
 capture the mapped node screenshot and run the available layout-problem inspection for
-clipping, overlap and collapsed bounds. In the browser, capture the corresponding real
-route/state and record visual comparison, accessibility tree, DOM dimensions/overflow,
+clipping, overlap and collapsed bounds. Using the Playwright CLI, capture the corresponding real
+route/state and record visual comparison, accessibility inspection, DOM dimensions/overflow,
 final URL, relevant request/response, console output and keyboard path. Mocked routes
 may support state coverage but cannot replace real server-backed evidence.
 
@@ -1899,7 +1899,7 @@ executed commands, migration review, controller/job persistence evidence, provid
 sensors, browser routes/viewports, accessibility/DOM/network/console findings and any
 remaining risks. For each Pencil row it must additionally record Pencil file, Node ID,
 frame name, design viewport, implemented route/state, Pencil screenshot result,
-layout-problem result, browser comparison result and remaining visual findings. This
+layout-problem result, Playwright CLI comparison result and remaining visual findings. This
 Spec contains intent, not claimed implementation evidence.
 
 ## Documentation alignment
@@ -1918,7 +1918,7 @@ Spec contains intent, not claimed implementation evidence.
   accessibility rules; the four mapped `design/onoreo.pen` nodes are the normative
   desktop state references. Semantic repository tokens win over duplicating raw Pencil
   values, while material visual differences must be documented in `evaluation.md`.
-- `documentation/tooling.md` supplies all pnpm, migration, route generation, browser and
+- `documentation/tooling.md` supplies all pnpm, migration, route generation, Playwright CLI and
   build commands used by this Spec.
 - `documentation/rules/rest-layer-rules.md` must be updated with the explicit shared
   `429` and `503` subclasses so repository rules and `GlobalErrorHandler` remain aligned.
@@ -1963,7 +1963,7 @@ Spec contains intent, not claimed implementation evidence.
 - Confirmed attempts may remain for Identity history. Only unconfirmed onboarding is
   destructively expired.
 - Physical cleanup is hourly/retryable, while logical expiration is exact and synchronous.
-- Local loopback browser validation may use HTTP; production authentication transport is
+- Local loopback Playwright CLI validation may use HTTP; production authentication transport is
   HTTPS.
 - The user's update to `documentation/prompts/create-spec-prompt.md` is unrelated source
   work and remains untouched by this Spec rerun.

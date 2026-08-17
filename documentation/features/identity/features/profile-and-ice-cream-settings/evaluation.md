@@ -1,21 +1,35 @@
 ---
 title: Identity profile and ice cream shop settings — implementation evaluation
-status: ready
+status: completed
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 3
 base_commit: ae06899eedc093532b6abd5bcb57e6443d5ffa94
-current_commit: f8addab
-candidate_snapshot: f8addab plus validated current working tree on 2026-08-17
+current_commit: 13247489444839d5f8238024665962a2b6a47116e2
+candidate_snapshot: 13247489444839d5f8238024665962a2b6a47116e2
 updated_at: 2026-08-17
 ---
 
 # Evaluation status
 
 Implementation is validated against Spec revision 3 and Plan revision 3. Historical validation
-evidence is retained, and the latest Builder Fixes have refreshed the affected Web, browser, and
-generated-artifact evidence. The current working tree passed the final integrated validation;
-the Evaluation is `ready` for `conclude-spec`.
+evidence is retained, and the final candidate includes the scoped Web test-boundary correction.
+Local implementation, real-service validation, and the PR CI quality gate all passed. The Spec is
+complete and delivered through PR #9.
+
+## PR CI quality gate
+
+- **PR:** [#9](https://github.com/rafinel/scoops/pull/9)
+- **Head:** `13247489444839d5f8238024665962a2b6a47116e2`
+- **Core CI:** passed — [run](https://github.com/rafinel/scoops/actions/runs/32026160854)
+- **Server CI:** passed — [run](https://github.com/rafinel/scoops/actions/runs/32026160858)
+- **Web CI (pull request):** passed — [run](https://github.com/rafinel/scoops/actions/runs/32026160794)
+- **Web CI (push):** passed — [run](https://github.com/rafinel/scoops/actions/runs/32026157942)
+  - The CI-mode Web suite selected 60 mocked browser tests; the service-backed test remains
+    available through the local service-backed command and is intentionally excluded from the
+    Vite-only GitHub workflow.
+  - The correction is scoped to `apps/web/playwright.config.ts`; no feature behavior or Spec
+    contract changed.
 
 ## Acceptance matrix
 
@@ -47,6 +61,7 @@ the Evaluation is `ready` for `conclude-spec`.
 | Database | Drizzle migration generate/apply and SQL review | Generated SQL matches contract; migration applied successfully with PostgreSQL identifier-truncation notice | `completed` |
 | Web | `pnpm --filter web generate-routes`, `check:code`, `check:types`, `build` | Route generation, types, and production build passed; code check exits 0 with four pre-existing `global.css` `!important` warnings | `completed` |
 | Web | Focused widget/auth/service Vitest suites | Passed: 4 files, 17 tests; auth refresh: 1 file, 12 tests | `completed` |
+| Web CI | Pull-request and push workflows at candidate `1324748` | Core, Server, and both Web runs passed; Web browser suite selected 60 tests and build passed | `completed` |
 | Browser | Focused Identity route integration suites | Playwright CLI passed: `pnpm --filter web exec playwright test tests/routes/identity/account.index.test.ts tests/routes/identity/shop-settings.index.test.ts --workers=1 --reporter=line` — 10 tests in 29.7s; Manager and Operator account/settings flows, `Sorveteria` href/navigation/active-state assertions, Manager-only visibility, anonymous/forbidden redirects, failed-save retention, mobile keyboard/focus/overflow checks, logout redirect, request bodies, and exact-viewport captures. No console errors were emitted in this run. | `completed` |
 | Browser | Real service-backed Identity flow | Playwright CLI passed: `pnpm --filter web exec playwright test tests/routes/identity/profile-settings.real.integration.test.ts --workers=1 --reporter=line` — 1 test in 10.1s against Web `:4000`, Server `:3336`, and Supabase `:54321`; real login, account/shop captures, rename, reload persistence, restoration, session-clear expiry redirect, console-error and failed-request assertions. | `completed` |
 | Database | Real audit-row inspection after browser rename | PostgreSQL query against local `establishment_audit_records` returned 3 rows, including the browser actor/tenant, previous and new names, `establishment-name-changed`, and `occurred_at`; controller/Core suites passed 4/11 and 3/13 respectively. | `completed` |
@@ -92,6 +107,10 @@ The governing documents are `documentation/architecture.md`, `documentation/modu
   responses while preserving retryable mutation/query errors; focused action/query tests cover it.
 - **RV-06 — logo-management copy:** Resolved; shop-settings copy now describes only the available
   name/settings behavior.
+- **FND-007 — CI service-boundary mismatch:** Resolved in commit `1324748` by excluding
+  `*.real.integration.test.ts` from the CI-mode Vite-only Playwright suite. The local service-backed
+  test remains explicit and passed 1/1 against Web, Server, and Supabase; PR and push Web CI both
+  passed with 60 selected browser tests. **Status:** resolved, no blocking finding remains.
 
 ## CLI visual comparison notes
 
@@ -270,3 +289,11 @@ dimensions. The following differences remain visible:
     for the browser rename and restoration. Core/Server/Web code and type checks passed; Web
     code check retains only four pre-existing reduced-motion CSS warnings.
   - **Result:** `ready` for `conclude-spec`; no blocking implementation finding remains.
+- **2026-08-17 — Implement-plan correction and PR CI quality gate**
+  - **Finding/result:** The failed Web CI run was classified as a test-boundary configuration
+    defect: the workflow starts Vite only, while the real Identity test requires Server and
+    Supabase. Commit `1324748` excludes only the real-service file when `CI=1`; the local
+    service-backed command remains explicit. Clean-candidate CI-mode Playwright passed all 60
+    selected tests (one passed on retry), the real service-backed test passed 1/1, and Core,
+    Server, PR Web, and push Web CI all passed.
+  - **Result:** `completed`; Plan F6 and F6-T1 are complete, and the delivery is ready for PR review/merge.

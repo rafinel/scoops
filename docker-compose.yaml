@@ -39,8 +39,8 @@ services:
       API_EXTERNAL_URL: ${SUPABASE_PUBLIC_URL:-http://127.0.0.1:54321}/auth/v1
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD:-postgres}@supabase-db:5432/${POSTGRES_DB:-postgres}
-      GOTRUE_SITE_URL: ${SITE_URL:-http://127.0.0.1:3000}
-      GOTRUE_URI_ALLOW_LIST: ${AUTH_URI_ALLOW_LIST:-http://127.0.0.1:3000},${ONBOARDING_CONFIRM_URL:-http://127.0.0.1:3000/onboarding/confirm}
+      GOTRUE_SITE_URL: ${SITE_URL:-http://127.0.0.1:4000}
+      GOTRUE_URI_ALLOW_LIST: ${AUTH_URI_ALLOW_LIST:-http://127.0.0.1:4000},${ONBOARDING_CONFIRM_URL:-http://127.0.0.1:4000/onboarding/confirm}
       GOTRUE_DISABLE_SIGNUP: "false"
       GOTRUE_JWT_ADMIN_ROLES: service_role
       GOTRUE_JWT_AUD: authenticated

@@ -25,7 +25,7 @@ This Plan is necessary because the Spec is complete mode and crosses `packages/c
 `apps/server` and `apps/web`; adds an immutable audit table and migration; integrates
 Supabase invitation identity operations, post-commit Identity events and an existing
 expiration job; introduces multiple REST routes and generated TanStack route metadata;
-and requires real full-stack, responsive, accessibility and Pencil/browser evidence.
+and requires real full-stack, responsive, accessibility and Pencil/Playwright CLI evidence.
 The Spec contract and acceptance criteria remain authoritative.
 
 ## Execution update
@@ -96,7 +96,7 @@ business files for that purpose.
   where widgets share tokens or primitives.
 - **F6** joins F1–F5 and must provide criterion-by-criterion evidence for RF-01–RF-14
   and CA-01–CA-14, including real provider behavior, two-session inactivation, stale/
-  expired/used invitation paths, visual comparison and browser accessibility findings.
+  expired/used invitation paths, visual comparison and Playwright CLI accessibility findings.
 
 ## Phase and parallel execution ledger
 
@@ -147,9 +147,8 @@ sensors validate, and the final Judge is read-only over the complete implementat
   owning PRD before changing behavior.
 - **Validation roles:** controller tests use real Nest/Drizzle/Testcontainer wiring;
   Core tests remain infrastructure-free; Web unit tests render the real owning page
-  composition where behavior crosses a hook boundary; mocked-transport browser tests
-  prove route/UI/REST mapping only; manual UI validation uses Browser-use via CDP, never
-  Playwright.
+  composition where behavior crosses a hook boundary; mocked-transport Playwright tests
+  prove route/UI/REST mapping only; manual UI validation uses the Playwright CLI.
 
 ## Detailed task ledger
 
@@ -322,7 +321,7 @@ lockfile consistency; no phase Judge. Controller persistence proof remains in F3
 - **Observable result:** the `invitation-acceptance` redirect marker, password update,
   local confirmation activation and failure/cancellation cleanup are separate from
   recovery; generation guards prevent stale restoration; the target session is not
-  retained after failed confirmation; the Web dev script uses canonical port `3000`.
+  retained after failed confirmation; the Web dev script uses canonical port `4000`.
 - **Parallelizable:** `true` with F4-T2 after F4-T1 — paths are disjoint. Package/lockfile
   changes, if any, remain Orchestrator-owned.
 
@@ -525,8 +524,8 @@ reserved for F6.
 - **Parallelizable:** `false` — this is the integrated server/web join and depends on
   actual migration, module composition and browser-ready applications.
 - **Sensors:** `docker compose ps`; Supabase `:54321`; Server `:3333`; Mailpit `:54324`;
-  Web `:3000`; persistent `pnpm --filter server dev` and `pnpm --filter web dev` sessions;
-  Browser-use via CDP for manual interactions; browser console, failed-network and
+  Web `:4000`; persistent `pnpm --filter server dev` and `pnpm --filter web dev` sessions;
+  Playwright CLI for manual interactions; browser console, failed-network and
   persistence inspection; stop only app processes started for this validation.
 
 #### F6-T3 — Validate each Pencil mapping, responsive/accessibility contract and final judgment
@@ -539,15 +538,15 @@ reserved for F6.
   and at the independent 320 px contract. For each mapping, evidence includes screenshot,
   accessibility tree, DOM/layout inspection, `problemsOnly` layout findings, keyboard
   path/focus restoration, visible loading/error/success state, no horizontal overflow,
-  reduced-motion behavior, status/destructive non-color cues and browser console/network
+  reduced-motion behavior, status/destructive non-color cues and Playwright CLI console/network
   findings. The final Judge evaluates the complete implementation once, after sensors and
   evidence are complete, and records the verdict only in `evaluation.md` and the Plan's
   final operational state.
 - **Parallelizable:** `false` — visual validation is the final cross-page join and the
   Judge must evaluate the entire implementation, not individual phases.
-- **Sensors:** Browser-use via CDP for manual UI validation; Pencil MCP node screenshot and
+- **Sensors:** Playwright CLI for manual UI validation; Pencil MCP node screenshot and
   layout inspection; fresh accessibility snapshot before each state-changing interaction;
-  focused keyboard path at desktop and 320 px; final static/build/browser evidence review.
+  focused keyboard path at desktop and 320 px; final static/build/Playwright CLI evidence review.
 
 **F6 acceptance condition:** F6 tasks are `verified`, all CA-01–CA-14 have direct evidence
   or an explicitly justified negative result, no active blocking finding remains, and the
@@ -577,8 +576,8 @@ reserved for F6.
 - **Generated artifacts:** route tree and migration metadata can drift if hand-edited or
   generated before the final paths exist. The Orchestrator runs both generators only after
   implementation paths are stable and reviews their diffs.
-- **Web endpoint drift:** Tooling and Playwright require port `3000`, while the current
-  Web script uses `3002`; F4-T3 owns the single script correction and F6 verifies readiness.
+- **Web endpoint drift:** Tooling and Playwright require port `4000`, while the current
+  Web script uses `4000`; F4-T3 owns the single script correction and F6 verifies readiness.
 - **Visual scope drift:** Pencil desktop frames contain shell content outside this feature.
   Builders implement only mapped Users/invitation surfaces using existing tokens; F6
   records any mismatch instead of adding unrelated Dashboard/Product/Sales behavior.
@@ -615,7 +614,7 @@ reserved for F6.
   rerun the invalidated Core/Server/Web/browser sensors before requesting reevaluation.
 - **Attempt A-03:** completed Builder Fix QG-01, reran the invalidated sensors, reconnected
   Pencil MCP to `design/onoreo.pen`, and executed the canonical Browser-use flow at
-  `127.0.0.1:3000` at 320 px. **Result:** all current blockers resolved; evidence is in
+  `127.0.0.1:4000` at 320 px. **Result:** all current blockers resolved; evidence is in
   `evaluation.md`.
 - **Final Judge Implementation:** the read-only final reevaluation on 2026-08-16 returned
   **ACCEPTED** with no blocking findings. Core 40 tests, Server 36 tests, Web 85 tests,
@@ -628,7 +627,7 @@ reserved for F6.
 At every phase boundary, the Orchestrator records task states, command results, changed
 paths, generated artifact diffs, active findings and evidence locations here or in
 `evaluation.md`. A phase cannot be marked `accepted` from green static checks alone when
-its exit condition names persisted, browser, visual or accessibility evidence. Builders
+its exit condition names persisted, Playwright CLI, visual or accessibility evidence. Builders
 must hand off only their assigned paths and observable results; Judges remain read-only.
 
 The final handoff consists of the accepted Plan, `evaluation.md` with criterion-level

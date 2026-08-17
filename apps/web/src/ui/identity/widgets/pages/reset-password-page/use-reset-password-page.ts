@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useResetPasswordAction } from '@/ui/identity/hooks/use-reset-password-action'
+import { showErrorToast } from '@/ui/shared/notifications'
 import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
 
@@ -84,8 +85,12 @@ export function useResetPasswordPage() {
       await reset(password)
       setIsSuccess(true)
       void navigateTo('login')
-    } catch {
-      // The action exposes the visible neutral failure state.
+    } catch (caught) {
+      showErrorToast(
+        caught instanceof Error
+          ? caught.message
+          : 'Não foi possível atualizar sua senha.',
+      )
     }
   }
 

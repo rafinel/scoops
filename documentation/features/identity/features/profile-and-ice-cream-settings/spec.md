@@ -1,7 +1,9 @@
 ---
 title: Identity profile and ice cream shop settings
-status: in_progress
+status: completed
 revision: 3
+evaluated_commit: 13247489444839d5f8238024665962a2b6a47116e2
+evaluation: ./evaluation.md
 source:
   type: issue
   ref: https://github.com/rafinel/scoops/issues/6
@@ -20,7 +22,7 @@ scope:
   - apps/web/src/ui/shared/widgets/layouts/app-layout
   - apps/web/tests/routes/identity
   - documentation/features/identity/features/profile-and-ice-cream-settings
-last_updated_at: 2026-08-16
+last_updated_at: 2026-08-17
 ---
 
 # 1. Context and scope

@@ -119,6 +119,37 @@ The action hook owns request orchestration and lifecycle callbacks. Page or
 widget hooks consume the action hook and own local form state, UI state, and
 interaction handlers.
 
+### Catch blocks provide user-visible feedback
+
+In Web UI code, a catch block must not use a comment as the only explanation
+for a swallowed or recovered failure. When a comment inside a catch block
+describes why execution continues, replace that comment with a user-visible
+toast notification implemented through Sonner:
+
+~~~ts
+import { showErrorToast } from '@/ui/shared/notifications'
+
+try {
+  await submitForm()
+} catch {
+  showErrorToast('Não foi possível concluir agora. Tente novamente.')
+}
+~~~
+
+The shared notification wrapper at apps/web/src/ui/shared/notifications is
+the application boundary for Sonner calls, and the root layout owns the single
+Toaster mount. Use an error, warning or neutral informational toast according
+to the failure and keep the existing recovery behavior, field state and
+navigation semantics intact. A toast must not disclose authentication,
+account-existence, tenant or provider details that the existing flow
+intentionally keeps neutral.
+
+This rule applies to catches in page hooks, feature hooks, contexts, layouts,
+storage helpers and client route middleware. Do not add a second Toaster, call
+Sonner directly from feature widgets, or leave a comment-only catch after the
+change. Server-side code outside the Web UI uses its existing application error
+and logging contracts rather than importing Sonner.
+
 ### Mirror widget structure for nested components
 
 Every nested component is a widget and follows the same directory convention as

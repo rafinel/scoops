@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 
 import { useRequestPasswordRecoveryAction } from '@/ui/identity/hooks/use-request-password-recovery-action'
+import { showInfoToast } from '@/ui/shared/notifications'
 
 export function useForgotPasswordPage() {
   const { error, isPending, requestRecovery } = useRequestPasswordRecoveryAction()
@@ -21,7 +22,9 @@ export function useForgotPasswordPage() {
       await requestRecovery(email.trim())
       setIsSubmitted(true)
     } catch {
-      // Keep the response neutral: provider failures must not disclose account state.
+      showInfoToast(
+        'Não foi possível concluir agora. Se o endereço for válido, tente novamente mais tarde.',
+      )
       setIsSubmitted(true)
     }
   }

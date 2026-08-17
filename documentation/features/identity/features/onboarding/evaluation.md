@@ -128,7 +128,7 @@ F1 is accepted after all three tasks were verified by the Core sensors.
   `!important` warnings in `global.css`; `pnpm --filter web check:types` passed.
 - `pnpm --filter web test` passed: 9 files and 39 tests.
 - Focused mocked-transport browser contract suite passed with a temporary base URL
-  on the Scoops dev server at 3002 (the unrelated HMS Vite process occupies 3000):
+  on the Scoops dev server at 4000 (the unrelated HMS Vite process occupies 3000):
   `onboarding.index.test.ts` and `onboarding.confirm.test.ts`, 4 tests passed.
   The suite covered the five controls, empty-form validation without registration
   transport, missing token recovery and malformed-token rejection.

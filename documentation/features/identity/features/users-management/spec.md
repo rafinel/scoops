@@ -650,7 +650,7 @@ targets continue to use neutral `NotFoundError`.
     `apps/web/src/ui/shared/widgets/layouts/app-layout/tests/app-layout.test.tsx`,
     `apps/web/tests/routes/identity/users.index.test.ts`,
     `apps/web/tests/routes/identity/users.$userId.test.ts`, final URL/network/console
-    inspection and real local browser validation.
+    inspection and real local Playwright CLI validation.
 
 ## Current state
 
@@ -673,9 +673,9 @@ targets continue to use neutral `NotFoundError`.
 - the web has REST/auth contexts, React Query, a thin authenticated route and minimal
   `AppLayout`; it has no Users routes/pages/sidebar configuration or identity management
   service methods.
-- Tooling/Playwright/AGENTS target web port `3000`, while `apps/web/package.json` currently
-  starts Vite on `3002`. Implementation must change the web `dev` script to
-  `vite dev --port 3000`; Playwright and documentation already express the chosen canonical
+- Tooling/Playwright/AGENTS target web port `4000`, while `apps/web/package.json` currently
+  starts Vite on `4000`. Implementation must keep the web `dev` script on
+  `vite dev --port 4000`; Playwright and documentation already express the chosen canonical
   port and require no edit.
 - some UI/testing rule examples still use legacy HMS collaborator terminology that does
   not exist in Scoops. Their structural conventions apply, but implementation must use
@@ -1123,11 +1123,11 @@ the user's opaque domain ID, service-role credentials, nonce hashes or audit sec
 
 | Pencil file | Node ID | Frame/state | Implementing surface | Required validation |
 | --- | --- | --- | --- | --- |
-| `design/onoreo.pen` | `cnfd3` | Users desktop list | `UsersPage`, filters/list, Manager shell nav | screenshot, layout-problem check, 1481×1050 browser comparison |
+| `design/onoreo.pen` | `cnfd3` | Users desktop list | `UsersPage`, filters/list, Manager shell nav | screenshot, layout-problem check, 1481×1050 Playwright CLI comparison |
 | same | `lSA6c` | New user modal | `InviteUserDialog` | form/profile keyboard and responsive dialog |
 | same | `RFuUY`, `ri3go` | active Operator/pending menus | `UsersList` action menu | action matrix and focus return |
 | same | `l8YLSD`, `YbW4I`, `vViP2` | deactivate/promote/demote confirmations | `ConfirmUserActionDialog` | copy, pending/error, cancel/confirm focus |
-| same | `zqSsD`, `G3Ydc`, `V2pGH8`, `oBFH0` | Operator/pending/inactive/Manager details | `UserDetailsPage` widgets | each state screenshot/layout and browser comparison |
+| same | `zqSsD`, `G3Ydc`, `V2pGH8`, `oBFH0` | Operator/pending/inactive/Manager details | `UserDetailsPage` widgets | each state screenshot/layout and Playwright CLI comparison |
 | same | `k0jLMr` | correct-name modal | `CorrectUserNameDialog` | validation/history notice/focus |
 
 The frames are design references, not permission to add unrelated Dashboard, Product,
@@ -1244,7 +1244,7 @@ Sales, Billing or notification behavior visible in their shell mockups.
   `provision/auth/supabase/tests/supabase-auth-provider.test.ts`;
   `constants/routes.ts`, `ui/shared/widgets/layouts/app-layout/index.tsx`,
   `use-app-layout.ts` and their tests, icon name/map only if a mapped Lucide icon is absent,
-  and `apps/web/package.json` for port `3000`.
+  and `apps/web/package.json` for port `4000`.
 
 #### Files to generate
 
@@ -1282,9 +1282,11 @@ silently rewritten. Review generated migration/route diffs. Server controller te
 the supported persistence boundary; do not add direct repository test suites. Mocked
 Playwright transport proves UI/route/REST mapping, not real server authorization.
 
-### Real manual browser validation
+### Real Playwright CLI validation
 
-1. Confirm the implemented web script uses canonical port `3000`, start/inspect Docker services, and
+Run the applicable Playwright CLI flow against real local services.
+
+1. Confirm the implemented web script uses canonical port `4000`, start/inspect Docker services, and
    verify Supabase `http://127.0.0.1:54321`, server health at `:3333`, Mailpit `:54324`
    and the chosen documented web URL.
 2. Start `pnpm --filter server dev` and `pnpm --filter web dev` in persistent sessions;
@@ -1324,7 +1326,7 @@ blocking findings are corrected and reevaluated.
   owns message composition/delivery. No module-ownership update is required.
 - `documentation/design.md`: confirmed token, Manrope, Lucide, responsive and component
   patterns. No parallel tokens are planned.
-- `documentation/tooling.md`: commands and web port `3000` are authoritative; only the
+- `documentation/tooling.md`: commands and web port `4000` are authoritative; only the
   conflicting `apps/web/package.json` script changes, so no tooling-document edit is needed.
 
 ## Premises and resolved questions
@@ -1343,7 +1345,7 @@ blocking findings are corrected and reevaluated.
   user's stable audit key does not change.
 - No new client store/context is justified. URL, React Query and page-local hooks are the
   three explicit state owners.
-- Web development/browser validation standardizes on port `3000` by changing the package
+- Web development/Playwright CLI validation standardizes on port `4000` by changing the package
   script; Playwright and Tooling remain unchanged.
 - Supabase's lack of target-user immediate JWT invalidation is accepted as a documented
   provider limitation; local status provides immediate Scoops revocation.
