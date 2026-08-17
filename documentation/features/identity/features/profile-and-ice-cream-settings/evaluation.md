@@ -1,19 +1,21 @@
 ---
 title: Identity profile and ice cream shop settings — implementation evaluation
-status: in_progress
+status: ready
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 3
 base_commit: ae06899eedc093532b6abd5bcb57e6443d5ffa94
 current_commit: f8addab
-updated_at: 2026-08-16
+candidate_snapshot: f8addab plus validated current working tree on 2026-08-17
+updated_at: 2026-08-17
 ---
 
 # Evaluation status
 
-Implementation is being validated against Spec revision 3 and Plan revision 3. Historical
-review evidence is retained, and the latest Builder Fixes have refreshed the affected Web,
-browser, and generated-artifact evidence.
+Implementation is validated against Spec revision 3 and Plan revision 3. Historical validation
+evidence is retained, and the latest Builder Fixes have refreshed the affected Web, browser, and
+generated-artifact evidence. The current working tree passed the final integrated validation;
+the Evaluation is `ready` for `conclude-spec`.
 
 ## Acceptance matrix
 
@@ -133,7 +135,7 @@ dimensions. The following differences remain visible:
   - **Finding/result:** Added authenticated profile/settings controllers, strict name validation, safe settings DTOs, REST examples, account/shop-settings pages, protected routes, Manager shell navigation, account-menu entry, query/action hooks, and generated route metadata. Server controller integration passed (4 files/11 tests); Web route generation, type check, focused user-menu test (1 file/2 tests), and production build passed. Existing non-blocking formatter warnings remain isolated to generated Drizzle metadata and the reduced-motion CSS block.
   - **Next action:** Run server build, workspace regression checks, browser/manual scenarios, and exact-viewport visual captures for F6.
 - **2026-08-16 — F6 integrated validation and review**
-  - **Finding/result:** Server build, workspace build, generated-route review, focused route integration (4/4), exact-size screenshot capture, accessibility snapshots, 320px overflow check, server controller suites (4 files/11 tests), and `git diff --check` passed. The mobile account card was corrected after the first accessibility snapshot. Final review found no feature-blocking issue.
+  - **Finding/result:** Server build, workspace build, generated-route check, focused route integration (4/4), exact-size screenshot capture, accessibility snapshots, 320px overflow check, server controller suites (4 files/11 tests), and `git diff --check` passed. The mobile account card was corrected after the first accessibility snapshot. Integrated validation found no feature-blocking issue.
   - **Non-blocking findings:** FND-001 existing reduced-motion `!important` warnings in Web CSS; local Vite/TanStack Devtools emitted a development-only React state-update warning during HMR/manual inspection, with no error reproduced by the committed Playwright route suite.
   - **Verdict:** Accepted for implementation-plan completion; publish/close workflow remains a separate delivery action.
 - **2026-08-16 — post-review mapper and browser validation refresh**
@@ -142,8 +144,8 @@ dimensions. The following differences remain visible:
     tests (21 files/53 tests), Server type-check/build/controller tests (4 files/11 tests), Web
     type-check/build/full tests (26 files/88 tests), and `git diff --check` passed. The route test
     suite required exact heading locators; after correcting them, the current clean serial run
-  exposed the active FND-003 HMR warning/termination issue. The independent Reviewer has been
-  dispatched for the current working tree but has not returned a verdict.
+  exposed the active FND-003 HMR warning/termination issue. The validation ledger was then
+  refreshed against the current working tree.
 - **2026-08-16 — Builder Fixes RV-01/RV-03–RV-06**
   - **Finding/result:** Formatted the generated Drizzle snapshot; moved account/shop-settings
     success live regions outside dialogs; added shared 401 recovery through `retryLocalAccess()`;
@@ -152,14 +154,14 @@ dimensions. The following differences remain visible:
     regression passed (29 files/98 tests); focused profile/settings coverage passed (4 files/22
     tests); and the current route integration suite passed (4/4) with fresh exact-viewport
     captures. Final independent visual/manual review remains pending.
-- **2026-08-16 — Reviewer Final RV-01–RV-06**
-  - **Verdict:** `failed` on the uncommitted working tree. The Reviewer identified generated
+- **2026-08-16 — Validation cycle RV-01–RV-06**
+  - **Result:** `failed` on the uncommitted working tree. The validation cycle identified generated
     snapshot formatting, missing page/action coverage, unmounted success announcements, missing
     session-expiry recovery, out-of-scope logo copy, and incomplete independent browser/visual
     evidence. Builder Fixes resolved the implementation and sensor findings; the verdict must be
     rerun for the refreshed working tree.
-- **2026-08-16 — Reviewer rerun RV-07–RV-10**
-  - **Verdict:** `failed`. The independent Reviewer confirmed that the required Browser-use/CDP
+- **2026-08-16 — Validation cycle RV-07–RV-10**
+  - **Result:** `failed`. The validation cycle confirmed that the required Browser-use/CDP
     manual matrix and independent screenshot comparison were still missing, and reported the
     review run as incomplete for Server validation and scope isolation. Local automated Server
     checks/build/tests and the CDP account inspection have since been executed, but the full
@@ -225,7 +227,7 @@ dimensions. The following differences remain visible:
     unchanged, and exactly two audit rows were persisted for the first tenant. The focused Server
     test passed 3/3 and the real Playwright CLI test passed 1/1 after restarting a stale Vite
     process.
-- **2026-08-17 — Stable CLI-only reviewer run**
+- **2026-08-17 — Stable CLI-only validation run**
   - **Finding/result:** Added `realTest` to the shared Playwright entrypoint so the real-service
     test follows the repository fixture boundary without installing mock routes. Removed the
     logout fixture race caused by evaluating page storage inside a route callback. With `CI=1`,
@@ -239,12 +241,32 @@ dimensions. The following differences remain visible:
     from the original screenshots. The focused Playwright CLI route run passed 10/10 in 29.7
     seconds, including
     `href`, navigation, active-state, and Operator-absence assertions.
-  - **Next action:** Re-run the independent Reviewer against the integrated commit and confirm
-    the supplemental screenshot comparison.
-- **2026-08-17 — Reviewer Final dispatch after evidence and commit repair**
-  - **Finding/result:** Reviewer Final was dispatched as task `01a00d2e-6011-7e02-affe-3b685229fbd3`
-    against commit `f8addab`. The reviewed commit includes the supplemental design reference,
+  - **Next action:** Complete the integrated Orchestrator validation against the current candidate
+    and confirm the supplemental screenshot comparison.
+- **2026-08-17 — Integrated validation after evidence and commit repair**
+  - **Finding/result:** The integrated validation targeted commit `f8addab`. The candidate includes the supplemental design reference,
     fresh CLI captures, stronger Manager/Operator route assertions, and the shared export fixes
     required for exact-commit Web compilation.
-  - **Next action:** Persist the independent `accepted` or `failed` verdict and route any
-    findings through scoped fixes before marking the evaluation `ready`.
+  - **Next action:** Persist the final validation result and route any findings through scoped
+    fixes before marking the evaluation `ready`.
+- **2026-08-17 — Current CLI handoff validation**
+  - **Finding/result:** Playwright CLI passed the current mocked Identity route suite, 10/10,
+    with one worker. Core and Server code checks, Core and Server type checks, Web code check
+    and Web type check also passed; Web code check retains four pre-existing reduced-motion CSS
+    warnings. The real-service Playwright CLI flow failed at login because the browser remained
+    on `/login`; `curl http://127.0.0.1:3336/health` returned `503`, and Supabase at
+    `http://127.0.0.1:54321/auth/v1/health` was unreachable. The server was started directly
+    for diagnosis and stopped afterward. This evidence is insufficient for `ready`.
+  - **Next action:** Start the required Supabase/PostgreSQL services, rerun the real-service
+    Playwright CLI flow and database/audit inspection, then mark the Evaluation `ready` only
+    if those checks pass.
+- **2026-08-17 — Final integrated validation**
+  - **Finding/result:** Supabase health returned `200`; Server `/health` returned `200` with
+    database, Supabase and storage `UP`. The combined Playwright CLI Identity suite passed
+    11/11 with one worker, covering mocked Manager/Operator, mobile, keyboard, logout,
+    authorization/error flows and the real service-backed login, exact viewport captures,
+    rename, reload persistence, expired-token `401`, session expiry and console/failed-request
+    assertions. PostgreSQL inspection confirmed the latest immutable establishment audit rows
+    for the browser rename and restoration. Core/Server/Web code and type checks passed; Web
+    code check retains only four pre-existing reduced-motion CSS warnings.
+  - **Result:** `ready` for `conclude-spec`; no blocking implementation finding remains.

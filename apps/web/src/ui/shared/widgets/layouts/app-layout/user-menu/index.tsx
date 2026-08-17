@@ -1,9 +1,9 @@
 import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 
+import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Avatar } from '@/ui/shared/widgets/components/avatar'
 import { Icon } from '@/ui/shared/widgets/components/icon'
-import { ROUTES } from '@/constants/routes'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,7 +50,7 @@ export const UserMenu = ({ account, error, isPending, onLogout }: UserMenuProps)
         </DropdownMenuGroup>
         <DropdownMenuItem
           className='mt-3 min-h-10 w-full rounded-lg border px-3 text-left text-sm font-bold'
-          render={<a href={ROUTES.account} />}
+          render={<Anchor route='account' />}
         >
           <Icon name='user-round' className='size-4' />
           Minha conta

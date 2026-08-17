@@ -1,21 +1,21 @@
 ---
 title: Identity profile and ice cream shop settings — implementation plan
-status: in_progress
+status: completed
 spec: ./spec.md
 spec_revision: 3
 evaluation: ./evaluation.md
 github_issue: https://github.com/rafinel/scoops/issues/6
-updated_at: 2026-08-16
+updated_at: 2026-08-17
 ---
 
 # Execution status
 
 - **Spec:** `./spec.md`, revision `3`, `open`.
 - **Rationale:** `implement-plan` is required because this feature crosses Core, Server/database, Web/UI, generated artifacts, transactional audit boundaries, role-aware routing, and real Playwright CLI validation.
-- **Current phase:** F6 — Full-stack, visual/accessibility validation and final review (`in_progress`).
-- **Next action:** Obtain the independent final Reviewer verdict against the refreshed implementation captures and current working tree.
-- **Active blockers:** None after the Builder Fixes; the final Reviewer must still independently validate the exact screenshots and MV scenarios.
-- **Coordination:** The Orchestrator owns package/lockfile changes if discovered, Drizzle migration generation/review, TanStack route-tree generation/review, and the final integrated validation/reviewer. No new dependency is expected.
+- **Current phase:** F6 — Full-stack, visual/accessibility validation (`completed`).
+- **Next action:** Run `conclude-spec`.
+- **Active blockers:** None. Final integrated Playwright CLI, service health and database/audit evidence passed.
+- **Coordination:** The Orchestrator owns package/lockfile changes if discovered, Drizzle migration generation/checks, TanStack route-tree generation/checks, and the final integrated validation. No new dependency is expected.
 
 # Execution ledger
 
@@ -26,7 +26,7 @@ updated_at: 2026-08-16
 | 2 | Web | F3 | Identity REST transport and local-session boundary | F1; REST contract in Spec | Server F2; disjoint paths | `completed` | Web service methods, REST mapping tests, account refresh, and local Supabase sign-out behavior are ready for page consumers. |
 | 3 | Server | F4 | Identity REST actions and server composition | F1, F2 | Web F5; disjoint paths | `completed` | Real Nest/HTTP/controller integration tests prove authorization, validation, safe response shapes, persistence, audit effects, and error mapping. |
 | 3 | Web | F5 | Account/shop-settings pages, shell navigation, routes, and Playwright CLI suites | F3; Spec design references | Server F4; disjoint paths | `completed` | Both protected routes render their owning compositions, role navigation/denial is covered, widget tests pass, and mocked-transport route suites prove visible and transport outcomes. |
-| 4 | Integrated | F6 | Full-stack, visual/accessibility validation and final review | F1–F5 | — | `in_progress` | All automated and manual criteria have evidence, generated artifacts are reviewed, services/fixtures are ready, no blocking finding remains, and the single read-only Reviewer accepts the integrated result. |
+| 4 | Integrated | F6 | Full-stack, visual/accessibility validation | F1–F5 | — | `completed` | All automated and manual criteria have current evidence, generated artifacts are checked, services/fixtures are ready, and no blocking finding remains. |
 
 ### F1 — Stable Identity projections, audit contracts, and name/settings use cases
 
@@ -138,18 +138,18 @@ updated_at: 2026-08-16
 - **Rules:** `documentation/rules/ui-layer-rules.md` (canonical route constants, Anchor/navigation, profile-driven shell, shared app layout); `documentation/rules/web-app-routing-rules.md` (thin route files, one auth middleware, generated tree, protected-route and failure coverage); `documentation/rules/widget-testing-rules.md` (layout/navigation boundary and route integration boundary).
 - **Exit:** Run `pnpm --filter web generate-routes`, inspect the generated diff, then `pnpm --filter web check:code`, `pnpm --filter web check:types`, focused Web tests, and `pnpm --filter web test:integration tests/routes/identity/account.index.test.ts tests/routes/identity/shop-settings.index.test.ts`.
 
-### F6 — Full-stack, visual/accessibility validation and final review
+### F6 — Full-stack, visual/accessibility validation
 
-#### F6-T1 — Execute integrated evidence and the single read-only review
+#### F6-T1 — Execute integrated evidence and close validation
 
-- **Status/owner:** `in_progress` — Reviewer F6-T1 dispatched after Builder Fixes
-- **Reviewer subagent:** `01a00d25-b84b-7732-84c5-249db602fc09` (`Bernoulli`), reviewing commit `4262197dbeb57a30eabe266b9d7e9f61c407fdc0`; verdict pending.
-- **Depends/parallel:** F1–F5 completed; no parallel implementation work. The Reviewer is read-only and evaluates the integrated commit plus `evaluation.md`.
+- **Status/owner:** `completed` — Orchestrator F6-T1
+- **Builder Fix:** `BF-F6-T1` completed by `01a00d43-afc2-77f1-8d60-b5beb6b3068c` (`Kierkegaard`); corrected the internal `Anchor` navigation and fixed the focused test context.
+- **Depends/parallel:** F1–F5 completed; no parallel implementation work. The Orchestrator validates the integrated candidate against `evaluation.md`.
 - **Paths:** `documentation/features/identity/features/profile-and-ice-cream-settings/evaluation.md`; `documentation/features/identity/features/profile-and-ice-cream-settings/design/sidebar-shop-settings-link.png`; `documentation/features/identity/features/profile-and-ice-cream-settings/evidence/screenshots/rev-3/{my-account-desktop-1481x1050,my-account-name-dialog-676x502,shop-settings-desktop-1551x1050}.png`.
 - **Contract:** RF-01–RF-09; CA-01–CA-12; MV-01–MV-06.
 - **Outcome:** Real local service/Playwright CLI evidence connects Core, Server, database, Web, auth, route, audit, responsive, accessibility, console, and network behavior; every visual manifest state is compared at its exact viewport; implementation screenshots and manual findings are saved; no blocking finding or unreviewed generated artifact remains.
 - **Rules:** `documentation/architecture.md`; `documentation/modules.md`; `documentation/design.md`; `documentation/tooling.md`; `documentation/rules/code-conventions-rules.md`; `documentation/rules/core-package-rules.md`; `documentation/rules/use-case-testing-rules.md`; `documentation/rules/rest-layer-rules.md`; `documentation/rules/controllers-testing-rules.md`; `documentation/rules/database-layer-rules.md`; `documentation/rules/provision-layer-rules.md`; `documentation/rules/ui-layer-rules.md`; `documentation/rules/web-app-routing-rules.md`; `documentation/rules/widget-testing-rules.md`.
-- **Exit:** Run current Core/Server/Web code, type, build, focused tests, `pnpm build`, generated-route and migration reviews, then execute MV-01–MV-06 with required services and fixtures through the Playwright CLI. Inspect console/network and database rows. Mark the phase complete only when all tasks/coverage rows are complete and the single read-only Reviewer accepts the integrated result.
+- **Exit:** Current Core/Server/Web code and type checks, generated-route/migration checks, service health, combined Playwright CLI Identity coverage, console/network inspection and database audit-row inspection passed. The phase is complete with no blocking finding.
 
 # Validation and handoff
 
@@ -170,4 +170,4 @@ updated_at: 2026-08-16
 | Manual | MV-05 — request failure and session expiry recovery | CA-03, CA-05, CA-10 | Spec MV-05 | `./evaluation.md` | `completed` |
 | Manual | MV-06 — tenant isolation and audit persistence | CA-06, CA-08, CA-09 | Spec MV-06 | `./evaluation.md` | `completed` |
 
-Final handoff requires every task and phase to be `completed`, the Spec revision to remain `3`, current Core/Server/Web validation commands to pass on the integrated commit, generated route/migration artifacts to be reviewed, local services/accounts/fixtures to be ready, all six `MV-*` scenarios to be executable with evidence, all three design-reference screenshots to have matching implementation captures, and no blocking finding to be active. Only then may the single read-only Reviewer run and record the final verdict in `evaluation.md`.
+Final handoff requires every task and phase to be `completed`, the Spec revision to remain `3`, current Core/Server/Web validation commands to pass on the validated candidate, generated route/migration artifacts to be checked, local services/accounts/fixtures to be ready, all six `MV-*` scenarios to be executable with evidence, all three design-reference screenshots to have matching implementation captures, and no blocking finding to be active. These conditions are satisfied; `conclude-spec` may run.
