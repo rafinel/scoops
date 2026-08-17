@@ -20501,7 +20501,7 @@
     {
       "type": "frame",
       "id": "XzPz2",
-      "x": -1755,
+      "x": -2239,
       "y": -1775,
       "name": "Modal Novo Produto",
       "reusable": true,
@@ -65624,8 +65624,8 @@
       "ref": "XzPz2",
       "name": "Modal Novo Produto — Estoque único",
       "context": "Variante do cadastro com Estoque único selecionado. Permite informar estoque inicial opcional; quando mantido em zero, cria o produto sem saldo. Não exibe marcas nem permite estoque negativo.",
-      "x": -408,
-      "y": -1756,
+      "x": -1618,
+      "y": -1775,
       "width": 552,
       "height": "fit_content",
       "flipX": false,
@@ -81049,6 +81049,21 @@
           "width": 520
         }
       }
+    },
+    {
+      "type": "rectangle",
+      "id": "mRmda",
+      "x": 18059,
+      "y": -4136,
+      "name": "Scoops — Gestão para sorveterias",
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "screenshot-localhost.png",
+        "mode": "fill"
+      },
+      "width": 624,
+      "height": 38
     }
   ],
   "variables": {
