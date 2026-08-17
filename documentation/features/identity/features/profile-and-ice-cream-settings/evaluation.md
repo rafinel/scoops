@@ -45,7 +45,7 @@ browser, and generated-artifact evidence.
 | Database | Drizzle migration generate/apply and SQL review | Generated SQL matches contract; migration applied successfully with PostgreSQL identifier-truncation notice | `completed` |
 | Web | `pnpm --filter web generate-routes`, `check:code`, `check:types`, `build` | Route generation, types, and production build passed; code check exits 0 with four pre-existing `global.css` `!important` warnings | `completed` |
 | Web | Focused widget/auth/service Vitest suites | Passed: 4 files, 17 tests; auth refresh: 1 file, 12 tests | `completed` |
-| Browser | Focused Identity route integration suites | Playwright CLI passed: `pnpm --filter web exec playwright test tests/routes/identity/account.index.test.ts tests/routes/identity/shop-settings.index.test.ts --workers=1` — 9 tests in 27.3s; Manager and Operator account/settings flows, anonymous/forbidden redirects, failed-save retention, mobile keyboard/focus/overflow checks, logout redirect, request bodies, and exact-viewport captures. No console errors were emitted in this run. | `completed` |
+| Browser | Focused Identity route integration suites | Playwright CLI passed: `pnpm --filter web exec playwright test tests/routes/identity/account.index.test.ts tests/routes/identity/shop-settings.index.test.ts --workers=1 --reporter=line` — 10 tests in 29.7s; Manager and Operator account/settings flows, `Sorveteria` href/navigation/active-state assertions, Manager-only visibility, anonymous/forbidden redirects, failed-save retention, mobile keyboard/focus/overflow checks, logout redirect, request bodies, and exact-viewport captures. No console errors were emitted in this run. | `completed` |
 | Browser | Real service-backed Identity flow | Playwright CLI passed: `pnpm --filter web exec playwright test tests/routes/identity/profile-settings.real.integration.test.ts --workers=1 --reporter=line` — 1 test in 10.1s against Web `:4000`, Server `:3336`, and Supabase `:54321`; real login, account/shop captures, rename, reload persistence, restoration, session-clear expiry redirect, console-error and failed-request assertions. | `completed` |
 | Database | Real audit-row inspection after browser rename | PostgreSQL query against local `establishment_audit_records` returned 3 rows, including the browser actor/tenant, previous and new names, `establishment-name-changed`, and `occurred_at`; controller/Core suites passed 4/11 and 3/13 respectively. | `completed` |
 | Workspace | `pnpm build` and affected workspace regression tests | Passed: Turbo Core/server/web production builds; `git diff --check` clean | `completed` |
@@ -63,6 +63,7 @@ browser, and generated-artifact evidence.
 | Visual | My Account default — `1481 × 1050` | `design/BRpGr.png` | Independent real-service Playwright CLI capture at exact `1481 × 1050`: `real-my-account-desktop-1481x1050.png`; shell hierarchy matches, while runtime identity data differs. | `completed_with_differences` |
 | Visual | My Account name dialog — `676 × 502` | `design/Ih9Qc.png` | Independent real-service Playwright CLI capture at exact `676 × 502`: `real-my-account-name-dialog-676x502.png`; reference is isolated while route capture includes the dimmed shell. | `completed_with_context_difference` |
 | Visual | Shop settings default — `1551 × 1050` | `design/m7W867.png` | Independent real-service Playwright CLI capture at exact `1551 × 1050`: `real-shop-settings-desktop-1551x1050.png`; logo upload/delete remain intentionally absent per PRD. | `completed_with_intentional_deviations` |
+| Visual | Manager sidebar shop-settings link | `design/sidebar-shop-settings-link.png` — supplemental reference, `261 × 167` | Playwright CLI route captures at the declared page viewports; Manager link is present and active on `/shop-settings`, while Operator coverage asserts it is absent | `completed_with_intentional_deviations` |
 
 ## Rule and documentation compliance
 
@@ -111,6 +112,11 @@ dimensions. The following differences remain visible:
 - Shop settings intentionally omits the reference's logo-upload action and deletion danger zone;
   the current copy and card composition describe only the supported establishment-name/settings
   behavior, as required by the PRD and Spec.
+- The Manager-only `Sorveteria` sidebar link was introduced by a later product clarification.
+  It is documented by the supplemental `design/sidebar-shop-settings-link.png` reference;
+  `design/BRpGr.png`, `design/Ih9Qc.png`, and `design/m7W867.png` remain historical page
+  compositions and were not overwritten. The route suite now verifies its `/shop-settings`
+  href, inactive account state, active settings state, and Operator absence.
 
 ## History
 
@@ -225,3 +231,13 @@ dimensions. The following differences remain visible:
     logout fixture race caused by evaluating page storage inside a route callback. With `CI=1`,
     Playwright CLI passed the combined Identity suite 10/10 in 33.8 seconds, including the real
     service-backed flow, 401 assertion, exact captures, and all mocked role/responsive/error paths.
+- **2026-08-17 — Design Contract amendment for Manager sidebar navigation**
+  - **Finding/result:** Added the user-supplied supplemental sidebar reference to the design
+    manifest and Spec, retained the original page screenshots as historical references, and
+    updated the Plan plus both implementation prompts to require a documented supplemental
+    reference and fresh captures whenever approved UI work introduces a visual element absent
+    from the original screenshots. The focused Playwright CLI route run passed 10/10 in 29.7
+    seconds, including
+    `href`, navigation, active-state, and Operator-absence assertions.
+  - **Next action:** Re-run the independent Reviewer against the integrated commit and confirm
+    the supplemental screenshot comparison.

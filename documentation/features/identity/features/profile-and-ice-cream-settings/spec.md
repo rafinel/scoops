@@ -208,7 +208,7 @@ out-of-scope controls.
 | CA-08 | Changed user and establishment names each create an immutable audit record with actor, affected snapshot, previous/new values, and a São Paulo-displayable timestamp; historical snapshots remain unchanged. | Core transaction tests, database integration test, and audit-row assertions. | RF-06 |
 | CA-09 | A failed or concurrent mutation cannot leave a primary update without its audit fact or cross-tenant write. | Serializable transaction/failure tests; same-establishment and foreign-establishment integration cases. | RF-06, RF-07 |
 | CA-10 | Loading, pending, unauthorized, session-expired, validation, request-error, and recovery states are covered without unhandled console or network errors. | Focused widget/hook/route tests plus browser console/network inspection in MV-05. | RF-07, RF-08 |
-| CA-11 | Both pages preserve the supplied desktop hierarchy and shared tokens, adapt at 320px without horizontal scrolling, and provide keyboard/focus/label/announcement behavior. | Pencil comparison using the manifest, responsive browser checks, and accessibility assertions. | RF-08 |
+| CA-11 | Both pages preserve the supplied desktop hierarchy and shared tokens, adapt at 320px without horizontal scrolling, and provide keyboard/focus/label/announcement behavior. | Pencil comparison using the manifest, responsive Playwright CLI checks, and accessibility assertions. | RF-08 |
 | CA-12 | No delete or logo mutation UI/API/core path is introduced. | Source review and negative route/API test. | RF-09 |
 
 ## Design contract
@@ -224,7 +224,10 @@ The shop frame's deletion card and logo controls are an explicitly documented
 visual deviation because the current PRD removes customer-initiated deletion and
 does not include logo management. The shop page may show read-only safe metadata
 where that supports the composition, but the only mutation is establishment
-name.
+name. A later product clarification adds the Manager-only `Sorveteria` sidebar
+link to the shared protected shell. This is represented by the supplemental
+reference in `design/manifest.md`; the original page screenshots remain historical
+references and are not overwritten.
 
 ## Non-goals and implementation boundaries
 
@@ -451,7 +454,7 @@ CREATE INDEX "establishment_audit_records_action_occurred_idx" ON "establishment
 | Create | `apps/web/src/ui/identity/widgets/pages/ice-cream-shop-settings-page/tests/ice-cream-shop-settings-page.test.tsx` | Cover loading, Manager success, duplicate name, validation, request error/retry, unauthorized/session expiry, and responsive-safe composition. |
 | Create | `apps/web/src/ui/identity/widgets/pages/ice-cream-shop-settings-page/tests/use-ice-cream-shop-settings-page.test.ts` | Cover query/mutation hook state transitions and retry behavior. |
 
-### Web route and browser validation
+### Web route and Playwright CLI validation
 
 | Change | Path | Contract |
 | --- | --- | --- |
@@ -526,7 +529,7 @@ pre-existing failures; do not record unexecuted checks as passed.
 | `documentation/architecture.md` | Core remains framework-independent; Server is authoritative; tenant writes are scoped and atomic; events publish completed facts after commit. |
 | `documentation/modules.md` | Identity owns accounts, users, establishments, sessions, and audit; no business rule moves into shared infrastructure. |
 | `documentation/design.md` | Use Manrope, semantic neutral/purple tokens, existing components, Lucide icons, responsive/focus/contrast/reduced-motion rules. |
-| `documentation/tooling.md` | Use pnpm workspace filters, generated-route command, Drizzle migration tooling, and proportional Core/Server/Web/browser validation. |
+| `documentation/tooling.md` | Use pnpm workspace filters, generated-route command, Drizzle migration tooling, and proportional Core/Server/Web/Playwright CLI validation. |
 | `documentation/features/identity/features/profile-and-ice-cream-settings/design/manifest.md` | Records inspected Pencil nodes, reusable components/tokens, responsive expectations, allowed PRD-driven deviations, and the blocked screenshot evidence. |
 
 ## Rule pack applied

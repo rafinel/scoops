@@ -88,6 +88,7 @@ test.describe('Account route', () => {
     await expect(page.getByRole('heading', { name: 'Minha conta' })).toBeVisible()
     await expect(page.getByRole('list').getByText('Operador', { exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Usuários' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Sorveteria' })).toHaveCount(0)
   })
 
   test('shows the Manager shop settings navigation and redirects to its route', async ({
@@ -116,8 +117,15 @@ test.describe('Account route', () => {
     })
 
     await page.goto('/account')
-    await page.getByRole('link', { name: 'Sorveteria' }).click()
+    const shopSettingsLink = page.getByRole('link', { name: 'Sorveteria' })
+    await expect(shopSettingsLink).toHaveAttribute('href', '/shop-settings')
+    await expect(shopSettingsLink).not.toHaveAttribute('aria-current', 'page')
+    await shopSettingsLink.click()
     await expect(page).toHaveURL(/\/shop-settings\/?$/)
+    await expect(page.getByRole('link', { name: 'Sorveteria' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
   })
 
   test('logs out the current device and returns to login', async ({ page, identity }) => {

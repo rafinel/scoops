@@ -93,15 +93,21 @@ When a Design Contract exists:
   recorded decision for every additional-screenshot suggestion before starting UI work;
 - do not require live Pencil during implementation;
 - preserve each state → surface → viewport mapping and intentionally distinct compositions;
-- compare the running UI with the saved reference using Browser-use/CDP, accessibility tree
-  and DOM/layout inspection;
+- compare the running UI with the saved reference using the Playwright CLI, accessible
+  locators and DOM/layout inspection;
 - save implementation screenshots under
   `evidence/screenshots/rev-<spec-revision>/` and record route, state, viewport and findings;
 - maintain one direct comparison record per supplied or supplemental reference; never use an
   implementation-generated screenshot as the only visual oracle;
 - iterate until no material discrepancy remains.
+- If an approved implementation change intentionally introduces a visual element not present
+  in the supplied references, treat it as a Design Contract amendment: ask the user only if
+  the intended placement/scope is unclear, record the decision in the Spec, add a supplemental
+  reference or annotated design artifact to `design/manifest.md`, and recapture affected
+  implementation screenshots before dispatching the Reviewer. Never silently leave the
+  screenshots, manifest and Evaluation describing the old UI.
 
-Builder/Orchestrator browser checks are implementation feedback. They do not replace the
+Builder/Orchestrator Playwright CLI checks are implementation feedback. They do not replace the
 Reviewer's personal `MV-*` and visual validation. The Reviewer must be dispatched as a
 separate read-only subagent/task whenever final validation is required; the Orchestrator
 must not substitute its own review or an evaluation claim for that dispatch.
@@ -169,8 +175,8 @@ The Reviewer must directly inspect code and Rules, assess every CA and technical
 personally execute every applicable `MV-*` scenario, and independently validate every
 supplied and supplemental design screenshot at its exact viewport/state. The Reviewer must
 open the original reference, inspect the implementation capture beside it, and record
-missing, extra, altered or mismatched elements. Automated Playwright and Builder reports are
-supporting evidence only. Missing required manual evidence, missing screenshot comparison,
+missing, extra, altered or mismatched elements. Automated test reports and Builder reports are
+supporting evidence only. Missing required Playwright CLI evidence, missing screenshot comparison,
 or an unexplained material discrepancy produces `failed`.
 
 The separate Reviewer subagent returns `accepted | failed`; the Orchestrator persists its

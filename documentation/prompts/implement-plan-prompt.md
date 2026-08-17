@@ -93,7 +93,7 @@ When a Design Contract exists:
   recorded decision for every additional-screenshot suggestion before starting the UI task;
 - do not depend on live Pencil during implementation;
 - preserve exact state/surface/viewport mappings and intentionally distinct compositions;
-- compare each running route/state with its saved reference using Browser-use/CDP,
+- compare each running route/state with its saved reference using the Playwright CLI,
   accessibility tree and DOM/layout inspection;
 - save implementation screenshots under
   `evidence/screenshots/rev-<spec-revision>/` and update the Plan coverage status and
@@ -102,6 +102,12 @@ When a Design Contract exists:
   path and the implementation capture; generated implementation screenshots cannot serve as
   their own design reference;
 - keep a UI task/phase `in_progress` while a material reference discrepancy remains.
+- If an approved implementation change intentionally introduces a visual element not present
+  in the supplied references, treat it as a Design Contract amendment: ask the user only if
+  the intended placement/scope is unclear, record the decision in the Spec, add a supplemental
+  reference or annotated design artifact to `design/manifest.md`, and recapture affected
+  implementation screenshots before dispatching the Reviewer. Never silently leave the
+  screenshots, manifest and Evaluation describing the old UI.
 
 Builder/Orchestrator checks do not replace the final Reviewer's personal manual
 and visual validation. The Reviewer must be dispatched as a separate read-only
@@ -167,7 +173,7 @@ After all ordinary phases are completed:
 1. run integrated sensors on the current commit;
 2. review generated artifacts/migrations and run the final build Quality Gate;
 3. preflight real services, database/Auth/provider state, accounts, fixtures and
-   Browser-use/CDP for every applicable `MV-*`;
+   the Playwright CLI for every applicable `MV-*`;
 4. keep the final integrated phase `in_progress` and record review as the next action;
 5. dispatch one separate read-only `Reviewer Final` subagent/task with the exact Spec
    revision, Plan/diff/commit, contracts, Rule Pack, Architecture, official evidence,
@@ -191,7 +197,7 @@ personally executes all applicable `MV-*` scenarios and independently validates 
 supplied and supplemental design screenshot. For each reference, the Reviewer opens the
 original image, captures the implementation at the exact declared viewport/state, and
 records a direct comparison of structure, content, hierarchy, tokens, spacing, dimensions,
-interaction state and responsive behavior. Automated Playwright and Builder reports are
+interaction state and responsive behavior. Automated test reports and Builder reports are
 supporting evidence only; implementation-generated screenshots are never sufficient without
 the original reference. Missing required manual evidence, missing reference comparison, or
 an unexplained material discrepancy produces `failed`.
