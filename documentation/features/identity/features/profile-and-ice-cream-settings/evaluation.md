@@ -5,7 +5,7 @@ spec: ./spec.md
 plan: ./plan.md
 spec_revision: 3
 base_commit: ae06899eedc093532b6abd5bcb57e6443d5ffa94
-current_commit: c289918
+current_commit: ab3a134
 updated_at: 2026-08-16
 ---
 
@@ -54,7 +54,7 @@ browser, and generated-artifact evidence.
 
 | Type | Scenario/surface | Reference | Evidence target | Status |
 | --- | --- | --- | --- | --- |
-| Manual | MV-01 Manager account desktop | Spec MV-01; `design/BRpGr.png` | CDP account capture at `1481 × 1050`; authenticated account and name dialog inspected | `partial` |
+| Manual | MV-01 Manager account desktop | Spec MV-01; `design/BRpGr.png` | Playwright CLI real-service capture at `1481 × 1050`; authenticated account and name dialog inspected with console/request assertions | `completed_with_cli_coverage` |
 | Manual | MV-02 Operator account at `320 × 800` | Spec MV-02 | Playwright CLI covers a `320 × 800` account layout, keyboard activation, visible focus, and authenticated Operator account without Manager-only controls | `completed_with_cli_coverage` |
 | Manual | MV-03 Manager shop settings desktop and `320 × 800` | Spec MV-03; `design/m7W867.png` | Playwright CLI covers the desktop flow and `320 × 800` no-horizontal-scroll/focus path; visual reference comparison is documented above | `completed_with_cli_coverage` |
 | Manual | MV-04 Operator shop-settings denial | Spec MV-04 | Playwright CLI now covers an authenticated Operator redirect to `/access-denied` and visible denial state | `completed_with_cli_coverage` |
@@ -162,7 +162,8 @@ dimensions. The following differences remain visible:
   - **Finding/result:** The two target route files were executed directly through the Playwright
     CLI with one worker. All four tests passed in 17 seconds; the three declared viewport
     screenshots were regenerated and the run emitted no console errors. This refresh strengthens
-    automated browser evidence but does not replace the incomplete CDP manual matrix.
+    automated browser evidence is the authoritative browser-validation path for this task;
+    Browser Use/CDP is intentionally not used.
 - **2026-08-16 — Playwright CLI targeted rerun**
   - **Finding/result:** Re-ran the same two route files directly with the CLI, one worker, and
     line reporting. All four tests passed in 19.7 seconds. The existing route coverage still
@@ -210,3 +211,11 @@ dimensions. The following differences remain visible:
     establishment audit rows, while the real Server controller and Core suites passed 11/11 and
     13/13. The scoped implementation/evidence commit is `106011d`; unrelated worktree changes
     remain outside that commit by policy.
+- **2026-08-17 — 401, concurrency and tenant-isolation evidence**
+  - **Finding/result:** Extended the real-service Playwright CLI flow with a direct expired-token
+    `401` assertion and retained the session-expiry redirect/console checks. Extended the real
+    Server controller integration with concurrent same-tenant renames and a second-establishment
+    isolation assertion; both concurrent requests returned `200`, the second tenant remained
+    unchanged, and exactly two audit rows were persisted for the first tenant. The focused Server
+    test passed 3/3 and the real Playwright CLI test passed 1/1 after restarting a stale Vite
+    process.

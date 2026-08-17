@@ -11,7 +11,7 @@ updated_at: 2026-08-16
 # Execution status
 
 - **Spec:** `./spec.md`, revision `3`, `open`.
-- **Rationale:** `implement-plan` is required because this feature crosses Core, Server/database, Web/UI, generated artifacts, transactional audit boundaries, role-aware routing, and real browser/manual validation.
+- **Rationale:** `implement-plan` is required because this feature crosses Core, Server/database, Web/UI, generated artifacts, transactional audit boundaries, role-aware routing, and real Playwright CLI validation.
 - **Current phase:** F6 — Full-stack, visual/accessibility validation and final review (`in_progress`).
 - **Next action:** Obtain the independent final Reviewer verdict against the refreshed implementation captures and current working tree.
 - **Active blockers:** None after the Builder Fixes; the final Reviewer must still independently validate the exact screenshots and MV scenarios.
@@ -25,7 +25,7 @@ updated_at: 2026-08-16
 | 2 | Server | F2 | Establishment audit persistence and transaction scope | F1 | Web F3; disjoint paths | `completed` | Drizzle models, mappers, repositories, bindings, generated migration, and database integration prerequisites are complete and reviewed. |
 | 2 | Web | F3 | Identity REST transport and local-session boundary | F1; REST contract in Spec | Server F2; disjoint paths | `completed` | Web service methods, REST mapping tests, account refresh, and local Supabase sign-out behavior are ready for page consumers. |
 | 3 | Server | F4 | Identity REST actions and server composition | F1, F2 | Web F5; disjoint paths | `completed` | Real Nest/HTTP/controller integration tests prove authorization, validation, safe response shapes, persistence, audit effects, and error mapping. |
-| 3 | Web | F5 | Account/shop-settings pages, shell navigation, routes, and browser suites | F3; Spec design references | Server F4; disjoint paths | `completed` | Both protected routes render their owning compositions, role navigation/denial is covered, widget tests pass, and mocked-transport route suites prove visible and transport outcomes. |
+| 3 | Web | F5 | Account/shop-settings pages, shell navigation, routes, and Playwright CLI suites | F3; Spec design references | Server F4; disjoint paths | `completed` | Both protected routes render their owning compositions, role navigation/denial is covered, widget tests pass, and mocked-transport route suites prove visible and transport outcomes. |
 | 4 | Integrated | F6 | Full-stack, visual/accessibility validation and final review | F1–F5 | — | `in_progress` | All automated and manual criteria have evidence, generated artifacts are reviewed, services/fixtures are ready, no blocking finding remains, and the single read-only Reviewer accepts the integrated result. |
 
 ### F1 — Stable Identity projections, audit contracts, and name/settings use cases
@@ -116,7 +116,7 @@ updated_at: 2026-08-16
 - **Rules:** `documentation/rules/controllers-testing-rules.md` (real Nest/Supertest/Drizzle path, DatabaseFixture/RestFixture, isolation, HTTP plus persistence assertions); `documentation/rules/rest-layer-rules.md`; `documentation/rules/database-layer-rules.md`; `documentation/rules/use-case-testing-rules.md` only as the Core-test boundary reference.
 - **Exit:** `pnpm --filter server test -- src/identity/rest/controllers/tests/change-own-user-name.controller.test.ts src/identity/rest/controllers/tests/get-establishment-settings.controller.test.ts src/identity/rest/controllers/tests/change-establishment-name.controller.test.ts src/identity/rest/controllers/tests/get-auth-session.controller.test.ts`; then `pnpm --filter server check:code`, `pnpm --filter server check:types`, and `pnpm --filter server build`.
 
-### F5 — Account/shop-settings pages, shell navigation, routes, and browser suites
+### F5 — Account/shop-settings pages, shell navigation, routes, and Playwright CLI suites
 
 #### F5-T1 — Implement account and shop-settings page state and compositions
 
@@ -134,7 +134,7 @@ updated_at: 2026-08-16
 - **Depends/parallel:** F5-T1 and F3; parallel with F4-T2 with disjoint Web paths. F5 owns route constants, route files, app shell/user-menu changes, Web fixtures, and route tests; the Orchestrator alone runs route generation.
 - **Paths:** `apps/web/src/constants/routes.ts`; `apps/web/src/routes/_authenticated/account/index.tsx`; `apps/web/src/routes/_authenticated/shop-settings/index.tsx`; `apps/web/src/ui/shared/widgets/layouts/app-layout/{index.tsx,user-menu/index.tsx}`; `apps/web/tests/routes/identity/{account.index,shop-settings.index}.test.ts`; `apps/web/tests/fixtures/{identity-data-fixtures,identity-module-fixture}.ts`; generated `apps/web/src/routeTree.gen.ts` only through `pnpm --filter web generate-routes`.
 - **Contract:** RF-01, RF-04, RF-05, RF-07, RF-08, RF-09; CA-01, CA-04, CA-05, CA-06, CA-07, CA-10, CA-11, CA-12.
-- **Outcome:** `/account` uses shared auth middleware for Manager/Operator access; `/shop-settings` is Manager-only in route behavior and server authority; Account is reachable from the user menu, Shop Settings is absent for Operators, canonical links use `ROUTES`, and generated route metadata matches both protected leaves. Browser suites assert final URLs, mocked request method/path/body/status, visible outcomes, retry, keyboard, and 320px no-scroll behavior.
+- **Outcome:** `/account` uses shared auth middleware for Manager/Operator access; `/shop-settings` is Manager-only in route behavior and server authority; Account is reachable from the user menu, Shop Settings is absent for Operators, canonical links use `ROUTES`, and generated route metadata matches both protected leaves. Playwright CLI suites assert final URLs, mocked request method/path/body/status, visible outcomes, retry, keyboard, and 320px no-scroll behavior.
 - **Rules:** `documentation/rules/ui-layer-rules.md` (canonical route constants, Anchor/navigation, profile-driven shell, shared app layout); `documentation/rules/web-app-routing-rules.md` (thin route files, one auth middleware, generated tree, protected-route and failure coverage); `documentation/rules/widget-testing-rules.md` (layout/navigation boundary and route integration boundary).
 - **Exit:** Run `pnpm --filter web generate-routes`, inspect the generated diff, then `pnpm --filter web check:code`, `pnpm --filter web check:types`, focused Web tests, and `pnpm --filter web test:integration tests/routes/identity/account.index.test.ts tests/routes/identity/shop-settings.index.test.ts`.
 
@@ -146,27 +146,27 @@ updated_at: 2026-08-16
 - **Depends/parallel:** F1–F5 completed; no parallel implementation work. The Reviewer is read-only and evaluates the integrated commit plus `evaluation.md`.
 - **Paths:** `documentation/features/identity/features/profile-and-ice-cream-settings/evaluation.md`; `documentation/features/identity/features/profile-and-ice-cream-settings/evidence/screenshots/rev-3/{my-account-desktop-1481x1050,my-account-name-dialog-676x502,shop-settings-desktop-1551x1050}.png`.
 - **Contract:** RF-01–RF-09; CA-01–CA-12; MV-01–MV-06.
-- **Outcome:** Real local service/browser evidence connects Core, Server, database, Web, auth, route, audit, responsive, accessibility, console, and network behavior; every visual manifest state is compared at its exact viewport; implementation screenshots and manual findings are saved; no blocking finding or unreviewed generated artifact remains.
+- **Outcome:** Real local service/Playwright CLI evidence connects Core, Server, database, Web, auth, route, audit, responsive, accessibility, console, and network behavior; every visual manifest state is compared at its exact viewport; implementation screenshots and manual findings are saved; no blocking finding or unreviewed generated artifact remains.
 - **Rules:** `documentation/architecture.md`; `documentation/modules.md`; `documentation/design.md`; `documentation/tooling.md`; `documentation/rules/code-conventions-rules.md`; `documentation/rules/core-package-rules.md`; `documentation/rules/use-case-testing-rules.md`; `documentation/rules/rest-layer-rules.md`; `documentation/rules/controllers-testing-rules.md`; `documentation/rules/database-layer-rules.md`; `documentation/rules/provision-layer-rules.md`; `documentation/rules/ui-layer-rules.md`; `documentation/rules/web-app-routing-rules.md`; `documentation/rules/widget-testing-rules.md`.
-- **Exit:** Run current Core/Server/Web code, type, build, focused tests, `pnpm build`, generated-route and migration reviews, then execute MV-01–MV-06 with required services and fixtures. Inspect browser console/network and database rows. Mark the phase complete only when all tasks/coverage rows are complete and the single read-only Reviewer accepts the integrated result.
+- **Exit:** Run current Core/Server/Web code, type, build, focused tests, `pnpm build`, generated-route and migration reviews, then execute MV-01–MV-06 with required services and fixtures through the Playwright CLI. Inspect console/network and database rows. Mark the phase complete only when all tasks/coverage rows are complete and the single read-only Reviewer accepts the integrated result.
 
 # Validation and handoff
 
 | Type | Scenario/surface | Criteria | Reference | Evidence target | Status |
 | --- | --- | --- | --- | --- | --- |
-| Automated | Core contracts and use cases | CA-01, CA-02, CA-06, CA-08, CA-09, CA-12 | F1-T1/F1-T2; Core Rule Pack | `./evaluation.md` | `pending` |
+| Automated | Core contracts and use cases | CA-01, CA-02, CA-06, CA-08, CA-09, CA-12 | F1-T1/F1-T2; Core Rule Pack | `./evaluation.md` | `completed` |
 | Runtime | Server REST and persistence | CA-01, CA-02, CA-04, CA-06, CA-07, CA-08, CA-09, CA-12 | F4-T1/F4-T2; REST and Controller Testing Rules | `./evaluation.md` | `completed` |
-| Runtime | Web REST/auth boundary | CA-01, CA-04, CA-05, CA-10 | F3-T1/F3-T2; REST/Provision Rules | `./evaluation.md` | `pending` |
-| Automated | Web widgets, hooks, layout and auth context | CA-01, CA-02, CA-03, CA-04, CA-05, CA-06, CA-10, CA-11, CA-12 | F5-T1; UI and Widget Testing Rules | `./evaluation.md` | `pending` |
+| Runtime | Web REST/auth boundary | CA-01, CA-04, CA-05, CA-10 | F3-T1/F3-T2; REST/Provision Rules | `./evaluation.md` | `completed` |
+| Automated | Web widgets, hooks, layout and auth context | CA-01, CA-02, CA-03, CA-04, CA-05, CA-06, CA-10, CA-11, CA-12 | F5-T1; UI and Widget Testing Rules | `./evaluation.md` | `completed` |
 | Runtime | Protected route and browser transport behavior | CA-01, CA-04–CA-07, CA-10–CA-12 | F5-T2; MV-01–MV-05 route portions | `./evaluation.md` | `completed` |
 | Visual | My Account default desktop — `1481 × 1050` | CA-11 | `./design/BRpGr.png` | `./evidence/screenshots/rev-3/real-my-account-desktop-1481x1050.png` | `completed` |
 | Visual | My Account name-correction dialog — `676 × 502` | CA-02, CA-03, CA-04, CA-10, CA-11 | `./design/Ih9Qc.png` | `./evidence/screenshots/rev-3/real-my-account-name-dialog-676x502.png` | `completed` |
 | Visual | Ice Cream Shop Settings default desktop — `1551 × 1050` | CA-06, CA-07, CA-11, CA-12 | `./design/m7W867.png` | `./evidence/screenshots/rev-3/real-shop-settings-desktop-1551x1050.png` | `completed` |
-| Manual | MV-01 — Manager account desktop | CA-01, CA-02, CA-04, CA-05, CA-10, CA-11, CA-12 | Spec MV-01 | `./evaluation.md` | `pending` |
-| Manual | MV-02 — Operator account at `320 × 800` | CA-02, CA-03, CA-04, CA-05, CA-10, CA-11 | Spec MV-02 | `./evaluation.md` | `pending` |
-| Manual | MV-03 — Manager shop settings desktop and `320 × 800` | CA-06, CA-08, CA-10, CA-11, CA-12 | Spec MV-03 | `./evaluation.md` | `pending` |
-| Manual | MV-04 — Operator shop-settings denial | CA-07, CA-10 | Spec MV-04 | `./evaluation.md` | `pending` |
-| Manual | MV-05 — request failure and session expiry recovery | CA-03, CA-05, CA-10 | Spec MV-05 | `./evaluation.md` | `pending` |
-| Manual | MV-06 — tenant isolation and audit persistence | CA-06, CA-08, CA-09 | Spec MV-06 | `./evaluation.md` | `pending` |
+| Manual | MV-01 — Manager account desktop | CA-01, CA-02, CA-04, CA-05, CA-10, CA-11, CA-12 | Spec MV-01 | `./evaluation.md` | `completed` |
+| Manual | MV-02 — Operator account at `320 × 800` | CA-02, CA-03, CA-04, CA-05, CA-10, CA-11 | Spec MV-02 | `./evaluation.md` | `completed` |
+| Manual | MV-03 — Manager shop settings desktop and `320 × 800` | CA-06, CA-08, CA-10, CA-11, CA-12 | Spec MV-03 | `./evaluation.md` | `completed` |
+| Manual | MV-04 — Operator shop-settings denial | CA-07, CA-10 | Spec MV-04 | `./evaluation.md` | `completed` |
+| Manual | MV-05 — request failure and session expiry recovery | CA-03, CA-05, CA-10 | Spec MV-05 | `./evaluation.md` | `completed` |
+| Manual | MV-06 — tenant isolation and audit persistence | CA-06, CA-08, CA-09 | Spec MV-06 | `./evaluation.md` | `completed` |
 
 Final handoff requires every task and phase to be `completed`, the Spec revision to remain `3`, current Core/Server/Web validation commands to pass on the integrated commit, generated route/migration artifacts to be reviewed, local services/accounts/fixtures to be ready, all six `MV-*` scenarios to be executable with evidence, all three design-reference screenshots to have matching implementation captures, and no blocking finding to be active. Only then may the single read-only Reviewer run and record the final verdict in `evaluation.md`.
