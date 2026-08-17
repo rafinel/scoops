@@ -13,8 +13,8 @@ updated_at: 2026-08-17
 - **Spec:** `./spec.md`, revision `3`, `open`.
 - **Rationale:** `implement-plan` is required because this feature crosses Core, Server/database, Web/UI, generated artifacts, transactional audit boundaries, role-aware routing, and real Playwright CLI validation.
 - **Current phase:** F6 — Full-stack, visual/accessibility validation (`completed`).
-- **Next action:** Run `conclude-spec`.
-- **Active blockers:** None. Final integrated Playwright CLI, service health and database/audit evidence passed.
+- **Next action:** PR review/merge; no further implementation work is required for this Spec.
+- **Active blockers:** None.
 - **Coordination:** The Orchestrator owns package/lockfile changes if discovered, Drizzle migration generation/checks, TanStack route-tree generation/checks, and the final integrated validation. No new dependency is expected.
 
 # Execution ledger
@@ -149,7 +149,7 @@ updated_at: 2026-08-17
 - **Contract:** RF-01–RF-09; CA-01–CA-12; MV-01–MV-06.
 - **Outcome:** Real local service/Playwright CLI evidence connects Core, Server, database, Web, auth, route, audit, responsive, accessibility, console, and network behavior; every visual manifest state is compared at its exact viewport; implementation screenshots and manual findings are saved; no blocking finding or unreviewed generated artifact remains.
 - **Rules:** `documentation/architecture.md`; `documentation/modules.md`; `documentation/design.md`; `documentation/tooling.md`; `documentation/rules/code-conventions-rules.md`; `documentation/rules/core-package-rules.md`; `documentation/rules/use-case-testing-rules.md`; `documentation/rules/rest-layer-rules.md`; `documentation/rules/controllers-testing-rules.md`; `documentation/rules/database-layer-rules.md`; `documentation/rules/provision-layer-rules.md`; `documentation/rules/ui-layer-rules.md`; `documentation/rules/web-app-routing-rules.md`; `documentation/rules/widget-testing-rules.md`.
-- **Exit:** Current Core/Server/Web code and type checks, generated-route/migration checks, service health, combined Playwright CLI Identity coverage, console/network inspection and database audit-row inspection passed. The phase is complete with no blocking finding.
+- **Exit:** Local Core/Server/Web code and type checks, generated-route/migration checks, service health, combined Playwright CLI Identity coverage, console/network inspection, database audit-row inspection, and the PR Core/Server/Web CI gate passed. The service-backed browser test is excluded only from CI's Vite-only suite and remains covered by the documented local service-backed command.
 
 # Validation and handoff
 
@@ -170,4 +170,4 @@ updated_at: 2026-08-17
 | Manual | MV-05 — request failure and session expiry recovery | CA-03, CA-05, CA-10 | Spec MV-05 | `./evaluation.md` | `completed` |
 | Manual | MV-06 — tenant isolation and audit persistence | CA-06, CA-08, CA-09 | Spec MV-06 | `./evaluation.md` | `completed` |
 
-Final handoff requires every task and phase to be `completed`, the Spec revision to remain `3`, current Core/Server/Web validation commands to pass on the validated candidate, generated route/migration artifacts to be checked, local services/accounts/fixtures to be ready, all six `MV-*` scenarios to be executable with evidence, all three design-reference screenshots to have matching implementation captures, and no blocking finding to be active. These conditions are satisfied; `conclude-spec` may run.
+Final handoff requires every task and phase to be `completed`, the Spec revision to remain `3`, current Core/Server/Web validation commands to pass on the validated candidate, generated route/migration artifacts to be checked, local services/accounts/fixtures to be ready, all six `MV-*` scenarios to be executable with evidence, all three design-reference screenshots to have matching implementation captures, and no blocking finding to be active. These conditions are satisfied; route the Spec to `conclude-spec`.

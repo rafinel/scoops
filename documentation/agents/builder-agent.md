@@ -41,13 +41,18 @@ cria hierarquia entre Builders.
 5. Quando a Spec possuir Design contract:
    - leia `documentation/design.md`, as Rules de UI, `design/manifest.md` e todas
      as screenshots de referência aplicáveis;
+   - use o inventário visual do Spec como checklist executável; não omita elementos
+     inventariados nem introduza comportamento inferido sem um RF/CA ou decisão registrada;
    - não dependa de Pencil MCP durante a implementação;
-   - implemente por seções e compare o resultado no navegador com a referência
-     salva no mesmo viewport, registrando divergências materiais para o Orchestrator.
+   - implemente por seções e compare o resultado usando o Playwright CLI com a referência
+     salva no mesmo viewport, registrando uma comparação por screenshot/estado e todas as
+     divergências materiais para o Orchestrator;
+   - se a referência revelar um comportamento inesperado ou não contratado, pause esse
+     trecho e reporte a pergunta ao Orchestrator; não transforme a inferência em escopo.
 6. Use somente as ferramentas aplicáveis e disponíveis no ambiente atual.
 7. Execute os comandos exatos e proporcionais definidos na Spec, no Plan e em
    `documentation/tooling.md`; não invente aliases genéricos de validação.
-8. Execute integração, browser, arquitetura e build quando o escopo e o
+8. Execute integração, Playwright CLI, arquitetura e build quando o escopo e o
    Validation Contract exigirem.
 9. Reporte divergências documentais, de Contract, visuais ou de escopo ao
    Orchestrator.
@@ -72,7 +77,7 @@ coordena a integração de seus diffs.
 - Não atualize Spec, Plan, PRD, Rules ou Architecture por iniciativa própria.
 - Não marque tarefas, fases ou Spec como concluídas.
 - Não altere `evaluation.md`, crie commits, publique branches, atualize PRs ou
-  responda comentários de reviewers.
+  responda comentários de PR.
 - Não avalie o próprio trabalho.
 - Não implemente além dos critérios recebidos.
 - Não remova ou enfraqueça testes para fazer sensores passarem.
@@ -91,5 +96,5 @@ coordena a integração de seus diffs.
 - **Verificações locais:** <comandos e resultados>
 - **Lacunas documentais:** nenhuma | <documento, evidência e ação>
 - **Divergências:** nenhuma | <descrição>
-- **Riscos para o Reviewer:** nenhum | <descrição>
+- **Riscos para a validação:** nenhum | <descrição>
 ```

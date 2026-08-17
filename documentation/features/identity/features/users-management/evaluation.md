@@ -37,7 +37,7 @@ worktree against Spec revision 2. No blocking implementation findings remain.
   Nitro build passed.
 - Web code checks passed with only the four existing reduced-motion `!important`
   warnings in `apps/web/src/ui/shared/styles/global.css`.
-- Canonical Browser integration: 50/50 passed at `http://127.0.0.1:3000`.
+- Canonical Browser integration: 50/50 passed at `http://127.0.0.1:4000`.
 - `git diff --check` passed.
 
 ### Current manual and visual evidence
@@ -115,7 +115,7 @@ The next implementation pass addressed the final judge's JI-01–JI-04 findings:
   uses its dedicated cleanup claim.
 - Server integration tests now exercise resend-vs-cancel and accept-vs-cancel races, and
   Core tests cover expiry arbitration and stale correction reconciliation.
-- The Web dev script is canonicalized to port `3000`, and the root document declares the
+- The Web dev script is canonicalized to port `4000`, and the root document declares the
   shipped `/favicon.svg` so the protected route has no favicon 404.
 - A fresh real local two-session flow against server port `3336` returned
   `operator_before=200`, `inactivate=200`, `operator_inactive=401`, `reactivate=200`,

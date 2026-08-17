@@ -44,9 +44,19 @@ For design-backed UI, use the saved Spec design bundle—not live Pencil—and i
 
 - route/state and exact saved reference path or source node ID from `design/manifest.md`;
 - target viewport;
-- Browser-use/CDP manual result;
+- Playwright CLI manual result;
 - implementation screenshot/comparison path;
+- one direct comparison for each supplied and required supplemental reference, recording
+  structure, content, hierarchy, spacing, dimensions, tokens, interaction/state and responsive
+  differences;
 - accessibility/DOM observations and resolved visual findings.
+
+The visual evidence must enumerate every supplied screenshot and every required supplemental
+screenshot suggested by the Spec creator or added to close a documented state/viewport gap. Each
+entry must name the original reference, exact viewport/state, implementation capture and direct
+comparison result, including missing, extra, altered or mismatched elements. Do not publish a
+design-backed PR when a required reference lacks an independent comparison or when a required
+supplemental screenshot decision remains unresolved.
 
 Review migrations, generated artifacts and lockfile changes when affected. Do not claim a
 check, manual flow, review or deployment that was not observed.

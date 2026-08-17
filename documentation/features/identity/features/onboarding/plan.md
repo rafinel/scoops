@@ -17,7 +17,7 @@ updated_at: 2026-08-13
 - **Current phase:** Wave 4 — F6 accepted
 - **Next action:** conclude the Spec with the accepted final evidence.
 - **Evidence record:** `evaluation.md` contains F1–F6 sensors, Pencil screenshots,
-  Browser-use viewport evidence, real Mailpit/Supabase activation evidence and the
+  Playwright CLI viewport evidence, real Mailpit/Supabase activation evidence and the
   final build gate.
 - **Judge policy:** phase sensors are evaluated by the Orchestrator. Exactly one
   read-only `Judge Implementation Final` is reserved for the complete integrated
@@ -26,7 +26,7 @@ updated_at: 2026-08-13
 This Plan is necessary because Spec revision 11 crosses `packages/core`,
 `apps/server` and `apps/web`, changes a serializable persistence boundary and a
 generated migration, integrates Supabase Auth and Inngest, changes TanStack routes
-and authentication callback behavior, and requires Pencil-backed manual browser
+and authentication callback behavior, and requires Pencil-backed Playwright CLI
 evidence. The Spec remains authoritative for requirement text, exact declarations,
 transport contracts and algorithms; this file is the execution ledger.
 
@@ -101,7 +101,7 @@ commits or pull requests.
 | 2 | Server | F2 | Provider, persistence, migration and local auth runtime | F1 accepted | Web F4; no overlapping paths | `accepted` | Supabase/crypto adapters, Drizzle changes, generated/backfilled migration and GoTrue callback configuration pass focused provider, static and migration review sensors. |
 | 2 | Web | F4 | Pencil preflight, transport, storage and callback-session boundary | F1 accepted + Spec REST contract; Pencil node/token inspection is a mandatory precondition | Server F2; no overlapping paths | `accepted` | Nodes `ZVD15`, `t67NUw`, `f9xhLm`, `r8AIM` are mapped to page/state and existing tokens; web REST/storage/action/auth tests pass. |
 | 3 | Server | F3 | Public REST, cleanup job and application composition | F2 accepted | Web F5; no overlapping paths | `accepted` | Five real HTTP controller suites, cleanup concurrency/job suites, Inngest resolution and stable error/Swagger/REST contracts pass. |
-| 3 | Web | F5 | Distinct onboarding pages, routes and automated UI coverage | F4 accepted, including Pencil mapping | Server F3; no overlapping paths | `accepted` | Shared primitives plus separate `/onboarding` and `/onboarding/confirm` compositions, route generation, widget/hook tests and focused mocked-transport browser suites pass. |
+| 3 | Web | F5 | Distinct onboarding pages, routes and automated UI coverage | F4 accepted, including Pencil mapping | Server F3; no overlapping paths | `accepted` | Shared primitives plus separate `/onboarding` and `/onboarding/confirm` compositions, route generation, widget/hook tests and focused mocked-transport Playwright suites pass. |
 | 4 | Integrated | F6 | Real stack, visual/accessibility validation and final judgment | F1–F5 verified | — | `accepted` | Migration and real Supabase/Mailpit/server/web registration-to-activation flow pass; mapped page/state evidence, builds and scans pass; the single final Judge accepts. |
 
 Allowed phase states are `pending`, `in_progress`, `awaiting_judgment`, `failed`
@@ -532,7 +532,7 @@ composition; real HTTP/persistence evidence remains part of F6.
 - **Requirements:** RF-01–RF-16; CA-01–CA-24.
 - **Observable result:** one integrated HEAD has synchronized migration/route artifacts,
   valid Compose configuration and passing Core/Server/Web static, unit, controller,
-  job and complete mocked browser suites. Findings are classified as fixed,
+  job and complete mocked Playwright suites. Findings are classified as fixed,
   pre-existing or blocking rather than hidden.
 - **Parallelizable:** `false` — sensors must evaluate one integrated worktree.
 - **Sensors:** `docker compose config`; canonical migration/route generation review;
@@ -556,16 +556,16 @@ composition; real HTTP/persistence evidence remains part of F6.
 - **Sensors:** inspect `docker compose ps`, resolved GoTrue environment and health
   endpoints; apply the migration only to the configured local development database;
   recreate only `supabase-auth`; start Server/Web in persistent sessions; use the
-  `browser-use` skill via CDP for manual interaction; inspect Mailpit, HTTP/network,
+  Playwright CLI for manual interaction; inspect Mailpit, HTTP/network,
   persisted state, storage, DOM, console, server logs and failed requests; stop only
   processes started for validation and leave shared Docker services running.
 - **Required visual evidence:** refresh Pencil editor state/schema, then for each of
   `ZVD15`, `t67NUw`, `f9xhLm` and `r8AIM` record Pencil screenshot and layout-problem
   inspection. Reproduce the mapped real page/state at exactly 1440 × 1024 and at
-  320 px with Browser-use CDP. A mapped page is not `verified` until its browser
-  screenshot, fresh accessibility tree, DOM dimensions/overflow, final URL, relevant
+  320 px with the Playwright CLI. A mapped page is not `verified` until its Playwright CLI
+  screenshot, fresh accessibility inspection, DOM dimensions/overflow, final URL, relevant
   network result, console output, keyboard path and visual findings are recorded.
-  Playwright must not substitute for this manual UI validation.
+  mocked Playwright coverage must not substitute for this real-service UI validation.
 
 #### F6-T3 — Run final build/security gate and hand off to the single Judge
 
@@ -587,7 +587,7 @@ composition; real HTTP/persistence evidence remains part of F6.
   evidence, then record its verdict. A failed verdict reopens only invalidated tasks;
   remediation reuses the same Judge rather than creating phase or retry Judges.
 
-**F6 acceptance:** all tasks are `verified`, every mapped Pencil/browser state has the
+**F6 acceptance:** all tasks are `verified`, every mapped Pencil/Playwright CLI state has the
 required evidence, the final Judge returns `accepted`, and no required work remains.
 
 ## Risks and controls
@@ -601,7 +601,7 @@ required evidence, the final Judge returns `accepted`, and no required work rema
 | Normal auth reconciliation signs out the callback session | Confirmation cannot complete after provider redirect/reload | Synchronous redirect classification before Supabase client construction, generation guards, reload/SPA tests and real callback network evidence. |
 | Passwords, continuation tokens or service-role credentials leak | Credential compromise | Hash-only persistence, bounded storage schema, no logging/events, source/bundle/storage/DOM/network scans and explicit transient-request classification. |
 | Server and Web Builders overlap shared contracts or lockfile | Merge conflict or divergent transport | F1 freezes Core; disjoint path ownership; Orchestrator-only dependency/lockfile coordination and generated-artifact ownership. |
-| UI drifts from Pencil or one page is reduced to the other's composition | Product/accessibility regression | Four-node preflight, page-specific tasks, semantic token mapping and per-node Browser-use evidence at design and narrow viewports. |
+| UI drifts from Pencil or one page is reduced to the other's composition | Product/accessibility regression | Four-node preflight, page-specific tasks, semantic token mapping and per-node Playwright CLI evidence at design and narrow viewports. |
 | Local GoTrue configuration is stale during validation | False success/failure in email confirmation evidence | Inspect resolved Compose config, recreate only `supabase-auth`, verify auto-confirm false and exact callback allow-list before sending mail. |
 | Shared local services or data are damaged during testing | Lost developer state | Apply migration only to configured local development DB, do not delete volumes, use scoped temporary identities/data, stop only task-started processes. |
 
@@ -682,7 +682,7 @@ on them. Do not erase failed attempts from this history.
 5. Before Web edits, run the applicable TanStack Intent commands required by
    `apps/web/AGENTS.md` and record the guidance used.
 6. Join F2/F4 before starting F3/F5; join all application lanes only in F6.
-7. Use Browser-use via CDP, never Playwright, for manual UI validation. Keep
-   Playwright evidence labeled as mocked-transport browser integration.
+7. Use the Playwright CLI for manual UI validation. Keep mocked-transport
+   Playwright evidence labeled as browser integration and separate from real-service evidence.
 8. Reserve the only implementation verdict for the complete integrated diff. No
    commit, PR, deployment or external mutation is authorized by this Plan.

@@ -557,48 +557,34 @@ identity and access carried out at the ice cream shop.
 
 ---
 
-#### REQ-12 Exclusion of Ice Cream Parlor
+#### REQ-12 Manual Exclusion of Ice Cream Parlor — Removed from Product
 
-- [ ] **Exclusion of Ice Cream Parlor**
+- [x] **Manual Exclusion of Ice Cream Parlor — Removed from Product**
 
-**Description:** Any Manager must be able to delete immediately and
-irreversible to the ice cream shop and all associated data.
+**Description:** The Scoops product does not expose a customer-initiated action
+to delete an ice cream shop. Identity settings must not provide a deletion
+danger zone, deletion dialog, password confirmation, name confirmation or
+customer-facing deletion endpoint.
 
 ##### Business Rules
 
-- **Authorization:** only Managers can initiate the deletion.
-- **Scope:** deletion must remove users, products, stock, orders,
-  configurations, histories, audits and any other data belonging to the
-  ice cream shop.
-- **Subscription:** subscription must be successfully canceled before removal.
-- **Cancellation Failure:** If cancellation fails, no data should be
-  removed.
-- **Identity confirmation:** the Manager must enter his password again.
-- **Textual confirmation:** the Manager must enter the current name of the ice cream shop.
-- **Consequences:** the system must clearly list the categories of data that
-  will be deleted.
-- **Immediate:** there must be no scheduling, regret period or
-  restoration by the customer.
-- **Irreversibility:** after final confirmation, access must be blocked and
-  deletion should continue until all data is removed.
-- **Partial failure:** an interruption should not reactivate the ice cream shop; the process
-  must continue until completion.
-- **Notification:** after completing, all Managers should receive a message
-  with ice cream shop, responsible, date and irreversible character.
+- **Availability:** neither Managers nor Operators can initiate establishment
+  deletion from the product.
+- **Data lifecycle:** any future operational deletion or retention lifecycle is
+  owned by the applicable Billing and operational policies, outside this
+  Identity feature.
+- **History and legal retention:** removing the customer-facing action does not
+  authorize rewriting historical records or bypassing applicable fiscal
+  retention requirements.
 
 ##### UI/UX rules
 
-- **Interface:** place the action in a danger zone separate from the settings
-  common.
-- **Feedback:** use confirmation in stages, direct language and conclusion
-  unequivocal.
-- **Empty state:** not applicable.
-- **Action blocked:** explain password failure, name mismatch or problem
-  in canceling the subscription without initiating partial removal.
-- **Responsiveness:** consequences and confirmations must remain fully
-  readable on small screens.
-- **Accessibility:** gravity should not be communicated only by color and
-  focus should remain contained in commits.
+- **Interface:** do not display a deletion danger zone or deletion action in
+  establishment settings or navigation.
+- **Feedback:** no deletion confirmation or deletion-progress state is part of
+  the Identity product surface.
+- **Action blocked:** direct attempts to call an unexposed deletion operation
+  must not be accepted as a supported Identity workflow.
 
 ---
 
@@ -793,20 +779,7 @@ activation, administrative autonomy and functional security.
 4. The system saves the change and records the audit.
 5. The new name will appear in future areas without changing history.
 
-#### Flow L - Exclude ice cream shop
-
-1. The Manager accesses the danger zone in `Ice Cream Parlor`.
-2. The system lists all data groups that will be removed.
-3. The Manager enters the password again.
-4. Enter the current name of the ice cream shop.
-5. The system cancels the subscription:
-   - Success: allows final confirmation.
-   - Failure: Blocks deletion without removing data.
-6. The Manager confirms the irreversible action.
-7. Access to the ice cream shop is terminated and all associated data is removed.
-8. All Managers receive notification of completion.
-
-#### Flow M - Change your own name and exit
+#### Flow L - Change your own name and exit
 
 1. User opens `My Account`.
 2. Change the name:
@@ -832,7 +805,9 @@ activation, administrative autonomy and functional security.
 - Individual deletion of users with history.
 - Information about the ice cream shop in addition to the name.
 - Super administrator, impersonation or global access to ice cream shops.
-- Scheduling, canceling or recovering the deletion of the ice cream shop.
+- Customer-initiated deletion of the ice cream shop from the product.
+- The operational deletion and retention lifecycle, including any future
+  automatic deletion policy.
 - Data export before deletion.
 - Operational settings for stock, sales, printing or menu within the
   Identity.
@@ -852,6 +827,6 @@ activation, administrative autonomy and functional security.
 - **Single session:** discarded; multiple devices can remain active.
 - **End all sessions manually:** discarded; the interface offers
   only output from current device.
-- **Scheduled deletion:** discarded; the exclusion of the ice cream parlor is immediate and
-  irreversible after hard confirmation.
+- **Customer-initiated deletion:** removed from the product; Identity settings
+  do not expose a deletion action or confirmation flow.
 - **Super Administrator:** discarded to prevent global access to ice cream shops.

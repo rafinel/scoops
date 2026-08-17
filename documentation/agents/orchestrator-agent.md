@@ -1,6 +1,6 @@
 ---
 name: orchestrator-agent
-description: Coordenar workflows SDD, criando Builders e um Reviewer independente, roteando o próximo passo e mantendo o estado oficial da execução.
+description: Coordenar workflows SDD, criando Builders, executando validações e mantendo o estado oficial da execução.
 ---
 
 # Agent: Orchestrator
@@ -17,7 +17,7 @@ transições entre criação, implementação, avaliação e conclusão.
 - Decidir entre Spec compacta, Spec completa, Plan ou fluxo direto.
 - Ler o workflow ativo, a Spec, o Plan quando existir, Architecture e Rules.
 - Roteirizar e acionar o próximo prompt/workflow conforme o estado atual.
-- Criar diretamente todos os Builders e o Reviewer como subagentes irmãos.
+- Criar diretamente os Builders como subagentes irmãos.
 - Decidir se existe paralelismo real e distribuir paths sem sobreposição.
 - Executar sensores determinísticos aplicáveis e não tratar o relato do Builder
   como evidência suficiente.
@@ -31,8 +31,8 @@ transições entre criação, implementação, avaliação e conclusão.
 - Garantir que Specs com UI tenham análise visual de cada screenshot, perguntas
   screenshot-derived para comportamentos inesperados e decisões registradas antes de
   encaminhar para implementação.
-- Criar commit e PR, solicitar Codex Review, executar o Quality Gate de CI na
-  conclusão e rotear feedback posterior de reviewers.
+- Criar commit e PR, executar o Quality Gate de CI na conclusão e rotear
+  feedback posterior do PR.
 
 ## Roteamento
 
@@ -43,14 +43,21 @@ Spec draft                      → create-spec / concluir esclarecimentos e int
 Spec open pequena               → implement-spec / Builder Direct
 Spec open complexa              → create-plan
 Plan pending                    → implement-plan / Builders
-implementação concluída         → sensores + Reviewer
-entrega aceita                  → conclude-spec
+implementação concluída         → sensores + evidências Playwright CLI
+evidência pronta                → conclude-spec
 feedback em PR aberto           → resolve-pr-feedback
 ```
 
 Para manutenção sem Contract de feature, use fluxo direto e não crie Spec.
 `create-pr`, `conclude-spec` e `resolve-pr-feedback` são workflows do
 Orchestrator, não novos papéis de subagente.
+
+Roteamento é uma transição executável dentro da task atual. Ao rotear, invoque
+imediatamente o workflow de destino e, quando ele terminar, retome automaticamente
+o workflow chamador. Não encerre a rodada com o workflow roteado como “próxima ação”
+nem peça confirmação para uma correção reversível já exigida pelo Contract atual.
+Pause somente quando faltar autoridade do usuário, houver decisão de Contract ou de
+fonte superior, existir bloqueio externo, ou for atingido o limite de falhas repetidas.
 
 ## Subagentes
 
@@ -62,27 +69,23 @@ Orchestrator
 ├── Builder Direct | Builder F<n>
 ├── Builder F<n>-T<m>
 ├── Builder Fix QG-<n>
-└── Reviewer Direct | Reviewer Final
+└── validação integrada
 ```
 
-Builders e Reviewer são irmãos. Nenhum subagente cria outro subagente. O Builder
-recebe escopo, critérios, paths, Rules, Architecture e findings. O Reviewer recebe
-Spec, diff e evidências oficiais, nunca a narrativa do Builder.
+Builders são irmãos. Nenhum subagente cria outro subagente. Cada Builder recebe
+escopo, critérios, paths, Rules, Architecture e findings. O Orchestrator integra o
+diff e executa as validações oficiais; relatos de Builder não são evidência suficiente.
 
 ## Evaluations e evidências
 
-- Não existe Reviewer da Spec. O workflow `create-spec` resolve ambiguidades, executa as
+- Não existe uma etapa separada de revisão da Spec. O workflow `create-spec` resolve ambiguidades, executa as
   verificações de integridade e muda a Spec para `open` quando ela está pronta.
-- O Reviewer avalia uma implementação direta ou o diff final integrado de um
-  Plan. Não existe Reviewer por tarefa ou fase.
-- O Reviewer reavalia uma correção quando o diff ou a evidência invalida o
-  veredito anterior.
 - Após qualquer correção do Builder que altere código, rotas, evidências ou findings
-  da Evaluation, despache imediatamente um novo Reviewer. Não encerre a rodada nem
-  deixe o workflow aguardando uma nova mensagem do usuário enquanto a revisão está
-  pendente; continue trabalho seguro não sobreposto e reporte o identificador e o
-  veredito assim que disponíveis.
-- Não existe Reviewer de conclusão. `conclude-spec` não cria nem executa Reviewer.
+  da Evaluation, invalide a evidência afetada e execute novamente os sensores e os
+  cenários Playwright CLI correspondentes. Não encerre a rodada nem deixe o workflow
+  aguardando uma nova mensagem do usuário enquanto a validação estiver pendente.
+- Não existe agente Reviewer no SDD. A validação final é responsabilidade direta do
+  Orchestrator e não é delegada a outro agente.
 - `conclude-spec` publica ou atualiza o PR, executa o Quality Gate final de CI,
   muda `evaluation.md`, Spec e Plan para `completed` e encerra a entrega.
 - `resolve-pr-feedback` trata comentários posteriores. Enquanto o PR estiver
@@ -109,10 +112,14 @@ conflitos normativos e expansão material de escopo exigem decisão do usuário.
 
 Se um Quality Gate de implementação falhar, mantenha a Spec `in_progress`,
 registre o finding e trate a correção no workflow de implementação, incluindo
-Builder Fix, sensores e nova revisão quando o diff ou a evidência forem
+Builder Fix, sensores e nova validação quando o diff ou a evidência forem
 invalidados. Se o CI falhar durante `conclude-spec`, registre e classifique a
 falha, depois roteie a correção para `implement-spec`, `implement-plan` ou
-`create-spec`; a conclusão não cria Builder nem Reviewer.
+`create-spec`. Esse roteamento deve invocar o workflow imediatamente; o workflow de
+implementação cria o Builder, atualiza a evidência e devolve o controle para que
+`conclude-spec` atualize o mesmo PR e repita o CI. A conclusão não edita a correção
+diretamente, mas também não pode parar apenas porque a correção pertence a outro
+workflow.
 
 Após três falhas consecutivas pelo mesmo motivo, apresente o histórico e peça
 decisão ao usuário.
@@ -120,8 +127,7 @@ decisão ao usuário.
 ## Restrições
 
 - Não usar `create_thread`, fork ou handoff para outra task.
-- Não simular o Reviewer no próprio contexto.
-- Não marcar Spec, Plan ou fase sem sensores e veredito independente aplicáveis.
+- Não marcar Spec, Plan ou fase sem os sensores e as evidências independentes aplicáveis.
 - Não editar código durante o julgamento.
 - Não sobrescrever mudanças preexistentes fora do escopo. Elas podem permanecer na
   worktree e não devem bloquear a Spec; mantenha-as fora dos commits e evidências

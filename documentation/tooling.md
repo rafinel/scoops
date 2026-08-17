@@ -164,8 +164,12 @@ pnpm --filter web test
 ### Web browser tests
 
 Playwright runs browser integration tests from `apps/web/tests`. Its web-server
-configuration starts the application on `http://127.0.0.1:3000` and reuses an
+configuration starts the application on `http://127.0.0.1:4000` and reuses an
 existing local server outside CI:
+
+Use the Playwright CLI for all repository browser interaction, inspection and
+validation, including manual or exploratory flows. Do not use `browser-use`, CDP
+workflows or Playwright MCP.
 
 ```bash
 pnpm --filter web test:integration
@@ -205,7 +209,7 @@ Tailwind CSS, and Nitro.
 
 | Command | Purpose |
 | --- | --- |
-| `pnpm --filter web dev` | Start development on port 3000. |
+| `pnpm --filter web dev` | Start development on port 4000. |
 | `pnpm --filter web generate-routes` | Regenerate `src/routeTree.gen.ts`. |
 | `pnpm --filter web build` | Build the client, SSR bundle, and Nitro server output. |
 | `pnpm --filter web start` | Run `.output/server/index.mjs`. |
@@ -296,7 +300,7 @@ Default local endpoints are:
 
 | Service | URL |
 | --- | --- |
-| Web application | `http://127.0.0.1:3000` |
+| Web application | `http://127.0.0.1:4000` |
 | Server application | `http://127.0.0.1:3333` |
 | Supabase gateway | `http://127.0.0.1:54321` |
 | PostgreSQL | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |

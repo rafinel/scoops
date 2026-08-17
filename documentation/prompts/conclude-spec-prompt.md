@@ -1,13 +1,27 @@
 ---
 name: conclude-spec
-description: Publish an accepted Spec implementation through its pull request, run the final PR CI Quality Gate, close the SDD artifacts, and report the delivery state.
+description: Publish a validated Spec implementation through its pull request, run the final PR CI Quality Gate, close the SDD artifacts, and report the delivery state.
 ---
 
 # Conclude a Spec
 
-Close a review-ready implementation in the current task. `conclude-spec` owns publication,
+Close a validation-ready implementation in the current task. `conclude-spec` owns publication,
 the final pull-request CI gate, evidence closure and artifact completion. It does not
-implement changes, process later reviewer feedback or run a Reviewer.
+implement changes or process later reviewer feedback.
+
+## Workflow continuity
+
+Treat every route named by this workflow as an immediate transition inside the current task,
+not as a recommendation for the user to run another prompt. When an in-Contract correction is
+required, invoke `implement-spec` or `implement-plan`, let that workflow create the Builder,
+refresh evidence and return evaluation to `ready`, then resume `conclude-spec` automatically.
+
+Do not end the task with a routine correction as a "next action", and do not ask whether the
+user wants it fixed. The active SDD delivery authorizes reversible implementation, test,
+generated-artifact and checked-in CI corrections required to satisfy the current Contract.
+Pause for the user only when a Contract or higher-authority decision is required, publication
+authority is missing, an external blocker prevents progress, or the same failure reaches the
+retry limit defined by the Orchestrator.
 
 ## Preconditions
 
@@ -27,34 +41,38 @@ keep the Spec `in_progress`. Do not silently publish, merge or deploy.
 
 ## Authority and late-change routing
 
-If local preflight or closure review finds a discrepancy, stop conclusion and classify it:
+If local preflight or closure review finds a discrepancy, pause the closure phase and classify
+it:
 
-- **Implementation correction:** record the finding, mark affected evidence stale and route
-  back to `implement-spec` or `implement-plan`. Set evaluation to `in_progress`; that
-  workflow owns the correction, validation and implementation review.
-- **Contract change:** set the Spec to `draft`, route through `create-spec`, obtain required
+- **Implementation correction:** record the finding, mark affected evidence stale, set
+  evaluation to `in_progress` and immediately invoke `implement-plan` when the delivery has a
+  current Plan, otherwise `implement-spec`. That workflow owns the correction and validation.
+- **Contract change:** set the Spec to `draft`, immediately invoke `create-spec`, obtain required
   product or technical authority, increment the revision, reconcile Plan/evaluation and
-  resume the recommended implementation route.
+  continue through the recommended implementation route before resuming conclusion.
 - **Documented transient CI/infrastructure failure:** keep the Spec `in_progress` and allow
-  a same-SHA rerun only with concrete evidence that the failure is transient.
+  a same-SHA rerun only with concrete evidence that the failure is transient; keep waiting for
+  its result in the current task.
 
-Do not create a Builder, run a Reviewer or change the implementation inside `conclude-spec`.
-Resume conclusion only after the routed workflow returns evaluation to `ready`.
+Do not create a Builder or change the implementation inside `conclude-spec`.
+The invoked implementation workflow creates the Builder and refreshes validation. Resume
+conclusion automatically after it returns evaluation to `ready`.
 
 ## Prepare and publish the PR candidate
 
 1. Read the Spec Validation Contract, Rule Pack, current evaluation and
    `documentation/tooling.md`.
-2. Run the applicable local generation, formatting/code, type, unit, integration, browser,
+2. Run the applicable local generation, formatting/code, type, unit, integration, Playwright CLI,
    architecture and build preflight required by the Spec and changed paths.
 3. Reconcile generated artifacts, migrations, saved design evidence and factual
    documentation against the current diff.
-4. Verify the accepted Reviewer evidence covers the exact candidate diff. Any later
+4. Verify the current validation evidence covers the exact candidate diff. Any later
    implementation or acceptance-evidence change routes back to the implementation workflow.
 5. Invoke `commit-code` to create intentional scoped commits.
 6. Invoke `create-pr` to push the branch and create or update the delivery PR. Reuse an
    existing PR for the same delivery; never create a duplicate.
-7. Record the candidate SHA, branch and PR URL in `evaluation.md`.
+7. Record the candidate identity, branch and PR URL in the delivery record; update
+   `evaluation.md` only when the operational ledger needs the reference.
 
 ## Final PR CI Quality Gate
 
@@ -73,25 +91,35 @@ the check/workflow name, result, run URL, PR head SHA and relevant test/build su
 If CI fails:
 
 - record the failure in `evaluation.md` and keep the Spec `in_progress`;
-- route implementation, test, generated-artifact or contract failures through the authority
-  and late-change routing above;
-- after the routed workflow returns, invoke `commit-code`, update the existing PR through
-  `create-pr`, and run this gate again on its new head SHA;
-- rerun the same SHA only for a documented transient CI/infrastructure failure.
+- immediately invoke the applicable implementation or amendment workflow through the
+  authority and late-change routing above;
+- after that workflow returns evaluation to `ready`, invoke `commit-code`, update the existing
+  PR through `create-pr`, and run this gate again on its new head SHA;
+- rerun the same SHA only for a documented transient CI/infrastructure failure;
+- repeat this correction, publication and CI loop until the gate passes or a permitted pause
+  condition from Workflow continuity occurs.
 
-`conclude-spec` observes and routes CI failures; it does not implement their fixes.
+`conclude-spec` observes and orchestrates CI failures; it does not edit their fixes directly.
+Reporting the failure with a suggested next workflow while fixable work remains is an
+incomplete conclusion run.
 
 ## Evidence and documentation closure
 
 After CI passes, verify `evaluation.md` contains:
 
-- exact Spec revision and CI-tested candidate SHA;
+- exact Spec revision and CI-tested candidate identity, when available;
 - complete acceptance-criteria matrix;
 - automated, runtime, manual and visual evidence;
 - saved reference and implementation screenshot paths;
+- an independent comparison row for every supplied and Spec-requested supplemental screenshot,
+  including exact viewport/state and missing, extra, altered or mismatched elements;
+- a resolved decision for every additional-screenshot suggestion; no required visual gap may
+  remain undocumented;
+- the Playwright CLI screenshot-comparison evidence, with generated implementation captures
+  never treated as their own visual reference;
 - Rule compliance and documentation alignment;
 - resolved and active findings with evaluation history;
-- accepted Reviewer verdict;
+- final validation result;
 - applicable PR CI run evidence and final build result.
 
 Check PRD, Architecture, Modules, Design, Tooling and the Rule Pack against delivered facts.
@@ -108,10 +136,11 @@ Only after the PR CI gate passes and no blocking finding remains:
   link to `evaluation.md`;
 - preserve detailed evidence in `evaluation.md`.
 
-When completion statuses require a closure-only documentation commit, invoke `commit-code`,
-update the existing PR with `create-pr`, and wait for any PR checks triggered on the new head
-before declaring delivery complete. Report the closure SHA in the conclusion summary; do not
-create another commit solely to make a document refer to its own SHA.
+Do not create a closure-only commit solely to update `evaluation.md`, `plan.md` or another
+SDD ledger. Preserve final evidence in the operational artifacts and PR record; create a
+normal delivery commit only when the implementation or required product documentation itself
+needs to be committed. Wait for checks on the actual delivery head before declaring delivery
+complete.
 
 Do not wait indefinitely for reviewer comments and do not process them here. Later actionable
 review feedback is handled by `resolve-pr-feedback`; while the PR remains open, that workflow
@@ -126,8 +155,8 @@ Return:
 
 - clickable Spec, Plan when present, evaluation and PR links;
 - Spec revision and completed status;
-- CI-tested candidate SHA and closure SHA when present;
-- Reviewer verdict and CA/manual/visual coverage;
+- CI-tested candidate identity and delivery references, when present;
+- validation result and CA/manual/visual coverage;
 - applicable PR CI workflows and results;
 - documentation alignment and remaining non-blocking limitations;
 - PR state and next authorized action.

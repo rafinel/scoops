@@ -1386,7 +1386,7 @@ storage model, authorization boundary, route surface or transaction strategy.
 
 ### Development identity bootstrap prerequisite
 
-Before real local browser validation, `SUPABASE_SERVICE_ROLE_KEY` must be available to
+Before real local Playwright CLI validation, `SUPABASE_SERVICE_ROLE_KEY` must be available to
 the server process in `dev` or `stg`. `apps/server/src/shared/database/seed.ts` resets
 only the two fixed seed users used by the command: Manager subject
 `3d2396d2-b747-45cb-bb4a-89b25ed6b457`, Operator subject
@@ -1430,7 +1430,7 @@ REST, controllers, database, provision, UI, routing and widgets.
    - `pnpm --filter server test`
    - `pnpm --filter web test`
    - focused `pnpm --filter web test:integration tests/routes/identity/...`
-4. Real browser validation with required local services:
+4. Real Playwright CLI validation with required local services:
    - inspect Pencil nodes `mA3b4`, `JMFTA`, `TCmT1`, `wxfmd`, `fmVfn`, `FvrFp` and
      `RZ6Ql` before validating their mapped UI state;
    - for every mapped node, capture a Pencil screenshot and run a layout-problem inspection
@@ -1492,7 +1492,7 @@ not duplicate final test logs or Judge Implementation findings.
   profile-dependent navigation is deferred rather than demonstrated with placeholder
   routes outside their owning modules.
 - A `plan.md` is recommended before implementation because the delivery spans three
-  workspaces, migrations, provider integration and browser validation.
+  workspaces, migrations, provider integration and Playwright CLI validation.
 - There are no unresolved material questions blocking `open` after Judge Spec acceptance.
 
 ## Amendments
@@ -1637,7 +1637,7 @@ not duplicate final test logs or Judge Implementation findings.
   wiring and no standalone database integration suite.
 - completed Judge remediation by specifying repository bulk/reset contracts and seeder
   order, client/server AuthStore factories, exact Nest/Core error translation, required
-  barrels and a safe local provider-subject bootstrap for real browser validation.
+  barrels and a safe local provider-subject bootstrap for real Playwright CLI validation.
 
 ### Revision 5 — 2026-08-11
 
