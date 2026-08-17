@@ -1,5 +1,7 @@
 import type { PendingIceCreamShopOnboarding } from '@scoops/core/identity/domain/structures'
 
+import { showWarningToast } from '@/ui/shared/notifications'
+
 const STORAGE_KEY = 'scoops.identity.onboarding-session'
 const STORAGE_VERSION = 1
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/
@@ -105,7 +107,7 @@ export const onboardingSessionStorage = {
     try {
       window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
     } catch {
-      // Storage availability is best-effort; page state remains authoritative.
+      showWarningToast('O navegador não permitiu salvar o progresso desta confirmação.')
     }
   },
 
@@ -115,7 +117,7 @@ export const onboardingSessionStorage = {
     try {
       window.sessionStorage.removeItem(STORAGE_KEY)
     } catch {
-      // Ignore unavailable browser storage.
+      showWarningToast('O navegador não permitiu limpar o progresso salvo.')
     }
   },
 }
