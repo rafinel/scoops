@@ -4,7 +4,7 @@ import type { UserDetails, UserProfile } from '@scoops/core/identity/domain/stru
 
 import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 
-import { ensureSuccessfulResponse, toActionError } from './action-utils'
+import { useActionUtils } from './action-utils'
 import { identityQueryKeys } from './identity-query-keys'
 
 export type ChangeUserProfileInput = { userId: string; profile: UserProfile }
@@ -12,6 +12,7 @@ export type ChangeUserProfileInput = { userId: string; profile: UserProfile }
 export const useChangeUserProfileAction = () => {
   const { identityService } = useRestContext()
   const queryClient = useQueryClient()
+  const { ensureSuccessfulResponse, toActionError } = useActionUtils()
   const mutation = useMutation({
     mutationFn: async ({
       userId,

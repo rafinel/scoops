@@ -2,12 +2,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 
-import { ensureSuccessfulResponse, toActionError } from './action-utils'
+import { useActionUtils } from './action-utils'
 import { identityQueryKeys } from './identity-query-keys'
 
 export const useCancelUserInvitationAction = () => {
   const { identityService } = useRestContext()
   const queryClient = useQueryClient()
+  const { ensureSuccessfulResponse, toActionError } = useActionUtils()
   const mutation = useMutation({
     mutationFn: async (userId: string): Promise<void> => {
       try {
