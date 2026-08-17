@@ -13,6 +13,9 @@ import {
   managerToken,
   operatorId,
   operatorToken,
+  secondEstablishmentId,
+  secondManagerId,
+  secondManagerToken,
 } from './profile-settings-controller-test-fixtures'
 
 describe('Change Establishment Name Controller [PATCH /establishments/current/name]', () => {
@@ -86,5 +89,55 @@ describe('Change Establishment Name Controller [PATCH /establishments/current/na
       .set('Authorization', `Bearer ${managerToken}`)
       .send({ name: '' })
     expect(invalid.status).toBe(422)
+  })
+
+  it('keeps concurrent updates atomic and isolated by establishment', async () => {
+    await fixture.seeder.run({
+      establishments: [
+        createEstablishment({
+          id: secondEstablishmentId,
+          name: 'Outra Sorveteria',
+        }),
+      ],
+      users: [
+        createUser(secondManagerId, UserProfile.Manager, {
+          establishmentId: secondEstablishmentId,
+          name: 'Second Manager',
+        }),
+      ],
+      registrationAttempts: [],
+    })
+
+    auth.setUser(managerToken, { id: managerId, email: `${managerId}@example.com` })
+    const [first, second] = await Promise.all([
+      request(fixture.app.getHttpServer())
+        .patch('/establishments/current/name')
+        .set('Authorization', `Bearer ${managerToken}`)
+        .send({ name: 'Concurrent A' }),
+      request(fixture.app.getHttpServer())
+        .patch('/establishments/current/name')
+        .set('Authorization', `Bearer ${managerToken}`)
+        .send({ name: 'Concurrent B' }),
+    ])
+
+    expect(first.status).toBe(200)
+    expect(second.status).toBe(200)
+
+    auth.setUser(secondManagerToken, {
+      id: secondManagerId,
+      email: `${secondManagerId}@example.com`,
+    })
+    const isolated = await request(fixture.app.getHttpServer())
+      .get('/establishments/current')
+      .set('Authorization', `Bearer ${secondManagerToken}`)
+    expect(isolated.status).toBe(200)
+    expect(isolated.body.establishment.name).toBe('Outra Sorveteria')
+
+    const records = await fixture
+      .get<EstablishmentAuditRecordsRepository>(
+        IDENTITY_REPOSITORIES.establishmentAuditRecords,
+      )
+      .findManyByEstablishment(establishmentId)
+    expect(records).toHaveLength(2)
   })
 })

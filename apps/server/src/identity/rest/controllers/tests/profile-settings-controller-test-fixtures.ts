@@ -6,9 +6,12 @@ import {
 } from '@scoops/core/identity/domain/structures'
 
 export const establishmentId = '30000000-0000-0000-0000-000000000001'
+export const secondEstablishmentId = '30000000-0000-0000-0000-000000000002'
 export const managerId = '00000000-0000-0000-0000-000000000021'
+export const secondManagerId = '00000000-0000-0000-0000-000000000023'
 export const operatorId = '00000000-0000-0000-0000-000000000022'
 export const managerToken = 'profile-settings-manager-token'
+export const secondManagerToken = 'profile-settings-second-manager-token'
 export const operatorToken = 'profile-settings-operator-token'
 
 export function createEstablishment(

@@ -60,6 +60,14 @@ test('validates the profile and shop-settings flow against the running services'
   await page.reload()
   await expect(page.getByRole('heading', { name: persistedName, exact: true })).toBeVisible()
 
+  const expiredSessionResponse = await page.evaluate(async () => {
+    const response = await fetch('http://127.0.0.1:3336/establishments/current', {
+      headers: { Authorization: 'Bearer expired-e2e-token' },
+    })
+    return response.status
+  })
+  expect(expiredSessionResponse).toBe(401)
+
   await page.getByRole('button', { name: 'Corrigir nome' }).click()
   await page.getByRole('dialog').getByRole('textbox', { name: 'Nome da loja' }).fill(originalName ?? '')
   await page.getByRole('dialog').getByRole('button', { name: 'Salvar alteração' }).click()
@@ -68,6 +76,6 @@ test('validates the profile and shop-settings flow against the running services'
   await page.evaluate(() => window.localStorage.clear())
   await page.reload()
   await expect(page).toHaveURL(/\/login\?returnTo=%2Fshop-settings/)
-  expect(consoleErrors).toEqual([])
+  expect(consoleErrors.filter((message) => !message.includes('401 (Unauthorized)'))).toEqual([])
   expect(failedRequests).toEqual([])
 })
