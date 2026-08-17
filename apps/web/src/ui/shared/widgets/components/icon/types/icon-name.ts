@@ -1,6 +1,7 @@
 export type IconName =
   | 'arrow'
   | 'bell'
+  | 'calendar'
   | 'check'
   | 'circle-check'
   | 'clock'
@@ -9,6 +10,7 @@ export type IconName =
   | 'eye'
   | 'eye-off'
   | 'ice-cream-bowl'
+  | 'info'
   | 'email'
   | 'password'
   | 'confirm-password'
@@ -35,6 +37,7 @@ export type IconName =
   | 'mail'
   | 'mail-check'
   | 'mail-warning'
+  | 'monitor'
   | 'route'
   | 'send'
   | 'sparkles'
