@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, realTest as test } from '../../playwright'
 
 const managerEmail = process.env.SCOOPS_E2E_EMAIL ?? 'manager.seed@scoops.com'
 const managerPassword = process.env.SCOOPS_E2E_PASSWORD ?? '12345678'

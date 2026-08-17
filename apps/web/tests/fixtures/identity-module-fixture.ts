@@ -51,16 +51,6 @@ export const IdentityModuleFixture = (page: Page): IdentityModuleFixture => {
           status: 200,
           body: JSON.stringify({}),
         })
-        await page.evaluate(() => {
-          for (const key of [
-            'supabase.auth.token',
-            'sb-127-auth-token',
-            'sb-127.0.0.1-auth-token',
-            'sb-127.0.0.1:54321-auth-token',
-          ]) {
-            window.localStorage.removeItem(key)
-          }
-        })
       })
     },
 

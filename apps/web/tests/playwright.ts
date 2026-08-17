@@ -14,4 +14,6 @@ export const test = playwrightTest.extend<{
   ],
 })
 
+export const realTest = playwrightTest
+
 export { expect } from '@playwright/test'
