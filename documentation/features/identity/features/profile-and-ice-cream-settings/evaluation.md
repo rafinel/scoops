@@ -5,7 +5,7 @@ spec: ./spec.md
 plan: ./plan.md
 spec_revision: 3
 base_commit: ae06899eedc093532b6abd5bcb57e6443d5ffa94
-current_commit: d01548e
+current_commit: f8addab
 updated_at: 2026-08-16
 ---
 
@@ -241,3 +241,10 @@ dimensions. The following differences remain visible:
     `href`, navigation, active-state, and Operator-absence assertions.
   - **Next action:** Re-run the independent Reviewer against the integrated commit and confirm
     the supplemental screenshot comparison.
+- **2026-08-17 — Reviewer Final dispatch after evidence and commit repair**
+  - **Finding/result:** Reviewer Final was dispatched as task `01a00d2e-6011-7e02-affe-3b685229fbd3`
+    against commit `f8addab`. The reviewed commit includes the supplemental design reference,
+    fresh CLI captures, stronger Manager/Operator route assertions, and the shared export fixes
+    required for exact-commit Web compilation.
+  - **Next action:** Persist the independent `accepted` or `failed` verdict and route any
+    findings through scoped fixes before marking the evaluation `ready`.
