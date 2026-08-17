@@ -5,7 +5,7 @@ spec: ./spec.md
 plan: ./plan.md
 spec_revision: 3
 base_commit: ae06899eedc093532b6abd5bcb57e6443d5ffa94
-current_commit: ab3a134
+current_commit: d01548e
 updated_at: 2026-08-16
 ---
 
@@ -219,3 +219,9 @@ dimensions. The following differences remain visible:
     unchanged, and exactly two audit rows were persisted for the first tenant. The focused Server
     test passed 3/3 and the real Playwright CLI test passed 1/1 after restarting a stale Vite
     process.
+- **2026-08-17 — Stable CLI-only reviewer run**
+  - **Finding/result:** Added `realTest` to the shared Playwright entrypoint so the real-service
+    test follows the repository fixture boundary without installing mock routes. Removed the
+    logout fixture race caused by evaluating page storage inside a route callback. With `CI=1`,
+    Playwright CLI passed the combined Identity suite 10/10 in 33.8 seconds, including the real
+    service-backed flow, 401 assertion, exact captures, and all mocked role/responsive/error paths.
