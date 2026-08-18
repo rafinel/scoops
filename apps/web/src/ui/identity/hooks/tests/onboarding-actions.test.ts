@@ -42,6 +42,7 @@ describe('Onboarding action hooks', () => {
     useRestContextMock.mockReturnValue({
       restClient: {} as never,
       identityService: {} as never,
+      mrpService: {} as never,
     })
     identityServiceMock.mockReturnValue(service as never)
     const { result } = renderHook(() => useRegisterIceCreamShopAction())
@@ -71,6 +72,7 @@ describe('Onboarding action hooks', () => {
     useRestContextMock.mockReturnValue({
       restClient: {} as never,
       identityService: {} as never,
+      mrpService: {} as never,
     })
     identityServiceMock.mockReturnValue(service as never)
     const { result } = renderHook(() => useConfirmIceCreamShopOnboardingAction())
@@ -87,6 +89,7 @@ describe('Onboarding action hooks', () => {
     useRestContextMock.mockReturnValue({
       restClient: {} as never,
       identityService: {} as never,
+      mrpService: {} as never,
     })
     identityServiceMock.mockReturnValue({} as never)
     expect(
