@@ -1,32 +1,43 @@
 import { UserProfile } from '@scoops/core/identity/domain/structures'
+import {
+  EstablishmentFaker,
+  UserFaker,
+} from '@scoops/core/identity/domain/entities/fakers'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
-import {
-  createEstablishment,
-  createUser,
-  managerId,
-  managerToken,
-} from './profile-settings-controller-test-fixtures'
 
 describe('Change Own User Name Controller [PATCH /auth/session/name]', () => {
-  const auth = new SupabaseAuthFixture()
+  const { establishmentId, managerId, managerToken } =
+    IdentityModuleFixture.profileSettings
+  const supabaseAuth = new SupabaseAuthFixture()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth)
+    fixture = await IdentityModuleFixture.register(supabaseAuth)
   })
 
   beforeEach(async () => {
-    auth.clear()
+    await supabaseAuth.clear()
     await fixture.resetDatabase()
     await fixture.seeder.run({
-      establishments: [createEstablishment()],
-      users: [createUser(managerId, UserProfile.Manager)],
+      establishments: [EstablishmentFaker.fake({ id: establishmentId })],
+      users: [
+        UserFaker.fake({
+          id: managerId,
+          establishmentId,
+          name: 'Maria Manager',
+          email: `${managerId}@example.com`,
+          profile: UserProfile.Manager,
+        }),
+      ],
       registrationAttempts: [],
     })
-    auth.setUser(managerToken, { id: managerId, email: `${managerId}@example.com` })
+    supabaseAuth.setUser(managerToken, {
+      id: managerId,
+      email: `${managerId}@example.com`,
+    })
   })
 
   afterAll(async () => {

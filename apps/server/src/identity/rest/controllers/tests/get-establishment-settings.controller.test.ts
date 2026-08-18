@@ -1,34 +1,45 @@
 import { UserProfile } from '@scoops/core/identity/domain/structures'
+import {
+  EstablishmentFaker,
+  UserFaker,
+} from '@scoops/core/identity/domain/entities/fakers'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
-import {
-  createEstablishment,
-  createUser,
-  establishmentId,
-  managerId,
-  managerToken,
-  operatorId,
-  operatorToken,
-} from './profile-settings-controller-test-fixtures'
 
 describe('Get Establishment Settings Controller [GET /establishments/current]', () => {
-  const auth = new SupabaseAuthFixture()
+  const { establishmentId, managerId, managerToken, operatorId, operatorToken } =
+    IdentityModuleFixture.profileSettings
+  const supabaseAuth = new SupabaseAuthFixture()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth)
+    fixture = await IdentityModuleFixture.register(supabaseAuth)
   })
 
   beforeEach(async () => {
-    auth.clear()
+    await supabaseAuth.clear()
     await fixture.resetDatabase()
     await fixture.seeder.run({
-      establishments: [createEstablishment()],
+      establishments: [
+        EstablishmentFaker.fake({ id: establishmentId, name: 'Scoops Centro' }),
+      ],
       users: [
-        createUser(managerId, UserProfile.Manager),
-        createUser(operatorId, UserProfile.Operator),
+        UserFaker.fake({
+          id: managerId,
+          establishmentId,
+          name: 'Maria Manager',
+          email: `${managerId}@example.com`,
+          profile: UserProfile.Manager,
+        }),
+        UserFaker.fake({
+          id: operatorId,
+          establishmentId,
+          name: 'Otávio Operator',
+          email: `${operatorId}@example.com`,
+          profile: UserProfile.Operator,
+        }),
       ],
       registrationAttempts: [],
     })
@@ -39,7 +50,10 @@ describe('Get Establishment Settings Controller [GET /establishments/current]', 
   })
 
   it('returns the safe establishment projection for a Manager', async () => {
-    auth.setUser(managerToken, { id: managerId, email: `${managerId}@example.com` })
+    supabaseAuth.setUser(managerToken, {
+      id: managerId,
+      email: `${managerId}@example.com`,
+    })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/establishments/current')
@@ -59,7 +73,10 @@ describe('Get Establishment Settings Controller [GET /establishments/current]', 
   })
 
   it('rejects an Operator before returning settings', async () => {
-    auth.setUser(operatorToken, { id: operatorId, email: `${operatorId}@example.com` })
+    supabaseAuth.setUser(operatorToken, {
+      id: operatorId,
+      email: `${operatorId}@example.com`,
+    })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/establishments/current')

@@ -3,6 +3,7 @@ import type {
   UserAuditRecordsRepository,
   UsersRepository,
 } from '@scoops/core/identity/interfaces'
+import { UserFaker } from '@scoops/core/identity/domain/entities/fakers'
 import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -11,30 +12,36 @@ import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixtu
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
 import { OnboardingIdentifierProviderFaker } from '@/identity/fixtures/onboarding-identifier-faker'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
-import {
-  managerId,
-  managerToken,
-  seedUsers,
-  createUser,
-} from './user-management-controller-test-fixtures'
-
 describe('Invite User Controller [POST /users/invitations]', () => {
-  const auth = new SupabaseAuthFixture()
+  const { establishmentId, managerId, managerToken } =
+    IdentityModuleFixture.userManagement
+  const supabaseAuth = new SupabaseAuthFixture()
   const tokens = OnboardingTokenProviderFaker.fake()
   const identifiers = OnboardingIdentifierProviderFaker.fake()
   let fixture: IdentityModuleFixture
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth, {
+    fixture = await IdentityModuleFixture.register(supabaseAuth, {
       onboardingToken: tokens,
       onboardingIdentifier: identifiers,
     })
   })
   beforeEach(async () => {
-    auth.clear()
-    auth.getCalls().inviteIdentity.length = 0
+    await supabaseAuth.clear()
+    supabaseAuth.getCalls().inviteIdentity.length = 0
     await fixture.resetDatabase()
-    await seedUsers(fixture, [createUser(managerId, 'Manager', UserProfile.Manager)])
-    auth.setUser(managerToken, { id: managerId, email: `${managerId}@example.com` })
+    await fixture.seedUsers([
+      UserFaker.fake({
+        id: managerId,
+        establishmentId,
+        name: 'Manager',
+        email: `${managerId}@example.com`,
+        profile: UserProfile.Manager,
+      }),
+    ])
+    supabaseAuth.setUser(managerToken, {
+      id: managerId,
+      email: `${managerId}@example.com`,
+    })
   })
   afterAll(async () => {
     await fixture?.close()

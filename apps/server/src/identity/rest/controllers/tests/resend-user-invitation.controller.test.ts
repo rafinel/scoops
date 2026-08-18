@@ -1,5 +1,13 @@
 import type { RegistrationAttemptsRepository } from '@scoops/core/identity/interfaces'
-import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
+import {
+  UserFaker,
+  UserRegistrationAttemptFaker,
+} from '@scoops/core/identity/domain/entities/fakers'
+import {
+  RegistrationAttemptType,
+  UserProfile,
+  UserStatus,
+} from '@scoops/core/identity/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
@@ -7,42 +15,59 @@ import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixtu
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
 import { OnboardingIdentifierProviderFaker } from '@/identity/fixtures/onboarding-identifier-faker'
-import {
-  managerId,
-  managerToken,
-  operatorId,
-  seedUsers,
-  createUser,
-  createInvitation,
-} from './user-management-controller-test-fixtures'
 describe('Resend User Invitation Controller [POST /users/:userId/invitation/resend]', () => {
-  const auth = new SupabaseAuthFixture()
+  const { establishmentId, managerId, managerToken, operatorId } =
+    IdentityModuleFixture.userManagement
+  const supabaseAuth = new SupabaseAuthFixture()
   const tokens = OnboardingTokenProviderFaker.fake()
   const ids = OnboardingIdentifierProviderFaker.fake()
   let fixture: IdentityModuleFixture
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth, {
+    fixture = await IdentityModuleFixture.register(supabaseAuth, {
       onboardingToken: tokens,
       onboardingIdentifier: ids,
     })
   })
   beforeEach(async () => {
-    auth.clear()
+    await supabaseAuth.clear()
     await fixture.resetDatabase()
-    await seedUsers(
-      fixture,
+    await fixture.seedUsers(
       [
-        createUser(managerId, 'Manager', UserProfile.Manager),
-        createUser(
-          operatorId,
-          'Pending Operator',
-          UserProfile.Operator,
-          UserStatus.Pending,
-        ),
+        UserFaker.fake({
+          id: managerId,
+          establishmentId,
+          name: 'Manager',
+          email: `${managerId}@example.com`,
+          profile: UserProfile.Manager,
+        }),
+        UserFaker.fake({
+          id: operatorId,
+          establishmentId,
+          name: 'Pending Operator',
+          email: 'pending@example.com',
+          profile: UserProfile.Operator,
+          status: UserStatus.Pending,
+        }),
       ],
-      [createInvitation(tokens)],
+      [
+        UserRegistrationAttemptFaker.fake({
+          id: '31000000-0000-0000-0000-000000000004',
+          userId: operatorId,
+          establishmentId,
+          name: 'Pending Operator',
+          email: 'pending@example.com',
+          profile: UserProfile.Operator,
+          type: RegistrationAttemptType.UserInvitation,
+          status: 'pending',
+          tokenHash: tokens.hash('u'.repeat(43)),
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        }),
+      ],
     )
-    auth.setUser(managerToken, { id: managerId, email: `${managerId}@example.com` })
+    supabaseAuth.setUser(managerToken, {
+      id: managerId,
+      email: `${managerId}@example.com`,
+    })
   })
   afterAll(async () => {
     await fixture?.close()
