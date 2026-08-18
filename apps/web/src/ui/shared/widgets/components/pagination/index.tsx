@@ -50,24 +50,24 @@ export const Pagination = ({
       >
         {summary}
       </span>
-      <div className='flex shrink-0 items-center gap-1.5'>
+      <div className='flex shrink-0 items-center gap-1'>
         <Button
           aria-label='Página anterior'
-          className='size-12 rounded-[10px] bg-card p-0 text-foreground hover:bg-muted disabled:opacity-50'
+          className='size-9 rounded-lg bg-card p-0 text-foreground hover:bg-muted disabled:opacity-50'
           disabled={safeCurrentPage === 1}
           onClick={() => onPageChange(safeCurrentPage - 1)}
           size='icon'
           type='button'
           variant='outline'
         >
-          <Icon name='chevron-left' className='size-5' />
+          <Icon name='chevron-left' className='size-4' />
         </Button>
         {visiblePages.map((page) => (
           <Button
             aria-current={page === safeCurrentPage ? 'page' : undefined}
             aria-label={`Página ${page}`}
             className={cn(
-              'size-12 rounded-[10px] p-0 text-base font-medium',
+              'size-9 rounded-lg p-0 text-sm font-medium',
               page === safeCurrentPage
                 ? 'bg-primary font-bold text-primary-foreground shadow-primary hover:bg-primary/90'
                 : 'bg-card text-foreground hover:bg-muted',
@@ -83,14 +83,14 @@ export const Pagination = ({
         ))}
         <Button
           aria-label='Próxima página'
-          className='size-12 rounded-[10px] bg-card p-0 text-foreground hover:bg-muted disabled:opacity-50'
+          className='size-9 rounded-lg bg-card p-0 text-foreground hover:bg-muted disabled:opacity-50'
           disabled={safeCurrentPage === totalPages}
           onClick={() => onPageChange(safeCurrentPage + 1)}
           size='icon'
           type='button'
           variant='outline'
         >
-          <Icon name='chevron-right' className='size-5' />
+          <Icon name='chevron-right' className='size-4' />
         </Button>
       </div>
     </nav>

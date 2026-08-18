@@ -68,7 +68,9 @@ categories, unit, stock control and status.
   as Normal or Low.
 - **Internal notes:** free text visible only to authorized users
   by the Auth module.
-- **Negative stock:** there is no option to allow negative stock.
+- **Negative stock:** products do not allow negative stock by default. Managers
+  may enable the product-level `Allow negative stock` option; when enabled,
+  write-offs may take that product's balance below zero.
 - **Multi-tenancy:** no products from another ice cream shop can be displayed or
   used.
 
@@ -150,7 +152,8 @@ control your balances and define the main brand used in automatic write-offs.
 - [ ] **Inventory Control and Adjustment**
 
 **Description:** The system must display the current balance, allow entries and write-offs
-manuals and prevent any operation that results in negative stock.
+manuals and prevent any operation that results in negative stock unless the product's
+negative-stock option is enabled.
 
 ##### Business Rules
 
@@ -159,7 +162,8 @@ manuals and prevent any operation that results in negative stock.
 - **Input:** adds positive quantity to the selected product or brand.
 - **Manual write-off:** removes a positive quantity from the selected product or brand.
 - **Adjustment:** every manual change must be treated as entry or write-off.
-- **Minimum balance:** no write-off can result in a balance less than zero.
+- **Minimum balance:** no write-off can result in a balance less than zero unless
+  the product's `Allow negative stock` option is enabled.
 - **Validation:** mandatory quantity and greater than zero.
 - **Unit:** adjustment quantity must use the base unit of the product.
 - **Production:** increases Fabricable stock after lowering its
@@ -352,8 +356,8 @@ manuals and prevent any operation that results in negative stock.
   `quantity_of_ingredient × (quantity_produced ÷ reference_yield)`.
 - **Projection:** must calculate consumption, current stock and stock after production for
   each main ingredient or brand.
-- **Insufficiency:** if any ingredient is insufficient, confirmation
-  is blocked.
+- **Insufficiency:** if any ingredient is insufficient, confirmation is blocked unless
+  that ingredient product allows negative stock.
 - **Low:** occurs in the ingredient product or in the main brand, depending on the
   stock control.
 - **Input:** the quantity produced is added to the Fabricable stock.
@@ -363,7 +367,8 @@ manuals and prevent any operation that results in negative stock.
 - **Atomic:** ingredient write-off and Manufacture input must occur at
   same transaction.
 - **Failure:** If any operation fails, no changes remain.
-- **Negative stock:** never allow confirmation that generates a negative balance.
+- **Negative stock:** never allow confirmation that generates a negative balance unless
+  the affected product allows negative stock.
 
 ##### UI/UX rules
 
@@ -627,8 +632,6 @@ manuals and prevent any operation that results in negative stock.
 
 #### Discarded during definition
 
-- **Allow negative stock:** removed; any operation that would leave the balance
-  negative is blocked.
 - **Stock value in MRP:** removed; costs, profits and movements
   Financial data belongs to a financial view.
 - **Physical stock, batches and expiration date:** removed from the scope of this version.

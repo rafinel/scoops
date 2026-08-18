@@ -9,9 +9,16 @@ import {
   UserProfile,
   UserStatus,
 } from '@scoops/core/identity/domain/structures'
+import {
+  ProductCategory,
+  ProductStatus,
+  ProductStockControl,
+  ProductUnit,
+} from '@scoops/core/mrp/domain/structures'
 
 import { AppModule } from '@/app.module'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
+import { MrpSeeder } from '@/mrp/database/mrp-seeder'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
 import { parseSeedEnv } from '@/shared/database/seed-env'
 
@@ -33,6 +40,99 @@ const SEED_USERS = {
   },
 } as const
 
+const SEED_PRODUCTS = [
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Açaí base',
+    unit: ProductUnit.Kilogram,
+    categories: [ProductCategory.Ingredient],
+    stockControl: ProductStockControl.Single,
+    status: ProductStatus.Active,
+    idealStock: 20,
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Leite condensado',
+    unit: ProductUnit.Kilogram,
+    categories: [ProductCategory.Ingredient],
+    stockControl: ProductStockControl.ByBrand,
+    status: ProductStatus.Active,
+    idealStock: 12,
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Granola',
+    unit: ProductUnit.Kilogram,
+    categories: [ProductCategory.Accompaniment],
+    stockControl: ProductStockControl.ByBrand,
+    status: ProductStatus.Active,
+    idealStock: 8,
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Banana fatiada',
+    unit: ProductUnit.Kilogram,
+    categories: [ProductCategory.Accompaniment],
+    stockControl: ProductStockControl.Single,
+    status: ProductStatus.Active,
+    idealStock: 5,
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Creme de avelã',
+    unit: ProductUnit.Kilogram,
+    categories: [ProductCategory.Accompaniment, ProductCategory.Resale],
+    stockControl: ProductStockControl.ByBrand,
+    status: ProductStatus.Active,
+    idealStock: 6,
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Copo 300 ml',
+    unit: ProductUnit.Unit,
+    categories: [ProductCategory.Resale],
+    stockControl: ProductStockControl.Single,
+    status: ProductStatus.Active,
+    idealStock: 100,
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Açaí tradicional 300 ml',
+    unit: ProductUnit.Unit,
+    categories: [ProductCategory.Manufacturable],
+    stockControl: ProductStockControl.Single,
+    status: ProductStatus.Active,
+    idealStock: 30,
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Açaí tradicional 500 ml',
+    unit: ProductUnit.Unit,
+    categories: [ProductCategory.Manufacturable],
+    stockControl: ProductStockControl.Single,
+    status: ProductStatus.Active,
+    idealStock: 20,
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Calda de chocolate',
+    unit: ProductUnit.Liter,
+    categories: [ProductCategory.Ingredient],
+    stockControl: ProductStockControl.ByBrand,
+    status: ProductStatus.Inactive,
+    idealStock: 4,
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Morango',
+    unit: ProductUnit.Kilogram,
+    categories: [ProductCategory.Ingredient, ProductCategory.Accompaniment],
+    stockControl: ProductStockControl.Single,
+    status: ProductStatus.Active,
+    idealStock: 10,
+  },
+] as const
+
 async function seedDatabase() {
   let app: INestApplicationContext | undefined
 
@@ -43,6 +143,7 @@ async function seedDatabase() {
     parseSeedEnv()
     const envProvider = app.get(EnvProvider)
     const identitySeeder = app.get(IdentitySeeder)
+    const mrpSeeder = app.get(MrpSeeder)
 
     await resetSeedUsers(envProvider)
     await verifySeedUsers(envProvider)
@@ -81,6 +182,8 @@ async function seedDatabase() {
       ],
       registrationAttempts: [],
     })
+    await mrpSeeder.clear()
+    await mrpSeeder.run([...SEED_PRODUCTS])
   } finally {
     await app?.close()
   }
