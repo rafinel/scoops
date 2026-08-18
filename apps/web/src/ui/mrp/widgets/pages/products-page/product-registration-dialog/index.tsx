@@ -66,15 +66,17 @@ const CATEGORY_CHECKBOX_CLASSES: Record<
   },
 }
 
-export function ProductRegistrationDialog({
-  isOpen,
-  onOpenChange,
-  onSuccess,
-}: {
+export type ProductRegistrationDialogProps = {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
-}) {
+}
+
+export const ProductRegistrationDialog = ({
+  isOpen,
+  onOpenChange,
+  onSuccess,
+}: ProductRegistrationDialogProps) => {
   const form = useProductRegistrationDialog({ onSuccess })
 
   return (
@@ -84,10 +86,11 @@ export function ProductRegistrationDialog({
           <DialogTitle>Novo produto</DialogTitle>
           <DialogDescription>Defina o básico e ajuste o resto depois.</DialogDescription>
         </DialogHeader>
-        <div className='grid gap-5 p-6'>
+        <form className='grid gap-5 p-6' noValidate onSubmit={form.handleRegister}>
           <Label className='grid gap-2 text-sm font-bold'>
             Nome do produto
             <Input
+              {...form.register('name')}
               aria-describedby={form.fieldErrors.name ? 'product-name-error' : undefined}
               aria-invalid={Boolean(form.fieldErrors.name)}
               onChange={(event) => form.handleNameChange(event.target.value)}
@@ -107,8 +110,11 @@ export function ProductRegistrationDialog({
           <Label className='grid gap-2 text-sm font-bold'>
             Unidade de estoque
             <select
+              {...form.register('unit')}
               className='h-10 rounded-lg border bg-background px-3 font-normal'
-              onChange={(event) => form.setUnit(event.target.value as ProductUnit)}
+              onChange={(event) =>
+                form.handleUnitChange(event.target.value as ProductUnit)
+              }
               value={form.unit}
             >
               {UNIT_OPTIONS.map((option) => (
@@ -204,6 +210,7 @@ export function ProductRegistrationDialog({
           <Label className='grid gap-2 text-sm font-bold'>
             Estoque ideal
             <Input
+              {...form.register('idealStock')}
               aria-describedby={
                 form.fieldErrors.idealStock ? 'ideal-stock-error' : undefined
               }
@@ -229,8 +236,9 @@ export function ProductRegistrationDialog({
           <Label className='grid gap-2 text-sm font-bold'>
             Estoque inicial
             <Input
+              {...form.register('initialStock')}
               min='0'
-              onChange={(event) => form.setInitialStock(event.target.value)}
+              onChange={(event) => form.handleInitialStockChange(event.target.value)}
               readOnly={form.stockControl === 'by-brand'}
               type='number'
               value={
@@ -250,7 +258,9 @@ export function ProductRegistrationDialog({
               aria-label='Permitir estoque negativo'
               checked={form.allowNegativeStock}
               className='peer sr-only'
-              onChange={(event) => form.setAllowNegativeStock(event.target.checked)}
+              onChange={(event) =>
+                form.handleAllowNegativeStockChange(event.target.checked)
+              }
               type='checkbox'
             />
             <span
@@ -268,15 +278,15 @@ export function ProductRegistrationDialog({
               {form.formError}
             </p>
           ) : null}
-        </div>
-        <DialogFooter>
-          <Button onClick={() => onOpenChange(false)} variant='outline'>
-            Cancelar
-          </Button>
-          <Button disabled={form.isPending} onClick={form.handleRegister}>
-            {form.isPending ? 'Criando...' : 'Criar produto'}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button onClick={() => onOpenChange(false)} type='button' variant='outline'>
+              Cancelar
+            </Button>
+            <Button disabled={form.isPending} type='submit'>
+              {form.isPending ? 'Criando...' : 'Criar produto'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )

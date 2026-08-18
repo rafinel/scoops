@@ -88,23 +88,26 @@ flowchart LR
 
 The web application is the user-facing experience. The server coordinates use
 cases and is the only component allowed to access business data directly. The
-domain core defines the meaning of operations. Infrastructure services provide
-identity, persistence, durable execution, storage, billing, and communication.
+domain core defines the meaning of operations, while the shared Validation package
+defines reusable runtime schemas at application boundaries. Infrastructure services
+provide identity, persistence, durable execution, storage, billing, and communication.
 
 ## 4. Runtime and deployment units
 
-Scoops has two independently deployable applications and one shared source
-package:
+Scoops has two independently deployable applications and two shared source
+packages:
 
 | Unit | Runtime | Responsibility |
 | --- | --- | --- |
 | `apps/web` | Node.js/Nitro plus browser JavaScript | Server rendering, routing, UI composition, client state, and calls to the server API. |
 | `apps/server` | Node.js/NestJS | REST API, authorization, use-case orchestration, persistence, messaging endpoint, and provider integrations. |
 | `packages/core` | Imported TypeScript package | Domain entities, structures, errors, events, contracts, and use cases shared by the applications. |
+| `packages/validation` | Imported TypeScript package | Zod schemas for browser forms, REST input, route search, environment configuration, and event payloads. |
 
-`packages/core` has no network boundary. PostgreSQL, Supabase, MinIO, Mailpit,
-and Inngest run as local supporting containers; production may use managed
-equivalents without changing application boundaries.
+Neither `packages/core` nor `packages/validation` has a network boundary.
+PostgreSQL, Supabase, MinIO, Mailpit, and Inngest run as local supporting
+containers; production may use managed equivalents without changing application
+boundaries.
 
 ## 5. Technology decisions
 
@@ -113,12 +116,14 @@ equivalents without changing application boundaries.
 | Language | TypeScript | Current | Shared language across applications and core contracts. |
 | Monorepo | pnpm and Turborepo | Current | Workspace dependency management and coordinated tasks. |
 | Web | React and TanStack Start | Current | Isomorphic rendering and application composition. |
+| Form state and validation | React Hook Form and Zod | Current | Browser form state, typed input validation, accessible field errors, and submit orchestration. |
 | Routing | TanStack Router | Current | Typed file-based routes, navigation, and route lifecycle. |
 | Web build/runtime | Vite and Nitro | Current | Development, client/SSR builds, and production Node server. |
 | Styling | Tailwind CSS and design tokens | Current | Responsive UI and reusable visual foundations. |
 | Server | NestJS | Current | Dependency composition, HTTP adapter, modules, and lifecycle. |
 | API contract | REST and OpenAPI/Swagger | Current | Browser-to-server operations and discoverable HTTP documentation. |
 | Domain | `@scoops/core` | Current | Framework-independent business model and contracts. |
+| Runtime validation | `@scoops/validation` and Zod | Current | Shared syntactic schemas for forms, transport inputs, route search, environment and event boundaries. |
 | Persistence | PostgreSQL and Drizzle ORM | Current | Transactional data, repositories, and schema evolution. |
 | Identity | Supabase Auth | Foundation current | External identity and session lifecycle. |
 | Messaging | Inngest | Current foundation | Event-triggered jobs, retries, steps, and observability. |
@@ -134,6 +139,7 @@ flowchart TB
   web["apps/web"]
   server["apps/server"]
   core["packages/core"]
+  validation["packages/validation"]
   webShared["web shared UI and REST transport"]
   serverShared["server shared infrastructure"]
   webFeature["web feature modules"]
@@ -146,6 +152,9 @@ flowchart TB
   server --> serverFeature
   webFeature --> coreFeature
   serverFeature --> coreFeature
+  web --> validation
+  server --> validation
+  validation --> core
   webShared --> core
   serverShared --> core
   coreFeature --> core
@@ -164,6 +173,7 @@ registrations. Ownership is defined in [`modules.md`](modules.md).
 | Web application adapters | `apps/web/src/rest`, contexts and hooks | HTTP transport, service factories, browser-safe configuration, and application state wiring. | Database access or server credentials. |
 | Server application | NestJS controllers and feature modules | HTTP translation, dependency wiring, use-case invocation, and application composition. | Duplicated domain decisions. |
 | Domain/application core | `packages/core/src` | Entities, structures, errors, events, contracts, and business use cases. | Framework, database, HTTP, environment, or SDK concerns. |
+| Runtime validation | `packages/validation/src` | Reusable Zod schemas, schema composition, syntactic refinement and inferred boundary types. | Authorization, tenant ownership, persistence checks or business decisions. |
 | Persistence | `apps/server/src/<module>/database` | Drizzle models, mappers, repositories, and transactional persistence. | Product policy beyond persistence semantics. |
 | Shared infrastructure | `apps/server/src/shared` | Database client, environment, time, REST errors, messaging transport, and other reusable adapters. | Feature-specific behavior. |
 | External adapters | Owning server module or shared provision boundary | SDK calls and translation to core contracts. | Provider types leaking into core or unrelated modules. |
@@ -191,6 +201,26 @@ Key constraints:
 - credentials and direct PostgreSQL access never enter the browser bundle;
 - generated route metadata is regenerated, never manually edited;
 - SSR and hydration produce equivalent user-visible state.
+
+### Form state and browser validation
+
+Every user-submitted form in `apps/web/src/ui` uses React Hook Form as its local
+form-state boundary and a Zod schema from `@scoops/validation` through
+`zodResolver`. `packages/validation` keeps every schema in its own module and
+is the runtime-validation boundary for forms, REST payloads, route search,
+environment configuration, and event data. It may depend on `@scoops/core` to
+derive enum schemas from core structures; core must never depend on it.
+
+The form hook owns registration, default values, reset behavior, validation
+errors, and submit handling; widgets remain responsible for labels, controls,
+`aria-invalid`, error descriptions, and pending-state presentation.
+
+Browser validation is a usability boundary, not an authorization or business
+rule boundary. Form handlers pass validated input to the existing web action or
+REST adapter, while the NestJS and core layers independently validate,
+authorize, and enforce the authoritative operation. Server failures are shown
+through the established field or toast feedback without attempting to duplicate
+server decisions in a Zod schema.
 
 The UI may optimistically represent an operation only when it can reconcile with
 the authoritative server result and expose failure recovery. Security must never
@@ -492,6 +522,7 @@ Evolution follows these rules:
 - [Repository Rules](./rules.md)
 - [Design System](./design.md)
 - [Tooling](./tooling.md)
+- [Validation Package Rules](./rules/validation-package-rules.md)
 - [Messaging Layer Rules](./rules/messaging-layer-rules.md)
 - [Database Layer Rules](./rules/database-layer-rules.md)
 - [REST Layer Rules](./rules/rest-layer-rules.md)

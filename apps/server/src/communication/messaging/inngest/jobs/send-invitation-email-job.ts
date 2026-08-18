@@ -1,11 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
+import { sendInvitationEmailEventSchema } from '@scoops/validation'
 import { type Context, eventType, type InngestFunction } from 'inngest'
-import { z } from 'zod'
 import { UserRegistrationAttemptCreatedEvent } from '@scoops/core/identity/domain/events'
-import {
-  RegistrationAttemptStatus,
-  RegistrationAttemptType,
-} from '@scoops/core/identity/domain/structures'
 
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
 import { InngestJob } from '@/shared/messaging/inngest/inngest-job'
@@ -13,14 +9,7 @@ import { InngestJob } from '@/shared/messaging/inngest/inngest-job'
 export const sendInvitationEmailEvent = eventType(
   UserRegistrationAttemptCreatedEvent._NAME,
   {
-    schema: z.object({
-      registrationAttemptId: z.string(),
-      establishmentId: z.string(),
-      type: z.enum(RegistrationAttemptType),
-      status: z.enum(RegistrationAttemptStatus),
-      createdAt: z.iso.datetime(),
-      expiresAt: z.iso.datetime(),
-    }),
+    schema: sendInvitationEmailEventSchema,
   },
 )
 

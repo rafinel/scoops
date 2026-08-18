@@ -7,7 +7,7 @@ import { Label } from '@/ui/shadcn/label'
 export const INVITATION_PASSWORD_MAX_LENGTH = 64
 
 export const AcceptUserInvitationPage = () => {
-  const { acceptanceError, error, handleGoToApp, password, setPassword, state, submit } =
+  const { acceptanceError, error, handleGoToApp, password, register, state, submit } =
     useAcceptUserInvitationPage()
 
   return (
@@ -45,11 +45,11 @@ export const AcceptUserInvitationPage = () => {
                 <Label className='grid gap-1.5 text-sm font-bold'>
                   Crie uma senha
                   <Input
+                    {...register('password')}
                     autoComplete='new-password'
                     className='min-h-11 rounded-lg px-3'
                     minLength={8}
                     maxLength={INVITATION_PASSWORD_MAX_LENGTH}
-                    onChange={(event) => setPassword(event.target.value)}
                     required
                     type='password'
                     value={password}

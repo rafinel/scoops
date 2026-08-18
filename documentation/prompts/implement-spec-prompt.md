@@ -23,8 +23,9 @@ Run the workflow in the current task. Do not create another user-owned thread.
 
 ## Strategy selection
 
-Read the Spec, Rule Pack, Architecture and `documentation/tooling.md`, then inspect colocated
-`plan.md` when present.
+Read `documentation/sdd-rules.md` and its mandatory authorities—the Spec, Modules,
+Architecture, `documentation/rules.md`, every selected Rule and
+`documentation/tooling.md`—then inspect colocated `plan.md` when present.
 
 | Condition | Strategy |
 | --- | --- |
@@ -46,7 +47,8 @@ stop before editing feature source and report the exact blocker:
 - `implement-spec` is the only implementation entry point. Do not revive, delegate to or
   simulate a removed implementation workflow.
 - No feature source, test, generated artifact or migration edit starts until the scoped Builder
-  is activated and the preflight checklist below is recorded in Evaluation.
+  is activated and the preflight checklist below is recorded in an Evaluation materialized
+  from `documentation/templates/evaluation.md`.
 - The Orchestrator may inspect, coordinate and integrate, but may not replace the Builder with
   an unscoped direct edit. A Builder report is not evidence; the Orchestrator must inspect the
   resulting diff and execute the validation exits.
@@ -91,17 +93,17 @@ Before the first implementation change for the current revision:
    after a syntax error; correct the command from `documentation/tooling.md` and rerun it;
 2. record the base commit and freeze the Spec revision;
 3. set an `open` Spec to `in_progress`;
-4. activate the Builder and record, before any feature edit, its identifier, exact Spec
+4. create colocated `evaluation.md` from
+   `documentation/templates/evaluation.md` when absent, or reconcile an existing file to
+   that structure without discarding history;
+5. activate the Builder and record, before any feature edit, its identifier, exact Spec
    revision, RF/CA mapping, owned and prohibited paths, required file/widget tree, Rule Pack,
    design references, validation exits and expected evidence locations;
-5. compare the untouched candidate against the Spec's required tree, contracts, states and
+6. compare the untouched candidate against the Spec's required tree, contracts, states and
    exclusions, and record the baseline result. For a resumed correction, compare the current
    diff as well;
-6. for Plan-backed execution, validate dependencies, paths, exits and coverage, then set the
+7. for Plan-backed execution, validate dependencies, paths, exits and coverage, then set the
    current Plan and affected work to `in_progress`;
-7. create colocated `evaluation.md` from
-   `documentation/templates/evaluation.md` when absent, or reconcile an existing file to
-   that structure when resuming without discarding history;
 8. initialize or update the Spec/Plan references, revision, candidate snapshot,
    `status: in_progress`, acceptance matrix, automated/runtime/manual/visual evidence,
    Rule/documentation compliance, findings and history;
@@ -117,12 +119,21 @@ metadata.
 
 ### Evaluation template contract
 
-Preserve the canonical table columns from `documentation/templates/evaluation.md`. Add one
-row per `CA-*`, executed automated/runtime sensor, `MV-*`, each supplied or required
+Treat `documentation/templates/evaluation.md` as the structural source of truth at every
+implementation kickoff or resume. Copy it into the feature folder; do not link to it, edit the
+shared template with feature evidence or invent a parallel Evaluation format. Replace its
+placeholders with actual values, omit only the optional `plan` metadata when direct execution
+applies, and preserve its section order and canonical table columns.
+
+When reconciling an existing Evaluation, add missing canonical sections/columns and map legacy
+evidence into them without deleting historical commands, findings, failed attempts, CI runs or
+visual comparisons. Remove unused example rows; use an explicit `not_applicable` row only when
+the absence itself needs traceability.
+
+Add one row per `CA-*`, executed automated/runtime sensor, `MV-*`, each supplied or required
 supplemental design screenshot, finding and PR CI run; do not collapse criterion or screenshot
 ranges into one row. Visual rows are mandatory for design-backed UI and optional only when no
-design reference applies.
-Use stable
+design reference applies. Use stable
 `EV-*`, `MV-*`, `VIS-*`, `FND-*` and `CI-*` IDs so findings can invalidate exact evidence.
 
 Use `pending`, `passed`, `failed`, `stale` or `not_applicable` for ordinary evidence.

@@ -13482,51 +13482,9 @@
               "id": "G1IYE",
               "name": "Content Wrap",
               "width": "fill_container",
-              "height": 1357,
+              "height": "fill_container",
               "layout": "none",
               "children": [
-                {
-                  "type": "frame",
-                  "id": "w0RbC",
-                  "layoutPosition": "absolute",
-                  "x": 32,
-                  "y": 24,
-                  "name": "Breadcrumb",
-                  "gap": 8,
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "y6rQj",
-                      "name": "Estoque",
-                      "fill": "$text-secondary",
-                      "content": "Estoque",
-                      "fontFamily": "$font-body",
-                      "fontSize": 13,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "text",
-                      "id": "nm7sd",
-                      "name": "Sep1",
-                      "fill": "$text-tertiary",
-                      "content": "›",
-                      "fontFamily": "$font-body",
-                      "fontSize": 13,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "text",
-                      "id": "c9tZ4",
-                      "name": "Produtos",
-                      "fill": "$text-primary",
-                      "content": "Produtos",
-                      "fontFamily": "$font-body",
-                      "fontSize": 13,
-                      "fontWeight": "800"
-                    }
-                  ]
-                },
                 {
                   "type": "frame",
                   "id": "bRR3o",
@@ -65666,11 +65624,8 @@
         "mYphh": {
           "content": "O saldo será controlado diretamente neste produto."
         },
-        "NwTz5": {
-          "enabled": true
-        },
         "k0VnQ": {
-          "enabled": false
+          "enabled": true
         }
       }
     },

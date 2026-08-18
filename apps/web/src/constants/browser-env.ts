@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { browserEnvSchema } from '@scoops/validation'
 
 const BROWSER_ENV_INPUT = {
   scoopsServerAppUrl:
@@ -6,11 +6,5 @@ const BROWSER_ENV_INPUT = {
   supabaseUrl: import.meta.env.VITE_SUPABASE_URL ?? 'http://127.0.0.1:54321',
   supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY ?? 'public-anon-key',
 }
-
-export const browserEnvSchema = z.object({
-  scoopsServerAppUrl: z.url(),
-  supabaseUrl: z.url(),
-  supabaseAnonKey: z.string(),
-})
 
 export const BROWSER_ENV = browserEnvSchema.parse(BROWSER_ENV_INPUT)

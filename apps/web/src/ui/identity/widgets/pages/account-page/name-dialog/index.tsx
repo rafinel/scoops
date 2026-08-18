@@ -1,4 +1,5 @@
-import type { FormEvent, RefObject } from 'react'
+import type { RefObject } from 'react'
+import type { UseFormRegister } from 'react-hook-form'
 
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { Button } from '@/ui/shadcn/button'
@@ -16,23 +17,21 @@ import { Label } from '@/ui/shadcn/label'
 export type NameDialogProps = {
   error: string | null
   feedbackRef: RefObject<HTMLParagraphElement | null>
-  handleNameChange: (value: string) => void
   handleNameDialogOpenChange: (isOpen: boolean) => void
-  handleNameSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>
+  handleNameSubmit: () => void
   isNameDialogOpen: boolean
   isPending: boolean
-  name: string
+  register: UseFormRegister<{ name: string }>
 }
 
 export const NameDialog = ({
   error,
   feedbackRef,
-  handleNameChange,
   handleNameDialogOpenChange,
   handleNameSubmit,
   isNameDialogOpen,
   isPending,
-  name,
+  register,
 }: NameDialogProps) => {
   return (
     <Dialog open={isNameDialogOpen} onOpenChange={handleNameDialogOpenChange}>
@@ -50,12 +49,10 @@ export const NameDialog = ({
           <Label className='grid gap-2 text-xs font-extrabold'>
             Nome completo
             <Input
+              {...register('name')}
               aria-invalid={Boolean(error)}
               autoFocus
               className='h-12 rounded-xl px-3 text-sm font-semibold focus-visible:border-primary focus-visible:ring-primary/30'
-              name='name'
-              value={name}
-              onChange={(event) => handleNameChange(event.target.value)}
             />
           </Label>
           <div className='flex items-start gap-2.5 rounded-xl bg-info-soft px-3.5 py-3 text-xs font-semibold leading-[1.35] text-info'>

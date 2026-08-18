@@ -1,4 +1,8 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
+import type { z } from 'zod'
+
+import { userInviteFormSchema } from '@scoops/validation'
 
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 
@@ -11,11 +15,7 @@ type UseUserInviteDialogInput = {
   }) => Promise<void>
 }
 
-type UserInviteFormValues = {
-  name: string
-  email: string
-  profile: UserProfile
-}
+type UserInviteFormValues = z.infer<typeof userInviteFormSchema>
 
 export function useUserInviteDialog({ onSubmit }: UseUserInviteDialogInput) {
   const {
@@ -31,6 +31,7 @@ export function useUserInviteDialog({ onSubmit }: UseUserInviteDialogInput) {
       email: '',
       profile: UserProfile.Operator,
     },
+    resolver: zodResolver(userInviteFormSchema),
   })
   const profile = useWatch({ control, name: 'profile' })
 

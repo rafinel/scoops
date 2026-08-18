@@ -25,7 +25,7 @@ Current result: `<concise statement of validated, pending and blocking evidence>
 
 | ID | Layer | Command or scenario | Result | Status |
 | --- | --- | --- | --- | --- |
-| `EV-01` | `<Domain, Use cases, Interfaces, REST, Provision, Database, Messaging, UI or Cross-layer>` | `<exact command or runtime scenario>` | `<observed result>` | `pending` |
+| `EV-01` | `<Domain, Use cases, Interfaces, Validation, REST, Provision, Database, Messaging, UI or Cross-layer>` | `<exact command or runtime scenario>` | `<observed result>` | `pending` |
 
 ## Manual evidence
 

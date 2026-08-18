@@ -7,14 +7,13 @@ import { Label } from '@/ui/shadcn/label'
 
 export const ForgotPasswordPage = () => {
   const {
-    email,
     error,
     isPending,
     isSubmitted,
     validationError,
-    handleEmailChange,
     handleRequestAgain,
     handleSubmit,
+    register,
   } = useForgotPasswordPage()
   const hasError = Boolean(validationError || error)
 
@@ -67,13 +66,12 @@ export const ForgotPasswordPage = () => {
                 Email
               </Label>
               <Input
+                {...register('email')}
                 id='recovery-email'
                 name='email'
                 type='email'
                 autoComplete='email'
                 inputMode='email'
-                value={email}
-                onChange={(event) => handleEmailChange(event.target.value)}
                 className='h-12 rounded-md bg-card px-3 text-sm shadow-sm focus:border-primary focus:ring-2 focus:ring-ring/25'
                 placeholder='voce@empresa.com'
                 disabled={isPending}

@@ -50,9 +50,10 @@ The direct request is tracked by
 traced to [`documentation/prds/identity.md`](../../../../prds/identity.md), especially
 REQ-02, REQ-03, REQ-04, REQ-07 and REQ-13.
 
-`documentation/sdd.md`, requested by the create-spec workflow, does not exist in the
-repository at revision 16. This Spec therefore follows the available repository Rules,
-Architecture, module ownership, Identity PRD and Tooling documents.
+The current workflow authority is
+[`documentation/sdd-rules.md`](../../../sdd-rules.md). It postdates Spec revision 16;
+that revision followed the then-available repository Rules, Architecture, module ownership,
+Identity PRD and Tooling documents.
 
 ## Scope
 

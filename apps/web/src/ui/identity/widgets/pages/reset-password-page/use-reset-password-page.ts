@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { resetPasswordFormSchema } from '@scoops/validation'
 import { useForm } from 'react-hook-form'
+import type { z } from 'zod'
 
 import { useResetPasswordAction } from '@/ui/identity/hooks/use-reset-password-action'
 import { showErrorToast } from '@/ui/shared/notifications'
@@ -7,12 +10,7 @@ import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
 
 export const MIN_PASSWORD_LENGTH = 8
-const MAX_PASSWORD_LENGTH = 64
-
-type ResetPasswordFormValues = {
-  password: string
-  confirmation: string
-}
+type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>
 
 export function useResetPasswordPage() {
   const { isPasswordRecovery, status } = useAuthContext()
@@ -37,7 +35,6 @@ export function useResetPasswordPage() {
   }, [hasRecoveryHash, status])
   const {
     register,
-    getValues,
     setValue,
     handleSubmit: submitForm,
     formState: { errors: formErrors },
@@ -46,23 +43,12 @@ export function useResetPasswordPage() {
       password: '',
       confirmation: '',
     },
+    resolver: zodResolver(resetPasswordFormSchema),
   })
-  const passwordField = register('password', {
-    required: 'Informe uma nova senha.',
-    minLength: {
-      value: MIN_PASSWORD_LENGTH,
-      message: 'A senha deve ter entre 8 e 64 caracteres.',
-    },
-    maxLength: {
-      value: MAX_PASSWORD_LENGTH,
-      message: 'A senha deve ter entre 8 e 64 caracteres.',
-    },
-  })
-  const confirmationField = register('confirmation', {
-    required: 'Confirme sua nova senha.',
-    validate: (value) =>
-      value === getValues('password') || 'As senhas precisam ser iguais.',
-  })
+
+  function handleTogglePasswordVisibility() {
+    setIsPasswordVisible((isVisible) => !isVisible)
+  }
 
   function handlePasswordChange(value: string) {
     setValue('password', value, { shouldDirty: true, shouldValidate: true })
@@ -70,10 +56,6 @@ export function useResetPasswordPage() {
 
   function handleConfirmationChange(value: string) {
     setValue('confirmation', value, { shouldDirty: true, shouldValidate: true })
-  }
-
-  function handleTogglePasswordVisibility() {
-    setIsPasswordVisible((isVisible) => !isVisible)
   }
 
   function handleToggleConfirmationVisibility() {
@@ -106,12 +88,12 @@ export function useResetPasswordPage() {
     isPending,
     isSuccess,
     validationError,
+    handleSubmit: submitForm(handleSubmit),
     handleConfirmationChange,
     handlePasswordChange,
-    handleSubmit: submitForm(handleSubmit),
     handleTogglePasswordVisibility,
     handleToggleConfirmationVisibility,
-    passwordField,
-    confirmationField,
+    passwordField: register('password'),
+    confirmationField: register('confirmation'),
   }
 }

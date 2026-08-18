@@ -8,6 +8,10 @@ This document is the entry point for the rules under `documentation/rules`. Read
 it before starting repository work, then load only the rule documents that match
 the task's paths and architectural impact.
 
+For feature SDD, also read [`sdd-rules.md`](sdd-rules.md). It defines artifact ownership,
+statuses, workflow transitions and the mandatory SDD authority preflight; this router still
+owns selection of the task-specific Rule Pack.
+
 ## Use dynamic context discovery
 
 Rule selection follows **dynamic context discovery**. Do not load every rule for
@@ -43,6 +47,7 @@ and surface the discrepancy before silently copying the implementation.
 | [`web-app-routing-rules.md`](rules/web-app-routing-rules.md) | Creating, changing, renaming, or reviewing web application routes, route constants, route middleware, search validation, navigation paths, or generated route metadata. | `apps/web/src/routes/**`, `apps/web/src/constants/routes.ts`, `apps/web/src/middlewares/**`, `apps/web/src/routeTree.gen.ts` |
 | [`widget-testing-rules.md`](rules/widget-testing-rules.md) | Creating, changing, or reviewing tests for React widgets, layouts, pages, application hooks, navigation behavior, or their mocks. | `apps/web/src/**/*.test.ts`, `apps/web/src/**/*.test.tsx`, colocated web `tests/` directories |
 | [`core-package-rules.md`](rules/core-package-rules.md) | Changing shared domain entities, structures, errors, events, interfaces, constants, or use cases. Also read it when an app change requires a new or changed core contract. | `packages/core/src/**`, `packages/core/package.json` exports |
+| [`validation-package-rules.md`](rules/validation-package-rules.md) | Creating, changing, exporting, or consuming reusable Zod schemas for forms, REST input, route search, environment configuration, or event payloads. | `packages/validation/**`, Zod schema definitions in `apps/**`, `@scoops/validation` imports |
 | [`use-case-testing-rules.md`](rules/use-case-testing-rules.md) | Creating or changing core use cases, their unit tests, domain fakers used by those tests, or mocked use-case dependencies. | `packages/core/src/**/use-cases/**`, `packages/core/src/**/domain/**/fakers/**` |
 | [`rest-layer-rules.md`](rules/rest-layer-rules.md) | Adding or changing HTTP routes, NestJS controllers, route decorators, request-body mapping, global REST errors, `.rest` examples, core REST contracts, or web module services that consume those routes. | `apps/server/src/**/rest/**`, `apps/server/src/**/decorators/**`, `apps/server/rest-client/**`, `apps/web/src/rest/services/**`, REST interfaces in `packages/core` |
 | [`controllers-testing-rules.md`](rules/controllers-testing-rules.md) | Creating or changing server controller tests, REST fixtures, HTTP assertions, or test application wiring for database-backed routes. | `apps/server/src/**/rest/controllers/tests/**`, `apps/server/src/**/fixtures/**`, `apps/server/src/shared/rest/tests/**` |
@@ -63,7 +68,8 @@ actual scope:
 | Change an internal layout widget | UI Layer + Widget Testing, because behavior is tested at the owning layout boundary |
 | Add a domain-specific query or realtime hook | UI Layer + Widget Testing |
 | Add a web REST service for an existing endpoint | UI Layer + REST Layer; add Services Testing when the service mapping is tested; add Core Package when the service contract changes |
-| Add a complete REST operation | Core Package + REST Layer; add Database Layer when persistence changes; add Controller Testing and Use Case Testing for their respective tests |
+| Add or change a reusable Zod schema | Validation Package; add the consuming UI, REST, Provision or Messaging rules for each affected boundary |
+| Add a complete REST operation | Core Package + REST Layer; add Validation Package when reusable input schemas change; add Database Layer when persistence changes; add Controller Testing and Use Case Testing for their respective tests |
 | Change a use case only | Core Package + Use Case Testing |
 | Add or change a shared provider | Provision Layer + Core Package; add Use Case Testing when use-case tests consume it |
 | Add or change an Inngest job | Messaging Layer; add Core Package when the trigger uses a new or changed domain event; add Provision Layer when the handler needs a new external adapter |
@@ -79,6 +85,8 @@ working in a newly discovered layer. Examples:
 - a controller change requires a repository method: add Core Package and Database
   Layer;
 - a web service exposes a new response contract: add Core Package and REST Layer;
+- a form, route, controller, provider or job needs a reusable Zod schema: add
+  Validation Package and the Rule for every consuming boundary;
 - a use case starts depending on time or environment: add Provision Layer;
 - a domain event starts or changes an asynchronous job: add Messaging Layer and
   Core Package;

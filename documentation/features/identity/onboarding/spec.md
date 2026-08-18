@@ -51,7 +51,8 @@ Inngest, TanStack routes, authentication-session races and accessibility at 320
 px. The product source is a GitHub Issue because this repository does not use
 Jira or Confluence.
 
-`documentation/sdd.md` does not exist. The available authority is the root and
+The current workflow authority is
+[`documentation/sdd-rules.md`](../../../sdd-rules.md). The original Spec used the root and
 web `AGENTS.md`, the rule router and selected rules, Architecture, module
 ownership, Identity PRD, Design System, Tooling, Issue #3, the implemented
 authentication foundation and current source/configuration.

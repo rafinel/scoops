@@ -1,4 +1,8 @@
-import type { FormEvent } from 'react'
+import { useEffect } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { correctNameFormSchema } from '@scoops/validation'
+import { useForm } from 'react-hook-form'
+import type { z } from 'zod'
 
 import { Button } from '@/ui/shadcn/button'
 import { Icon } from '@/ui/shared/widgets/components/icon'
@@ -21,6 +25,8 @@ import {
 } from '@/ui/shadcn/dialog'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
+
+type CorrectNameFormValues = z.infer<typeof correctNameFormSchema>
 
 export type ActionDialogProps = {
   open: boolean
@@ -110,10 +116,22 @@ export const CorrectNameDialog = ({
   onClose,
   onSubmit,
 }: CorrectNameDialogProps) => {
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const data = new FormData(event.currentTarget)
-    await onSubmit(String(data.get('name') ?? ''))
+  const {
+    register,
+    reset,
+    handleSubmit: submitForm,
+    formState: { errors },
+  } = useForm<CorrectNameFormValues>({
+    defaultValues: { name: initialName },
+    resolver: zodResolver(correctNameFormSchema),
+  })
+
+  useEffect(() => {
+    if (open) reset({ name: initialName })
+  }, [initialName, open, reset])
+
+  async function handleSubmit({ name }: CorrectNameFormValues) {
+    await onSubmit(name.trim())
   }
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
@@ -129,16 +147,20 @@ export const CorrectNameDialog = ({
             </DialogDescription>
           </div>
         </DialogHeader>
-        <form className='p-6' onSubmit={submit}>
+        <form className='p-6' onSubmit={submitForm(handleSubmit)} noValidate>
           <Label className='grid gap-1.5 text-sm font-bold'>
             Nome
             <Input
-              required
-              name='name'
-              defaultValue={initialName}
+              {...register('name')}
+              aria-invalid={Boolean(errors.name)}
               className='min-h-11 rounded-lg bg-card px-3'
             />
           </Label>
+          {errors.name ? (
+            <p className='mt-3 text-sm text-destructive' role='alert'>
+              {errors.name.message}
+            </p>
+          ) : null}
           {error ? (
             <p className='mt-3 text-sm text-destructive' role='alert'>
               {error.message}

@@ -1,30 +1,28 @@
-import type { FormEvent } from 'react'
+import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 
 import { Button } from '@/ui/shadcn/button'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
-export type OnboardingRegistrationValues = {
-  establishmentName: string
-  managerName: string
-  email: string
-  password: string
-  passwordConfirmation: string
-}
+import type { OnboardingRegistrationFormValues } from '../onboarding-form-schemas'
 
 export type OnboardingRegistrationFormProps = {
-  errors?: Partial<Record<keyof OnboardingRegistrationValues, string>>
+  errors: FieldErrors<OnboardingRegistrationFormValues>
   errorMessage?: string
   isPasswordVisible: boolean
   isSubmitting: boolean
-  values: OnboardingRegistrationValues
-  onChange: (field: keyof OnboardingRegistrationValues, value: string) => void
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void
+  register: UseFormRegister<OnboardingRegistrationFormValues>
+  onSubmit: () => void
   onTogglePasswordVisibility: () => void
 }
 
-const fields: readonly [keyof OnboardingRegistrationValues, string, string, string][] = [
+const fields: readonly [
+  keyof OnboardingRegistrationFormValues,
+  string,
+  string,
+  string,
+][] = [
   ['establishmentName', 'Nome da sorveteria', 'Minha sorveteria', 'text'],
   ['managerName', 'Seu nome', 'Nome completo', 'text'],
   ['email', 'E-mail', 'voce@exemplo.com', 'email'],
@@ -33,12 +31,11 @@ const fields: readonly [keyof OnboardingRegistrationValues, string, string, stri
 ]
 
 export const OnboardingRegistrationForm = ({
-  errors = {},
+  errors,
   errorMessage,
   isPasswordVisible,
   isSubmitting,
-  values,
-  onChange,
+  register,
   onSubmit,
   onTogglePasswordVisibility,
 }: OnboardingRegistrationFormProps) => (
@@ -80,11 +77,10 @@ export const OnboardingRegistrationForm = ({
               disabled={isSubmitting}
               id={`onboarding-${field}`}
               inputMode={field === 'email' ? 'email' : undefined}
-              onChange={(event) => onChange(field, event.target.value)}
+              {...register(field)}
               placeholder={placeholder}
               required
               type={inputType}
-              value={values[field]}
             />
             {isPassword ? (
               <Button
@@ -103,9 +99,9 @@ export const OnboardingRegistrationForm = ({
               </Button>
             ) : null}
           </div>
-          {errors[field] ? (
+          {errors[field]?.message ? (
             <span className='mt-1 text-xs font-semibold text-danger' id={errorId}>
-              {errors[field]}
+              {errors[field].message}
             </span>
           ) : null}
         </div>

@@ -428,10 +428,11 @@ reference its layer row rather than duplicating field definitions.
 #### Layer implementation contracts
 
 Treat each application/package as a container with one or more affected layers. Use only
-**Domain**, **Use cases**, **Interfaces**, **REST**, **Provision**, **Database**,
-**Messaging**, **UI** and **Composition**. Create one subsection per affected
+**Domain**, **Use cases**, **Interfaces**, **Validation**, **REST**, **Provision**,
+**Database**, **Messaging**, **UI** and **Composition**. Create one subsection per affected
 application/layer combination—for example, `packages/core — Domain`,
-`apps/server — REST` or `apps/web — UI`—and omit unaffected layers.
+`packages/validation — Validation`, `apps/server — REST` or `apps/web — UI`—and omit
+unaffected layers.
 
 Every affected path appears exactly once with `Create`, `Modify`, `Generate` or `Remove`.
 Verify that classification against the filesystem. Keep tests and generated artifacts in
@@ -576,6 +577,34 @@ Audit Interface contracts for the smallest capability needed by core, infrastruc
 types, explicit method semantics, complete implementer/caller impact and no provider SDK,
 Drizzle, HTTP, framework or environment details.
 
+##### Validation
+
+Treat reusable Zod schemas as a shared runtime-validation boundary owned by
+`packages/validation`. Schemas establish syntactic shape and boundary feedback; they do not
+own authorization, tenant ownership, persistence checks or business decisions. Map schema
+composition and consumption before individual files:
+
+| Schema | Concern/owner | Shape responsibility | Composes/derives from | Boundary consumers | Error/type contract |
+| --- | --- | --- | --- | --- | --- |
+| `<exact schema export>` | `<module, web or environment concern>` | `<input/search/config/event shape>` | `<primitive schemas or Core runtime structures>` | `<forms, routes, controllers, providers or jobs>` | `<inferred type and issue/error mapping>` |
+
+Then map every affected Validation path, including schema modules, the root barrel and
+schema-focused tests:
+
+| Path | Change | Schema/declaration | Fields/refinements | Composition/ownership | Consumers | Export/tests |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `<exact path>` | `<change>` | `<schema and inferred type>` | `<required/optional fields, formats, transforms and defaults>` | `<reused primitives, Core enum source and excluded business rules>` | `<exact web/server boundaries>` | `<root export and test boundary>` |
+
+For every new or modified reusable schema, make the resulting shape and refinements
+unambiguous in the path row or a compact field table. Reference reused primitive schemas and
+Core runtime structures instead of duplicating their literals. A compatibility re-export
+belongs to its consuming layer's Composition row and must not become a second schema owner.
+
+Audit Validation contracts for one primary schema per kebab-case module, `Schema`-suffixed
+camelCase exports, root-barrel exposure, explicit `.ts` internal imports, complete consumer
+impact, the allowed `Validation → Core` dependency with no reverse Core dependency, and the
+absence of application/framework, provider, environment-global or business-rule ownership.
+
 ##### REST
 
 Treat one REST operation as an end-to-end transport contract connecting a thin server
@@ -586,8 +615,9 @@ operation chain before individual files:
 | --- | --- | --- | --- | --- | --- |
 | `<HTTP method and path>` | `<controller.handle>` | `<use case and service structures>` | `<service method or external consumer>` | `<authentication, permission and establishment context>` | `<schema/DTO, serializer and error translator>` |
 
-Then map every affected REST path, including route decorators, schemas, DTOs, controllers,
-web service adapters, transport utilities and `.rest` examples:
+Then map every affected REST path, including route decorators, boundary-local DTOs,
+controllers, web service adapters, transport utilities and `.rest` examples. Put reusable
+Zod schema declarations under Validation; REST rows name how each operation consumes them:
 
 | Path | Change | Declaration/operation | Boundary/security | Request/response/errors | Effects/consumers | Registration/examples |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -603,7 +633,7 @@ owning test file. Do not handwave a service as “the API client” and do not a
 excluded routes or surfaces.
 
 Audit REST contracts for one controller per action, semantic route parameters, derived
-use-case request types, synchronized validation/Swagger/error statuses, current-session
+use-case request types, synchronized shared-schema/Swagger/error statuses, current-session
 headers at the transport boundary, aligned server and web operation signatures and no
 business decisions in controllers or service adapters.
 
@@ -626,6 +656,10 @@ Audit Provision contracts for one implementation per shared capability, module o
 for feature-specific adapters, smallest core-facing API, provider-type containment,
 browser/server secret separation, deterministic replacement in tests and explicit timeout,
 retry, lifecycle and safe-error behavior.
+
+Put reusable environment/configuration schema declarations under Validation. Provision rows
+own reading runtime values, invoking the shared schema, protecting secrets and translating
+validation issues into the application startup/configuration failure contract.
 
 ##### Database
 
@@ -681,10 +715,10 @@ Then map every affected Messaging path:
 
 | Path | Change | Declaration | Event/trigger/payload | Reliability/steps | Lifecycle/registration | Producers/consumers |
 | --- | --- | --- | --- | --- | --- | --- |
-| `<exact path>` | `<change>` | `<event, broker, schema, job, module or registry>` | `<stable name, trigger and serialized contract>` | `<idempotency, retry, concurrency and durable side effects>` | `<client, endpoint, function registry and bootstrap>` | `<publisher and downstream>` |
+| `<exact path>` | `<change>` | `<event, broker, job, module or registry>` | `<stable name, trigger, shared schema consumption and serialized contract>` | `<idempotency, retry, concurrency and durable side effects>` | `<client, endpoint, function registry and bootstrap>` | `<publisher and downstream>` |
 
 Audit Messaging contracts for event `_NAME` reuse, complete authoritative payloads,
-runtime schema parity, ISO date serialization, stable function/step identifiers, durable
+shared runtime-schema parity, ISO date serialization, stable function/step identifiers, durable
 side effects, retryable failures, idempotency, fan-out independence, single-endpoint
 registration and an explicit direct-publication or outbox delivery guarantee.
 
@@ -729,6 +763,10 @@ both its `index.tsx` and colocated `use-<widget-name>.ts`; do not hide children 
 `components/` folder unless the repository explicitly establishes that convention. Parent
 widgets pass explicit props and callbacks; a child owns its internal behavior and must not reach
 into the parent's local state.
+
+Put reusable form and route-search schema declarations under Validation. UI rows name the
+schema they consume, React Hook Form and resolver ownership, field-error presentation and
+submit/recovery behavior without redefining the shared schema.
 
 For Page widgets, identify the thin route entry, screen-level workflow, page-owned hook and
 children. For Layout widgets, identify the subtree, structural slots, providers and owned

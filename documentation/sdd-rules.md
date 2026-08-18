@@ -1,4 +1,4 @@
-# Specification-Driven Development
+# Specification-Driven Development Rules
 
 Specification-Driven Development (SDD) is the delivery workflow used for Scoops features
 and feature-scoped changes. It keeps product intent, implementation contracts, execution
@@ -7,6 +7,22 @@ state, evidence, review and pull-request closure in durable repository artifacts
 SDD is not required for maintenance that does not need a feature Contract. The Orchestrator
 classifies the request and uses a direct maintenance workflow when a Spec would add no useful
 authority or traceability.
+
+## Mandatory reading
+
+Before starting or resuming any SDD workflow, read these repository authorities in full,
+regardless of the initially expected paths or layers:
+
+1. [`modules.md`](./modules.md) for business ownership and cross-module boundaries;
+2. [`architecture.md`](./architecture.md) for system invariants and dependency direction;
+3. [`rules.md`](./rules.md) for dynamic Rule selection, followed by every selected Rule;
+4. [`tooling.md`](./tooling.md) for actual workspace, generation, validation and environment
+   commands.
+
+Read root and applicable nested `AGENTS.md` files before these documents. Re-run Rule
+discovery and reread affected authority whenever the task expands or an authority changes.
+Do not postpone Architecture, Modules or Tooling until implementation happens to cross a
+boundary; they are mandatory SDD preflight inputs.
 
 ## Sources of authority
 
@@ -166,9 +182,11 @@ The Spec has five top-level sections:
 | Documentation alignment and revision history | Governing documents, exact Rule Pack and material Spec revisions. |
 
 The Technical Contract maps exact paths and declarations under the affected project layers:
-Domain, Use cases, Interfaces, REST, Provision, Database, Messaging and UI. Composition
-wiring is recorded where needed without moving business responsibility out of its owning
-layer. Migration paths include the complete expected SQL body.
+Domain, Use cases, Interfaces, Validation, REST, Provision, Database, Messaging and UI.
+Composition wiring is recorded where needed without moving business responsibility out of
+its owning layer. Reusable Zod schemas belong to Validation; their application consumers
+remain in their respective boundary layers. Migration paths include the complete expected
+SQL body.
 
 The Spec remains `draft` until its metadata, RF/CA traceability, technical map, design
 bundle, manual scenarios, commands, links and Rule Pack pass integrity checks. There is no

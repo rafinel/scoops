@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 
 import type {
   IceCreamShopOnboardingRegistration,
@@ -15,6 +17,13 @@ import {
   clearOnboardingSession,
 } from '@/ui/identity/storage/onboarding-session-storage'
 
+import {
+  onboardingEmailCorrectionFormSchema,
+  onboardingRegistrationFormSchema,
+  type OnboardingEmailCorrectionFormValues,
+  type OnboardingRegistrationFormValues,
+} from './onboarding-form-schemas'
+
 export type OnboardingPageState =
   | 'form'
   | 'restoring'
@@ -30,25 +39,30 @@ export function useOnboardingPage() {
   const [onboarding, setOnboarding] = useState<PendingIceCreamShopOnboarding | null>(null)
   const [continuationToken, setContinuationToken] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [form, setForm] = useState({
-    establishmentName: '',
-    managerName: '',
-    email: '',
-    password: '',
-    confirmation: '',
-  })
-  const [correction, setCorrection] = useState({ email: '', password: '' })
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isCorrectionPasswordVisible, setIsCorrectionPasswordVisible] = useState(false)
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
   const generationRef = useRef(0)
   const correctionTriggerRef = useRef<HTMLButtonElement | null>(null)
-  const emailInputRef = useRef<HTMLInputElement | null>(null)
   const registerAction = useRegisterIceCreamShopAction()
   const statusAction = useGetIceCreamShopOnboardingAction()
   const { getIceCreamShopOnboarding } = statusAction
   const resendAction = useResendIceCreamShopConfirmationAction()
   const correctAction = useCorrectIceCreamShopOnboardingEmailAction()
+  const registrationForm = useForm<OnboardingRegistrationFormValues>({
+    defaultValues: {
+      establishmentName: '',
+      managerName: '',
+      email: '',
+      password: '',
+      passwordConfirmation: '',
+    },
+    resolver: zodResolver(onboardingRegistrationFormSchema),
+  })
+  const correctionForm = useForm<OnboardingEmailCorrectionFormValues>({
+    defaultValues: { email: '', password: '' },
+    resolver: zodResolver(onboardingEmailCorrectionFormSchema),
+  })
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: restoration runs once on mount
   useEffect(() => {
@@ -85,35 +99,8 @@ export function useOnboardingPage() {
     }
   }, [])
 
-  function updateForm(field: keyof typeof form, value: string) {
-    setForm((current) => ({ ...current, [field]: value }))
+  async function handleSubmit(form: OnboardingRegistrationFormValues) {
     setError(null)
-    setFeedbackMessage(null)
-  }
-  function updateCorrection(field: keyof typeof correction, value: string) {
-    setCorrection((current) => ({ ...current, [field]: value }))
-    setError(null)
-    setFeedbackMessage(null)
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError(null)
-    if (
-      !form.establishmentName.trim() ||
-      !form.managerName.trim() ||
-      !form.email.trim() ||
-      form.password.length < 8 ||
-      form.password.length > 64 ||
-      form.password !== form.confirmation
-    ) {
-      setError(
-        form.password !== form.confirmation
-          ? 'As senhas precisam ser iguais.'
-          : 'Preencha os dados obrigatórios para continuar.',
-      )
-      return
-    }
     const generation = ++generationRef.current
     setState('submitting')
     try {
@@ -125,13 +112,7 @@ export function useOnboardingPage() {
           password: form.password,
         })
       if (generation !== generationRef.current) return
-      setForm({
-        establishmentName: '',
-        managerName: '',
-        email: '',
-        password: '',
-        confirmation: '',
-      })
+      registrationForm.reset()
       setContinuationToken(result.continuationToken)
       setOnboarding(result.onboarding)
       setState('pending')
@@ -167,8 +148,7 @@ export function useOnboardingPage() {
     }
   }
 
-  async function handleCorrectionSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+  async function handleCorrectionSubmit(correction: OnboardingEmailCorrectionFormValues) {
     if (!continuationToken) return
     const generation = ++generationRef.current
     setState('resending')
@@ -181,7 +161,7 @@ export function useOnboardingPage() {
       })
       if (generation !== generationRef.current) return
       setOnboarding(next)
-      setCorrection({ email: '', password: '' })
+      correctionForm.reset()
       saveOnboardingSession({ version: 1, continuationToken, onboarding: next })
       setState('pending')
     } catch {
@@ -193,15 +173,15 @@ export function useOnboardingPage() {
   }
 
   function handleStartCorrection() {
-    setCorrection({ email: onboarding?.email ?? '', password: '' })
+    correctionForm.reset({ email: onboarding?.email ?? '', password: '' })
     setState('correcting')
     setFeedbackMessage(null)
     if (typeof window !== 'undefined') {
-      window.requestAnimationFrame(() => emailInputRef.current?.focus())
+      window.requestAnimationFrame(() => correctionForm.setFocus('email'))
     }
   }
   function handleCancelCorrection() {
-    setCorrection({ email: '', password: '' })
+    correctionForm.reset()
     setIsCorrectionPasswordVisible(false)
     setFeedbackMessage(null)
     setState('pending')
@@ -218,6 +198,27 @@ export function useOnboardingPage() {
     setState('form')
   }
 
+  function handleInvalidRegistration(errors: typeof registrationForm.formState.errors) {
+    setError(
+      errors.passwordConfirmation?.message === 'As senhas precisam ser iguais.'
+        ? 'As senhas precisam ser iguais.'
+        : 'Preencha os dados obrigatórios para continuar.',
+    )
+  }
+
+  function updateForm(
+    field: keyof OnboardingRegistrationFormValues | 'confirmation',
+    value: string,
+  ) {
+    registrationForm.setValue(
+      field === 'confirmation' ? 'passwordConfirmation' : field,
+      value,
+      { shouldDirty: true, shouldValidate: true },
+    )
+    setError(null)
+    setFeedbackMessage(null)
+  }
+
   return {
     state,
     error:
@@ -229,13 +230,10 @@ export function useOnboardingPage() {
       null,
     onboarding,
     continuationToken,
-    form,
-    correction,
     feedbackMessage,
     isPasswordVisible,
     isCorrectionPasswordVisible,
     correctionTriggerRef,
-    emailInputRef,
     togglePasswordVisibility: () => setIsPasswordVisible((visible) => !visible),
     toggleCorrectionPasswordVisibility: () =>
       setIsCorrectionPasswordVisible((visible) => !visible),
@@ -244,13 +242,20 @@ export function useOnboardingPage() {
       statusAction.isPending ||
       resendAction.isPending ||
       correctAction.isPending,
-    updateForm,
-    updateCorrection,
-    handleSubmit,
+    registrationErrors: registrationForm.formState.errors,
+    registrationRegister: registrationForm.register,
+    correctionErrors: correctionForm.formState.errors,
+    correctionRegister: correctionForm.register,
+    form: {
+      ...registrationForm.getValues(),
+      confirmation: registrationForm.watch('passwordConfirmation'),
+    },
+    handleSubmit: registrationForm.handleSubmit(handleSubmit, handleInvalidRegistration),
     handleResend,
-    handleCorrectionSubmit,
+    handleCorrectionSubmit: correctionForm.handleSubmit(handleCorrectionSubmit),
     handleStartCorrection,
     handleCancelCorrection,
     handleRestart,
+    updateForm,
   }
 }

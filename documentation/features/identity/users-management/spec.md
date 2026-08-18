@@ -56,7 +56,8 @@ not Communication templates, notification storage or the notification center.
 The available authority is the root and web `AGENTS.md`, the selected repository Rules,
 Architecture, module ownership, Identity and Communication PRDs, Design System, Tooling,
 Issue #5, the completed auth/onboarding features, current source and the mapped Pencil
-nodes. `documentation/sdd.md` does not exist.
+nodes. The current workflow authority is
+[`documentation/sdd-rules.md`](../../../sdd-rules.md).
 
 Two current limitations are material:
 
