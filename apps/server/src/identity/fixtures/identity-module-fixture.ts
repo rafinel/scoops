@@ -1,9 +1,20 @@
 import type { INestApplication, Type } from '@nestjs/common'
+import type { User, UserRegistrationAttempt } from '@scoops/core/identity/domain/entities'
 import type {
   ServerAuthProvider,
   OnboardingIdentifierProvider,
   OnboardingTokenProvider,
 } from '@scoops/core/identity/interfaces'
+import {
+  EstablishmentFaker,
+  UserFaker,
+  UserRegistrationAttemptFaker,
+} from '@scoops/core/identity/domain/entities/fakers'
+import {
+  EstablishmentStatus,
+  UserProfile,
+  UserStatus,
+} from '@scoops/core/identity/domain/structures'
 import type { TestingModuleBuilder } from '@nestjs/testing'
 
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
@@ -13,12 +24,41 @@ import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { InngestModule } from '@/shared/messaging/inngest/inngest.module'
 import { RestFixture } from '@/shared/rest/tests/rest-fixture'
 import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
-import { InngestFixture } from '@/shared/messaging/inngest/inngest-fixture'
+import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
 
 export class IdentityModuleFixture {
+  static readonly onboarding = {
+    continuationToken: 'c'.repeat(43),
+    confirmationToken: 'f'.repeat(43),
+    accessToken: 'pending-access-token',
+    establishmentId: '50000000-0000-0000-0000-000000000001',
+    userId: '50000000-0000-0000-0000-000000000002',
+    attemptId: '50000000-0000-0000-0000-000000000003',
+  }
+
+  static readonly profileSettings = {
+    establishmentId: '30000000-0000-0000-0000-000000000001',
+    secondEstablishmentId: '30000000-0000-0000-0000-000000000002',
+    managerId: '00000000-0000-0000-0000-000000000021',
+    secondManagerId: '00000000-0000-0000-0000-000000000023',
+    operatorId: '00000000-0000-0000-0000-000000000022',
+    managerToken: 'profile-settings-manager-token',
+    secondManagerToken: 'profile-settings-second-manager-token',
+    operatorToken: 'profile-settings-operator-token',
+  }
+
+  static readonly userManagement = {
+    establishmentId: '31000000-0000-0000-0000-000000000001',
+    managerId: '31000000-0000-0000-0000-000000000002',
+    operatorId: '31000000-0000-0000-0000-000000000003',
+    invitationId: '31000000-0000-0000-0000-000000000004',
+    managerToken: 'users-manager-token',
+    invitationToken: 'u'.repeat(43),
+  }
+
   private constructor(
     private readonly restFixture: RestFixture,
-    private readonly originalAnonKey: string | undefined,
+    private readonly authProvider: ServerAuthProvider,
   ) {}
 
   static async register(
@@ -28,50 +68,38 @@ export class IdentityModuleFixture {
       onboardingToken: OnboardingTokenProvider
     }> = {},
   ) {
-    const originalAnonKey = process.env.SUPABASE_ANON_KEY
-    process.env.SUPABASE_ANON_KEY ??= 'test-anon-key'
+    const restFixture = await RestFixture.register(
+      {
+        imports: [SharedModule, IdentityModule, InngestModule.forRoot({ functions: [] })],
+      },
+      (builder: TestingModuleBuilder) => {
+        builder
+          .overrideProvider(IDENTITY_PROVIDERS.authIdentity)
+          .useValue(authProvider)
+          .overrideProvider(IDENTITY_PROVIDERS.onboardingIdentity)
+          .useValue(authProvider)
+          .overrideProvider(IDENTITY_PROVIDERS.userAccessIdentity)
+          .useValue(authProvider)
+          .overrideProvider(InngestBroker)
+          .useValue(new InngestMock())
 
-    try {
-      const restFixture = await RestFixture.register(
-        {
-          imports: [
-            SharedModule,
-            IdentityModule,
-            InngestModule.forRoot({ functions: [] }),
-          ],
-        },
-        (builder: TestingModuleBuilder) => {
+        if (overrides.onboardingIdentifier) {
+          // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
           builder
-            .overrideProvider(IDENTITY_PROVIDERS.authIdentity)
-            .useValue(authProvider)
-            .overrideProvider(IDENTITY_PROVIDERS.onboardingIdentity)
-            .useValue(authProvider)
-            .overrideProvider(IDENTITY_PROVIDERS.userAccessIdentity)
-            .useValue(authProvider)
-            .overrideProvider(InngestBroker)
-            .useValue(new InngestFixture())
+            .overrideProvider(IDENTITY_PROVIDERS.onboardingIdentifier)
+            .useValue(overrides.onboardingIdentifier)
+        }
+        if (overrides.onboardingToken) {
+          // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
+          builder
+            .overrideProvider(IDENTITY_PROVIDERS.onboardingToken)
+            .useValue(overrides.onboardingToken)
+        }
+        return builder
+      },
+    )
 
-          if (overrides.onboardingIdentifier) {
-            // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
-            builder
-              .overrideProvider(IDENTITY_PROVIDERS.onboardingIdentifier)
-              .useValue(overrides.onboardingIdentifier)
-          }
-          if (overrides.onboardingToken) {
-            // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
-            builder
-              .overrideProvider(IDENTITY_PROVIDERS.onboardingToken)
-              .useValue(overrides.onboardingToken)
-          }
-          return builder
-        },
-      )
-
-      return new IdentityModuleFixture(restFixture, originalAnonKey)
-    } catch (error) {
-      IdentityModuleFixture.restoreAnonKey(originalAnonKey)
-      throw error
-    }
+    return new IdentityModuleFixture(restFixture, authProvider)
   }
 
   get app(): INestApplication {
@@ -90,19 +118,70 @@ export class IdentityModuleFixture {
     return this.restFixture.resetDatabase()
   }
 
+  async seedUsers(users: User[], registrationAttempts: UserRegistrationAttempt[] = []) {
+    const { establishmentId } = IdentityModuleFixture.userManagement
+    await this.seeder.run({
+      establishments: [
+        EstablishmentFaker.fake({ id: establishmentId, name: 'Users Establishment' }),
+      ],
+      users,
+      registrationAttempts,
+    })
+  }
+
+  async seedPendingOnboarding(tokenProvider: OnboardingTokenProvider) {
+    const { continuationToken, confirmationToken } = IdentityModuleFixture.onboarding
+    const { establishmentId, userId, attemptId } = IdentityModuleFixture.onboarding
+    const now = new Date()
+    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+    const establishment = EstablishmentFaker.fake({
+      id: establishmentId,
+      name: 'Gelato Central',
+      status: EstablishmentStatus.Pending,
+      createdAt: now,
+      updatedAt: now,
+    })
+    const user = UserFaker.fake({
+      id: userId,
+      establishmentId,
+      name: 'Ana Manager',
+      email: 'ana@example.com',
+      profile: UserProfile.Manager,
+      status: UserStatus.Pending,
+      createdAt: now,
+      updatedAt: now,
+    })
+    const registrationAttempt = UserRegistrationAttemptFaker.fake({
+      id: attemptId,
+      userId,
+      establishmentId,
+      name: user.name,
+      email: user.email,
+      profile: user.profile,
+      tokenHash: tokenProvider.hash(continuationToken),
+      confirmationTokenHash: tokenProvider.hash(confirmationToken),
+      expiresAt,
+      createdAt: now,
+      updatedAt: now,
+    })
+
+    await this.seeder.run({
+      establishments: [establishment],
+      users: [user],
+      registrationAttempts: [registrationAttempt],
+    })
+
+    return { establishment, user, registrationAttempt }
+  }
+
   async close() {
     try {
       await this.restFixture.close()
     } finally {
-      IdentityModuleFixture.restoreAnonKey(this.originalAnonKey)
-    }
-  }
-
-  private static restoreAnonKey(originalAnonKey: string | undefined) {
-    if (originalAnonKey === undefined) {
-      delete process.env.SUPABASE_ANON_KEY
-    } else {
-      process.env.SUPABASE_ANON_KEY = originalAnonKey
+      const close = this.authProvider as ServerAuthProvider & {
+        close?: () => Promise<void>
+      }
+      await close.close?.()
     }
   }
 }

@@ -1,172 +1,335 @@
 ---
 name: implement-spec
-description: Orchestrate direct implementation of a small open Spec with a Builder, living evaluation evidence and user-change handling.
+description: Orchestrate an open or resumed Spec through direct or Plan-backed implementation, living evaluation evidence, corrections and integrated validation.
 ---
 
-# Implement a Spec Directly
+# Implement a Spec
 
-Use for a small cohesive Spec whose author summary recommends `implement-spec`:
+Use this as the single implementation entry point for every feature Spec. Select the execution
+strategy from the current artifacts; do not require the user to choose another implementation
+prompt:
 
 ```text
-Orchestrator → Builder Direct → sensors/manual preflight → integrated validation → conclude-spec
+implement-spec
+├── no current Plan → Builder Direct
+└── current Plan    → phase/task Builders
+                     ↓
+        sensors + manual/visual validation
+                     ↓
+                conclude-spec
 ```
 
 Run the workflow in the current task. Do not create another user-owned thread.
 
+## Strategy selection
+
+Read `documentation/sdd-rules.md` and its mandatory authorities—the Spec, Modules,
+Architecture, `documentation/rules.md`, every selected Rule and
+`documentation/tooling.md`—then inspect colocated `plan.md` when present.
+
+| Condition | Strategy |
+| --- | --- |
+| Current, non-superseded Plan references the exact Spec revision | Plan-backed execution |
+| No current Plan and the Spec recommends a small cohesive delivery | Direct execution |
+| No current Plan but dependencies, risk or recovery state require one | Invoke `create-plan`, then continue here with Plan-backed execution |
+| Plan is stale after a Spec amendment | Reconcile or recreate it before dependent work |
+| Revised Spec no longer requires its Plan | Set the Plan to `superseded`, then use direct execution |
+
+A completed Plan remains current when conclusion or PR feedback reopens an in-Contract
+correction; reopen only its affected phases/tasks. Never route from this workflow to
+another implementation prompt.
+
+## Fail-closed implementation invariants
+
+These are execution requirements, not recommendations. If any invariant cannot be verified,
+stop before editing feature source and report the exact blocker:
+
+- `implement-spec` is the only implementation entry point. Do not revive, delegate to or
+  simulate a removed implementation workflow.
+- No feature source, test, generated artifact or migration edit starts until the scoped Builder
+  is activated and the preflight checklist below is recorded in an Evaluation materialized
+  from `documentation/templates/evaluation.md`.
+- The Orchestrator may inspect, coordinate and integrate, but may not replace the Builder with
+  an unscoped direct edit. A Builder report is not evidence; the Orchestrator must inspect the
+  resulting diff and execute the validation exits.
+- The Spec's exact revision, required file/widget tree, contracts, exclusions and validation
+  exits are authoritative. Existing code structure, a screenshot, a passing test or a user
+  message cannot silently override them.
+- An implementation, test, browser, network, console, build, migration or visual error within
+  the current Contract is an automatic correction: record it, invalidate affected evidence,
+  create or continue a scoped Builder Fix, fix it immediately, and rerun the affected checks.
+  Never pause for permission to resolve an in-Contract discrepancy.
+- A UI change is not validated by a passing test alone. It requires the required behavioral
+  assertions plus a fresh Playwright CLI screenshot at each affected reference/state and an
+  inspected comparison recorded in Evaluation.
+- Never claim readiness from evidence captured before the latest affected change. Mark it
+  `stale` and recapture it.
+
+## Builder activation gate
+
+For feature implementation changes, the Orchestrator must activate a scoped Builder before any
+feature source is edited. The Builder must receive the exact Spec revision, acceptance criteria,
+required file/widget tree, allowed paths, Rule Pack, design references and validation exits; the
+activation and scope must be recorded in Evaluation and the current execution artifacts. Use
+`Builder Direct` for direct execution or a phase/task Builder for execution with a current Plan.
+The Orchestrator may coordinate, inspect, integrate and validate, but must not silently replace
+the Builder with direct feature implementation. If no Builder can be activated, stop before
+editing feature code and report the orchestration blocker. Prompt, Spec, Plan or evaluation-only
+documentation maintenance may be handled directly when explicitly requested.
+
 ## Preflight and evaluation kickoff
 
-Read the Spec, Rule Pack, Architecture and `documentation/tooling.md`. Confirm the Spec is
-`open`, its revision is current, the direct route remains appropriate, required design
-references exist and no material ambiguity remains. Preserve actual source/GitHub Issue
-traceability without inventing external records.
+Confirm the Spec is `open` for initial implementation or `in_progress` for a resumed
+implementation/correction, its revision is current, required design references exist and no
+material ambiguity remains. Preserve actual source and GitHub Issue traceability without
+inventing external records.
 
-Before the first implementation change:
+Before the first implementation change for the current revision:
 
-1. record the base commit and freeze the Spec revision;
-2. set the Spec to `in_progress`;
-3. create colocated `evaluation.md` when absent, or reconcile it when resuming;
-4. initialize it with the Spec revision, candidate snapshot identity when available, `status: in_progress`,
-   acceptance-evidence matrix, validation evidence, Rule/documentation compliance, findings
-   and evaluation history;
-5. record required services, accounts, fixtures, design references and evidence targets.
+1. when web/browser validation applies, run the repository Playwright health check with its
+   exact documented command:
+   `pnpm --filter web check:playwright`; fix a failing health check and rerun it before
+   implementation. Do not improvise Playwright CLI arguments or broaden a focused command
+   after a syntax error; correct the command from `documentation/tooling.md` and rerun it;
+2. record the base commit and freeze the Spec revision;
+3. set an `open` Spec to `in_progress`;
+4. create colocated `evaluation.md` from
+   `documentation/templates/evaluation.md` when absent, or reconcile an existing file to
+   that structure without discarding history;
+5. activate the Builder and record, before any feature edit, its identifier, exact Spec
+   revision, RF/CA mapping, owned and prohibited paths, required file/widget tree, Rule Pack,
+   design references, validation exits and expected evidence locations;
+6. compare the untouched candidate against the Spec's required tree, contracts, states and
+   exclusions, and record the baseline result. For a resumed correction, compare the current
+   diff as well;
+7. for Plan-backed execution, validate dependencies, paths, exits and coverage, then set the
+   current Plan and affected work to `in_progress`;
+8. initialize or update the Spec/Plan references, revision, candidate snapshot,
+   `status: in_progress`, acceptance matrix, automated/runtime/manual/visual evidence,
+   Rule/documentation compliance, findings and history;
+9. record required services, accounts, fixtures, design references and evidence targets.
 
-Do not overwrite historical evidence. Actual command results, runtime observations,
-implementation screenshots, findings and verdicts belong in `evaluation.md`.
-Evaluation uses only `in_progress`, `ready` and `completed`; validation findings and history
-remain in the evidence ledger rather than metadata.
+Do not proceed when the Builder activation, baseline conformance comparison or Playwright
+health result is missing or failed. A prose statement that these steps happened is insufficient;
+record exact paths, commands, results and evidence identifiers.
+
+Do not overwrite historical evidence. Evaluation uses only `in_progress`, `ready` and
+`completed`; actual results, findings and history remain in the evidence ledger rather than
+metadata.
+
+### Evaluation template contract
+
+Treat `documentation/templates/evaluation.md` as the structural source of truth at every
+implementation kickoff or resume. Copy it into the feature folder; do not link to it, edit the
+shared template with feature evidence or invent a parallel Evaluation format. Replace its
+placeholders with actual values, omit only the optional `plan` metadata when direct execution
+applies, and preserve its section order and canonical table columns.
+
+When reconciling an existing Evaluation, add missing canonical sections/columns and map legacy
+evidence into them without deleting historical commands, findings, failed attempts, CI runs or
+visual comparisons. Remove unused example rows; use an explicit `not_applicable` row only when
+the absence itself needs traceability.
+
+Add one row per `CA-*`, executed automated/runtime sensor, `MV-*`, each supplied or required
+supplemental design screenshot, finding and PR CI run; do not collapse criterion or screenshot
+ranges into one row. Visual rows are mandatory for design-backed UI and optional only when no
+design reference applies. Use stable
+`EV-*`, `MV-*`, `VIS-*`, `FND-*` and `CI-*` IDs so findings can invalidate exact evidence.
+
+Use `pending`, `passed`, `failed`, `stale` or `not_applicable` for ordinary evidence.
+Visual evidence may use `passed_with_authorized_difference`; findings use `active`,
+`resolved`, `accepted_non_blocking` or `superseded`. Every manual row records both expected
+and observed behavior. For design-backed UI, every supplied and required supplemental visual
+row records its exact viewport, reference path, implementation path and differences; optional
+visual evidence applies only when no design reference is in scope.
 
 ## Persistence and user questions
 
-Continue the implementation loop until the Spec evaluation is `ready`. Ask the user only when
-an unresolved product, authority, environment or safety decision is genuinely required for the
-next change; state the blocker and the smallest decision needed. Do not pause for a routine
-validation step or a choice that can be inferred safely from the Spec,
-Rules, repository, or existing evidence. After the answer, resume immediately and keep cycling
-through fixes, sensors and evidence refresh until `ready`.
+Continue until Evaluation is `ready`. Ask the user only when an unresolved product,
+technical-authority, environment or safety decision is genuinely required. Do not pause for
+routine implementation, validation or a choice safely established by the Spec, Rules,
+repository or evidence. After an answer, resume the active strategy automatically.
 
-## Direct implementation loop
+Whenever an implementation, sensor, browser, build or validation error occurs, immediately
+fix it when the correction is within the current Contract and repository authority. Record
+the finding, apply the smallest scoped fix, invalidate affected evidence and rerun it. Do not
+ask permission to resolve an in-Contract implementation, CI/test or visual discrepancy.
 
-1. Create `Builder Direct` with the current Spec revision, mapped RF/CA, observable outcome,
-   allowed/prohibited paths, Rule Pack, Architecture, design bundle and applicable tools.
-2. Inspect and integrate the Builder diff. The Builder does not edit Spec, state, Plan or
-   evaluation artifacts.
-3. Run focused repository-approved generation, code, type, unit and applicable integration
-   checks. Reserve repeated full builds for the final Quality Gate unless bundler, exports,
-   environment, Docker, workflow or generated-artifact changes require an earlier build.
-4. Update `evaluation.md` with exact commands/results, candidate snapshot identity when available, criterion coverage,
-   findings and evidence freshness.
+Changes outside the Spec may remain in the shared worktree. Keep them out of the candidate
+and evidence unless they overlap evaluated paths, contaminate evidence or cause a regression.
 
-Changes outside the Spec scope may remain in the shared worktree. Keep them out of the
-review candidate snapshot and evidence, and do not convert their presence into a validation
-finding unless they overlap evaluated paths, contaminate evidence, or cause a validation
-regression.
-5. On a sensor failure or implementation discrepancy, record a finding, create
-   `Builder Fix QG-<n>`, mark only affected evidence stale, rerun invalidated checks and
-   repeat until the implementation is validation-ready or user authority is required.
+## Direct execution strategy
 
-Builder reports are not official evidence by themselves. The Orchestrator verifies the diff
-and records observed results.
+Use when no current Plan exists:
 
-### Rule reinforcement after implementation findings
+1. create `Builder Direct` with the current revision, RF/CA mapping, observable outcome,
+   allowed/prohibited paths, Rule Pack, Architecture, design bundle and applicable tools;
+2. inspect and integrate its diff; the Builder does not edit Spec, Plan or Evaluation;
+3. run focused repository-approved generation, code, type, unit and integration checks;
+4. update Evaluation with exact commands/results, candidate identity, criterion coverage,
+   findings and evidence freshness;
+5. for each discrepancy, create `Builder Fix QG-<n>`, rerun only invalidated evidence and
+   repeat until validation-ready or authority is required.
 
-When an implementation or sensor finding exposes a missing, ambiguous or repeatedly violated
-Rule, distinguish it from an ordinary implementation correction:
+Reserve repeated full builds for the final Quality Gate unless bundler, exports, environment,
+Docker, workflow or generated-artifact changes require an earlier build.
 
-- if the Rule already states the requirement clearly, fix the implementation and keep the
-  Rule unchanged;
-- if the reusable convention is not stated clearly enough, pause dependent work and route
-  a Rule-document change through the authority gate before creating the next Builder Fix;
-- add a focused `## Antipatterns to Avoid` entry to the relevant Rule document, stating the
-  prohibited pattern, required alternative and validation evidence;
-- reread the changed Rule, recompute the Rule Pack, record the authority change and finding
-  in `evaluation.md`, invalidate affected evidence and rerun the scoped Builder Fix and
-  its sensors.
+## Plan-backed execution strategy
 
-Builders do not edit Rules, Specs, Plans or evaluation artifacts. A feature-specific
-behavior belongs in the Spec rather than in a reusable antipattern entry.
+Use when a current Plan exists. The Plan owns sequencing, status, attempts and next action;
+Evaluation owns executed evidence and findings.
 
-## Design-backed UI loop
+For each dependency-ready phase:
+
+1. confirm the current Spec revision, dependencies, criteria, paths, Rules and exits;
+2. mark the phase and assigned tasks `in_progress`;
+3. create `Builder F<n>` for a cohesive phase or sibling `Builder F<n>-T<m>` agents only
+   for genuinely independent tasks with non-overlapping paths;
+4. coordinate shared/generated files, dependencies and lockfiles through the Orchestrator;
+5. inspect and integrate Builder diffs; Builders do not edit Spec, Plan or Evaluation;
+6. run focused generation, code, type, unit and integration checks from the task exits;
+7. update Evaluation with exact results and the Plan with status, finding IDs, attempts and
+   next action;
+8. complete a task only when its exit passes, and a phase only when every task and phase exit
+   passes;
+9. on failure, keep affected work `in_progress`, create a scoped Builder Fix, invalidate
+   affected evidence and rerun only what changed.
+
+Phase completion must be sensor-backed. Do not use a Builder report as official evidence.
+
+## Rule reinforcement after findings
+
+When a finding exposes a missing, ambiguous or repeatedly violated reusable Rule:
+
+- if the Rule is already clear, fix the implementation and leave the Rule unchanged;
+- if the reusable convention is unclear, pause dependent work and route the Rule change
+  through its authority gate;
+- add a focused `## Antipatterns to Avoid` entry stating the prohibited pattern, required
+  alternative and validation proof;
+- reread the changed Rule, recompute affected Rule Pack and Plan references, record the
+  authority change, invalidate affected evidence and rerun the scoped correction.
+
+Feature-specific behavior belongs in the Spec. Builders do not edit Rules or SDD artifacts.
+
+## Spec conformance gate during implementation
+
+Treat the current Spec as an active implementation contract throughout the implementation, not
+only as final-validation guidance. Before the first change, before each phase/task or Builder
+handoff, and after every implementation correction, compare the candidate against the Spec's
+required paths, widget/module tree, contracts, behavior, design states, exclusions and
+validation requirements. Use explicit Spec file-tree and contract sections as a checklist;
+never substitute the existing code structure for the structure required by the Spec. Any missing,
+extra or misplaced path, boundary, API field, behavior or design state is an in-Contract finding:
+record it in Evaluation, keep affected work `in_progress`, invalidate affected evidence, fix it
+immediately, and rerun conformance plus the affected sensors. Passing tests or screenshots alone
+does not establish readiness until Spec conformance has also passed.
+
+### Mandatory conformance record
+
+Every implementation checkpoint and Builder handoff must record all of the following, even when
+the result is unchanged:
+
+| Check | Required proof |
+| --- | --- |
+| File/widget tree | Every required path exists, no path is misplaced, and any intentional extra path is mapped to the Spec or explicitly excluded from the candidate. |
+| Boundary ownership | Each changed path is inside the active Builder scope and the Spec's declared layer/module boundary. |
+| Contract | RF/CA, API fields, domain rules, persistence behavior, error semantics and exclusions match the current revision. |
+| UI states | Loading, empty, success, error, recovery, disabled, selected, focus, keyboard and responsive states applicable to the change are exercised. |
+| Design references | Every supplied and required supplemental screenshot has an exact state/viewport capture, direct comparison, and current evidence path. |
+| Validation | Commands actually ran on the current candidate; console errors, failed requests, HTTP 4xx/5xx, hydration warnings and persistence results are classified. |
+
+If a check fails, keep the affected work `in_progress`; do not mark it passed because another
+sensor passed. The next action is correction and rerun, not a user permission request.
+
+## Design-backed UI execution
 
 When a Design Contract exists:
 
-- read `design/manifest.md` and every saved reference screenshot before coding;
-- confirm that the Spec contains a visual inventory for every supplied screenshot and a
-  recorded decision for every additional-screenshot suggestion before starting UI work;
-- do not require live Pencil during implementation;
-- preserve each state → surface → viewport mapping and intentionally distinct compositions;
-- compare the running UI with the saved reference using the Playwright CLI, accessible
-  locators and DOM/layout inspection;
-- save implementation screenshots under
-  `evidence/screenshots/rev-<spec-revision>/` and record route, state, viewport and findings;
-- maintain one direct comparison record per supplied or supplemental reference; never use an
-  implementation-generated screenshot as the only visual oracle;
-- iterate until no material discrepancy remains.
-- If an approved implementation change intentionally introduces a visual element not present
-  in the supplied references, treat it as a Design Contract amendment: ask the user only if
-  the intended placement/scope is unclear, record the decision in the Spec, add a supplemental
-  reference or annotated design artifact to `design/manifest.md`, and recapture affected
-  implementation screenshots before rerunning the affected validation. Never silently leave the
-  screenshots, manifest and Evaluation describing the old UI.
+- read `design/manifest.md` and every saved reference before coding;
+- confirm every supplied screenshot has a visual inventory and every supplemental-screenshot
+  suggestion has a recorded decision;
+- do not depend on live Pencil during normal implementation;
+- preserve exact state, surface and viewport mappings;
+- use existing behavioral Playwright coverage for accessible interaction, DOM/layout,
+  console, failed-request and persistence evidence;
+- do not create a dedicated visual-reference integration test;
+- capture and compare every supplied design screenshot and every required supplemental state at
+  its exact viewport, using an existing behavioral scenario or a manual Playwright CLI run;
+  supplemental screenshots marked recommended may be deferred only when the manifest records
+  the decision and the state is not an acceptance gap;
+- store every design-backed capture under `evidence/screenshots/rev-<spec-revision>/` and
+  record the comparison details in Evaluation;
+- keep affected direct work or Plan tasks `in_progress` while a material discrepancy remains.
 
-Builder/Orchestrator Playwright CLI checks are implementation evidence. The Orchestrator owns
-the final `MV-*` and visual validation and must reconcile it with DOM/layout inspection,
-screenshots, console messages, failed requests and persistence evidence for the exact candidate.
+If an approved implementation change intentionally introduces a visual element absent from
+the references, treat it as a Design Contract amendment. Clarify only unresolved placement or
+scope, update the Spec and manifest/reference artifact, recapture affected screenshots and
+rerun invalidated validation.
 
-## User-requested change gate before conclusion
+## Living evidence
 
-Whenever the user requests a change after implementation has started but before the Spec is
-concluded, pause conclusion and classify the request against the current Spec, design bundle,
-Rules and implementation. Show the classification and evidence to the user before changing
-artifacts or code.
+After every implementation change—including fixes, generated artifacts, environment/seed
+changes and tests—reconcile Evaluation and the Plan when present. Update candidate identity,
+commands, results, affected criteria, findings, screenshots and manual/runtime evidence.
+Mark affected earlier evidence `stale` or historical; never accept the candidate with evidence
+from an earlier affected diff.
 
-### A. Implementation correction
+## User-requested changes before conclusion
 
-Use when the request makes the implementation comply with an existing RF/CA, Design
-Contract, Technical Contract or Rule.
+Classify every requested change against the current Spec, design bundle, Rules and
+implementation before changing artifacts or code.
 
-1. Keep the Spec revision unchanged.
-2. Record a finding in `evaluation.md` mapped to the affected criterion/rule/reference.
-3. Create a scoped Builder Fix.
-4. Set evaluation status to `in_progress` when `ready` evidence is invalidated and mark only
-   affected automated, runtime, manual and visual evidence stale.
-5. Rerun affected checks, `MV-*` scenarios and screenshots.
-6. Rerun the affected sensors, Playwright CLI scenarios and screenshot comparisons when their
-   evidence is invalidated.
+### Implementation correction
 
-### B. Contract change
+When the request makes implementation comply with the current Contract:
 
-Use when the user wants different product behavior, design intent or technical boundaries.
+1. keep the Spec revision unchanged;
+2. record a mapped finding in Evaluation;
+3. set Evaluation and affected Plan work, when present, to `in_progress`;
+4. create a scoped Builder Fix and mark only affected evidence stale;
+5. rerun affected exits, sensors, `MV-*` scenarios and visual comparisons;
+6. continue the selected strategy automatically.
 
-1. Pause implementation and set the current Spec to `draft`.
-2. Route through `create-spec` clarification/authority alignment; update PRD, Rules,
-   Architecture, Modules, Design or Tooling first when required.
-3. Increment the Spec revision, update affected contracts/design bundle/validation and run
-   authoring integrity checks.
-4. Return the Spec directly to `open`; there is no separate Spec review stage.
-5. Mark affected implementation evidence and prior verdicts historical, then reconcile
-   `evaluation.md` to the new revision with `status: in_progress`.
-6. Re-evaluate the implementation route. If `implement-spec` remains appropriate, resume
-   this loop. If `implement-plan` is recommended, stop direct execution and route to
-   `create-plan` then `implement-plan`.
+### Contract change
 
-If classification or expected behavior is ambiguous, ask the user; do not silently choose a
-product, design or architectural outcome.
+When product behavior, design intent or technical boundaries change:
+
+1. pause affected work and set the Spec to `draft`;
+2. immediately invoke `create-spec` for clarification and authority alignment, updating PRD,
+   Rules, Architecture, Modules, Design or Tooling first when required;
+3. increment the revision, update affected Contracts/design/validation and run integrity
+   checks;
+4. return the Spec to `open` and preserve invalidated evidence as historical;
+5. set Evaluation to `in_progress` and re-evaluate strategy;
+6. create or reconcile a Plan when the revision requires Plan-backed execution, or set the
+   old Plan to `superseded` when direct execution is now appropriate;
+7. resume this workflow automatically under the selected strategy.
+
+Ask the user only when the classification or intended product/technical outcome is genuinely
+ambiguous.
 
 ## Integrated validation and readiness
 
-After the integrated diff and current evidence are ready, the Orchestrator executes the full
-validation matrix against the exact Spec revision and candidate snapshot: technical sensors,
-all applicable `MV-*` scenarios, screenshot comparisons at declared viewports/states, and
-console, network, accessibility, DOM/layout and persistence inspection. Record the commands,
-captures, results and findings in `evaluation.md`.
-`evaluation.md` is an operational evidence ledger; it is not part of the review candidate
-by default and does not require a closure-only documentation commit.
+After implementation work is complete, validate the exact Spec revision and candidate:
 
-- On a failed sensor or material discrepancy, record findings, create scoped Builder Fixes,
-  invalidate affected evidence, rerun it against the updated candidate snapshot and keep
-  evaluation `in_progress`.
-- When all required evidence is current and no blocking finding remains, reconcile it to the
-  exact current candidate snapshot, set evaluation to `ready` and route to `conclude-spec`.
-- After three materially identical failures, ask the user only if the repeated blocker requires
-  a decision unavailable in the repository or environment; otherwise continue with the next
-  safe corrective action and validation cycle.
+1. run integrated technical sensors and the final build Quality Gate;
+2. review generated artifacts and migration bodies;
+3. preflight real services, database/Auth/provider state, accounts and fixtures;
+4. execute every applicable `MV-*` with the Playwright CLI;
+5. inspect every CA, manual scenario and supplied/supplemental screenshot with exact
+   viewport/state, console/network, accessibility, DOM/layout and persistence evidence;
+6. record commands, captures, results and findings in Evaluation.
+
+For Plan-backed execution, keep the integrated phase `in_progress` during this validation and
+complete the Plan only after all affected phases and evidence pass.
+
+- On failure, record the finding, reopen affected direct/Plan work, create Builder Fixes and
+  rerun invalidated evidence.
+- When all evidence is current and no blocking finding remains, reconcile Evaluation to the
+  exact candidate, complete the Plan when present, set Evaluation to `ready` and immediately
+  invoke `conclude-spec` when publication authority is available.
+- After three materially identical failures, ask the user only when resolution requires a
+  decision unavailable in the repository or environment; otherwise continue safely.
+
+`evaluation.md` is the operational evidence ledger. It is not part of the review candidate by
+default and does not require a closure-only documentation commit.

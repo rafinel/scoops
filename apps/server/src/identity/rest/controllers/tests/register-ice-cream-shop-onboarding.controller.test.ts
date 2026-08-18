@@ -1,30 +1,26 @@
 import request from 'supertest'
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
 import { OnboardingIdentifierProviderFaker } from '@/identity/fixtures/onboarding-identifier-faker'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
 
-vi.hoisted(() => {
-  process.env.SUPABASE_ANON_KEY ??= 'test-anon-key'
-})
-
 describe('Register Ice Cream Shop Onboarding Controller [POST /registration-attempts/onboarding]', () => {
-  const auth = new SupabaseAuthFixture()
+  const supabaseAuth = new SupabaseAuthFixture()
   const onboardingIdentifierProvider = OnboardingIdentifierProviderFaker.fake()
   const onboardingTokenProvider = OnboardingTokenProviderFaker.fake()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth, {
+    fixture = await IdentityModuleFixture.register(supabaseAuth, {
       onboardingIdentifier: onboardingIdentifierProvider,
       onboardingToken: onboardingTokenProvider,
     })
   })
 
   beforeEach(async () => {
-    auth.clear()
+    await supabaseAuth.clear()
     await fixture.resetDatabase()
   })
 
@@ -52,8 +48,8 @@ describe('Register Ice Cream Shop Onboarding Controller [POST /registration-atte
       },
     })
     expect(response.body.onboarding.expiresAt).toEqual(expect.any(String))
-    expect(auth.getCalls().registerPendingIdentity).toHaveLength(1)
-    expect(auth.getCalls().registerPendingIdentity[0]?.[0]).toMatchObject({
+    expect(supabaseAuth.getCalls().registerPendingIdentity).toHaveLength(1)
+    expect(supabaseAuth.getCalls().registerPendingIdentity[0]?.[0]).toMatchObject({
       email: 'ana@example.com',
       password: 'password123',
       confirmationRedirectTo: expect.stringContaining(
@@ -87,6 +83,6 @@ describe('Register Ice Cream Shop Onboarding Controller [POST /registration-atte
     expect(malformed.status).toBe(422)
     expect(unknownField.status).toBe(422)
     expect(malformed.body).toMatchObject({ title: 'Invalid request' })
-    expect(auth.getCalls().registerPendingIdentity).toHaveLength(0)
+    expect(supabaseAuth.getCalls().registerPendingIdentity).toHaveLength(0)
   })
 })

@@ -1,15 +1,15 @@
 import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { loginFormSchema } from '@scoops/validation'
 import { useForm } from 'react-hook-form'
+import type { z } from 'zod'
 
 import { ROUTES } from '@/constants/routes'
 import { useLoginAction } from '@/ui/identity/hooks/use-login-action'
 import { showErrorToast } from '@/ui/shared/notifications'
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
 
-type LoginFormValues = {
-  identifier: string
-  password: string
-}
+type LoginFormValues = z.infer<typeof loginFormSchema>
 
 const LOGIN_DEFAULT_VALUES: LoginFormValues = import.meta.env.DEV
   ? {
@@ -31,6 +31,7 @@ export function useLoginPage(returnTo?: string) {
     formState: { errors: formErrors },
   } = useForm<LoginFormValues>({
     defaultValues: LOGIN_DEFAULT_VALUES,
+    resolver: zodResolver(loginFormSchema),
   })
 
   async function handleSubmit(values: LoginFormValues) {

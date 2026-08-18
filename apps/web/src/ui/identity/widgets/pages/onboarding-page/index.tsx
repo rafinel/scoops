@@ -11,18 +11,17 @@ export const OnboardingPage = () => {
     state,
     error,
     onboarding,
-    form,
-    correction,
     feedbackMessage,
     isPasswordVisible,
     isCorrectionPasswordVisible,
     correctionTriggerRef,
-    emailInputRef,
     isPending,
     togglePasswordVisibility,
     toggleCorrectionPasswordVisibility,
-    updateForm,
-    updateCorrection,
+    registrationErrors,
+    registrationRegister,
+    correctionErrors,
+    correctionRegister,
     handleSubmit,
     handleResend,
     handleCorrectionSubmit,
@@ -74,15 +73,10 @@ export const OnboardingPage = () => {
             errorMessage={error ?? undefined}
             isPasswordVisible={isPasswordVisible}
             isSubmitting={isPending}
-            onChange={(field, value) =>
-              updateForm(field === 'passwordConfirmation' ? 'confirmation' : field, value)
-            }
+            errors={registrationErrors}
+            register={registrationRegister}
             onSubmit={handleSubmit}
             onTogglePasswordVisibility={togglePasswordVisibility}
-            values={{
-              ...form,
-              passwordConfirmation: form.confirmation,
-            }}
           />
         </section>
       ) : state === 'expired' ? (
@@ -105,17 +99,14 @@ export const OnboardingPage = () => {
         state === 'correcting' ? (
           <OnboardingPendingConfirmation
             correctionFormProps={{
-              email: correction.email,
-              emailInputRef,
               errorMessage: error ?? undefined,
+              errors: correctionErrors,
               isPasswordVisible: isCorrectionPasswordVisible,
               isSubmitting: isPending,
               onCancel: handleCancelCorrection,
-              onEmailChange: (email) => updateCorrection('email', email),
-              onPasswordChange: (password) => updateCorrection('password', password),
               onSubmit: handleCorrectionSubmit,
               onTogglePasswordVisibility: toggleCorrectionPasswordVisibility,
-              password: correction.password,
+              register: correctionRegister,
             }}
             correctionTriggerRef={correctionTriggerRef}
             errorMessage={error ?? undefined}

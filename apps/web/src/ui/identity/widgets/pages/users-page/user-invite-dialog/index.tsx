@@ -94,7 +94,7 @@ export const UserInviteDialog = ({
               <Label className='grid gap-1.5 text-sm font-bold'>
                 Nome
                 <Input
-                  {...register('name', { required: 'Informe o nome completo.' })}
+                  {...register('name')}
                   aria-invalid={Boolean(errors.name)}
                   className='min-h-11 rounded-lg bg-card px-3 font-medium'
                 />
@@ -107,13 +107,7 @@ export const UserInviteDialog = ({
               <Label className='grid gap-1.5 text-sm font-bold'>
                 E-mail
                 <Input
-                  {...register('email', {
-                    required: 'Informe o e-mail.',
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: 'Informe um e-mail válido.',
-                    },
-                  })}
+                  {...register('email')}
                   aria-invalid={Boolean(errors.email)}
                   type='email'
                   className='min-h-11 rounded-lg bg-card px-3 font-medium'

@@ -43,10 +43,14 @@ Spec or Rules while the PR remains open:
 2. set the Plan and affected tasks/phases to `in_progress` when a Plan exists;
 3. set `evaluation.md` to `status: in_progress`, append a review-cycle entry and record the
    comment URL as a mapped finding;
-4. route to `implement-spec` or `implement-plan` according to the existing delivery route;
+4. invoke `implement-spec`; it automatically resumes the current Plan when one exists;
 5. let that implementation workflow own fixes, invalidated evidence and manual validation;
 6. after it returns evaluation to `ready`, invoke `conclude-spec` to commit, update the
    existing PR, run the final PR CI gate and close the Spec again.
+
+Never apply the correction directly from this workflow, even when the comment appears small.
+The resumed `implement-spec` run must repeat Builder activation/scope verification, Spec tree
+conformance, affected Playwright behavior and fresh screenshot comparison where applicable.
 
 ### Contract change
 
@@ -61,11 +65,15 @@ boundaries while the delivery PR remains open:
    `evaluation.md` to `status: in_progress`, set a
    reused Plan to `pending` or a replaced Plan to `superseded`, and return the Spec to `open`
    without a separate Spec review stage;
-6. run the newly recommended implementation workflow;
+6. invoke `implement-spec` using the newly selected direct or Plan-backed strategy;
 7. invoke `conclude-spec` again to update the existing PR, run CI and close the delivery.
 
 If classification or expected behavior is ambiguous, ask the user before changing the Spec
 or implementation.
+
+When the requested action is clearly within the existing Contract, do not ask for permission to
+fix it. Record the reviewer comment as a finding, route it through `implement-spec`, and let the
+workflow continue until the affected evidence is current or an actual authority blocker exists.
 
 ## Post-merge boundary
 

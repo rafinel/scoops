@@ -1,32 +1,42 @@
 import type { UsersRepository } from '@scoops/core/identity/interfaces'
+import { UserFaker } from '@scoops/core/identity/domain/entities/fakers'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
-import {
-  managerId,
-  managerToken,
-  operatorId,
-  seedUsers,
-  createUser,
-} from './user-management-controller-test-fixtures'
-
 describe('Get User Details Controller [GET /users/:userId]', () => {
-  const auth = new SupabaseAuthFixture()
+  const { establishmentId, managerId, managerToken, operatorId } =
+    IdentityModuleFixture.userManagement
+  const supabaseAuth = new SupabaseAuthFixture()
   let fixture: IdentityModuleFixture
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth)
+    fixture = await IdentityModuleFixture.register(supabaseAuth)
   })
   beforeEach(async () => {
-    auth.clear()
+    await supabaseAuth.clear()
     await fixture.resetDatabase()
-    await seedUsers(fixture, [
-      createUser(managerId, 'Manager', UserProfile.Manager),
-      createUser(operatorId, 'Operator', UserProfile.Operator),
+    await fixture.seedUsers([
+      UserFaker.fake({
+        id: managerId,
+        establishmentId,
+        name: 'Manager',
+        email: `${managerId}@example.com`,
+        profile: UserProfile.Manager,
+      }),
+      UserFaker.fake({
+        id: operatorId,
+        establishmentId,
+        name: 'Operator',
+        email: `${operatorId}@example.com`,
+        profile: UserProfile.Operator,
+      }),
     ])
-    auth.setUser(managerToken, { id: managerId, email: `${managerId}@example.com` })
+    supabaseAuth.setUser(managerToken, {
+      id: managerId,
+      email: `${managerId}@example.com`,
+    })
   })
   afterAll(async () => {
     await fixture?.close()

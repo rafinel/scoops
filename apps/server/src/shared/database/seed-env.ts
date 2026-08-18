@@ -1,8 +1,5 @@
+import { seedEnvSchema } from '@scoops/validation'
 import { z } from 'zod'
-
-export const seedEnvSchema = z.object({
-  SCOOPS_SERVER_APP_MODE: z.enum(['dev', 'stg']),
-})
 
 export type SeedEnv = z.infer<typeof seedEnvSchema>
 

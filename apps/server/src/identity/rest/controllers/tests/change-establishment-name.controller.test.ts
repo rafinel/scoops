@@ -1,39 +1,55 @@
 import type { EstablishmentAuditRecordsRepository } from '@scoops/core/identity/interfaces'
+import {
+  EstablishmentFaker,
+  UserFaker,
+} from '@scoops/core/identity/domain/entities/fakers'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
-import {
-  createEstablishment,
-  createUser,
-  establishmentId,
-  managerId,
-  managerToken,
-  operatorId,
-  operatorToken,
-  secondEstablishmentId,
-  secondManagerId,
-  secondManagerToken,
-} from './profile-settings-controller-test-fixtures'
 
 describe('Change Establishment Name Controller [PATCH /establishments/current/name]', () => {
-  const auth = new SupabaseAuthFixture()
+  const {
+    establishmentId,
+    managerId,
+    managerToken,
+    operatorId,
+    operatorToken,
+    secondEstablishmentId,
+    secondManagerId,
+    secondManagerToken,
+  } = IdentityModuleFixture.profileSettings
+  const supabaseAuth = new SupabaseAuthFixture()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth)
+    fixture = await IdentityModuleFixture.register(supabaseAuth)
   })
 
   beforeEach(async () => {
-    auth.clear()
+    await supabaseAuth.clear()
     await fixture.resetDatabase()
     await fixture.seeder.run({
-      establishments: [createEstablishment()],
+      establishments: [
+        EstablishmentFaker.fake({ id: establishmentId, name: 'Scoops Centro' }),
+      ],
       users: [
-        createUser(managerId, UserProfile.Manager),
-        createUser(operatorId, UserProfile.Operator),
+        UserFaker.fake({
+          id: managerId,
+          establishmentId,
+          name: 'Maria Manager',
+          email: `${managerId}@example.com`,
+          profile: UserProfile.Manager,
+        }),
+        UserFaker.fake({
+          id: operatorId,
+          establishmentId,
+          name: 'Otávio Operator',
+          email: `${operatorId}@example.com`,
+          profile: UserProfile.Operator,
+        }),
       ],
       registrationAttempts: [],
     })
@@ -44,7 +60,10 @@ describe('Change Establishment Name Controller [PATCH /establishments/current/na
   })
 
   it('changes the name, persists it, and records an audit row', async () => {
-    auth.setUser(managerToken, { id: managerId, email: `${managerId}@example.com` })
+    supabaseAuth.setUser(managerToken, {
+      id: managerId,
+      email: `${managerId}@example.com`,
+    })
 
     const response = await request(fixture.app.getHttpServer())
       .patch('/establishments/current/name')
@@ -76,14 +95,20 @@ describe('Change Establishment Name Controller [PATCH /establishments/current/na
   })
 
   it('rejects an Operator and invalid request bodies', async () => {
-    auth.setUser(operatorToken, { id: operatorId, email: `${operatorId}@example.com` })
+    supabaseAuth.setUser(operatorToken, {
+      id: operatorId,
+      email: `${operatorId}@example.com`,
+    })
     const forbidden = await request(fixture.app.getHttpServer())
       .patch('/establishments/current/name')
       .set('Authorization', `Bearer ${operatorToken}`)
       .send({ name: 'Nope' })
     expect(forbidden.status).toBe(403)
 
-    auth.setUser(managerToken, { id: managerId, email: `${managerId}@example.com` })
+    supabaseAuth.setUser(managerToken, {
+      id: managerId,
+      email: `${managerId}@example.com`,
+    })
     const invalid = await request(fixture.app.getHttpServer())
       .patch('/establishments/current/name')
       .set('Authorization', `Bearer ${managerToken}`)
@@ -94,21 +119,27 @@ describe('Change Establishment Name Controller [PATCH /establishments/current/na
   it('keeps concurrent updates atomic and isolated by establishment', async () => {
     await fixture.seeder.run({
       establishments: [
-        createEstablishment({
+        EstablishmentFaker.fake({
           id: secondEstablishmentId,
           name: 'Outra Sorveteria',
         }),
       ],
       users: [
-        createUser(secondManagerId, UserProfile.Manager, {
+        UserFaker.fake({
+          id: secondManagerId,
           establishmentId: secondEstablishmentId,
           name: 'Second Manager',
+          email: `${secondManagerId}@example.com`,
+          profile: UserProfile.Manager,
         }),
       ],
       registrationAttempts: [],
     })
 
-    auth.setUser(managerToken, { id: managerId, email: `${managerId}@example.com` })
+    supabaseAuth.setUser(managerToken, {
+      id: managerId,
+      email: `${managerId}@example.com`,
+    })
     const [first, second] = await Promise.all([
       request(fixture.app.getHttpServer())
         .patch('/establishments/current/name')
@@ -123,7 +154,7 @@ describe('Change Establishment Name Controller [PATCH /establishments/current/na
     expect(first.status).toBe(200)
     expect(second.status).toBe(200)
 
-    auth.setUser(secondManagerToken, {
+    supabaseAuth.setUser(secondManagerToken, {
       id: secondManagerId,
       email: `${secondManagerId}@example.com`,
     })

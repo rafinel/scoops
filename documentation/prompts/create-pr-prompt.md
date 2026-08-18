@@ -40,7 +40,14 @@ Use the current Spec/evaluation evidence and run only additional repository-appr
 needed to validate publication state. Never replace exact workspace commands from
 `documentation/tooling.md` with assumed generic commands.
 
-For design-backed UI, use the saved Spec design bundle—not live Pencil—and include:
+Before publication, verify the current candidate passes the `implement-spec` conformance gate:
+the exact Spec revision is frozen, every changed path is within the recorded Builder scope, the
+required file/widget tree and contracts match, and no affected evidence is stale. If any check
+fails, stop publication and route the correction through `implement-spec`; do not repair the
+implementation directly in the PR workflow.
+
+For design-backed UI, use the saved Spec design bundle—not live Pencil—and include an independent
+comparison for every supplied screenshot and every required supplemental screenshot:
 
 - route/state and exact saved reference path or source node ID from `design/manifest.md`;
 - target viewport;
@@ -60,6 +67,11 @@ supplemental screenshot decision remains unresolved.
 
 Review migrations, generated artifacts and lockfile changes when affected. Do not claim a
 check, manual flow, review or deployment that was not observed.
+
+For every implementation or visual discrepancy found during PR preparation, immediately record
+the finding, invalidate its dependent evidence, invoke `implement-spec`, and continue the
+current delivery automatically after the correction returns Evaluation to `ready`. Do not ask
+the user whether an in-Contract discrepancy should be fixed.
 
 ## PR contract
 

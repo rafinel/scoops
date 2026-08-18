@@ -30,6 +30,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.1",
     "@scoops/core": "workspace:*",
+    "@scoops/validation": "workspace:^",
     "@supabase/supabase-js": "^2.112.3",
     "drizzle-orm": "^0.45.2",
     "inngest": "^4.13.0",

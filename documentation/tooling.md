@@ -32,7 +32,8 @@ apps/
 └── web/          TanStack Start frontend
 
 packages/
-└── core/         Shared domain entities, events, contracts, and use cases
+├── core/         Shared domain entities, events, contracts, and use cases
+└── validation/   Shared Zod schemas for application boundaries
 ```
 
 Run a command in one workspace with `--filter`:
@@ -41,6 +42,7 @@ Run a command in one workspace with `--filter`:
 pnpm --filter web dev
 pnpm --filter server dev
 pnpm --filter @scoops/core check:types
+pnpm --filter @scoops/validation check:types
 ```
 
 ## Package management with pnpm
@@ -62,6 +64,13 @@ Add the local core package to an application with the workspace protocol:
 
 ```bash
 pnpm --filter server add @scoops/core@workspace:*
+```
+
+Add the shared Validation package only to a workspace that consumes its schemas:
+
+```bash
+pnpm --filter web add @scoops/validation@workspace:*
+pnpm --filter server add @scoops/validation@workspace:*
 ```
 
 Commit `pnpm-lock.yaml` whenever dependency declarations change. Use pnpm for
@@ -114,6 +123,8 @@ Each workspace owns its TypeScript configuration and version:
   alias, and emits its build to `apps/server/dist`.
 - `packages/core` uses bundler resolution, no emit, package subpath exports, and
   internal aliases such as `#identity/*`, `#billing/*`, and `#shared/*`.
+- `packages/validation` uses bundler resolution, no emit, a root package export,
+  and source-backed ESM imports with explicit `.ts` extensions internally.
 
 Run type checks independently:
 
@@ -121,6 +132,7 @@ Run type checks independently:
 pnpm --filter web check:types
 pnpm --filter server check:types
 pnpm --filter @scoops/core check:types
+pnpm --filter @scoops/validation check:types
 ```
 
 ## Linting and formatting with Biome
@@ -148,6 +160,7 @@ Check each workspace's source:
 pnpm --filter web check:code
 pnpm --filter server check:code
 pnpm --filter @scoops/core check:code
+pnpm --filter @scoops/validation check:code
 ```
 
 ## Testing
@@ -187,7 +200,13 @@ pnpm --filter web exec playwright install chromium
 
 The server uses Vitest with a Node environment. Tests are discovered from
 `apps/server/src/**/*.test.ts`; Testcontainers PostgreSQL is available for
-database-backed integration fixtures.
+database-backed fixtures. Identity controller tests that exercise Supabase Auth
+use the local Compose Supabase gateway and the production Auth provider, so
+start that service before running them:
+
+```bash
+docker compose up -d supabase-gateway
+```
 
 ```bash
 pnpm --filter server test

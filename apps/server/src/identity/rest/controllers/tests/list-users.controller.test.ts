@@ -1,9 +1,8 @@
-import type { Establishment, User } from '@scoops/core/identity/domain/entities'
 import {
-  EstablishmentStatus,
-  UserProfile,
-  UserStatus,
-} from '@scoops/core/identity/domain/structures'
+  EstablishmentFaker,
+  UserFaker,
+} from '@scoops/core/identity/domain/entities/fakers'
+import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
 import type { UsersRepository } from '@scoops/core/identity/interfaces'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -17,51 +16,38 @@ const managerId = '21000000-0000-0000-0000-000000000002'
 const operatorId = '21000000-0000-0000-0000-000000000003'
 const managerToken = 'list-manager-token'
 
-function createEstablishment(): Establishment {
-  const now = new Date('2026-01-01T00:00:00.000Z')
-  return {
-    id: establishmentId,
-    name: 'List Establishment',
-    status: EstablishmentStatus.Active,
-    createdAt: now,
-    updatedAt: now,
-  }
-}
-
-function createUser(id: string, name: string, profile: UserProfile): User {
-  const now = new Date('2026-01-01T00:00:00.000Z')
-  return {
-    id,
-    establishmentId,
-    name,
-    email: `${name.toLowerCase().replaceAll(' ', '.')}@example.com`,
-    profile,
-    status: UserStatus.Active,
-    createdAt: now,
-    updatedAt: now,
-  }
-}
-
 describe('List Users Controller [GET /users]', () => {
-  const auth = new SupabaseAuthFixture()
+  const supabaseAuth = new SupabaseAuthFixture()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth)
+    fixture = await IdentityModuleFixture.register(supabaseAuth)
   })
 
   beforeEach(async () => {
-    auth.clear()
+    await supabaseAuth.clear()
     await fixture.resetDatabase()
     await fixture.seeder.run({
-      establishments: [createEstablishment()],
+      establishments: [EstablishmentFaker.fake({ id: establishmentId })],
       users: [
-        createUser(managerId, 'Manager One', UserProfile.Manager),
-        createUser(operatorId, 'Operator One', UserProfile.Operator),
+        UserFaker.fake({
+          id: managerId,
+          establishmentId,
+          name: 'Manager One',
+          email: 'manager.one@example.com',
+          profile: UserProfile.Manager,
+        }),
+        UserFaker.fake({
+          id: operatorId,
+          establishmentId,
+          name: 'Operator One',
+          email: 'operator.one@example.com',
+          profile: UserProfile.Operator,
+        }),
       ],
       registrationAttempts: [],
     })
-    auth.setUser(managerToken, {
+    supabaseAuth.setUser(managerToken, {
       id: managerId,
       email: 'manager.one@example.com',
     })

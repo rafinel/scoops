@@ -18,14 +18,13 @@ export const ShopSettingsPage = () => {
     announcement,
     error,
     feedbackRef,
-    handleNameChange,
     handleNameDialogOpenChange,
     handleNameSubmit,
     handleOpenNameDialog,
     isLoading,
     isNameDialogOpen,
     isPending,
-    name,
+    register,
     queryError,
     refetch,
     settings,
@@ -146,11 +145,10 @@ export const ShopSettingsPage = () => {
             <Label className='grid gap-2 text-xs font-extrabold'>
               Nome da loja
               <Input
+                {...register('name')}
                 aria-invalid={Boolean(error)}
                 autoFocus
                 className='h-12 rounded-xl px-3 text-sm font-semibold focus-visible:border-primary focus-visible:ring-primary/30'
-                value={name}
-                onChange={(event) => handleNameChange(event.target.value)}
               />
             </Label>
             <div className='flex items-start gap-2.5 rounded-xl bg-info-soft px-3.5 py-3 text-xs font-semibold leading-[1.35] text-info'>

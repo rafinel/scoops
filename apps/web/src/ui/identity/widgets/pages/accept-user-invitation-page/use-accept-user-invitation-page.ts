@@ -1,12 +1,16 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { invitationAcceptanceFormSchema } from '@scoops/validation'
 import { useSearch } from '@tanstack/react-router'
+import { useForm } from 'react-hook-form'
+import type { z } from 'zod'
 
 import { useAcceptUserInvitationAction } from '@/ui/identity/hooks/use-accept-user-invitation-action'
 import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
 
 type State = 'idle' | 'editing' | 'submitting' | 'accepted' | 'error'
-const MAX_PASSWORD_LENGTH = 64
+type InvitationAcceptanceFormValues = z.infer<typeof invitationAcceptanceFormSchema>
 
 export function useAcceptUserInvitationPage() {
   const search = useSearch({ strict: false }) as {
@@ -17,23 +21,27 @@ export function useAcceptUserInvitationPage() {
   const auth = useAuthContext()
   const acceptance = useAcceptUserInvitationAction()
   const { navigateTo } = useNavigation()
-  const [password, setPassword] = useState('')
   const [state, setState] = useState<State>(token ? 'editing' : 'idle')
   const [error, setError] = useState<string | null>(null)
+  const {
+    register,
+    setValue,
+    handleSubmit: submitForm,
+    watch,
+    formState: { errors },
+  } = useForm<InvitationAcceptanceFormValues>({
+    defaultValues: { password: '' },
+    resolver: zodResolver(invitationAcceptanceFormSchema),
+  })
+  const password = watch('password')
 
   useEffect(() => {
     if (!token) setState('idle')
   }, [token])
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+  async function handleSubmit({ password }: InvitationAcceptanceFormValues) {
     if (!token) return
     setError(null)
-    if (password.length < 8 || password.length > MAX_PASSWORD_LENGTH) {
-      setState('error')
-      setError('A senha deve ter entre 8 e 64 caracteres.')
-      return
-    }
     setState('submitting')
     try {
       await auth.setInvitationPassword(password)
@@ -56,11 +64,14 @@ export function useAcceptUserInvitationPage() {
 
   return {
     acceptanceError: acceptance.error,
-    error,
+    error: errors.password?.message ?? error,
     handleGoToApp,
     password,
-    setPassword,
+    register,
+    setPassword(value: string) {
+      setValue('password', value, { shouldDirty: true, shouldValidate: true })
+    },
     state,
-    submit,
+    submit: submitForm(handleSubmit),
   }
 }

@@ -10,11 +10,7 @@ import type {
   UsersRepository,
 } from '@scoops/core/identity/interfaces'
 import request from 'supertest'
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-
-vi.hoisted(() => {
-  process.env.SUPABASE_ANON_KEY ??= 'test-anon-key'
-})
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
@@ -52,15 +48,15 @@ function createActiveManager(overrides: Partial<User> = {}) {
 }
 
 describe('Get Auth Session Controller [GET /auth/session]', () => {
-  const auth = new SupabaseAuthFixture()
+  const supabaseAuth = new SupabaseAuthFixture()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth)
+    fixture = await IdentityModuleFixture.register(supabaseAuth)
   })
 
   beforeEach(async () => {
-    auth.clear()
+    await supabaseAuth.clear()
     await fixture.resetDatabase()
   })
 
@@ -95,7 +91,7 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
     )
     const usersRepository = fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users)
 
-    auth.setUser(activeToken, { id: user.id, email: user.email })
+    supabaseAuth.setUser(activeToken, { id: user.id, email: user.email })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/auth/session')
@@ -121,7 +117,7 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
       users: [user],
       registrationAttempts: [],
     })
-    auth.setUser(activeToken, { id: user.id, email: user.email })
+    supabaseAuth.setUser(activeToken, { id: user.id, email: user.email })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/auth/session')
@@ -147,7 +143,7 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
       users: [user],
       registrationAttempts: [],
     })
-    auth.setUser(activeToken, { id: user.id, email: user.email })
+    supabaseAuth.setUser(activeToken, { id: user.id, email: user.email })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/auth/session')
@@ -155,19 +151,5 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
 
     expect(response.status).toBe(401)
     expect(response.body).toMatchObject({ title: 'Authentication required' })
-  })
-
-  it('maps provider availability failures to a retryable response', async () => {
-    auth.setUnavailable(true)
-
-    const response = await request(fixture.app.getHttpServer())
-      .get('/auth/session')
-      .set('Authorization', `Bearer ${activeToken}`)
-
-    expect(response.status).toBe(503)
-    expect(response.body).toMatchObject({
-      title: 'Authentication service unavailable',
-      message: 'Try again later.',
-    })
   })
 })

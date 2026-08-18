@@ -1,35 +1,27 @@
 import request from 'supertest'
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
 import { OnboardingIdentifierProviderFaker } from '@/identity/fixtures/onboarding-identifier-faker'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
 
-import {
-  continuationToken,
-  seedPendingOnboarding,
-} from './onboarding-controller-test-fixtures'
-
-vi.hoisted(() => {
-  process.env.SUPABASE_ANON_KEY ??= 'test-anon-key'
-})
-
 describe('Get Ice Cream Shop Onboarding Controller [POST /registration-attempts/onboarding/status]', () => {
-  const auth = new SupabaseAuthFixture()
+  const { continuationToken } = IdentityModuleFixture.onboarding
+  const supabaseAuth = new SupabaseAuthFixture()
   const onboardingIdentifierProvider = OnboardingIdentifierProviderFaker.fake()
   const onboardingTokenProvider = OnboardingTokenProviderFaker.fake()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth, {
+    fixture = await IdentityModuleFixture.register(supabaseAuth, {
       onboardingIdentifier: onboardingIdentifierProvider,
       onboardingToken: onboardingTokenProvider,
     })
   })
 
   beforeEach(async () => {
-    auth.clear()
+    await supabaseAuth.clear()
     await fixture.resetDatabase()
   })
 
@@ -38,7 +30,7 @@ describe('Get Ice Cream Shop Onboarding Controller [POST /registration-attempts/
   })
 
   it('returns the safe pending onboarding projection for a valid continuation token', async () => {
-    await seedPendingOnboarding(fixture, onboardingTokenProvider)
+    await fixture.seedPendingOnboarding(onboardingTokenProvider)
 
     const response = await request(fixture.app.getHttpServer())
       .post('/registration-attempts/onboarding/status')

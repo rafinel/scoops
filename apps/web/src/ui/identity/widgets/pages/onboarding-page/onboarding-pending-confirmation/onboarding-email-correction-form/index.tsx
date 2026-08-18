@@ -1,34 +1,29 @@
-import type { FormEvent, RefObject } from 'react'
+import type { FieldErrors, UseFormRegister } from 'react-hook-form'
 
 import { Button } from '@/ui/shadcn/button'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
 import { Icon } from '@/ui/shared/widgets/components/icon'
+import type { OnboardingEmailCorrectionFormValues } from '../../onboarding-form-schemas'
 
 export type OnboardingEmailCorrectionFormProps = {
-  emailInputRef?: RefObject<HTMLInputElement | null>
-  email: string
+  errors: FieldErrors<OnboardingEmailCorrectionFormValues>
   errorMessage?: string
   isPasswordVisible: boolean
   isSubmitting: boolean
-  password: string
   onCancel: () => void
-  onEmailChange: (email: string) => void
-  onPasswordChange: (password: string) => void
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void
+  register: UseFormRegister<OnboardingEmailCorrectionFormValues>
+  onSubmit: () => void
   onTogglePasswordVisibility: () => void
 }
 
 export const OnboardingEmailCorrectionForm = ({
-  emailInputRef,
-  email,
+  errors,
   errorMessage,
   isPasswordVisible,
   isSubmitting,
-  password,
   onCancel,
-  onEmailChange,
-  onPasswordChange,
+  register,
   onSubmit,
   onTogglePasswordVisibility,
 }: OnboardingEmailCorrectionFormProps) => (
@@ -38,17 +33,15 @@ export const OnboardingEmailCorrectionForm = ({
         Novo e-mail
       </Label>
       <Input
-        ref={emailInputRef}
-        aria-invalid={Boolean(errorMessage)}
+        {...register('email')}
+        aria-invalid={Boolean(errors.email || errorMessage)}
         autoComplete='email'
         className='mt-[9px] h-12 rounded-xl bg-card px-3.5 text-sm focus:border-primary focus:ring-2 focus:ring-ring/25'
         disabled={isSubmitting}
         id='correction-email'
         inputMode='email'
-        onChange={(event) => onEmailChange(event.target.value)}
         required
         type='email'
-        value={email}
       />
     </div>
     <div className='flex min-h-[75px] flex-col'>
@@ -60,14 +53,13 @@ export const OnboardingEmailCorrectionForm = ({
       </Label>
       <div className='relative mt-[9px]'>
         <Input
+          {...register('password')}
           autoComplete='current-password'
           className='h-12 rounded-xl bg-card px-3.5 pr-12 text-sm focus:border-primary focus:ring-2 focus:ring-ring/25'
           disabled={isSubmitting}
           id='correction-password'
-          onChange={(event) => onPasswordChange(event.target.value)}
           required
           type={isPasswordVisible ? 'text' : 'password'}
-          value={password}
         />
         <Button
           aria-label={isPasswordVisible ? 'Ocultar senha' : 'Mostrar senha'}
@@ -82,12 +74,12 @@ export const OnboardingEmailCorrectionForm = ({
         </Button>
       </div>
     </div>
-    {errorMessage ? (
+    {errors.email?.message || errors.password?.message || errorMessage ? (
       <p
         className='rounded-md border border-danger/20 bg-danger-bg px-3 py-2 text-sm font-semibold text-danger'
         role='alert'
       >
-        {errorMessage}
+        {errors.email?.message ?? errors.password?.message ?? errorMessage}
       </p>
     ) : null}
     <Button

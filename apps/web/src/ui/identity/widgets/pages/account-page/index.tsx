@@ -15,7 +15,6 @@ export const AccountPage = () => {
     error,
     feedbackRef,
     handleLogout,
-    handleNameChange,
     handleNameDialogOpenChange,
     handleNameSubmit,
     handleOpenNameDialog,
@@ -23,7 +22,7 @@ export const AccountPage = () => {
     isNameDialogOpen,
     isPending,
     logoutError,
-    name,
+    register,
   } = useAccountPage()
 
   if (!account) return null
@@ -132,12 +131,11 @@ export const AccountPage = () => {
       <NameDialog
         error={error}
         feedbackRef={feedbackRef}
-        handleNameChange={handleNameChange}
         handleNameDialogOpenChange={handleNameDialogOpenChange}
         handleNameSubmit={handleNameSubmit}
         isNameDialogOpen={isNameDialogOpen}
         isPending={isPending}
-        name={name}
+        register={register}
       />
     </section>
   )

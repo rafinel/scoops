@@ -1,4 +1,9 @@
 import { Link } from '@tanstack/react-router'
+import { useEffect } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { invitationCorrectionFormSchema } from '@scoops/validation'
+import { useForm } from 'react-hook-form'
+import type { z } from 'zod'
 
 import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
 
@@ -31,6 +36,8 @@ import {
   statusLabel,
 } from './formatters'
 import { useUserDetailsPage } from './use-user-details-page'
+
+type InvitationCorrectionFormValues = z.infer<typeof invitationCorrectionFormSchema>
 
 export const UserDetailsPage = ({ userId }: { userId: string }) => {
   const {
@@ -513,6 +520,24 @@ function InvitationCorrectionDialog({
   onClose: () => void
   onSubmit: (input: { name: string; email: string }) => Promise<void>
 }) {
+  const {
+    register,
+    reset,
+    handleSubmit: submitForm,
+    formState: { errors },
+  } = useForm<InvitationCorrectionFormValues>({
+    defaultValues: { email, name },
+    resolver: zodResolver(invitationCorrectionFormSchema),
+  })
+
+  useEffect(() => {
+    reset({ email, name })
+  }, [email, name, reset])
+
+  async function handleSubmit(values: InvitationCorrectionFormValues) {
+    await onSubmit({ email: values.email.trim(), name: values.name.trim() })
+  }
+
   return (
     <Dialog open onOpenChange={(nextOpen) => !nextOpen && onClose()}>
       <DialogContent className='max-w-md'>
@@ -527,37 +552,30 @@ function InvitationCorrectionDialog({
             </DialogDescription>
           </div>
         </DialogHeader>
-        <form
-          className='p-6'
-          onSubmit={async (event) => {
-            event.preventDefault()
-            const data = new FormData(event.currentTarget)
-            await onSubmit({
-              name: String(data.get('name')),
-              email: String(data.get('email')),
-            })
-          }}
-        >
+        <form className='p-6' onSubmit={submitForm(handleSubmit)} noValidate>
           <div className='grid gap-4'>
             <Label className='grid gap-1.5 text-sm font-bold'>
               Nome
               <Input
+                {...register('name')}
+                aria-invalid={Boolean(errors.name)}
                 className='min-h-11 rounded-lg bg-card px-3'
-                defaultValue={name}
-                name='name'
-                required
               />
             </Label>
             <Label className='grid gap-1.5 text-sm font-bold'>
               E-mail
               <Input
+                {...register('email')}
+                aria-invalid={Boolean(errors.email)}
                 className='min-h-11 rounded-lg bg-card px-3'
-                defaultValue={email}
-                name='email'
-                required
                 type='email'
               />
             </Label>
+            {errors.name?.message || errors.email?.message ? (
+              <p className='text-sm text-destructive' role='alert'>
+                {errors.name?.message ?? errors.email?.message}
+              </p>
+            ) : null}
           </div>
           {error ? (
             <p className='mt-4 text-sm text-destructive' role='alert'>

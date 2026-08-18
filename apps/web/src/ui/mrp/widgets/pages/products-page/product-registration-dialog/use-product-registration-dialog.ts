@@ -1,11 +1,14 @@
 import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { productRegistrationFormSchema } from '@scoops/validation'
+import { useForm } from 'react-hook-form'
+import type { z } from 'zod'
 
-import type {
+import {
   ProductCategory,
-  ProductStockControl,
-  ProductUnit,
+  type ProductStockControl,
+  type ProductUnit,
 } from '@scoops/core/mrp/domain/structures'
-import { ProductCategory as ProductCategories } from '@scoops/core/mrp/domain/structures'
 
 import { useRegisterProductAction } from '../../../../hooks/use-register-product-action'
 
@@ -18,31 +21,51 @@ export type BrandDraft = {
   isPrimary: boolean
 }
 
-const createBrandDraft = (id: string): BrandDraft => ({
-  id,
+type ProductRegistrationFormValues = z.infer<typeof productRegistrationFormSchema>
+
+const PRODUCT_REGISTRATION_DEFAULT_VALUES: ProductRegistrationFormValues = {
   name: '',
-  packageQuantity: '1',
-  packagePrice: '0,00',
-  packageCount: '0',
-  isPrimary: id === 'brand-1',
-})
+  unit: 'un',
+  categories: [],
+  stockControl: 'single',
+  allowNegativeStock: false,
+  initialStock: '0',
+  idealStock: '',
+  brands: [],
+}
+
+function createBrandDraft(id: string): BrandDraft {
+  return {
+    id,
+    name: '',
+    packageQuantity: '1',
+    packagePrice: '0,00',
+    packageCount: '0',
+    isPrimary: id === 'brand-1',
+  }
+}
 
 export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => void }) {
   const registration = useRegisterProductAction()
   const [name, setName] = useState('')
-  const [unit, setUnit] = useState<ProductUnit>('un')
+  const [unit, setUnitState] = useState<ProductUnit>('un')
   const [categories, setCategories] = useState<ProductCategory[]>([])
-  const [stockControl, setStockControl] = useState<ProductStockControl>('single')
-  const [allowNegativeStock, setAllowNegativeStock] = useState(false)
+  const [stockControl, setStockControlState] = useState<ProductStockControl>('single')
+  const [allowNegativeStock, setAllowNegativeStockState] = useState(false)
   const [brands, setBrands] = useState<BrandDraft[]>([])
-  const [initialStock, setInitialStock] = useState('0')
-  const [idealStock, setIdealStock] = useState('')
-  const [fieldErrors, setFieldErrors] = useState<{
-    categories?: string
-    idealStock?: string
-    name?: string
-  }>({})
+  const [initialStock, setInitialStockState] = useState('0')
+  const [idealStock, setIdealStockState] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
+  const {
+    register,
+    reset,
+    setValue,
+    handleSubmit: submitForm,
+    formState: { errors },
+  } = useForm<ProductRegistrationFormValues>({
+    defaultValues: PRODUCT_REGISTRATION_DEFAULT_VALUES,
+    resolver: zodResolver(productRegistrationFormSchema),
+  })
   const calculatedInitialStock =
     stockControl === 'by-brand'
       ? brands.reduce(
@@ -53,123 +76,148 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
         )
       : Number(initialStock) || 0
 
+  function setFormValue(
+    name: keyof ProductRegistrationFormValues,
+    value: ProductRegistrationFormValues[keyof ProductRegistrationFormValues],
+  ) {
+    setValue(name as never, value as never, { shouldDirty: true, shouldValidate: true })
+    setFormError(null)
+  }
+
   function handleNameChange(value: string) {
     setName(value)
-    setFieldErrors((current) => ({ ...current, name: undefined }))
+    setFormValue('name', value)
   }
 
   function handleIdealStockChange(value: string) {
-    setIdealStock(value)
-    setFieldErrors((current) => ({ ...current, idealStock: undefined }))
+    setIdealStockState(value)
+    setFormValue('idealStock', value)
+  }
+
+  function handleInitialStockChange(value: string) {
+    setInitialStockState(value)
+    setFormValue('initialStock', value)
+  }
+
+  function handleUnitChange(value: ProductUnit) {
+    setUnitState(value)
+    setFormValue('unit', value)
+  }
+
+  function handleAllowNegativeStockChange(value: boolean) {
+    setAllowNegativeStockState(value)
+    setFormValue('allowNegativeStock', value)
   }
 
   function handleProductCategoryToggle(category: ProductCategory) {
     setCategories((current) => {
-      if (current.includes(category)) {
-        return current.filter((item) => item !== category)
-      }
+      let nextCategories = current.includes(category)
+        ? current.filter((item) => item !== category)
+        : [...current, category]
 
-      const nextCategories = [...current, category]
-      if (category === ProductCategories.Portion) {
-        return nextCategories.filter((item) => item !== ProductCategories.Resale)
+      if (category === ProductCategory.Portion) {
+        nextCategories = nextCategories.filter((item) => item !== ProductCategory.Resale)
       }
-      if (category === ProductCategories.Resale) {
-        return nextCategories.filter((item) => item !== ProductCategories.Portion)
+      if (category === ProductCategory.Resale) {
+        nextCategories = nextCategories.filter((item) => item !== ProductCategory.Portion)
       }
+      setFormValue('categories', nextCategories)
       return nextCategories
     })
-    if (category === ProductCategories.Manufacturable) {
-      setStockControl('single')
-    }
-    setFieldErrors((current) => ({ ...current, categories: undefined }))
+    if (category === ProductCategory.Manufacturable) handleStockControlChange('single')
   }
 
   function handleStockControlChange(value: ProductStockControl) {
-    if (value === 'by-brand' && categories.includes(ProductCategories.Manufacturable)) {
+    if (value === 'by-brand' && categories.includes(ProductCategory.Manufacturable))
       return
-    }
-    setStockControl(value)
+
+    setStockControlState(value)
+    setFormValue('stockControl', value)
     if (value === 'by-brand' && brands.length === 0) {
-      setBrands([createBrandDraft('brand-1')])
+      const firstBrand = createBrandDraft('brand-1')
+      setBrands([firstBrand])
+      setFormValue('brands', [firstBrand])
     }
   }
 
   function handleBrandChange(brandId: string, changes: Partial<BrandDraft>) {
-    setBrands((current) =>
-      current.map((brand) => (brand.id === brandId ? { ...brand, ...changes } : brand)),
-    )
+    setBrands((current) => {
+      const nextBrands = current.map((brand) =>
+        brand.id === brandId ? { ...brand, ...changes } : brand,
+      )
+      setFormValue('brands', nextBrands)
+      return nextBrands
+    })
   }
 
   function handleRemoveBrand(brandId: string) {
-    setBrands((current) =>
-      current.length === 1 ? current : current.filter((brand) => brand.id !== brandId),
-    )
+    setBrands((current) => {
+      const nextBrands =
+        current.length === 1 ? current : current.filter((brand) => brand.id !== brandId)
+      setFormValue('brands', nextBrands)
+      return nextBrands
+    })
   }
 
   function handleAddBrand() {
-    setBrands((current) => [...current, createBrandDraft(`brand-${current.length + 1}`)])
+    setBrands((current) => {
+      const nextBrands = [...current, createBrandDraft(`brand-${current.length + 1}`)]
+      setFormValue('brands', nextBrands)
+      return nextBrands
+    })
   }
 
   function isCategoryDisabled(category: ProductCategory) {
     return (
-      (category === ProductCategories.Portion &&
-        categories.includes(ProductCategories.Resale)) ||
-      (category === ProductCategories.Resale &&
-        categories.includes(ProductCategories.Portion))
+      (category === ProductCategory.Portion &&
+        categories.includes(ProductCategory.Resale)) ||
+      (category === ProductCategory.Resale &&
+        categories.includes(ProductCategory.Portion))
     )
   }
 
   function resetForm() {
     setName('')
-    setUnit('un')
+    setUnitState('un')
     setCategories([])
-    setStockControl('single')
-    setAllowNegativeStock(false)
+    setStockControlState('single')
+    setAllowNegativeStockState(false)
     setBrands([])
-    setInitialStock('0')
-    setIdealStock('')
-    setFieldErrors({})
+    setInitialStockState('0')
+    setIdealStockState('')
     setFormError(null)
+    reset(PRODUCT_REGISTRATION_DEFAULT_VALUES)
   }
 
-  async function handleRegister() {
-    const nextFieldErrors = {
-      name: name.trim() ? undefined : 'Informe o nome do produto.',
-      categories:
-        categories.length > 0 ? undefined : 'Selecione pelo menos uma categoria.',
-      idealStock:
-        idealStock.trim() !== '' && Number(idealStock) >= 0
-          ? undefined
-          : 'Informe um estoque ideal válido.',
-    }
-    if (
-      nextFieldErrors.name ||
-      nextFieldErrors.categories ||
-      nextFieldErrors.idealStock
-    ) {
-      setFieldErrors(nextFieldErrors)
-      setFormError(null)
-      return
-    }
-
-    setFieldErrors({})
+  async function handleRegister(values: ProductRegistrationFormValues) {
     setFormError(null)
-    const effectiveStockControl = categories.includes(ProductCategories.Manufacturable)
+    const effectiveStockControl = values.categories.includes(
+      ProductCategory.Manufacturable,
+    )
       ? 'single'
-      : stockControl
+      : values.stockControl
+    const nextInitialStock =
+      effectiveStockControl === 'by-brand'
+        ? values.brands.reduce(
+            (total, brand) =>
+              total +
+              (Number(brand.packageQuantity) || 0) * (Number(brand.packageCount) || 0),
+            0,
+          )
+        : Number(values.initialStock)
 
     try {
       await registration.mutateAsync({
-        name,
-        unit,
-        categories,
+        name: values.name,
+        unit: values.unit,
+        categories: values.categories,
         stockControl: effectiveStockControl,
-        allowNegativeStock,
-        idealStock: Number(idealStock),
-        initialStock: calculatedInitialStock,
+        allowNegativeStock: values.allowNegativeStock,
+        idealStock: Number(values.idealStock),
+        initialStock: nextInitialStock,
         brands:
           effectiveStockControl === 'by-brand'
-            ? brands.map((brand) => ({
+            ? values.brands.map((brand) => ({
                 name: brand.name,
                 packageQuantity: Number(brand.packageQuantity) || 0,
                 packageValue: Number(brand.packagePrice.replace(',', '.')) || 0,
@@ -190,28 +238,33 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
   }
 
   return {
+    allowNegativeStock,
     brands,
     calculatedInitialStock,
     categories,
-    allowNegativeStock,
-    fieldErrors,
+    fieldErrors: {
+      categories: errors.categories?.message,
+      idealStock: errors.idealStock?.message,
+      name: errors.name?.message,
+    },
     formError,
     handleAddBrand,
+    handleAllowNegativeStockChange,
     handleBrandChange,
-    handleNameChange,
     handleIdealStockChange,
+    handleInitialStockChange,
+    handleNameChange,
     handleProductCategoryToggle,
-    handleRegister,
+    handleRegister: submitForm(handleRegister),
     handleRemoveBrand,
     handleStockControlChange,
-    isCategoryDisabled,
+    handleUnitChange,
     idealStock,
     initialStock,
+    isCategoryDisabled,
     isPending: registration.isPending,
     name,
-    setAllowNegativeStock,
-    setInitialStock,
-    setUnit,
+    register,
     stockControl,
     unit,
   }

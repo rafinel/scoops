@@ -3,7 +3,12 @@ import type {
   UsersRepository,
 } from '@scoops/core/identity/interfaces'
 import {
+  UserFaker,
+  UserRegistrationAttemptFaker,
+} from '@scoops/core/identity/domain/entities/fakers'
+import {
   RegistrationAttemptStatus,
+  RegistrationAttemptType,
   UserProfile,
   UserStatus,
 } from '@scoops/core/identity/domain/structures'
@@ -13,39 +18,57 @@ import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
-import {
-  managerId,
-  managerToken,
-  invitationToken,
-  operatorId,
-  seedUsers,
-  createUser,
-  createInvitation,
-} from './user-management-controller-test-fixtures'
 describe('Accept User Invitation Controller [POST /registration-attempts/invitation/accept]', () => {
-  const auth = new SupabaseAuthFixture()
+  const { establishmentId, invitationToken, managerId, managerToken, operatorId } =
+    IdentityModuleFixture.userManagement
+  const supabaseAuth = new SupabaseAuthFixture()
   const tokens = OnboardingTokenProviderFaker.fake()
   let fixture: IdentityModuleFixture
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth, { onboardingToken: tokens })
+    fixture = await IdentityModuleFixture.register(supabaseAuth, {
+      onboardingToken: tokens,
+    })
   })
   beforeEach(async () => {
-    auth.clear()
+    await supabaseAuth.clear()
     await fixture.resetDatabase()
-    await seedUsers(
-      fixture,
+    await fixture.seedUsers(
       [
-        createUser(managerId, 'Manager', UserProfile.Manager),
-        createUser(
-          operatorId,
-          'Pending Operator',
-          UserProfile.Operator,
-          UserStatus.Pending,
-        ),
+        UserFaker.fake({
+          id: managerId,
+          establishmentId,
+          name: 'Manager',
+          email: `${managerId}@example.com`,
+          profile: UserProfile.Manager,
+        }),
+        UserFaker.fake({
+          id: operatorId,
+          establishmentId,
+          name: 'Pending Operator',
+          email: 'pending@example.com',
+          profile: UserProfile.Operator,
+          status: UserStatus.Pending,
+        }),
       ],
-      [createInvitation(tokens)],
+      [
+        UserRegistrationAttemptFaker.fake({
+          id: '31000000-0000-0000-0000-000000000004',
+          userId: operatorId,
+          establishmentId,
+          name: 'Pending Operator',
+          email: 'pending@example.com',
+          profile: UserProfile.Operator,
+          type: RegistrationAttemptType.UserInvitation,
+          status: RegistrationAttemptStatus.Pending,
+          tokenHash: tokens.hash('u'.repeat(43)),
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        }),
+      ],
     )
-    auth.setUser('invite-session', { id: operatorId, email: 'pending@example.com' })
+    supabaseAuth.setUser('invite-session', {
+      id: operatorId,
+      email: 'pending@example.com',
+    })
   })
   afterAll(async () => {
     await fixture?.close()
@@ -67,7 +90,10 @@ describe('Accept User Invitation Controller [POST /registration-attempts/invitat
   })
 
   it('serializes an accept-vs-cancel race so only one transition wins', async () => {
-    auth.setUser(managerToken, { id: managerId, email: `${managerId}@example.com` })
+    supabaseAuth.setUser(managerToken, {
+      id: managerId,
+      email: `${managerId}@example.com`,
+    })
     const [accept, cancel] = await Promise.all([
       request(fixture.app.getHttpServer())
         .post('/registration-attempts/invitation/accept')

@@ -1,23 +1,29 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { forgotPasswordFormSchema } from '@scoops/validation'
+import { useForm } from 'react-hook-form'
+import type { z } from 'zod'
 
 import { useRequestPasswordRecoveryAction } from '@/ui/identity/hooks/use-request-password-recovery-action'
-import { showInfoToast } from '@/ui/shared/notifications'
+import { useToast } from '@/ui/shared/hooks/use-toast'
+
+type ForgotPasswordFormValues = z.infer<typeof forgotPasswordFormSchema>
 
 export function useForgotPasswordPage() {
   const { error, isPending, requestRecovery } = useRequestPasswordRecoveryAction()
-  const [email, setEmail] = useState('')
+  const { showInfoToast } = useToast()
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [validationError, setValidationError] = useState<string | null>(null)
+  const {
+    register,
+    setValue,
+    handleSubmit: submitForm,
+    formState: { errors },
+  } = useForm<ForgotPasswordFormValues>({
+    defaultValues: { email: '' },
+    resolver: zodResolver(forgotPasswordFormSchema),
+  })
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setValidationError(null)
-
-    if (!isValidEmail(email)) {
-      setValidationError('Informe um email válido para continuar.')
-      return
-    }
-
+  async function handleSubmit({ email }: ForgotPasswordFormValues) {
     try {
       await requestRecovery(email.trim())
       setIsSubmitted(true)
@@ -34,17 +40,15 @@ export function useForgotPasswordPage() {
   }
 
   return {
-    email,
     error,
     isPending,
     isSubmitted,
-    validationError,
-    handleEmailChange: setEmail,
+    validationError: errors.email?.message ?? null,
     handleRequestAgain,
-    handleSubmit,
+    handleEmailChange(value: string) {
+      setValue('email', value, { shouldDirty: true, shouldValidate: true })
+    },
+    handleSubmit: submitForm(handleSubmit),
+    register,
   }
-}
-
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
 }

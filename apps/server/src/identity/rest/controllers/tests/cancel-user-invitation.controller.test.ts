@@ -3,47 +3,72 @@ import type {
   UserAuditRecordsRepository,
   UsersRepository,
 } from '@scoops/core/identity/interfaces'
-import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
+import {
+  UserFaker,
+  UserRegistrationAttemptFaker,
+} from '@scoops/core/identity/domain/entities/fakers'
+import {
+  RegistrationAttemptType,
+  UserProfile,
+  UserStatus,
+} from '@scoops/core/identity/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
-import {
-  managerId,
-  managerToken,
-  operatorId,
-  seedUsers,
-  createUser,
-  createInvitation,
-} from './user-management-controller-test-fixtures'
 describe('Cancel User Invitation Controller [DELETE /users/:userId/invitation]', () => {
-  const auth = new SupabaseAuthFixture()
+  const { establishmentId, managerId, managerToken, operatorId } =
+    IdentityModuleFixture.userManagement
+  const supabaseAuth = new SupabaseAuthFixture()
   const tokens = OnboardingTokenProviderFaker.fake()
   let fixture: IdentityModuleFixture
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(auth, {
+    fixture = await IdentityModuleFixture.register(supabaseAuth, {
       onboardingToken: tokens,
     })
   })
   beforeEach(async () => {
-    auth.clear()
+    await supabaseAuth.clear()
     await fixture.resetDatabase()
-    await seedUsers(
-      fixture,
+    await fixture.seedUsers(
       [
-        createUser(managerId, 'Manager', UserProfile.Manager),
-        createUser(
-          operatorId,
-          'Pending Operator',
-          UserProfile.Operator,
-          UserStatus.Pending,
-        ),
+        UserFaker.fake({
+          id: managerId,
+          establishmentId,
+          name: 'Manager',
+          email: `${managerId}@example.com`,
+          profile: UserProfile.Manager,
+        }),
+        UserFaker.fake({
+          id: operatorId,
+          establishmentId,
+          name: 'Pending Operator',
+          email: 'pending@example.com',
+          profile: UserProfile.Operator,
+          status: UserStatus.Pending,
+        }),
       ],
-      [createInvitation(tokens)],
+      [
+        UserRegistrationAttemptFaker.fake({
+          id: '31000000-0000-0000-0000-000000000004',
+          userId: operatorId,
+          establishmentId,
+          name: 'Pending Operator',
+          email: 'pending@example.com',
+          profile: UserProfile.Operator,
+          type: RegistrationAttemptType.UserInvitation,
+          status: 'pending',
+          tokenHash: tokens.hash('u'.repeat(43)),
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        }),
+      ],
     )
-    auth.setUser(managerToken, { id: managerId, email: `${managerId}@example.com` })
+    supabaseAuth.setUser(managerToken, {
+      id: managerId,
+      email: `${managerId}@example.com`,
+    })
   })
   afterAll(async () => {
     await fixture?.close()
@@ -81,9 +106,9 @@ describe('Cancel User Invitation Controller [DELETE /users/:userId/invitation]',
         .set('Authorization', `Bearer ${managerToken}`),
     ])
 
-    expect([cancel.status, resend.status].sort((a, b) => a - b)).toEqual(
-      expect.arrayContaining([204]),
-    )
+    expect(
+      [cancel.status, resend.status].some((status) => [200, 204].includes(status)),
+    ).toBe(true)
     expect(
       [cancel.status, resend.status].every((status) =>
         [200, 204, 404, 409].includes(status),

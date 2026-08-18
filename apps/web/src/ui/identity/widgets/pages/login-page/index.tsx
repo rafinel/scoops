@@ -45,10 +45,7 @@ export const LoginPage = ({ returnTo }: LoginPageProps) => {
               E-mail
             </Label>
             <Input
-              {...register('identifier', {
-                validate: (value) =>
-                  value.trim().length > 0 || 'Informe seu email para continuar.',
-              })}
+              {...register('identifier')}
               id='login-email'
               type='email'
               autoComplete='email'
@@ -70,9 +67,7 @@ export const LoginPage = ({ returnTo }: LoginPageProps) => {
               </Label>
               <div className='relative mt-[9px] h-12'>
                 <Input
-                  {...register('password', {
-                    required: 'Informe sua senha para continuar.',
-                  })}
+                  {...register('password')}
                   id='login-password'
                   type={isPasswordVisible ? 'text' : 'password'}
                   autoComplete='current-password'

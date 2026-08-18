@@ -1,32 +1,5 @@
 Guidance for AI coding agents working in this repository (Scoops).
 
-Scoops is a pnpm and Turborepo monorepo:
-
-- `apps/web` — TanStack Start and React frontend with Tailwind CSS;
-- `apps/server` — NestJS backend with Drizzle ORM and Inngest;
-- `packages/core` — shared, infrastructure-independent domain entities, events,
-  contracts, and use cases consumed by both applications.
-
-## Instruction scope
-
-This file applies to the complete repository. A nested `AGENTS.md` refines these
-instructions for files inside its directory. Read every applicable instruction
-file before changing code. In particular, `apps/web/AGENTS.md` contains mandatory
-TanStack Intent commands for matching web tasks.
-
-## External traceability
-
-This project does not use Jira tickets. When external issue traceability exists,
-use the corresponding GitHub Issue URL and preserve it through Specs, Plans,
-implementation evidence, commits, and pull requests as applicable. Do not invent
-Jira keys, add `jira_tickets` metadata, migrate GitHub Issues into Jira, or treat
-Jira/Confluence workflow requirements from generic prompts as applicable to this
-repository. If no GitHub Issue exists, record the direct request or other actual
-source without fabricating an issue.
-
-If `AGENTS.local.md` exists, read it before repository work and apply it alongside
-this file. When it is absent, continue with the instructions below.
-
 ## Tool availability and usage
 
 The development environment uses Pencil and Context7 MCP servers. Use an MCP when
@@ -106,10 +79,14 @@ interactive/manual scenarios; do not use `browser-use`, CDP workflows or
 Playwright MCP instead.
 
 Use accessible role and name locators where possible. Inspect the DOM, final URL,
-network requests, console messages, viewport behavior and keyboard paths. Capture
-screenshots with the CLI when visual evidence is useful, but treat them as
-supporting evidence rather than the only assertion. Mocked transport coverage must
-not be presented as evidence that a real authenticated, server-backed flow works.
+network requests, console messages, viewport behavior and keyboard paths. For every
+UI change where the rendered appearance could be affected, capture a fresh
+screenshot with the CLI after the change and inspect it against the applicable
+design reference. Repeat this at each relevant implementation or correction
+checkpoint; never reuse a pre-change screenshot as evidence. Screenshots support
+the behavioral assertions and do not replace them. Non-visual changes do not
+require a new screenshot. Mocked transport coverage must not be presented as
+evidence that a real authenticated, server-backed flow works.
 
 #### Required Playwright CLI validation workflow
 
@@ -134,7 +111,11 @@ not be presented as evidence that a real authenticated, server-backed flow works
 7. For UI changes, exercise at least one narrow viewport and a keyboard path.
    Validate theme, focus, loading, empty, and error behavior when those states are
    part of the change.
-8. Stop application processes started for the validation. Leave shared Docker
+8. For each appropriate UI change, capture and inspect a fresh screenshot after
+   the change, including the relevant desktop or narrow viewport state. Record
+   the screenshot path and the comparison result in the applicable evaluation
+   evidence.
+9. Stop application processes started for the validation. Leave shared Docker
    services running unless the task explicitly requests teardown.
 
 Route or transport mocks are acceptable for isolated tests, but they must not be
@@ -204,37 +185,6 @@ test configuration, Docker Compose, Drizzle, or Inngest setup.
 
 Use pnpm and workspace `--filter` commands. Do not copy package names, scripts,
 CI configuration, deployment secrets, or environment names from another project.
-
-## Workflow expectations
-
-- Inspect the worktree before editing and preserve unrelated or user-owned
-  changes. Do not overwrite a dirty file without understanding the overlap.
-- Use the root `AGENTS.md`, every applicable nested `AGENTS.md`, the rule router,
-  and dynamically selected rules together.
-- Treat documentation as intent when code and documentation disagree. Surface the
-  discrepancy instead of silently copying the implementation.
-- Keep dependency direction explicit: feature modules may use shared
-  infrastructure; shared layers must not import feature-owned jobs, repositories,
-  controllers, or business rules.
-- Keep business logic in `packages/core` use cases. Application layers translate
-  framework input, wire dependencies, persist data, and integrate external
-  services.
-- Use core event class `_NAME` values when configuring Inngest `eventType`
-  triggers. Do not duplicate event names as string literals in server jobs.
-- Keep `InngestModule.forRoot({ client, functions })` in the root `AppModule` as
-  the single messaging composition point.
-- Use aliases defined by each workspace. Server imports use `@/`; core internal
-  imports use the package's `#<module>/*` aliases.
-- Do not edit generated files such as `apps/web/src/routeTree.gen.ts` manually.
-  Regenerate them through the documented command.
-- Add dependencies only to the workspace that uses them. Update and commit
-  `pnpm-lock.yaml` with dependency changes.
-- Validate in proportion to risk. At minimum, run code and type checks for every
-  changed workspace; add unit, integration, Playwright CLI, and build checks for the
-  affected boundaries.
-- Do not claim a test or Playwright CLI flow passed unless it was actually executed.
-- Do not add CI/CD, external writes, deployments, or third-party mutations unless
-  the user explicitly requests them.
 
 ## Worktree and environment safety
 

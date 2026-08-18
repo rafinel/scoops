@@ -7,6 +7,11 @@ description: Architecture and implementation rules for the web UI, shared widget
 These rules apply to `apps/web/src` and define how application UI, shared widgets,
 hooks, routes, environment configuration, and REST adapters are organized.
 
+Read and apply [`documentation/design.md`](../design.md) before every UI implementation or
+review. It is the authority for design tokens, typography, visual hierarchy, responsive
+behavior, focus treatment and accessibility expectations; this Rule defines the source and
+composition boundaries that implement it.
+
 ## UI code follows feature and shared boundaries
 
 Feature-owned UI belongs under:
@@ -662,11 +667,23 @@ files.
 
 ## Visual implementation follows the design system
 
-Before changing UI or styling, follow `documentation/design.md`. Use the existing
-CSS variables and Tailwind theme tokens for colors, typography, radii, spacing,
-shadows, focus states, and light/dark behavior. Do not hardcode a design value when
-an appropriate token exists.
+Before changing UI or styling, follow
+[`documentation/design.md`](../design.md). Use the existing CSS variables and
+Tailwind theme tokens for colors, typography, radii, spacing, shadows, focus
+states, and light/dark behavior. Do not hardcode a design value when an
+appropriate token exists.
 
 Headings use the documented serif family; body copy, controls, and navigation use
 the documented sans family. Preserve accessible names, visible keyboard focus,
 semantic elements, and non-color indicators for state.
+
+## Composite input focus states
+
+When an input is visually contained by a composite field wrapper, render one
+focus treatment on the wrapper with `focus-within`. Remove the inner input's
+focus-visible border, outline, ring, and shadow so nested controls do not show
+duplicated focus states. The wrapper must remain visibly focused for keyboard
+users. When the shared global focus selector would otherwise add an outline,
+mark the delegated control with `data-focus-ring='delegated'`. Playwright
+validation must verify both the neutral inner styles and the wrapper's visible
+focus treatment.
