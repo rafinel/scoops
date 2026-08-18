@@ -11,7 +11,12 @@ need a feature Contract.
 
 ## Workflow
 
-Follow these stages in order. Research may precede clarification; writing `spec.md` may not.
+Follow these stages in order. Research may precede clarification; writing or modifying
+`spec.md` may not. The clarification gate is a hard stop, not a documentation step: never
+create a draft Spec, design manifest, Plan, or other contract artifact and then ask the user
+to resolve a material product or technical choice that the artifact already encodes. Research
+outputs such as inspected screenshots or notes may be saved when needed, but the feature
+Spec remains unwritten until the gate passes.
 
 ### 1. Establish repository authority
 
@@ -80,9 +85,13 @@ Each screenshot-derived clarification must include:
 - whether the screenshot detail is required behavior, visual-only treatment, intentionally
   excluded scope or an unresolved ambiguity.
 
-If the user cannot resolve the question, keep the Spec `draft` and record the ambiguity as a
-blocker. If repository authority already resolves it, cite that authority and record the
-interpretation without asking the user to re-decide an established contract.
+During initial Spec creation, if the user cannot resolve the question or has not answered,
+stop and return the question with its evidence, recommendation, alternatives and impact; do
+not write `spec.md` or encode the unresolved choice in a draft. The `draft` status is for an
+existing Spec under active authoring/amendment, or for a user-explicitly accepted documented
+assumption—not a reason to ask a material question after creating the artifact. If repository
+authority already resolves the choice, cite that authority and record the interpretation
+without asking the user to re-decide an established contract.
 
 Resolve a choice from repository authority when one safe answer is already established.
 Otherwise ask the user concise questions. For each material question, provide repository
@@ -90,7 +99,9 @@ evidence, a recommendation, alternatives and impact. Do not ask the user to deci
 already fixed by authoritative documents or established code.
 
 Write only after every material ambiguity is answered or the user explicitly accepts a
-documented assumption.
+documented assumption. Before the first write, perform a final ambiguity scan across the
+request, PRD, issue, screenshots, routes, permissions, validation states, API fields and
+technical ownership; if any material choice remains, ask it now and end the turn.
 
 #### Authority changes
 
@@ -118,7 +129,7 @@ For new work against a concluded feature, create
 | --- | --- | --- |
 | `spec.md` | This workflow | Product, technical and validation Contract. |
 | `design/manifest.md` and screenshots | During Spec authoring when UI is design-backed | File-backed implementation and visual-validation references. |
-| `plan.md` | Only when the recommended route is `implement-plan` | Execution phases, dependencies and durable progress ledger. |
+| `plan.md` | Only when Plan-backed execution is recommended | Execution phases, dependencies and durable progress ledger. |
 | `evaluation.md` | At implementation kickoff | Actual validation evidence, findings and history. |
 
 Use only this metadata and omit empty optional fields:
@@ -170,7 +181,7 @@ Use Markdown tables whenever repeated items share the same attributes or exact m
 important. Tables are required for:
 
 - scope/product alignment when more than one item is involved;
-- RF/CA traceability;
+- RF/REQ/CA traceability;
 - design-frame inventory in `design/manifest.md`;
 - implementation paths grouped by affected application and layer;
 - technical decisions, when any are recorded;
@@ -211,17 +222,23 @@ Do not put repository implementation evidence or technical decisions in this sec
 ### 2. Implementation Contract
 
 Define observable requirements as `RF-*`. Keep internal paths and algorithms out of them.
+When the authoritative PRD/source defines `REQ-*` requirements, map every RF to one or more
+real `REQ-*` identifiers; do not invent requirement IDs. If no REQ taxonomy exists, map each RF
+to the actual source statement or Issue acceptance instead. Show the mapping directly in the RF
+table or an adjacent RF-to-REQ/source traceability table.
 Use a requirements table when there is more than one requirement:
 
-| ID | Required behavior |
-| --- | --- |
-| `RF-01` | `<observable behavior and applicable restrictions>` |
+| ID | REQ/source coverage | Required behavior |
+| --- | --- | --- |
+| `RF-01` | `<real REQ-* IDs or source anchor>` | `<observable behavior and applicable restrictions>` |
 
-Map every requirement to acceptance evidence using this required table:
+Map every requirement to acceptance evidence using this required table. Every CA must link to
+one or more RFs, and every RF must link to one or more CAs; do not leave either direction
+implicit:
 
-| ID | Requirement | Given | When | Then | Expected evidence |
-| --- | --- | --- | --- | --- | --- |
-| `CA-01` | `RF-01` | `<precondition>` | `<action>` | `<observable result>` | `<test boundary and/or MV-01>` |
+| ID | RF coverage | Requirement | Given | When | Then | Expected evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| `CA-01` | `RF-01` | `<observable criterion>` | `<precondition>` | `<action>` | `<observable result>` | `<test boundary and/or MV-01>` |
 
 Cover applicable success, rejection, authorization, tenant isolation, concurrency,
 provider failure, session/hydration restoration, accessibility, performance and secret
@@ -435,8 +452,9 @@ they are part of the contract. State both what changes and the runtime guarantee
 must preserve. Reference RF/CA IDs only where they disambiguate the responsibility; the
 Validation Contract remains the canonical evidence map. Add a short TypeScript signature,
 JSON/schema example or state table after the layer table only when the columns would
-otherwise leave the contract ambiguous. Do not include implementation bodies except
-required migration SQL.
+otherwise leave the contract ambiguous. Domain Entity/Structure declaration code is required
+by the Domain rules above; do not include implementation bodies, migration SQL examples or
+UI query/action hook signatures unless an authoritative source explicitly requires them.
 
 Use the matching contract model below for each affected layer.
 
@@ -477,6 +495,19 @@ Then map every affected Domain path:
 For every affected Entity and Structure, add a complete resulting field schema immediately
 after the Domain path table. Use one subsection per declaration; do not combine several
 declarations into one table:
+
+Also include the resulting TypeScript/domain declaration as code for every new or changed
+Entity and Structure. The code declaration is the canonical shape; the field table is the
+auditable schema and must agree with it. Do not replace the code with prose, a database model,
+or a transport example. This code requirement applies to domain objects, not to UI query/action
+hooks.
+
+```ts
+// packages/core/src/<module>/<path>/<declaration>.ts
+export type <ExactEntityOrStructureName> = {
+  // complete resulting fields and domain types
+}
+```
 
 **Schema — `<ExactEntityOrStructureName>`**
 
@@ -565,6 +596,12 @@ web service adapters, transport utilities and `.rest` examples:
 Add a request/response field table or short JSON example only when the signature remains
 ambiguous. Do not reproduce unchanged fields.
 
+When a browser-facing service adapter is affected, enumerate its exact methods explicitly.
+For each HTTP operation, name the corresponding Core service/interface method and the web
+adapter method, including request input, response/result mapping, error preservation and the
+owning test file. Do not handwave a service as “the API client” and do not add methods for
+excluded routes or surfaces.
+
 Audit REST contracts for one controller per action, semantic route parameters, derived
 use-case request types, synchronized validation/Swagger/error statuses, current-session
 headers at the transport boundary, aligned server and web operation signatures and no
@@ -607,13 +644,20 @@ repositories, tokens, database modules, seeders, schema barrels and migrations:
 | --- | --- | --- | --- | --- | --- | --- |
 | `<exact path>` | `<change>` | `<model, type, mapper, repository, token, module, seeder or migration>` | `<columns, types, defaults and domain mapping>` | `<tenant filters, indexes, constraints and repository semantics>` | `<rollout, compatibility, backfill, isolation, locking and retry>` | `<token binding, schema barrel and callers>` |
 
-For every migration path, follow the table with **Migration body — `<path>`** and a fenced
-`sql` block containing the complete expected migration body. Include all required DDL,
-constraints, indexes, data transformations/backfills and statement ordering. Ground the
-body in the repository's current schema and migration conventions; do not use pseudocode or
-omit operations because the migration will later be generated. The implementation may use
-the documented generator, but its generated result must satisfy the body contracted by the
-Spec.
+For every migration path, document the data model instead of embedding a migration example.
+Use one subsection per table with these required parts:
+
+- a **Columns** table: `Column | Type | Nullable | Default | Description`;
+- an **Indexes** table: `Index name | Columns | Type | Purpose`;
+- a **Constraints** table: `Constraint | Type | Definition | Purpose`;
+- **Cross-database notes** when portability or database-specific behavior matters; and
+- concise **Migration delivery** prose naming the exact path, generator/journal command,
+  ordering/backfill/compatibility requirements and transaction/rollout constraints.
+
+Do not include a fenced SQL migration body or a “Migration example” subsection unless the user,
+source specification or repository rule explicitly requires SQL in the Spec. The generated
+migration remains implementation-owned; its result must satisfy the documented data-model
+invariants.
 
 Do not reproduce unrelated unchanged tables. Keep external side effects outside retryable
 transactions unless an approved outbox contract says otherwise.
@@ -679,10 +723,12 @@ Then map every affected UI path exactly once:
 
 For widget files, contract the rendering and behavior boundaries separately: `index.tsx`
 owns rendering, composition and DOM event wiring; a colocated `use-<widget-name>.ts` owns
-non-trivial state, effects, refs, forms, derived state, async orchestration and handlers. A
-pure prop-to-markup widget may omit the hook. Parent widgets pass explicit props and
-callbacks; a child owns its internal behavior and must not reach into the parent's local
-state.
+non-trivial state, effects, refs, forms, derived state, async orchestration and handlers. When
+the repository's widget convention requires a hook, every contracted child widget must name
+both its `index.tsx` and colocated `use-<widget-name>.ts`; do not hide children under a generic
+`components/` folder unless the repository explicitly establishes that convention. Parent
+widgets pass explicit props and callbacks; a child owns its internal behavior and must not reach
+into the parent's local state.
 
 For Page widgets, identify the thin route entry, screen-level workflow, page-owned hook and
 children. For Layout widgets, identify the subtree, structural slots, providers and owned
@@ -690,7 +736,10 @@ navigation or responsive state. For Component widgets, identify the focused inte
 reuse boundary and whether it is public, feature-shared or internal to its parent. Place a
 hook according to its actual consumers: colocated for one widget, feature-level when shared
 by several widgets and shared application-level only when it represents a reusable
-application concern.
+application concern. For data-backed UI, explicitly name every feature-level query/action hook
+path, the service method it calls, the state/effects it owns, invalidation/recovery behavior and
+its test boundary. Query/action hooks are UI declarations, not widgets; specify their
+responsibilities and paths, but do not require TypeScript code-shape signatures for them.
 
 Audit the completed UI contract for:
 
@@ -759,6 +808,27 @@ and name real test files/suites and the CA IDs they prove. Keep mocked transport
 integration and manual Playwright CLI evidence distinct. Do not invent test functions, arbitrary
 coverage percentages or commands.
 
+When a feature has more than one test boundary or test file, include an explicit testing
+strategy with these two tables:
+
+**Test file structure**
+
+| Test file | Test type | Target | Coverage goal |
+| --- | --- | --- | --- |
+| `<repository-relative test path>` | `<unit, component, integration, route or manual>` | `<class, hook, widget, controller or route>` | `<behavioral coverage goal; no invented percentage>` |
+
+**Test cases by file**
+
+| Test file | Test case | Description | Assertions |
+| --- | --- | --- | --- |
+| `<test path>` | `<real test/suite name or descriptive case>` | `<scenario>` | `<observable assertions and side effects>` |
+
+List the relevant cases for every contracted test file, including domain rule branches,
+authorization/tenant boundaries, transport failures, persistence effects, query/action hook
+state and UI recovery. Assertions must describe observable outcomes, not only mocked method
+calls. Preserve the repository's real naming convention; do not invent arbitrary coverage
+percentages or implementation-only test claims.
+
 Use this required coverage table:
 
 | Acceptance | Automated boundary | Manual scenario | Evidence target |
@@ -777,9 +847,10 @@ For each `MV-*`, provide:
 List applicable commands in a `Command | Purpose/coverage` table and link the expected
 evidence record as `./evaluation.md`.
 
-The Orchestrator executes every applicable `MV-*` with the Playwright CLI and compares
-design-backed UI against saved references at the declared viewports. Builder checks and
-automated results are supporting evidence, not substitutes for this manual Playwright CLI validation.
+The Orchestrator executes every applicable `MV-*` with the Playwright CLI. Design-backed
+visual comparison is optional evidence for material acceptance decisions and does not require
+a dedicated visual-reference integration test. Builder checks and automated results remain
+supporting evidence for the applicable behavioral and manual validation.
 
 ### 5. Documentation alignment and revision history
 
@@ -813,10 +884,31 @@ or integrity work remains. Before changing it to `open`, verify:
 - complete/current design bundle and screenshot integrity when applicable;
 - visual analysis inventory for every supplied screenshot and a recorded decision for every
   additional-screenshot suggestion;
-- a complete SQL body for every created or modified migration path;
+- a complete data-model contract for every created or modified migration path, including
+  columns, indexes, constraints, database notes and migration delivery requirements (without
+  inline SQL unless explicitly required);
 - executable manual scenarios and real validation commands;
 - valid documentation and Rule Pack paths;
 - valid Markdown tables, links, Mermaid and artifact structure.
+
+For every implementation-facing Spec, also verify that the handoff is executable rather than
+interpretive:
+
+- include an exact, repository-relative file/widget tree for every changed UI surface, with
+  one path per line and explicit component boundaries;
+- declare allowed paths, prohibited paths, owning layer/module, generated-file treatment and
+  the Builder validation exits;
+- map every supplied design screenshot and every required supplemental state to an exact
+  route, viewport, state, implementation surface and evidence target;
+- define the required loading, empty, success, error, recovery, disabled, selected, focus,
+  keyboard and responsive behavior wherever applicable;
+- include an explicit exclusion list so an implementation cannot infer missing behavior from
+  the existing codebase or from a screenshot alone;
+- ensure the resulting Spec can be checked against the filesystem and the declared validation
+  commands without inventing paths, tests, APIs or evidence.
+
+An incomplete tree, ambiguous widget boundary, missing state, missing screenshot mapping or
+non-executable validation command keeps the Spec `draft`; do not hand it to implementation.
 
 After writing, return a concise author summary containing:
 
@@ -827,10 +919,12 @@ After writing, return a concise author summary containing:
 - design screenshot count and coverage when applicable;
 - automated boundaries and `MV-*` coverage;
 - accepted assumptions, risks or blockers;
-- recommended route: `implement-spec` or `implement-plan`, with rationale.
+- recommended strategy: direct `implement-spec`, or `create-plan` followed by
+  Plan-backed `implement-spec`, with rationale.
 
-Recommend `implement-spec` for a small cohesive change with stable dependencies, limited
-ownership and no meaningful execution waves. Recommend `implement-plan` for dependent
+Recommend direct `implement-spec` for a small cohesive change with stable dependencies,
+limited ownership and no meaningful execution waves. Recommend `create-plan` followed by
+Plan-backed `implement-spec` for dependent
 phases, multiple applications/shared ownership, migration/provider/concurrency/security
 risk, multiple design-backed surfaces/manual environments, useful parallel lanes or a
 needed recovery ledger. Do not choose by file count alone.
@@ -845,7 +939,7 @@ For a material amendment before conclusion:
 4. refresh affected Contracts, design references and validation coverage;
 5. mark superseded evidence as historical;
 6. rerun the integrity gate and return the Spec directly to `open`;
-7. re-evaluate `implement-spec` versus `implement-plan`.
+7. re-evaluate direct versus Plan-backed `implement-spec` execution.
 
 Amend the same Spec; do not create another Spec unless the original feature is already
 concluded and the request is a distinct new change.

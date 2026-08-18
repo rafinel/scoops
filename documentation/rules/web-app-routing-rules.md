@@ -239,12 +239,15 @@ keeps route tests aligned with `documentation/modules.md`, keeps related server,
 core, UI, and browser tests discoverable together, and prevents a URL rename or
 localization from moving tests between unrelated technical areas.
 
-These are browser integration tests, not backend end-to-end tests. A real backend
-is not required: `page.route` may provide a deterministic mocked transport. When
-the transport is mocked, the test must model the relevant response state instead
-of returning the same fixture forever.
+These are browser integration tests, not backend end-to-end tests. Web route tests
+must never start, call, or depend on a real backend, database, authentication
+service, or external service. Use `page.route` or the shared browser fixtures to
+provide deterministic mocked transport. When transport is mocked, the test must
+model the relevant response state instead of returning the same fixture forever.
+Real server persistence, authorization, and cross-tenant behavior belong in the
+server/Core integration suites, not under `apps/web/tests/routes/`.
 
-Every protected feature route should cover the applicable cases:
+Every feature route, whether public or protected, should cover the applicable cases:
 
 - unauthenticated redirect;
 - authenticated but unauthorized redirect;
@@ -267,6 +270,42 @@ Route tests must exercise the actual route middleware, route component, and page
 composition. Do not mock the owning page or hook in a Playwright route test. Keep
 unit-level controller and hook tests under `apps/web/src/ui/**/tests`; do not use
 them as a substitute for route coverage.
+
+### Mandatory route coverage matrix
+
+Before considering a route implemented or complete, build a coverage matrix from
+the route's public contract and mark every applicable dimension with a focused
+browser test. A route suite is incomplete when it tests only the initial success
+render, even if the page has high line or statement coverage.
+
+The matrix must explicitly review:
+
+- access and navigation: anonymous, authenticated, unauthorized, canonical URL,
+  redirects, preserved return state, malformed path parameters, and malformed or
+  missing search parameters;
+- data lifecycle: unresolved loading, successful data, empty data with and
+  without filters, expected client/server errors, malformed responses, retry,
+  and recovery after a failed request;
+- user interactions: every link, button, select, checkbox, table action, dialog,
+  cancel path, confirmation path, keyboard path, and duplicate-submit guard that
+  the route exposes;
+- validation and boundaries: required values, malformed values, minimum and
+  maximum boundaries, conflicting values, disabled controls, pending controls,
+  and mutation errors shown beside the affected field or action;
+- transport and state synchronization: exact HTTP method, path, path parameters,
+  query string, request body, response status/body, resulting URL, visible state,
+  refreshed data, and persisted browser state;
+- responsive and accessibility behavior: at least one narrow viewport when the
+  route has responsive layout behavior, keyboard navigation for interactive
+  flows, accessible names/roles, focus behavior, and relevant console or network
+  failure checks.
+
+Use one focused test for each meaningful scenario. A test may share setup through
+a module fixture, but it must not hide the request, response, or visible-state
+assertions behind an opaque helper. If a matrix dimension is genuinely
+inapplicable, document the reason beside the suite or in its evaluation evidence;
+do not silently omit it. The implementation is not ready until every applicable
+matrix cell has passing evidence and all discovered discrepancies are corrected.
 
 ### Detailed integration-test standard
 
@@ -301,12 +340,11 @@ An integration test is complete only when it proves both sides of the interactio
 the user can observe the outcome and the application made the expected transport
 or navigation decision. For mutations, assert the request and response contract,
 then assert the visible success/error state and any refresh or redirect. For
-authenticated flows, establish the session through the shared fixture, verify the
-account/authorization response, and cover at least one denied or unavailable
-state when that boundary is part of the route. If a real backend is not used,
-state clearly that the suite uses mocked transport; mocked browser coverage must
-not be presented as proof of server authorization, persistence, or external email
-delivery.
+authenticated flows, establish the session through the shared browser fixture,
+verify the mocked account/authorization response, and cover at least one denied or
+unavailable state when that boundary is part of the route. Route suites must state
+that they use mocked transport; mocked browser coverage must not be presented as
+proof of server authorization, persistence, or external email delivery.
 
 Prefer one focused test per behavior over a large test with unrelated assertions.
 Before marking a route complete, inspect the suite for missing edge states and

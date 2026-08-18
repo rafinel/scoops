@@ -110,9 +110,9 @@ for a revised Spec that replaces the Plan or switches to direct implementation.
 flowchart TD
     A["PRD, GitHub Issue, report or direct request"] --> B["create-spec"]
     B --> C{"Implementation route"}
-    C -->|Small cohesive delivery| D["implement-spec"]
+    C -->|Small cohesive delivery| D["implement-spec: direct strategy"]
     C -->|Dependent or risky delivery| E["create-plan"]
-    E --> F["implement-plan"]
+    E --> F["implement-spec: Plan-backed strategy"]
     D --> G["Integrated sensors and Playwright CLI evidence"]
     F --> G
     G --> H{"ready evidence"}
@@ -174,9 +174,10 @@ The Spec remains `draft` until its metadata, RF/CA traceability, technical map, 
 bundle, manual scenarios, commands, links and Rule Pack pass integrity checks. There is no
 separate Spec review stage. A valid Spec moves directly to `open` and its author summary recommends:
 
-- `implement-spec` for a small cohesive change with stable dependencies;
-- `implement-plan` for dependent phases, shared ownership, meaningful parallelism or
-  migration, provider, concurrency, security, visual or recovery risk.
+- direct `implement-spec` for a small cohesive change with stable dependencies;
+- `create-plan` followed by Plan-backed `implement-spec` for dependent phases, shared
+  ownership, meaningful parallelism or migration, provider, concurrency, security, visual
+  or recovery risk.
 
 ## 3. Design-backed Specs
 
@@ -202,7 +203,7 @@ a reference refresh.
 ## 4. Optional Plan creation
 
 [`create-plan`](./prompts/create-plan-prompt.md) creates `plan.md` only when the open Spec
-recommends `implement-plan`. The Plan cannot redefine the Contract; an ambiguity routes back
+recommends Plan-backed execution. The Plan cannot redefine the Contract; an ambiguity routes back
 to Spec amendment.
 
 The Plan contains:
@@ -218,12 +219,14 @@ Builders never edit the Plan. The Orchestrator keeps it current throughout imple
 
 ## 5. Implementation and living evidence
 
-Implementation starts through [`implement-spec`](./prompts/implement-spec-prompt.md) or
-[`implement-plan`](./prompts/implement-plan-prompt.md). Both workflows:
+Implementation always starts through [`implement-spec`](./prompts/implement-spec-prompt.md).
+It selects direct execution when no current Plan exists and Plan-backed execution when a
+current Plan references the Spec revision. The common workflow:
 
 1. freeze the current Spec revision and base commit;
 2. set the Spec to `in_progress`, and the Plan when present;
-3. create or reconcile `evaluation.md` with `status: in_progress`;
+3. create or reconcile `evaluation.md` from the canonical
+   [`evaluation.md` template](./templates/evaluation.md) with `status: in_progress`;
 4. dispatch bounded Builders with RF/CA coverage, allowed paths, Rules, Architecture and
    design references;
 5. inspect Builder diffs and run repository-approved focused sensors;
@@ -238,7 +241,8 @@ Builder reports are not official evidence. The Orchestrator must verify the diff
 results. Evidence tied to an earlier affected diff is marked historical or stale rather
 than silently reused.
 
-An Evaluation normally records:
+The canonical [`evaluation.md` template](./templates/evaluation.md) fixes the table structure
+and stable evidence IDs. An Evaluation records:
 
 - Spec and Plan references, revision, base/current commit and status;
 - acceptance matrix;
@@ -332,8 +336,7 @@ bug-fix workflow and changed behavior uses a new change Spec.
 | Create an approved feature Issue | [`create-feat-issue.md`](./prompts/create-feat-issue.md) |
 | Create or amend a Spec | [`create-spec-prompt.md`](./prompts/create-spec-prompt.md) |
 | Create an optional Plan | [`create-plan-prompt.md`](./prompts/create-plan-prompt.md) |
-| Implement directly | [`implement-spec-prompt.md`](./prompts/implement-spec-prompt.md) |
-| Implement through a Plan | [`implement-plan-prompt.md`](./prompts/implement-plan-prompt.md) |
+| Implement directly or through a Plan | [`implement-spec-prompt.md`](./prompts/implement-spec-prompt.md) |
 | Publish, run PR CI and close | [`conclude-spec-prompt.md`](./prompts/conclude-spec-prompt.md) |
 | Create or update the delivery PR | [`create-pr-prompt.md`](./prompts/create-pr-prompt.md) |
 | Resolve later PR comments | [`resolve-pr-feedback-prompt.md`](./prompts/resolve-pr-feedback-prompt.md) |

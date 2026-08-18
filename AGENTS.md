@@ -106,10 +106,14 @@ interactive/manual scenarios; do not use `browser-use`, CDP workflows or
 Playwright MCP instead.
 
 Use accessible role and name locators where possible. Inspect the DOM, final URL,
-network requests, console messages, viewport behavior and keyboard paths. Capture
-screenshots with the CLI when visual evidence is useful, but treat them as
-supporting evidence rather than the only assertion. Mocked transport coverage must
-not be presented as evidence that a real authenticated, server-backed flow works.
+network requests, console messages, viewport behavior and keyboard paths. For every
+UI change where the rendered appearance could be affected, capture a fresh
+screenshot with the CLI after the change and inspect it against the applicable
+design reference. Repeat this at each relevant implementation or correction
+checkpoint; never reuse a pre-change screenshot as evidence. Screenshots support
+the behavioral assertions and do not replace them. Non-visual changes do not
+require a new screenshot. Mocked transport coverage must not be presented as
+evidence that a real authenticated, server-backed flow works.
 
 #### Required Playwright CLI validation workflow
 
@@ -134,7 +138,11 @@ not be presented as evidence that a real authenticated, server-backed flow works
 7. For UI changes, exercise at least one narrow viewport and a keyboard path.
    Validate theme, focus, loading, empty, and error behavior when those states are
    part of the change.
-8. Stop application processes started for the validation. Leave shared Docker
+8. For each appropriate UI change, capture and inspect a fresh screenshot after
+   the change, including the relevant desktop or narrow viewport state. Record
+   the screenshot path and the comparison result in the applicable evaluation
+   evidence.
+9. Stop application processes started for the validation. Leave shared Docker
    services running unless the task explicitly requests teardown.
 
 Route or transport mocks are acceptable for isolated tests, but they must not be

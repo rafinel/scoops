@@ -42,11 +42,19 @@ origem de feature sem Spec      → create-spec
 Spec draft                      → create-spec / concluir esclarecimentos e integridade
 Spec open pequena               → implement-spec / Builder Direct
 Spec open complexa              → create-plan
-Plan pending                    → implement-plan / Builders
+Plan pending                    → implement-spec / Builders por fase ou tarefa
 implementação concluída         → sensores + evidências Playwright CLI
 evidência pronta                → conclude-spec
 feedback em PR aberto           → resolve-pr-feedback
 ```
+
+Antes de qualquer edição de feature, registre a ativação do Builder, a revisão exata da Spec,
+os paths permitidos/proibidos, a árvore de widgets, o Rule Pack, as referências de design e os
+exits de validação. Compare a árvore e os Contracts antes de cada handoff e após cada correção;
+não substitua a árvore declarada pela estrutura existente. Uma falha de implementação, sensor,
+browser, rede, console, build, migração ou comparação visual dentro do Contract é uma correção
+automática: registre o finding, invalide a evidência, crie um Builder Fix via `implement-spec`,
+corrija imediatamente e repita os sensores. Não peça permissão para correções in-Contract.
 
 Para manutenção sem Contract de feature, use fluxo direto e não crie Spec.
 `create-pr`, `conclude-spec` e `resolve-pr-feedback` são workflows do
@@ -114,9 +122,11 @@ Se um Quality Gate de implementação falhar, mantenha a Spec `in_progress`,
 registre o finding e trate a correção no workflow de implementação, incluindo
 Builder Fix, sensores e nova validação quando o diff ou a evidência forem
 invalidados. Se o CI falhar durante `conclude-spec`, registre e classifique a
-falha, depois roteie a correção para `implement-spec`, `implement-plan` ou
-`create-spec`. Esse roteamento deve invocar o workflow imediatamente; o workflow de
-implementação cria o Builder, atualiza a evidência e devolve o controle para que
+falha, depois roteie uma correção de implementação para `implement-spec` ou uma
+mudança de Contract para `create-spec`. `implement-spec` seleciona automaticamente
+a estratégia direta ou o Plan atual. Esse roteamento deve invocar o workflow
+imediatamente; o workflow de implementação cria o Builder, atualiza a evidência e
+devolve o controle para que
 `conclude-spec` atualize o mesmo PR e repita o CI. A conclusão não edita a correção
 diretamente, mas também não pode parar apenas porque a correção pertence a outro
 workflow.
@@ -127,7 +137,8 @@ decisão ao usuário.
 ## Restrições
 
 - Não usar `create_thread`, fork ou handoff para outra task.
-- Não marcar Spec, Plan ou fase sem os sensores e as evidências independentes aplicáveis.
+- Não marcar Spec, Plan ou fase sem os sensores, a comparação de árvore e as evidências
+  independentes aplicáveis.
 - Não editar código durante o julgamento.
 - Não sobrescrever mudanças preexistentes fora do escopo. Elas podem permanecer na
   worktree e não devem bloquear a Spec; mantenha-as fora dos commits e evidências

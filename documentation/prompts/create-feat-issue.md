@@ -90,6 +90,7 @@ Use the following structure:
 
 - <Included product behavior or capability.>
 - <Important business, technical, design, or integration constraint.>
+- <Design references, including the exact Pencil file and node IDs when supplied.>
 - **Not included:** <Explicitly excluded adjacent behavior.>
 
 ## Acceptance criteria
@@ -112,7 +113,9 @@ that materially limit the solution; the Spec owns layer-by-layer contracts,
 file choices, runtime flows, and detailed validation commands. Omit optional
 scope bullets, acceptance criteria, and references that do not apply. Keep
 acceptance criteria observable and testable, and separate required behavior
-from implementation ideas.
+from implementation ideas. When the request supplies Pencil design references,
+place the exact file path and node IDs in the Scope section; the References
+section may link to the design file as supporting context.
 
 ## Scope rules
 
@@ -126,6 +129,9 @@ from implementation ideas.
   and other business decisions.
 - Do not add unrelated cleanup, speculative future work, or unrequested
   dependencies.
+- When Pencil file or node references are supplied, preserve them exactly and
+  include them as an explicit Scope bullet rather than only listing them under
+  References.
 - Do not claim that a requirement is implemented; this prompt only creates the
   issue.
 

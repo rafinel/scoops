@@ -670,3 +670,14 @@ an appropriate token exists.
 Headings use the documented serif family; body copy, controls, and navigation use
 the documented sans family. Preserve accessible names, visible keyboard focus,
 semantic elements, and non-color indicators for state.
+
+## Composite input focus states
+
+When an input is visually contained by a composite field wrapper, render one
+focus treatment on the wrapper with `focus-within`. Remove the inner input's
+focus-visible border, outline, ring, and shadow so nested controls do not show
+duplicated focus states. The wrapper must remain visibly focused for keyboard
+users. When the shared global focus selector would otherwise add an outline,
+mark the delegated control with `data-focus-ring='delegated'`. Playwright
+validation must verify both the neutral inner styles and the wrapper's visible
+focus treatment.

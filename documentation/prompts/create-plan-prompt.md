@@ -5,12 +5,17 @@ description: Create a concise SDD execution Plan for an open feature Spec that n
 
 # Create a Plan
 
-Create `plan.md` only when an `open` Spec recommends `implement-plan` because execution has
+Create `plan.md` only when an `open` Spec recommends Plan-backed execution because it has
 dependent phases, multiple applications or ownership boundaries, migration/integration
 risk, meaningful parallelism, complex manual validation or a real need for recovery state.
-Use `implement-spec` directly for a small cohesive Spec.
+After planning, `implement-spec` automatically selects this Plan. Use its direct strategy for
+a small cohesive Spec.
 
 The Orchestrator creates and owns the Plan in the current task. Builders never edit it.
+
+The Plan is an execution ledger, not a second implementation contract. It must preserve the
+Spec's exact revision and route every implementation change through `implement-spec`; never
+create or reference a parallel implementation workflow.
 
 ## Preconditions and authority
 
@@ -22,7 +27,7 @@ Read the current Spec, its Rule Pack, Architecture and Tooling. Confirm:
 - every supplied design screenshot has a completed visual inventory, and all required
   supplemental-screenshot suggestions are captured or explicitly accepted as documented
   assumptions;
-- `implement-plan` remains the appropriate route;
+- Plan-backed execution remains appropriate;
 - no material product or technical ambiguity remains.
 
 Planning must not redefine product behavior or technical contracts. If planning exposes a
@@ -49,7 +54,7 @@ updated_at: YYYY-MM-DD
 ---
 ```
 
-`evaluation.md` is an expected colocated path. It is created by `implement-plan` at
+`evaluation.md` is an expected colocated path. It is created by `implement-spec` at
 implementation kickoff, not by `create-plan`.
 
 ## Required Plan structure
@@ -70,7 +75,7 @@ technical decisions or full Rule Pack. Reference the authoritative Contract inst
 Keep one compact operational snapshot:
 
 - Spec path, revision and `open` status;
-- one-sentence rationale for `implement-plan`;
+- one-sentence rationale for Plan-backed execution;
 - current phase;
 - next action;
 - active blockers;
@@ -115,6 +120,18 @@ paths, RF/CA coverage, observable outcome, applicable Rules (including relevant
 `Antipatterns to Avoid` subsections) and validation/exit. Reference the Spec for technical
 detail. Paths may not overlap between active Builders.
 
+For every task that changes UI or browser behavior, its exit must also require: the exact Spec
+widget tree comparison, applicable keyboard/narrow-viewport states, console and failed-request
+inspection, and a fresh Playwright CLI screenshot for each affected design state. For every task
+that changes server-backed behavior, its exit must require the real request/response and
+persistence or authorization result; mocked transport is not sufficient evidence.
+
+A Builder may not start until the Orchestrator records the exact Spec revision, task paths,
+criteria, Rules, design references and exits. A task may not be marked complete from a Builder
+report alone. On any error or discrepancy, keep it `in_progress`, record the finding, invalidate
+affected evidence, route a scoped Builder Fix through `implement-spec`, and rerun the exit
+without asking the user for permission to make an in-Contract correction.
+
 Status vocabulary:
 
 - **Plan:** `pending`, `in_progress`, `completed`, `superseded`;
@@ -132,20 +149,22 @@ Use one coverage table to schedule evidence without repeating the Spec's scenari
 | Type | Scenario/surface | Criteria | Reference | Evidence target | Status |
 | --- | --- | --- | --- | --- | --- |
 | Manual | MV-01 | CA-01 | Spec MV-01 | `./evaluation.md` | `pending` |
-| Visual | `<state>` | CA-02 | `./design/<reference>.png` | `./evidence/screenshots/rev-<n>/<state>.png` | `pending` |
+| Visual (optional) | `<state>` | CA-02 | `./design/<reference>.png` | `./evidence/screenshots/rev-<n>/<state>.png` | `pending` |
 | Runtime | `<integration>` | CA-03 | Integration Contract | `./evaluation.md` | `pending` |
 
-Include only applicable rows. For design-backed UI, schedule every supplied and
-supplemental manifest state at its exact viewport and an implementation screenshot under
-the feature-local `evidence/` directory. Add a comparison row for each reference; do not
-allow one generic screenshot to stand in for multiple states or viewports. Builders and the
-Orchestrator use saved references and do not depend on Pencil MCP.
+Include only applicable rows. For design-backed UI, schedule every supplied screenshot and every
+required supplemental state at its exact viewport and record an independent comparison row for
+each. Do not create a dedicated visual-reference test or use one generic capture as evidence for
+multiple states/viewports. Recommended supplemental screenshots may be deferred only when the
+manifest records the decision and no acceptance gap remains. Builders and the Orchestrator use
+saved references and do not depend on Pencil MCP.
 
 Define the final handoff condition: all tasks and phases completed, Spec validation
 commands current on the integrated commit, generated artifacts/migrations reviewed,
-services/accounts/fixtures ready, every `MV-*` executable, required screenshot targets
-available, every reference comparison recorded, all additional-screenshot decisions
-resolved and no blocking finding active. Then route directly to `conclude-spec`.
+services/accounts/fixtures ready, every `MV-*` executable, declared evidence targets
+available, the final Spec tree/conformance comparison passed, all additional-screenshot
+decisions resolved and no blocking finding active. Then
+route directly to `conclude-spec`.
 
 ### 4. Execution log — conditional
 
@@ -164,12 +183,12 @@ details and verdicts belong in `evaluation.md`.
 
 Before saving, verify the Spec revision, acyclic dependencies, complete RF/CA scheduling,
 non-overlapping active paths, valid Rule paths, executable exits, complete `MV-*`/design
-coverage and valid colocated links.
+coverage, explicit Builder ownership, final conformance checkpoints and valid colocated links.
 
 After creating or materially revising `plan.md`, return a concise summary with:
 
 - clickable Plan path, status and Spec revision;
-- reason for `implement-plan`;
+- reason for Plan-backed execution;
 - number of waves, phases and tasks;
 - parallel lanes, critical dependencies and shared ownership;
 - planned manual/runtime/visual coverage;

@@ -187,7 +187,13 @@ pnpm --filter web exec playwright install chromium
 
 The server uses Vitest with a Node environment. Tests are discovered from
 `apps/server/src/**/*.test.ts`; Testcontainers PostgreSQL is available for
-database-backed integration fixtures.
+database-backed fixtures. Identity controller tests that exercise Supabase Auth
+use the local Compose Supabase gateway and the production Auth provider, so
+start that service before running them:
+
+```bash
+docker compose up -d supabase-gateway
+```
 
 ```bash
 pnpm --filter server test

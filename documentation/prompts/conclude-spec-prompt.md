@@ -13,8 +13,9 @@ implement changes or process later reviewer feedback.
 
 Treat every route named by this workflow as an immediate transition inside the current task,
 not as a recommendation for the user to run another prompt. When an in-Contract correction is
-required, invoke `implement-spec` or `implement-plan`, let that workflow create the Builder,
-refresh evidence and return evaluation to `ready`, then resume `conclude-spec` automatically.
+required, invoke `implement-spec`, let it select direct or Plan-backed execution and create
+the Builder, refresh evidence and return evaluation to `ready`, then resume `conclude-spec`
+automatically.
 
 Do not end the task with a routine correction as a "next action", and do not ask whether the
 user wants it fixed. The active SDD delivery authorizes reversible implementation, test,
@@ -35,6 +36,12 @@ Require:
 - no blocking implementation finding remains;
 - source and GitHub Issue traceability is preserved.
 
+Also require a final current-candidate conformance record: the exact Spec revision and Builder
+scope match the diff; the required file/widget tree, contracts, exclusions and applicable UI
+states pass; every affected screenshot is fresh and inspected; and Playwright console,
+network, HTTP status, accessibility, keyboard and responsive checks are classified. Passing
+tests without this record is not validation-ready.
+
 Conclusion requires authorization to create commits, push the delivery branch and create or
 update its pull request. If that authority is not explicit or already in scope, ask once and
 keep the Spec `in_progress`. Do not silently publish, merge or deploy.
@@ -45,8 +52,8 @@ If local preflight or closure review finds a discrepancy, pause the closure phas
 it:
 
 - **Implementation correction:** record the finding, mark affected evidence stale, set
-  evaluation to `in_progress` and immediately invoke `implement-plan` when the delivery has a
-  current Plan, otherwise `implement-spec`. That workflow owns the correction and validation.
+  evaluation to `in_progress` and immediately invoke `implement-spec`. It selects the current
+  Plan automatically when present and owns the correction and validation.
 - **Contract change:** set the Spec to `draft`, immediately invoke `create-spec`, obtain required
   product or technical authority, increment the revision, reconcile Plan/evaluation and
   continue through the recommended implementation route before resuming conclusion.
@@ -66,7 +73,8 @@ conclusion automatically after it returns evaluation to `ready`.
    architecture and build preflight required by the Spec and changed paths.
 3. Reconcile generated artifacts, migrations, saved design evidence and factual
    documentation against the current diff.
-4. Verify the current validation evidence covers the exact candidate diff. Any later
+4. Rerun the final Spec conformance comparison and verify the current validation evidence covers
+   the exact candidate diff. Any later
    implementation or acceptance-evidence change routes back to the implementation workflow.
 5. Invoke `commit-code` to create intentional scoped commits.
 6. Invoke `create-pr` to push the branch and create or update the delivery PR. Reuse an
@@ -107,16 +115,16 @@ incomplete conclusion run.
 
 After CI passes, verify `evaluation.md` contains:
 
+- the canonical `documentation/templates/evaluation.md` sections, table columns and stable
+  evidence IDs;
 - exact Spec revision and CI-tested candidate identity, when available;
 - complete acceptance-criteria matrix;
 - automated, runtime, manual and visual evidence;
-- saved reference and implementation screenshot paths;
-- an independent comparison row for every supplied and Spec-requested supplemental screenshot,
-  including exact viewport/state and missing, extra, altered or mismatched elements;
-- a resolved decision for every additional-screenshot suggestion; no required visual gap may
-  remain undocumented;
-- the Playwright CLI screenshot-comparison evidence, with generated implementation captures
-  never treated as their own visual reference;
+- saved reference and implementation screenshot paths when visual evidence was collected;
+- visual comparison rows for any supplied or Spec-requested supplemental screenshot that was
+  explicitly scoped as acceptance evidence, including exact viewport/state and differences;
+- a resolved decision for every additional-screenshot suggestion when the suggestion affects
+  an acceptance decision;
 - Rule compliance and documentation alignment;
 - resolved and active findings with evaluation history;
 - final validation result;
