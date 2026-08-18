@@ -11,6 +11,7 @@ export type Product = Entity & {
   categories: readonly ProductCategory[]
   stockControl: ProductStockControl
   status: ProductStatus
+  allowNegativeStock?: boolean
   idealStock?: number
   internalNotes?: string
   createdAt: Date
@@ -27,6 +28,7 @@ export type ProductUpdate = Partial<
     | 'categories'
     | 'stockControl'
     | 'status'
+    | 'allowNegativeStock'
     | 'idealStock'
     | 'internalNotes'
   >

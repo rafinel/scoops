@@ -29,6 +29,27 @@
       "when": 1786911238349,
       "tag": "0003_establishment_name_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786973912980,
+      "tag": "0004_magenta_luminals",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786974386835,
+      "tag": "0005_crazy_slapstick",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786986741425,
+      "tag": "0006_chemical_ronan",
+      "breakpoints": true
     }
   ]
 }

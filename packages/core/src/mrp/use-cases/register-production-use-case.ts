@@ -6,6 +6,7 @@ import {
   StockAdjustmentType,
 } from '#mrp/domain/structures/index.ts'
 import type { ProductionRequest } from '#mrp/domain/structures/production-request.ts'
+import type { ProductionConsumption } from '#mrp/domain/structures/production-consumption.ts'
 import type { ProductionPreview } from '#mrp/domain/structures/production-preview.ts'
 import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
 import { BadRequestError, NotFoundError } from '#shared/domain/errors/index.ts'
@@ -50,7 +51,7 @@ export class RegisterProductionUseCase
         throw new BadRequestError('A receita deve possuir pelo menos um ingrediente.')
       }
 
-      const consumptions = []
+      const consumptions: ProductionConsumption[] = []
 
       for (const ingredient of ingredients) {
         const ingredientProduct = await scope.productsRepository.findById(
@@ -69,7 +70,7 @@ export class RegisterProductionUseCase
           ingredient.quantity * (request.quantity / recipe.yieldQuantity)
         const projectedBalance = balance.quantity - consumedQuantity
 
-        if (projectedBalance < 0) {
+        if (projectedBalance < 0 && ingredientProduct.allowNegativeStock !== true) {
           throw new BadRequestError(
             `Estoque insuficiente para o ingrediente ${ingredientProduct.name}.`,
           )
@@ -90,7 +91,7 @@ export class RegisterProductionUseCase
           productId: consumption.ingredientProductId,
           brandId: consumption.ingredientBrandId,
           type: StockAdjustmentType.WriteOff,
-          quantity: consumption.quantity,
+          quantity: consumption.projectedBalance,
           performedBy: request.performedBy,
           occurredAt: request.occurredAt,
         })

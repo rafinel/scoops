@@ -29,6 +29,7 @@ describe('User-management action hooks', () => {
     useRestContextMock.mockReturnValue({
       restClient: {} as never,
       identityService: service as never,
+      mrpService: {} as never,
     })
 
     const { result } = renderHook(() => useInviteUserAction(), {
@@ -59,6 +60,7 @@ describe('User-management action hooks', () => {
     useRestContextMock.mockReturnValue({
       restClient: {} as never,
       identityService: service as never,
+      mrpService: {} as never,
     })
 
     const { result } = renderHook(() => useCancelUserInvitationAction(), {

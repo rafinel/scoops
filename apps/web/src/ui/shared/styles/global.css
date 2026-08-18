@@ -189,7 +189,7 @@ button:disabled,
   color: var(--primary);
 }
 
-:focus-visible {
+:focus-visible:not([data-focus-ring="delegated"]) {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }

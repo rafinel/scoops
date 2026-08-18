@@ -1,0 +1,29 @@
+### List products
+GET {{baseUrl}}/products?page=1&pageSize=10&category=ingredient&category=resale
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Register a single-stock product
+POST {{baseUrl}}/products
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Leite integral",
+  "unit": "l",
+  "categories": ["ingredient"],
+  "stockControl": "single",
+  "idealStock": 10
+}
+
+### Register a by-brand product
+POST {{baseUrl}}/products
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Cobertura de chocolate",
+  "unit": "kg",
+  "categories": ["ingredient"],
+  "stockControl": "by-brand"
+}

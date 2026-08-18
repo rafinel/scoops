@@ -1,0 +1,2 @@
+ALTER TABLE "mrp_stock_balances" DROP CONSTRAINT "mrp_stock_balances_quantity_non_negative";--> statement-breakpoint
+ALTER TABLE "mrp_products" ADD COLUMN "allow_negative_stock" boolean DEFAULT false NOT NULL;

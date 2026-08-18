@@ -1,0 +1,6 @@
+ALTER TABLE "mrp_products" ADD CONSTRAINT "mrp_products_categories_not_empty" CHECK (cardinality("mrp_products"."categories") > 0);--> statement-breakpoint
+ALTER TABLE "mrp_products" ADD CONSTRAINT "mrp_products_categories_compatible" CHECK (not ('portion' = any("mrp_products"."categories") and 'resale' = any("mrp_products"."categories")));--> statement-breakpoint
+ALTER TABLE "mrp_products" ADD CONSTRAINT "mrp_products_manufacturable_single" CHECK (not ('manufacturable' = any("mrp_products"."categories")) or "mrp_products"."stock_control" = 'single');--> statement-breakpoint
+ALTER TABLE "mrp_products" ADD CONSTRAINT "mrp_products_ideal_stock_non_negative" CHECK ("mrp_products"."ideal_stock" is null or "mrp_products"."ideal_stock" >= 0);--> statement-breakpoint
+ALTER TABLE "mrp_stock_balances" ADD CONSTRAINT "mrp_stock_balances_quantity_non_negative" CHECK ("mrp_stock_balances"."quantity" >= 0);--> statement-breakpoint
+ALTER TABLE "mrp_stock_balances" ADD CONSTRAINT "mrp_stock_balances_ideal_non_negative" CHECK ("mrp_stock_balances"."ideal_quantity" is null or "mrp_stock_balances"."ideal_quantity" >= 0);
