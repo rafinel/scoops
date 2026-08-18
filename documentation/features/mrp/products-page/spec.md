@@ -1,6 +1,6 @@
 ---
 title: MRP product catalog and registration
-status: in_progress
+status: completed
 revision: 16
 source:
   type: issue
@@ -593,8 +593,8 @@ The selected rules cover Core boundaries/use-case testing, REST/controller contr
 | 13 | 2026-08-17 | `open` | Added explicit `useProductsQuery` and `useRegisterProductAction` contracts, paths, responsibilities, and tests. |
 | 14 | 2026-08-17 | `open` | Specified the exact `MrpService.listProducts` and `MrpService.registerProduct` methods, web adapter behavior, and transport tests. |
 | 15 | 2026-08-17 | `open` | Removed explicit code signatures for action/query hooks while retaining their ownership, paths, and test coverage. |
-| 16 | 2026-08-18 | `open` | Incorporated the user-authorized initial-stock contract: Single stock accepts an initial quantity, By-brand registration accepts brand rows and derives product initial stock from their quantity sum; aligned persistence, validation, UI, tests, and evidence requirements. |
+| 16 | 2026-08-18 | `completed` | Incorporated the user-authorized initial-stock contract: Single stock accepts an initial quantity, By-brand registration accepts brand rows and derives product initial stock from their quantity sum; aligned persistence, validation, UI, tests, and evidence requirements. Final implementation, visual evidence, and PR CI completed. |
 
 ### Handoff
 
-Recommended route: Plan-backed `implement-spec`. The feature spans Core, server persistence/REST, web routing/UI, a migration, generated routes, real tenant fixtures, and multiple manual/visual validation states. `evaluation.md` belongs to implementation kickoff.
+Handoff: completed through `conclude-spec`. The implementation spans Core, server persistence/REST, web routing/UI, migrations, generated routes, real tenant fixtures, and manual/visual validation. Detailed evidence is recorded in [`evaluation.md`](./evaluation.md); delivery is available in [PR #10](https://github.com/rafinel/scoops/pull/10).

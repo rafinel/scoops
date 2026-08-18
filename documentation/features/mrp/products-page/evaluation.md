@@ -4,8 +4,8 @@ spec: ./spec.md
 plan: ./plan.md
 spec_revision: 16
 base_commit: 3ad2ff9389683dbe535499e499b68c68e50a67a2
-candidate_commit: working-tree
-status: ready
+candidate_commit: 7418e56
+status: completed
 updated_at: 2026-08-18
 ---
 
@@ -55,6 +55,16 @@ synchronous rejection; both were corrected before this evidence was accepted.
 | Web browser | `pnpm --filter web exec playwright test tests/routes/mrp/products.index.test.ts --project=chromium --workers=1 --reporter=line` | passed — 8 tests; auth redirect, authenticated catalog/search/registration, retry recovery, keyboard focus, sorting, empty state, 320px overflow, and screenshots |
 | Real server-backed Products | `pnpm --filter web exec playwright test tests/routes/mrp/products.real.integration.test.ts --project=chromium --workers=1 --reporter=line` | passed — 5 tests; manager catalog/registration/filter flows, unauthenticated redirect, and operator 403/error state |
 | Web build | `pnpm --filter web build` | passed |
+
+## PR CI gate
+
+The closure metadata is bundled in final delivery head `7418e56`; the final gate passed on this exact implementation head.
+
+| Workflow | Run | Result |
+| --- | --- | --- |
+| Core CI | [32095988568](https://github.com/rafinel/scoops/actions/runs/32095988568) | passed |
+| Server CI | [32095988546](https://github.com/rafinel/scoops/actions/runs/32095988546) | passed |
+| Web CI | [32095988621](https://github.com/rafinel/scoops/actions/runs/32095988621) | passed |
 
 ## Runtime and manual evidence
 
@@ -334,6 +344,10 @@ HTTP 201 after the local Inngest service is exposed on the configured `8388` por
 - 2026-08-17: Corrected registration-dialog checkbox styling with fixed-size,
   non-wrapping category controls. The single-stock visual validation pass,
   Products route suite, type check, and Playwright CLI health check passed.
+- 2026-08-18: Reconciled Spec revision 16 with initial-stock and registration-time
+  By-brand inputs; added exact-size visual captures, real authorization coverage,
+  isolated the server test broker, corrected stale shared-context/login fixtures,
+  and passed the final Core, Server, and Web PR CI gate on `5775e60`.
 - 2026-08-17: Removed the dedicated visual-reference integration suite and
   changed the SDD prompts to treat screenshot comparison as optional evidence,
   while retaining behavioral mocked-transport Playwright route coverage.

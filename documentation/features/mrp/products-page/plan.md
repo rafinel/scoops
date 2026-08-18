@@ -1,6 +1,6 @@
 ---
 title: MRP product catalog and registration — implementation plan
-status: in_progress
+status: completed
 spec: ./spec.md
 spec_revision: 16
 evaluation: ./evaluation.md
@@ -12,8 +12,8 @@ updated_at: 2026-08-18
 
 - **Spec:** [`./spec.md`](./spec.md), revision 16, `open`.
 - **Rationale:** Plan-backed `implement-spec` is required because the feature crosses Core, server persistence/REST, web transport/UI, generated artifacts, database-backed fixtures, and manual/visual validation.
-- **Current phase:** F4 in progress.
-- **Next action:** Complete the final real-browser authorization run, capture revision-16 screenshots, then commit and route to PR CI.
+- **Current phase:** F4 completed.
+- **Next action:** No remaining implementation action; PR CI passed and delivery is ready for review.
 - **Active blockers:** None. `bi8Au.png` is preserved as the explicitly excluded product-detail reference; it is not an implementation or comparison target for this Spec revision.
 - **Coordination:** F2-T1 owns the shared Drizzle schema, generated migration/journal artifacts, and MRP repository tokens. F3-T2 owns `apps/web/src/routeTree.gen.ts` through route generation. No package or lockfile change is planned; any dependency change is coordinated before parallel application work.
 
@@ -26,7 +26,7 @@ updated_at: 2026-08-18
 | 2 | Web Transport | F2 | Deliver the browser MRP service and REST context composition | F1 | F2 Server DB | `completed` | Service/context tests prove exact list and registration transport mapping and shared error preservation. |
 | 3 | Server REST | F3 | Expose manager-guarded catalog and registration endpoints | F1, F2 Server DB | F3 Web UI | `completed` | Real server-backed Playwright flows prove HTTP, authorization, persistence, error, and event contracts. |
 | 3 | Web UI | F3 | Implement the authenticated catalog, filters, registration dialogs, and route | F1, F2 Web Transport | F3 Server REST | `completed` | Web unit/component tests, generated route metadata, focused Playwright coverage, and supplied-reference comparisons prove the UI contract. |
-| 4 | Orchestrator | F4 | Integrate, validate, capture evidence, and hand off | F3 Server REST, F3 Web UI | — | `in_progress` | All checks, MV scenarios, reference comparisons, generated artifacts, and handoff conditions are complete with no blocking finding. |
+| 4 | Orchestrator | F4 | Integrate, validate, capture evidence, and hand off | F3 Server REST, F3 Web UI | — | `completed` | All checks, MV scenarios, reference comparisons, generated artifacts, and handoff conditions are complete with no blocking finding. |
 
 ### F1 — Authoritative Core contracts and use cases
 
@@ -88,7 +88,7 @@ updated_at: 2026-08-18
 
 #### F4-T1 — Execute full validation and capture implementation evidence
 
-- **Status/owner:** `in_progress` — Orchestrator F4-T1
+- **Status/owner:** `completed` — Orchestrator F4-T1
 - **Depends/parallel:** Depends on F3-T1 and F3-T2; runs as the final integrated activity after all generated artifacts and fixtures are reviewed.
 - **Paths:** `documentation/features/mrp/products-page/evaluation.md`, `documentation/features/mrp/products-page/evidence/screenshots/rev-16/**`, and no production source paths unless a finding requires the owning task to reopen.
 - **Contract:** RF-01–RF-08, CA-01–CA-11, MV-01–MV-05, and the completion gate in Spec §4.

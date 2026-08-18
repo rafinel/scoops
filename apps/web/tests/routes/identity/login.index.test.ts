@@ -49,6 +49,8 @@ test.describe('Login route', () => {
 
     await page.goto('/login')
     await page.waitForLoadState('networkidle')
+    await page.getByRole('textbox', { name: 'E-mail' }).fill('')
+    await page.getByRole('textbox', { name: 'Senha' }).fill('')
     await page.getByRole('button', { name: 'Entrar no Scoops' }).click()
 
     await expect(page.getByRole('alert')).toContainText(
