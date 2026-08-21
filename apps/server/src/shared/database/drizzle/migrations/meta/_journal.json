@@ -50,6 +50,13 @@
       "when": 1786986741425,
       "tag": "0006_chemical_ronan",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787064011638,
+      "tag": "0007_product_stock_history",
+      "breakpoints": true
     }
   ]
 }

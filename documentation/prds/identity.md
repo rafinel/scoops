@@ -374,6 +374,9 @@ profile, status and recent activity.
 - **Current account:** the authenticated user must not appear in this management list or
   be available through its detail route; personal data is managed through My Account.
 - **Isolation:** no results can include users from another ice cream shop.
+- **Global summary:** the total team count and Manager/Operator counts must represent all
+  manageable users in the current ice cream shop, excluding the authenticated Manager, and
+  must not change when search, profile/status filters or pagination alter the table.
 
 ##### UI/UX rules
 

@@ -3,15 +3,13 @@ feature: "<domain>/<feature>"
 spec: ./spec.md
 plan: ./plan.md # omit for direct execution
 spec_revision: 1
-base_commit: "<sha>"
-candidate_commit: working-tree
 status: in_progress
 updated_at: YYYY-MM-DD
 ---
 
 # Evaluation
 
-Evaluation of Spec revision `<revision>` against candidate `<sha-or-working-tree>`.
+Evaluation of Spec revision `<revision>` against the current implementation.
 
 Current result: `<concise statement of validated, pending and blocking evidence>`.
 
@@ -37,7 +35,7 @@ Current result: `<concise statement of validated, pending and blocking evidence>
 
 | ID | Surface and state | Viewport | Reference | Implementation | Differences | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| `VIS-01` | `<surface and state>` | `<width × height>` | `design/<reference>.png` | `evidence/screenshots/rev-<revision>/<capture>.png` | `<missing, extra, altered or mismatched elements>` | `pending` |
+| `VIS-01` | `<surface and state>` | `<width × height>` | `design/<reference>.png` | `<Playwright test-results path or CI artifact identifier; — when not retained>` | `<missing, extra, altered or mismatched elements>` | `pending` |
 
 ## Rule and documentation compliance
 
@@ -53,7 +51,8 @@ Current result: `<concise statement of validated, pending and blocking evidence>
 
 ## PR CI quality gate
 
-<!-- Populate during conclude-spec. Retain failed and superseded-head runs as history. -->
+<!-- Populate during conclude-spec. The head SHA identifies the PR revision checked by CI; it
+is not SDD current-commit metadata. Retain failed and superseded-head runs as history. -->
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
@@ -61,6 +60,6 @@ Current result: `<concise statement of validated, pending and blocking evidence>
 
 ## History
 
-| Date | Candidate | Event |
-| --- | --- | --- |
-| `YYYY-MM-DD` | `working-tree` | Evaluation created for Spec revision `<revision>`. |
+| Date | Event |
+| --- | --- |
+| `YYYY-MM-DD` | Evaluation created for Spec revision `<revision>`. |

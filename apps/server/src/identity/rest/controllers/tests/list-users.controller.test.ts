@@ -14,6 +14,10 @@ import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
 const establishmentId = '21000000-0000-0000-0000-000000000001'
 const managerId = '21000000-0000-0000-0000-000000000002'
 const operatorId = '21000000-0000-0000-0000-000000000003'
+const colleagueManagerId = '21000000-0000-0000-0000-000000000004'
+const secondOperatorId = '21000000-0000-0000-0000-000000000005'
+const foreignEstablishmentId = '22000000-0000-0000-0000-000000000001'
+const foreignOperatorId = '22000000-0000-0000-0000-000000000002'
 const managerToken = 'list-manager-token'
 
 describe('List Users Controller [GET /users]', () => {
@@ -28,7 +32,10 @@ describe('List Users Controller [GET /users]', () => {
     await supabaseAuth.clear()
     await fixture.resetDatabase()
     await fixture.seeder.run({
-      establishments: [EstablishmentFaker.fake({ id: establishmentId })],
+      establishments: [
+        EstablishmentFaker.fake({ id: establishmentId }),
+        EstablishmentFaker.fake({ id: foreignEstablishmentId }),
+      ],
       users: [
         UserFaker.fake({
           id: managerId,
@@ -42,6 +49,27 @@ describe('List Users Controller [GET /users]', () => {
           establishmentId,
           name: 'Operator One',
           email: 'operator.one@example.com',
+          profile: UserProfile.Operator,
+        }),
+        UserFaker.fake({
+          id: colleagueManagerId,
+          establishmentId,
+          name: 'Manager Colleague',
+          email: 'manager.colleague@example.com',
+          profile: UserProfile.Manager,
+        }),
+        UserFaker.fake({
+          id: secondOperatorId,
+          establishmentId,
+          name: 'Another Operator',
+          email: 'another.operator@example.com',
+          profile: UserProfile.Operator,
+        }),
+        UserFaker.fake({
+          id: foreignOperatorId,
+          establishmentId: foreignEstablishmentId,
+          name: 'Foreign Operator',
+          email: 'foreign.operator@example.com',
           profile: UserProfile.Operator,
         }),
       ],
@@ -59,7 +87,7 @@ describe('List Users Controller [GET /users]', () => {
 
   it('returns tenant-scoped, filtered user summaries', async () => {
     const response = await request(fixture.app.getHttpServer())
-      .get('/users?profile=operator&page=1&pageSize=20')
+      .get('/users?search=Operator%20One&profile=operator&page=1&pageSize=20')
       .set('Authorization', `Bearer ${managerToken}`)
 
     expect(response.status).toBe(200)
@@ -76,6 +104,7 @@ describe('List Users Controller [GET /users]', () => {
           status: UserStatus.Active,
         },
       ],
+      summary: { total: 3, managers: 1, operators: 2 },
     })
     await expect(
       fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users).findById(operatorId),
@@ -89,8 +118,13 @@ describe('List Users Controller [GET /users]', () => {
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({
-      total: 1,
-      items: [{ id: operatorId }],
+      total: 3,
+      summary: { total: 3, managers: 1, operators: 2 },
     })
+    expect(response.body.items.map((user: { id: string }) => user.id)).toEqual([
+      secondOperatorId,
+      colleagueManagerId,
+      operatorId,
+    ])
   })
 })

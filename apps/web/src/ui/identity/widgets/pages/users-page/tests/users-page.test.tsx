@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
 
 const { pageState } = vi.hoisted(() => ({
@@ -31,6 +31,7 @@ const { pageState } = vi.hoisted(() => ({
     setSearch: vi.fn(),
     setStatus: vi.fn(),
     status: undefined,
+    summary: { total: 8, managers: 3, operators: 5 },
     users: [
       {
         id: 'user-id',
@@ -68,6 +69,28 @@ vi.mock('../user-invite-dialog', () => ({
 import { UsersPage } from '../index'
 
 describe('UsersPage', () => {
+  afterEach(cleanup)
+
+  it('renders the global summary independently from filtered pagination', () => {
+    render(<UsersPage />)
+
+    expect(screen.getByRole('heading', { name: /Usuários/ }).textContent).toContain('(8)')
+    expect(screen.getByText('8 usuários').textContent).toBe('8 usuários')
+    expect(screen.getByText('3 gerentes · 5 operadores').textContent).toBe(
+      '3 gerentes · 5 operadores',
+    )
+    expect(screen.getByRole('button', { name: /Todos\s*8/ }).textContent).toContain('8')
+    expect(screen.getByRole('button', { name: /Gerentes\s*3/ }).textContent).toContain(
+      '3',
+    )
+    expect(screen.getByRole('button', { name: /Operadores\s*5/ }).textContent).toContain(
+      '5',
+    )
+    expect(screen.getByText('Mostrando 1 de 1 usuários').textContent).toBe(
+      'Mostrando 1 de 1 usuários',
+    )
+  })
+
   it('renders users as bounded cards for narrow layouts', () => {
     render(<UsersPage />)
 

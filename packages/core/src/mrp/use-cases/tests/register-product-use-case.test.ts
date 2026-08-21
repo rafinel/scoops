@@ -11,9 +11,12 @@ import {
   ProductUnit,
 } from '#mrp/domain/structures/index.ts'
 import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type { BrandsRepository } from '#mrp/interfaces/brands-repository.ts'
 import type { ProductsRepository } from '#mrp/interfaces/products-repository.ts'
 import type { StockBalancesRepository } from '#mrp/interfaces/stock-balances-repository.ts'
+import type { StockTransactionsRepository } from '#mrp/interfaces/stock-transactions-repository.ts'
 import type { Broker } from '#shared/interfaces/broker.ts'
+import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import { BadRequestError, ConflictError } from '#shared/domain/errors/index.ts'
 import { RegisterProductUseCase } from '#mrp/use-cases/register-product-use-case.ts'
 
@@ -33,24 +36,33 @@ const product: Product = {
 describe('Register Product Use Case', () => {
   let database: MockProxy<MrpDatabase>
   let broker: MockProxy<Broker>
+  let datetimeProvider: MockProxy<DatetimeProvider>
   let scope: MockProxy<MrpDatabaseScope>
+  let brandsRepository: MockProxy<BrandsRepository>
   let productsRepository: MockProxy<ProductsRepository>
   let stockBalancesRepository: MockProxy<StockBalancesRepository>
+  let stockTransactionsRepository: MockProxy<StockTransactionsRepository>
   let useCase: RegisterProductUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
     broker = mock<Broker>()
+    datetimeProvider = mock<DatetimeProvider>()
+    datetimeProvider.now.mockReturnValue(new Date('2026-01-01T00:00:00.000Z'))
+    brandsRepository = mock<BrandsRepository>()
     productsRepository = mock<ProductsRepository>()
     stockBalancesRepository = mock<StockBalancesRepository>()
+    stockTransactionsRepository = mock<StockTransactionsRepository>()
     scope = {
+      brandsRepository,
       productsRepository,
       stockBalancesRepository,
+      stockTransactionsRepository,
     } as unknown as MockProxy<MrpDatabaseScope>
     productsRepository.findByName.mockResolvedValue(undefined)
     productsRepository.add.mockResolvedValue(product)
     database.run.mockImplementation(async (operation) => operation(scope))
-    useCase = new RegisterProductUseCase(database, broker)
+    useCase = new RegisterProductUseCase(database, broker, datetimeProvider)
   })
 
   it('creates an active single-stock product and publishes after initialization', async () => {
@@ -70,6 +82,7 @@ describe('Register Product Use Case', () => {
     const result = await useCase.execute({
       actor: {
         id: 'manager-1',
+        name: 'Manager',
         establishmentId: 'establishment-1',
         profile: UserProfile.Manager,
       },
@@ -99,6 +112,7 @@ describe('Register Product Use Case', () => {
     await useCase.execute({
       actor: {
         id: 'manager-1',
+        name: 'Manager',
         establishmentId: 'establishment-1',
         profile: UserProfile.Manager,
       },
@@ -115,6 +129,78 @@ describe('Register Product Use Case', () => {
     )
   })
 
+  it('derives the first main brand and records only positive initial stock', async () => {
+    productsRepository.add.mockResolvedValue({
+      ...product,
+      stockControl: ProductStockControl.ByBrand,
+    })
+    brandsRepository.add
+      .mockResolvedValueOnce({
+        id: 'brand-1',
+        productId: product.id,
+        name: 'A',
+        packageQuantity: 2,
+        packagePrice: 10,
+        isPrimary: true,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+      })
+      .mockResolvedValueOnce({
+        id: 'brand-2',
+        productId: product.id,
+        name: 'B',
+        packageQuantity: 1,
+        packagePrice: 4,
+        isPrimary: false,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+      })
+    stockBalancesRepository.add.mockResolvedValue({
+      productId: product.id,
+      brandId: 'brand-1',
+      quantity: 3,
+      situation: 'normal',
+    })
+
+    await useCase.execute({
+      actor: {
+        id: 'manager-1',
+        name: 'Manager',
+        establishmentId: 'establishment-1',
+        profile: UserProfile.Manager,
+      },
+      name: 'Milk',
+      unit: ProductUnit.Liter,
+      categories: [ProductCategory.Ingredient],
+      stockControl: ProductStockControl.ByBrand,
+      idealStock: 3,
+      initialStock: 3,
+      brands: [
+        { name: 'A', packageQuantity: 2, packageValue: 10, initialQuantity: 3 },
+        { name: 'B', packageQuantity: 1, packageValue: 4, initialQuantity: 0 },
+      ],
+    })
+
+    expect(brandsRepository.add).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ isPrimary: true }),
+    )
+    expect(brandsRepository.add).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ isPrimary: false }),
+    )
+    expect(stockBalancesRepository.add).toHaveBeenCalledTimes(1)
+    expect(stockTransactionsRepository.add).toHaveBeenCalledTimes(1)
+    expect(stockTransactionsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        brandName: 'A',
+        quantity: 3,
+        balanceAfter: 3,
+        performedByName: 'Manager',
+      }),
+    )
+  })
+
   it('rejects duplicate and invalid registrations without persistence or events', async () => {
     productsRepository.findByName.mockResolvedValue(product)
 
@@ -122,6 +208,7 @@ describe('Register Product Use Case', () => {
       useCase.execute({
         actor: {
           id: 'manager-1',
+          name: 'Manager',
           establishmentId: 'establishment-1',
           profile: UserProfile.Manager,
         },
@@ -138,6 +225,7 @@ describe('Register Product Use Case', () => {
       useCase.execute({
         actor: {
           id: 'manager-1',
+          name: 'Manager',
           establishmentId: 'establishment-1',
           profile: UserProfile.Manager,
         },

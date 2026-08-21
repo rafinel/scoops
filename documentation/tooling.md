@@ -176,9 +176,11 @@ pnpm --filter web test
 
 ### Web browser tests
 
-Playwright runs browser integration tests from `apps/web/tests`. Its web-server
-configuration starts the application on `http://127.0.0.1:4000` and reuses an
-existing local server outside CI:
+Playwright runs browser integration tests with mocked transport from
+`apps/web/tests`. Its web-server configuration starts the application on
+`http://127.0.0.1:4000` and reuses an existing local server outside CI. Every
+browser test uses the shared fixture factory, so the local and CI suites have
+the same deterministic transport boundary:
 
 Use the Playwright CLI for all repository browser interaction, inspection and
 validation, including manual or exploratory flows. Do not use `browser-use`, CDP
@@ -188,6 +190,10 @@ workflows or Playwright MCP.
 pnpm --filter web test:integration
 pnpm --filter web test:integration:ui
 ```
+
+Browser screenshots used for validation are ephemeral. Write them to Playwright's
+`test-results/` output or retain them as CI artifacts; do not write implementation
+captures under `documentation/features/**/evidence/`.
 
 The configured browser project is Chromium. Install the Playwright browser when
 required by a new machine:
@@ -320,7 +326,7 @@ Default local endpoints are:
 | Service | URL |
 | --- | --- |
 | Web application | `http://127.0.0.1:4000` |
-| Server application | `http://127.0.0.1:3333` |
+| Server application | `http://127.0.0.1:3336` |
 | Supabase gateway | `http://127.0.0.1:54321` |
 | PostgreSQL | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
 | Supabase Studio | `http://127.0.0.1:54323` |

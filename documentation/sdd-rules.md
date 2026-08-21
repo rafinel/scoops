@@ -71,11 +71,14 @@ documentation/features/<domain>/<feature>/
 ├── design/
 │   ├── manifest.md                 # for design-backed UI
 │   └── <reference screenshots>.png
-└── evidence/
-    └── screenshots/
-        └── rev-<spec-revision>/
-            └── <implementation captures>.png
 ```
+
+Implementation screenshots are validation artifacts, not durable feature files. Capture
+them in Playwright's ignored `test-results/` output or retain them as CI artifacts when a
+review needs the pixels; record the state, viewport, comparison result and artifact
+identifier in `evaluation.md`. Do not create or extend
+`documentation/features/**/evidence/` for new features. Legacy evidence directories from
+older revisions may remain in Git history, but they are not part of the current artifact tree.
 
 New behavior for an already concluded feature uses:
 
@@ -89,7 +92,6 @@ documentation/features/<domain>/<feature>/changes/<change-name>/
 | `plan.md` | Execution waves, dependencies, task ownership, status and next action. | Duplicate product or technical contracts. |
 | `evaluation.md` | Actual commands, runtime/manual/visual evidence, findings, history and PR CI evidence. | Product or architecture authority. |
 | `design/manifest.md` | Reference-frame inventory, source node, state, viewport, screenshot, implementation surface and comparison requirement. | Implementation-generated visual proof. |
-| `evidence/` | Captures produced from the implementation for direct comparison with saved references. | The original design oracle. |
 
 ## Artifact statuses
 
@@ -241,14 +243,14 @@ Implementation always starts through [`implement-spec`](./prompts/implement-spec
 It selects direct execution when no current Plan exists and Plan-backed execution when a
 current Plan references the Spec revision. The common workflow:
 
-1. freeze the current Spec revision and base commit;
+1. freeze the current Spec revision;
 2. set the Spec to `in_progress`, and the Plan when present;
 3. create or reconcile `evaluation.md` from the canonical
    [`evaluation.md` template](./templates/evaluation.md) with `status: in_progress`;
 4. dispatch bounded Builders with RF/CA coverage, allowed paths, Rules, Architecture and
    design references;
 5. inspect Builder diffs and run repository-approved focused sensors;
-6. record exact results, findings and evidence freshness in Evaluation;
+6. record exact results, findings and validation-artifact freshness in Evaluation;
 7. create scoped Builder Fixes and rerun only invalidated evidence until the Evaluation is ready.
 
 The direct route uses one `Builder Direct`. The Plan route may use phase or task Builders in
@@ -256,31 +258,32 @@ parallel only when their contracts are stable and paths do not overlap. The Orch
 coordinates lockfiles, shared files and generated artifacts.
 
 Builder reports are not official evidence. The Orchestrator must verify the diff and sensor
-results. Evidence tied to an earlier affected diff is marked historical or stale rather
-than silently reused.
+results. Validation artifacts tied to an earlier affected diff are marked historical or stale
+rather than silently reused; transient screenshots are regenerated under `test-results/` or
+as CI artifacts instead of being committed under feature documentation.
 
 The canonical [`evaluation.md` template](./templates/evaluation.md) fixes the table structure
 and stable evidence IDs. An Evaluation records:
 
-- Spec and Plan references, revision, base/current commit and status;
+- Spec and Plan references, revision and status;
 - acceptance matrix;
 - automated and runtime command evidence;
 - manual and visual evidence;
 - Rule and documentation compliance;
 - findings and their resolution;
-- candidate snapshot and validation history;
+- implementation and validation history;
 - PR candidate and CI evidence during conclusion;
 - chronological evaluation history.
 
 ## 6. Integrated validation
 
-After the integrated candidate is current, the Orchestrator runs the required Core, Server,
-Web, database, build and Playwright CLI sensors. It compares every implementation capture
+After the integrated implementation is current, the Orchestrator runs the required Core, Server,
+Web, database, build and Playwright CLI sensors. It compares every transient implementation capture
 with its original saved reference at the exact viewport and state, records each CA and MV
 result, and inspects console, network and persisted-state evidence.
 
 On a failed sensor or material discrepancy, findings are recorded, scoped Builder Fixes run,
-affected evidence is invalidated and the sensors are rerun on the updated candidate. When all
+affected evidence is invalidated and the sensors are rerun on the updated implementation. When all
 required evidence is current and no blocking finding remains, Evaluation becomes `ready`; the
 Plan route also completes its integrated phase and Plan before routing to conclusion.
 
@@ -300,7 +303,7 @@ If the route changes from Plan to direct implementation, the Plan becomes `super
 ## 8. PR publication, CI and closure
 
 [`conclude-spec`](./prompts/conclude-spec-prompt.md) starts only when the Spec is
-`in_progress`, Evaluation is `ready`, the integrated candidate is validated and no blocking
+`in_progress`, Evaluation is `ready`, the integrated implementation is validated and no blocking
 finding remains. Conclusion does not edit code directly; when it finds an in-Contract
 correction, it invokes the applicable implementation workflow, which creates the Builder and
 refreshes validation before returning control to conclusion.
@@ -310,10 +313,16 @@ With user authorization to commit, push and publish, conclusion:
 1. runs the required local preflight;
 2. verifies generated artifacts, migrations, design evidence and documentation;
 3. uses `commit-code` for scoped commits;
-4. uses [`create-pr`](./prompts/create-pr-prompt.md) to create or update one delivery PR;
-5. records the candidate SHA, branch and PR URL;
+4. invokes [`create-pr`](./prompts/create-pr-prompt.md) mandatorily whenever the delivery PR
+   is missing, points at an earlier candidate SHA, or has stale/incomplete publication details;
+   `conclude-spec` does not bypass this workflow with ad hoc PR edits;
+5. records the branch and PR URL;
 6. waits for every applicable checked-in GitHub Actions workflow on the current PR head SHA;
 7. records workflow name, result, run URL and tested SHA in Evaluation.
+
+SDD artifacts do not track a repository base, current or candidate commit. The SHA in the PR CI
+table is limited to identifying the exact PR revision checked by GitHub and is not SDD status
+metadata.
 
 Local checks, a branch-push run, an earlier SHA or a missing expected workflow do not satisfy
 the final PR CI gate. A CI implementation or Contract failure routes back to the appropriate

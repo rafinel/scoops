@@ -59,6 +59,7 @@ vi.mock('@/ui/identity/hooks/use-users-query', () => ({
     isError: false,
     isLoading: false,
     pagination: undefined,
+    summary: undefined,
     refetch: vi.fn(),
     users: [],
   }),

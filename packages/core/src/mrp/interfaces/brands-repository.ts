@@ -2,10 +2,11 @@ import type { Brand, BrandCreate, BrandUpdate } from '#mrp/domain/entities/brand
 
 export interface BrandsRepository {
   add(input: BrandCreate): Promise<Brand>
-  findById(brandId: string): Promise<Brand | undefined>
+  countByProductId(productId: string): Promise<number>
+  findById(productId: string, brandId: string): Promise<Brand | undefined>
   findByName(productId: string, name: string): Promise<Brand | undefined>
   findManyByProductId(productId: string): Promise<readonly Brand[]>
-  replace(brandId: string, changes: BrandUpdate): Promise<Brand>
-  setPrimary(brandId: string): Promise<Brand>
-  remove(brandId: string): Promise<void>
+  replace(productId: string, brandId: string, changes: BrandUpdate): Promise<Brand>
+  setPrimary(productId: string, brandId: string): Promise<Brand>
+  remove(productId: string, brandId: string): Promise<void>
 }

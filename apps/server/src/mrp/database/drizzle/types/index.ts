@@ -5,3 +5,4 @@ import type { productBrandModel } from '../models/product-brand-model'
 
 export type DrizzleProduct = InferSelectModel<typeof productModel>
 export type DrizzleBrand = InferSelectModel<typeof productBrandModel>
+export * from './entities'

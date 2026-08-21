@@ -51,10 +51,29 @@
               ],
               "children": [
                 {
-                  "id": "vawn7",
+                  "id": "o5L4p",
                   "type": "ref",
-                  "ref": "xylQM",
-                  "name": "Breadcrumb Instance"
+                  "ref": "j81wx",
+                  "name": "Back Button",
+                  "fill": "$bg-card",
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "effect": {
+                    "type": "shadow",
+                    "shadowType": "outer",
+                    "enabled": false,
+                    "color": "#000000"
+                  },
+                  "descendants": {
+                    "b1bQY": {
+                      "icon": "arrow-left",
+                      "fill": "$text-secondary"
+                    },
+                    "dURHs": {
+                      "content": "Voltar",
+                      "fill": "$text-primary"
+                    }
+                  }
                 },
                 {
                   "id": "fgxOr",
@@ -1486,13 +1505,24 @@
                               "type": "frame",
                               "id": "tdu83",
                               "name": "H4",
-                              "width": 332,
+                              "width": 289,
                               "children": [
                                 {
                                   "type": "text",
                                   "id": "ixLNM",
                                   "name": "L",
                                   "fill": "$text-secondary",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600",
+                                  "letterSpacing": 0.5
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "NP5U0",
+                                  "name": "Label Responsável",
+                                  "fill": "$text-secondary",
+                                  "content": "RESPONSÁVEL",
                                   "fontFamily": "$font-body",
                                   "fontSize": 11,
                                   "fontWeight": "600",
@@ -1599,6 +1629,49 @@
                                   "fontFamily": "$font-body",
                                   "fontSize": 14,
                                   "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "K7Wv6",
+                              "name": "C4 Responsável",
+                              "width": 289,
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "RAfyB",
+                                  "name": "Avatar João Ferreira",
+                                  "width": 24,
+                                  "height": 24,
+                                  "fill": "$bg-muted",
+                                  "cornerRadius": 999,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "kpAfU",
+                                      "name": "Iniciais João Ferreira",
+                                      "fill": "$text-secondary",
+                                      "content": "JF",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 10,
+                                      "fontWeight": "900"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "RPR7o",
+                                  "name": "Autor",
+                                  "fill": "$text-primary",
+                                  "content": "João Ferreira",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -1708,6 +1781,49 @@
                                   "fontWeight": "600"
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "mC6Gs",
+                              "name": "C4 Responsável",
+                              "width": 289,
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "qWCjr",
+                                  "name": "Avatar Ana Souza",
+                                  "width": 24,
+                                  "height": 24,
+                                  "fill": "$info-soft",
+                                  "cornerRadius": 999,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "Fgv7m",
+                                      "name": "Iniciais Ana Souza",
+                                      "fill": "$info",
+                                      "content": "AS",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 10,
+                                      "fontWeight": "900"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "u5LAZ",
+                                  "name": "Autor",
+                                  "fill": "$text-primary",
+                                  "content": "Ana Souza",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -1813,6 +1929,49 @@
                                   "fontFamily": "$font-body",
                                   "fontSize": 14,
                                   "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Fso7L",
+                              "name": "C4 Responsável",
+                              "width": 289,
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "g4QzEK",
+                                  "name": "Avatar Marcos Lima",
+                                  "width": 24,
+                                  "height": 24,
+                                  "fill": "$bg-muted",
+                                  "cornerRadius": 999,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "ZOBOf",
+                                      "name": "Iniciais Marcos Lima",
+                                      "fill": "$text-secondary",
+                                      "content": "ML",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 10,
+                                      "fontWeight": "900"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "N7UK6",
+                                  "name": "Autor",
+                                  "fill": "$text-primary",
+                                  "content": "Marcos Lima",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -1922,6 +2081,49 @@
                                   "fontWeight": "600"
                                 }
                               ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "o26mUz",
+                              "name": "C4 Responsável",
+                              "width": 289,
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "KV3FN",
+                                  "name": "Avatar João Ferreira",
+                                  "width": 24,
+                                  "height": 24,
+                                  "fill": "$bg-muted",
+                                  "cornerRadius": 999,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "ryOx1",
+                                      "name": "Iniciais João Ferreira",
+                                      "fill": "$text-secondary",
+                                      "content": "JF",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 10,
+                                      "fontWeight": "900"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "AkGyK",
+                                  "name": "Autor",
+                                  "fill": "$text-primary",
+                                  "content": "João Ferreira",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -2027,6 +2229,49 @@
                                   "fontFamily": "$font-body",
                                   "fontSize": 14,
                                   "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "w3k6I6",
+                              "name": "C4 Responsável",
+                              "width": 289,
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "bJxFn",
+                                  "name": "Avatar Camila Rocha",
+                                  "width": 24,
+                                  "height": 24,
+                                  "fill": "$primary-soft",
+                                  "cornerRadius": 999,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "x99Ps",
+                                      "name": "Iniciais Camila Rocha",
+                                      "fill": "$primary",
+                                      "content": "CR",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 10,
+                                      "fontWeight": "900"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "ksiN2",
+                                  "name": "Autor",
+                                  "fill": "$text-primary",
+                                  "content": "Camila Rocha",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }

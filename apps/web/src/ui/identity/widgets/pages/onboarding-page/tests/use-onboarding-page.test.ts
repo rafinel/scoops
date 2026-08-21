@@ -66,7 +66,7 @@ const onboarding = {
   establishmentName: 'Gelato Central',
   managerName: 'Ana',
   email: 'ana@example.com',
-  expiresAt: new Date('2026-08-20T12:00:00.000Z'),
+  expiresAt: new Date('2099-01-01T12:00:00.000Z'),
 }
 
 describe('useOnboardingPage', () => {

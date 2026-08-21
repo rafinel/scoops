@@ -7,6 +7,7 @@ import type { RecipeIngredientsRepository } from '#mrp/interfaces/recipe-ingredi
 import type { RecipesRepository } from '#mrp/interfaces/recipes-repository.ts'
 import type { ResaleConfigurationsRepository } from '#mrp/interfaces/resale-configurations-repository.ts'
 import type { StockBalancesRepository } from '#mrp/interfaces/stock-balances-repository.ts'
+import type { StockTransactionsRepository } from '#mrp/interfaces/stock-transactions-repository.ts'
 
 export type MrpDatabaseScope = {
   productsRepository: ProductsRepository
@@ -14,6 +15,7 @@ export type MrpDatabaseScope = {
   recipesRepository: RecipesRepository
   recipeIngredientsRepository: RecipeIngredientsRepository
   stockBalancesRepository: StockBalancesRepository
+  stockTransactionsRepository: StockTransactionsRepository
   productSizesRepository: ProductSizesRepository
   accompanimentTypesRepository: AccompanimentTypesRepository
   productAccompanimentsRepository: ProductAccompanimentsRepository

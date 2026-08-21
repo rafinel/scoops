@@ -77,8 +77,8 @@ real authenticated server persistence.
 
 ## Visual evidence
 
-The focused route suite captured supporting implementation images under
-`evidence/screenshots/rev-16/`:
+The focused route suite captured supporting implementation images in transient Playwright
+output. They are not retained under feature documentation:
 
 - `products-catalog-1481x1450.png` — authenticated catalog with shadcn Table headers, sort affordances, KPI cards, and registration action;
 - `products-filters-677x601.png` — filter dialog with grouped category/stock/status selections and apply/clear actions;
@@ -96,11 +96,11 @@ revision-16 contract.
 
 | ID | Reference | Fresh implementation capture | Result |
 | --- | --- | --- | --- |
-| VIS-01 | `design/AXNGh.png` — 1481×1450 | `evidence/screenshots/rev-16/products-catalog-1481x1450.png` | passed; table, KPI hierarchy, pagination, and catalog action aligned |
-| VIS-02 | `design/DsR63.png` — 677×601 | `evidence/screenshots/rev-16/products-filters-677x601.png` | passed; grouped filters and actions aligned |
-| VIS-03 | `design/XzPz2.png` — 727×1240 | `evidence/screenshots/rev-16/products-registration-by-brand-727x1240.png` | passed; registration-time brand rows and calculated stock aligned |
-| VIS-04 | `design/LPdBK.png` — 708×826 | `evidence/screenshots/rev-16/products-registration-single-708x826.png` | passed; single-stock form and initial-stock field aligned |
-| VIS-05 | responsive supplemental state — 320×900 | `evidence/screenshots/rev-16/products-responsive-320x900.png` | passed; no page-level horizontal overflow |
+| VIS-01 | `design/AXNGh.png` — 1481×1450 | Playwright `test-results/` artifact, not retained in feature docs | passed; table, KPI hierarchy, pagination, and catalog action aligned |
+| VIS-02 | `design/DsR63.png` — 677×601 | Playwright `test-results/` artifact, not retained in feature docs | passed; grouped filters and actions aligned |
+| VIS-03 | `design/XzPz2.png` — 727×1240 | Playwright `test-results/` artifact, not retained in feature docs | passed; registration-time brand rows and calculated stock aligned |
+| VIS-04 | `design/LPdBK.png` — 708×826 | Playwright `test-results/` artifact, not retained in feature docs | passed; single-stock form and initial-stock field aligned |
+| VIS-05 | responsive supplemental state — 320×900 | Playwright `test-results/` artifact, not retained in feature docs | passed; no page-level horizontal overflow |
 
 ## Rule and documentation compliance
 
@@ -251,10 +251,9 @@ mapper. Production write-offs consult the affected ingredient product's permissi
 the stock-balance database constraint was removed so permitted negative quantities can
 be persisted, while the default behavior remains non-negative.
 
-The focused Products Playwright CLI suite passed 8 tests and captured
-`evidence/screenshots/rev-16/products-registration-negative-stock-1481x1450.png` at
-1481×1450. The screenshot was inspected and shows the enabled toggle in the
- registration dialog. Core/server/web type checks and Core tests passed. The real
+The focused Products Playwright CLI suite passed 8 tests and captured the negative-stock
+state in transient Playwright output at 1481×1450. The screenshot was inspected and shows
+the enabled toggle in the registration dialog. Core/server/web type checks and Core tests passed. The real
 server-backed suite passed both catalog loading and registration after migration
 0006 was applied.
 
@@ -289,8 +288,8 @@ HTTP 201 after the local Inngest service is exposed on the configured `8388` por
   unchanged.
 - 2026-08-17: Resolved FND-001 by narrowing the Playwright transport mock and
   making the catalog query manually retryable. Focused Playwright CLI passed all
-  3 tests; captured desktop and 320×900 screenshots were copied to the revisioned
-  evidence directory. F3 Web UI completed; F3 Server REST and F4 remain pending.
+  3 tests; captured desktop and 320×900 screenshots were retained as transient
+  Playwright artifacts. F3 Web UI completed; F3 Server REST and F4 remain pending.
 - 2026-08-17: Ran the mandatory Playwright CLI health check before UI validation;
   it passed. Re-ran the Products route suite; all 3 tests passed and fresh desktop
   and responsive captures were produced. Supplied design-reference comparisons

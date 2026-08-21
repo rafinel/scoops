@@ -44,4 +44,17 @@ export class UsersPaginationResponseDto {
   @ApiProperty() pageSize!: number
   @ApiProperty() total!: number
   @ApiProperty() totalPages!: number
+  @ApiProperty({
+    type: 'object',
+    properties: {
+      total: { type: 'number' },
+      managers: { type: 'number' },
+      operators: { type: 'number' },
+    },
+  })
+  summary!: {
+    total: number
+    managers: number
+    operators: number
+  }
 }

@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test'
+
 import { expect, test } from '../../playwright'
 
 const PRODUCT = {
@@ -33,6 +35,7 @@ const PRODUCTS_RESPONSE = {
 test.describe('Products route', () => {
   test('protects the route and preserves requested search state', async ({ page }) => {
     await page.goto('/products?search=milk&page=2')
+    await page.waitForURL(/\/login\?returnTo=/)
     await expect(page).toHaveURL(/\/login\?returnTo=/)
     expect(new URL(page.url()).searchParams.get('returnTo')).toContain('search=milk')
     expect(new URL(page.url()).searchParams.get('returnTo')).toContain('page=2')
@@ -51,7 +54,7 @@ test.describe('Products route', () => {
     })
 
     await page.setViewportSize({ width: 1481, height: 1450 })
-    await page.goto('/products')
+    await navigateToProducts(page)
     await expect(page.getByRole('heading', { name: 'Produtos' })).toBeVisible()
     await expect(page.getByText('Leite integral')).toBeVisible()
     await expect(page.getByText('Estoque baixo')).toBeVisible()
@@ -260,7 +263,7 @@ test.describe('Products route', () => {
           : { body: PRODUCTS_RESPONSE },
     })
     await page.setViewportSize({ width: 320, height: 900 })
-    await page.goto('/products')
+    await navigateToProducts(page)
     await expect(page.getByText('Não foi possível carregar os produtos.')).toBeVisible()
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
     await expect(page.getByText('Leite integral')).toBeVisible()
@@ -278,6 +281,99 @@ test.describe('Products route', () => {
     })
   })
 
+  test('keeps global KPIs stable when search changes the product list', async ({
+    page,
+    identity,
+    mrp,
+  }) => {
+    await identity.mockManagerSession()
+    await identity.mockManagerAccount()
+    const { requests } = await mrp.mockProducts({
+      getResponse: (request) => ({
+        body:
+          request.searchParams.get('search') === 'morango'
+            ? {
+                ...PRODUCTS_RESPONSE,
+                items: [],
+                totalItems: 0,
+                totalPages: 1,
+              }
+            : PRODUCTS_RESPONSE,
+      }),
+    })
+
+    await page.setViewportSize({ width: 1481, height: 900 })
+    await navigateToProducts(page)
+    const kpiCards = page.locator('[data-slot="card"]')
+    await expect(page.getByText('Leite integral')).toBeVisible()
+    await expect(kpiCards.nth(0)).toContainText('22')
+    await expect(kpiCards.nth(1)).toContainText('7')
+    await expect(kpiCards.nth(2)).toContainText('4')
+
+    await page.getByRole('textbox', { name: 'Buscar produtos' }).fill('morango')
+
+    await expect(page.getByText('Leite integral')).toBeHidden()
+    await expect(page.getByText('Nenhum produto encontrado')).toBeVisible()
+    await expect(kpiCards.nth(0)).toContainText('22')
+    await expect(kpiCards.nth(1)).toContainText('7')
+    await expect(kpiCards.nth(2)).toContainText('4')
+    await expect.poll(() => requests).toHaveLength(2)
+    expect(requests.map((request) => request.pathname)).toEqual([
+      '/products',
+      '/products',
+    ])
+    expect(requests.at(-1)?.searchParams.get('search')).toBe('morango')
+    await page.screenshot({
+      fullPage: true,
+      path: 'test-results/products-filtered-global-kpis-1481x900.png',
+    })
+  })
+
+  test('keeps long product names inside their column on narrow screens', async ({
+    page,
+    identity,
+    mrp,
+  }) => {
+    await identity.mockManagerSession()
+    await identity.mockManagerAccount()
+    await mrp.mockProducts({
+      getResponse: {
+        body: {
+          ...PRODUCTS_RESPONSE,
+          items: [
+            {
+              ...PRODUCTS_RESPONSE.items[0],
+              product: {
+                ...PRODUCT,
+                name: 'Produto estoque E2E 178707060123456789',
+              },
+            },
+          ],
+        },
+      },
+    })
+
+    await page.setViewportSize({ width: 371, height: 900 })
+    await navigateToProducts(page)
+
+    const row = page.getByRole('row').nth(1)
+    const productCell = row.getByRole('cell').nth(0)
+    const categoryCell = row.getByRole('cell').nth(1)
+    const productName = productCell.locator('[title]').first()
+    const productNameBox = await productName.boundingBox()
+    const categoryCellBox = await categoryCell.boundingBox()
+
+    expect(productNameBox).not.toBeNull()
+    expect(categoryCellBox).not.toBeNull()
+    expect((productNameBox?.x ?? 0) + (productNameBox?.width ?? 0)).toBeLessThanOrEqual(
+      categoryCellBox?.x ?? 0,
+    )
+    await page.screenshot({
+      fullPage: true,
+      path: 'test-results/products-long-name-371x900.png',
+    })
+  })
+
   test('uses primary color for stock and status filter selections', async ({
     page,
     identity,
@@ -290,7 +386,7 @@ test.describe('Products route', () => {
     })
 
     await page.setViewportSize({ width: 1481, height: 900 })
-    await page.goto('/products')
+    await navigateToProducts(page)
     await page.getByRole('button', { name: /Filtros/ }).click()
     const filtersDialog = page.getByRole('dialog', { name: 'Filtrar produtos' })
     const normalFilter = filtersDialog.getByRole('button', { name: 'Normal' })
@@ -337,7 +433,7 @@ test.describe('Products route', () => {
     })
 
     await page.setViewportSize({ width: 1481, height: 900 })
-    await page.goto('/products?sortBy=createdAt&sortDirection=desc&page=3')
+    await navigateToProducts(page, '/products?sortBy=createdAt&sortDirection=desc&page=3')
     await expect(page.getByRole('heading', { name: 'Produtos' })).toBeVisible()
 
     const columns = [
@@ -386,11 +482,11 @@ test.describe('Products route', () => {
       },
     })
 
-    await page.goto('/products')
+    await navigateToProducts(page)
     await expect(page.getByText('Seu catálogo está vazio')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Limpar filtros' })).toHaveCount(0)
 
-    await page.goto('/products?search=milk')
+    await navigateToProducts(page, '/products?search=milk')
     await expect(page.getByText('Nenhum produto encontrado')).toBeVisible()
     await expect(
       page.getByText('Tente ajustar os filtros para encontrar outros produtos.'),
@@ -412,15 +508,14 @@ test.describe('Products route', () => {
       },
     })
 
-    await page.goto('/products')
+    await navigateToProducts(page)
     await page.getByRole('button', { name: /Novo produto/ }).click()
     const registrationDialog = page.getByRole('dialog', { name: 'Novo produto' })
     await registrationDialog
       .getByRole('textbox', { name: 'Nome do produto' })
       .fill('Sorvete de morango')
-    await registrationDialog
-      .getByRole('combobox', { name: 'Unidade de estoque' })
-      .selectOption('l')
+    await registrationDialog.getByRole('combobox', { name: 'Unidade de estoque' }).click()
+    await page.getByRole('option', { name: 'Litros (l)' }).click()
     await registrationDialog.getByRole('checkbox', { name: 'Ingrediente' }).check()
     await registrationDialog.getByRole('spinbutton', { name: 'Estoque ideal' }).fill('20')
     await registrationDialog
@@ -466,7 +561,7 @@ test.describe('Products route', () => {
       },
     })
 
-    await page.goto('/products')
+    await navigateToProducts(page)
     await page.getByRole('button', { name: /Novo produto/ }).click()
     const registrationDialog = page.getByRole('dialog', { name: 'Novo produto' })
     await registrationDialog
@@ -489,9 +584,7 @@ test.describe('Products route', () => {
     await expect(
       registrationDialog.getByRole('spinbutton', { name: 'Estoque inicial' }),
     ).toHaveValue('6')
-    await registrationDialog
-      .getByRole('spinbutton', { name: 'Estoque ideal' })
-      .fill('10')
+    await registrationDialog.getByRole('spinbutton', { name: 'Estoque ideal' }).fill('10')
     await page.setViewportSize({ width: 727, height: 1240 })
     await page.screenshot({
       path: 'test-results/products-registration-by-brand-727x1240.png',
@@ -516,10 +609,20 @@ test.describe('Products route', () => {
               packageQuantity: 2,
               packageValue: 12.5,
               initialQuantity: 6,
-              isPrimary: true,
             },
           ],
         },
       ])
   })
 })
+
+async function navigateToProducts(page: Page, url = '/products') {
+  const productsResponse = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'GET' &&
+      new URL(response.url()).pathname === '/products',
+  )
+  await page.goto(url)
+  await (await productsResponse).finished()
+  await page.getByRole('heading', { name: 'Produtos' }).waitFor()
+}

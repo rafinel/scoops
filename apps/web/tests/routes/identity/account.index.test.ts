@@ -21,12 +21,12 @@ test.describe('Account route', () => {
     await expect(page.getByRole('heading', { name: 'Minha conta' })).toBeVisible()
     await page.setViewportSize({ width: 1481, height: 1050 })
     await page.screenshot({
-      path: '../../documentation/features/identity/features/profile-and-ice-cream-settings/evidence/screenshots/rev-3/my-account-desktop-1481x1050.png',
+      path: 'test-results/my-account-desktop-1481x1050.png',
     })
     await page.getByRole('button', { name: 'Corrigir meu nome' }).click()
     await page.setViewportSize({ width: 676, height: 502 })
     await page.screenshot({
-      path: '../../documentation/features/identity/features/profile-and-ice-cream-settings/evidence/screenshots/rev-3/my-account-name-dialog-676x502.png',
+      path: 'test-results/my-account-name-dialog-676x502.png',
     })
     await page
       .getByRole('dialog')

@@ -3,6 +3,7 @@ import { AlertDialog as AlertDialogPrimitive } from '@base-ui/react/alert-dialog
 
 import { cn } from '@/ui/shared/lib/utils'
 import { Button } from '@/ui/shadcn/button'
+import { XIcon } from 'lucide-react'
 
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot='alert-dialog' {...props} />
@@ -35,9 +36,12 @@ function AlertDialogOverlay({
 function AlertDialogContent({
   className,
   size = 'default',
+  children,
+  showCloseButton = true,
   ...props
 }: AlertDialogPrimitive.Popup.Props & {
   size?: 'default' | 'sm'
+  showCloseButton?: boolean
 }) {
   return (
     <AlertDialogPortal>
@@ -50,7 +54,24 @@ function AlertDialogContent({
           className,
         )}
         {...props}
-      />
+      >
+        {children}
+        {showCloseButton && (
+          <AlertDialogPrimitive.Close
+            data-slot='alert-dialog-close'
+            render={
+              <Button
+                aria-label='Fechar'
+                className='absolute top-4 right-4 rounded-lg text-muted-foreground'
+                size='icon-sm'
+                variant='outline'
+              />
+            }
+          >
+            <XIcon />
+          </AlertDialogPrimitive.Close>
+        )}
+      </AlertDialogPrimitive.Popup>
     </AlertDialogPortal>
   )
 }

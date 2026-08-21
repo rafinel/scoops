@@ -81,12 +81,9 @@ export const UsersPage = () => {
     setSearch,
     setStatus,
     status,
+    summary,
     users,
   } = useUsersPage()
-  const managerCount = users.filter((user) => user.profile === UserProfile.Manager).length
-  const operatorCount = users.filter(
-    (user) => user.profile === UserProfile.Operator,
-  ).length
 
   return (
     <section className='min-w-0 space-y-5'>
@@ -95,7 +92,7 @@ export const UsersPage = () => {
           <h1 className='mt-2 text-[28px] font-extrabold tracking-tight'>
             Usuários{' '}
             <span className='text-lg font-semibold text-muted-foreground'>
-              ({pagination?.total ?? 0})
+              ({summary?.total ?? 0})
             </span>
           </h1>
           <p className='mt-1 text-sm font-medium text-muted-foreground'>
@@ -116,11 +113,9 @@ export const UsersPage = () => {
         <div className='flex flex-col gap-4 border-b border-border-soft px-5 py-[18px]'>
           <div className='flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between'>
             <div>
-              <p className='text-[15px] font-extrabold'>
-                {pagination?.total ?? 0} usuários
-              </p>
+              <p className='text-[15px] font-extrabold'>{summary?.total ?? 0} usuários</p>
               <p className='text-xs font-semibold text-muted-foreground'>
-                {managerCount} gerentes · {operatorCount} operadores
+                {summary?.managers ?? 0} gerentes · {summary?.operators ?? 0} operadores
               </p>
             </div>
             <Label className='flex h-10 w-full max-w-[300px] items-center gap-2.5 rounded-[10px] border bg-card px-[13px] focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20'>
@@ -146,7 +141,7 @@ export const UsersPage = () => {
               type='button'
             >
               Todos
-              <span className='text-[11px] font-black'>{pagination?.total ?? 0}</span>
+              <span className='text-[11px] font-black'>{summary?.total ?? 0}</span>
             </Button>
             <Button
               variant='ghost'
@@ -159,7 +154,7 @@ export const UsersPage = () => {
               type='button'
             >
               Gerentes
-              <span className='text-[11px] font-extrabold'>{managerCount}</span>
+              <span className='text-[11px] font-extrabold'>{summary?.managers ?? 0}</span>
             </Button>
             <Button
               variant='ghost'
@@ -172,7 +167,9 @@ export const UsersPage = () => {
               type='button'
             >
               Operadores
-              <span className='text-[11px] font-extrabold'>{operatorCount}</span>
+              <span className='text-[11px] font-extrabold'>
+                {summary?.operators ?? 0}
+              </span>
             </Button>
             <Label className='sr-only' htmlFor='users-status-filter'>
               Filtrar status

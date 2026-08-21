@@ -1,3 +1,6 @@
+@productId = 00000000-0000-0000-0000-000000000000
+@brandId = 00000000-0000-0000-0000-000000000000
+
 ### List products
 GET {{baseUrl}}/products?page=1&pageSize=10&category=ingredient&category=resale
 Authorization: Bearer {{accessToken}}
@@ -27,3 +30,66 @@ Content-Type: application/json
   "categories": ["ingredient"],
   "stockControl": "by-brand"
 }
+
+### Get product stock details
+GET {{baseUrl}}/products/{{productId}}/stock
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Register a product brand
+POST {{baseUrl}}/products/{{productId}}/brands
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Marca exemplo",
+  "packageQuantity": 2.5,
+  "packageValue": 18.9,
+  "initialQuantity": 5
+}
+
+### Update a product brand
+PATCH {{baseUrl}}/products/{{productId}}/brands/{{brandId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Marca atualizada",
+  "packageQuantity": 3,
+  "packageValue": 21.5
+}
+
+### Set the primary product brand
+PATCH {{baseUrl}}/products/{{productId}}/brands/{{brandId}}/primary
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Remove a product brand
+DELETE {{baseUrl}}/products/{{productId}}/brands/{{brandId}}
+Authorization: Bearer {{accessToken}}
+
+### Adjust single-product stock
+POST {{baseUrl}}/products/{{productId}}/stock-adjustments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "entry",
+  "quantity": 2.5
+}
+
+### Adjust product-brand stock
+POST {{baseUrl}}/products/{{productId}}/stock-adjustments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "brandId": "{{brandId}}",
+  "type": "write-off",
+  "quantity": 1
+}
+
+### List product stock transactions
+GET {{baseUrl}}/products/{{productId}}/stock-transactions?type=entry&brandId={{brandId}}&from=2026-08-01T00:00:00.000Z&to=2026-08-31T23:59:59.999Z&page=1&limit=20
+Authorization: Bearer {{accessToken}}
+Accept: application/json

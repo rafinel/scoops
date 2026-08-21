@@ -49,6 +49,7 @@ const SEED_PRODUCTS = [
     stockControl: ProductStockControl.Single,
     status: ProductStatus.Active,
     idealStock: 20,
+    initialStock: 100,
   },
   {
     establishmentId: SEED_ESTABLISHMENT_ID,
@@ -73,7 +74,7 @@ const SEED_PRODUCTS = [
     name: 'Banana fatiada',
     unit: ProductUnit.Kilogram,
     categories: [ProductCategory.Accompaniment],
-    stockControl: ProductStockControl.Single,
+    stockControl: ProductStockControl.ByBrand,
     status: ProductStatus.Active,
     idealStock: 5,
   },
@@ -94,6 +95,7 @@ const SEED_PRODUCTS = [
     stockControl: ProductStockControl.Single,
     status: ProductStatus.Active,
     idealStock: 100,
+    initialStock: 500,
   },
   {
     establishmentId: SEED_ESTABLISHMENT_ID,
@@ -103,6 +105,7 @@ const SEED_PRODUCTS = [
     stockControl: ProductStockControl.Single,
     status: ProductStatus.Active,
     idealStock: 30,
+    initialStock: 100,
   },
   {
     establishmentId: SEED_ESTABLISHMENT_ID,
@@ -112,6 +115,7 @@ const SEED_PRODUCTS = [
     stockControl: ProductStockControl.Single,
     status: ProductStatus.Active,
     idealStock: 20,
+    initialStock: 80,
   },
   {
     establishmentId: SEED_ESTABLISHMENT_ID,
@@ -130,6 +134,58 @@ const SEED_PRODUCTS = [
     stockControl: ProductStockControl.Single,
     status: ProductStatus.Active,
     idealStock: 10,
+    initialStock: 40,
+  },
+] as const
+
+const SEED_BRANDS = [
+  {
+    productName: 'Leite condensado',
+    name: 'Moça',
+    packageQuantity: 1,
+    packagePrice: 8.5,
+    isPrimary: true,
+    initialStock: 40,
+  },
+  {
+    productName: 'Leite condensado',
+    name: 'Itambé',
+    packageQuantity: 1,
+    packagePrice: 8,
+    isPrimary: false,
+    initialStock: 20,
+  },
+  {
+    productName: 'Granola',
+    name: 'Granola tradicional',
+    packageQuantity: 1,
+    packagePrice: 16,
+    isPrimary: true,
+    initialStock: 50,
+  },
+  {
+    productName: 'Banana fatiada',
+    name: 'Banana premium',
+    packageQuantity: 1,
+    packagePrice: 9,
+    isPrimary: true,
+    initialStock: 30,
+  },
+  {
+    productName: 'Creme de avelã',
+    name: 'Nutella',
+    packageQuantity: 0.35,
+    packagePrice: 22,
+    isPrimary: true,
+    initialStock: 40,
+  },
+  {
+    productName: 'Calda de chocolate',
+    name: "Hershey's",
+    packageQuantity: 1,
+    packagePrice: 18,
+    isPrimary: true,
+    initialStock: 25,
   },
 ] as const
 
@@ -183,7 +239,11 @@ async function seedDatabase() {
       registrationAttempts: [],
     })
     await mrpSeeder.clear()
-    await mrpSeeder.run([...SEED_PRODUCTS])
+    await mrpSeeder.run({
+      products: [...SEED_PRODUCTS],
+      brands: [...SEED_BRANDS],
+      stockBalances: [],
+    })
   } finally {
     await app?.close()
   }

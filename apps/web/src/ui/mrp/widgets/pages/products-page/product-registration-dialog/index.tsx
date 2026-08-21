@@ -15,6 +15,13 @@ import {
 } from '@/ui/shadcn/dialog'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/ui/shadcn/select'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import {
@@ -82,7 +89,10 @@ export const ProductRegistrationDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className='max-h-[min(90vh,48rem)] overflow-y-auto sm:max-w-xl'>
-        <DialogHeader className='border-b border-border-soft p-6'>
+        <DialogHeader className='border-b border-border-soft p-6 pr-14'>
+          <span className='mb-2 grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
+            <Icon name='package' className='size-5' />
+          </span>
           <DialogTitle>Novo produto</DialogTitle>
           <DialogDescription>Defina o básico e ajuste o resto depois.</DialogDescription>
         </DialogHeader>
@@ -109,20 +119,24 @@ export const ProductRegistrationDialog = ({
           </Label>
           <Label className='grid gap-2 text-sm font-bold'>
             Unidade de estoque
-            <select
-              {...form.register('unit')}
-              className='h-10 rounded-lg border bg-background px-3 font-normal'
-              onChange={(event) =>
-                form.handleUnitChange(event.target.value as ProductUnit)
-              }
+            <Select
               value={form.unit}
+              onValueChange={(value) => form.handleUnitChange(value as ProductUnit)}
             >
-              {UNIT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger
+                aria-label='Unidade de estoque'
+                className='h-10 w-full rounded-lg bg-background px-3 font-normal'
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {UNIT_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Label>
           <fieldset
             aria-describedby={

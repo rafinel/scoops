@@ -1,6 +1,6 @@
 import type { Brand, BrandCreate, BrandUpdate } from '@scoops/core/mrp/domain/entities'
 import type { BrandsRepository } from '@scoops/core/mrp/interfaces'
-import { and, asc, eq, sql } from 'drizzle-orm'
+import { and, asc, count, eq, sql } from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
@@ -31,11 +31,24 @@ export class DrizzleBrandsRepository
     return DrizzleBrandMapper.toDomain(record)
   }
 
-  async findById(brandId: string) {
+  async countByProductId(productId: string): Promise<number> {
+    const [record] = await this.database
+      .select({ count: count() })
+      .from(productBrandModel)
+      .where(eq(productBrandModel.productId, productId))
+    return Number(record?.count ?? 0)
+  }
+
+  async findById(productId: string, brandId: string) {
     const [record] = await this.database
       .select()
       .from(productBrandModel)
-      .where(eq(productBrandModel.id, brandId))
+      .where(
+        and(
+          eq(productBrandModel.productId, productId),
+          eq(productBrandModel.id, brandId),
+        ),
+      )
       .limit(1)
     return record ? DrizzleBrandMapper.toDomain(record) : undefined
   }
@@ -63,7 +76,7 @@ export class DrizzleBrandsRepository
     return records.map(DrizzleBrandMapper.toDomain)
   }
 
-  async replace(brandId: string, changes: BrandUpdate) {
+  async replace(productId: string, brandId: string, changes: BrandUpdate) {
     const [record] = await this.database
       .update(productBrandModel)
       .set({
@@ -76,27 +89,42 @@ export class DrizzleBrandsRepository
           changes.packagePrice === undefined ? undefined : String(changes.packagePrice),
         updatedAt: new Date(),
       })
-      .where(eq(productBrandModel.id, brandId))
+      .where(
+        and(
+          eq(productBrandModel.productId, productId),
+          eq(productBrandModel.id, brandId),
+        ),
+      )
       .returning()
     return DrizzleBrandMapper.toDomain(record)
   }
 
-  async setPrimary(brandId: string) {
-    const brand = await this.findById(brandId)
-    if (!brand) return undefined as never
+  async setPrimary(productId: string, brandId: string) {
     await this.database
       .update(productBrandModel)
       .set({ isPrimary: false, updatedAt: new Date() })
-      .where(eq(productBrandModel.productId, brand.productId))
+      .where(eq(productBrandModel.productId, productId))
     const [record] = await this.database
       .update(productBrandModel)
       .set({ isPrimary: true, updatedAt: new Date() })
-      .where(eq(productBrandModel.id, brandId))
+      .where(
+        and(
+          eq(productBrandModel.productId, productId),
+          eq(productBrandModel.id, brandId),
+        ),
+      )
       .returning()
     return DrizzleBrandMapper.toDomain(record)
   }
 
-  async remove(brandId: string) {
-    await this.database.delete(productBrandModel).where(eq(productBrandModel.id, brandId))
+  async remove(productId: string, brandId: string) {
+    await this.database
+      .delete(productBrandModel)
+      .where(
+        and(
+          eq(productBrandModel.productId, productId),
+          eq(productBrandModel.id, brandId),
+        ),
+      )
   }
 }

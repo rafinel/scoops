@@ -20,6 +20,7 @@ describe('IdentityService', () => {
       pageSize: 20,
       total: 1,
       totalPages: 1,
+      summary: { total: 1, managers: 0, operators: 1 },
     }
 
     restClient.get

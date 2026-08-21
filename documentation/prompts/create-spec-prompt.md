@@ -41,7 +41,49 @@ delivery risk, not file or endpoint counts:
 | `compact` | One cohesive outcome, stable dependencies, limited ownership and low delivery risk. |
 | `complete` | Multiple applications or layers, persistence/integration changes, several UI states, or material security, concurrency, migration or operational risk. |
 
-Inspect every affected boundary for:
+#### Parallel Searcher research
+
+Use [`searcher-agent.md`](../agents/searcher-agent.md) for bounded codebase research. The
+Orchestrator must complete the authority preflight in stage 1 itself before dispatching
+Searchers; Searcher reports do not replace the Orchestrator's required reading of
+`AGENTS.md`, repository authority, or the selected Rules.
+
+Prioritize parallel research over serial exploration:
+
+- identify independent lanes from real ownership and technical boundaries;
+- for a compact Spec with only one cohesive boundary, the Orchestrator may research it
+  directly or use one Searcher;
+- when two or more independent lanes are affected, dispatch all applicable Searchers in
+  the same parallel wave;
+- for a complete Spec, dispatch the affected `Searcher Core`, `Searcher Server`, and
+  `Searcher Web` lanes concurrently;
+- add `Searcher Integration` only when producer-consumer contracts, generated artifacts,
+  or cross-workspace wiring form a distinct research lane;
+- do not create a mandatory separate Validation Searcher: each owning lane reports its
+  existing tests, fixtures, commands, and validation gaps.
+
+Give every Searcher a bounded question, included paths, explicit search limits, applicable
+authority and Rules, known starting declarations, sibling lanes, and the expected report
+shape. Searchers are read-only sibling subagents in the current task. They do not author
+the Spec, modify authority, create artifacts, make product or architecture decisions, ask
+the user questions, or create other agents.
+
+After all dispatched Searchers return, the Orchestrator must:
+
+1. join the reports by path, declaration, responsibility, and runtime boundary;
+2. deduplicate findings and resolve conflicting reports through direct inspection;
+3. verify every consequential claim before using it in clarification or the Spec;
+4. trace each cross-lane producer → contract → consumer relationship and identify missing,
+   partial, or conflicting ownership;
+5. aggregate material ambiguities for stage 3 instead of letting a Searcher resolve them;
+6. complete any blocked or uncovered research directly, or keep the ambiguity unresolved.
+
+Searcher reports are research input, not durable SDD artifacts or authoritative evidence.
+Do not paste raw reports into the Spec. Do not begin clarification or Spec authoring until
+the applicable reports have been joined and the Orchestrator has completed its verification
+pass.
+
+The Searchers and Orchestrator must collectively inspect every affected boundary for:
 
 - current paths, declarations, exports, registration, configuration and generated files;
 - current control/data flow, reusable contracts and the exact technical gap;
@@ -56,8 +98,9 @@ record any intentional deviation from supplied references.
 
 ### 3. Clarify product and technical choices
 
-Before creating or modifying `spec.md`, identify every unresolved choice that could
-materially alter the Contract.
+After the Searcher join and verification pass, and before creating or modifying
+`spec.md`, identify every unresolved choice that could materially alter the
+Contract.
 
 | Area | Clarify when unresolved |
 | --- | --- |
@@ -273,7 +316,7 @@ The design manifest must preserve that analysis in a concise table or linked des
 
 | Reference | Route/surface/state | Viewport | Required visible inventory | Interaction/state coverage | Ambiguities or exclusions | Validation target |
 | --- | --- | --- | --- | --- | --- | --- |
-| `<screenshot>` | `<route and state>` | `<width × height>` | `<elements and hierarchy>` | `<controls/states>` | `<explicit notes>` | `<CA/MV/evidence path>` |
+| `<screenshot>` | `<route and state>` | `<width × height>` | `<elements and hierarchy>` | `<controls/states>` | `<explicit notes>` | `<CA/MV/validation-artifact identifier>` |
 
 After reviewing the supplied screenshots, the Spec creator must decide whether additional
 screenshots are necessary. Suggest them whenever the supplied bundle leaves a material gap,
@@ -906,14 +949,20 @@ Use these required tables:
 | --- | --- | --- | --- |
 | `1` | `YYYY-MM-DD` | `<contract created or amended>` | `<source decision/change>` |
 
-Builders and the Orchestrator read Rule source files directly. Do not put implementation
-attempts, test results or verdicts in revision history.
+Searchers, Builders, and the Orchestrator read Rule source files directly. Do not
+put implementation attempts, test results or verdicts in revision history.
 
 ## Integrity gate and handoff
 
 There is no separate Spec review stage. Keep the Spec `draft` while clarification, authority alignment
 or integrity work remains. Before changing it to `open`, verify:
 
+- every applicable independent research lane was covered, with parallel Searchers used when
+  two or more lanes could proceed independently;
+- every dispatched Searcher report was joined, conflicting findings were resolved by direct
+  inspection, and consequential claims were verified by the Orchestrator;
+- every cross-lane producer, contract, and consumer relationship is consistent or represented
+  as a resolved clarification or explicit Contract decision;
 - metadata, source, status and revision consistency;
 - complete RF/CA/evidence traceability;
 - filesystem-valid layer-contract path and change classifications;
@@ -937,7 +986,7 @@ interpretive:
 - declare allowed paths, prohibited paths, owning layer/module, generated-file treatment and
   the Builder validation exits;
 - map every supplied design screenshot and every required supplemental state to an exact
-  route, viewport, state, implementation surface and evidence target;
+  route, viewport, state, implementation surface and transient validation-artifact identifier;
 - define the required loading, empty, success, error, recovery, disabled, selected, focus,
   keyboard and responsive behavior wherever applicable;
 - include an explicit exclusion list so an implementation cannot infer missing behavior from

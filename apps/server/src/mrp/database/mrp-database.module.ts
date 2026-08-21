@@ -2,10 +2,14 @@ import { Module } from '@nestjs/common'
 
 import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
 import { MRP_REPOSITORIES } from '@/mrp/constants'
-import { DrizzleMrpDatabase } from '@/mrp/database/drizzle/repositories/drizzle-mrp-database'
-import { DrizzleProductsRepository } from '@/mrp/database/drizzle/repositories/drizzle-products-repository'
-import { DrizzleBrandsRepository } from '@/mrp/database/drizzle/repositories/drizzle-brands-repository'
-import { DrizzleStockBalancesRepository } from '@/mrp/database/drizzle/repositories/drizzle-stock-balances-repository'
+import {
+  DrizzleBrandsRepository,
+  DrizzleMrpDatabase,
+  DrizzleProductsRepository,
+  DrizzleStockBalancesRepository,
+  DrizzleStockTransactionsRepository,
+} from '@/mrp/database/drizzle/repositories'
+import { MRP_STOCK_TRANSACTIONS_REPOSITORY } from '@/mrp/database/mrp-repositories'
 import { MrpSeeder } from '@/mrp/database/mrp-seeder'
 
 @Module({
@@ -14,6 +18,7 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
     DrizzleProductsRepository,
     DrizzleBrandsRepository,
     DrizzleStockBalancesRepository,
+    DrizzleStockTransactionsRepository,
     DrizzleMrpDatabase,
     MrpSeeder,
     { provide: MRP_REPOSITORIES.products, useExisting: DrizzleProductsRepository },
@@ -22,12 +27,17 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
       provide: MRP_REPOSITORIES.stockBalances,
       useExisting: DrizzleStockBalancesRepository,
     },
+    {
+      provide: MRP_STOCK_TRANSACTIONS_REPOSITORY,
+      useExisting: DrizzleStockTransactionsRepository,
+    },
     { provide: MRP_REPOSITORIES.database, useExisting: DrizzleMrpDatabase },
   ],
   exports: [
     MRP_REPOSITORIES.products,
     MRP_REPOSITORIES.brands,
     MRP_REPOSITORIES.stockBalances,
+    MRP_STOCK_TRANSACTIONS_REPOSITORY,
     MRP_REPOSITORIES.database,
     MrpSeeder,
   ],

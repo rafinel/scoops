@@ -97,7 +97,8 @@ sufficient evidence.
   message while validation remains pending.
 - SDD has no Reviewer agent. Final validation is the Orchestrator's direct
   responsibility and is not delegated to another agent.
-- `conclude-spec` publishes or updates the PR, runs the final CI Quality Gate,
+- `conclude-spec` mandatorily invokes `create-pr` whenever the delivery PR is missing or stale,
+  then publishes or updates the PR, runs the final CI Quality Gate,
   marks `evaluation.md`, the Spec, and the Plan as `completed`, and closes the
   delivery.
 - `resolve-pr-feedback` handles later comments. While the PR is open,

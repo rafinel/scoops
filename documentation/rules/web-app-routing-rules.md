@@ -165,7 +165,8 @@ request, and the rendered state consistent:
 
 Do not maintain incompatible parsers for the same parameter in the route and a
 widget hook. If a hook uses `nuqs` for interactive synchronization, its parser
-must share the route's transport contract and be covered by the hook tests.
+must share the route's transport contract and be covered through the consuming
+widget and route integration tests.
 
 ## Internal navigation
 
@@ -242,7 +243,9 @@ localization from moving tests between unrelated technical areas.
 These are browser integration tests, not backend end-to-end tests. Web route tests
 must never start, call, or depend on a real backend, database, authentication
 service, or external service. Use `page.route` or the shared browser fixtures to
-provide deterministic mocked transport. When transport is mocked, the test must
+provide deterministic mocked transport. All browser tests under
+`apps/web/tests/routes/` use this mocked boundary; there is no real-service
+Playwright suite in the web application. When transport is mocked, the test must
 model the relevant response state instead of returning the same fixture forever.
 Real server persistence, authorization, and cross-tenant behavior belong in the
 server/Core integration suites, not under `apps/web/tests/routes/`.
@@ -268,8 +271,9 @@ remove so the subsequent GET reflects the mutation.
 
 Route tests must exercise the actual route middleware, route component, and page
 composition. Do not mock the owning page or hook in a Playwright route test. Keep
-unit-level controller and hook tests under `apps/web/src/ui/**/tests`; do not use
-them as a substitute for route coverage.
+widget tests directly inside their corresponding widget directories under
+`apps/web/src/ui/**`; do not use them as a substitute for route coverage. Query
+and action hooks do not receive dedicated test files.
 
 ### Mandatory route coverage matrix
 
@@ -379,7 +383,8 @@ suite uses the same browser setup and fixture lifecycle.
 If the backend is mocked, describe the suite as browser integration with mocked
 transport. It verifies the UI-to-REST contract and route behavior; server
 authorization, controller, and persistence behavior require their own server/core
-tests.
+tests. Do not add a second Playwright factory that bypasses the shared fixtures or
+an exception for real authenticated services.
 
 ## Route failure boundaries
 

@@ -224,7 +224,6 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
                 initialQuantity:
                   (Number(brand.packageQuantity) || 0) *
                   (Number(brand.packageCount) || 0),
-                isPrimary: brand.isPrimary,
               }))
             : undefined,
       })

@@ -3,11 +3,11 @@ import type { RestResponse } from '#shared/responses/rest-response.ts'
 import type { IceCreamShopOnboardingInput } from '#identity/domain/structures/ice-cream-shop-onboarding-input.ts'
 import type { IceCreamShopOnboardingRegistration } from '#identity/domain/structures/ice-cream-shop-onboarding-registration.ts'
 import type { PendingIceCreamShopOnboarding } from '#identity/domain/structures/pending-ice-cream-shop-onboarding.ts'
-import type { PaginationResponse } from '#shared/responses/pagination-response.ts'
 import type { UserDetails } from '#identity/domain/structures/user-details.ts'
 import type { UserSummary } from '#identity/domain/structures/user-summary.ts'
 import type { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { UserStatus } from '#identity/domain/structures/user-status.ts'
+import type { UsersPage } from '#identity/domain/structures/users-page.ts'
 import type { UsersListParams } from '#identity/domain/structures/users-list-params.ts'
 import type { EstablishmentSettings } from '#identity/domain/structures/establishment-settings.ts'
 
@@ -35,7 +35,7 @@ export interface IdentityService {
   }): Promise<RestResponse<void>>
   listUsers(
     input: Omit<UsersListParams, 'establishmentId' | 'excludeUserId'>,
-  ): Promise<RestResponse<PaginationResponse<UserSummary>>>
+  ): Promise<RestResponse<UsersPage<UserSummary>>>
   getUserDetails(userId: string): Promise<RestResponse<UserDetails>>
   inviteUser(input: {
     name: string

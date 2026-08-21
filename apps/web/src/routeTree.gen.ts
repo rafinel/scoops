@@ -28,6 +28,7 @@ import { Route as AuthenticatedDiscountsIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account/index'
 import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users/$userId'
 import { Route as AuthenticatedSalesNewRouteImport } from './routes/_authenticated/sales/new'
+import { Route as AuthenticatedProductsProductIdRouteImport } from './routes/_authenticated/products/$productId'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -131,6 +132,12 @@ const AuthenticatedSalesNewRoute = AuthenticatedSalesNewRouteImport.update({
   path: '/sales/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProductsProductIdRoute =
+  AuthenticatedProductsProductIdRouteImport.update({
+    id: '/products/$productId',
+    path: '/products/$productId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/login/': typeof LoginIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/reset-password/': typeof ResetPasswordIndexRoute
+  '/products/$productId': typeof AuthenticatedProductsProductIdRoute
   '/sales/new': typeof AuthenticatedSalesNewRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
@@ -161,6 +169,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
   '/reset-password': typeof ResetPasswordIndexRoute
+  '/products/$productId': typeof AuthenticatedProductsProductIdRoute
   '/sales/new': typeof AuthenticatedSalesNewRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/account': typeof AuthenticatedAccountIndexRoute
@@ -183,6 +192,7 @@ export interface FileRoutesById {
   '/login/': typeof LoginIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/reset-password/': typeof ResetPasswordIndexRoute
+  '/_authenticated/products/$productId': typeof AuthenticatedProductsProductIdRoute
   '/_authenticated/sales/new': typeof AuthenticatedSalesNewRoute
   '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/login/'
     | '/onboarding/'
     | '/reset-password/'
+    | '/products/$productId'
     | '/sales/new'
     | '/users/$userId'
     | '/account/'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/reset-password'
+    | '/products/$productId'
     | '/sales/new'
     | '/users/$userId'
     | '/account'
@@ -246,6 +258,7 @@ export interface FileRouteTypes {
     | '/login/'
     | '/onboarding/'
     | '/reset-password/'
+    | '/_authenticated/products/$productId'
     | '/_authenticated/sales/new'
     | '/_authenticated/users/$userId'
     | '/_authenticated/account/'
@@ -405,10 +418,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalesNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/products/$productId': {
+      id: '/_authenticated/products/$productId'
+      path: '/products/$productId'
+      fullPath: '/products/$productId'
+      preLoaderRoute: typeof AuthenticatedProductsProductIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedProductsProductIdRoute: typeof AuthenticatedProductsProductIdRoute
   AuthenticatedSalesNewRoute: typeof AuthenticatedSalesNewRoute
   AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
   AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
@@ -422,6 +443,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedProductsProductIdRoute: AuthenticatedProductsProductIdRoute,
   AuthenticatedSalesNewRoute: AuthenticatedSalesNewRoute,
   AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,
   AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,

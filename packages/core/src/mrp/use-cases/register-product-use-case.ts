@@ -15,14 +15,18 @@ import {
   ConflictError,
 } from '#shared/domain/errors/index.ts'
 import type { Broker } from '#shared/interfaces/broker.ts'
+import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
-type Request = RegisterProductInput & { actor: ProductActor }
+type Request = RegisterProductInput & {
+  actor: ProductActor & { readonly name: string }
+}
 
 export class RegisterProductUseCase implements UseCase<Request, Product> {
   constructor(
     private readonly database: MrpDatabase,
     private readonly broker: Broker,
+    private readonly datetimeProvider: DatetimeProvider,
   ) {}
 
   async execute(request: Request): Promise<Product> {
@@ -55,33 +59,56 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
       if (request.stockControl === ProductStockControl.Single) {
         await scope.stockBalancesRepository.initialize(createdProduct.id)
         if (request.initialStock && request.initialStock > 0) {
-          await scope.stockBalancesRepository.adjust({
+          const balance = await scope.stockBalancesRepository.add(
+            { productId: createdProduct.id },
+            request.initialStock,
+          )
+          await scope.stockTransactionsRepository.add({
             establishmentId: request.actor.establishmentId,
             productId: createdProduct.id,
+            productName: createdProduct.name,
+            unit: createdProduct.unit,
             type: 'entry',
             quantity: request.initialStock,
+            balanceAfter: balance.quantity,
             performedBy: request.actor.id,
-            occurredAt: new Date(),
+            performedByName: request.actor.name,
+            occurredAt: this.datetimeProvider.now(),
           })
         }
       } else {
-        for (const brand of request.brands ?? []) {
+        for (const [index, brand] of (request.brands ?? []).entries()) {
           const createdBrand = await scope.brandsRepository.add({
             productId: createdProduct.id,
             name: brand.name.trim(),
             packageQuantity: brand.packageQuantity,
             packagePrice: brand.packageValue,
-            isPrimary: brand.isPrimary,
+            isPrimary: index === 0,
           })
-          await scope.stockBalancesRepository.adjust({
-            establishmentId: request.actor.establishmentId,
-            productId: createdProduct.id,
-            brandId: createdBrand.id,
-            type: 'entry',
-            quantity: brand.initialQuantity,
-            performedBy: request.actor.id,
-            occurredAt: new Date(),
-          })
+          await scope.stockBalancesRepository.initialize(
+            createdProduct.id,
+            createdBrand.id,
+          )
+          if (brand.initialQuantity > 0) {
+            const balance = await scope.stockBalancesRepository.add(
+              { productId: createdProduct.id, brandId: createdBrand.id },
+              brand.initialQuantity,
+            )
+            await scope.stockTransactionsRepository.add({
+              establishmentId: request.actor.establishmentId,
+              productId: createdProduct.id,
+              brandId: createdBrand.id,
+              productName: createdProduct.name,
+              brandName: createdBrand.name,
+              unit: createdProduct.unit,
+              type: 'entry',
+              quantity: brand.initialQuantity,
+              balanceAfter: balance.quantity,
+              performedBy: request.actor.id,
+              performedByName: request.actor.name,
+              occurredAt: this.datetimeProvider.now(),
+            })
+          }
         }
       }
 
@@ -157,7 +184,7 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
     for (const brand of input.brands ?? []) {
       if (!brand.name.trim()) throw new BadRequestError('O nome da marca é obrigatório.')
       if (
-        brand.packageQuantity < 0 ||
+        brand.packageQuantity <= 0 ||
         brand.packageValue < 0 ||
         brand.initialQuantity < 0
       ) {
