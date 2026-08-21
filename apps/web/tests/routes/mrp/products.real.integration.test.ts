@@ -93,6 +93,81 @@ test('registers a by-brand product with the summed initial stock', async ({ page
   expect(registrationResponse.status()).toBe(201)
 })
 
+test('opens a newly registered product and commits a real single-stock entry', async ({
+  page,
+}) => {
+  const productName = `Produto estoque E2E ${Date.now()}`
+  const consoleErrors: string[] = []
+  const failedRequests: string[] = []
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text())
+  })
+  page.on('requestfailed', (request) => {
+    failedRequests.push(`${request.method()} ${request.url()}`)
+  })
+
+  await page.goto('/login')
+  await page.getByLabel('E-mail').fill(managerEmail)
+  await page.getByRole('textbox', { name: 'Senha' }).fill(managerPassword)
+  await page.getByRole('button', { name: 'Entrar no Scoops' }).click()
+  await expect(page).toHaveURL(/\/$/)
+  await page.goto('/products')
+
+  await page.getByRole('button', { name: /Novo produto/ }).click()
+  const registrationDialog = page.getByRole('dialog', { name: 'Novo produto' })
+  await registrationDialog.getByLabel('Nome do produto').fill(productName)
+  await registrationDialog.getByRole('checkbox', { name: 'Ingrediente' }).check()
+  await registrationDialog.getByRole('spinbutton', { name: 'Estoque inicial' }).fill('1')
+  await registrationDialog.getByRole('spinbutton', { name: 'Estoque ideal' }).fill('10')
+
+  const registrationResponsePromise = page.waitForResponse(
+    (response) =>
+      response.url().endsWith('/products') && response.request().method() === 'POST',
+  )
+  await registrationDialog.getByRole('button', { name: 'Criar produto' }).click()
+  const registrationResponse = await registrationResponsePromise
+  expect(registrationResponse.status()).toBe(201)
+  const registeredProduct = (await registrationResponse.json()) as { id: string }
+
+  const detailResponsePromise = page.waitForResponse((response) => {
+    const url = new URL(response.url())
+    return (
+      response.request().method() === 'GET' &&
+      url.pathname === `/products/${registeredProduct.id}/stock`
+    )
+  })
+  await page.goto(`/products/${registeredProduct.id}`)
+  expect((await detailResponsePromise).status()).toBe(200)
+  await expect(page.getByRole('heading', { name: productName })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Entrada' }).click()
+  const adjustmentDialog = page.getByRole('dialog', { name: 'Entrada de estoque' })
+  await adjustmentDialog.getByLabel('Quantidade').fill('2')
+  const adjustmentResponsePromise = page.waitForResponse((response) => {
+    const url = new URL(response.url())
+    return (
+      response.request().method() === 'POST' &&
+      url.pathname === `/products/${registeredProduct.id}/stock-adjustments`
+    )
+  })
+  await adjustmentDialog.getByRole('button', { name: 'Confirmar entrada' }).click()
+  const adjustmentResponse = await adjustmentResponsePromise
+  expect(adjustmentResponse.status()).toBe(201)
+  expect(adjustmentResponse.request().postDataJSON()).toEqual({
+    type: 'entry',
+    quantity: 2,
+  })
+  await expect(adjustmentDialog).toBeHidden()
+  await expect(page.getByText('3 un', { exact: true }).first()).toBeVisible()
+  await expect(
+    page.getByRole('row', {
+      name: /Entrada Manual Produto \+2 un Scoops Manager/,
+    }),
+  ).toBeVisible()
+  expect(consoleErrors).toEqual([])
+  expect(failedRequests).toEqual([])
+})
+
 test('applies repeated category filters through the real authenticated server', async ({
   page,
 }) => {
@@ -111,7 +186,24 @@ test('applies repeated category filters through the real authenticated server', 
   await page.getByRole('button', { name: 'Entrar no Scoops' }).click()
   await expect(page).toHaveURL(/\/$/)
 
+  const initialProductsResponsePromise = page.waitForResponse((response) => {
+    const url = new URL(response.url())
+    return (
+      response.request().method() === 'GET' &&
+      url.port === '3336' &&
+      url.pathname === '/products'
+    )
+  })
   await page.goto('/products')
+  const initialProductsResponse = await initialProductsResponsePromise
+  const initialResponseJson = (await initialProductsResponse.json()) as {
+    items: unknown[]
+    kpis: { products: number; brands: number; lowStock: number }
+    total?: number
+    totalItems?: number
+  }
+  const initialTotalItems =
+    initialResponseJson.totalItems ?? initialResponseJson.total ?? 0
   await expect(page.getByRole('heading', { name: 'Produtos' })).toBeVisible()
   await page.getByRole('button', { name: 'Filtros' }).click()
   const filtersDialog = page.getByRole('dialog', { name: 'Filtrar produtos' })
@@ -143,12 +235,15 @@ test('applies repeated category filters through the real authenticated server', 
 
   const responseJson = JSON.parse(responseBody) as {
     items: Array<{ product: { name: string; categories: string[] } }>
+    kpis: { products: number; brands: number; lowStock: number }
     total?: number
     totalItems?: number
   }
   const totalItems = responseJson.totalItems ?? responseJson.total ?? 0
   expect(totalItems).toBeGreaterThan(0)
+  expect(totalItems).toBeLessThan(initialTotalItems)
   expect(responseJson.items).toHaveLength(totalItems)
+  expect(responseJson.kpis).toEqual(initialResponseJson.kpis)
   expect(
     responseJson.items.every((item) =>
       item.product.categories.some((category) =>

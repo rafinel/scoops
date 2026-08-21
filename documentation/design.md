@@ -265,12 +265,18 @@ Chip pattern, slightly larger. Mapping:
 - Horizontal frame, `$bg-card`, 1px border `$border`, radius 10.
 - 12×14 internal padding.
 - Text 14/700 `$text-primary`.
+- Focus uses one continuous 2px `$ring` treatment at 20% opacity plus `$ring` border, owned by
+  the input primitive or composite wrapper. Never stack a global outline over the component
+  border/ring or introduce page-level focus-color overrides.
 
 ### Input with prefix/suffix
 
 - Prefix/Suffix: padding 12×14, background `$bg-muted`, vertical separation border `$border`, radius only in the outer corners.
 - Prefix/suffix text: 14/800 `$text-secondary`.
 - Used for R$, kg, ml, un, g.
+- Composite fields render one continuous focus border and soft ring around the complete control.
+  Prefixes, suffixes, inline labels and native date segments must not create a second outline or
+  colored internal divider; retain native segment highlighting only as the precise editing cue.
 
 ### Dropdown (select)
 
@@ -339,10 +345,12 @@ All text 12/600.
 - Typical widths: 440 (simple dialog), 520 (standard form), 640 (production with projection).
 
 **Header:**
-- Padding 24 top + 24 side, without padding bottom.
-- 44×44 square icon (background `$warning-soft`, `$danger-soft` or `$success-soft`) with central Lucide icon 20–22px.
-- Title 18–20/800 + subtitle 13/400 `$text-secondary`.
-- Close 32×32 outline button with `x` 16 `$text-secondary` icon.
+- Padding 24 on all sides, with 56px reserved on the right for the close action.
+- The header is a vertical stack: 44×44 semantic icon tile first, then title, then supporting text. Do not place the icon beside the title block.
+- Use the existing semantic soft background and foreground pair (`$accent`/`$primary`, `$warning-soft`/`$warning`, `$danger-soft`/`$danger`, or `$success-soft`/`$success`) with a central Lucide icon at 20–22px.
+- Title 18–20/800 + subtitle 13/400 `$text-secondary`; supporting context stays immediately below the title.
+- Close 32×32 outline button with `x` 16 `$text-secondary` icon, isolated at the top-right.
+- A 1px `$border-soft` separator closes the header before the body. The same structure applies to ordinary, blocking, and destructive dialogs.
 
 **Body:**
 - Padding 20 top + 24 side, gap 16.

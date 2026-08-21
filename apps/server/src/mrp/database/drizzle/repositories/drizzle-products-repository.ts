@@ -62,11 +62,16 @@ export class DrizzleProductsRepository
     return records.map(DrizzleProductMapper.toDomain)
   }
 
-  async findById(productId: string) {
+  async findById(establishmentId: string, productId: string) {
     const [record] = await this.database
       .select()
       .from(productModel)
-      .where(eq(productModel.id, productId))
+      .where(
+        and(
+          eq(productModel.establishmentId, establishmentId),
+          eq(productModel.id, productId),
+        ),
+      )
       .limit(1)
     return record ? DrizzleProductMapper.toDomain(record) : undefined
   }
@@ -165,7 +170,7 @@ export class DrizzleProductsRepository
         .from(productModel)
         .leftJoin(stockTotals, eq(stockTotals.productId, productModel.id))
         .leftJoin(brandTotals, eq(brandTotals.productId, productModel.id))
-        .where(and(...filters)),
+        .where(establishmentFilter),
     ])
     const total = Number(totals[0]?.count ?? 0)
     const items = records.map(({ product: record, brandCount, stockQuantity }) => ({

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Link } from '@tanstack/react-router'
 
 import type {
   ProductCatalogPage,
@@ -194,19 +195,20 @@ function ProductTable({
                 className={cn('h-auto px-5 py-3', className)}
                 key={field}
               >
-                <button
+                <Button
                   aria-label={`Ordenar por ${label}`}
                   className={cn(
-                    'flex w-full items-center gap-1.5 transition-colors hover:text-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
+                    'h-auto w-full justify-start gap-1.5 border-0 bg-transparent px-0 py-0 transition-colors hover:bg-transparent hover:text-foreground focus-visible:rounded-sm',
                     align === 'right' && 'justify-end',
                     isActive && 'text-foreground',
                   )}
                   onClick={() => onSort(field)}
                   type='button'
+                  variant='ghost'
                 >
                   {label}
                   <Icon name={icon} className='size-3.5 shrink-0' />
-                </button>
+                </Button>
               </TableHead>
             )
           })}
@@ -224,16 +226,18 @@ function ProductTable({
             )}
             key={product.id}
           >
-            <TableCell className='px-5 py-3.5 font-bold'>
-              <span className='flex items-center gap-2'>
+            <TableCell className='min-w-0 overflow-hidden px-5 py-3.5 font-bold'>
+              <span className='flex min-w-0 items-center gap-2'>
                 {stockSituation === 'low' ? (
                   <span className='size-1.5 shrink-0 rounded-full bg-red-600' />
                 ) : null}
-                {product.name}
+                <span className='min-w-0 truncate' title={product.name}>
+                  {product.name}
+                </span>
               </span>
             </TableCell>
-            <TableCell className='px-5 py-3.5'>
-              <div className='flex flex-wrap gap-1'>
+            <TableCell className='min-w-0 overflow-hidden px-5 py-3.5'>
+              <div className='flex min-w-0 flex-wrap gap-1'>
                 {product.categories.map((category) => (
                   <Badge
                     className={`h-6 px-2.5 py-1 text-xs font-semibold ${CATEGORY_BADGE_CLASSES[category]}`}
@@ -270,12 +274,13 @@ function ProductTable({
               ) : null}
             </TableCell>
             <TableCell className='hidden px-5 py-3.5 sm:table-cell'>
-              <button
+              <Link
                 className='whitespace-nowrap text-sm font-semibold text-primary hover:underline'
-                type='button'
+                params={{ productId: product.id }}
+                to='/products/$productId'
               >
                 Detalhes →
-              </button>
+              </Link>
             </TableCell>
           </TableRow>
         ))}

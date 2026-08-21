@@ -17,8 +17,26 @@ export type MrpProductsMock = {
   requests: URL[]
 }
 
+export type MrpRequestRecord = {
+  body?: unknown
+  method: string
+  url: URL
+}
+
+export type MrpStockMockOptions = {
+  respond: (
+    request: MrpRequestRecord,
+    requestNumber: number,
+  ) => MrpMockResponse | Promise<MrpMockResponse>
+}
+
+export type MrpStockMock = {
+  requests: MrpRequestRecord[]
+}
+
 export type MrpFixture = {
   mockProducts: (options: MrpProductsMockOptions) => Promise<MrpProductsMock>
+  mockProductStock: (options: MrpStockMockOptions) => Promise<MrpStockMock>
 }
 
 const resolveResponse = (
@@ -59,5 +77,33 @@ export const MrpFixture = (page: Page): MrpFixture => ({
     })
 
     return { registrations, requests }
+  },
+
+  async mockProductStock({ respond }) {
+    const requests: MrpRequestRecord[] = []
+
+    await page.route('**/products/**', async (route) => {
+      if (!['fetch', 'xhr'].includes(route.request().resourceType())) {
+        await route.continue()
+        return
+      }
+
+      const request: MrpRequestRecord = {
+        method: route.request().method(),
+        url: new URL(route.request().url()),
+      }
+      const postData = route.request().postData()
+      if (postData) request.body = route.request().postDataJSON()
+      requests.push(request)
+      const response = await respond(request, requests.length)
+
+      await route.fulfill({
+        contentType: 'application/json',
+        status: response.status ?? 200,
+        body: JSON.stringify(response.body),
+      })
+    })
+
+    return { requests }
   },
 })

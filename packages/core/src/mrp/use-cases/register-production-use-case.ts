@@ -1,10 +1,6 @@
 import { ProductionRegisteredEvent } from '#mrp/domain/events/production-registered-event.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
-import {
-  ProductCategory,
-  ProductStockControl,
-  StockAdjustmentType,
-} from '#mrp/domain/structures/index.ts'
+import { ProductCategory, ProductStockControl } from '#mrp/domain/structures/index.ts'
 import type { ProductionRequest } from '#mrp/domain/structures/production-request.ts'
 import type { ProductionConsumption } from '#mrp/domain/structures/production-consumption.ts'
 import type { ProductionPreview } from '#mrp/domain/structures/production-preview.ts'
@@ -27,7 +23,10 @@ export class RegisterProductionUseCase
     }
 
     const preview = await this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(request.productId)
+      const product = await scope.productsRepository.findById(
+        request.establishmentId,
+        request.productId,
+      )
 
       if (!product || product.establishmentId !== request.establishmentId) {
         throw new NotFoundError('Produto fabricável não encontrado.')
@@ -55,6 +54,7 @@ export class RegisterProductionUseCase
 
       for (const ingredient of ingredients) {
         const ingredientProduct = await scope.productsRepository.findById(
+          request.establishmentId,
           ingredient.ingredientProductId,
         )
 
@@ -86,25 +86,29 @@ export class RegisterProductionUseCase
       }
 
       for (const consumption of consumptions) {
-        await scope.stockBalancesRepository.adjust({
-          establishmentId: request.establishmentId,
-          productId: consumption.ingredientProductId,
-          brandId: consumption.ingredientBrandId,
-          type: StockAdjustmentType.WriteOff,
-          quantity: consumption.projectedBalance,
-          performedBy: request.performedBy,
-          occurredAt: request.occurredAt,
-        })
+        const ingredientProduct = await scope.productsRepository.findById(
+          request.establishmentId,
+          consumption.ingredientProductId,
+        )
+
+        if (!ingredientProduct) {
+          throw new NotFoundError('Ingrediente da receita não encontrado.')
+        }
+
+        await scope.stockBalancesRepository.add(
+          {
+            productId: consumption.ingredientProductId,
+            brandId: consumption.ingredientBrandId,
+          },
+          -consumption.quantity,
+          ingredientProduct.allowNegativeStock ? undefined : 0,
+        )
       }
 
-      const resultingStock = await scope.stockBalancesRepository.adjust({
-        establishmentId: request.establishmentId,
-        productId: product.id,
-        type: StockAdjustmentType.Entry,
-        quantity: request.quantity,
-        performedBy: request.performedBy,
-        occurredAt: request.occurredAt,
-      })
+      const resultingStock = await scope.stockBalancesRepository.add(
+        { productId: product.id },
+        request.quantity,
+      )
 
       return {
         productId: product.id,

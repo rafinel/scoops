@@ -10,21 +10,21 @@ import {
 import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
-type UpdateProductRequest = {
+type Request = {
   establishmentId: string
   productId: string
   changes: ProductUpdate
 }
 
-export class UpdateProductUseCase implements UseCase<UpdateProductRequest, Product> {
+export class UpdateProductUseCase implements UseCase<Request, Product> {
   constructor(
     private readonly productsRepository: ProductsRepository,
     private readonly broker: Broker,
   ) {}
 
-  async execute(request: UpdateProductRequest): Promise<Product> {
+  async execute(request: Request): Promise<Product> {
     const { establishmentId, productId, changes } = request
-    const product = await this.productsRepository.findById(productId)
+    const product = await this.productsRepository.findById(establishmentId, productId)
 
     if (!product || product.establishmentId !== establishmentId) {
       throw new NotFoundError('Produto não encontrado.')

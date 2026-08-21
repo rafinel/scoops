@@ -174,8 +174,23 @@ negative-stock option is enabled.
   use the main brand.
 - **Availability update:** entries and write-offs recalculate total stock,
   production situation and capacity.
-- **History:** movement and audit history is out of scope
-  of this version.
+- **Stock transaction:** every committed stock change must create an immutable
+  stock-transaction record in the same database transaction as the balance
+  change.
+- **Transaction types:** this version records manual `Entry` and manual
+  `Write-off`. Production and Sales own their respective transaction records
+  when those flows are implemented.
+- **Initial stock:** a positive stock supplied while registering a product or
+  brand is recorded as an `Entry`; zero creates no transaction.
+- **Historical facts:** the record keeps the product, optional brand, unit,
+  quantity, resulting balance, responsible-user identity and captured display
+  name, and occurrence time needed to explain the committed change. Product,
+  brand and author labels are snapshotted so a later configuration change or
+  deletion does not rewrite history.
+- **Publication:** recording a stock transaction is local persistence and does
+  not require publishing a domain event, broker message or outbox entry.
+- **Multi-tenancy:** transactions are isolated by ice cream shop and can only be
+  read with the same establishment authorization as their product.
 
 ##### UI/UX rules
 
@@ -189,6 +204,16 @@ negative-stock option is enabled.
 - **Message:** inform available quantity and requested quantity.
 - **Zero:** zero balance must be displayed as valid status, not as absence of
   registration.
+- **Movement history:** the Stock tab must show committed transactions newest
+  first, with type, brand and date-period filters and paginated results.
+- **Author:** each history row must identify the responsible user by the display
+  name captured when the transaction committed.
+- **Author avatar:** show the responsible user's initials in a compact avatar.
+  Choose its accessible semantic color pair deterministically from the captured
+  author name so the same normalized name always receives the same color; color
+  is supportive and never replaces the visible name.
+- **History states:** loading, empty, filter-without-results and error/retry must
+  be distinguishable without hiding the current balance.
 
 ---
 
@@ -208,7 +233,7 @@ negative-stock option is enabled.
 - **Order:** Name, Stock quantity, Number of brands, Categories and
   Unit.
 - **Pagination:** the listing must be paginated.
-- **KPIs:** summary cards must respect active filters.
+- **KPIs:** summary cards are establishment-wide operational totals and must not change when search, filters, sorting, or pagination alter the product list.
 - **Operational Cards:** can display Products, Brands, Low Stock and Products
   with limited production.
 - **Value in stock:** should not appear as a KPI in this module; belongs to a
@@ -616,7 +641,7 @@ negative-stock option is enabled.
 - Physical inventory.
 - Batches and validity.
 - Losses and waste.
-- Movement history and stock audit.
+- Administrative stock-audit export, reconciliation and correction workflows.
 - Automatic minimum stock notifications by email, SMS or push.
 - Purchase orders and estimated arrival.
 - Brands shared between products.
@@ -635,7 +660,8 @@ negative-stock option is enabled.
 - **Stock value in MRP:** removed; costs, profits and movements
   Financial data belongs to a financial view.
 - **Physical stock, batches and expiration date:** removed from the scope of this version.
-- **History and stock audit:** removed from scope; the module maintains
+- **Administrative stock audit:** export, reconciliation and correction remain
+  outside this version; the module maintains
   only the operational data necessary to produce.
 - **Portion not sized:** discarded; every salable Portion needs at least
   one size.

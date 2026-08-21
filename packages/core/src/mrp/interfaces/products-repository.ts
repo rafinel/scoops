@@ -9,7 +9,7 @@ import type { ProductListParams } from '#mrp/domain/structures/product-list-para
 export interface ProductsRepository {
   add(input: ProductCreate): Promise<Product>
   addMany(inputs: ProductCreate[]): Promise<readonly Product[]>
-  findById(productId: string): Promise<Product | undefined>
+  findById(establishmentId: string, productId: string): Promise<Product | undefined>
   findByName(establishmentId: string, name: string): Promise<Product | undefined>
   findMany(input: ProductListParams): Promise<ProductCatalogPage>
   replace(productId: string, changes: ProductUpdate): Promise<Product>

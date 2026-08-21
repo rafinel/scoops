@@ -85,6 +85,21 @@ they own behavior.
 
 ## UI implementation conventions
 
+### Prefer shadcn components for UI elements
+
+When a matching shadcn component exists, use it instead of rendering the
+equivalent native interactive or form element directly in feature UI. This
+includes controls such as buttons, inputs, selects, textareas, labels, badges,
+dialogs and tables. Compose the shared component with its public props and
+`className` rather than duplicating its markup in a feature directory.
+
+If no suitable shadcn component exists, add or extend the shared primitive
+under `apps/web/src/ui/shadcn` before introducing a feature-local equivalent.
+Native elements remain appropriate for document structure, text content,
+layout, external links and other cases where no shadcn abstraction exists or
+native semantics are required. Preserve accessibility semantics and keyboard
+behavior in either case.
+
 ### Shared code conventions
 
 Apply [`code-conventions-rules.md`](code-conventions-rules.md) for function
@@ -123,6 +138,14 @@ Action hooks should follow this structure:
 The action hook owns request orchestration and lifecycle callbacks. Page or
 widget hooks consume the action hook and own local form state, UI state, and
 interaction handlers.
+
+Query and action hooks do not receive dedicated test files. Their observable
+request, lifecycle, invalidation, recovery and rendering behavior is covered by
+the consuming page/widget test and, when applicable, the route integration
+suite. Web REST services also do not receive dedicated tests: exercise their
+observable method/path/query/body, response mapping and failure behavior through
+those consuming boundaries. Do not test React Query itself or duplicate consumer
+behavior in a `use-<query-or-action>.test.ts` file.
 
 ### Catch blocks provide user-visible feedback
 
@@ -268,6 +291,12 @@ hook and must live under `apps/web/src/ui/<module>/hooks/`. It must not remain
 inside the first widget that used it. A hook that is exclusive to one component
 widget remains colocated with that widget. The placement follows actual
 consumers: do not promote a hook merely because it might be reused later.
+
+Tests for a page, layout, dialog, form, table or other widget live directly in
+that widget's directory beside `index.tsx` and its owning hook. A nested widget's
+test belongs in the nested widget directory, not in a parent-level or shared
+`tests/` directory. Query/action hooks remain covered through these consuming
+widget tests and do not add their own test files.
 
 ### Use shared HTTP status constants
 
@@ -686,4 +715,25 @@ duplicated focus states. The wrapper must remain visibly focused for keyboard
 users. When the shared global focus selector would otherwise add an outline,
 mark the delegated control with `data-focus-ring='delegated'`. Playwright
 validation must verify both the neutral inner styles and the wrapper's visible
-focus treatment.
+focus treatment. Apply this pattern to affixed inputs and to native date inputs
+composed with an inline `De`/`Até` label; preserve the browser's active date-segment
+highlight as an editing cue, but never use that segment highlight as the only
+visible focus indicator.
+
+Shared primitives that already own a complete `focus-visible` border/ring must
+set `data-focus-ring='delegated'` by default so the global fallback outline does
+not create a doubled halo. Consumers must not remove the primitive's remaining
+visible focus treatment. All text-like inputs use the shared Input focus style:
+one `ring-2 ring-ring/20` with a `border-ring`, whether it is owned directly by
+the input or delegated to a composite wrapper. Do not introduce page-level
+focus-color or ring-strength overrides for ordinary inputs.
+
+## Dialog header structure
+
+Every application dialog, including alert and destructive confirmation dialogs,
+uses the shared vertical header hierarchy: semantic icon tile above the title,
+supporting description immediately below, close action isolated at the top-right,
+and a soft separator between header and body. Preserve the icon and semantic color
+that communicate the dialog's purpose, but do not replace this hierarchy with a
+horizontal icon-and-copy row or omit the header separator. Reserve enough right
+padding that long titles and descriptions cannot collide with the close action.

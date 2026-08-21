@@ -53,18 +53,14 @@ export function ProductFiltersDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className='flex max-h-[calc(100vh-2rem)] flex-col overflow-hidden sm:max-w-[42rem]'>
-        <DialogHeader className='border-b border-border-soft p-8 pb-7 pr-20'>
-          <div className='flex items-start gap-4'>
-            <span className='grid size-14 shrink-0 place-items-center rounded-2xl bg-accent text-primary'>
-              <Icon name='filter' className='size-7' />
-            </span>
-            <div className='space-y-1'>
-              <DialogTitle className='text-2xl'>Filtrar produtos</DialogTitle>
-              <DialogDescription className='text-base'>
-                Refine a lista por categoria, estoque e status.
-              </DialogDescription>
-            </div>
-          </div>
+        <DialogHeader className='border-b border-border-soft p-8 pr-20'>
+          <span className='mb-2 grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
+            <Icon name='filter' className='size-5' />
+          </span>
+          <DialogTitle className='text-2xl'>Filtrar produtos</DialogTitle>
+          <DialogDescription className='text-base'>
+            Refine a lista por categoria, estoque e status.
+          </DialogDescription>
         </DialogHeader>
         <div className='min-h-0 flex-1 space-y-7 overflow-y-auto p-8'>
           <div className='flex items-center justify-between rounded-xl bg-muted/50 px-4 py-3 text-sm text-muted-foreground'>

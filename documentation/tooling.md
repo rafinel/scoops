@@ -320,7 +320,7 @@ Default local endpoints are:
 | Service | URL |
 | --- | --- |
 | Web application | `http://127.0.0.1:4000` |
-| Server application | `http://127.0.0.1:3333` |
+| Server application | `http://127.0.0.1:3336` |
 | Supabase gateway | `http://127.0.0.1:54321` |
 | PostgreSQL | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
 | Supabase Studio | `http://127.0.0.1:54323` |

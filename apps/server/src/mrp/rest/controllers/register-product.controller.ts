@@ -10,6 +10,7 @@ import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MrpController } from '@/mrp/decorators'
 import { CurrentAccount, RequiredProfiles } from '@/identity/decorators'
 import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
+import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 
 import { registerProductSchema } from '../schemas/product-schemas'
@@ -21,8 +22,9 @@ export class RegisterProductController {
   constructor(
     @Inject(MRP_REPOSITORIES.database) database: MrpDatabase,
     @Inject(InngestBroker) broker: Broker,
+    @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
   ) {
-    this.useCase = new RegisterProductUseCase(database, broker)
+    this.useCase = new RegisterProductUseCase(database, broker, datetimeProvider)
   }
 
   @Post()

@@ -11,6 +11,7 @@ export const ROUTES = {
   userDetails: '/users/$userId',
   invitationAccept: '/invitation/accept',
   products: '/products',
+  productDetails: '/products/$productId',
   newSale: '/sales/new',
   orders: '/orders',
   salesChannels: '/sales-channels',

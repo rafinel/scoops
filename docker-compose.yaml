@@ -252,7 +252,7 @@ services:
     image: inngest/inngest:v1.36.0
     container_name: scoops-inngest
     restart: unless-stopped
-    command: inngest dev --no-discovery -u http://host.docker.internal:${HMS_SERVER_APP_PORT:-3333}/api/inngest
+    command: inngest dev --no-discovery -u http://host.docker.internal:${HMS_SERVER_APP_PORT:-3336}/api/inngest
     ports:
       - "${INNGEST_PORT:-8388}:8288"
       - "${INNGEST_CONNECT_PORT:-8399}:8289"
