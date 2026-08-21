@@ -1,14 +1,15 @@
-import type { Account, User } from '@scoops/core/identity/domain/entities'
+import type { Account } from '@scoops/core/identity/domain/entities'
 import type {
   IceCreamShopOnboardingInput,
   EstablishmentSettings,
   UserDetails,
   UserProfile,
   UserStatus,
+  UserSummary,
+  UsersPage,
   UsersListParams,
 } from '@scoops/core/identity/domain/structures'
 import type { IdentityService as IdentityRestService } from '@scoops/core/identity/interfaces'
-import type { PaginationResponse } from '@scoops/core/shared/responses/pagination-response'
 import { RestResponse } from '@scoops/core/shared/responses/rest-response'
 import type { RestClient } from '@scoops/core/shared/interfaces'
 
@@ -21,10 +22,9 @@ import {
   UsersPageMapper,
   type EstablishmentSettingsJson,
   type IceCreamShopOnboardingRegistrationJson,
-  type PaginationJson,
+  type UsersPageJson,
   type PendingIceCreamShopOnboardingJson,
   type UserDetailsJson,
-  type UserSummaryJson,
 } from '@/rest/mappers/identity'
 
 export const IdentityService = (restClient: RestClient): IdentityRestService => {
@@ -124,25 +124,10 @@ export const IdentityService = (restClient: RestClient): IdentityRestService => 
       params.set('page', String(input.page))
       params.set('pageSize', String(input.pageSize))
 
-      const response = await restClient.get<PaginationJson<UserSummaryJson>>(
-        `/users?${params.toString()}`,
-      )
+      const response = await restClient.get<UsersPageJson>(`/users?${params.toString()}`)
 
       if (!response.isSuccessful) {
-        return response as unknown as RestResponse<
-          PaginationResponse<
-            Pick<
-              User,
-              | 'id'
-              | 'name'
-              | 'email'
-              | 'profile'
-              | 'status'
-              | 'lastAccessAt'
-              | 'createdAt'
-            >
-          >
-        >
+        return response as unknown as RestResponse<UsersPage<UserSummary>>
       }
 
       return new RestResponse({

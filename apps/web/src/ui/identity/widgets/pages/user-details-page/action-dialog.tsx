@@ -53,25 +53,18 @@ export const ActionDialog = ({
   return (
     <AlertDialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
       <AlertDialogContent className='max-w-md'>
-        <AlertDialogHeader className='place-items-start gap-3 border-b border-border-soft p-6 text-left'>
-          <div className='flex items-start gap-3'>
-            <span
-              className={`grid size-11 shrink-0 place-items-center rounded-xl ${
-                danger ? 'bg-danger-soft text-danger' : 'bg-accent text-primary'
-              }`}
-            >
-              <Icon
-                name={danger ? 'triangle-alert' : 'shield-check'}
-                className='size-5'
-              />
-            </span>
-            <div>
-              <AlertDialogTitle>{title}</AlertDialogTitle>
-              <AlertDialogDescription className='mt-1.5 text-sm leading-5'>
-                {message}
-              </AlertDialogDescription>
-            </div>
-          </div>
+        <AlertDialogHeader className='place-items-start gap-1.5 border-b border-border-soft p-6 pr-14 text-left'>
+          <span
+            className={`mb-2 grid size-11 shrink-0 place-items-center rounded-xl ${
+              danger ? 'bg-danger-soft text-danger' : 'bg-accent text-primary'
+            }`}
+          >
+            <Icon name={danger ? 'triangle-alert' : 'shield-check'} className='size-5' />
+          </span>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription className='text-sm leading-5'>
+            {message}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         {error ? (
           <p className='px-6 pt-4 text-sm text-destructive' role='alert'>
@@ -136,16 +129,14 @@ export const CorrectNameDialog = ({
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
       <DialogContent className='max-w-md'>
-        <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft p-6'>
+        <DialogHeader className='border-b border-border-soft p-6 pr-14'>
           <span className='grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
             <Icon name='pencil' className='size-5' />
           </span>
-          <div>
-            <DialogTitle>Editar usuário</DialogTitle>
-            <DialogDescription className='mt-1.5 leading-5'>
-              Atualize o nome exibido desta conta.
-            </DialogDescription>
-          </div>
+          <DialogTitle>Editar usuário</DialogTitle>
+          <DialogDescription className='leading-5'>
+            Atualize o nome exibido desta conta.
+          </DialogDescription>
         </DialogHeader>
         <form className='p-6' onSubmit={submitForm(handleSubmit)} noValidate>
           <Label className='grid gap-1.5 text-sm font-bold'>

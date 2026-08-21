@@ -230,6 +230,13 @@ state and Supabase operations in the auth provider/context boundary.
 When a service factory is added or changed, verify its HTTP mapping at the
 appropriate REST boundary with the existing workspace validation commands.
 
+Web module services do not receive dedicated test files. Verify their observable
+method, path, query, body, response and failure behavior through the consuming
+widget/page tests and Playwright route integration suite. Server controller tests
+remain the authoritative backend HTTP contract boundary. Do not create or retain
+`apps/web/src/rest/services/tests/<module>-service.test.ts` merely to mock
+`RestClient` and restate delegation calls.
+
 ## Server imports use aliases
 
 Imports between files inside `apps/server/src` must use the `@/` prefix. External

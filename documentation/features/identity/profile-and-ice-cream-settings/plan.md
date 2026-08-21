@@ -145,7 +145,7 @@ updated_at: 2026-08-17
 - **Status/owner:** `completed` — Orchestrator F6-T1
 - **Builder Fix:** `BF-F6-T1` completed by `01a00d43-afc2-77f1-8d60-b5beb6b3068c` (`Kierkegaard`); corrected the internal `Anchor` navigation and fixed the focused test context.
 - **Depends/parallel:** F1–F5 completed; no parallel implementation work. The Orchestrator validates the integrated candidate against `evaluation.md`.
-- **Paths:** `documentation/features/identity/features/profile-and-ice-cream-settings/evaluation.md`; `documentation/features/identity/features/profile-and-ice-cream-settings/design/sidebar-shop-settings-link.png`; `documentation/features/identity/features/profile-and-ice-cream-settings/evidence/screenshots/rev-3/{my-account-desktop-1481x1050,my-account-name-dialog-676x502,shop-settings-desktop-1551x1050}.png`.
+- **Paths:** `documentation/features/identity/features/profile-and-ice-cream-settings/evaluation.md`; `documentation/features/identity/features/profile-and-ice-cream-settings/design/sidebar-shop-settings-link.png`. Implementation screenshots are transient Playwright or CI artifacts.
 - **Contract:** RF-01–RF-09; CA-01–CA-12; MV-01–MV-06.
 - **Outcome:** Real local service/Playwright CLI evidence connects Core, Server, database, Web, auth, route, audit, responsive, accessibility, console, and network behavior; every visual manifest state is compared at its exact viewport; implementation screenshots and manual findings are saved; no blocking finding or unreviewed generated artifact remains.
 - **Rules:** `documentation/architecture.md`; `documentation/modules.md`; `documentation/design.md`; `documentation/tooling.md`; `documentation/rules/code-conventions-rules.md`; `documentation/rules/core-package-rules.md`; `documentation/rules/use-case-testing-rules.md`; `documentation/rules/rest-layer-rules.md`; `documentation/rules/controllers-testing-rules.md`; `documentation/rules/database-layer-rules.md`; `documentation/rules/provision-layer-rules.md`; `documentation/rules/ui-layer-rules.md`; `documentation/rules/web-app-routing-rules.md`; `documentation/rules/widget-testing-rules.md`.
@@ -160,9 +160,9 @@ updated_at: 2026-08-17
 | Runtime | Web REST/auth boundary | CA-01, CA-04, CA-05, CA-10 | F3-T1/F3-T2; REST/Provision Rules | `./evaluation.md` | `completed` |
 | Automated | Web widgets, hooks, layout and auth context | CA-01, CA-02, CA-03, CA-04, CA-05, CA-06, CA-10, CA-11, CA-12 | F5-T1; UI and Widget Testing Rules | `./evaluation.md` | `completed` |
 | Runtime | Protected route and browser transport behavior | CA-01, CA-04–CA-07, CA-10–CA-12 | F5-T2; MV-01–MV-05 route portions | `./evaluation.md` | `completed` |
-| Visual | My Account default desktop — `1481 × 1050` | CA-11 | `./design/BRpGr.png` | `./evidence/screenshots/rev-3/real-my-account-desktop-1481x1050.png` | `completed` |
-| Visual | My Account name-correction dialog — `676 × 502` | CA-02, CA-03, CA-04, CA-10, CA-11 | `./design/Ih9Qc.png` | `./evidence/screenshots/rev-3/real-my-account-name-dialog-676x502.png` | `completed` |
-| Visual | Ice Cream Shop Settings default desktop — `1551 × 1050` | CA-06, CA-07, CA-11, CA-12 | `./design/m7W867.png` | `./evidence/screenshots/rev-3/real-shop-settings-desktop-1551x1050.png` | `completed` |
+| Visual | My Account default desktop — `1481 × 1050` | CA-11 | `./design/BRpGr.png` | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | My Account name-correction dialog — `676 × 502` | CA-02, CA-03, CA-04, CA-10, CA-11 | `./design/Ih9Qc.png` | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Ice Cream Shop Settings default desktop — `1551 × 1050` | CA-06, CA-07, CA-11, CA-12 | `./design/m7W867.png` | Playwright/CI artifact, not retained in feature docs | `completed` |
 | Manual | MV-01 — Manager account desktop | CA-01, CA-02, CA-04, CA-05, CA-10, CA-11, CA-12 | Spec MV-01 | `./evaluation.md` | `completed` |
 | Manual | MV-02 — Operator account at `320 × 800` | CA-02, CA-03, CA-04, CA-05, CA-10, CA-11 | Spec MV-02 | `./evaluation.md` | `completed` |
 | Manual | MV-03 — Manager shop settings desktop and `320 × 800` | CA-06, CA-08, CA-10, CA-11, CA-12 | Spec MV-03 | `./evaluation.md` | `completed` |

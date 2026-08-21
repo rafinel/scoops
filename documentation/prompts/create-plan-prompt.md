@@ -149,7 +149,7 @@ Use one coverage table to schedule evidence without repeating the Spec's scenari
 | Type | Scenario/surface | Criteria | Reference | Evidence target | Status |
 | --- | --- | --- | --- | --- | --- |
 | Manual | MV-01 | CA-01 | Spec MV-01 | `./evaluation.md` | `pending` |
-| Visual (optional) | `<state>` | CA-02 | `./design/<reference>.png` | `./evidence/screenshots/rev-<n>/<state>.png` | `pending` |
+| Visual (optional) | `<state>` | CA-02 | `./design/<reference>.png` | `Playwright test-results path or CI artifact identifier` | `pending` |
 | Runtime | `<integration>` | CA-03 | Integration Contract | `./evaluation.md` | `pending` |
 
 Include only applicable rows. For design-backed UI, schedule every supplied screenshot and every
@@ -161,8 +161,8 @@ saved references and do not depend on Pencil MCP.
 
 Define the final handoff condition: all tasks and phases completed, Spec validation
 commands current on the integrated commit, generated artifacts/migrations reviewed,
-services/accounts/fixtures ready, every `MV-*` executable, declared evidence targets
-available, the final Spec tree/conformance comparison passed, all additional-screenshot
+services/accounts/fixtures ready, every `MV-*` executable, transient validation-artifact
+identifiers recorded, the final Spec tree/conformance comparison passed, all additional-screenshot
 decisions resolved and no blocking finding active. Then
 route directly to `conclude-spec`.
 

@@ -62,19 +62,9 @@ export const UserInviteDialog = ({
       >
         <form onSubmit={handleSubmit}>
           <div className='px-6 pt-6 pb-7 sm:px-7 sm:pt-7'>
-            <DialogHeader className='flex-row items-start justify-between gap-4'>
-              <div className='flex min-w-0 items-start gap-3'>
-                <div className='grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
-                  <Icon name='user-plus' className='size-5' />
-                </div>
-                <div className='min-w-0 pt-0.5'>
-                  <DialogTitle className='text-lg text-foreground sm:text-xl'>
-                    Novo usuário
-                  </DialogTitle>
-                  <DialogDescription className='mt-1.5 text-sm leading-5'>
-                    Envie um convite para fazer parte da sorveteria.
-                  </DialogDescription>
-                </div>
+            <DialogHeader className='border-b border-border-soft pb-6 pr-14'>
+              <div className='grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
+                <Icon name='user-plus' className='size-5' />
               </div>
               <DialogClose
                 render={
@@ -82,12 +72,18 @@ export const UserInviteDialog = ({
                     variant='outline'
                     size='icon'
                     aria-label='Fechar'
-                    className='size-8 shrink-0 rounded-lg text-muted-foreground'
+                    className='absolute top-4 right-4 size-8 shrink-0 rounded-lg text-muted-foreground'
                   />
                 }
               >
                 <Icon name='x' className='size-4' />
               </DialogClose>
+              <DialogTitle className='text-lg text-foreground sm:text-xl'>
+                Novo usuário
+              </DialogTitle>
+              <DialogDescription className='text-sm leading-5'>
+                Envie um convite para fazer parte da sorveteria.
+              </DialogDescription>
             </DialogHeader>
 
             <div className='mt-6 grid gap-4'>

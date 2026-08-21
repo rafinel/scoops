@@ -91,7 +91,7 @@ Before the first implementation change for the current revision:
    `pnpm --filter web check:playwright`; fix a failing health check and rerun it before
    implementation. Do not improvise Playwright CLI arguments or broaden a focused command
    after a syntax error; correct the command from `documentation/tooling.md` and rerun it;
-2. record the base commit and freeze the Spec revision;
+2. freeze the Spec revision;
 3. set an `open` Spec to `in_progress`;
 4. create colocated `evaluation.md` from
    `documentation/templates/evaluation.md` when absent, or reconcile an existing file to
@@ -99,12 +99,12 @@ Before the first implementation change for the current revision:
 5. activate the Builder and record, before any feature edit, its identifier, exact Spec
    revision, RF/CA mapping, owned and prohibited paths, required file/widget tree, Rule Pack,
    design references, validation exits and expected evidence locations;
-6. compare the untouched candidate against the Spec's required tree, contracts, states and
+6. compare the untouched implementation against the Spec's required tree, contracts, states and
    exclusions, and record the baseline result. For a resumed correction, compare the current
    diff as well;
 7. for Plan-backed execution, validate dependencies, paths, exits and coverage, then set the
    current Plan and affected work to `in_progress`;
-8. initialize or update the Spec/Plan references, revision, candidate snapshot,
+8. initialize or update the Spec/Plan references, revision,
    `status: in_progress`, acceptance matrix, automated/runtime/manual/visual evidence,
    Rule/documentation compliance, findings and history;
 9. record required services, accounts, fixtures, design references and evidence targets.
@@ -117,6 +117,12 @@ Do not overwrite historical evidence. Evaluation uses only `in_progress`, `ready
 `completed`; actual results, findings and history remain in the evidence ledger rather than
 metadata.
 
+When a colocated Evaluation already exists, read it before activating the Builder. Treat its
+open findings, failed attempts, command corrections, service prerequisites and visual notes as
+implementation inputs for the current revision. Historical or completed evidence is context,
+not proof for a new revision; keep it intact and recapture any evidence affected by the current
+diff.
+
 ### Evaluation template contract
 
 Treat `documentation/templates/evaluation.md` as the structural source of truth at every
@@ -124,6 +130,10 @@ implementation kickoff or resume. Copy it into the feature folder; do not link t
 shared template with feature evidence or invent a parallel Evaluation format. Replace its
 placeholders with actual values, omit only the optional `plan` metadata when direct execution
 applies, and preserve its section order and canonical table columns.
+
+Do not add base, current or candidate commit metadata to Spec, Plan or Evaluation. Commit
+identity is not part of SDD state. During conclusion, only the PR CI table records the PR head
+SHA needed to identify the revision checked by GitHub.
 
 When reconciling an existing Evaluation, add missing canonical sections/columns and map legacy
 evidence into them without deleting historical commands, findings, failed attempts, CI runs or
@@ -143,6 +153,55 @@ and observed behavior. For design-backed UI, every supplied and required supplem
 row records its exact viewport, reference path, implementation path and differences; optional
 visual evidence applies only when no design reference is in scope.
 
+### Canonical Evaluation shape
+
+Materialize the colocated file using the canonical template's exact frontmatter and section
+order. The resulting file must have this shape; do not replace it with a narrative report or a
+feature-specific ledger:
+
+```text
+---
+feature: "<domain>/<feature>"
+spec: ./spec.md
+plan: ./plan.md                 # omit for direct execution
+spec_revision: <revision>
+status: in_progress | ready | completed
+updated_at: YYYY-MM-DD
+---
+
+# Evaluation
+
+Current result: <concise statement>
+
+## Acceptance matrix
+| Criterion | Evidence | Status |
+
+## Automated and runtime evidence
+| ID | Layer | Command or scenario | Result | Status |
+
+## Manual evidence
+| ID | Scenario | Criteria | Expected | Observed | Status |
+
+## Visual evidence
+| ID | Surface and state | Viewport | Reference | Implementation | Differences | Status |
+
+## Rule and documentation compliance
+| Authority | Reference | Result | Notes |
+
+## Findings
+| ID | Classification | Source | Affected evidence | Status | Resolution |
+
+## PR CI quality gate
+| ID | Workflow | Head SHA | Result | Run |
+
+## History
+| Date | Event |
+```
+
+Preserve the template's column names, evidence ID conventions and status vocabulary exactly.
+The PR CI table is populated only during `conclude-spec`; its head SHA identifies the PR
+revision checked by CI and is not current-implementation metadata.
+
 ## Persistence and user questions
 
 Continue until Evaluation is `ready`. Ask the user only when an unresolved product,
@@ -155,7 +214,7 @@ fix it when the correction is within the current Contract and repository authori
 the finding, apply the smallest scoped fix, invalidate affected evidence and rerun it. Do not
 ask permission to resolve an in-Contract implementation, CI/test or visual discrepancy.
 
-Changes outside the Spec may remain in the shared worktree. Keep them out of the candidate
+Changes outside the Spec may remain in the shared worktree. Keep them out of the implementation
 and evidence unless they overlap evaluated paths, contaminate evidence or cause a regression.
 
 ## Direct execution strategy
@@ -166,7 +225,7 @@ Use when no current Plan exists:
    allowed/prohibited paths, Rule Pack, Architecture, design bundle and applicable tools;
 2. inspect and integrate its diff; the Builder does not edit Spec, Plan or Evaluation;
 3. run focused repository-approved generation, code, type, unit and integration checks;
-4. update Evaluation with exact commands/results, candidate identity, criterion coverage,
+4. update Evaluation with exact commands/results, criterion coverage,
    findings and evidence freshness;
 5. for each discrepancy, create `Builder Fix QG-<n>`, rerun only invalidated evidence and
    repeat until validation-ready or authority is required.
@@ -235,7 +294,7 @@ the result is unchanged:
 | Boundary ownership | Each changed path is inside the active Builder scope and the Spec's declared layer/module boundary. |
 | Contract | RF/CA, API fields, domain rules, persistence behavior, error semantics and exclusions match the current revision. |
 | UI states | Loading, empty, success, error, recovery, disabled, selected, focus, keyboard and responsive states applicable to the change are exercised. |
-| Design references | Every supplied and required supplemental screenshot has an exact state/viewport capture, direct comparison, and current evidence path. |
+| Design references | Every supplied and required supplemental screenshot has an exact state/viewport capture, direct comparison, and current transient artifact identifier. |
 | Validation | Commands actually ran on the current candidate; console errors, failed requests, HTTP 4xx/5xx, hydration warnings and persistence results are classified. |
 
 If a check fails, keep the affected work `in_progress`; do not mark it passed because another
@@ -257,8 +316,9 @@ When a Design Contract exists:
   its exact viewport, using an existing behavioral scenario or a manual Playwright CLI run;
   supplemental screenshots marked recommended may be deferred only when the manifest records
   the decision and the state is not an acceptance gap;
-- store every design-backed capture under `evidence/screenshots/rev-<spec-revision>/` and
-  record the comparison details in Evaluation;
+- capture every design-backed state at its exact viewport into Playwright's ignored
+  `test-results/` output or a CI artifact, and record the comparison details plus the
+  transient artifact identifier in Evaluation; do not create a feature `evidence/` folder;
 - keep affected direct work or Plan tasks `in_progress` while a material discrepancy remains.
 
 If an approved implementation change intentionally introduces a visual element absent from
@@ -269,9 +329,9 @@ rerun invalidated validation.
 ## Living evidence
 
 After every implementation change—including fixes, generated artifacts, environment/seed
-changes and tests—reconcile Evaluation and the Plan when present. Update candidate identity,
+changes and tests—reconcile Evaluation and the Plan when present. Update
 commands, results, affected criteria, findings, screenshots and manual/runtime evidence.
-Mark affected earlier evidence `stale` or historical; never accept the candidate with evidence
+Mark affected earlier evidence `stale` or historical; never accept the implementation with evidence
 from an earlier affected diff.
 
 ## User-requested changes before conclusion
@@ -310,7 +370,7 @@ ambiguous.
 
 ## Integrated validation and readiness
 
-After implementation work is complete, validate the exact Spec revision and candidate:
+After implementation work is complete, validate the exact Spec revision and implementation:
 
 1. run integrated technical sensors and the final build Quality Gate;
 2. review generated artifacts and migration bodies;
@@ -326,7 +386,7 @@ complete the Plan only after all affected phases and evidence pass.
 - On failure, record the finding, reopen affected direct/Plan work, create Builder Fixes and
   rerun invalidated evidence.
 - When all evidence is current and no blocking finding remains, reconcile Evaluation to the
-  exact candidate, complete the Plan when present, set Evaluation to `ready` and immediately
+  current implementation, complete the Plan when present, set Evaluation to `ready` and immediately
   invoke `conclude-spec` when publication authority is available.
 - After three materially identical failures, ask the user only when resolution requires a
   decision unavailable in the repository or environment; otherwise continue safely.

@@ -51,7 +51,7 @@ Current result: Revision 6 implementation evidence and the final PR CI quality g
 
 Baseline conformance: existing catalog/domain files are present, but the required detail projections, immutable ledger entity, adjustment/history structures, stock-transaction repository, expanded service operations, seven stock use cases, validation schemas, persistence migration/repositories, REST operations, dynamic route, Stock page/widget tree and route tests are absent. Existing `MrpDatabaseScope` is partial and existing product/brand/balance contracts require revision-6 changes. This is the expected pre-implementation gap, not acceptance evidence. No extra implementation path was admitted; UI states and all five supplied plus thirteen supplemental visual targets are unimplemented. The current exclusions remain intact: no adjacent tabs, product Edit/Remove, administrative audit/export, stock event, broker, outbox or messaging implementation was found in the candidate slice.
 
-Required runtime resources: Docker PostgreSQL/Supabase, authenticated manager and non-manager accounts, two establishments, Single and By-brand product fixtures, deterministic brands/balances/history/authors, server `127.0.0.1:3333`, web `127.0.0.1:4000`. Evidence targets are `evaluation.md` and `evidence/screenshots/rev-6/**`.
+Required runtime resources: Docker PostgreSQL/Supabase, authenticated manager and non-manager accounts, two establishments, Single and By-brand product fixtures, deterministic brands/balances/history/authors, server `127.0.0.1:3333`, web `127.0.0.1:4000`. Validation records live in `evaluation.md`; implementation screenshots are transient Playwright or CI artifacts.
 
 ## Acceptance matrix
 
@@ -108,24 +108,24 @@ Required runtime resources: Docker PostgreSQL/Supabase, authenticated manager an
 
 | ID | Surface and state | Viewport | Reference | Implementation | Differences | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| `VIS-01` | Populated By-brand Stock page | 1560 × 1320 | `design/bi8Au.png` | `evidence/screenshots/rev-6/by-brand-stock-1560x1320.png` | Stock-only hierarchy, summary, brands and history conform; excluded adjacent tabs absent | `passed` |
-| `VIS-02` | Add brand dialog | 676 × 771 | `design/p72QC.png` | `evidence/screenshots/rev-6/add-brand-676x771.png` | Required fields/context/preview/actions conform with repository tokens | `passed` |
-| `VIS-03` | Edit brand dialog without stock field | 676 × 771 | `design/Jo3va.png` | `evidence/screenshots/rev-6/edit-brand-676x771.png` | Shared hierarchy conforms; initial-stock field intentionally omitted by Contract | `passed_with_authorized_difference` |
-| `VIS-04` | Brand actions menu | 293 × 188 | `design/yUkPJ.png` | `evidence/screenshots/rev-6/brand-actions-293x188.png` | All three actions visible; order/destructive separator preserved; popup contained | `passed` |
-| `VIS-05` | Delete brand confirmation | 596 × 353 | `design/K48XWv.png` | `evidence/screenshots/rev-6/delete-brand-596x353.png` | Corrected copy and actions separated/contained; hierarchy matches reference intent | `passed` |
-| `VIS-06` | Single-stock page and adjustment success | 1280 × 900 | Manifest supplemental decision | `evidence/screenshots/rev-6/single-adjustment-1280x900.png` | Single/base-unit adjustment, preview and reachable actions conform | `passed` |
-| `VIS-07` | By-brand package adjustment success | 676 × 771 | Manifest supplemental decision | `evidence/screenshots/rev-6/package-adjustment-success-676x771.png` | Package mode and exact conversion preview conform | `passed` |
-| `VIS-08` | By-brand insufficient adjustment | 676 × 771 | Manifest supplemental decision | `evidence/screenshots/rev-6/package-adjustment-insufficient-676x771.png` | Requested/available context and destructive state conform | `passed` |
-| `VIS-09` | Detail loading | 1280 × 900 | Manifest supplemental decision | `evidence/screenshots/rev-6/detail-loading-1280x900.png` | Skeleton hierarchy is stable and contained | `passed` |
-| `VIS-10` | Detail request error/retry | 1280 × 900 | Manifest supplemental decision | `evidence/screenshots/rev-6/detail-error-1280x900.png` | Error and retry action are visible/contained | `passed` |
-| `VIS-11` | Empty brands | 1280 × 900 | Manifest supplemental decision | `evidence/screenshots/rev-6/empty-brands-1280x900.png` | Zero below ideal renders Low; empty guidance/actions visible | `passed` |
-| `VIS-12` | History loading | 1280 × 900 | Manifest supplemental decision | `evidence/screenshots/rev-6/history-loading-1280x900.png` | Independent history loading preserves populated stock summary | `passed` |
-| `VIS-13` | History empty | 1280 × 900 | Manifest supplemental decision | `evidence/screenshots/rev-6/history-empty-1280x900.png` | Independent empty history preserves populated 18 kg brands state | `passed` |
-| `VIS-14` | History request error | 1280 × 900 | Manifest supplemental decision | `evidence/screenshots/rev-6/history-error-1280x900.png` | Independent retryable history error preserves stock content | `passed` |
-| `VIS-15` | History filtered-empty | 1280 × 900 | Manifest supplemental decision | `evidence/screenshots/rev-6/history-filtered-empty-1280x900.png` | Active filter/clear and distinct empty copy conform | `passed` |
-| `VIS-16` | Narrow populated page | 320 × 900 | Manifest supplemental decision | `evidence/screenshots/rev-6/narrow-page-320x900.png` | Cards stack, filters/actions remain reachable, no page overflow | `passed` |
-| `VIS-17` | Narrow dialog | 320 × 900 | Manifest supplemental decision | `evidence/screenshots/rev-6/narrow-dialog-320x900.png` | Opaque, legible, contained and actions reachable; underlying content correctly dimmed | `passed` |
-| `VIS-18` | Narrow action menu | 320 × 900 | Manifest supplemental decision | `evidence/screenshots/rev-6/narrow-menu-320x900.png` | Menu actions are visible, contained and keyboard reachable | `passed` |
+| `VIS-01` | Populated By-brand Stock page | 1560 × 1320 | `design/bi8Au.png` | Playwright/CI artifact, not retained in feature docs | Stock-only hierarchy, summary, brands and history conform; excluded adjacent tabs absent | `passed` |
+| `VIS-02` | Add brand dialog | 676 × 771 | `design/p72QC.png` | Playwright/CI artifact, not retained in feature docs | Required fields/context/preview/actions conform with repository tokens | `passed` |
+| `VIS-03` | Edit brand dialog without stock field | 676 × 771 | `design/Jo3va.png` | Playwright/CI artifact, not retained in feature docs | Shared hierarchy conforms; initial-stock field intentionally omitted by Contract | `passed_with_authorized_difference` |
+| `VIS-04` | Brand actions menu | 293 × 188 | `design/yUkPJ.png` | Playwright/CI artifact, not retained in feature docs | All three actions visible; order/destructive separator preserved; popup contained | `passed` |
+| `VIS-05` | Delete brand confirmation | 596 × 353 | `design/K48XWv.png` | Playwright/CI artifact, not retained in feature docs | Corrected copy and actions separated/contained; hierarchy matches reference intent | `passed` |
+| `VIS-06` | Single-stock page and adjustment success | 1280 × 900 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Single/base-unit adjustment, preview and reachable actions conform | `passed` |
+| `VIS-07` | By-brand package adjustment success | 676 × 771 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Package mode and exact conversion preview conform | `passed` |
+| `VIS-08` | By-brand insufficient adjustment | 676 × 771 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Requested/available context and destructive state conform | `passed` |
+| `VIS-09` | Detail loading | 1280 × 900 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Skeleton hierarchy is stable and contained | `passed` |
+| `VIS-10` | Detail request error/retry | 1280 × 900 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Error and retry action are visible/contained | `passed` |
+| `VIS-11` | Empty brands | 1280 × 900 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Zero below ideal renders Low; empty guidance/actions visible | `passed` |
+| `VIS-12` | History loading | 1280 × 900 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Independent history loading preserves populated stock summary | `passed` |
+| `VIS-13` | History empty | 1280 × 900 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Independent empty history preserves populated 18 kg brands state | `passed` |
+| `VIS-14` | History request error | 1280 × 900 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Independent retryable history error preserves stock content | `passed` |
+| `VIS-15` | History filtered-empty | 1280 × 900 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Active filter/clear and distinct empty copy conform | `passed` |
+| `VIS-16` | Narrow populated page | 320 × 900 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Cards stack, filters/actions remain reachable, no page overflow | `passed` |
+| `VIS-17` | Narrow dialog | 320 × 900 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Opaque, legible, contained and actions reachable; underlying content correctly dimmed | `passed` |
+| `VIS-18` | Narrow action menu | 320 × 900 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | Menu actions are visible, contained and keyboard reachable | `passed` |
 
 ## Rule and documentation compliance
 
@@ -171,9 +171,9 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `CI-004` | Server CI (pull request, same-SHA rerun) | `004ec5222a33e4770a6a304a84d0dad7ce84dccd` | `failed` — the same Supabase Auth fetch failure repeated; not transient after the permitted rerun | [run 32432813159](https://github.com/rafinel/scoops/actions/runs/32432813159) |
 | `CI-005` | Web CI (pull request) | `51180de64d7e8fef74911cae2c314977a84d0dbb` | `failed` — Web unit tests passed, but the unchanged browser onboarding fixture expired during the continuation flow | [run 32435196405](https://github.com/rafinel/scoops/actions/runs/32435196405) |
 | `CI-006` | Server CI (pull request) | `51180de64d7e8fef74911cae2c314977a84d0dbb` | `failed` — gateway startup and health passed, then placeholder `ci-*` credentials were rejected as malformed JWTs | [run 32435196492](https://github.com/rafinel/scoops/actions/runs/32435196492) |
-| `CI-007` | Core CI (pull request) | `207e1d4634a629bd05ca331f2e8a095be48b02f1` | `passed` | [run 32435537920](https://github.com/rafinel/scoops/actions/runs/32435537920) |
-| `CI-008` | Server CI (pull request) | `207e1d4634a629bd05ca331f2e8a095be48b02f1` | `passed` — valid test JWTs, gateway health, full tests, and build | [run 32435537944](https://github.com/rafinel/scoops/actions/runs/32435537944) |
-| `CI-009` | Web CI (pull request) | `207e1d4634a629bd05ca331f2e8a095be48b02f1` | `passed` — unit tests, 81 browser tests, and build | [run 32435537921](https://github.com/rafinel/scoops/actions/runs/32435537921) |
+| `CI-007` | Core CI (pull request) | `4306811939faeab094389bf3db6f7f045d482f5d` | `passed` | [run 32435801302](https://github.com/rafinel/scoops/actions/runs/32435801302) |
+| `CI-008` | Server CI (pull request) | `4306811939faeab094389bf3db6f7f045d482f5d` | `passed` — valid test JWTs, gateway health, full tests, and build | [run 32435801300](https://github.com/rafinel/scoops/actions/runs/32435801300) |
+| `CI-009` | Web CI (pull request) | `4306811939faeab094389bf3db6f7f045d482f5d` | `passed` — unit tests, 81 browser tests, and build | [run 32435801278](https://github.com/rafinel/scoops/actions/runs/32435801278) |
 
 ## History
 
@@ -233,4 +233,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-08-21` | PR #12 opened at `004ec522`; Core PR CI passed. Web PR CI failed the unchanged date-sensitive Identity onboarding test, and Server PR CI failed twice during unrelated Supabase Auth test-user setup; Evaluation returned to `in_progress` and conclusion is paused pending scope/CI authority. |
 | `2026-08-21` | CI correction authorized: the onboarding fixture now uses a date-independent future expiry, and Server CI configures `SUPABASE_URL`, starts the Compose Supabase gateway, and waits for Auth health before tests. Focused Web and MRP Server suites pass locally; the updated PR head is pending CI. |
 | `2026-08-21` | New PR CI evidence: Core passed; Web unit tests passed but its shared browser onboarding fixture expired; Server reached the gateway health check but rejected placeholder credentials as malformed JWTs. The follow-up correction uses a shared future fixture and Compose-secret-signed `anon`/`service_role` JWTs. |
-| `2026-08-21` | Final PR CI gate passed on `207e1d4`: Core, Server and Web pull-request workflows passed. Evaluation and Spec are closed; no merge or deployment was performed. |
+| `2026-08-21` | Final PR CI gate passed on `4306811`: Core, Server and Web pull-request workflows passed. Evaluation and Spec are closed; no merge or deployment was performed. |

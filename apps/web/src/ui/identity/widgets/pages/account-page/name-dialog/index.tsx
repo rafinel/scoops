@@ -36,14 +36,12 @@ export const NameDialog = ({
   return (
     <Dialog open={isNameDialogOpen} onOpenChange={handleNameDialogOpenChange}>
       <DialogContent className='sm:max-w-[520px]'>
-        <DialogHeader className='flex-row items-start gap-3 p-6 pb-0'>
+        <DialogHeader className='border-b border-border-soft p-6 pr-14'>
           <span className='grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
             <Icon name='pencil' className='size-5' />
           </span>
-          <div className='min-w-0'>
-            <DialogTitle>Corrigir meu nome</DialogTitle>
-            <DialogDescription>Atualize o nome exibido na sua conta.</DialogDescription>
-          </div>
+          <DialogTitle>Corrigir meu nome</DialogTitle>
+          <DialogDescription>Atualize o nome exibido na sua conta.</DialogDescription>
         </DialogHeader>
         <form className='grid gap-4 p-6' onSubmit={handleNameSubmit}>
           <Label className='grid gap-2 text-xs font-extrabold'>
@@ -52,7 +50,7 @@ export const NameDialog = ({
               {...register('name')}
               aria-invalid={Boolean(error)}
               autoFocus
-              className='h-12 rounded-xl px-3 text-sm font-semibold focus-visible:border-primary focus-visible:ring-primary/30'
+              className='h-12 rounded-xl px-3 text-sm font-semibold'
             />
           </Label>
           <div className='flex items-start gap-2.5 rounded-xl bg-info-soft px-3.5 py-3 text-xs font-semibold leading-[1.35] text-info'>

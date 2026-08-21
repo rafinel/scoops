@@ -1,5 +1,3 @@
-import path from 'node:path'
-
 import type { Page } from '@playwright/test'
 
 import { expect, test } from '../../playwright'
@@ -33,11 +31,6 @@ const PRODUCTS_RESPONSE = {
   totalPages: 1,
   kpis: { products: 22, brands: 7, lowStock: 4 },
 }
-
-const GLOBAL_KPIS_EVIDENCE_PATH = path.resolve(
-  process.cwd(),
-  '../../documentation/features/mrp/products-page/changes/global-kpis/evidence/screenshots/rev-1/products-filtered-global-kpis-1481x900.png',
-)
 
 test.describe('Products route', () => {
   test('protects the route and preserves requested search state', async ({ page }) => {
@@ -332,7 +325,7 @@ test.describe('Products route', () => {
     expect(requests.at(-1)?.searchParams.get('search')).toBe('morango')
     await page.screenshot({
       fullPage: true,
-      path: GLOBAL_KPIS_EVIDENCE_PATH,
+      path: 'test-results/products-filtered-global-kpis-1481x900.png',
     })
   })
 

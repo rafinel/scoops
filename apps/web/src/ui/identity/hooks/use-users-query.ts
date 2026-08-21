@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
-import type { PaginationResponse } from '@scoops/core/shared/responses/pagination-response'
-import type { UserSummary } from '@scoops/core/identity/domain/structures'
+import type { UserSummary, UsersPage } from '@scoops/core/identity/domain/structures'
 
 import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 
@@ -20,6 +19,7 @@ export const useUsersQuery = (input: UsersQueryInput) => {
   return {
     ...query,
     users: (query.data?.items ?? []) as readonly UserSummary[],
-    pagination: query.data as PaginationResponse<UserSummary> | undefined,
+    pagination: query.data as UsersPage<UserSummary> | undefined,
+    summary: query.data?.summary,
   }
 }

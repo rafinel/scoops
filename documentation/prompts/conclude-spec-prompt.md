@@ -36,7 +36,7 @@ Require:
 - no blocking implementation finding remains;
 - source and GitHub Issue traceability is preserved.
 
-Also require a final current-candidate conformance record: the exact Spec revision and Builder
+Also require a final implementation conformance record: the exact Spec revision and Builder
 scope match the diff; the required file/widget tree, contracts, exclusions and applicable UI
 states pass; every affected screenshot is fresh and inspected; and Playwright console,
 network, HTTP status, accessibility, keyboard and responsive checks are classified. Passing
@@ -65,7 +65,7 @@ Do not create a Builder or change the implementation inside `conclude-spec`.
 The invoked implementation workflow creates the Builder and refreshes validation. Resume
 conclusion automatically after it returns evaluation to `ready`.
 
-## Prepare and publish the PR candidate
+## Prepare and publish the PR
 
 1. Read the Spec Validation Contract, Rule Pack, current evaluation and
    `documentation/tooling.md`.
@@ -74,12 +74,12 @@ conclusion automatically after it returns evaluation to `ready`.
 3. Reconcile generated artifacts, migrations, saved design evidence and factual
    documentation against the current diff.
 4. Rerun the final Spec conformance comparison and verify the current validation evidence covers
-   the exact candidate diff. Any later
+   the exact implementation diff. Any later
    implementation or acceptance-evidence change routes back to the implementation workflow.
 5. Invoke `commit-code` to create intentional scoped commits.
 6. Invoke `create-pr` to push the branch and create or update the delivery PR. Reuse an
    existing PR for the same delivery; never create a duplicate.
-7. Record the candidate identity, branch and PR URL in the delivery record; update
+7. Record the branch and PR URL in the delivery record; update
    `evaluation.md` only when the operational ledger needs the reference.
 
 ## Final PR CI Quality Gate
@@ -117,10 +117,11 @@ After CI passes, verify `evaluation.md` contains:
 
 - the canonical `documentation/templates/evaluation.md` sections, table columns and stable
   evidence IDs;
-- exact Spec revision and CI-tested candidate identity, when available;
+- exact Spec revision;
 - complete acceptance-criteria matrix;
 - automated, runtime, manual and visual evidence;
-- saved reference and implementation screenshot paths when visual evidence was collected;
+- saved reference paths and transient Playwright/CI artifact identifiers when visual evidence
+  was collected; never require a feature `evidence/` directory;
 - visual comparison rows for any supplied or Spec-requested supplemental screenshot that was
   explicitly scoped as acceptance evidence, including exact viewport/state and differences;
 - a resolved decision for every additional-screenshot suggestion when the suggestion affects
@@ -134,13 +135,40 @@ Check PRD, Architecture, Modules, Design, Tooling and the Rule Pack against deli
 Apply factual documentation corrections only. Product, Contract, global Rule, module
 ownership or architecture changes require user authority and the late-change route.
 
+Treat material findings as inputs to durable documentation improvement, not only as closure
+records. For every resolved or active finding, classify whether it exposed reusable missing or
+ambiguous guidance:
+
+- update `documentation/architecture.md` when the finding reveals an architectural boundary,
+  dependency, data-flow or system-responsibility clarification that future work must retain;
+- update the applicable document under `documentation/rules/` when the finding reveals a
+  repeatable implementation, testing, validation or tooling pitfall that a repository rule can
+  prevent;
+- update `documentation/design.md` when the finding reveals reusable visual-system,
+  component-state, accessibility, responsive-layout or interaction guidance that future UI
+  work must follow;
+- update `documentation/tooling.md` when the finding reveals reusable command syntax,
+  environment setup, generation, CI or validation guidance;
+- update every applicable document when the reusable lesson spans architecture, design,
+  tooling and execution guidance;
+- make no durable documentation change for a transient environment failure, isolated typo,
+  already-documented rule or feature-local detail that would overfit global guidance.
+
+Record each material finding's documentation disposition in `evaluation.md`: link the updated
+Architecture, Design, Tooling or Rule document and summarize the lesson, or state why no
+update was warranted.
+Keep these corrections concise and generally applicable. A clarification consistent with the
+approved Contract and delivered architecture is part of conclusion; a new product rule,
+Contract obligation, module-ownership decision, architecture decision or global policy still
+requires user authority and the late-change route.
+
 ## Complete the delivery
 
 Only after the PR CI gate passes and no blocking finding remains:
 
 - set `evaluation.md` to `completed`;
 - set `plan.md` to `completed`, when present;
-- set `spec.md` to `completed` and retain only the summarized outcome, CI-tested commit and
+- set `spec.md` to `completed` and retain only the summarized outcome and
   link to `evaluation.md`;
 - preserve detailed evidence in `evaluation.md`.
 
@@ -163,8 +191,10 @@ Return:
 
 - clickable Spec, Plan when present, evaluation and PR links;
 - Spec revision and completed status;
-- CI-tested candidate identity and delivery references, when present;
+- delivery references, when present;
 - validation result and CA/manual/visual coverage;
 - applicable PR CI workflows and results;
 - documentation alignment and remaining non-blocking limitations;
+- finding-derived Architecture, Design, Tooling and Rule Pack improvements, including
+  justified no-change dispositions;
 - PR state and next authorized action.

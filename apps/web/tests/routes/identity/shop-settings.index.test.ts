@@ -30,7 +30,7 @@ test.describe('Shop settings route', () => {
     ).toBeVisible()
     await page.setViewportSize({ width: 1551, height: 1050 })
     await page.screenshot({
-      path: '../../documentation/features/identity/features/profile-and-ice-cream-settings/evidence/screenshots/rev-3/shop-settings-desktop-1551x1050.png',
+      path: 'test-results/shop-settings-desktop-1551x1050.png',
     })
     await page.getByRole('button', { name: 'Corrigir nome' }).click()
     await page

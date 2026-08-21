@@ -4,7 +4,7 @@ import type { UserSummary } from '#identity/domain/structures/user-summary.ts'
 import type { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { UserStatus } from '#identity/domain/structures/user-status.ts'
 import type { IdentityDatabase } from '#identity/interfaces/identity-database.ts'
-import { PaginationResponse } from '#shared/responses/pagination-response.ts'
+import { UsersPage } from '#identity/domain/structures/users-page.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
 type Request = {
@@ -16,12 +16,10 @@ type Request = {
   pageSize: number
 }
 
-export class ListUsersUseCase
-  implements UseCase<Request, PaginationResponse<UserSummary>>
-{
+export class ListUsersUseCase implements UseCase<Request, UsersPage<UserSummary>> {
   constructor(private readonly database: IdentityDatabase) {}
 
-  async execute(request: Request): Promise<PaginationResponse<UserSummary>> {
+  async execute(request: Request): Promise<UsersPage<UserSummary>> {
     if (request.actor.profile !== 'manager')
       throw new AuthorizationError('Manager access required')
     const page = Math.max(1, Math.floor(request.page))
@@ -37,7 +35,7 @@ export class ListUsersUseCase
         pageSize,
       }),
     )
-    return new PaginationResponse(
+    return new UsersPage(
       result.items.map(
         ({ id, name, email, profile, status, lastAccessAt, createdAt }) => ({
           id,
@@ -53,6 +51,7 @@ export class ListUsersUseCase
       result.pageSize,
       result.total,
       result.totalPages,
+      result.summary,
     )
   }
 }

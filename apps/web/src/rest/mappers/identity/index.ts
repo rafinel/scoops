@@ -29,4 +29,8 @@ export {
   type UserSummary,
   type UserSummaryJson,
 } from './user-summary-mapper'
-export { UsersPageMapper, type PaginationJson } from './users-page-mapper'
+export {
+  UsersPageMapper,
+  type PaginationJson,
+  type UsersPageJson,
+} from './users-page-mapper'

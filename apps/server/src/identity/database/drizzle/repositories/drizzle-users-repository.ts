@@ -2,7 +2,7 @@ import type { User, UserCreate, UserUpdate } from '@scoops/core/identity/domain/
 import type { UsersListParams } from '@scoops/core/identity/domain/structures'
 import type { UsersRepository } from '@scoops/core/identity/interfaces'
 import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
-import { PaginationResponse } from '@scoops/core/shared/responses/pagination-response'
+import { UsersPage } from '@scoops/core/identity/domain/structures'
 import { and, asc, count, eq, ilike, ne, or, sql } from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
@@ -72,9 +72,11 @@ export class DrizzleUsersRepository extends DrizzleRepository implements UsersRe
   }
 
   async findMany(input: UsersListParams) {
-    const filters = [eq(userModel.establishmentId, input.establishmentId)]
+    const scopeFilters = [eq(userModel.establishmentId, input.establishmentId)]
 
-    if (input.excludeUserId) filters.push(ne(userModel.id, input.excludeUserId))
+    if (input.excludeUserId) scopeFilters.push(ne(userModel.id, input.excludeUserId))
+
+    const filters = [...scopeFilters]
 
     if (input.search) {
       const searchFilter = or(
@@ -89,7 +91,7 @@ export class DrizzleUsersRepository extends DrizzleRepository implements UsersRe
     if (input.status) filters.push(eq(userModel.status, input.status))
 
     const offset = Math.max(input.page - 1, 0) * input.pageSize
-    const [records, totalRows] = await Promise.all([
+    const [records, totalRows, summaryRows] = await Promise.all([
       this.database
         .select()
         .from(userModel)
@@ -101,15 +103,29 @@ export class DrizzleUsersRepository extends DrizzleRepository implements UsersRe
         .select({ count: count() })
         .from(userModel)
         .where(and(...filters)),
+      this.database
+        .select({
+          total: count(),
+          managers: sql<number>`count(*) filter (where ${userModel.profile} = ${UserProfile.Manager})`,
+          operators: sql<number>`count(*) filter (where ${userModel.profile} = ${UserProfile.Operator})`,
+        })
+        .from(userModel)
+        .where(and(...scopeFilters)),
     ])
     const total = Number(totalRows[0]?.count ?? 0)
+    const summary = summaryRows[0]
 
-    return new PaginationResponse(
+    return new UsersPage(
       records.map(DrizzleUserMapper.toDomain),
       input.page,
       input.pageSize,
       total,
       Math.ceil(total / input.pageSize),
+      {
+        total: Number(summary?.total ?? 0),
+        managers: Number(summary?.managers ?? 0),
+        operators: Number(summary?.operators ?? 0),
+      },
     )
   }
 

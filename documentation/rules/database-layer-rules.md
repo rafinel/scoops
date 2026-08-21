@@ -114,9 +114,21 @@ packages/core/src/<module>/interfaces/
 Repository names are plural, such as `IntakesRepository`. Method and parameter
 names must describe the operation and target explicitly.
 
+Repository methods describe persistence capabilities, not business actions or
+use-case vocabulary. A use case translates domain intent into the generic
+persistence operation before calling the repository. For example, Entry and
+Write-off map to positive and negative quantities respectively, while an
+accumulator repository exposes `add`; it must not expose methods named
+`entry`, `writeOff`, `adjustStock`, or accept a domain operation enum merely to
+decide the arithmetic direction.
+
 Use the following write vocabulary:
 
 - `add(input)` inserts one record.
+- `add(target, signedQuantity, constraints?)` atomically adds a signed numeric
+  quantity when the repository owns an accumulator or balance. Positive and
+  negative values express arithmetic direction; domain intent is mapped by the
+  caller. Optional persistence constraints may guard the resulting value.
 - `addMany(inputs)` inserts several records.
 - `replace(id, changes, ...)` updates an existing record.
 - `remove(id)` removes one record.
@@ -133,6 +145,13 @@ Do not use `delete` or `deleteAll` as repository method names; use `remove` or
 
 Creation and update inputs are domain types, not database types. A repository
 must not accept a Drizzle model or expose query-builder details in its contract.
+
+Do not overload one repository's `add` method with both insertion and numeric
+addition. Choose the form that matches the resource represented by that
+repository. Numeric-add parameters must be explicit—such as `signedQuantity`
+and `minimumQuantity`—rather than generic `value` or a domain-specific command.
+The implementation must perform the addition atomically in the database; it
+must not read the current value and then issue an absolute replacement.
 
 `addMany` must:
 

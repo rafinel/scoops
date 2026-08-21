@@ -216,7 +216,7 @@ updated_at: 2026-08-18
 
 - **Status/owner:** `completed` — Orchestrator
 - **Depends/parallel:** Depends on completed F4 and F5; no parallel implementation. Any discrepancy remains `in_progress`, becomes an Evaluation finding and routes to a scoped Builder Fix through `implement-spec` before affected evidence is rerun.
-- **Paths:** `documentation/features/mrp/products-details-page-stock-tab/evaluation.md`, `documentation/features/mrp/products-details-page-stock-tab/evidence/screenshots/rev-6/**`; read-only conformance review of every Spec-owned implementation path and generated artifact.
+- **Paths:** `documentation/features/mrp/products-details-page-stock-tab/evaluation.md`; read-only conformance review of every Spec-owned implementation path and generated artifact. Implementation screenshots remain transient Playwright or CI artifacts.
 - **Contract:** `RF-01–RF-11`; `CA-01–CA-18`.
 - **Outcome:** One integrated commit has current automated, runtime, manual and visual evidence proving the complete Contract, with generated artifacts reviewed and no blocking finding.
 - **Rules:** Entire revision-6 Rule Pack in `spec.md`, `documentation/sdd-rules.md` (living evidence and integrated validation), `documentation/tooling.md` (workspace, Docker and Playwright commands), and `documentation/design.md` (final conformance comparison).
@@ -235,23 +235,23 @@ updated_at: 2026-08-18
 | Runtime | Manager authorization and uniform tenant-safe not-found | CA-11, CA-12, CA-16 | Boundary Contract and MV-04 | `./evaluation.md` | `completed` |
 | Runtime | Stable paginated/filterable transaction history after rename/delete | CA-16, CA-18 | HTTP history and persistence contracts | `./evaluation.md` | `completed` |
 | Runtime | Real authenticated web → REST → PostgreSQL Stock flow | CA-04, CA-07, CA-08, CA-12, CA-16–CA-18 | `products.real.integration.test.ts` | `./evaluation.md` | `completed` |
-| Visual | Populated By-brand Stock page — 1560 × 1320 | CA-01, CA-02, CA-07, CA-16, CA-18 | `./design/bi8Au.png` | `./evidence/screenshots/rev-6/by-brand-stock-1560x1320.png` | `completed` |
-| Visual | Add brand dialog — 676 × 771 | CA-08, CA-09, CA-15 | `./design/p72QC.png` | `./evidence/screenshots/rev-6/add-brand-676x771.png` | `completed` |
-| Visual | Edit brand dialog without stock field — 676 × 771 | CA-09 | `./design/Jo3va.png` plus documented deviation | `./evidence/screenshots/rev-6/edit-brand-676x771.png` | `completed` |
-| Visual | Brand actions menu — 293 × 188 | CA-08–CA-10, CA-14 | `./design/yUkPJ.png` | `./evidence/screenshots/rev-6/brand-actions-293x188.png` | `completed` |
-| Visual | Delete brand confirmation — 596 × 353 | CA-10, CA-13, CA-14, CA-18 | `./design/K48XWv.png` plus corrected copy | `./evidence/screenshots/rev-6/delete-brand-596x353.png` | `completed` |
-| Visual | Single-stock page and adjustment success — 1280 × 900 | CA-04, CA-06 | Manifest supplemental decision | `./evidence/screenshots/rev-6/single-adjustment-1280x900.png` | `completed` |
-| Visual | By-brand package adjustment success — 676 × 771 | CA-04, CA-15 | Manifest supplemental decision | `./evidence/screenshots/rev-6/package-adjustment-success-676x771.png` | `completed` |
-| Visual | By-brand insufficient adjustment — 676 × 771 | CA-05, CA-13, CA-15 | Manifest supplemental decision | `./evidence/screenshots/rev-6/package-adjustment-insufficient-676x771.png` | `completed` |
-| Visual | Detail loading — 1280 × 900 | CA-13 | Manifest supplemental decision | `./evidence/screenshots/rev-6/detail-loading-1280x900.png` | `completed` |
-| Visual | Detail request error/retry — 1280 × 900 | CA-13 | Manifest supplemental decision | `./evidence/screenshots/rev-6/detail-error-1280x900.png` | `completed` |
-| Visual | Empty brands — 1280 × 900 | CA-13 | Manifest supplemental decision | `./evidence/screenshots/rev-6/empty-brands-1280x900.png` | `completed` |
-| Visual | History loading — 1280 × 900 | CA-13, CA-16 | Manifest supplemental decision | `./evidence/screenshots/rev-6/history-loading-1280x900.png` | `completed` |
-| Visual | History empty — 1280 × 900 | CA-16 | Manifest supplemental decision | `./evidence/screenshots/rev-6/history-empty-1280x900.png` | `completed` |
-| Visual | History request error — 1280 × 900 | CA-13, CA-16 | Manifest supplemental decision | `./evidence/screenshots/rev-6/history-error-1280x900.png` | `completed` |
-| Visual | History filtered-empty — 1280 × 900 | CA-16 | Manifest supplemental decision | `./evidence/screenshots/rev-6/history-filtered-empty-1280x900.png` | `completed` |
-| Visual | Narrow populated page — 320 × 900 | CA-14 | Manifest supplemental decision | `./evidence/screenshots/rev-6/narrow-page-320x900.png` | `completed` |
-| Visual | Narrow dialog — 320 × 900 | CA-13, CA-14 | Manifest supplemental decision | `./evidence/screenshots/rev-6/narrow-dialog-320x900.png` | `completed` |
-| Visual | Narrow action menu — 320 × 900 | CA-14 | Manifest supplemental decision | `./evidence/screenshots/rev-6/narrow-menu-320x900.png` | `completed` |
+| Visual | Populated By-brand Stock page — 1560 × 1320 | CA-01, CA-02, CA-07, CA-16, CA-18 | `./design/bi8Au.png` | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Add brand dialog — 676 × 771 | CA-08, CA-09, CA-15 | `./design/p72QC.png` | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Edit brand dialog without stock field — 676 × 771 | CA-09 | `./design/Jo3va.png` plus documented deviation | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Brand actions menu — 293 × 188 | CA-08–CA-10, CA-14 | `./design/yUkPJ.png` | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Delete brand confirmation — 596 × 353 | CA-10, CA-13, CA-14, CA-18 | `./design/K48XWv.png` plus corrected copy | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Single-stock page and adjustment success — 1280 × 900 | CA-04, CA-06 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | By-brand package adjustment success — 676 × 771 | CA-04, CA-15 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | By-brand insufficient adjustment — 676 × 771 | CA-05, CA-13, CA-15 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Detail loading — 1280 × 900 | CA-13 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Detail request error/retry — 1280 × 900 | CA-13 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Empty brands — 1280 × 900 | CA-13 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | History loading — 1280 × 900 | CA-13, CA-16 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | History empty — 1280 × 900 | CA-16 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | History request error — 1280 × 900 | CA-13, CA-16 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | History filtered-empty — 1280 × 900 | CA-16 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Narrow populated page — 320 × 900 | CA-14 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Narrow dialog — 320 × 900 | CA-13, CA-14 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
+| Visual | Narrow action menu — 320 × 900 | CA-14 | Manifest supplemental decision | Playwright/CI artifact, not retained in feature docs | `completed` |
 
-Final handoff requires every task and phase to be `completed`; all revision-6 Spec commands current on the integrated commit; generated migration and route artifacts reviewed; required Docker services, authenticated accounts and two-tenant fixtures ready; every `MV-*` executable with declared evidence present; the final exact Spec tree and conformance comparison passed; every supplied and supplemental screenshot decision resolved independently; and no blocking finding active. Route directly to `conclude-spec` when those conditions hold.
+Final handoff requires every task and phase to be `completed`; all revision-6 Spec commands current on the integrated commit; generated migration and route artifacts reviewed; required Docker services, authenticated accounts and two-tenant fixtures ready; every `MV-*` executable with transient visual artifact identifiers recorded; the final exact Spec tree and conformance comparison passed; every supplied and supplemental screenshot decision resolved independently; and no blocking finding active. Route directly to `conclude-spec` when those conditions hold.

@@ -22,8 +22,10 @@ and `Navbar`; render them through `app-layout.test.tsx` instead of creating
 
 Do not mock internal child widgets merely to make the owning widget test smaller.
 Rendering the internal composition protects event wiring and accessibility across
-the boundary. Extracted hooks may be tested independently when they own state or
-effects.
+the boundary. A widget's colocated behavior-owning hook may be tested independently
+when derived state, effects or transitions cannot be proven clearly through the
+widget. Query hooks and action hooks do not receive dedicated tests; cover their
+observable behavior through the consuming widget/page and route boundaries.
 
 A dedicated widget test becomes appropriate only when the widget has its own
 public reuse contract or substantial behavior independent of its current owner.
@@ -36,15 +38,17 @@ to cover the widget. It proves only that the widget maps a fabricated controller
 state to markup and delegates callbacks. It does not prove that the hook, query,
 dialog, URL state, or mutation is wired correctly.
 
-For a stateful page or widget, the test suite must contain both layers when the
-behavior crosses the boundary:
+For a stateful page or widget, use these layers when the behavior crosses the
+boundary:
 
 1. A component test that renders the real owning hook and the real internal
    composition. Mock the nearest HMS application boundary needed to make the
    test deterministic, such as a REST context or domain service, and provide the
    required providers.
-2. A hook test with `renderHook` for derived values, URL/state transitions,
-   effects, guards, and mutation selection.
+2. An optional test of the widget's own colocated hook with `renderHook` when it
+   owns substantial derived values, URL/state transitions, effects or guards
+   that are not adequately observable through the component. This does not
+   apply to query/action hooks.
 
 A component test may mock the owning hook for focused state-matrix cases, but it
 must be supplementary and must not be the only component coverage. If the real
@@ -76,14 +80,21 @@ invited record may expose resend/cancel, an active record may expose deactivate,
 and a disabled record may expose reactivate while forbidding removal. Testing one
 row and one action does not cover the table.
 
-## File names and test text follow one convention
+## File names, locations and test text follow one convention
 
-Place widget and hook tests in a colocated `tests` directory:
+Place each widget test directly inside the corresponding widget directory:
 
 ```text
-widgets/layouts/app-layout/tests/app-layout.test.tsx
-widgets/layouts/app-layout/tests/use-app-layout.test.ts
+widgets/layouts/app-layout/app-layout.test.tsx
+widgets/layouts/app-layout/use-app-layout.test.ts
+widgets/pages/products-page/product-filters/product-filters.test.tsx
 ```
+
+Do not place widget tests in a parent page's `tests/` directory, a feature-level
+`tests/` directory, or a generic shared test folder. If a nested widget warrants
+its own test, colocate that test in the nested widget's directory. Tests for a
+widget's own behavior hook remain beside that hook. Query/action hooks do not
+receive test files.
 
 Use `.test.tsx` for React component tests and `.test.ts` for hook or non-React
 tests. Do not use `.spec.ts` or `.spec.tsx`.
@@ -134,20 +145,27 @@ fixtures, a previous URL, or a previous mock call count. When a test uses a
 factory for a controller or service mock, create a fresh factory result per
 test and override only the behavior under examination.
 
-## Hook tests cover hook-owned behavior
+## Widget-hook tests cover hook-owned behavior
 
-Use `renderHook` for application hooks. A hook test covers the state, derived
-values, effects, and handlers owned by that hook. Use `act` when an operation
-updates React state.
+Use `renderHook` only for a page/widget's colocated behavior-owning hook when a
+separate hook test materially clarifies state, derived values, effects, guards or
+handlers that cannot be covered cleanly through rendered behavior. Use `act`
+when an operation updates React state.
+
+Do not create dedicated tests for domain query hooks or action hooks. Their
+request inputs, pending/error/success behavior, invalidation and recovery must be
+asserted through the consuming widget/page, with route integration coverage when
+URL or HTTP behavior is involved. Web REST services do not receive dedicated
+tests; the consuming widget and route suite own their observable transport
+mapping and outcome assertions.
 
 Mock the nearest application abstraction rather than the third-party hook beneath
 it. For example, `useAppLayout` tests mock `useUrlPathname`, not TanStack Router's
 `useLocation`.
 
-When one application hook consumes another domain-specific hook, test the
-consumer by mocking the domain-specific hook. Test the lower hook separately for
-the behavior it owns. For example, a hook consuming `useIntakesQuery` should not
-reconstruct a `useQuery` result or test React Query itself.
+When a widget hook consumes a domain-specific query/action hook, its focused hook
+test may mock that domain hook. Do not test the lower query/action hook
+separately and do not reconstruct or test React Query itself.
 
 This rule applies to the hook layer, not as permission to replace the owning hook
 in every component test. A consumer hook test should verify its complete state
@@ -252,12 +270,13 @@ Actual URL transitions, route loading, history behavior, and rendered destinatio
 pages belong to integration tests with the router configured.
 
 Route integration tests live under `apps/web/tests`, use the configured Playwright
-fixture, and must assert more than a successful HTTP stub. For each critical route
-flow, assert the final URL, visible destination state, protected redirect, and
-the outgoing request method/path/query/body that proves the UI-to-API contract.
-Mocking the backend with `page.route` is acceptable for deterministic browser
-tests, but it must not replace the widget tests' real composition coverage. Do
-not count a test as end-to-end if it never exercises the route's actual loader,
+fixture with mocked transport, and must assert more than a successful HTTP stub.
+For each critical route flow, assert the final URL, visible destination state,
+protected redirect, and the outgoing request method/path/query/body that proves
+the UI-to-API contract. The web Playwright suite does not access real backend,
+database, authentication, or external services. This deterministic browser
+coverage must not replace the widget tests' real composition coverage. Do not
+count a test as end-to-end if it never exercises the route's actual loader,
 middleware, or rendered destination.
 
 ## Completion criteria for a widget test suite

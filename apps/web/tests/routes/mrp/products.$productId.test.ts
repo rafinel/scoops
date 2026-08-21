@@ -7,10 +7,7 @@ import { expect, test } from '../../playwright'
 const PRODUCT_ID = 'product-1'
 const PRIMARY_BRAND_ID = 'brand-primary'
 const SECONDARY_BRAND_ID = 'brand-secondary'
-const EVIDENCE_DIRECTORY = path.resolve(
-  process.cwd(),
-  '../../documentation/features/mrp/products-details-page-stock-tab/evidence/screenshots/rev-6',
-)
+const SCREENSHOT_DIRECTORY = path.resolve(process.cwd(), 'test-results')
 
 const PRODUCT = {
   id: PRODUCT_ID,
@@ -105,7 +102,7 @@ test.describe('Product stock route with mocked transport', () => {
     expect(historyRequest?.searchParams.get('page')).toBe('1')
     expect(historyRequest?.searchParams.get('limit')).toBe('5')
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'by-brand-stock-1560x1320.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-by-brand-stock-1560x1320.png'),
       fullPage: true,
     })
     expect(consoleErrors).toEqual([])
@@ -140,14 +137,14 @@ test.describe('Product stock route with mocked transport', () => {
     await navigateToProductStock(page)
     await expect(page.getByText('Não foi possível carregar o estoque')).toBeVisible()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'detail-error-1280x900.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-error-1280x900.png'),
       fullPage: true,
     })
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
     await expect(page.getByRole('heading', { name: PRODUCT.name })).toBeVisible()
     await expect(page.getByText('Não foi possível carregar o histórico.')).toBeVisible()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'history-error-1280x900.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-history-error-1280x900.png'),
       fullPage: true,
     })
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
@@ -192,7 +189,7 @@ test.describe('Product stock route with mocked transport', () => {
     await toDateInput.focus()
     await expect(toDateInput).toBeFocused()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'history-filtered-empty-1280x900.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-history-filtered-empty-1280x900.png'),
       fullPage: true,
     })
   })
@@ -226,7 +223,7 @@ test.describe('Product stock route with mocked transport', () => {
     await dialog.getByRole('textbox', { name: 'Nome da marca' }).focus()
     await expect(dialog.getByRole('textbox', { name: 'Nome da marca' })).toBeFocused()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'add-brand-676x771.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-add-brand-676x771.png'),
     })
     await dialog.getByRole('button', { name: 'Confirmar' }).click()
     await expect(dialog).toBeHidden()
@@ -314,7 +311,7 @@ test.describe('Product stock route with mocked transport', () => {
       ),
     ).toBe(true)
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'narrow-page-320x900.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-narrow-page-320x900.png'),
       fullPage: true,
     })
   })
@@ -342,7 +339,7 @@ test.describe('Product stock route with mocked transport', () => {
     await secondaryActions.click()
     await expect(page.getByRole('menuitem', { name: 'Editar marca' })).toBeVisible()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'brand-actions-293x188.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-brand-actions-293x188.png'),
     })
     await page.keyboard.press('Escape')
 
@@ -355,7 +352,7 @@ test.describe('Product stock route with mocked transport', () => {
     await packageValueInput.focus()
     await expect(packageValueInput).toBeFocused()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'edit-brand-676x771.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-edit-brand-676x771.png'),
     })
     await page.keyboard.press('Escape')
 
@@ -364,18 +361,18 @@ test.describe('Product stock route with mocked transport', () => {
     await page.getByRole('menuitem', { name: 'Excluir marca' }).click()
     await expect(page.getByRole('alertdialog', { name: 'Excluir marca?' })).toBeVisible()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'delete-brand-596x353.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-delete-brand-596x353.png'),
     })
 
     await page.setViewportSize({ width: 320, height: 900 })
     await page.getByRole('button', { name: 'Cancelar' }).click()
     await secondaryActions.click()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'narrow-menu-320x900.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-narrow-menu-320x900.png'),
     })
     await page.getByRole('menuitem', { name: 'Editar marca' }).click()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'narrow-dialog-320x900.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-narrow-dialog-320x900.png'),
     })
   })
 
@@ -402,7 +399,7 @@ test.describe('Product stock route with mocked transport', () => {
     await packageDialog.getByRole('button', { name: 'Embalagens' }).click()
     await packageDialog.getByLabel('Quantidade').fill('2')
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'package-adjustment-success-676x771.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-package-adjustment-success-676x771.png'),
     })
     await page.keyboard.press('Escape')
     await expect(packageDialog).toBeHidden()
@@ -412,7 +409,7 @@ test.describe('Product stock route with mocked transport', () => {
     await writeOffDialog.getByLabel('Quantidade').fill('7')
     await expect(writeOffDialog.getByText(/Estoque insuficiente/)).toBeVisible()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'package-adjustment-insufficient-676x771.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-package-adjustment-insufficient-676x771.png'),
     })
     await page.keyboard.press('Escape')
 
@@ -430,7 +427,7 @@ test.describe('Product stock route with mocked transport', () => {
       .getByLabel('Quantidade')
       .fill('2')
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'single-adjustment-1280x900.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-single-adjustment-1280x900.png'),
       fullPage: true,
     })
     await page.keyboard.press('Escape')
@@ -447,7 +444,7 @@ test.describe('Product stock route with mocked transport', () => {
     await expect(page.getByText('Abaixo do ideal', { exact: true })).toBeVisible()
     await expect(page.getByText('Nenhuma movimentação registrada.')).toBeVisible()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'empty-brands-1280x900.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-empty-brands-1280x900.png'),
       fullPage: true,
     })
 
@@ -457,7 +454,7 @@ test.describe('Product stock route with mocked transport', () => {
     await expect(page.getByRole('cell', { name: /^Frooty/ })).toBeVisible()
     await expect(page.getByText('Nenhuma movimentação registrada.')).toBeVisible()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'history-empty-1280x900.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-history-empty-1280x900.png'),
       fullPage: true,
     })
   })
@@ -497,14 +494,14 @@ test.describe('Product stock route with mocked transport', () => {
       page.getByRole('status', { name: 'Carregando estoque do produto' }),
     ).toBeVisible()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'detail-loading-1280x900.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-loading-1280x900.png'),
       fullPage: true,
     })
     releaseDetail()
     await navigation
     await expect(page.getByText('Carregando histórico…')).toBeVisible()
     await page.screenshot({
-      path: path.join(EVIDENCE_DIRECTORY, 'history-loading-1280x900.png'),
+      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-history-loading-1280x900.png'),
       fullPage: true,
     })
     historyDelayed = false
