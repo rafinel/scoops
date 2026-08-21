@@ -128,6 +128,7 @@ export function usersPageJson(
       lastAccessAt: undefined,
     }),
   ],
+  summary = { total: 3, managers: 1, operators: 2 },
 ) {
   return {
     items: users.map((user) => userResponse(user)),
@@ -135,6 +136,7 @@ export function usersPageJson(
     pageSize: 10,
     total: users.length,
     totalPages: users.length === 0 ? 0 : 1,
+    summary,
   }
 }
 
@@ -147,7 +149,7 @@ export function pendingOnboarding(
     establishmentId: 'browser-establishment-id',
     name: 'Marina Manager',
     email: 'marina@example.com',
-    expiresAt: new Date('2026-08-20T12:00:00.000Z'),
+    expiresAt: new Date('2099-01-01T12:00:00.000Z'),
   })
 
   return {

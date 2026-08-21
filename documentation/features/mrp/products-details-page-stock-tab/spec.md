@@ -1,6 +1,6 @@
 ---
 title: MRP product details Stock tab
-status: in_progress
+status: completed
 revision: 6
 source:
   type: issue
@@ -21,7 +21,7 @@ scope:
   - apps/web/src/routeTree.gen.ts
   - apps/web/tests/fixtures/mrp-module-fixture.ts
   - apps/web/tests/routes/mrp
-last_updated_at: 2026-08-18
+last_updated_at: 2026-08-21
 ---
 
 # MRP product details Stock tab

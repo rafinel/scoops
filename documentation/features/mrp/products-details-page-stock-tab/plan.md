@@ -12,10 +12,10 @@ updated_at: 2026-08-18
 
 ## Execution status
 
-- **Spec:** [`./spec.md`](./spec.md), revision `6`, status `in_progress`.
+- **Spec:** [`./spec.md`](./spec.md), revision `6`, status `completed`.
 - **Plan rationale:** Plan-backed execution is required because the Contract crosses Core, Validation, transactional persistence and migration generation, REST composition, generated routing, design-backed UI, concurrency/security checks and real full-stack validation.
 - **Current phase:** Complete — revision-6 implementation and evidence are ready for conclusion.
-- **Next action:** Route the ready Spec and Evaluation through `conclude-spec` for publication/closure when authorized.
+- **Next action:** None; the Spec and Evaluation are closed after the final PR CI gate.
 - **Active blockers:** None.
 - **Shared/generated ownership:** Builder F3-T1 alone owns the generated Drizzle SQL, snapshot and journal; Builder F5-T1 alone owns generated `apps/web/src/routeTree.gen.ts`; F2-T2 alone owns the Validation root barrel; F4-T1 alone owns REST barrels; and F4-T3 alone owns server module wiring. The Orchestrator owns any unexpected package/lockfile coordination and must complete it before parallel application work; no dependency change is currently planned. F1's Core exports are frozen before downstream lanes begin.
 

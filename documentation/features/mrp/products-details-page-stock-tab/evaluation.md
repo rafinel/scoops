@@ -3,7 +3,7 @@ feature: "mrp/products-details-page-stock-tab"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 6
-status: in_progress
+status: completed
 updated_at: 2026-08-21
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-08-21
 
 Evaluation of Spec revision `6` against the current implementation.
 
-Current result: Revision 6 implementation evidence is complete. CI support fixes are applied for the date-sensitive Identity fixture and the missing Supabase gateway in Server CI; the updated PR head is pending the final quality gate.
+Current result: Revision 6 implementation evidence and the final PR CI quality gate are complete. Core, Server, and Web pull-request workflows passed on the final documentation-inclusive head.
 
 ## Builder activation and conformance checkpoints
 
@@ -169,6 +169,11 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `CI-002` | Server CI (pull request) | `004ec5222a33e4770a6a304a84dccd` | `failed_transient_rerun_pending` — Supabase Auth `AuthRetryableFetchError: fetch failed` while creating test users; same-SHA rerun authorized | [run 32432813159](https://github.com/rafinel/scoops/actions/runs/32432813159) |
 | `CI-003` | Web CI (pull request) | `004ec5222a33e4770a6a304a84d0dad7ce84dccd` | `failed_baseline` — unchanged `use-onboarding-page.test.ts` expects `pending`, but the current date makes the fixture `expired`; no Stock-tab test failed | [run 32432813495](https://github.com/rafinel/scoops/actions/runs/32432813495) |
 | `CI-004` | Server CI (pull request, same-SHA rerun) | `004ec5222a33e4770a6a304a84d0dad7ce84dccd` | `failed` — the same Supabase Auth fetch failure repeated; not transient after the permitted rerun | [run 32432813159](https://github.com/rafinel/scoops/actions/runs/32432813159) |
+| `CI-005` | Web CI (pull request) | `51180de64d7e8fef74911cae2c314977a84d0dbb` | `failed` — Web unit tests passed, but the unchanged browser onboarding fixture expired during the continuation flow | [run 32435196405](https://github.com/rafinel/scoops/actions/runs/32435196405) |
+| `CI-006` | Server CI (pull request) | `51180de64d7e8fef74911cae2c314977a84d0dbb` | `failed` — gateway startup and health passed, then placeholder `ci-*` credentials were rejected as malformed JWTs | [run 32435196492](https://github.com/rafinel/scoops/actions/runs/32435196492) |
+| `CI-007` | Core CI (pull request) | `207e1d4634a629bd05ca331f2e8a095be48b02f1` | `passed` | [run 32435537920](https://github.com/rafinel/scoops/actions/runs/32435537920) |
+| `CI-008` | Server CI (pull request) | `207e1d4634a629bd05ca331f2e8a095be48b02f1` | `passed` — valid test JWTs, gateway health, full tests, and build | [run 32435537944](https://github.com/rafinel/scoops/actions/runs/32435537944) |
+| `CI-009` | Web CI (pull request) | `207e1d4634a629bd05ca331f2e8a095be48b02f1` | `passed` — unit tests, 81 browser tests, and build | [run 32435537921](https://github.com/rafinel/scoops/actions/runs/32435537921) |
 
 ## History
 
@@ -227,3 +232,5 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-08-20` | `FND-016` standardized dialog headers across current MRP and Identity dialogs; validation evidence is recorded in the current EV-WEB run, and Design/UI rules updated with Architecture/Tooling unchanged. |
 | `2026-08-21` | PR #12 opened at `004ec522`; Core PR CI passed. Web PR CI failed the unchanged date-sensitive Identity onboarding test, and Server PR CI failed twice during unrelated Supabase Auth test-user setup; Evaluation returned to `in_progress` and conclusion is paused pending scope/CI authority. |
 | `2026-08-21` | CI correction authorized: the onboarding fixture now uses a date-independent future expiry, and Server CI configures `SUPABASE_URL`, starts the Compose Supabase gateway, and waits for Auth health before tests. Focused Web and MRP Server suites pass locally; the updated PR head is pending CI. |
+| `2026-08-21` | New PR CI evidence: Core passed; Web unit tests passed but its shared browser onboarding fixture expired; Server reached the gateway health check but rejected placeholder credentials as malformed JWTs. The follow-up correction uses a shared future fixture and Compose-secret-signed `anon`/`service_role` JWTs. |
+| `2026-08-21` | Final PR CI gate passed on `207e1d4`: Core, Server and Web pull-request workflows passed. Evaluation and Spec are closed; no merge or deployment was performed. |
