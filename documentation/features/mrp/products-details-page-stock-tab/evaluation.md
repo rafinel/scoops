@@ -3,15 +3,15 @@ feature: "mrp/products-details-page-stock-tab"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 6
-status: ready
-updated_at: 2026-08-18
+status: in_progress
+updated_at: 2026-08-21
 ---
 
 # Evaluation
 
 Evaluation of Spec revision `6` against the current implementation.
 
-Current result: Revision 6 is implementation-complete and ready for conclusion. Core, validation, migration, server, web, mocked browser and real authenticated browser gates pass; all 18 fresh visual targets pass independent inspection and no blocking finding remains.
+Current result: Revision 6 implementation evidence is complete. CI support fixes are applied for the date-sensitive Identity fixture and the missing Supabase gateway in Server CI; the updated PR head is pending the final quality gate.
 
 ## Builder activation and conformance checkpoints
 
@@ -165,6 +165,10 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| `CI-001` | Core CI (pull request) | `004ec5222a33e4770a6a304a84d0dad7ce84dccd` | `passed` | [run 32432813105](https://github.com/rafinel/scoops/actions/runs/32432813105) |
+| `CI-002` | Server CI (pull request) | `004ec5222a33e4770a6a304a84dccd` | `failed_transient_rerun_pending` — Supabase Auth `AuthRetryableFetchError: fetch failed` while creating test users; same-SHA rerun authorized | [run 32432813159](https://github.com/rafinel/scoops/actions/runs/32432813159) |
+| `CI-003` | Web CI (pull request) | `004ec5222a33e4770a6a304a84d0dad7ce84dccd` | `failed_baseline` — unchanged `use-onboarding-page.test.ts` expects `pending`, but the current date makes the fixture `expired`; no Stock-tab test failed | [run 32432813495](https://github.com/rafinel/scoops/actions/runs/32432813495) |
+| `CI-004` | Server CI (pull request, same-SHA rerun) | `004ec5222a33e4770a6a304a84d0dad7ce84dccd` | `failed` — the same Supabase Auth fetch failure repeated; not transient after the permitted rerun | [run 32432813159](https://github.com/rafinel/scoops/actions/runs/32432813159) |
 
 ## History
 
@@ -221,3 +225,5 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-08-20` | `FND-014` resolved the history date-filter focus state: full wrapper ring with native segment editing cue retained. Biome, web types, 1 widget file/2 tests, detector and Playwright 1/1 pass; VIS-15 refreshed and inspected. Design/UI rules now document the reusable composed-date pattern; Architecture/Tooling no-change disposition recorded. |
 | `2026-08-20` | `FND-015` standardized project input focus styling through the shared Input primitive and delegated composite wrappers; Design/UI rules updated, with Architecture/Tooling unchanged. |
 | `2026-08-20` | `FND-016` standardized dialog headers across current MRP and Identity dialogs; validation evidence is recorded in the current EV-WEB run, and Design/UI rules updated with Architecture/Tooling unchanged. |
+| `2026-08-21` | PR #12 opened at `004ec522`; Core PR CI passed. Web PR CI failed the unchanged date-sensitive Identity onboarding test, and Server PR CI failed twice during unrelated Supabase Auth test-user setup; Evaluation returned to `in_progress` and conclusion is paused pending scope/CI authority. |
+| `2026-08-21` | CI correction authorized: the onboarding fixture now uses a date-independent future expiry, and Server CI configures `SUPABASE_URL`, starts the Compose Supabase gateway, and waits for Auth health before tests. Focused Web and MRP Server suites pass locally; the updated PR head is pending CI. |

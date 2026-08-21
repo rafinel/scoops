@@ -34,6 +34,7 @@ jobs:
     timeout-minutes: 15
     env:
       INNGEST_BASE_URL: http://127.0.0.1:8288
+      SUPABASE_URL: http://127.0.0.1:54321
       SUPABASE_ANON_KEY: ci-anon-key
       SUPABASE_SERVICE_ROLE_KEY: ci-service-role-key
 
@@ -60,6 +61,22 @@ jobs:
 
       - name: Check types
         run: pnpm --filter server check:types
+
+      - name: Start Supabase gateway
+        run: docker compose up -d supabase-gateway
+
+      - name: Wait for Supabase gateway
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:54321/auth/v1/health >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker compose ps
+          docker compose logs supabase-gateway supabase-auth
+          exit 1
 
       - name: Run tests
         run: pnpm --filter server test
