@@ -174,6 +174,9 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `CI-007` | Core CI (pull request) | `4306811939faeab094389bf3db6f7f045d482f5d` | `passed` | [run 32435801302](https://github.com/rafinel/scoops/actions/runs/32435801302) |
 | `CI-008` | Server CI (pull request) | `4306811939faeab094389bf3db6f7f045d482f5d` | `passed` — valid test JWTs, gateway health, full tests, and build | [run 32435801300](https://github.com/rafinel/scoops/actions/runs/32435801300) |
 | `CI-009` | Web CI (pull request) | `4306811939faeab094389bf3db6f7f045d482f5d` | `passed` — unit tests, 81 browser tests, and build | [run 32435801278](https://github.com/rafinel/scoops/actions/runs/32435801278) |
+| `CI-010` | Core CI (pull request) | `040507dc34c6b5a1a3b5028765dae50cd6fb5f96` | `passed` | [run 32531136169](https://github.com/rafinel/scoops/actions/runs/32531136169) |
+| `CI-011` | Server CI (pull request) | `040507dc34c6b5a1a3b5028765dae50cd6fb5f96` | `passed` — valid test JWTs, gateway health, full tests, and build | [run 32531136179](https://github.com/rafinel/scoops/actions/runs/32531136179) |
+| `CI-012` | Web CI (pull request) | `040507dc34c6b5a1a3b5028765dae50cd6fb5f96` | `passed` — unit tests, browser integration tests, and build | [run 32531136137](https://github.com/rafinel/scoops/actions/runs/32531136137) |
 
 ## History
 
@@ -233,4 +236,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-08-21` | PR #12 opened at `004ec522`; Core PR CI passed. Web PR CI failed the unchanged date-sensitive Identity onboarding test, and Server PR CI failed twice during unrelated Supabase Auth test-user setup; Evaluation returned to `in_progress` and conclusion is paused pending scope/CI authority. |
 | `2026-08-21` | CI correction authorized: the onboarding fixture now uses a date-independent future expiry, and Server CI configures `SUPABASE_URL`, starts the Compose Supabase gateway, and waits for Auth health before tests. Focused Web and MRP Server suites pass locally; the updated PR head is pending CI. |
 | `2026-08-21` | New PR CI evidence: Core passed; Web unit tests passed but its shared browser onboarding fixture expired; Server reached the gateway health check but rejected placeholder credentials as malformed JWTs. The follow-up correction uses a shared future fixture and Compose-secret-signed `anon`/`service_role` JWTs. |
-| `2026-08-21` | Final PR CI gate passed on `4306811`: Core, Server and Web pull-request workflows passed. Evaluation and Spec are closed; no merge or deployment was performed. |
+| `2026-08-21` | Final PR CI gate passed on `040507d`: Core, Server and Web pull-request workflows passed. Evaluation and Spec are closed; no merge or deployment was performed. |
