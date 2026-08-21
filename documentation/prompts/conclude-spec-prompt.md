@@ -77,9 +77,14 @@ conclusion automatically after it returns evaluation to `ready`.
    the exact implementation diff. Any later
    implementation or acceptance-evidence change routes back to the implementation workflow.
 5. Invoke `commit-code` to create intentional scoped commits.
-6. Invoke `create-pr` to push the branch and create or update the delivery PR. Reuse an
-   existing PR for the same delivery; never create a duplicate.
-7. Record the branch and PR URL in the delivery record; update
+6. Inspect the existing delivery PR, if any, and compare its base, head SHA, title and body
+   with the current candidate. If no matching PR exists, the PR points at an earlier SHA, or
+   its publication details are stale or incomplete, **invoke `create-pr` immediately and
+   mandatorily** to create or update it. Do not bypass `create-pr` with an ad hoc PR edit or
+   proceed to the final CI gate before it returns the current PR metadata.
+7. Invoke `create-pr` for the final publication whenever the branch was newly committed or
+   the PR needs any update; reuse the existing delivery PR and never create a duplicate.
+8. Record the branch and PR URL in the delivery record; update
    `evaluation.md` only when the operational ledger needs the reference.
 
 ## Final PR CI Quality Gate
@@ -102,7 +107,7 @@ If CI fails:
 - immediately invoke the applicable implementation or amendment workflow through the
   authority and late-change routing above;
 - after that workflow returns evaluation to `ready`, invoke `commit-code`, update the existing
-  PR through `create-pr`, and run this gate again on its new head SHA;
+  PR through the mandatory `create-pr` workflow, and run this gate again on its new head SHA;
 - rerun the same SHA only for a documented transient CI/infrastructure failure;
 - repeat this correction, publication and CI loop until the gate passes or a permitted pause
   condition from Workflow continuity occurs.

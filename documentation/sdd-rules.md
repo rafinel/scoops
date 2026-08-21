@@ -313,7 +313,9 @@ With user authorization to commit, push and publish, conclusion:
 1. runs the required local preflight;
 2. verifies generated artifacts, migrations, design evidence and documentation;
 3. uses `commit-code` for scoped commits;
-4. uses [`create-pr`](./prompts/create-pr-prompt.md) to create or update one delivery PR;
+4. invokes [`create-pr`](./prompts/create-pr-prompt.md) mandatorily whenever the delivery PR
+   is missing, points at an earlier candidate SHA, or has stale/incomplete publication details;
+   `conclude-spec` does not bypass this workflow with ad hoc PR edits;
 5. records the branch and PR URL;
 6. waits for every applicable checked-in GitHub Actions workflow on the current PR head SHA;
 7. records workflow name, result, run URL and tested SHA in Evaluation.

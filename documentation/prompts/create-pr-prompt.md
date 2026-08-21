@@ -136,13 +136,14 @@ Include these sections in this order:
   the most relevant changed paths;
 - **Business-rule changes** — only when behavior, validation, authorization or workflow
   changed; state the previous behavior, new behavior, reason and evidence;
-- **Visual evidence** — screenshots or recordings with state, viewport and caption when UI
-  changed, otherwise `Not applicable`;
 - **Manual testing** — prerequisites, reproducible steps, expected result and error/recovery
   flows;
 - **Automated validation** — exact commands and observed results, including failures,
   limitations and omitted checks;
 - **Known limitations** — explicit non-blocking gaps, or `None`.
+
+When UI changes, summarize the visual validation result and link the detailed state/viewport
+comparisons in `evaluation.md`; do not create a separate `Visual evidence` PR section.
 
 Do not add a generic `Changelog`, `Impact and compatibility` or `Observations` section. Do not
 invent Issue keys, Spec requirements, test results or human approvals. Keep the body concise
