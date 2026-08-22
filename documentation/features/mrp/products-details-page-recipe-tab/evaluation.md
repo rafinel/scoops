@@ -9,7 +9,7 @@ updated_at: 2026-08-22
 
 # Evaluation
 
-Current result: Completed. F1–F6 are integrated and complete: all affected static, unit, mocked-browser and real Nest/Postgres controller sensors pass; the real Manager workflow passed against migrated local services; the same Integrated Reviewer rechecked the corrected candidate with no remaining findings; and the final PR Core, Server and Web quality gates pass on head `448a0b96f93edbdd6eb0a4731dc7f8852665205f`. Supplemental nested-route coverage is split into dedicated Stock and Recipe route tests and passes.
+Current result: Completed. F1–F6 are integrated and complete: all affected static, unit, mocked-browser and real Nest/Postgres controller sensors pass; the real Manager workflow passed against migrated local services; the same Integrated Reviewer rechecked the corrected candidate with no remaining findings; and the final PR Core, Server and Web quality gates pass on head `434d49f0ede66dcdb11d24bed5a70228983f56a5`. Supplemental nested-route coverage is split into dedicated Stock and Recipe route tests and passes.
 
 ## Acceptance matrix
 
@@ -45,7 +45,7 @@ Current result: Completed. F1–F6 are integrated and complete: all affected sta
 | `EV-08` | Integrated Reviewer recheck | Same `Integrated Reviewer` after FND-014–FND-018 corrections | Passed: no remaining finding; corrected source, current screenshots, current validation and real F6 evidence inspected. | `passed` |
 | `EV-09` | Web nested-route coverage | Dedicated Stock and Recipe route files via Playwright CLI | Passed: `products.$productId.stock.test.ts` owns the Stock redirect, loading, history, brand and adjustment scenarios; `products.$productId.recipe.test.ts` owns the Recipe loading, mutation, production and responsive scenarios. The dedicated route files pass 14 tests total, including direct nested URL and selected-tab assertions. | `passed` |
 | `EV-10` | Final conclusion preflight | Core/Validation/Server/Web checks, generated artifacts, Playwright health and clean focused Recipe/Stock Playwright CLI route runs | Passed: Core 37 files/88 tests, Server 33 files/67 tests, Web 37 files/118 tests, Server/Web builds, route generation and migration generation with no schema changes, Recipe 4/4 and Stock 12/12 browser tests. Existing reduced-motion and Identity React warnings remain non-blocking and are documented in `FND-006`. | `passed` |
-| `EV-11` | Final PR CI quality gate | PR-triggered Core, Server and Web workflows on head `448a0b96f93edbdd6eb0a4731dc7f8852665205f` | Passed: Core run `32587943000`, Server run `32587942986`, and Web run `32587942980`; the prior Web failures and corrected test-fixture commit are retained in `FND-021`/`FND-022` history. | `passed` |
+| `EV-11` | Final PR CI quality gate | PR-triggered Core, Server and Web workflows on head `434d49f0ede66dcdb11d24bed5a70228983f56a5` | Passed: Core run `32588231306`, Server run `32588231308`, and Web run `32588231319`; the prior Web failures and corrected test-fixture commit are retained in `FND-021`/`FND-022` history. | `passed` |
 
 ## Manual evidence
 
@@ -116,10 +116,11 @@ Current result: Completed. F1–F6 are integrated and complete: all affected sta
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
-| `CI-01` | Core CI (PR) | `448a0b96f93edbdd6eb0a4731dc7f8852665205f` | `passed` | [run 32587943000](https://github.com/rafinel/scoops/actions/runs/32587943000) |
-| `CI-02` | Server CI (PR) | `448a0b96f93edbdd6eb0a4731dc7f8852665205f` | `passed` | [run 32587942986](https://github.com/rafinel/scoops/actions/runs/32587942986) |
-| `CI-03` | Web CI (PR) | `448a0b96f93edbdd6eb0a4731dc7f8852665205f` | `passed` | [run 32587942980](https://github.com/rafinel/scoops/actions/runs/32587942980) |
-| `CI-04` | Web CI (PR, superseded head) | `fd0584ec01267715f090220acdf4866345a92c98` | `failed; corrected by 448a0b9` | [run 32587221349](https://github.com/rafinel/scoops/actions/runs/32587221349) |
+| `CI-01` | Core CI (PR) | `434d49f0ede66dcdb11d24bed5a70228983f56a5` | `passed` | [run 32588231306](https://github.com/rafinel/scoops/actions/runs/32588231306) |
+| `CI-02` | Server CI (PR) | `434d49f0ede66dcdb11d24bed5a70228983f56a5` | `passed` | [run 32588231308](https://github.com/rafinel/scoops/actions/runs/32588231308) |
+| `CI-03` | Web CI (PR) | `434d49f0ede66dcdb11d24bed5a70228983f56a5` | `passed` | [run 32588231319](https://github.com/rafinel/scoops/actions/runs/32588231319) |
+| `CI-04` | Core/Server/Web CI (PR, superseded head) | `448a0b96f93edbdd6eb0a4731dc7f8852665205f` | `passed; superseded by final docs head` | [Core run 32587943000](https://github.com/rafinel/scoops/actions/runs/32587943000), [Server run 32587942986](https://github.com/rafinel/scoops/actions/runs/32587942986), [Web run 32587942980](https://github.com/rafinel/scoops/actions/runs/32587942980) |
+| `CI-05` | Web CI (PR, superseded head) | `fd0584ec01267715f090220acdf4866345a92c98` | `failed; corrected by 448a0b9` | [run 32587221349](https://github.com/rafinel/scoops/actions/runs/32587221349) |
 
 ## History
 
@@ -180,3 +181,4 @@ Current result: Completed. F1–F6 are integrated and complete: all affected sta
 | 2026-08-22 | PR CI run `32587221349` failed before conclusion because 90/92 Web tests passed, with an unrelated onboarding timeout and a retry-only Recipe console-warning flake. Core PR run `32587221482` and Server PR run `32587221415` passed. Recorded as `FND-021`; same-SHA Web rerun required by the PR quality gate. |
 | 2026-08-22 | PR Web rerun attempt 2 reproduced the onboarding failure deterministically. The failure traced to the branch's test-only storage-key rename; restored `scoops.identity.onboarding-session` and recorded resolved `FND-022`. |
 | 2026-08-22 | Correction commit `448a0b9` passed focused onboarding coverage 6/6. Final PR-triggered Core, Server and Web runs passed on the corrected head; the quality gate is complete. |
+| 2026-08-22 | Final documentation head `434d49f` passed fresh PR-triggered Core, Server and Web runs `32588231306`, `32588231308` and `32588231319`. |

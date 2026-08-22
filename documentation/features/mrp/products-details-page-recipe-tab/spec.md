@@ -20,7 +20,7 @@ contracts, tenant- and role-scoped Server persistence/REST, generated artifacts 
 the Web route workflow are integrated on the final PR head.
 
 The implementation is published in [PR #15](https://github.com/rafinel/scoops/pull/15)
-at commit `448a0b96f93edbdd6eb0a4731dc7f8852665205f`. Final PR-triggered Core,
+at final commit `434d49f0ede66dcdb11d24bed5a70228983f56a5`. Final PR-triggered Core,
 Server and Web checks pass. Detailed acceptance coverage, manual and visual evidence,
 findings, limitations and CI history are retained in
 [`evaluation.md`](./evaluation.md).
