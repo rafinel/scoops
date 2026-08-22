@@ -1,19 +1,19 @@
 ---
 title: Product details Recipe tab — implementation plan
-status: ready
+status: completed
 spec: ./spec.md
 spec_revision: 1
 evaluation: ./evaluation.md
 github_issue: https://github.com/rafinel/scoops/issues/13
-updated_at: 2026-08-21
+updated_at: 2026-08-22
 ---
 
 ## Execution status
 
-- **Spec:** [`spec.md`](./spec.md) — revision `1`, `in_progress`; implementation evaluation is ready for conclusion.
+- **Spec:** [`spec.md`](./spec.md) — revision `1`, `completed`; implementation evaluation is complete.
 - **Rationale:** Plan-backed execution is required for the dependency chain across shared Core/Validation contracts, transactional Server persistence and REST, and the design-backed Web workflow.
-- **Current phase:** Integrated execution complete.
-- **Next action:** Route the ready evaluation to `conclude-spec` when publication authority is supplied.
+- **Current phase:** Conclusion complete; final PR quality gate passed.
+- **Next action:** None. Await reviewer approval on the draft PR.
 - **Active blockers:** None. The recheck has no remaining finding; FND-006 remains accepted non-blocking and FND-019 is rejected as contrary to the approved empty-Recipe contract.
 - **Builders:** F1–F5 are complete. No Builder is active.
 - **Coordination:** The Orchestrator exclusively reviews generated Drizzle migration artifacts and `routeTree.gen.ts`; no package or lockfile change is planned.
