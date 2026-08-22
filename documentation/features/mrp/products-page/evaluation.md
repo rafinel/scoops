@@ -276,6 +276,10 @@ and KPI queries, preventing the filtered response from reporting the unfiltered 
 The real by-brand registration flow also supplies the required ideal-stock value and returns
 HTTP 201 after the local Inngest service is exposed on the configured `8388` port.
 
+## Lessons learned
+
+- Catalog widgets should consume shared formatting hooks for quantities and dates; presentation helpers must not remain hidden in page-specific hooks when the same display policy is used elsewhere.
+
 ## History
 
 - 2026-08-17: implementation kickoff. Spec and Plan moved to `in_progress`;

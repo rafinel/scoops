@@ -75,6 +75,12 @@ When the requested action is clearly within the existing Contract, do not ask fo
 fix it. Record the reviewer comment as a finding, route it through `implement-spec`, and let the
 workflow continue until the affected evidence is current or an actual authority blocker exists.
 
+For every accepted review finding, preserve the distinction between the concrete `Findings`
+record and any reusable `Lessons learned` entry in `evaluation.md`. If the lesson reveals a
+repeatable gap, update the applicable PRD, Architecture, Design, Tooling or Rule document before
+conclusion; otherwise record an explicit no-change disposition. Do not close a review cycle
+with only a resolved finding when the lesson requires authority updates.
+
 ## Post-merge boundary
 
 Do not reopen a completed Spec after its PR has merged:

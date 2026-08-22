@@ -173,7 +173,7 @@ For new work against a concluded feature, create
 | `spec.md` | This workflow | Product, technical and validation Contract. |
 | `design/manifest.md` and screenshots | During Spec authoring when UI is design-backed | File-backed implementation and visual-validation references. |
 | `plan.md` | Only when Plan-backed execution is recommended | Execution phases, dependencies and durable progress ledger. |
-| `evaluation.md` | At implementation kickoff | Actual validation evidence, findings and history. |
+| `evaluation.md` | At implementation kickoff | Actual validation evidence, findings and lessons learned. |
 
 Use only this metadata and omit empty optional fields:
 

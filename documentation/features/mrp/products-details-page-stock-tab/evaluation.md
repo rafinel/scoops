@@ -157,6 +157,7 @@ Required runtime resources: Docker PostgreSQL/Supabase, authenticated manager an
 | `FND-014` | Visual implementation/documentation | Native history date input showed an inner-only outline instead of one composed-control focus state | `EV-WEB`; `CA-14`; `VIS-15` | `resolved` | Delegated focus to the complete `De`/`Até` wrapper; focused static/widget/Playwright gates pass and fresh VIS-15 was inspected. Reusable lesson added to `documentation/design.md` and `documentation/rules/ui-layer-rules.md`; Architecture and Tooling need no change because no system boundary or command workflow was affected |
 | `FND-015` | Visual implementation/documentation | Ordinary inputs could receive divergent page-level focus rings instead of the project-wide shared focus treatment | `EV-WEB`; `VIS-03`; `VIS-06` | `resolved` | Shared Input now owns one 2px soft focus ring and composite controls delegate focus to their wrapper. Focus overrides were removed from affected consumers and the reusable rule is documented in Design/UI rules; Architecture and Tooling need no change because no boundary or command workflow changed |
 | `FND-016` | Visual implementation/documentation | Dialog headers used competing horizontal, vertical, and missing-icon layouts across MRP and Identity | `EV-WEB`; `VIS-03`; `VIS-06`; `VIS-17` | `resolved` | Application dialog headers now follow the vertical semantic-icon, title, supporting-copy, top-right close, and separator pattern. Design/UI rules record the reusable contract; Architecture and Tooling need no change because no boundary or command workflow changed |
+| `FND-017` | Rule / UI layer | Formatter review after currency correction | `EV-WEB`; Rule Pack | `resolved` | Stock and catalog widgets had local quantity/date/currency formatter helpers outside the shared hook boundary required by `ui-layer-rules.md`. They now consume `useFormatCurrency`, `useFormatQuantity` and `useFormatDate` from `apps/web/src/ui/shared/hooks/use-formatters.ts`; focused widget/route checks and typecheck passed. |
 
 ## PR CI quality gate
 
@@ -177,6 +178,12 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `CI-010` | Core CI (pull request) | `040507dc34c6b5a1a3b5028765dae50cd6fb5f96` | `passed` | [run 32531136169](https://github.com/rafinel/scoops/actions/runs/32531136169) |
 | `CI-011` | Server CI (pull request) | `040507dc34c6b5a1a3b5028765dae50cd6fb5f96` | `passed` — valid test JWTs, gateway health, full tests, and build | [run 32531136179](https://github.com/rafinel/scoops/actions/runs/32531136179) |
 | `CI-012` | Web CI (pull request) | `040507dc34c6b5a1a3b5028765dae50cd6fb5f96` | `passed` — unit tests, browser integration tests, and build | [run 32531136137](https://github.com/rafinel/scoops/actions/runs/32531136137) |
+
+## Lessons learned
+
+- When the same currency, quantity or date value appears across modules, centralize its display policy in shared hooks instead of duplicating local formatter functions.
+- Shared formatter hooks should define locale, precision and grouping once; consumers should not override those policies with ad hoc `Intl.NumberFormat` options.
+- UI-layer rule compliance needs an ownership check during handoff, even when rendered output looks correct.
 
 ## History
 
@@ -240,3 +247,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-08-22` | Standardized the Stock brands and transaction-history tables on the shared shadcn `Table` primitives, preserving desktop/mobile breakpoints, captions, row borders, badges, actions and horizontal overflow. Web typecheck, focused Stock widget tests and the populated route capture (`apps/web/test-results/products-details-by-brand-stock-1560x1320.png`) passed inspection. |
 | `2026-08-22` | Routed Stock brand currency displays through the shared `pt-BR` formatter with exactly two decimal places, replacing the prior four-decimal maximum while preserving currency symbols and unit suffixes. Focused brand-dialog/widget tests and Web typecheck passed. |
 | `2026-08-22` | Reused the shared formatting hooks across Stock summaries, adjustment dialogs, transaction history, brand rows and product catalog quantities; focused Stock widget tests, route coverage and fresh populated Stock screenshot inspection passed. |
+| `2026-08-22` | Defect reconciliation: Stock currency now uses the shared hook with exactly two Brazilian-locale decimals, and quantity displays no longer expose floating-point artifacts or unintended grouping. Focused Stock widget/route checks passed and the corrected populated Stock capture was inspected. |

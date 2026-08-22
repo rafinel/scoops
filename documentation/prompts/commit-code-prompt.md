@@ -65,6 +65,11 @@ Do not assume every dirty file belongs to the same task. If ownership remains
 ambiguous after inspecting the diff and task context, exclude the file and report
 the ambiguity instead of committing it speculatively.
 
+When the candidate includes pre-existing SDD, Rule, prompt or other governance
+changes outside the requested task, classify them as inherited scope. Exclude
+them from the delivery commit unless the user explicitly authorizes their
+inclusion, and record the disposition in the applicable Evaluation or handoff.
+
 ---
 
 ### 2. Protect Local Work

@@ -340,6 +340,12 @@ With user authorization to commit, push and publish, conclusion:
 6. waits for every applicable checked-in GitHub Actions workflow on the current PR head SHA;
 7. records workflow name, result, run URL and tested SHA in Evaluation.
 
+Before staging a delivery commit, conclusion and `commit-code` audit the complete
+candidate diff against the Spec scope. Pre-existing SDD, Rule, prompt or other
+governance changes outside that scope are inherited changes: exclude them unless
+the user explicitly authorizes their inclusion, and record the disposition in
+Evaluation. A green sensor does not authorize unrelated files to ship.
+
 SDD artifacts do not track a repository base, current or candidate commit. The SHA in the PR CI
 table is limited to identifying the exact PR revision checked by GitHub and is not SDD status
 metadata.

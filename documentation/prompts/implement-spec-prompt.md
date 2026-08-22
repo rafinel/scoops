@@ -72,7 +72,7 @@ stop before editing feature source and report the exact blocker:
 - Evaluation is a living ledger, not a final report: after every implementation, test, browser,
   generated-artifact, migration, documentation or validation change, update the colocated
   `evaluation.md` in the same task with the exact command/scenario, result, evidence IDs,
-  freshness and history entry. Invalidate affected prior evidence immediately. Do not report
+  freshness and applicable lesson/disposition. Invalidate affected prior evidence immediately. Do not report
   completion, readiness or a passing validation result while the current change is absent from
   Evaluation.
 
@@ -117,7 +117,7 @@ Before the first implementation change for the current revision:
 3. set an `open` Spec to `in_progress`;
 4. create colocated `evaluation.md` from
    `documentation/templates/evaluation.md` when absent, or reconcile an existing file to
-   that structure without discarding history;
+   that structure without discarding existing evidence;
 5. activate the direct assignment or affected ownership Builders and record, before any feature
    edit, their identifiers, exact Spec revision, RF/CA mapping, owned and prohibited paths,
    assigned phases, required file/widget tree, Rule Pack, design references, validation exits
@@ -129,16 +129,15 @@ Before the first implementation change for the current revision:
    current Plan and affected work to `in_progress`;
 8. initialize or update the Spec/Plan references, revision,
    `status: in_progress`, acceptance matrix, automated/runtime/manual/visual evidence,
-   Rule/documentation compliance, findings and history;
+   Rule/documentation compliance, findings and lessons learned;
 9. record required services, accounts, fixtures, design references and evidence targets.
 
 Do not proceed when the Builder activation, baseline conformance comparison or Playwright
 health result is missing or failed. A prose statement that these steps happened is insufficient;
 record exact paths, commands, results and evidence identifiers.
 
-Do not overwrite historical evidence. Evaluation uses only `in_progress`, `ready` and
-`completed`; actual results, findings and history remain in the evidence ledger rather than
-metadata.
+Do not overwrite prior evidence. Evaluation uses only `in_progress`, `ready` and `completed`;
+actual results, findings and lessons learned remain in the evidence ledger rather than metadata.
 
 When a colocated Evaluation already exists, read it before activating the Builder. Treat its
 open findings, failed attempts, command corrections, service prerequisites and visual notes as
@@ -217,8 +216,8 @@ Current result: <concise statement>
 ## PR CI quality gate
 | ID | Workflow | Head SHA | Result | Run |
 
-## History
-| Date | Event |
+## Lessons learned
+| Lesson | Source finding | Authority disposition |
 ```
 
 Preserve the template's column names, evidence ID conventions and status vocabulary exactly.
@@ -285,7 +284,7 @@ For each dependency-ready wave:
 4. coordinate shared/generated files, dependencies and lockfiles through the Orchestrator;
 5. inspect and integrate Builder diffs; Builders do not edit Spec, Plan or Evaluation;
 6. run focused generation, code, type, unit and integration checks from the task exits;
-7. update Evaluation immediately with exact results, evidence freshness and history, then update
+7. update Evaluation immediately with exact results, evidence freshness and lessons learned, then update
    the Plan with status, finding IDs, attempts and next action;
 8. complete a task only when its exit passes, and a phase only when every task and phase exit
    passes;
@@ -310,7 +309,7 @@ Each Builder runs focused feedback checks for the paths it changes before handof
 Builders return exact commands and observed results, but their reports are not official evidence.
 The Orchestrator reruns or verifies every required exit on the integrated candidate and records it
 in Evaluation in the same task turn. A Builder handoff is incomplete until its commands, results,
-affected evidence freshness and history entry are materialized there. Keep Builder checks focused;
+affected evidence freshness and any applicable lesson are materialized there. Keep Builder checks focused;
 do not run a full workspace or UI regression after every small edit unless the task exit requires it.
 
 ### Integrated Reviewer
@@ -350,6 +349,20 @@ When a finding exposes a missing, ambiguous or repeatedly violated reusable Rule
   authority change, invalidate affected evidence and rerun the scoped correction.
 
 Feature-specific behavior belongs in the Spec. Builders do not edit Rules or SDD artifacts.
+
+## Finding-to-lesson documentation
+
+Every accepted finding has two distinct records in `evaluation.md`:
+
+1. a `Findings` entry describing the concrete problem, affected evidence, status and resolution;
+2. a `Lessons learned` entry when the finding exposes guidance that future work can reuse.
+
+The lesson, not the finding label alone, determines whether durable documentation needs an
+update. Classify each reusable lesson against the applicable PRD, Architecture, Design,
+Tooling or Rule document, update that authority through its required workflow, and record the
+link and disposition in `evaluation.md`. If the lesson is feature-local, transient, or already
+covered, record an explicit no-change disposition instead. Do not treat a finding entry as a
+substitute for a lesson or authority update.
 
 ## Spec conformance gate during implementation
 

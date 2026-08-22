@@ -232,6 +232,13 @@ or provide an item index; the behavior itself belongs in the hook. Do not add
 standalone helper or formatter functions outside the component and its owning
 hook in a `.tsx` file.
 
+Reusable display formatting is an application concern, not a widget-local
+implementation detail. Currency, decimal, quantity, percentage and date
+formatting shared by more than one widget belongs in the shared UI hooks
+boundary, using the existing formatter hooks and locale/precision conventions.
+Widget-local formatters are permitted only for genuinely private presentation
+rules that are not reusable and do not duplicate a shared formatter contract.
+
 Functions declared inside a widget hook must use the `function` form, including
 helpers, interaction handlers, lifecycle callbacks, and async submit handlers:
 

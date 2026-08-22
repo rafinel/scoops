@@ -49,6 +49,10 @@ Current result: `<concise statement of validated, pending and blocking evidence>
 | --- | --- | --- | --- | --- | --- |
 | `FND-001` | `<implementation, Contract, Rule, environment or CI>` | `<CA, Rule, screenshot, command or PR run>` | `<EV, MV, VIS or CI IDs>` | `active` | `<correction, accepted limitation or next action>` |
 
+## Lessons learned
+
+- `<reusable lesson extracted from a material finding, or “No durable lesson identified.”>`
+
 ## PR CI quality gate
 
 <!-- Populate during conclude-spec. The head SHA identifies the PR revision checked by CI; it
@@ -57,9 +61,3 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
 | `CI-01` | `<applicable workflow>` | `<sha>` | `pending` | `<run URL when available>` |
-
-## History
-
-| Date | Event |
-| --- | --- |
-| `YYYY-MM-DD` | Evaluation created for Spec revision `<revision>`. |

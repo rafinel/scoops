@@ -132,7 +132,8 @@ After CI passes, verify `evaluation.md` contains:
 - a resolved decision for every additional-screenshot suggestion when the suggestion affects
   an acceptance decision;
 - Rule compliance and documentation alignment;
-- resolved and active findings with evaluation history;
+- resolved and active findings with their lessons and dispositions;
+- a `Lessons learned` section that extracts reusable guidance from material findings;
 - final validation result;
 - applicable PR CI run evidence and final build result.
 
@@ -144,6 +145,20 @@ Treat material findings as inputs to durable documentation improvement, not only
 records. For every resolved or active finding, classify whether it exposed reusable missing or
 ambiguous guidance:
 
+1. record the concrete issue first in `Findings` with evidence, status and resolution;
+2. extract the reusable principle into `Lessons learned` when applicable;
+3. update the appropriate authority, or record an explicit no-change disposition when no durable
+   update is warranted.
+
+Recording a reusable lesson is not complete until its authority disposition is decided in the
+same conclusion pass. For each lesson, name the applicable Markdown authority file(s), make the
+factual update when the lesson is already consistent with the approved Contract, or record
+`No change` with a concrete reason. If applying the lesson would change product intent,
+architecture, module ownership or a global policy, route it as a Contract or authority change
+instead of silently editing the document.
+
+- update the applicable module PRD under `documentation/prds/` when the finding clarifies
+  product behavior, user-visible states, permissions or acceptance intent;
 - update `documentation/architecture.md` when the finding reveals an architectural boundary,
   dependency, data-flow or system-responsibility clarification that future work must retain;
 - update the applicable document under `documentation/rules/` when the finding reveals a
@@ -160,8 +175,9 @@ ambiguous guidance:
   already-documented rule or feature-local detail that would overfit global guidance.
 
 Record each material finding's documentation disposition in `evaluation.md`: link the updated
-Architecture, Design, Tooling or Rule document and summarize the lesson, or state why no
-update was warranted.
+PRD, Architecture, Design, Tooling or Rule document and summarize the lesson, or state why no
+update was warranted. A finding entry without its lesson/disposition is insufficient evidence of
+this review.
 Keep these corrections concise and generally applicable. A clarification consistent with the
 approved Contract and delivered architecture is part of conclusion; a new product rule,
 Contract obligation, module-ownership decision, architecture decision or global policy still
@@ -200,6 +216,6 @@ Return:
 - validation result and CA/manual/visual coverage;
 - applicable PR CI workflows and results;
 - documentation alignment and remaining non-blocking limitations;
-- finding-derived Architecture, Design, Tooling and Rule Pack improvements, including
+- finding-derived PRD, Architecture, Design, Tooling and Rule Pack improvements, including
   justified no-change dispositions;
 - PR state and next authorized action.
