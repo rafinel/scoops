@@ -106,6 +106,8 @@ Current result: Ready for conclusion. F1–F6 are integrated and complete: all a
 | `FND-018` | evidence | Integrated Reviewer `RV-01` | `VIS-01`–`VIS-10` | `resolved` | The final 84-test mocked suite regenerated all fourteen Recipe/Produce captures and both current-cost captures. |
 | `FND-019` | invalid finding | F6 real Manager browser sensor | `MV-01`; `EV-05` | `rejected` | Rejected after rereading Spec r1, `CA-02`, `CA-03` and `design/H2x0f.png`: a Manager must explicitly save a positive yield to create the empty Recipe, and Add remains disabled until that persistence succeeds. The F6 replay is corrected to use that required sequence. |
 | `FND-020` | environment | Conclusion browser preflight | `EV-05`; `EV-09` | `accepted_non_blocking` | An exploratory run started Recipe and Stock Playwright servers concurrently on shared port 4000, causing cross-run mocked-state interference and misleading route failures. After stopping those processes, clean serial Recipe (4/4) and Stock (12/12) runs passed. No implementation change was required; local browser evidence must use one server process per run. |
+| `FND-021` | environment | PR Web CI run `32587221349` | `EV-11` | `accepted_non_blocking` | The first PR Web gate at head `fd0584ec01267715f090220acdf4866345a92c98` had 90/92 tests pass; an unrelated Identity onboarding test timed out and the new Recipe test only failed on retry because of the known React pre-mount console warning. Focused clean local Recipe and Stock runs passed, and no implementation correction was indicated. The same-SHA Web gate is being rerun. |
+| `FND-022` | implementation | PR Web CI rerun attempt 2 | `EV-11` | `resolved` | The onboarding test fixture rename wrote `scoops.identityFixture.onboarding-session`, while the production storage contract remains `scoops.identity.onboarding-session`. Restored the production key in the test setup; this does not change product behavior or the Spec contract. |
 
 ## PR CI quality gate
 
@@ -113,6 +115,9 @@ Current result: Ready for conclusion. F1–F6 are integrated and complete: all a
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| `CI-01` | Core CI (PR) | `fd0584ec01267715f090220acdf4866345a92c98` | `passed` | [run 32587221482](https://github.com/rafinel/scoops/actions/runs/32587221482) |
+| `CI-02` | Server CI (PR) | `fd0584ec01267715f090220acdf4866345a92c98` | `passed` | [run 32587221415](https://github.com/rafinel/scoops/actions/runs/32587221415) |
+| `CI-03` | Web CI (PR) | `fd0584ec01267715f090220acdf4866345a92c98` | `failed — transient, superseded by same-SHA rerun` | [run 32587221349](https://github.com/rafinel/scoops/actions/runs/32587221349) |
 
 ## History
 
@@ -170,3 +175,5 @@ Current result: Ready for conclusion. F1–F6 are integrated and complete: all a
 | 2026-08-22 | Refactored the Recipe ingredient dialog onto React Hook Form with the shared `addRecipeIngredientSchema`. A zero quantity now renders an inline field error and is rejected before the mutation; the dedicated nested Recipe route assertion recorded zero POST requests and `products-recipe-add-quantity-validation-676x682.png` was freshly inspected. The complete nested Recipe suite passed 4 tests, alongside Web typecheck and code check (the same four pre-existing reduced-motion `!important` warnings only). |
 | 2026-08-22 | Hardened `ProduceProductDialog` against narrow-width overlap: the modal content and summary regions now allow shrinking, projection columns use fixed proportions, and long ingredient/balance values wrap within the table. The production-preview fixture includes a long ingredient name, the focused Playwright scenario passed, and fresh 320 × 900, 640 × 760 and 796 × 790 captures were inspected with no overlap. |
 | 2026-08-22 | Conclusion preflight passed Core/Validation/Server/Web checks, generated-artifact checks, Playwright health, Server 33-file/67-test suite, Web 37-file/118-test suite, and clean serial Recipe 4/4 plus Stock 12/12 route runs. A concurrent-server exploratory run was recorded as accepted non-blocking `FND-020`; no implementation correction was required. |
+| 2026-08-22 | PR CI run `32587221349` failed before conclusion because 90/92 Web tests passed, with an unrelated onboarding timeout and a retry-only Recipe console-warning flake. Core PR run `32587221482` and Server PR run `32587221415` passed. Recorded as `FND-021`; same-SHA Web rerun required by the PR quality gate. |
+| 2026-08-22 | PR Web rerun attempt 2 reproduced the onboarding failure deterministically. The failure traced to the branch's test-only storage-key rename; restored `scoops.identity.onboarding-session` and recorded resolved `FND-022`. |
