@@ -1,9 +1,15 @@
-import type { Recipe, RecipeCreate, RecipeUpdate } from '#mrp/domain/entities/recipe.ts'
+import type { Recipe } from '#mrp/domain/entities/recipe.ts'
+import type { RecipeCreate } from '#mrp/domain/structures/recipe-create.ts'
+import type { RecipeUpdate } from '#mrp/domain/structures/recipe-update.ts'
 
 export interface RecipesRepository {
   add(input: RecipeCreate): Promise<Recipe>
-  findById(recipeId: string): Promise<Recipe | undefined>
-  findByProductId(productId: string): Promise<Recipe | undefined>
-  replace(recipeId: string, changes: RecipeUpdate): Promise<Recipe>
-  remove(recipeId: string): Promise<void>
+  findById(establishmentId: string, recipeId: string): Promise<Recipe | undefined>
+  findByProductId(establishmentId: string, productId: string): Promise<Recipe | undefined>
+  replace(
+    establishmentId: string,
+    recipeId: string,
+    changes: RecipeUpdate,
+  ): Promise<Recipe>
+  remove(establishmentId: string, recipeId: string): Promise<void>
 }

@@ -2,9 +2,12 @@ import { expect, test } from '../../playwright'
 import { establishmentSettingsJson } from '../../fixtures/identity-data-fixtures'
 
 test.describe('Shop settings route', () => {
-  test('renders and submits the Manager settings flow', async ({ page, identity }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+  test('renders and submits the Manager settings flow', async ({
+    page,
+    identityFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     await page.route('**/establishments/current', async (route) => {
       await route.fulfill({
         contentType: 'application/json',
@@ -52,9 +55,12 @@ test.describe('Shop settings route', () => {
     await expect(page).toHaveURL(/\/login\?returnTo=%2Fshop-settings/)
   })
 
-  test('keeps the Manager settings page usable at 320px', async ({ page, identity }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+  test('keeps the Manager settings page usable at 320px', async ({
+    page,
+    identityFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     await page.route('**/establishments/current', async (route) => {
       await route.fulfill({
         contentType: 'application/json',
@@ -65,18 +71,20 @@ test.describe('Shop settings route', () => {
 
     await page.setViewportSize({ width: 320, height: 800 })
     await page.goto('/shop-settings')
-    await expect(page.getByRole('heading', { name: 'Sorveteria', exact: true })).toBeVisible()
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
-      320,
-    )
+    await expect(
+      page.getByRole('heading', { name: 'Sorveteria', exact: true }),
+    ).toBeVisible()
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(320)
     const nameButton = page.getByRole('button', { name: 'Corrigir nome' })
     await nameButton.focus()
     await expect(nameButton).toBeFocused()
   })
 
-  test('denies an authenticated Operator', async ({ page, identity }) => {
-    await identity.mockOperatorSession()
-    await identity.mockOperatorAccount()
+  test('denies an authenticated Operator', async ({ page, identityFixture }) => {
+    await identityFixture.mockOperatorSession()
+    await identityFixture.mockOperatorAccount()
     await page.route('**/establishments/current', async (route) => {
       await route.fulfill({
         contentType: 'application/json',

@@ -4,10 +4,10 @@ import { accountResponse } from '../../fixtures/identity-data-fixtures'
 test.describe('Account route', () => {
   test('protects the route and edits the current user name', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     let body: { name?: string } | undefined
     await page.route('**/auth/session/name', async (route) => {
       body = route.request().postDataJSON() as { name?: string }
@@ -47,10 +47,10 @@ test.describe('Account route', () => {
 
   test('keeps the account usable on mobile and retains the name after a failed save', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     await page.route('**/auth/session/name', async (route) => {
       await route.fulfill({
         contentType: 'application/json',
@@ -62,9 +62,9 @@ test.describe('Account route', () => {
     await page.setViewportSize({ width: 320, height: 800 })
     await page.goto('/account')
     await expect(page.getByRole('heading', { name: 'Minha conta' })).toBeVisible()
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
-      320,
-    )
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(320)
 
     const nameButton = page.getByRole('button', { name: 'Corrigir meu nome' })
     await nameButton.focus()
@@ -72,7 +72,10 @@ test.describe('Account route', () => {
     await page.keyboard.press('Enter')
     const input = page.getByRole('dialog').getByRole('textbox', { name: 'Nome completo' })
     await input.fill('Nome que deve permanecer')
-    await page.getByRole('dialog').getByRole('button', { name: 'Salvar alteração' }).click()
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Salvar alteração' })
+      .click()
 
     await expect(page.getByRole('dialog').getByRole('alert')).toBeVisible()
     await expect(input).toHaveValue('Nome que deve permanecer')
@@ -80,23 +83,25 @@ test.describe('Account route', () => {
 
   test('renders an authenticated Operator account without Manager-only controls', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockOperatorSession()
-    await identity.mockOperatorAccount()
+    await identityFixture.mockOperatorSession()
+    await identityFixture.mockOperatorAccount()
     await page.goto('/account')
     await expect(page.getByRole('heading', { name: 'Minha conta' })).toBeVisible()
-    await expect(page.getByRole('list').getByText('Operador', { exact: true })).toBeVisible()
+    await expect(
+      page.getByRole('list').getByText('Operador', { exact: true }),
+    ).toBeVisible()
     await expect(page.getByRole('link', { name: 'Usuários' })).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Sorveteria' })).toHaveCount(0)
   })
 
   test('shows the Manager shop settings navigation and redirects to its route', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     await page.route('**/establishments/current', async (route) => {
       await route.fulfill({
         contentType: 'application/json',
@@ -128,9 +133,12 @@ test.describe('Account route', () => {
     )
   })
 
-  test('logs out the current device and returns to login', async ({ page, identity }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+  test('logs out the current device and returns to login', async ({
+    page,
+    identityFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     await page.goto('/account')
     await page.getByRole('button', { name: 'Sair deste dispositivo' }).click()
     await expect(page).toHaveURL(/\/login/)

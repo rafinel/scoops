@@ -19,6 +19,7 @@ export class ProductResponseDto {
   @ApiProperty({ enum: Object.values(ProductStatus) }) status!: ProductStatus
   @ApiPropertyOptional() allowNegativeStock?: boolean
   @ApiPropertyOptional() idealStock?: number
+  @ApiPropertyOptional() currentUnitCost?: number
   @ApiPropertyOptional() internalNotes?: string
   @ApiProperty({ format: 'date-time' }) createdAt!: Date
   @ApiProperty({ format: 'date-time' }) updatedAt!: Date

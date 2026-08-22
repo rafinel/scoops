@@ -129,6 +129,27 @@ describe('Register Product Use Case', () => {
     )
   })
 
+  it('persists a valid single-stock ingredient current unit cost', async () => {
+    await useCase.execute({
+      actor: {
+        id: 'manager-1',
+        name: 'Manager',
+        establishmentId: 'establishment-1',
+        profile: UserProfile.Manager,
+      },
+      name: 'Milk',
+      unit: ProductUnit.Liter,
+      categories: [ProductCategory.Ingredient],
+      stockControl: ProductStockControl.Single,
+      idealStock: 0,
+      currentUnitCost: 0,
+    })
+
+    expect(productsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({ currentUnitCost: 0 }),
+    )
+  })
+
   it('derives the first main brand and records only positive initial stock', async () => {
     productsRepository.add.mockResolvedValue({
       ...product,
@@ -239,5 +260,26 @@ describe('Register Product Use Case', () => {
 
     expect(productsRepository.add).not.toHaveBeenCalled()
     expect(broker.publish).not.toHaveBeenCalled()
+  })
+
+  it('rejects invalid current unit costs without persistence', async () => {
+    await expect(
+      useCase.execute({
+        actor: {
+          id: 'manager-1',
+          name: 'Manager',
+          establishmentId: 'establishment-1',
+          profile: UserProfile.Manager,
+        },
+        name: 'Milk',
+        unit: ProductUnit.Liter,
+        categories: [ProductCategory.Ingredient],
+        stockControl: ProductStockControl.Single,
+        idealStock: 0,
+        currentUnitCost: -0.01,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError)
+
+    expect(productsRepository.add).not.toHaveBeenCalled()
   })
 })

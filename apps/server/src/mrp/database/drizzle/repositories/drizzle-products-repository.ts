@@ -5,12 +5,9 @@ import {
   ProductSortField,
   type ProductCatalogPage,
 } from '@scoops/core/mrp/domain/structures'
-import type {
-  Product,
-  ProductCreate,
-  ProductUpdate,
-} from '@scoops/core/mrp/domain/entities'
+import type { Product } from '@scoops/core/mrp/domain/entities'
 import type { ProductListParams } from '@scoops/core/mrp/domain/structures'
+import type { ProductCreate, ProductUpdate } from '@scoops/core/mrp/domain/structures'
 import type { ProductsRepository } from '@scoops/core/mrp/interfaces'
 import { and, arrayOverlaps, asc, count, desc, eq, ilike, sql } from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
@@ -36,6 +33,8 @@ export class DrizzleProductsRepository
         id: crypto.randomUUID(),
         categories: [...input.categories],
         idealStock: input.idealStock === undefined ? null : String(input.idealStock),
+        currentUnitCost:
+          input.currentUnitCost === undefined ? null : String(input.currentUnitCost),
         createdAt: now,
         updatedAt: now,
       })
@@ -54,6 +53,8 @@ export class DrizzleProductsRepository
           id: crypto.randomUUID(),
           categories: [...input.categories],
           idealStock: input.idealStock === undefined ? null : String(input.idealStock),
+          currentUnitCost:
+            input.currentUnitCost === undefined ? null : String(input.currentUnitCost),
           createdAt: now,
           updatedAt: now,
         })),
@@ -211,6 +212,10 @@ export class DrizzleProductsRepository
         categories: changes.categories ? [...changes.categories] : undefined,
         idealStock:
           changes.idealStock === undefined ? undefined : String(changes.idealStock),
+        currentUnitCost:
+          changes.currentUnitCost === undefined
+            ? undefined
+            : String(changes.currentUnitCost),
         updatedAt: new Date(),
       })
       .where(eq(productModel.id, productId))

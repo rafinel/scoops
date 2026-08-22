@@ -43,12 +43,12 @@ test.describe('Products route', () => {
 
   test('renders catalog, synchronizes search, opens registration, and captures desktop evidence', async ({
     page,
-    identity,
-    mrp,
+    identityFixture,
+    mrpFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
-    const { requests } = await mrp.mockProducts({
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    const { requests } = await mrpFixture.mockProducts({
       getResponse: { body: PRODUCTS_RESPONSE },
       postResponse: { body: PRODUCT, status: 201 },
     })
@@ -108,10 +108,15 @@ test.describe('Products route', () => {
       { borderLeftColor: 'rgb(30, 64, 175)', borderLeftWidth: '4px' },
       { borderLeftColor: 'rgb(220, 38, 38)', borderLeftWidth: '4px' },
     ])
-    const categoryChip = page.getByText('Ingrediente', { exact: true }).first()
-    await expect(categoryChip).toHaveCSS('height', '24px')
-    await expect(categoryChip).toHaveCSS('padding-left', '10px')
-    await expect(categoryChip).toHaveCSS('padding-top', '4px')
+    const categoryBadge = page
+      .getByRole('button', { name: 'Ingrediente', exact: true })
+      .first()
+    await expect(categoryBadge).toBeVisible()
+    await expect(categoryBadge.locator('[data-slot="badge"] svg')).toBeVisible()
+    await categoryBadge.hover()
+    await expect(
+      page.getByRole('tooltip', { name: 'Ingrediente', exact: true }),
+    ).toBeVisible()
 
     const searchInput = page.getByRole('textbox', { name: 'Buscar produtos' })
     await searchInput.fill('milk')
@@ -249,14 +254,69 @@ test.describe('Products route', () => {
     })
   })
 
+  test('exposes every product category as an icon badge with a named tooltip', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    await mrpFixture.mockProducts({
+      getResponse: {
+        body: {
+          ...PRODUCTS_RESPONSE,
+          items: [
+            {
+              ...PRODUCTS_RESPONSE.items[0],
+              product: {
+                ...PRODUCT,
+                categories: [
+                  'ingredient',
+                  'manufacturable',
+                  'portion',
+                  'accompaniment',
+                  'resale',
+                ],
+              },
+            },
+          ],
+        },
+      },
+    })
+
+    await navigateToProducts(page)
+
+    for (const category of [
+      'Ingrediente',
+      'Fabricável',
+      'Porção',
+      'Acompanhamento',
+      'Revenda',
+    ]) {
+      const badge = page.getByRole('button', { name: category, exact: true })
+      await expect(badge).toBeVisible()
+      await expect(badge.locator('[data-slot="badge"] svg')).toBeVisible()
+      await badge.hover()
+      await expect(
+        page.getByRole('tooltip', { name: category, exact: true }),
+      ).toBeVisible()
+    }
+
+    const keyboardBadge = page.getByRole('button', { name: 'Ingrediente', exact: true })
+    await keyboardBadge.focus()
+    await expect(
+      page.getByRole('tooltip', { name: 'Ingrediente', exact: true }),
+    ).toBeVisible()
+  })
+
   test('supports filters, keyboard focus, retry, and narrow viewport evidence', async ({
     page,
-    identity,
-    mrp,
+    identityFixture,
+    mrpFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
-    await mrp.mockProducts({
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    await mrpFixture.mockProducts({
       getResponse: (_request, requestNumber) =>
         requestNumber === 1
           ? { body: { message: 'unavailable' }, status: 503 }
@@ -283,12 +343,12 @@ test.describe('Products route', () => {
 
   test('keeps global KPIs stable when search changes the product list', async ({
     page,
-    identity,
-    mrp,
+    identityFixture,
+    mrpFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
-    const { requests } = await mrp.mockProducts({
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    const { requests } = await mrpFixture.mockProducts({
       getResponse: (request) => ({
         body:
           request.searchParams.get('search') === 'morango'
@@ -331,12 +391,12 @@ test.describe('Products route', () => {
 
   test('keeps long product names inside their column on narrow screens', async ({
     page,
-    identity,
-    mrp,
+    identityFixture,
+    mrpFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
-    await mrp.mockProducts({
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    await mrpFixture.mockProducts({
       getResponse: {
         body: {
           ...PRODUCTS_RESPONSE,
@@ -374,14 +434,14 @@ test.describe('Products route', () => {
     })
   })
 
-  test('uses primary color for stock and status filter selections', async ({
+  test('uses semantic colors for stock and status filter selections', async ({
     page,
-    identity,
-    mrp,
+    identityFixture,
+    mrpFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
-    const { requests } = await mrp.mockProducts({
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    const { requests } = await mrpFixture.mockProducts({
       getResponse: { body: PRODUCTS_RESPONSE },
     })
 
@@ -397,10 +457,10 @@ test.describe('Products route', () => {
     await expect(normalFilter).toHaveAttribute('aria-pressed', 'true')
     await expect(activeFilter).toHaveAttribute('aria-pressed', 'true')
 
-    for (const filter of [normalFilter, activeFilter]) {
-      await expect(filter).toHaveCSS('color', 'rgb(109, 40, 217)')
-      await expect(filter).toHaveCSS('background-color', 'rgb(237, 233, 254)')
-    }
+    await expect(normalFilter).toHaveClass(/text-primary/)
+    await expect(normalFilter).toHaveClass(/bg-accent/)
+    await expect(activeFilter).toHaveClass(/!text-green-800/)
+    await expect(activeFilter).toHaveClass(/!bg-green-50/)
 
     await page.screenshot({
       path: 'test-results/products-filter-primary-selection-1481x900.png',
@@ -423,12 +483,12 @@ test.describe('Products route', () => {
 
   test('sorts every product column and resets pagination', async ({
     page,
-    identity,
-    mrp,
+    identityFixture,
+    mrpFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
-    const { requests } = await mrp.mockProducts({
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    const { requests } = await mrpFixture.mockProducts({
       getResponse: { body: PRODUCTS_RESPONSE },
     })
 
@@ -466,12 +526,12 @@ test.describe('Products route', () => {
 
   test('distinguishes empty catalog states and clears active filters', async ({
     page,
-    identity,
-    mrp,
+    identityFixture,
+    mrpFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
-    const { requests } = await mrp.mockProducts({
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    const { requests } = await mrpFixture.mockProducts({
       getResponse: {
         body: {
           ...PRODUCTS_RESPONSE,
@@ -497,10 +557,14 @@ test.describe('Products route', () => {
     await expect(page.getByText('Seu catálogo está vazio')).toBeVisible()
   })
 
-  test('creates a product with single stock control', async ({ page, identity, mrp }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
-    const { registrations } = await mrp.mockProducts({
+  test('creates a product with single stock control', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    const { registrations } = await mrpFixture.mockProducts({
       getResponse: { body: PRODUCTS_RESPONSE },
       postResponse: {
         body: { ...PRODUCT, name: 'Sorvete de morango' },
@@ -548,12 +612,12 @@ test.describe('Products route', () => {
 
   test('creates a product with by-brand stock control and calculated initial stock', async ({
     page,
-    identity,
-    mrp,
+    identityFixture,
+    mrpFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
-    const { registrations } = await mrp.mockProducts({
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    const { registrations } = await mrpFixture.mockProducts({
       getResponse: { body: PRODUCTS_RESPONSE },
       postResponse: {
         body: { ...PRODUCT, name: 'Açaí Frooty' },

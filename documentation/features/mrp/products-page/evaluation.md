@@ -359,3 +359,15 @@ HTTP 201 after the local Inngest service is exposed on the configured `8388` por
   with Drizzle's typed `arrayOverlaps` helper. The mandatory Playwright health check,
   server checks, 41 server tests, 7 mocked Products tests, and 3 real Products tests
   passed. The fresh filtered-state screenshot was inspected.
+- 2026-08-22: Refined the Products filter dialog against Pencil node `DsR63`: compact
+  520px modal proportions, horizontal icon/title header, semantic filter-pill colors,
+  11px uppercase group labels, compact summary/footer spacing, and responsive one-row
+  category pills. The Products route suite and Web typecheck passed; fresh desktop and
+  narrow dialog screenshots were inspected.
+- 2026-08-22: Standardized modal headers so icons sit to the left of the title and
+  description across Product, Stock, Recipe, Identity, Dialog, and AlertDialog surfaces.
+  Representative Product and Recipe modal flows passed Playwright validation, and fresh
+  dialog captures were inspected.
+- 2026-08-22: Reused the shared formatter hooks for Products stock quantities and
+  registration dates, removing widget-local quantity/date formatting helpers. Web
+  typecheck and the full Web unit suite passed.

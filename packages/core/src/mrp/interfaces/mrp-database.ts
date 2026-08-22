@@ -3,6 +3,8 @@ import type { BrandsRepository } from '#mrp/interfaces/brands-repository.ts'
 import type { ProductAccompanimentsRepository } from '#mrp/interfaces/product-accompaniments-repository.ts'
 import type { ProductSizesRepository } from '#mrp/interfaces/product-sizes-repository.ts'
 import type { ProductsRepository } from '#mrp/interfaces/products-repository.ts'
+import type { ProductionIngredientsRepository } from '#mrp/interfaces/production-ingredients-repository.ts'
+import type { ProductionsRepository } from '#mrp/interfaces/productions-repository.ts'
 import type { RecipeIngredientsRepository } from '#mrp/interfaces/recipe-ingredients-repository.ts'
 import type { RecipesRepository } from '#mrp/interfaces/recipes-repository.ts'
 import type { ResaleConfigurationsRepository } from '#mrp/interfaces/resale-configurations-repository.ts'
@@ -14,6 +16,8 @@ export type MrpDatabaseScope = {
   brandsRepository: BrandsRepository
   recipesRepository: RecipesRepository
   recipeIngredientsRepository: RecipeIngredientsRepository
+  productionsRepository: ProductionsRepository
+  productionIngredientsRepository: ProductionIngredientsRepository
   stockBalancesRepository: StockBalancesRepository
   stockTransactionsRepository: StockTransactionsRepository
   productSizesRepository: ProductSizesRepository

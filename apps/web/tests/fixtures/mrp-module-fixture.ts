@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import type { Page, Route } from '@playwright/test'
 
 export type MrpMockResponse = {
   body: unknown
@@ -34,9 +34,35 @@ export type MrpStockMock = {
   requests: MrpRequestRecord[]
 }
 
+export type MrpIngredientSourceMockOptions = {
+  respond: (
+    request: MrpRequestRecord,
+    requestNumber: number,
+  ) => MrpMockResponse | Promise<MrpMockResponse>
+}
+
+export type MrpIngredientSourceMock = {
+  requests: MrpRequestRecord[]
+}
+
+export type MrpRecipeMockOptions = {
+  respond: (
+    request: MrpRequestRecord,
+    requestNumber: number,
+  ) => MrpMockResponse | Promise<MrpMockResponse>
+}
+
+export type MrpRecipeMock = {
+  requests: MrpRequestRecord[]
+}
+
 export type MrpFixture = {
   mockProducts: (options: MrpProductsMockOptions) => Promise<MrpProductsMock>
+  mockIngredientSources: (
+    options: MrpIngredientSourceMockOptions,
+  ) => Promise<MrpIngredientSourceMock>
   mockProductStock: (options: MrpStockMockOptions) => Promise<MrpStockMock>
+  mockProductRecipe: (options: MrpRecipeMockOptions) => Promise<MrpRecipeMock>
 }
 
 const resolveResponse = (
@@ -103,6 +129,63 @@ export const MrpFixture = (page: Page): MrpFixture => ({
         body: JSON.stringify(response.body),
       })
     })
+
+    return { requests }
+  },
+
+  async mockIngredientSources({ respond }) {
+    const requests: MrpRequestRecord[] = []
+    await page.route('**/products/*/stock', async (route) => {
+      if (!['fetch', 'xhr'].includes(route.request().resourceType())) {
+        await route.continue()
+        return
+      }
+
+      const request: MrpRequestRecord = {
+        method: route.request().method(),
+        url: new URL(route.request().url()),
+      }
+      requests.push(request)
+      const response = await respond(request, requests.length)
+      await route.fulfill({
+        contentType: 'application/json',
+        status: response.status ?? 200,
+        body: JSON.stringify(response.body),
+      })
+    })
+
+    return { requests }
+  },
+
+  async mockProductRecipe({ respond }) {
+    const requests: MrpRequestRecord[] = []
+    const handleRecipeRequest = async (route: Route) => {
+      if (!['fetch', 'xhr'].includes(route.request().resourceType())) {
+        await route.continue()
+        return
+      }
+
+      const request: MrpRequestRecord = {
+        method: route.request().method(),
+        url: new URL(route.request().url()),
+      }
+      const postData = route.request().postData()
+      if (postData) request.body = route.request().postDataJSON()
+      requests.push(request)
+      const response = await respond(request, requests.length)
+
+      await route.fulfill({
+        contentType: 'application/json',
+        status: response.status ?? 200,
+        body: JSON.stringify(response.body),
+      })
+    }
+
+    await Promise.all([
+      page.route('**/products/*/recipe**', handleRecipeRequest),
+      page.route('**/products/*/production-preview**', handleRecipeRequest),
+      page.route('**/products/*/productions', handleRecipeRequest),
+    ])
 
     return { requests }
   },

@@ -22,6 +22,7 @@ export class DrizzleStockTransactionsRepository
         id: crypto.randomUUID(),
         brandId: input.brandId ?? null,
         brandName: input.brandName ?? null,
+        productionId: input.productionId ?? null,
         quantity: String(input.quantity),
         balanceAfter: String(input.balanceAfter),
       })

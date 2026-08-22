@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import type { ProductCategory } from '@scoops/core/mrp/domain/structures'
 
-import type { ProductsSearch } from '../../../../hooks/use-products-query'
+import type { ProductsSearch } from '@/ui/mrp/hooks/use-products-query'
 
 export function useProductFiltersDialog({
   isOpen,

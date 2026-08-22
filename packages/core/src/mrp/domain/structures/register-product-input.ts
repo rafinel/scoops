@@ -10,6 +10,7 @@ export type RegisterProductInput = {
   readonly stockControl: ProductStockControl
   readonly allowNegativeStock?: boolean
   readonly idealStock: number
+  readonly currentUnitCost?: number
   readonly initialStock?: number
   readonly brands?: readonly RegisterProductBrandInput[]
 }

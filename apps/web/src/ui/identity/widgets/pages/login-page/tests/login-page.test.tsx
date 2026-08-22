@@ -1,50 +1,35 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { AnchorProps } from '@/ui/shared/widgets/components/anchor'
 
 import { LoginPage } from '..'
 
-const { loginActionState, loginMock, navigateToPathMock } = vi.hoisted(() => ({
-  loginActionState: {
-    error: null as Error | null,
-    isPending: false,
-  },
-  loginMock: vi.fn(),
-  navigateToPathMock: vi.fn(),
-}))
+import { useLoginPage } from '../use-login-page'
 
-vi.mock('@/ui/identity/hooks/use-login-action', () => ({
-  useLoginAction: () => ({
-    error: loginActionState.error,
-    isPending: loginActionState.isPending,
-    login: loginMock,
-  }),
-}))
-
-vi.mock('@/ui/shared/hooks/use-navigation', () => ({
-  useNavigation: () => ({
-    navigateTo: vi.fn(),
-    navigateToPath: navigateToPathMock,
-  }),
+vi.mock('../use-login-page', () => ({
+  useLoginPage: vi.fn(),
 }))
 
 vi.mock('@/ui/shared/widgets/components/anchor', () => ({
-  Anchor: ({ children, route, ...props }: AnchorProps) => (
-    <a href={route} {...props}>
-      {children}
-    </a>
+  Anchor: ({ children, params: _params, route: _route, ...props }: AnchorProps) => (
+    <a {...props}>{children}</a>
   ),
 }))
 
+const useLoginPageMock = vi.mocked(useLoginPage)
+const handleSubmitMock = vi.fn()
+const handleTogglePasswordVisibilityMock = vi.fn()
+
 describe('LoginPage', () => {
-  afterEach(() => {
-    cleanup()
+  beforeEach(() => {
+    vi.clearAllMocks()
+    useLoginPageMock.mockReturnValue(fakeLoginPage())
   })
 
-  it('renders accessible credentials and navigates to the sanitized destination', async () => {
-    loginMock.mockResolvedValue(undefined)
+  afterEach(cleanup)
 
+  it('renders accessible credentials and delegates form submission', () => {
     render(<LoginPage returnTo='/' />)
 
     expect(screen.getByRole('textbox', { name: 'E-mail' }).getAttribute('id')).toBe(
@@ -52,52 +37,34 @@ describe('LoginPage', () => {
     )
     expect(screen.getByLabelText('Senha').getAttribute('type')).toBe('password')
 
-    fireEvent.change(screen.getByLabelText('E-mail'), {
-      target: { value: 'manager@example.com' },
-    })
-    fireEvent.change(screen.getByLabelText('Senha'), {
-      target: { value: 'password' },
-    })
-    fireEvent.submit(screen.getByRole('button', { name: 'Entrar no Scoops' }))
+    const form = screen.getByRole('button', { name: 'Entrar no Scoops' }).closest('form')
+    if (!form) throw new Error('Missing login form')
+    fireEvent.submit(form)
 
-    await vi.waitFor(() => {
-      expect(loginMock).toHaveBeenCalledWith({
-        identifier: 'manager@example.com',
-        password: 'password',
-      })
-      expect(navigateToPathMock).toHaveBeenCalledWith('/')
-    })
+    expect(handleSubmitMock).toHaveBeenCalledOnce()
   })
 
-  it('shows validation and keeps submission disabled while pending', () => {
-    loginActionState.isPending = true
-
+  it('maps the pending state to the submit control', () => {
+    useLoginPageMock.mockReturnValue(fakeLoginPage({ isPending: true }))
     render(<LoginPage />)
 
     expect(
       (screen.getByRole('button', { name: 'Entrando…' }) as HTMLButtonElement).disabled,
     ).toBe(true)
-    loginActionState.isPending = false
   })
 
-  it('toggles password visibility from the eye button', () => {
+  it('maps password visibility and delegates toggling', () => {
+    useLoginPageMock.mockReturnValue(fakeLoginPage({ isPasswordVisible: true }))
     render(<LoginPage />)
 
-    const passwordInput = screen.getByLabelText('Senha')
-    const visibilityButton = screen.getByRole('button', { name: 'Mostrar senha' })
+    expect(screen.getByLabelText('Senha').getAttribute('type')).toBe('text')
+    fireEvent.click(screen.getByRole('button', { name: 'Ocultar senha' }))
 
-    expect(passwordInput.getAttribute('type')).toBe('password')
-    fireEvent.click(visibilityButton)
-
-    expect(passwordInput.getAttribute('type')).toBe('text')
-    expect(
-      screen.getByRole('button', { name: 'Ocultar senha' }).getAttribute('aria-pressed'),
-    ).toBe('true')
+    expect(handleTogglePasswordVisibilityMock).toHaveBeenCalledOnce()
   })
 
-  it('shows the neutral error when authentication is rejected', () => {
-    loginActionState.error = new Error('Identifier or password is invalid')
-
+  it('maps the neutral authentication error', () => {
+    useLoginPageMock.mockReturnValue(fakeLoginPage({ error: new Error('rejected') }))
     render(<LoginPage />)
 
     expect(screen.getByRole('alert').textContent).toContain(
@@ -105,3 +72,18 @@ describe('LoginPage', () => {
     )
   })
 })
+
+function fakeLoginPage(
+  overrides: Partial<ReturnType<typeof useLoginPage>> = {},
+): ReturnType<typeof useLoginPage> {
+  return {
+    error: null,
+    isPasswordVisible: false,
+    isPending: false,
+    validationError: null,
+    handleSubmit: handleSubmitMock,
+    handleTogglePasswordVisibility: handleTogglePasswordVisibilityMock,
+    register: vi.fn(() => ({})) as never,
+    ...overrides,
+  }
+}

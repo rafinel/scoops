@@ -2,9 +2,15 @@ import type { ProductionConsumption } from '#mrp/domain/structures/production-co
 
 export type ProductionPreview = {
   readonly productId: string
+  readonly unit: ProductUnit
   readonly quantity: number
   readonly recipeYield: number
+  readonly batches?: number
   readonly consumptions: readonly ProductionConsumption[]
-  readonly resultingStock: number
+  readonly totalCost: number
+  readonly currentOutputStock: number
+  readonly projectedOutputStock: number
   readonly canProduce: boolean
+  readonly blockReasons: readonly string[]
 }
+import type { ProductUnit } from '#mrp/domain/structures/product-unit.ts'

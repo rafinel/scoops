@@ -54,6 +54,9 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
         status: ProductStatus.Active,
         allowNegativeStock: request.allowNegativeStock ?? false,
         idealStock: request.idealStock,
+        ...(request.currentUnitCost === undefined
+          ? {}
+          : { currentUnitCost: request.currentUnitCost }),
       })
 
       if (request.stockControl === ProductStockControl.Single) {
@@ -163,6 +166,25 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
       throw new BadRequestError('O estoque inicial não pode ser negativo.')
     }
 
+    if (input.currentUnitCost !== undefined) {
+      if (
+        input.stockControl !== ProductStockControl.Single ||
+        !input.categories.includes(ProductCategory.Ingredient)
+      ) {
+        throw new BadRequestError(
+          'O custo unitário atual é permitido apenas para ingredientes de estoque único.',
+        )
+      }
+
+      if (
+        !Number.isFinite(input.currentUnitCost) ||
+        input.currentUnitCost < 0 ||
+        !this.hasAtMostSixDecimalPlaces(input.currentUnitCost)
+      ) {
+        throw new BadRequestError('O custo unitário atual é inválido.')
+      }
+    }
+
     if (input.stockControl === ProductStockControl.ByBrand) {
       if (!input.brands?.length) {
         throw new BadRequestError(
@@ -191,5 +213,9 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
         throw new BadRequestError('Os valores da marca não podem ser negativos.')
       }
     }
+  }
+
+  private hasAtMostSixDecimalPlaces(value: number): boolean {
+    return Math.abs(value * 1_000_000 - Math.round(value * 1_000_000)) < 1e-8
   }
 }

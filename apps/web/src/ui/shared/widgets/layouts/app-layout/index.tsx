@@ -52,7 +52,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </div>
           <nav aria-label='Navegação principal' className='mt-14 space-y-1'>
             {primaryLinks.map(({ icon, label, route }) => {
-              const isActive = location.pathname === ROUTES[route]
+              const isActive =
+                route === 'products'
+                  ? location.pathname === ROUTES.products ||
+                    location.pathname.startsWith('/products/')
+                  : location.pathname === ROUTES[route]
 
               return (
                 <Anchor

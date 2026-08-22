@@ -48,10 +48,10 @@ test.describe('Reset-password route', () => {
 
   test('validates password length and confirmation before transport', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     let updateRequests = 0
     await page.route('**/auth/v1/user*', async (route) => {
       updateRequests += 1
@@ -68,9 +68,12 @@ test.describe('Reset-password route', () => {
     expect(updateRequests).toBe(0)
   })
 
-  test('rejects mismatched confirmation before transport', async ({ page, identity }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+  test('rejects mismatched confirmation before transport', async ({
+    page,
+    identityFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     let updateRequests = 0
     await page.route('**/auth/v1/user*', async (route) => {
       updateRequests += 1
@@ -89,9 +92,12 @@ test.describe('Reset-password route', () => {
     expect(updateRequests).toBe(0)
   })
 
-  test('updates a valid password and redirects to login', async ({ page, identity }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+  test('updates a valid password and redirects to login', async ({
+    page,
+    identityFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     let updateBody: { password?: string } | undefined
     let logoutRequests = 0
     await page.route('**/auth/v1/user*', async (route) => {
@@ -122,10 +128,10 @@ test.describe('Reset-password route', () => {
 
   test('keeps the reset form available after a provider failure', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     await page.route('**/auth/v1/user*', async (route) => {
       await route.fulfill({
         contentType: 'application/json',
@@ -150,9 +156,9 @@ test.describe('Reset-password route', () => {
     ).toBeVisible()
   })
 
-  test('toggles both password visibility controls', async ({ page, identity }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+  test('toggles both password visibility controls', async ({ page, identityFixture }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     await page.goto('/reset-password#type=recovery')
     await page.waitForLoadState('networkidle')
     const password = page.getByRole('textbox', { name: 'Nova senha', exact: true })

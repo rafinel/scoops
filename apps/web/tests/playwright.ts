@@ -3,10 +3,10 @@ import { IdentityModuleFixture } from './fixtures/identity-module-fixture'
 import { MrpFixture } from './fixtures/mrp-module-fixture'
 
 export const test = playwrightTest.extend<{
-  identity: IdentityModuleFixture
-  mrp: MrpFixture
+  identityFixture: IdentityModuleFixture
+  mrpFixture: MrpFixture
 }>({
-  identity: [
+  identityFixture: [
     async ({ page }, use) => {
       const fixture = IdentityModuleFixture(page)
       await fixture.mockAnonymousProvider()
@@ -14,7 +14,7 @@ export const test = playwrightTest.extend<{
     },
     { auto: true },
   ],
-  mrp: async ({ page }, use) => {
+  mrpFixture: async ({ page }, use) => {
     await use(MrpFixture(page))
   },
 })

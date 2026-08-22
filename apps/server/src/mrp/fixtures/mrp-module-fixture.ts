@@ -6,12 +6,8 @@ import {
 } from '@scoops/core/identity/domain/entities/fakers'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { ServerAuthProvider } from '@scoops/core/identity/interfaces'
-import type {
-  Brand,
-  BrandCreate,
-  Product,
-  ProductCreate,
-} from '@scoops/core/mrp/domain/entities'
+import type { Brand, BrandCreate, Product } from '@scoops/core/mrp/domain/entities'
+import type { ProductCreate } from '@scoops/core/mrp/domain/structures'
 import type {
   BrandsRepository,
   ProductsRepository,

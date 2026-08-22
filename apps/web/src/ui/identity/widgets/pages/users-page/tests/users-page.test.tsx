@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
 
@@ -59,7 +59,7 @@ vi.mock('@/ui/shared/hooks/use-auth-context', () => ({
 }))
 
 vi.mock('../use-users-page', () => ({
-  useUsersPage: () => pageState,
+  useUsersPage: vi.fn(),
 }))
 
 vi.mock('../user-invite-dialog', () => ({
@@ -68,7 +68,16 @@ vi.mock('../user-invite-dialog', () => ({
 
 import { UsersPage } from '../index'
 
+import { useUsersPage } from '../use-users-page'
+
+const useUsersPageMock = vi.mocked(useUsersPage)
+
 describe('UsersPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    useUsersPageMock.mockReturnValue(pageState as never)
+  })
+
   afterEach(cleanup)
 
   it('renders the global summary independently from filtered pagination', () => {

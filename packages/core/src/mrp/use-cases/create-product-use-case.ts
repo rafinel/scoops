@@ -1,5 +1,6 @@
-import type { Product, ProductCreate } from '#mrp/domain/entities/product.ts'
+import type { Product } from '#mrp/domain/entities/product.ts'
 import { ProductCategory, ProductStockControl } from '#mrp/domain/structures/index.ts'
+import type { ProductCreate } from '#mrp/domain/structures/product-create.ts'
 import { ProductCreatedEvent } from '#mrp/domain/events/product-created-event.ts'
 import type { ProductsRepository } from '#mrp/interfaces/products-repository.ts'
 import { ConflictError, BadRequestError } from '#shared/domain/errors/index.ts'

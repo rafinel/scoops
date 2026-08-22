@@ -1,4 +1,4 @@
-import type { ProductsSearch } from '../../../hooks/use-products-query'
+import type { ProductsSearch } from '@/ui/mrp/hooks/use-products-query'
 import { ProductFiltersDialog } from './product-filters-dialog'
 import { ProductsEmptyState } from './products-empty-state'
 import { ProductsKpiCards } from './products-kpi-cards'
@@ -11,20 +11,21 @@ export type ProductsPageProps = {
   onSearchChange: (search: ProductsSearch) => void
 }
 
-export function ProductsPage({ search, onSearchChange }: ProductsPageProps) {
+export const ProductsPage = ({ search, onSearchChange }: ProductsPageProps) => {
   const {
+    hasProductsError,
+    hasFilters,
+    isFilterOpen,
+    isLoadingProducts,
+    isRegisterOpen,
+    isPendingProducts,
+    productsPage,
     handleEmptyStateClear,
     handleFilterOpenChange,
     handleOpenFilter,
     handleRegisterOpenChange,
-    isFilterOpen,
-    isRegisterOpen,
-    query,
+    refetchProducts,
   } = useProductsPage({ onSearchChange, search })
-
-  const hasFilters = Boolean(
-    search.search || search.categories.length || search.status || search.stockSituation,
-  )
 
   return (
     <section className='min-w-0 max-w-full space-y-6 overflow-hidden'>
@@ -38,18 +39,18 @@ export function ProductsPage({ search, onSearchChange }: ProductsPageProps) {
         </p>
       </div>
 
-      <ProductsKpiCards page={query.data} isLoading={query.isLoading} />
+      <ProductsKpiCards page={productsPage} isLoading={isLoadingProducts} />
       <ProductsListCard
         emptyState={
           <ProductsEmptyState hasFilters={hasFilters} onClear={handleEmptyStateClear} />
         }
-        isError={query.isError}
-        isPending={query.isPending}
+        isError={hasProductsError}
+        isPending={isPendingProducts}
         onFilterOpen={handleOpenFilter}
-        onRefetch={() => query.refetch()}
+        onRefetch={() => refetchProducts()}
         onRegisterOpen={() => handleRegisterOpenChange(true)}
         onSearchChange={onSearchChange}
-        page={query.data}
+        page={productsPage}
         search={search}
       />
       <ProductFiltersDialog

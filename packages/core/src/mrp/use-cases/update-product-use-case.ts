@@ -1,5 +1,6 @@
-import type { Product, ProductUpdate } from '#mrp/domain/entities/product.ts'
+import type { Product } from '#mrp/domain/entities/product.ts'
 import { ProductCategory, ProductStockControl } from '#mrp/domain/structures/index.ts'
+import type { ProductUpdate } from '#mrp/domain/structures/product-update.ts'
 import { ProductUpdatedEvent } from '#mrp/domain/events/product-updated-event.ts'
 import type { ProductsRepository } from '#mrp/interfaces/products-repository.ts'
 import {
@@ -84,5 +85,28 @@ export class UpdateProductUseCase implements UseCase<Request, Product> {
     if (product.idealStock !== undefined && product.idealStock < 0) {
       throw new BadRequestError('O estoque ideal não pode ser negativo.')
     }
+
+    if (product.currentUnitCost !== undefined) {
+      if (
+        product.stockControl !== ProductStockControl.Single ||
+        !product.categories.includes(ProductCategory.Ingredient)
+      ) {
+        throw new BadRequestError(
+          'O custo unitário atual é permitido apenas para ingredientes de estoque único.',
+        )
+      }
+
+      if (
+        !Number.isFinite(product.currentUnitCost) ||
+        product.currentUnitCost < 0 ||
+        !this.hasAtMostSixDecimalPlaces(product.currentUnitCost)
+      ) {
+        throw new BadRequestError('O custo unitário atual é inválido.')
+      }
+    }
+  }
+
+  private hasAtMostSixDecimalPlaces(value: number): boolean {
+    return Math.abs(value * 1_000_000 - Math.round(value * 1_000_000)) < 1e-8
   }
 }

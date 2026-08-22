@@ -23,6 +23,7 @@
     "./billing/interfaces": "./src/billing/interfaces/index.ts",
     "./billing/use-cases": "./src/billing/use-cases/index.ts",
     "./mrp/domain/entities": "./src/mrp/domain/entities/index.ts",
+    "./mrp/domain/entities/fakers": "./src/mrp/domain/entities/fakers/index.ts",
     "./mrp/domain/events": "./src/mrp/domain/events/index.ts",
     "./mrp/domain/structures": "./src/mrp/domain/structures/index.ts",
     "./mrp/interfaces": "./src/mrp/interfaces/index.ts",

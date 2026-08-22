@@ -139,4 +139,31 @@ describe('Adjust Product Stock Use Case', () => {
       undefined,
     )
   })
+  it('persists a supplied cost only for a single-stock ingredient entry', async () => {
+    await useCase.execute({
+      actor,
+      productId: 'p1',
+      input: {
+        type: StockAdjustmentType.Entry,
+        quantity: 3,
+        currentUnitCost: 1.25,
+      },
+    })
+
+    expect(scope.productsRepository.replace).toHaveBeenCalledWith('p1', {
+      currentUnitCost: 1.25,
+    })
+
+    await expect(
+      useCase.execute({
+        actor,
+        productId: 'p1',
+        input: {
+          type: StockAdjustmentType.WriteOff,
+          quantity: 1,
+          currentUnitCost: 1.25,
+        },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError)
+  })
 })

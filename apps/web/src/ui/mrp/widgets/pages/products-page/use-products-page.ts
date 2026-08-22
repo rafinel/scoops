@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { type ProductsSearch, useProductsQuery } from '../../../hooks/use-products-query'
+import { type ProductsSearch, useProductsQuery } from '@/ui/mrp/hooks/use-products-query'
 
 export type ProductsPageHookProps = {
   search: ProductsSearch
@@ -8,13 +8,18 @@ export type ProductsPageHookProps = {
 }
 
 export function useProductsPage({ search, onSearchChange }: ProductsPageHookProps) {
-  const query = useProductsQuery(search)
+  const {
+    data: productsPage,
+    isError: hasProductsError,
+    isLoading: isLoadingProducts,
+    isPending: isPendingProducts,
+    refetch: refetchProducts,
+  } = useProductsQuery(search)
   const [isFilterOpen, setFilterOpen] = useState(false)
   const [isRegisterOpen, setRegisterOpen] = useState(false)
-
-  function handleSearch(value: string) {
-    onSearchChange({ ...search, search: value, page: 1 })
-  }
+  const hasFilters = Boolean(
+    search.search || search.categories.length || search.status || search.stockSituation,
+  )
 
   function handleEmptyStateClear() {
     onSearchChange({
@@ -40,14 +45,18 @@ export function useProductsPage({ search, onSearchChange }: ProductsPageHookProp
   }
 
   return {
+    hasProductsError,
+    hasFilters,
+    isFilterOpen,
+    isLoadingProducts,
+    isRegisterOpen,
+    isPendingProducts,
+    productsPage,
     handleEmptyStateClear,
     handleFilterOpenChange,
     handleOpenFilter,
     handleRegisterOpenChange,
-    handleSearch,
-    isFilterOpen,
-    isRegisterOpen,
-    query,
+    refetchProducts,
   }
 }
 

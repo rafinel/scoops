@@ -541,14 +541,16 @@ function InvitationCorrectionDialog({
   return (
     <Dialog open onOpenChange={(nextOpen) => !nextOpen && onClose()}>
       <DialogContent className='max-w-md'>
-        <DialogHeader className='border-b border-border-soft p-6 pr-14'>
+        <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft p-6 pr-14'>
           <span className='grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
             <Icon name='mail-check' className='size-5' />
           </span>
-          <DialogTitle>Corrigir convite</DialogTitle>
-          <DialogDescription className='leading-5'>
-            Atualize os dados antes de reenviar o convite.
-          </DialogDescription>
+          <div className='min-w-0'>
+            <DialogTitle>Corrigir convite</DialogTitle>
+            <DialogDescription className='mt-1 leading-5'>
+              Atualize os dados antes de reenviar o convite.
+            </DialogDescription>
+          </div>
         </DialogHeader>
         <form className='p-6' onSubmit={submitForm(handleSubmit)} noValidate>
           <div className='grid gap-4'>

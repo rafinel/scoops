@@ -18,10 +18,10 @@ test.describe('User detail route', () => {
 
   test('renders account details, audit history, and profile permissions', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     await page.route('**/users/user-operator', async (route) => {
       if (route.request().resourceType() === 'document') {
         await route.continue()
@@ -52,10 +52,10 @@ test.describe('User detail route', () => {
 
   test('shows pending invitation actions without active-account controls', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     await page.route('**/users/pending-user', async (route) => {
       if (route.request().resourceType() === 'document') {
         await route.continue()
@@ -89,10 +89,10 @@ test.describe('User detail route', () => {
 
   test('confirms a profile change and sends the expected request', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     let profileBody: { profile?: string } | undefined
     await page.route('**/users/user-operator', async (route) => {
       if (route.request().resourceType() === 'document') {
@@ -139,10 +139,10 @@ test.describe('User detail route', () => {
 
   test('renders a retry state when the user cannot be loaded', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     let detailRequests = 0
     await page.route('**/users/missing-user', async (route) => {
       if (route.request().resourceType() === 'document') {

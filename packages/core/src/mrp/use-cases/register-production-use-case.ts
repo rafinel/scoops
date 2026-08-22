@@ -1,167 +1,249 @@
-import { ProductionRegisteredEvent } from '#mrp/domain/events/production-registered-event.ts'
+import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
-import { ProductCategory, ProductStockControl } from '#mrp/domain/structures/index.ts'
+import type { Production } from '#mrp/domain/entities/production.ts'
+import type { ProductionIngredient } from '#mrp/domain/entities/production-ingredient.ts'
+import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
+import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
+import { ProductStatus } from '#mrp/domain/structures/product-status.ts'
+import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
 import type { ProductionRequest } from '#mrp/domain/structures/production-request.ts'
-import type { ProductionConsumption } from '#mrp/domain/structures/production-consumption.ts'
-import type { ProductionPreview } from '#mrp/domain/structures/production-preview.ts'
+import { StockTransactionType } from '#mrp/domain/structures/stock-transaction-type.ts'
 import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
-import { BadRequestError, NotFoundError } from '#shared/domain/errors/index.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import {
+  AuthorizationError,
+  BadRequestError,
+  NotFoundError,
+} from '#shared/domain/errors/index.ts'
+import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
-export class RegisterProductionUseCase
-  implements UseCase<ProductionRequest, ProductionPreview>
-{
+type Request = {
+  readonly actor: ProductActor & { readonly name: string }
+  readonly productId: string
+  readonly input: ProductionRequest
+}
+
+type ResolvedConsumption = {
+  readonly product: Product
+  readonly brandId?: string
+  readonly brandName?: string
+  readonly quantity: number
+  readonly unitCost: number
+  readonly lineCost: number
+}
+
+export class RegisterProductionUseCase implements UseCase<Request, Production> {
   constructor(
     private readonly database: MrpDatabase,
-    private readonly broker: Broker,
+    private readonly datetimeProvider: DatetimeProvider,
   ) {}
 
-  async execute(request: ProductionRequest): Promise<ProductionPreview> {
-    if (request.quantity <= 0) {
-      throw new BadRequestError('A quantidade produzida deve ser maior que zero.')
-    }
+  async execute(request: Request): Promise<Production> {
+    this.validateActor(request.actor)
+    this.validateInput(request.input)
 
-    const preview = await this.database.run(async (scope) => {
+    return this.database.run(async (scope) => {
       const product = await scope.productsRepository.findById(
-        request.establishmentId,
+        request.actor.establishmentId,
         request.productId,
       )
-
-      if (!product || product.establishmentId !== request.establishmentId) {
-        throw new NotFoundError('Produto fabricável não encontrado.')
-      }
-
       this.validateProduct(product)
-
-      const recipe = await scope.recipesRepository.findByProductId(product.id)
-
-      if (!recipe) throw new BadRequestError('O produto ainda não possui uma receita.')
-
-      if (recipe.yieldQuantity <= 0) {
-        throw new BadRequestError('O rendimento da receita deve ser maior que zero.')
+      const recipe = await scope.recipesRepository.findByProductId(
+        request.actor.establishmentId,
+        product.id,
+      )
+      if (!recipe || recipe.yieldQuantity <= 0) {
+        throw new BadRequestError('O produto ainda não possui uma receita válida.')
       }
-
       const ingredients = await scope.recipeIngredientsRepository.findByRecipeId(
+        request.actor.establishmentId,
         recipe.id,
       )
-
-      if (ingredients.length === 0) {
+      if (!ingredients.length) {
         throw new BadRequestError('A receita deve possuir pelo menos um ingrediente.')
       }
 
-      const consumptions: ProductionConsumption[] = []
-
-      for (const ingredient of ingredients) {
-        const ingredientProduct = await scope.productsRepository.findById(
-          request.establishmentId,
-          ingredient.ingredientProductId,
-        )
-
-        if (
-          !ingredientProduct ||
-          ingredientProduct.establishmentId !== request.establishmentId
-        ) {
-          throw new NotFoundError('Ingrediente da receita não encontrado.')
-        }
-
-        const balance = await this.findIngredientBalance(scope, ingredientProduct)
-        const consumedQuantity =
-          ingredient.quantity * (request.quantity / recipe.yieldQuantity)
-        const projectedBalance = balance.quantity - consumedQuantity
-
-        if (projectedBalance < 0 && ingredientProduct.allowNegativeStock !== true) {
-          throw new BadRequestError(
-            `Estoque insuficiente para o ingrediente ${ingredientProduct.name}.`,
+      const outputBalance = await scope.stockBalancesRepository.findByProductId(
+        product.id,
+      )
+      if (!outputBalance) {
+        throw new BadRequestError('O produto fabricável não possui saldo de estoque.')
+      }
+      const consumptions = await Promise.all(
+        ingredients.map(async (ingredient) => {
+          const ingredientProduct = await scope.productsRepository.findById(
+            request.actor.establishmentId,
+            ingredient.ingredientProductId,
           )
-        }
+          if (!ingredientProduct) {
+            throw new NotFoundError('Ingrediente da receita não encontrado.')
+          }
+          const source = await this.resolveSource(scope, ingredientProduct)
+          const quantity =
+            ingredient.quantity * (request.input.quantity / recipe.yieldQuantity)
+          const balance = source.brandId
+            ? await scope.stockBalancesRepository.findByProductAndBrand(
+                ingredientProduct.id,
+                source.brandId,
+              )
+            : await scope.stockBalancesRepository.findByProductId(ingredientProduct.id)
+          if (!balance) {
+            throw new BadRequestError(
+              `O ingrediente ${ingredientProduct.name} não possui saldo.`,
+            )
+          }
+          if (balance.quantity - quantity < 0 && !ingredientProduct.allowNegativeStock) {
+            throw new BadRequestError(
+              `Estoque insuficiente para ${ingredientProduct.name}.`,
+            )
+          }
+          return {
+            product: ingredientProduct,
+            brandId: source.brandId,
+            brandName: source.brandName,
+            quantity,
+            unitCost: source.unitCost,
+            lineCost: quantity * source.unitCost,
+          } satisfies ResolvedConsumption
+        }),
+      )
+      const totalCost = consumptions.reduce((total, item) => total + item.lineCost, 0)
+      const occurredAt = this.datetimeProvider.now()
+      const production = await scope.productionsRepository.add({
+        establishmentId: request.actor.establishmentId,
+        productId: product.id,
+        productName: product.name,
+        unit: product.unit,
+        recipeId: recipe.id,
+        recipeYield: recipe.yieldQuantity,
+        quantity: request.input.quantity,
+        totalCost,
+        performedBy: request.actor.id,
+        performedByName: request.actor.name,
+        occurredAt,
+      })
+      const productionIngredients: Omit<ProductionIngredient, 'id'>[] = []
 
-        consumptions.push({
-          ingredientProductId: ingredientProduct.id,
-          ingredientBrandId: balance.brandId,
-          quantity: consumedQuantity,
-          currentBalance: balance.quantity,
-          projectedBalance,
+      for (const consumption of consumptions) {
+        const balance = await scope.stockBalancesRepository.add(
+          { productId: consumption.product.id, brandId: consumption.brandId },
+          -consumption.quantity,
+          consumption.product.allowNegativeStock ? undefined : 0,
+        )
+        productionIngredients.push({
+          establishmentId: request.actor.establishmentId,
+          productionId: production.id,
+          ingredientProductId: consumption.product.id,
+          ingredientProductName: consumption.product.name,
+          ...(consumption.brandId
+            ? {
+                ingredientBrandId: consumption.brandId,
+                ingredientBrandName: consumption.brandName,
+              }
+            : {}),
+          unit: consumption.product.unit,
+          quantity: consumption.quantity,
+          unitCost: consumption.unitCost,
+          lineCost: consumption.lineCost,
+          balanceAfter: balance.quantity,
+        })
+        await scope.stockTransactionsRepository.add({
+          establishmentId: request.actor.establishmentId,
+          productId: consumption.product.id,
+          ...(consumption.brandId
+            ? { brandId: consumption.brandId, brandName: consumption.brandName }
+            : {}),
+          productionId: production.id,
+          productName: consumption.product.name,
+          unit: consumption.product.unit,
+          type: StockTransactionType.ProductionConsumption,
+          quantity: consumption.quantity,
+          balanceAfter: balance.quantity,
+          performedBy: request.actor.id,
+          performedByName: request.actor.name,
+          occurredAt,
         })
       }
 
-      for (const consumption of consumptions) {
-        const ingredientProduct = await scope.productsRepository.findById(
-          request.establishmentId,
-          consumption.ingredientProductId,
-        )
-
-        if (!ingredientProduct) {
-          throw new NotFoundError('Ingrediente da receita não encontrado.')
-        }
-
-        await scope.stockBalancesRepository.add(
-          {
-            productId: consumption.ingredientProductId,
-            brandId: consumption.ingredientBrandId,
-          },
-          -consumption.quantity,
-          ingredientProduct.allowNegativeStock ? undefined : 0,
-        )
-      }
-
-      const resultingStock = await scope.stockBalancesRepository.add(
+      await scope.productionIngredientsRepository.addMany(productionIngredients)
+      const output = await scope.stockBalancesRepository.add(
         { productId: product.id },
-        request.quantity,
+        request.input.quantity,
       )
-
-      return {
+      await scope.stockTransactionsRepository.add({
+        establishmentId: request.actor.establishmentId,
         productId: product.id,
-        quantity: request.quantity,
-        recipeYield: recipe.yieldQuantity,
-        consumptions,
-        resultingStock: resultingStock.quantity,
-        canProduce: true,
-      }
+        productionId: production.id,
+        productName: product.name,
+        unit: product.unit,
+        type: StockTransactionType.ProductionOutput,
+        quantity: request.input.quantity,
+        balanceAfter: output.quantity,
+        performedBy: request.actor.id,
+        performedByName: request.actor.name,
+        occurredAt,
+      })
+
+      return production
     })
-
-    await this.broker.publish(new ProductionRegisteredEvent(request))
-
-    return preview
   }
 
-  private validateProduct(product: Product): void {
-    if (!product.categories.includes(ProductCategory.Manufacturable)) {
-      throw new BadRequestError('Somente produtos fabricáveis podem receber produção.')
+  private async resolveSource(scope: MrpDatabaseScope, product: Product) {
+    if (product.status !== ProductStatus.Active) {
+      throw new BadRequestError(`O ingrediente ${product.name} está inativo.`)
     }
+    if (!product.categories.includes(ProductCategory.Ingredient)) {
+      throw new BadRequestError(`O produto ${product.name} não é um ingrediente.`)
+    }
+    if (product.stockControl === ProductStockControl.Single) {
+      if (product.currentUnitCost === undefined) {
+        throw new BadRequestError(`O ingrediente ${product.name} não possui custo atual.`)
+      }
+      return { unitCost: product.currentUnitCost }
+    }
+    const brands = await scope.brandsRepository.findManyByProductId(product.id)
+    const brand = brands.find((item) => item.isPrimary)
+    if (!brand) {
+      throw new BadRequestError(
+        `O ingrediente ${product.name} não possui marca principal.`,
+      )
+    }
+    return {
+      brandId: brand.id,
+      brandName: brand.name,
+      unitCost: brand.packagePrice / brand.packageQuantity,
+    }
+  }
 
+  private validateActor(actor: ProductActor): void {
+    if (actor.profile !== UserProfile.Manager) {
+      throw new AuthorizationError('Somente gestores podem registrar produções.')
+    }
+  }
+
+  private validateInput(input: ProductionRequest): void {
+    if (
+      !Number.isFinite(input.quantity) ||
+      input.quantity <= 0 ||
+      !this.hasAtMostThreeDecimalPlaces(input.quantity)
+    ) {
+      throw new BadRequestError(
+        'A quantidade deve ser positiva e ter até três casas decimais.',
+      )
+    }
+  }
+
+  private validateProduct(product: Product | undefined): asserts product is Product {
+    if (!product) throw new NotFoundError('Produto não encontrado.')
+    if (!product.categories.includes(ProductCategory.Manufacturable)) {
+      throw new BadRequestError('O produto não é fabricável.')
+    }
     if (product.stockControl !== ProductStockControl.Single) {
       throw new BadRequestError('Produtos fabricáveis devem usar estoque único.')
     }
   }
 
-  private async findIngredientBalance(scope: MrpDatabaseScope, product: Product) {
-    if (product.stockControl === ProductStockControl.Single) {
-      const balance = await scope.stockBalancesRepository.findByProductId(product.id)
-
-      if (!balance)
-        throw new BadRequestError(`O ingrediente ${product.name} não possui estoque.`)
-
-      return balance
-    }
-
-    const brands = await scope.brandsRepository.findManyByProductId(product.id)
-    const primaryBrand = brands.find((brand) => brand.isPrimary)
-
-    if (!primaryBrand) {
-      throw new BadRequestError(
-        `O ingrediente ${product.name} não possui marca principal.`,
-      )
-    }
-
-    const balance = await scope.stockBalancesRepository.findByProductAndBrand(
-      product.id,
-      primaryBrand.id,
-    )
-
-    if (!balance)
-      throw new BadRequestError(`O ingrediente ${product.name} não possui estoque.`)
-
-    return balance
+  private hasAtMostThreeDecimalPlaces(value: number): boolean {
+    return Math.abs(value * 1_000 - Math.round(value * 1_000)) < 1e-8
   }
 }

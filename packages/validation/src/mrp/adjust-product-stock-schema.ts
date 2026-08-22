@@ -6,5 +6,15 @@ export const adjustProductStockSchema = z
     brandId: z.uuid().optional(),
     type: z.enum(StockAdjustmentType),
     quantity: z.number().finite().positive(),
+    currentUnitCost: z
+      .number()
+      .finite()
+      .nonnegative()
+      .refine(hasAtMostSixDecimalPlaces)
+      .optional(),
   })
   .strict()
+
+function hasAtMostSixDecimalPlaces(value: number): boolean {
+  return Math.abs(value * 1_000_000 - Math.round(value * 1_000_000)) < 1e-8
+}

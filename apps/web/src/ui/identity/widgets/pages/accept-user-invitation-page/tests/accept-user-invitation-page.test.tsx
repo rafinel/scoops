@@ -1,28 +1,25 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-
-const { handleGoToAppMock } = vi.hoisted(() => ({
-  handleGoToAppMock: vi.fn(),
-}))
-
-vi.mock('../use-accept-user-invitation-page', () => ({
-  useAcceptUserInvitationPage: () => ({
-    acceptanceError: null,
-    error: null,
-    handleGoToApp: handleGoToAppMock,
-    password: '',
-    setPassword: vi.fn(),
-    state: 'accepted',
-    submit: vi.fn(),
-  }),
-}))
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { AcceptUserInvitationPage } from '..'
 
+import { useAcceptUserInvitationPage } from '../use-accept-user-invitation-page'
+
+vi.mock('../use-accept-user-invitation-page', () => ({
+  useAcceptUserInvitationPage: vi.fn(),
+}))
+
+const useAcceptUserInvitationPageMock = vi.mocked(useAcceptUserInvitationPage)
+const handleGoToAppMock = vi.fn()
+
 describe('AcceptUserInvitationPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    useAcceptUserInvitationPageMock.mockReturnValue(fakeAcceptUserInvitationPage())
+  })
+
   afterEach(() => {
     cleanup()
-    vi.clearAllMocks()
   })
 
   it('offers navigation to the app after the invitation is accepted', () => {
@@ -33,3 +30,16 @@ describe('AcceptUserInvitationPage', () => {
     expect(handleGoToAppMock).toHaveBeenCalledOnce()
   })
 })
+
+function fakeAcceptUserInvitationPage(): ReturnType<typeof useAcceptUserInvitationPage> {
+  return {
+    acceptanceError: null,
+    error: null,
+    handleGoToApp: handleGoToAppMock,
+    password: '',
+    register: vi.fn(() => ({})) as never,
+    setPassword: vi.fn(),
+    state: 'accepted',
+    submit: vi.fn(),
+  }
+}
