@@ -23,9 +23,7 @@ operational.
 calculate COGS in real time, control brands and packaging, produce with low
 atomic and keep products ready for sale at the POS.
 
-**Users:** Manager manages products, brands, recipes and configurations.
-Employee can register production according to the permissions defined by the module
-authentication.
+**Users:** Manager manages products, brands, recipes, production and configurations.
 
 **Multi-tenancy:** products, brands, recipes, productions and balances are isolated
 by ice cream shop.
@@ -68,6 +66,16 @@ categories, unit, stock control and status.
   as Normal or Low.
 - **Internal notes:** free text visible only to authorized users
   by the Auth module.
+- **Single-stock current unit cost:** an Ingredient product with `Single stock`
+  can keep its current acquisition cost per base unit. The value is optional while
+  registering the product, but must be defined before that product can be added to a
+  recipe.
+- **Cost maintenance:** the manager may define or replace the current unit cost during
+  product registration, in product settings or while registering a positive stock entry.
+  The latest explicitly informed value applies to future recipe and production
+  calculations; it does not recalculate historical transactions or productions.
+- **Cost validation:** a supplied current unit cost must be greater than or equal to zero.
+  It does not use weighted-average costing in this version.
 - **Negative stock:** products do not allow negative stock by default. Managers
   may enable the product-level `Allow negative stock` option; when enabled,
   write-offs may take that product's balance below zero.
@@ -76,8 +84,9 @@ categories, unit, stock control and status.
 
 ##### UI/UX rules
 
-- **Registration modal:** must contain Name, Unit, Categories and Control
-  Stock.
+- **Registration modal:** must contain Name, Unit, Categories and Stock Control;
+  when the product is an Ingredient with `Single stock`, it may also capture the
+  current unit cost.
 - **Categories:** must be selectable cards with checkbox and indication of
   dependencies.
 - **Portion × Resale Exclusion:** when selecting one, the other must remain
@@ -160,6 +169,8 @@ negative-stock option is enabled.
 - **Single stock:** the balance belongs directly to the product.
 - **By brand:** total stock is the sum of brand balances.
 - **Input:** adds positive quantity to the selected product or brand.
+- **Single-stock input cost:** a positive entry for an Ingredient with `Single stock`
+  may also define the current unit cost that applies from that operation onward.
 - **Manual write-off:** removes a positive quantity from the selected product or brand.
 - **Adjustment:** every manual change must be treated as entry or write-off.
 - **Minimum balance:** no write-off can result in a balance less than zero unless
@@ -174,6 +185,9 @@ negative-stock option is enabled.
   use the main brand.
 - **Availability update:** entries and write-offs recalculate total stock,
   production situation and capacity.
+- **Cost update:** changing a Single-stock Ingredient's current unit cost recalculates
+  the COGS of dependent recipes without rewriting historical transactions or
+  productions.
 - **Stock transaction:** every committed stock change must create an immutable
   stock-transaction record in the same database transaction as the balance
   change.
@@ -199,6 +213,8 @@ negative-stock option is enabled.
 - **Low Situation:** when the total balance is less than the ideal stock.
 - **No ideal stock:** display Normal situation without target comparison.
 - **Actions:** Entry and Write-off must be close to the corresponding balance.
+- **Single-stock entry cost:** the entry flow for an Ingredient with `Single stock`
+  may capture the current unit cost and must show its base-unit suffix.
 - **Insufficiency:** the confirmation button must be blocked when the
   amount exceeds balance.
 - **Message:** inform available quantity and requested quantity.
@@ -317,6 +333,12 @@ negative-stock option is enabled.
 - **One recipe:** each Manufacturable has a single recipe in this version.
 - **Reference income:** the manager defines the base quantity of the recipe,
   always in the unit of the manufacturable product.
+- **Recipe creation:** a Manufacturable starts without a persisted recipe. The manager
+  creates its empty recipe by explicitly saving a positive reference yield; opening the
+  Recipe tab must not write data implicitly.
+- **Empty recipe lifecycle:** ingredients cannot be added until the positive reference
+  yield has been saved. Removing the last ingredient retains the recipe and its reference
+  yield so the manager can add another ingredient without recreating the recipe.
 - **Eligible ingredient:** only products with the Ingredient category can
   enter the recipe.
 - **Accompaniment:** cannot be used as a recipe ingredient.
@@ -331,6 +353,8 @@ negative-stock option is enabled.
 - **Quantity:** each quantity must be greater than zero.
 - **Duplicate combinations:** the same ingredient combination cannot appear twice.
 - **COGS:** ingredient cost is calculated using the current unit price.
+- **Single-stock COGS:** an Ingredient with `Single stock` uses the product's current
+  unit cost and cannot be added to a recipe while that cost is undefined.
 - **Total COGS:** sum of the costs of all lines for income
   reference.
 - **Unit cost:** for Manufacturable, it is calculated by
@@ -342,7 +366,7 @@ negative-stock option is enabled.
 
 ##### UI/UX rules
 
-- **Header:** must display reference yield and Produce action.
+- **Header:** must display the editable positive reference yield and Produce action.
 - **Table:** must display Input, Source/Brand, Quantity, Cost, % of COGS,
   Stock and Movements.
 - **Units:** the design must use grams in quantities and projections.
@@ -355,7 +379,9 @@ negative-stock option is enabled.
   line configuration.
 - **Delete:** must require confirmation and inform that CMV and capacity will be
   recalculated.
-- **Empty state:** guide the manager to add the first ingredient.
+- **Empty state:** keep the reference-yield control visible, guide the manager to save a
+  positive yield and add the first ingredient, and disable ingredient creation until the
+  yield is persisted.
 
 ---
 
@@ -363,14 +389,15 @@ negative-stock option is enabled.
 
 - [ ] **Production Record**
 
-**Description:** The manager or authorized employee must record the production of
-  a Manufacturable, consuming the ingredients and adding the produced product to the
-  stock.
+**Description:** The manager must record the production of a Manufacturable,
+  consuming the ingredients and adding the produced product to stock.
 
 ##### Business Rules
 
-- **Access:** Produce action is available in the recipe or Manufacturable product.
-- **Modes:** the operator can inform production by Batch or by Quantity.
+- **Access:** Produce action is available to the manager in the recipe or
+  Manufacturable product. Operators cannot read, preview or register production in
+  this version.
+- **Modes:** the manager can inform production by Batch or by Quantity.
 - **Switch:** the change between modes is made by a switch.
 - **Lot:** exactly represents the reference yield of the recipe.
 - **Quantity:** must be informed in the product unit; the current design uses
@@ -428,6 +455,10 @@ negative-stock option is enabled.
 - **Eligible product:** only the Accompaniment category can be linked.
 - **Type:** each bond has a type, such as Coverage, Extra or Free.
 - **Contextual type:** the type may vary between Portion products.
+- **Type catalog:** accompaniment types are managed in a dedicated MRP page and
+  are available to links within the same ice cream shop.
+- **Type management:** the manager can list and create types; an unused type can
+  be removed, while a type in use remains protected until its links are resolved.
 - **Quantity per portion:** defines consumption in each unit sold.
 - **Price:** is configured by the combination of product + size + accompaniment and
   belongs to the POS commercial flow.
@@ -447,7 +478,22 @@ negative-stock option is enabled.
 - **Main brand:** display the main brand used in the registration.
 - **Price:** can be displayed by size, but the commercial configuration must
   remain consistent with the POS PRD.
-- **Types:** dropdown should offer `Manage types` link.
+- **Types:** the dropdown must offer a `Manage types` link that navigates to the
+  dedicated `Accompaniment types` page.
+- **Types page:** must display registered types, usage status and removal only
+  for unused types, with a `New type` action that opens the creation modal.
+- **Types pagination:** when registered types exceed one page, the types table
+  must display the visible range and total count, with previous, next and
+  numbered-page controls.
+- **Type editing:** each row must provide an edit action that opens a modal with
+  the current name prefilled; saving renames the type across its existing
+  accompaniment links, while duplicate or invalid names preserve the entered
+  context and display validation without closing the modal.
+- **Type creation modal:** must contain the type name, supporting guidance,
+  `Cancel` and `Add type`; successful creation closes the modal and refreshes
+  the list, while validation errors preserve the entered context.
+- **Sidebar:** `Accompaniment types` must appear as a top-level destination after
+  `Products`; the page marks that item as active.
 - **Optional monitoring:** no component should require the creation of a
   accompaniment to a Portion.
 - **Exclusion:** removal of the link requires confirmation.
@@ -497,8 +543,8 @@ negative-stock option is enabled.
 
 ##### Business Rules
 
-- **Main navigation:** Dashboard, Products, POS, Order History and
-  Price Modifiers.
+- **Main navigation:** Dashboard, Products, Accompaniment Types, POS, Order
+  History and Price Modifiers.
 - **No sub-buttons:** the main navigation should not create unnecessary sub-navigation.
 - **Product:** opening the Details line or action takes you to the dedicated page.
 - **Categories in use:** removal attempt must be blocked until resolved
@@ -542,7 +588,8 @@ negative-stock option is enabled.
 **Flow B - User registers product**
 
 1. The manager clicks on `New Product`.
-2. The system displays Name, Unit, Categories and Inventory control.
+2. The system displays Name, Unit, Categories and Inventory control; a Single-stock
+   Ingredient may also receive its current unit cost.
 3. The manager fills in the fields.
 4. The system validates:
    - **Success:** creates the active product with zero balance and opens its page.
@@ -568,7 +615,8 @@ negative-stock option is enabled.
 2. Choose Entry or Low.
 3. If there is a brand, choose the balance of the corresponding brand.
 4. Select Packaging or Base Unit.
-5. Enter the quantity.
+5. Enter the quantity and, for a Single-stock Ingredient, optionally replace the
+   current unit cost.
 6. The system displays the total in grams.
 7. The system validates:
    - **Valid entry:** adds to the balance.
@@ -579,19 +627,20 @@ negative-stock option is enabled.
 **Flow E - Manager assembles recipe**
 
 1. The manager opens a Manufacturable product and accesses Recipe.
-2. Sets the reference yield in grams.
-3. Add an Ingredient.
+2. Sets and explicitly saves the positive reference yield in grams, creating the empty
+   recipe without writing data merely by opening the tab.
+3. Adds an Ingredient after the yield save succeeds.
 4. Select the quantity; the unit is inherited.
 5. If the ingredient is by brand, the system shows the main brand.
 6. The system calculates cost, COGS percentage, balance and capacity.
 7. The manager saves the line.
 8. The system updates COGS and maximum producible quantity.
 
-**Flow F - Manager or employee records production**
+**Flow F - Manager records production**
 
-1. Authorized user clicks `Produce`.
+1. The manager clicks `Produce`.
 2. The system opens the modal with the Lot/Quantity switch.
-3. The user enters batches or quantity in grams.
+3. The manager enters batches or quantity in grams.
 4. The system shows the equivalent preview and projection table.
 5. If any ingredient is insufficient, the line itself shows necessary,
    available and missing; confirm is blocked.

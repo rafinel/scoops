@@ -3,9 +3,8 @@ import {
   ProductSortField,
   type ProductSortField as ProductSortFieldType,
 } from '@scoops/core/mrp/domain/structures'
-import type { ProductUnit } from '@scoops/core/mrp/domain/structures'
 
-import type { ProductsSearch } from '../../../../hooks/use-products-query'
+import type { ProductsSearch } from '@/ui/mrp/hooks/use-products-query'
 
 const SORTABLE_COLUMNS: Array<{
   field: ProductSortFieldType
@@ -33,17 +32,6 @@ const SORTABLE_COLUMNS: Array<{
   },
 ]
 
-export function formatStock(value: number, unit: ProductUnit) {
-  return `${new Intl.NumberFormat('pt-BR').format(value)} ${unit}`
-}
-
-export function formatRegisteredDate(date: Date) {
-  return new Intl.DateTimeFormat('pt-BR', {
-    dateStyle: 'short',
-    timeZone: 'America/Sao_Paulo',
-  }).format(date)
-}
-
 export function useProductsListCard({
   onSearchChange,
   search,
@@ -51,6 +39,14 @@ export function useProductsListCard({
   onSearchChange: (search: ProductsSearch) => void
   search: ProductsSearch
 }) {
+  function handlePageChange(page: number) {
+    onSearchChange({ ...search, page })
+  }
+
+  function handleSearch(value: string) {
+    onSearchChange({ ...search, search: value, page: 1 })
+  }
+
   function handleSort(field: ProductSortFieldType) {
     const isActive = search.sortBy === field
     onSearchChange({
@@ -64,5 +60,16 @@ export function useProductsListCard({
     })
   }
 
-  return { handleSort, sortableColumns: SORTABLE_COLUMNS }
+  const filterCount =
+    Number(search.categories.length > 0) +
+    Number(search.status !== undefined) +
+    Number(search.stockSituation !== undefined)
+
+  return {
+    filterCount,
+    handlePageChange,
+    handleSearch,
+    handleSort,
+    sortableColumns: SORTABLE_COLUMNS,
+  }
 }

@@ -14,6 +14,13 @@ export const productRegistrationFormSchema = z
       .min(1, 'Selecione pelo menos uma categoria.'),
     stockControl: z.enum(ProductStockControl),
     allowNegativeStock: z.boolean(),
+    currentUnitCost: z
+      .string()
+      .refine(
+        (value) =>
+          value.trim() === '' || (Number.isFinite(Number(value)) && Number(value) >= 0),
+        'Informe um custo unitário válido.',
+      ),
     initialStock: z
       .string()
       .refine(

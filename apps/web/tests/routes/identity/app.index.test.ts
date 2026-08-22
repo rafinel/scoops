@@ -12,10 +12,10 @@ test.describe('Authenticated app route', () => {
 
   test('keeps authenticated users in the application shell', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
 
     await page.goto('/')
 

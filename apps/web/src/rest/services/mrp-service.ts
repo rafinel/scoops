@@ -1,10 +1,17 @@
-import type { Brand, Product, StockTransaction } from '@scoops/core/mrp/domain/entities'
+import type {
+  Brand,
+  Product,
+  Production,
+  StockTransaction,
+} from '@scoops/core/mrp/domain/entities'
 import type { MrpService as MrpRestService } from '@scoops/core/mrp/interfaces'
 import type {
   ProductCatalogPage,
   ProductCatalogRow,
   ProductBrandStock,
   ProductStockDetails,
+  ProductRecipeDetails,
+  ProductionPreview,
   RegisterProductInput,
   StockBalance,
   StockTransactionPage,
@@ -32,6 +39,13 @@ type ProductBrandStockJson = Omit<ProductBrandStock, 'brand'> & { brand: BrandJs
 type ProductStockDetailsJson = Omit<ProductStockDetails, 'product' | 'brands'> & {
   product: ProductJson
   brands: readonly ProductBrandStockJson[]
+}
+
+type ProductRecipeDetailsJson = Omit<ProductRecipeDetails, 'product'> & {
+  product: ProductJson
+}
+type ProductionJson = Omit<Production, 'occurredAt'> & {
+  occurredAt: string
 }
 
 type StockTransactionJson = Omit<StockTransaction, 'occurredAt'> & {
@@ -86,6 +100,17 @@ function mapProductStock(response: ProductStockDetailsJson): ProductStockDetails
     ...response,
     product: mapProduct(response.product),
     brands: response.brands.map((item) => ({ ...item, brand: mapBrand(item.brand) })),
+  }
+}
+
+function mapProductRecipe(response: ProductRecipeDetailsJson): ProductRecipeDetails {
+  return { ...response, product: mapProduct(response.product) }
+}
+
+function mapProduction(production: ProductionJson): Production {
+  return {
+    ...production,
+    occurredAt: new Date(production.occurredAt),
   }
 }
 
@@ -149,6 +174,92 @@ export const MrpService = (restClient: RestClient): MrpRestService => ({
 
     return new RestResponse({
       body: mapProductStock(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async getProductRecipe(productId) {
+    const response = await restClient.get<ProductRecipeDetailsJson>(
+      `/products/${productId}/recipe`,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductRecipeDetails>
+    return new RestResponse({
+      body: mapProductRecipe(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async saveRecipeYield(productId, input) {
+    const response = await restClient.put<ProductRecipeDetailsJson>(
+      `/products/${productId}/recipe`,
+      input,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductRecipeDetails>
+    return new RestResponse({
+      body: mapProductRecipe(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async addRecipeIngredient(productId, input) {
+    const response = await restClient.post<ProductRecipeDetailsJson>(
+      `/products/${productId}/recipe/ingredients`,
+      input,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductRecipeDetails>
+    return new RestResponse({
+      body: mapProductRecipe(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async updateRecipeIngredient(productId, lineId, input) {
+    const response = await restClient.patch<ProductRecipeDetailsJson>(
+      `/products/${productId}/recipe/ingredients/${lineId}`,
+      input,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductRecipeDetails>
+    return new RestResponse({
+      body: mapProductRecipe(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  removeRecipeIngredient(productId, lineId) {
+    return restClient.delete<void>(`/products/${productId}/recipe/ingredients/${lineId}`)
+  },
+
+  async previewProduction(productId, input) {
+    const response = await restClient.post<ProductionPreview>(
+      `/products/${productId}/production-preview`,
+      input,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductionPreview>
+    return new RestResponse({
+      body: response.body,
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async registerProduction(productId, input) {
+    const response = await restClient.post<ProductionJson>(
+      `/products/${productId}/productions`,
+      input,
+    )
+    if (!response.isSuccessful) return response as unknown as RestResponse<Production>
+    return new RestResponse({
+      body: mapProduction(response.body),
       statusCode: response.statusCode,
       headers: response.headers,
     })

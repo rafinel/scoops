@@ -11,10 +11,12 @@ prompt:
 
 ```text
 implement-spec
-├── no current Plan → Builder Direct
-└── current Plan    → phase/task Builders
+├── no current Plan → Builder Direct in the current context
+└── current Plan    → stable ownership Builders by dependency wave
                      ↓
-        sensors + manual/visual validation
+             integrated candidate
+                     ↓
+        one Integrated Reviewer + sensors
                      ↓
                 conclude-spec
 ```
@@ -46,36 +48,56 @@ stop before editing feature source and report the exact blocker:
 
 - `implement-spec` is the only implementation entry point. Do not revive, delegate to or
   simulate a removed implementation workflow.
-- No feature source, test, generated artifact or migration edit starts until the scoped Builder
-  is activated and the preflight checklist below is recorded in an Evaluation materialized
-  from `documentation/templates/evaluation.md`.
-- The Orchestrator may inspect, coordinate and integrate, but may not replace the Builder with
-  an unscoped direct edit. A Builder report is not evidence; the Orchestrator must inspect the
-  resulting diff and execute the validation exits.
+- No feature source, test, generated artifact or migration edit starts until a scoped execution
+  assignment is activated and the preflight checklist below is recorded in an Evaluation
+  materialized from `documentation/templates/evaluation.md`.
+- The Orchestrator may assume the recorded `Builder Direct` role in the current context for a
+  small cohesive delivery. Plan-backed work requires scoped ownership Builders; the Orchestrator
+  may inspect, coordinate and integrate, but may not replace them with unscoped direct edits. A
+  Builder report is not evidence; the Orchestrator must inspect the resulting diff and execute
+  the validation exits.
 - The Spec's exact revision, required file/widget tree, contracts, exclusions and validation
   exits are authoritative. Existing code structure, a screenshot, a passing test or a user
   message cannot silently override them.
 - An implementation, test, browser, network, console, build, migration or visual error within
   the current Contract is an automatic correction: record it, invalidate affected evidence,
-  create or continue a scoped Builder Fix, fix it immediately, and rerun the affected checks.
-  Never pause for permission to resolve an in-Contract discrepancy.
+  continue the responsible Builder or activate a scoped Builder Fix only when it cannot be
+  resumed or the correction is genuinely independent, fix it immediately, and rerun the
+  affected checks. Never pause for permission to resolve an in-Contract discrepancy.
 - A UI change is not validated by a passing test alone. It requires the required behavioral
   assertions plus a fresh Playwright CLI screenshot at each affected reference/state and an
   inspected comparison recorded in Evaluation.
 - Never claim readiness from evidence captured before the latest affected change. Mark it
   `stale` and recapture it.
+- Evaluation is a living ledger, not a final report: after every implementation, test, browser,
+  generated-artifact, migration, documentation or validation change, update the colocated
+  `evaluation.md` in the same task with the exact command/scenario, result, evidence IDs,
+  freshness and history entry. Invalidate affected prior evidence immediately. Do not report
+  completion, readiness or a passing validation result while the current change is absent from
+  Evaluation.
 
 ## Builder activation gate
 
-For feature implementation changes, the Orchestrator must activate a scoped Builder before any
-feature source is edited. The Builder must receive the exact Spec revision, acceptance criteria,
-required file/widget tree, allowed paths, Rule Pack, design references and validation exits; the
-activation and scope must be recorded in Evaluation and the current execution artifacts. Use
-`Builder Direct` for direct execution or a phase/task Builder for execution with a current Plan.
-The Orchestrator may coordinate, inspect, integrate and validate, but must not silently replace
-the Builder with direct feature implementation. If no Builder can be activated, stop before
-editing feature code and report the orchestration blocker. Prompt, Spec, Plan or evaluation-only
-documentation maintenance may be handled directly when explicitly requested.
+For feature implementation changes, the Orchestrator must activate a scoped execution assignment
+before any feature source is edited. The assignment must receive the exact Spec revision,
+acceptance criteria, required file/widget tree, allowed paths, Rule Pack, design references and
+validation exits; its activation and scope must be recorded in Evaluation and the current
+execution artifacts.
+
+Use `Builder Direct` in the current agent context for a small cohesive delivery that fits
+comfortably with correction and validation headroom. With a current Plan, activate stable
+ownership Builders derived from the affected applications, packages and module boundaries. The
+current Scoops affinities are `Builder Core` for `packages/core/**`, `Builder Validation` for
+`packages/validation/**`, `Builder Server` for `apps/server/**` and `Builder Web` for
+`apps/web/**`. Activate only affected Builders; group small or tightly coupled package work into
+one cohesive ownership assignment, and add future package-specific Builders only when their work
+is substantial, path-independent and worth the context-loading cost.
+
+The Orchestrator coordinates, inspects, integrates and validates Plan-backed work but must not
+silently replace an activated ownership Builder with direct feature implementation. If the
+required assignment cannot be activated, stop before editing feature code and report the
+orchestration blocker. Prompt, Spec, Plan or evaluation-only documentation maintenance may be
+handled directly when explicitly requested.
 
 ## Preflight and evaluation kickoff
 
@@ -96,9 +118,10 @@ Before the first implementation change for the current revision:
 4. create colocated `evaluation.md` from
    `documentation/templates/evaluation.md` when absent, or reconcile an existing file to
    that structure without discarding history;
-5. activate the Builder and record, before any feature edit, its identifier, exact Spec
-   revision, RF/CA mapping, owned and prohibited paths, required file/widget tree, Rule Pack,
-   design references, validation exits and expected evidence locations;
+5. activate the direct assignment or affected ownership Builders and record, before any feature
+   edit, their identifiers, exact Spec revision, RF/CA mapping, owned and prohibited paths,
+   assigned phases, required file/widget tree, Rule Pack, design references, validation exits
+   and expected evidence locations;
 6. compare the untouched implementation against the Spec's required tree, contracts, states and
    exclusions, and record the baseline result. For a resumed correction, compare the current
    diff as well;
@@ -221,14 +244,16 @@ and evidence unless they overlap evaluated paths, contaminate evidence or cause 
 
 Use when no current Plan exists:
 
-1. create `Builder Direct` with the current revision, RF/CA mapping, observable outcome,
-   allowed/prohibited paths, Rule Pack, Architecture, design bundle and applicable tools;
-2. inspect and integrate its diff; the Builder does not edit Spec, Plan or Evaluation;
+1. activate `Builder Direct` in the current context with the current revision, RF/CA mapping,
+   observable outcome, allowed/prohibited paths, Rule Pack, Architecture, design bundle and
+   applicable tools;
+2. implement within that recorded scope, then inspect the diff; while acting as `Builder Direct`,
+   do not edit Spec, Plan or Evaluation, and return to the Orchestrator role for those updates;
 3. run focused repository-approved generation, code, type, unit and integration checks;
 4. update Evaluation with exact commands/results, criterion coverage,
    findings and evidence freshness;
-5. for each discrepancy, create `Builder Fix QG-<n>`, rerun only invalidated evidence and
-   repeat until validation-ready or authority is required.
+5. for each discrepancy, continue `Builder Direct`, rerun only invalidated evidence and repeat
+   until validation-ready or authority is required.
 
 Reserve repeated full builds for the final Quality Gate unless bundler, exports, environment,
 Docker, workflow or generated-artifact changes require an earlier build.
@@ -238,23 +263,79 @@ Docker, workflow or generated-artifact changes require an earlier build.
 Use when a current Plan exists. The Plan owns sequencing, status, attempts and next action;
 Evaluation owns executed evidence and findings.
 
-For each dependency-ready phase:
+Before dispatching, map affected paths to the smallest coherent set of stable ownership Builders.
+Do not create one Builder per phase, task or package. A Builder may own multiple sequential phases
+inside its ownership boundary, and the same Builder must be continued across related phases and
+corrections so its implementation context is retained.
 
-1. confirm the current Spec revision, dependencies, criteria, paths, Rules and exits;
-2. mark the phase and assigned tasks `in_progress`;
-3. create `Builder F<n>` for a cohesive phase or sibling `Builder F<n>-T<m>` agents only
-   for genuinely independent tasks with non-overlapping paths;
+Default to at most three concurrent implementation Builders. Exceed that only when the Plan
+records a concrete speed or context benefit, stable input contracts, substantial independent
+work and non-overlapping paths that justify the additional loading and integration cost. Package
+count alone is never sufficient. The Orchestrator owns root configuration, dependency
+installation, lockfiles, shared/generated files and cross-Builder integration.
+
+For each dependency-ready wave:
+
+1. confirm the current Spec revision, dependencies, criteria, paths, Rules, Builder assignments
+   and exits;
+2. mark the wave's phases and assigned tasks `in_progress`;
+3. activate or resume each affected ownership Builder, assigning all dependency-ready phases in
+   its ownership boundary; keep tightly coupled work together and run only stable,
+   non-overlapping Builder scopes in parallel;
 4. coordinate shared/generated files, dependencies and lockfiles through the Orchestrator;
 5. inspect and integrate Builder diffs; Builders do not edit Spec, Plan or Evaluation;
 6. run focused generation, code, type, unit and integration checks from the task exits;
-7. update Evaluation with exact results and the Plan with status, finding IDs, attempts and
-   next action;
+7. update Evaluation immediately with exact results, evidence freshness and history, then update
+   the Plan with status, finding IDs, attempts and next action;
 8. complete a task only when its exit passes, and a phase only when every task and phase exit
    passes;
-9. on failure, keep affected work `in_progress`, create a scoped Builder Fix, invalidate
-   affected evidence and rerun only what changed.
+9. on failure, keep affected work `in_progress`, resume the responsible ownership Builder,
+   invalidate affected evidence and rerun only what changed; activate a new scoped Builder Fix
+   only when that Builder cannot be resumed or the correction is genuinely independent.
 
 Phase completion must be sensor-backed. Do not use a Builder report as official evidence.
+
+### Builder-focused validation
+
+Each Builder runs focused feedback checks for the paths it changes before handoff:
+
+- `Builder Core` and `Builder Validation` run their applicable code, type and unit sensors;
+- `Builder Server` runs applicable sensors plus focused `curl` scenarios against the real local
+  server for changed runtime behavior, covering status/body, validation, authentication,
+  authorization, persistence, side effects and relevant logs;
+- `Builder Web` uses the Playwright CLI for affected interactions and states, including keyboard,
+  focus, narrow viewport, console, failed requests and fresh screenshots against applicable
+  design references.
+
+Builders return exact commands and observed results, but their reports are not official evidence.
+The Orchestrator reruns or verifies every required exit on the integrated candidate and records it
+in Evaluation in the same task turn. A Builder handoff is incomplete until its commands, results,
+affected evidence freshness and history entry are materialized there. Keep Builder checks focused;
+do not run a full workspace or UI regression after every small edit unless the task exit requires it.
+
+### Integrated Reviewer
+
+For Plan-backed execution, activate exactly one read-only
+[`Integrated Reviewer`](../agents/reviewer-agent.md) after all
+implementation Builder diffs are integrated. Never create a Reviewer per Builder, phase,
+application or package, and do not add specialist Reviewers. Direct execution does not require a
+separate Reviewer unless the Spec or another repository authority explicitly requires one.
+
+Give the Reviewer the exact Spec revision, Plan, Rule Pack, integrated diff, design references and
+current evidence index. It reviews the complete candidate for Spec conformance, cross-Builder
+contracts, missing states/tests, integration conflicts and stale evidence. When UI is affected, it
+must inspect every required final screenshot and comparison and independently replay high-risk
+interactions with the Playwright CLI, including applicable responsive, keyboard, accessibility,
+console and network behavior. When server-backed behavior is affected, it may replay high-risk
+real `curl` scenarios and inspect the resulting authorization, persistence or side effects.
+
+The Reviewer may run in parallel with the Orchestrator's integrated sensors, but it never edits
+feature code, Spec, Plan or Evaluation. Its report is not official evidence. The Orchestrator
+verifies every finding, records accepted findings in Evaluation, invalidates affected evidence and
+resumes the responsible Builder. After a correction, resume the same Integrated Reviewer to
+recheck the affected candidate; never activate a replacement Reviewer merely because the
+implementation changed. Readiness requires the review to be current and every verified blocking
+finding to be resolved.
 
 ## Rule reinforcement after findings
 
@@ -346,7 +427,9 @@ When the request makes implementation comply with the current Contract:
 1. keep the Spec revision unchanged;
 2. record a mapped finding in Evaluation;
 3. set Evaluation and affected Plan work, when present, to `in_progress`;
-4. create a scoped Builder Fix and mark only affected evidence stale;
+4. resume the responsible Builder and mark only affected evidence stale; activate a scoped
+   Builder Fix only when the original Builder cannot be resumed or the correction is genuinely
+   independent;
 5. rerun affected exits, sensors, `MV-*` scenarios and visual comparisons;
 6. continue the selected strategy automatically.
 
@@ -370,7 +453,9 @@ ambiguous.
 
 ## Integrated validation and readiness
 
-After implementation work is complete, validate the exact Spec revision and implementation:
+After implementation work is complete, validate the exact Spec revision and implementation. For
+Plan-backed execution, activate the single Integrated Reviewer on the integrated candidate while
+the Orchestrator runs the applicable sensors:
 
 1. run integrated technical sensors and the final build Quality Gate;
 2. review generated artifacts and migration bodies;
@@ -378,13 +463,15 @@ After implementation work is complete, validate the exact Spec revision and impl
 4. execute every applicable `MV-*` with the Playwright CLI;
 5. inspect every CA, manual scenario and supplied/supplemental screenshot with exact
    viewport/state, console/network, accessibility, DOM/layout and persistence evidence;
-6. record commands, captures, results and findings in Evaluation.
+6. when an Integrated Reviewer applies, verify and classify every finding;
+7. record commands, captures, results, review findings and resolutions in Evaluation.
 
 For Plan-backed execution, keep the integrated phase `in_progress` during this validation and
-complete the Plan only after all affected phases and evidence pass.
+complete the Plan only after all affected phases and evidence pass, the Integrated Reviewer has
+completed on the current candidate and every verified blocking review finding is resolved.
 
-- On failure, record the finding, reopen affected direct/Plan work, create Builder Fixes and
-  rerun invalidated evidence.
+- On failure, record the finding, reopen affected direct/Plan work, resume the responsible
+  Builder when possible and rerun invalidated evidence.
 - When all evidence is current and no blocking finding remains, reconcile Evaluation to the
   current implementation, complete the Plan when present, set Evaluation to `ready` and immediately
   invoke `conclude-spec` when publication authority is available.

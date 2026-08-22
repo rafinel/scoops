@@ -11,10 +11,10 @@ test.describe('Root route', () => {
 
   test('renders the authenticated application shell for a manager', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
 
     await page.goto('/')
 
@@ -31,9 +31,9 @@ test.describe('Root route', () => {
 
   test('shows the unavailable state when session verification fails', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
+    await identityFixture.mockManagerSession()
     let accountRequests = 0
     await page.route('**/auth/session*', async (route) => {
       accountRequests += 1

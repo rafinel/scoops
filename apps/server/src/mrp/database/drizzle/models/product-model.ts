@@ -38,6 +38,7 @@ export const productModel = pgTable(
     status: productStatusModel('status').notNull().default('active'),
     allowNegativeStock: boolean('allow_negative_stock').notNull().default(false),
     idealStock: numeric('ideal_stock', { precision: 18, scale: 3 }),
+    currentUnitCost: numeric('current_unit_cost', { precision: 18, scale: 6 }),
     internalNotes: text('internal_notes'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull(),
@@ -64,6 +65,10 @@ export const productModel = pgTable(
     check(
       'mrp_products_ideal_stock_non_negative',
       sql`${table.idealStock} is null or ${table.idealStock} >= 0`,
+    ),
+    check(
+      'mrp_products_current_unit_cost_non_negative',
+      sql`${table.currentUnitCost} is null or ${table.currentUnitCost} >= 0`,
     ),
   ],
 )

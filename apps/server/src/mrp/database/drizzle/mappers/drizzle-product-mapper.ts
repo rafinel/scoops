@@ -14,6 +14,8 @@ export class DrizzleProductMapper {
       status: record.status,
       allowNegativeStock: record.allowNegativeStock,
       idealStock: record.idealStock === null ? undefined : Number(record.idealStock),
+      currentUnitCost:
+        record.currentUnitCost === null ? undefined : Number(record.currentUnitCost),
       internalNotes: record.internalNotes ?? undefined,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,

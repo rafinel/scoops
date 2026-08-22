@@ -1,6 +1,7 @@
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { AdjustProductStockInput } from '#mrp/domain/structures/adjust-product-stock-input.ts'
+import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
 import { StockAdjustmentType } from '#mrp/domain/structures/stock-adjustment-type.ts'
 import type { StockBalance } from '#mrp/domain/structures/stock-balance.ts'
@@ -37,6 +38,24 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
       let brandName: string | undefined
       if (product.stockControl === ProductStockControl.Single && request.input.brandId)
         throw new BadRequestError('Estoque único não aceita uma marca de destino.')
+      if (request.input.currentUnitCost !== undefined) {
+        if (request.input.type !== StockAdjustmentType.Entry) {
+          throw new BadRequestError(
+            'O custo unitário atual só pode ser informado em uma entrada.',
+          )
+        }
+        if (
+          product.stockControl !== ProductStockControl.Single ||
+          !product.categories.includes(ProductCategory.Ingredient)
+        ) {
+          throw new BadRequestError(
+            'O custo unitário atual é permitido apenas para ingredientes de estoque único.',
+          )
+        }
+        await scope.productsRepository.replace(product.id, {
+          currentUnitCost: request.input.currentUnitCost,
+        })
+      }
       if (product.stockControl === ProductStockControl.ByBrand) {
         if (!request.input.brandId)
           throw new BadRequestError('A marca é obrigatória para este produto.')
@@ -84,5 +103,17 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
       throw new BadRequestError('O tipo de ajuste é inválido.')
     if (!Number.isFinite(input.quantity) || input.quantity <= 0)
       throw new BadRequestError('A quantidade deve ser maior que zero.')
+    if (
+      input.currentUnitCost !== undefined &&
+      (!Number.isFinite(input.currentUnitCost) ||
+        input.currentUnitCost < 0 ||
+        !this.hasAtMostSixDecimalPlaces(input.currentUnitCost))
+    ) {
+      throw new BadRequestError('O custo unitário atual é inválido.')
+    }
+  }
+
+  private hasAtMostSixDecimalPlaces(value: number): boolean {
+    return Math.abs(value * 1_000_000 - Math.round(value * 1_000_000)) < 1e-8
   }
 }

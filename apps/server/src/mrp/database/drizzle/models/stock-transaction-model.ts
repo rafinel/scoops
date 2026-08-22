@@ -10,6 +10,7 @@ import {
 } from 'drizzle-orm/pg-core'
 
 import { productModel } from './product-model'
+import { productionModel } from './production-model'
 
 export const stockTransactionModel = pgTable(
   'mrp_stock_transactions',
@@ -20,6 +21,9 @@ export const stockTransactionModel = pgTable(
       .notNull()
       .references(() => productModel.id, { onDelete: 'cascade' }),
     brandId: uuid('brand_id'),
+    productionId: uuid('production_id').references(() => productionModel.id, {
+      onDelete: 'cascade',
+    }),
     productName: text('product_name').notNull(),
     brandName: text('brand_name'),
     unit: text('unit').notNull(),
@@ -43,6 +47,9 @@ export const stockTransactionModel = pgTable(
       table.brandId,
       table.occurredAt.desc(),
     ),
+    index('mrp_stock_transactions_production_idx')
+      .on(table.establishmentId, table.productionId)
+      .where(sql`${table.productionId} is not null`),
     check('mrp_stock_transactions_quantity_positive', sql`${table.quantity} > 0`),
     check(
       'mrp_stock_transactions_unit_allowed',
@@ -50,7 +57,11 @@ export const stockTransactionModel = pgTable(
     ),
     check(
       'mrp_stock_transactions_type_allowed',
-      sql`${table.type} in ('entry', 'write-off')`,
+      sql`${table.type} in ('entry', 'write-off', 'production-consumption', 'production-output')`,
+    ),
+    check(
+      'mrp_stock_transactions_production_correlation',
+      sql`(${table.type} in ('production-consumption', 'production-output') and ${table.productionId} is not null) or (${table.type} in ('entry', 'write-off') and ${table.productionId} is null)`,
     ),
   ],
 )

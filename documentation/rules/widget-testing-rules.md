@@ -22,10 +22,11 @@ and `Navbar`; render them through `app-layout.test.tsx` instead of creating
 
 Do not mock internal child widgets merely to make the owning widget test smaller.
 Rendering the internal composition protects event wiring and accessibility across
-the boundary. A widget's colocated behavior-owning hook may be tested independently
-when derived state, effects or transitions cannot be proven clearly through the
-widget. Query hooks and action hooks do not receive dedicated tests; cover their
-observable behavior through the consuming widget/page and route boundaries.
+the boundary. The owning widget's colocated behavior hook is the one permitted
+component-test seam: component tests mock that hook and render the real widget
+composition below it. The hook's state, effects and transitions are covered by a
+dedicated hook test when they are substantial; query hooks and action hooks do not
+receive dedicated tests.
 
 A dedicated widget test becomes appropriate only when the widget has its own
 public reuse contract or substantial behavior independent of its current owner.
@@ -33,27 +34,33 @@ Do not create tests solely to mirror the file tree.
 
 ## Do not confuse structural coverage with behavioral coverage
 
-An isolated test that renders a widget with its owning hook mocked is not enough
-to cover the widget. It proves only that the widget maps a fabricated controller
-state to markup and delegates callbacks. It does not prove that the hook, query,
-dialog, URL state, or mutation is wired correctly.
+An isolated test that renders a widget with its owning hook mocked is intentionally
+component-boundary coverage. It proves that the widget maps controller state to
+markup and delegates callbacks, but it does not prove that the hook, query, dialog,
+URL state, or mutation is wired correctly. Those behaviors require the hook and
+route layers described below.
 
 For a stateful page or widget, use these layers when the behavior crosses the
 boundary:
 
-1. A component test that renders the real owning hook and the real internal
-   composition. Mock the nearest HMS application boundary needed to make the
-   test deterministic, such as a REST context or domain service, and provide the
-   required providers.
-2. An optional test of the widget's own colocated hook with `renderHook` when it
+1. A component test that mocks the owning hook and renders the real internal
+   composition. Mock the nearest application boundary needed to make the test
+   deterministic, such as an Anchor or domain service, and provide the required
+   providers.
+2. A hook test of the widget's own colocated hook with `renderHook` when it
    owns substantial derived values, URL/state transitions, effects or guards
    that are not adequately observable through the component. This does not
    apply to query/action hooks.
+3. A route integration test when the behavior crosses URL, authentication or
+   REST boundaries; this is the evidence for the real owning-hook composition.
 
-A component test may mock the owning hook for focused state-matrix cases, but it
-must be supplementary and must not be the only component coverage. If the real
-hook cannot be rendered, document the boundary that prevents it and cover the
-missing composition with a route integration test.
+Every `.test.tsx` for a widget with a colocated owning hook must mock that hook,
+including loading, success, empty, error, pending and recovery state cases. Name
+the typed mock with the hook name plus `Mock`, and configure a fresh return value
+in `beforeEach`. A component test must not invoke the real owning hook merely to
+exercise its queries or mutations; cover those through the hook and route layers.
+Widgets without a colocated behavior-owning hook remain direct prop/state
+component tests and do not need a fabricated hook solely to satisfy this rule.
 
 A green suite made only of mocked controller snapshots, callback assertions, or
 route handlers is structural coverage and must not be reported as complete
@@ -167,11 +174,10 @@ When a widget hook consumes a domain-specific query/action hook, its focused hoo
 test may mock that domain hook. Do not test the lower query/action hook
 separately and do not reconstruct or test React Query itself.
 
-This rule applies to the hook layer, not as permission to replace the owning hook
-in every component test. A consumer hook test should verify its complete state
-and action matrix, not only one happy-path mutation. Cover every branch that
-selects a mutation, maps an error, changes pending state, resets state, or emits
-a success effect.
+Component tests always replace the owning hook with the typed mock described
+above. A consumer hook test should verify its complete state and action matrix,
+not only one happy-path mutation. Cover every branch that selects a mutation,
+maps an error, changes pending state, resets state, or emits a success effect.
 
 For realtime hooks, the hook that owns a Supabase subscription must cover event
 mapping and cleanup. A higher-level hook consuming it mocks that application hook
@@ -283,8 +289,10 @@ middleware, or rendered destination.
 
 Before marking a widget complete, review the suite against this checklist:
 
-- the primary component test renders the real owning composition or has a linked
-  route integration test covering that composition;
+- the primary component test mocks the owning hook and renders the real internal
+  widget composition;
+- a dedicated hook test or linked route integration test covers the real owning
+  hook behavior when the widget has one;
 - each meaningful state and action branch has a user-observable assertion;
 - error and pending paths are tested, not only successful callbacks;
 - URL/API contracts are asserted where the widget owns filters, pagination, or

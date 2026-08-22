@@ -3,13 +3,12 @@ import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import { useProductsEmptyState } from './use-products-empty-state'
 
-export function ProductsEmptyState({
-  hasFilters,
-  onClear,
-}: {
+export type ProductsEmptyStateProps = {
   hasFilters: boolean
   onClear: () => void
-}) {
+}
+
+export const ProductsEmptyState = ({ hasFilters, onClear }: ProductsEmptyStateProps) => {
   const { description, title } = useProductsEmptyState(hasFilters)
 
   return (

@@ -24,10 +24,8 @@ import {
 } from '@/ui/shadcn/select'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
-import {
-  type BrandDraft,
-  useProductRegistrationDialog,
-} from './use-product-registration-dialog'
+import { BrandSection } from './brand-section'
+import { useProductRegistrationDialog } from './use-product-registration-dialog'
 
 const CATEGORY_LABELS: Record<ProductCategory, string> = {
   ingredient: 'Ingrediente',
@@ -84,44 +82,76 @@ export const ProductRegistrationDialog = ({
   onOpenChange,
   onSuccess,
 }: ProductRegistrationDialogProps) => {
-  const form = useProductRegistrationDialog({ onSuccess })
+  const {
+    allowNegativeStock,
+    brands,
+    calculatedInitialStock,
+    categories,
+    currentUnitCost,
+    fieldErrors,
+    formError,
+    idealStock,
+    initialStock,
+    isPending,
+    name,
+    stockControl,
+    unit,
+    handleAddBrand,
+    handleAllowNegativeStockChange,
+    handleBrandChange,
+    handleIdealStockChange,
+    handleInitialStockChange,
+    handleCurrentUnitCostChange,
+    handleNameChange,
+    handleProductCategoryToggle,
+    handleRegister,
+    handleRemoveBrand,
+    handleStockControlChange,
+    handleUnitChange,
+    isCategoryDisabled,
+    register,
+  } = useProductRegistrationDialog({ onSuccess })
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className='max-h-[min(90vh,48rem)] overflow-y-auto sm:max-w-xl'>
-        <DialogHeader className='border-b border-border-soft p-6 pr-14'>
-          <span className='mb-2 grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
+        <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft p-6 pr-14'>
+          <span className='grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
             <Icon name='package' className='size-5' />
           </span>
-          <DialogTitle>Novo produto</DialogTitle>
-          <DialogDescription>Defina o básico e ajuste o resto depois.</DialogDescription>
+          <div className='min-w-0'>
+            <DialogTitle>Novo produto</DialogTitle>
+            <DialogDescription className='mt-1'>
+              Defina o básico e ajuste o resto depois.
+            </DialogDescription>
+          </div>
         </DialogHeader>
-        <form className='grid gap-5 p-6' noValidate onSubmit={form.handleRegister}>
+        <form className='grid gap-5 p-6' noValidate onSubmit={handleRegister}>
           <Label className='grid gap-2 text-sm font-bold'>
             Nome do produto
             <Input
-              {...form.register('name')}
-              aria-describedby={form.fieldErrors.name ? 'product-name-error' : undefined}
-              aria-invalid={Boolean(form.fieldErrors.name)}
-              onChange={(event) => form.handleNameChange(event.target.value)}
+              {...register('name')}
+              aria-describedby={fieldErrors.name ? 'product-name-error' : undefined}
+              aria-invalid={Boolean(fieldErrors.name)}
+              onChange={(event) => handleNameChange(event.target.value)}
               placeholder='Ex: Polpa de Açaí'
-              value={form.name}
+              value={name}
             />
-            {form.fieldErrors.name ? (
+            {fieldErrors.name ? (
               <p
                 className='text-sm font-semibold text-destructive'
                 id='product-name-error'
                 role='alert'
               >
-                {form.fieldErrors.name}
+                {fieldErrors.name}
               </p>
             ) : null}
           </Label>
           <Label className='grid gap-2 text-sm font-bold'>
             Unidade de estoque
             <Select
-              value={form.unit}
-              onValueChange={(value) => form.handleUnitChange(value as ProductUnit)}
+              value={unit}
+              onValueChange={(value) => handleUnitChange(value as ProductUnit)}
             >
               <SelectTrigger
                 aria-label='Unidade de estoque'
@@ -140,9 +170,9 @@ export const ProductRegistrationDialog = ({
           </Label>
           <fieldset
             aria-describedby={
-              form.fieldErrors.categories ? 'product-categories-error' : undefined
+              fieldErrors.categories ? 'product-categories-error' : undefined
             }
-            aria-invalid={Boolean(form.fieldErrors.categories)}
+            aria-invalid={Boolean(fieldErrors.categories)}
           >
             <legend className='mb-3 text-sm font-bold'>
               Categorias{' '}
@@ -153,32 +183,32 @@ export const ProductRegistrationDialog = ({
             <div className='grid grid-cols-2 gap-2 sm:grid-cols-3'>
               {CATEGORY_VALUES.map((category) => (
                 <label
-                  className={`flex min-w-0 items-center gap-2 whitespace-nowrap rounded-lg border px-3 py-2 text-[13px] transition-colors sm:text-sm ${form.isCategoryDisabled(category) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${form.categories.includes(category) ? CATEGORY_CHECKBOX_CLASSES[category].selected : 'border-border'}`}
+                  className={`flex min-w-0 items-center gap-2 whitespace-nowrap rounded-lg border px-3 py-2 text-[13px] transition-colors sm:text-sm ${isCategoryDisabled(category) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${categories.includes(category) ? CATEGORY_CHECKBOX_CLASSES[category].selected : 'border-border'}`}
                   key={category}
                 >
                   <input
-                    checked={form.categories.includes(category)}
+                    checked={categories.includes(category)}
                     className={`size-4 shrink-0 ${CATEGORY_CHECKBOX_CLASSES[category].input}`}
-                    disabled={form.isCategoryDisabled(category)}
-                    onChange={() => form.handleProductCategoryToggle(category)}
+                    disabled={isCategoryDisabled(category)}
+                    onChange={() => handleProductCategoryToggle(category)}
                     type='checkbox'
                   />
                   {CATEGORY_LABELS[category]}
                 </label>
               ))}
             </div>
-            {form.categories.includes('portion') || form.categories.includes('resale') ? (
+            {categories.includes('portion') || categories.includes('resale') ? (
               <p className='mt-2 text-xs text-muted-foreground'>
                 Porção e Revenda não podem ser selecionadas juntas.
               </p>
             ) : null}
-            {form.fieldErrors.categories ? (
+            {fieldErrors.categories ? (
               <p
                 className='mt-2 text-sm font-semibold text-destructive'
                 id='product-categories-error'
                 role='alert'
               >
-                {form.fieldErrors.categories}
+                {fieldErrors.categories}
               </p>
             ) : null}
           </fieldset>
@@ -189,269 +219,147 @@ export const ProductRegistrationDialog = ({
                 ['single', 'Estoque único'],
                 ['by-brand', 'Por marca'],
               ].map(([value, label]) => (
-                <button
-                  className={`rounded-md px-3 py-2 text-sm font-bold transition-colors ${form.stockControl === value ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
-                  disabled={
-                    value === 'by-brand' && form.categories.includes('manufacturable')
-                  }
+                <Button
+                  className={`rounded-md px-3 py-2 text-sm font-bold transition-colors ${stockControl === value ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
+                  disabled={value === 'by-brand' && categories.includes('manufacturable')}
                   key={value}
-                  onClick={() =>
-                    form.handleStockControlChange(value as ProductStockControl)
-                  }
+                  onClick={() => handleStockControlChange(value as ProductStockControl)}
+                  variant='ghost'
                   type='button'
                 >
                   {label}
-                </button>
+                </Button>
               ))}
             </div>
             <p className='mt-2 text-xs text-muted-foreground'>
-              {form.categories.includes('manufacturable')
+              {categories.includes('manufacturable')
                 ? 'Produtos fabricáveis usam estoque único.'
-                : form.stockControl === 'by-brand'
+                : stockControl === 'by-brand'
                   ? 'O estoque será controlado por marca.'
                   : 'O saldo será controlado diretamente neste produto.'}
             </p>
           </fieldset>
-          {form.stockControl === 'by-brand' ? (
+          {stockControl === 'by-brand' ? (
             <BrandSection
-              brands={form.brands}
-              unit={form.unit}
-              onAdd={form.handleAddBrand}
-              onChange={form.handleBrandChange}
-              onRemove={form.handleRemoveBrand}
+              brands={brands}
+              unit={unit}
+              onAdd={handleAddBrand}
+              onChange={handleBrandChange}
+              onRemove={handleRemoveBrand}
             />
           ) : null}
           <Label className='grid gap-2 text-sm font-bold'>
             Estoque ideal
             <Input
-              {...form.register('idealStock')}
-              aria-describedby={
-                form.fieldErrors.idealStock ? 'ideal-stock-error' : undefined
-              }
-              aria-invalid={Boolean(form.fieldErrors.idealStock)}
+              {...register('idealStock')}
+              aria-describedby={fieldErrors.idealStock ? 'ideal-stock-error' : undefined}
+              aria-invalid={Boolean(fieldErrors.idealStock)}
               min='0'
-              onChange={(event) => form.handleIdealStockChange(event.target.value)}
+              onChange={(event) => handleIdealStockChange(event.target.value)}
               type='number'
-              value={form.idealStock}
+              value={idealStock}
             />
             <span className='font-normal text-muted-foreground'>
               Define quando o produto precisa ser reposto.
             </span>
-            {form.fieldErrors.idealStock ? (
+            {fieldErrors.idealStock ? (
               <p
                 className='text-sm font-semibold text-destructive'
                 id='ideal-stock-error'
                 role='alert'
               >
-                {form.fieldErrors.idealStock}
+                {fieldErrors.idealStock}
               </p>
             ) : null}
           </Label>
           <Label className='grid gap-2 text-sm font-bold'>
             Estoque inicial
             <Input
-              {...form.register('initialStock')}
+              {...register('initialStock')}
               min='0'
-              onChange={(event) => form.handleInitialStockChange(event.target.value)}
-              readOnly={form.stockControl === 'by-brand'}
+              onChange={(event) => handleInitialStockChange(event.target.value)}
+              readOnly={stockControl === 'by-brand'}
               type='number'
-              value={
-                form.stockControl === 'by-brand'
-                  ? form.calculatedInitialStock
-                  : form.initialStock
-              }
+              value={stockControl === 'by-brand' ? calculatedInitialStock : initialStock}
             />
             <span className='font-normal text-muted-foreground'>
-              {form.stockControl === 'by-brand'
+              {stockControl === 'by-brand'
                 ? 'Total calculado a partir das quantidades iniciais das marcas.'
                 : 'Informe o saldo disponível no início do controle.'}
             </span>
           </Label>
+          {stockControl === 'single' && categories.includes('ingredient') ? (
+            <Label className='grid gap-2 text-sm font-bold'>
+              Custo unitário atual{' '}
+              <span className='font-normal text-muted-foreground'>(opcional)</span>
+              <div className='flex overflow-hidden rounded-xl border bg-card focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
+                <span className='grid shrink-0 place-items-center border-r bg-muted px-3 text-sm font-bold text-muted-foreground'>
+                  R$
+                </span>
+                <Input
+                  {...register('currentUnitCost')}
+                  aria-describedby={
+                    fieldErrors.currentUnitCost ? 'current-unit-cost-error' : undefined
+                  }
+                  aria-invalid={Boolean(fieldErrors.currentUnitCost)}
+                  className='border-0 shadow-none focus-visible:ring-0'
+                  data-focus-ring='delegated'
+                  inputMode='decimal'
+                  min='0'
+                  onChange={(event) => handleCurrentUnitCostChange(event.target.value)}
+                  placeholder='0,00'
+                  step='any'
+                  type='number'
+                  value={currentUnitCost}
+                />
+              </div>
+              <span className='font-normal text-muted-foreground'>
+                Usado no custo de receitas futuras.
+              </span>
+              {fieldErrors.currentUnitCost ? (
+                <p
+                  className='text-sm font-semibold text-destructive'
+                  id='current-unit-cost-error'
+                  role='alert'
+                >
+                  {fieldErrors.currentUnitCost}
+                </p>
+              ) : null}
+            </Label>
+          ) : null}
           <label className='flex min-h-10 cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 text-sm font-semibold'>
             <input
               aria-label='Permitir estoque negativo'
-              checked={form.allowNegativeStock}
+              checked={allowNegativeStock}
               className='peer sr-only'
-              onChange={(event) =>
-                form.handleAllowNegativeStockChange(event.target.checked)
-              }
+              onChange={(event) => handleAllowNegativeStockChange(event.target.checked)}
               type='checkbox'
             />
             <span
               aria-hidden='true'
-              className={`pointer-events-none relative h-7 w-12 shrink-0 rounded-full transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-ring/40 ${form.allowNegativeStock ? 'bg-primary' : 'bg-border'}`}
+              className={`pointer-events-none relative h-7 w-12 shrink-0 rounded-full transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-ring/40 ${allowNegativeStock ? 'bg-primary' : 'bg-border'}`}
             >
               <span
-                className={`pointer-events-none absolute left-1 top-1 size-5 rounded-full bg-white transition-transform ${form.allowNegativeStock ? 'translate-x-5' : ''}`}
+                className={`pointer-events-none absolute left-1 top-1 size-5 rounded-full bg-white transition-transform ${allowNegativeStock ? 'translate-x-5' : ''}`}
               />
             </span>
             Permitir estoque negativo
           </label>
-          {form.formError ? (
+          {formError ? (
             <p className='text-sm font-semibold text-destructive' role='alert'>
-              {form.formError}
+              {formError}
             </p>
           ) : null}
           <DialogFooter>
             <Button onClick={() => onOpenChange(false)} type='button' variant='outline'>
               Cancelar
             </Button>
-            <Button disabled={form.isPending} type='submit'>
-              {form.isPending ? 'Criando...' : 'Criar produto'}
+            <Button disabled={isPending} type='submit'>
+              {isPending ? 'Criando...' : 'Criar produto'}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
-}
-
-function BrandSection({
-  brands,
-  onAdd,
-  onChange,
-  onRemove,
-  unit,
-}: {
-  brands: BrandDraft[]
-  onAdd: () => void
-  onChange: (brandId: string, changes: Partial<BrandDraft>) => void
-  onRemove: (brandId: string) => void
-  unit: ProductUnit
-}) {
-  return (
-    <section className='space-y-4 rounded-2xl border bg-muted/30 p-5'>
-      <div>
-        <h3 className='flex items-center gap-2 text-base font-extrabold'>
-          <Icon name='tags' className='size-5 text-foreground' />
-          Marcas do produto
-        </h3>
-        <p className='mt-2 flex items-center gap-2 text-sm text-muted-foreground'>
-          <Icon name='info' className='size-4 shrink-0' />
-          <span>Todas as marcas usam a unidade do produto ({unit}).</span>
-        </p>
-      </div>
-      <div className='space-y-4'>
-        {brands.map((brand, index) => (
-          <BrandEditor
-            brand={brand}
-            index={index}
-            key={brand.id}
-            onChange={(changes) => onChange(brand.id, changes)}
-            onRemove={() => onRemove(brand.id)}
-            unit={unit}
-          />
-        ))}
-      </div>
-      <Button
-        className='h-10 w-full rounded-xl border-primary px-4 text-sm text-primary'
-        onClick={onAdd}
-        type='button'
-        variant='outline'
-      >
-        <Icon name='plus' className='size-3.5' /> Adicionar marca
-      </Button>
-    </section>
-  )
-}
-
-function BrandEditor({
-  brand,
-  index,
-  onChange,
-  onRemove,
-  unit,
-}: {
-  brand: BrandDraft
-  index: number
-  onChange: (changes: Partial<BrandDraft>) => void
-  onRemove: () => void
-  unit: ProductUnit
-}) {
-  return (
-    <div className='rounded-2xl border bg-card p-5'>
-      <div className='mb-4 flex items-center justify-between'>
-        <span className='grid size-7 place-items-center rounded-full bg-accent text-sm font-bold text-primary'>
-          {index + 1}
-        </span>
-        <button
-          aria-label={`Remover marca ${index + 1}`}
-          className='rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40'
-          disabled={index === 0}
-          onClick={onRemove}
-          type='button'
-        >
-          <Icon name='trash-2' className='size-4' />
-        </button>
-      </div>
-      <div className='grid gap-4 sm:grid-cols-2'>
-        <Label className='grid gap-2 text-sm font-semibold text-muted-foreground'>
-          Nome
-          <Input
-            className='h-10 rounded-xl px-3 text-sm'
-            onChange={(event) => onChange({ name: event.target.value })}
-            placeholder='Ex: Frooty'
-            value={brand.name}
-          />
-        </Label>
-        <Label className='grid gap-2 text-sm font-semibold text-muted-foreground'>
-          Qtd. por embalagem
-          <div className='flex h-10 items-center rounded-xl border bg-background focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
-            <Input
-              className='h-full border-0 px-3 text-sm shadow-none focus:border-transparent focus:outline-none focus:ring-0 focus-visible:border-transparent focus-visible:outline-none focus-visible:ring-0'
-              data-focus-ring='delegated'
-              min='0'
-              onChange={(event) => onChange({ packageQuantity: event.target.value })}
-              type='number'
-              value={brand.packageQuantity}
-            />
-            <span className='h-full shrink-0 whitespace-nowrap border-l bg-muted/30 px-3 py-2 text-sm font-semibold text-muted-foreground'>
-              {unit}
-            </span>
-          </div>
-        </Label>
-        <Label className='grid gap-2 text-sm font-semibold text-muted-foreground sm:col-span-2'>
-          Valor por embalagem
-          <div className='flex h-10 items-center rounded-xl border bg-background focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
-            <span className='h-full shrink-0 whitespace-nowrap border-r bg-muted/30 px-3 py-2 text-sm font-semibold text-muted-foreground'>
-              R$
-            </span>
-            <Input
-              className='h-full min-w-0 flex-1 border-0 px-3 text-sm shadow-none focus:border-transparent focus:outline-none focus:ring-0 focus-visible:border-transparent focus-visible:outline-none focus-visible:ring-0'
-              data-focus-ring='delegated'
-              onChange={(event) => onChange({ packagePrice: event.target.value })}
-              value={brand.packagePrice}
-            />
-          </div>
-        </Label>
-        <Label className='grid gap-2 text-sm font-semibold text-muted-foreground sm:col-span-2'>
-          Quantidade de embalagens
-          <Input
-            className='h-10 rounded-xl px-3 text-sm'
-            min='0'
-            onChange={(event) => onChange({ packageCount: event.target.value })}
-            type='number'
-            value={brand.packageCount}
-          />
-        </Label>
-      </div>
-      <label className='mt-4 flex min-h-10 cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 text-sm font-semibold'>
-        <input
-          checked={brand.isPrimary}
-          className='peer sr-only'
-          onChange={() => onChange({ isPrimary: !brand.isPrimary })}
-          type='checkbox'
-        />
-        <span
-          aria-hidden='true'
-          className={`relative h-7 w-12 shrink-0 rounded-full transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-ring/40 ${brand.isPrimary ? 'bg-primary' : 'bg-border'}`}
-        >
-          <span
-            className={`absolute left-1 top-1 size-5 rounded-full bg-white transition-transform ${brand.isPrimary ? 'translate-x-5' : ''}`}
-          />
-        </span>
-        Marca principal
-      </label>
-    </div>
   )
 }

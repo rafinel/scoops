@@ -61,9 +61,9 @@ test.describe('Login route', () => {
 
   test('logs in with valid credentials and navigates to the requested destination', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerAccount()
     let credentials: { email?: string; password?: string } | undefined
     await page.route('**/auth/v1/token*', async (route) => {
       credentials = route.request().postDataJSON() as {

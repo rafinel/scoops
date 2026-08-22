@@ -1,4 +1,4 @@
-import type { ProductCreate } from '@scoops/core/mrp/domain/entities'
+import type { ProductCreate } from '@scoops/core/mrp/domain/structures'
 import type {
   BrandsRepository,
   ProductsRepository,

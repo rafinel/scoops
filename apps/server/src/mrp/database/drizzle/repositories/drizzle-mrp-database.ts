@@ -6,6 +6,10 @@ import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 
 import { DrizzleProductsRepository } from './drizzle-products-repository'
 import { DrizzleBrandsRepository } from './drizzle-brands-repository'
+import { DrizzleProductionIngredientsRepository } from './drizzle-production-ingredients-repository'
+import { DrizzleProductionsRepository } from './drizzle-productions-repository'
+import { DrizzleRecipeIngredientsRepository } from './drizzle-recipe-ingredients-repository'
+import { DrizzleRecipesRepository } from './drizzle-recipes-repository'
 import { DrizzleStockBalancesRepository } from './drizzle-stock-balances-repository'
 import { DrizzleStockTransactionsRepository } from './drizzle-stock-transactions-repository'
 
@@ -41,8 +45,22 @@ export class DrizzleMrpDatabase implements MrpDatabase {
               this.drizzleClient,
               transaction,
             ),
-            recipesRepository: undefined as never,
-            recipeIngredientsRepository: undefined as never,
+            recipesRepository: new DrizzleRecipesRepository(
+              this.drizzleClient,
+              transaction,
+            ),
+            recipeIngredientsRepository: new DrizzleRecipeIngredientsRepository(
+              this.drizzleClient,
+              transaction,
+            ),
+            productionsRepository: new DrizzleProductionsRepository(
+              this.drizzleClient,
+              transaction,
+            ),
+            productionIngredientsRepository: new DrizzleProductionIngredientsRepository(
+              this.drizzleClient,
+              transaction,
+            ),
             productSizesRepository: undefined as never,
             accompanimentTypesRepository: undefined as never,
             productAccompanimentsRepository: undefined as never,

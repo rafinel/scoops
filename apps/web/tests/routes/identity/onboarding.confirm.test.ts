@@ -84,10 +84,10 @@ test.describe('Onboarding confirmation route', () => {
 
   test('confirms onboarding, clears the confirmation boundary, and opens the app', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     let confirmationBody: { confirmationToken?: string } | undefined
     await page.route('**/registration-attempts/onboarding/confirm*', async (route) => {
       confirmationBody = route.request().postDataJSON() as { confirmationToken?: string }

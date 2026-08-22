@@ -4,4 +4,5 @@ export type AdjustProductStockInput = {
   readonly brandId?: string
   readonly type: StockAdjustmentType
   readonly quantity: number
+  readonly currentUnitCost?: number
 }

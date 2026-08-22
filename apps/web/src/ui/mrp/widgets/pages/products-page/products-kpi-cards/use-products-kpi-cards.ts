@@ -4,7 +4,7 @@ export function useProductsKpiCards(
   page: ProductCatalogPage | undefined,
   isLoading: boolean,
 ) {
-  return [
+  const cards = [
     {
       label: 'Produtos',
       value: page?.kpis.products ?? 0,
@@ -33,4 +33,6 @@ export function useProductsKpiCards(
       detail: 'precisam repor',
     },
   ].map((card) => ({ ...card, displayValue: isLoading ? '—' : card.value }))
+
+  return { cards }
 }

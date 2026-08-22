@@ -1,0 +1,172 @@
+---
+feature: "mrp/products-details-page-recipe-tab"
+spec: ./spec.md
+plan: ./plan.md
+spec_revision: 1
+status: ready
+updated_at: 2026-08-22
+---
+
+# Evaluation
+
+Current result: Ready for conclusion. F1–F6 are integrated and complete: all affected static, unit, mocked-browser and real Nest/Postgres controller sensors pass; the real Manager workflow passed against migrated local services; the same Integrated Reviewer rechecked the corrected candidate with no remaining findings. Supplemental nested-route coverage is split into dedicated Stock and Recipe route tests and passes.
+
+## Acceptance matrix
+
+| Criterion | Evidence | Status |
+| --- | --- | --- |
+| `CA-01` | `EV-01`; `MV-01`; `VIS-01`; `VIS-07` | `passed` |
+| `CA-02` | `EV-01`; `MV-01`; `VIS-06`; `VIS-07` | `passed` |
+| `CA-03` | `EV-01`; `MV-01`; `VIS-06`; `VIS-07` | `passed` |
+| `CA-04` | `EV-01`; `MV-01`; `VIS-02` | `passed` |
+| `CA-05` | `EV-01`; `MV-01`; `VIS-02` | `passed` |
+| `CA-06` | `EV-01`; `MV-01`; `VIS-03` | `passed` |
+| `CA-07` | `EV-01`; `MV-01`; `VIS-05` | `passed` |
+| `CA-08` | `EV-01`; `MV-01`; `MV-04`; `VIS-01`; `VIS-10` | `passed` |
+| `CA-09` | `EV-01`; `MV-02`; `VIS-04`; `VIS-08` | `passed` |
+| `CA-10` | `EV-01`; `MV-02`; `VIS-04`; `VIS-08` | `passed` |
+| `CA-11` | `EV-01`; `MV-02`; `VIS-04`; `VIS-08` | `passed` |
+| `CA-12` | `EV-01`; `MV-02`; `VIS-04`; `VIS-08` | `passed` |
+| `CA-13` | `EV-01`; `MV-04`; `VIS-10` | `passed` |
+| `CA-14` | `EV-01`; `MV-01`; `MV-02` | `passed` |
+| `CA-15` | `EV-01`; `MV-01`; `MV-02`; `MV-03`; `MV-04`; `VIS-01`–`VIS-10` | `passed` |
+
+## Automated and runtime evidence
+
+| ID | Layer | Command or scenario | Result | Status |
+| --- | --- | --- | --- | --- |
+| `EV-01` | UI / Playwright preflight | `pnpm --filter web check:playwright` | Passed: 1/1 Chromium health test verified `/login` 200 response, visible controls, Tab focus, no console errors or failed requests, and captured `test-results/playwright-cli-health-login.png`. Non-blocking `pnpm`-scope and `NO_COLOR` warnings observed. | `passed` |
+| `EV-02` | Core / Validation F1 exit | `pnpm --filter core check:code && pnpm --filter core check:types && pnpm --filter validation check:code && pnpm --filter validation check:types && pnpm --filter core test -- src/mrp/use-cases/tests/register-product-use-case.test.ts src/mrp/use-cases/tests/adjust-product-stock-use-case.test.ts` | Passed: Core and Validation code/type checks; focused cost coverage passed 2 files / 9 tests. F1 conformance confirmed dedicated type files, removed production event export, tenant-qualified contracts and shared schema exports. | `passed` |
+| `EV-03` | Server F2 exit | `pnpm --filter server check:code && pnpm --filter server check:types` | Passed after generated migration/artifact review and the FND-002 correction. Core/Server contract compilation is current. | `passed` |
+| `EV-04` | Core F3 exit | `pnpm --filter core check:code && pnpm --filter core check:types && pnpm --filter core test -- src/mrp/use-cases/tests/{get-product-recipe,save-recipe-yield,add-recipe-ingredient,update-recipe-ingredient,remove-recipe-ingredient,preview-production,register-production}-use-case.test.ts` | Passed: Core code/type checks and 7 focused use-case test files / 10 tests. F3 conformance includes Manager/tenant policy, current-source projection, read-only preview, serializable atomic snapshot flow and no event publication. | `passed` |
+| `EV-05` | Web F4 automated/browser exit | `pnpm --filter web generate-routes && pnpm --filter web check:code && pnpm --filter web check:types && pnpm --filter web test && pnpm --filter web test:integration` | Passed on the corrected integrated candidate: generated tree reviewed, TypeScript passed after generation, 37 unit files / 118 tests and the recorded 84-test Playwright run passed. `check:code` exits 0 with four pre-existing `global.css` reduced-motion warnings; see `FND-006`. Browser transport is mocked, not Server/persistence proof. | `passed` |
+| `EV-06` | Server F5 controller integration | `pnpm --filter server check:code && pnpm --filter server check:types`; seven focused Nest/Postgres controller tests | Passed: static checks plus real fixture tests for GET/PUT/POST/PATCH/DELETE Recipe endpoints and preview/production, proving role/tenant checks, 422/409 contract paths, no-write preview and atomic persisted production effects. Full suite status is separately tracked by `EV-07`. | `passed` |
+| `EV-07` | Server full suite | `pnpm --filter server test` | Passed on the final candidate: 33 files / 67 tests in 266.23 s. | `passed` |
+| `EV-08` | Integrated Reviewer recheck | Same `Integrated Reviewer` after FND-014–FND-018 corrections | Passed: no remaining finding; corrected source, current screenshots, current validation and real F6 evidence inspected. | `passed` |
+| `EV-09` | Web nested-route coverage | Dedicated Stock and Recipe route files via Playwright CLI | Passed: `products.$productId.stock.test.ts` owns the Stock redirect, loading, history, brand and adjustment scenarios; `products.$productId.recipe.test.ts` owns the Recipe loading, mutation, production and responsive scenarios. The dedicated route files pass 14 tests total, including direct nested URL and selected-tab assertions. | `passed` |
+| `EV-10` | Final conclusion preflight | Core/Validation/Server/Web checks, generated artifacts, Playwright health and clean focused Recipe/Stock Playwright CLI route runs | Passed: Core 37 files/88 tests, Server 33 files/67 tests, Web 37 files/118 tests, Server/Web builds, route generation and migration generation with no schema changes, Recipe 4/4 and Stock 12/12 browser tests. Existing reduced-motion and Identity React warnings remain non-blocking and are documented in `FND-006`. | `passed` |
+
+## Manual evidence
+
+| ID | Scenario | Criteria | Expected | Observed | Status |
+| --- | --- | --- | --- | --- | --- |
+| `MV-01` | Recipe lifecycle and recovery at 1560 × 1200 | `CA-01`–`CA-08`, `CA-14`, `CA-15` | Manager completes Recipe lifecycle with persisted data, recovery and matching desktop states. | Passed against local Server/Supabase after additive migration `0008`: Manager saved yield, added a source-backed ingredient, and captured `test-results/f6-real-recipe-1560x1200.png`. | `passed` |
+| `MV-02` | Production preview, commit, rollback and refresh | `CA-09`–`CA-12`, `CA-14`, `CA-15` | Manager previews and atomically commits production, or sees retained recovery context after failure. | Passed: the same Manager flow previewed and confirmed production; no request failure or HTTP ≥400 response occurred. Controller and full Server evidence separately cover rollback/409 paths. | `passed` |
+| `MV-03` | Keyboard-only Recipe and Produce paths at 320 × 900 | `CA-15` | Focus, dialog actions, selected/disabled states and contained overflow remain usable. | Passed: focused Add control received keyboard focus/Enter, the dialog opened and escaped, and the body had no horizontal overflow; captured `test-results/f6-real-recipe-320x900.png`. | `passed` |
+| `MV-04` | Registration and Entry current-cost fields at desktop and 320 × 900 | `CA-08`, `CA-13`, `CA-15` | Valid current cost persists only on supported flows; invalid or write-off cost is rejected. | Passed: authentic Manager flow opened supported Entry at desktop and ingredient registration at 320 px; both fields visible, with no failed request/HTTP error. Captures: `f6-real-entry-cost-1560x1200.png`, `f6-real-registration-cost-320x900.png`. | `passed` |
+
+## Visual evidence
+
+| ID | Surface and state | Viewport | Reference | Implementation | Differences | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| `VIS-01` | Populated Recipe card | 1560 × 1200 | `design/Hd4wz.png` | `apps/web/test-results/products-recipe-populated-1560x1200.png` | Runtime fixture values differ; hierarchy, tokens and corrected one-line yield control match. | `passed` |
+| `VIS-02` | Add Ingredient dialog | 520 × 524 nominal | `design/a3zfgk.png` | `apps/web/test-results/products-recipe-add-676x682.png` | Export viewport follows the saved reference export; runtime product names differ only. | `passed` |
+| `VIS-03` | Edit Ingredient dialog | 520 × 524 nominal | `design/im6ld.png` | `apps/web/test-results/products-recipe-edit-676x684.png` | Export viewport follows the saved reference export; runtime product names differ only. | `passed` |
+| `VIS-04` | Produce dialog, sufficient Batch mode | 640 × 640 nominal | `design/toFi2.png` | `apps/web/test-results/products-recipe-produce-796x790.png` | Export viewport follows the saved reference export; runtime quantities differ only. | `passed` |
+| `VIS-05` | Remove Ingredient confirmation | 440 × 179 nominal | `design/FpJbN.png` | `apps/web/test-results/products-recipe-remove-596x335.png` | Export viewport follows the saved reference export; fresh inspection confirms no overlap or crop. | `passed` |
+| `VIS-06` | Empty Recipe card | 1200 × 537 nominal | `design/H2x0f.png` | `apps/web/test-results/products-recipe-empty-1201x538.png` | One-pixel export dimension difference only. | `passed` |
+| `VIS-07` | Loading, error/retry and unsaved-yield states | 1560 × 1200 | `design/manifest.md` supplemental decision | `apps/web/test-results/products-recipe-{loading,error,yield-validation}-1560x1200.png` | Supplemental states compared against documented token/layout decisions. | `passed` |
+| `VIS-08` | Produce shortage, no-main-brand, pending and failed-confirm states | 640 × 760 | `design/manifest.md` supplemental decision | `apps/web/test-results/products-recipe-produce-{shortage,no-main-brand,pending,preview-error}-640x760.png` | Supplemental states compared against documented token/layout decisions. | `passed` |
+| `VIS-09` | Recipe page and Produce dialog at narrow width | 320 × 900 | `design/manifest.md` supplemental decision | `apps/web/test-results/products-recipe-narrow-320x900.png` | Fresh inspection confirms readable stacked yield controls and no page overflow. | `passed` |
+| `VIS-10` | Current-unit-cost registration and Entry fields | 1560 × 1200 and 320 × 900 | `design/manifest.md` supplemental decision | `apps/web/test-results/products-details-single-adjustment-1280x900.png`; `apps/web/test-results/products-registration-single-708x826.png` | Desktop Entry and narrow registration captures both show the optional `R$` input and explanatory copy; source behavior is covered by the passing route/unit suite. | `passed` |
+
+## Rule and documentation compliance
+
+| Authority | Reference | Result | Notes |
+| --- | --- | --- | --- |
+| SDD | `documentation/sdd-rules.md` | `passed` | Plan-backed execution selected for current Spec revision 1. |
+| Architecture | `documentation/architecture.md` | `passed` | MRP Core owns business policy; Server adapters own persistence and atomic transactions. |
+| Modules | `documentation/modules.md` | `passed` | MRP owns Recipe and Production; Identity is consumed only for authenticated actor/profile context. |
+| Product | `documentation/prds/mrp.md` | `passed` | Recipe, Production and current-unit-cost behavior are covered by the approved MRP intent. |
+| Design | `documentation/design.md`; `design/manifest.md` | `passed` | Existing tokens/primitives and all six references plus four supplemental decisions are in scope. |
+| Tooling | `documentation/tooling.md` | `passed` | Required `check:playwright` preflight passed after the committed health fixture was restored. |
+| Rule Pack | `documentation/rules/code-conventions-rules.md`; `core-package-rules.md`; `use-case-testing-rules.md`; `validation-package-rules.md`; `rest-layer-rules.md`; `controllers-testing-rules.md`; `database-layer-rules.md`; `provision-layer-rules.md`; `ui-layer-rules.md`; `web-app-routing-rules.md`; `widget-testing-rules.md` | `passed` | Builder handoffs and integrated automated checks are current; F6 still must verify real workflow evidence and reviewer findings. |
+
+## Findings
+
+| ID | Classification | Source | Affected evidence | Status | Resolution |
+| --- | --- | --- | --- | --- | --- |
+| `FND-001` | environment | `EV-01` Playwright health preflight | `EV-01` | `resolved` | Builder Web added the missing committed health fixture. The Orchestrator reran the exact health command successfully. |
+| `FND-002` | implementation | F2 server type check | `EV-03` | `resolved` | Server fixture import moved to the Core structures location; F3 typed the production-ingredient bridge. The Orchestrator reran Server code/type checks successfully. |
+| `FND-003` | Rule | F3 use-case test fixtures | `EV-04` | `resolved` | Builder Core added MRP entity fakers and migrated F3 tests; focused tests and Core checks pass. |
+| `FND-004` | contract | F4 Web type check / product-detail search schema | `EV-05` | `resolved` | Shared schema preserves optional `tab` output and invalid values become undefined; Web owns the Stock fallback and must recapture F4 evidence. |
+| `FND-005` | generated artifact | F4 `pnpm --filter web generate-routes` | `EV-05` | `resolved` | The generator removed a pre-existing `@tanstack/react-start` `Register` SSR/router augmentation from `routeTree.gen.ts`. Official TanStack guidance classifies this file as generated; it was not hand-edited, and regeneration plus TypeScript pass. |
+| `FND-006` | environment | Full Web Playwright suite | `EV-05` | `accepted_non_blocking` | The existing Identity scenarios emit React’s “state update on a component that hasn't mounted yet” warning. Full browser suite passed; focused Recipe flow recorded no console or failed-request error. This finding is outside F4 ownership. |
+| `FND-007` | implementation | F4 expanded populated visual scenario | `VIS-01` | `resolved` | Builder Web Fix introduced the isolated Recipe transport fixture and repaired Stock’s request ledger. The populated and dependent focused scenarios now reach their mocked state. |
+| `FND-008` | environment | `EV-07` full server test | `EV-07` | `resolved` | The bounded rerun completed successfully: 33 files / 67 tests in 307.69 s. |
+| `FND-009` | test | F4 full route-file execution | `EV-05`; `VIS-01`–`VIS-10` | `resolved` | Stateful fixture isolation made the exact route file pass sequentially (13 tests), and the integrated Web suite then passed 84 tests. |
+| `FND-010` | design | F4 narrow Recipe capture | `VIS-09` | `resolved` | The yield control now stacks at 320 px with readable label, input, unit and Save action; fresh inspection found no page overflow. |
+| `FND-011` | design | F4 populated desktop capture | `VIS-01` | `resolved` | Fresh 1560 × 1200 capture and Orchestrator inspection confirm one-line yield label with aligned input, unit and Save control. |
+| `FND-012` | design | F4 remove dialog capture | `VIS-05` | `resolved` | Fresh 596 × 335 capture and Orchestrator inspection confirm title, consequence copy, destructive action and Cancel fit without overlap/crop. |
+| `FND-013` | coverage | F4 production visual matrix | `VIS-08` | `resolved` | Builder Web Fix added the stateful no-main-brand blocked-preview scenario and fresh `products-recipe-produce-no-main-brand-640x760.png` capture; the confirmation remains disabled with an alert. |
+| `FND-014` | implementation | Integrated Reviewer `RV-01` | `EV-05`; `VIS-01` | `resolved` | Builder Web now renders the server percent directly; focused table coverage asserts `1.25%`, not `125.00%`. |
+| `FND-015` | implementation | Integrated Reviewer `RV-01` | `EV-05`; `VIS-02` | `resolved` | Builder Web resolves current stock/source for each base candidate. Only source-backed rows are selectable; unavailable no-cost/no-primary options are disabled with exact explanation, and selected context shows source, cost, line/CMV and balance. |
+| `FND-016` | implementation | Integrated Reviewer `RV-01` | `EV-05`; `VIS-04` | `resolved` | Batch mode requires a whole positive integer; decimal input announces an alert, disables confirmation and prevents the preview query. |
+| `FND-017` | environment | F6 real Manager browser sensor | `MV-01`–`MV-04` | `resolved` | The observed 500 was caused by the local development database missing additive migration `0008`; `pnpm --filter server db:migration:apply` completed successfully. The real workflow is being rerun on the migrated database. |
+| `FND-018` | evidence | Integrated Reviewer `RV-01` | `VIS-01`–`VIS-10` | `resolved` | The final 84-test mocked suite regenerated all fourteen Recipe/Produce captures and both current-cost captures. |
+| `FND-019` | invalid finding | F6 real Manager browser sensor | `MV-01`; `EV-05` | `rejected` | Rejected after rereading Spec r1, `CA-02`, `CA-03` and `design/H2x0f.png`: a Manager must explicitly save a positive yield to create the empty Recipe, and Add remains disabled until that persistence succeeds. The F6 replay is corrected to use that required sequence. |
+| `FND-020` | environment | Conclusion browser preflight | `EV-05`; `EV-09` | `accepted_non_blocking` | An exploratory run started Recipe and Stock Playwright servers concurrently on shared port 4000, causing cross-run mocked-state interference and misleading route failures. After stopping those processes, clean serial Recipe (4/4) and Stock (12/12) runs passed. No implementation change was required; local browser evidence must use one server process per run. |
+
+## PR CI quality gate
+
+<!-- Populate during conclude-spec. The head SHA identifies the PR revision checked by CI; it is not SDD current-commit metadata. Retain failed and superseded-head runs as history. -->
+
+| ID | Workflow | Head SHA | Result | Run |
+| --- | --- | --- | --- | --- |
+
+## History
+
+| Date | Event |
+| --- | --- |
+| 2026-08-21 | Evaluation created for Spec revision 1; preflight recorded the failed Playwright health check before feature source changes. |
+| 2026-08-21 | Builder Web completed the bounded `FND-001` fixture repair at `apps/web/tests/health/playwright-cli-health.test.ts`; `EV-01` passed on the integrated worktree. |
+| 2026-08-21 | Activated Builder Core for Plan F1-T1, Spec revision 1, `RF-03`–`RF-11` / `CA-02`, `CA-04`–`CA-13`. Owned paths and required tree are exactly Plan F1-T1 `Paths`; prohibited paths are `apps/server/**`, `apps/web/**`, SDD artifacts and Rules. Rule Pack is the F1-T1 list; design references are `design/manifest.md` and its six saved PNGs; exits are the four Core/Validation code/type commands plus focused Core tests. Expected evidence is `EV-02` and F1 handoff conformance notes. |
+| 2026-08-21 | Baseline conformance for F1 recorded: existing Recipe vocabulary is incomplete and still combines entity/create/update declarations; Production entities, detailed projections, several inputs, productions repository and all listed shared recipe/production/route schemas are absent. Existing `RegisterProductionUseCase` still imports/publishes `ProductionRegisteredEvent`. No out-of-scope source changes were included. |
+| 2026-08-21 | F1 scope expanded by the smallest required path: `packages/core/src/mrp/use-cases/create-product-use-case.ts` may receive only import/type-location adjustments necessitated by moving `ProductCreate` and `ProductUpdate` to their required dedicated structure files. The Core Rule Pack remains unchanged. |
+| 2026-08-21 | F1 handoff conformance passed: required Core/Validation tree is present; boundary ownership stayed in the F1 scope; contracts match the revision-1 vocabulary; no UI state applies; `EV-02` is current. F1 is completed. |
+| 2026-08-21 | Activated Builder Server for Plan F2-T1, Spec revision 1, `RF-04`–`RF-07`, `RF-10`–`RF-11` / `CA-05`, `CA-08`, `CA-11`–`CA-13`. Owned/prohibited paths, migration generation requirement, Rule Pack, design references and F2 exit are exactly Plan F2-T1; expected evidence is `EV-03`. |
+| 2026-08-21 | Resumed Builder Core for Plan F3-T1, Spec revision 1, `RF-02`–`RF-11` / `CA-01`–`CA-14`. Owned/prohibited paths, Rule Pack, manifest references and F3 exit are exactly Plan F3-T1; expected evidence is `EV-04`. |
+| 2026-08-21 | Activated Builder Web for Plan F4-T1, Spec revision 1, `RF-01`–`RF-09`, `RF-12` / `CA-01`–`CA-10`, `CA-13`–`CA-15`. Owned/prohibited paths, Rule Pack, all six references plus four supplemental states and F4 exit are exactly Plan F4-T1; expected evidence is `EV-05` and `VIS-01`–`VIS-10`. |
+| 2026-08-21 | F2 scope expanded by the smallest required path: `apps/server/src/mrp/fixtures/mrp-module-fixture.ts` may receive only the `ProductCreate` import relocation caused by the F1 structure split. `FND-002` invalidated `EV-03`; F3 owns the typed-array correction. |
+| 2026-08-21 | F3 scope expanded by the smallest required paths: `packages/core/src/mrp/domain/entities/fakers/**` may add/export only the entity fakers needed by F3 tests, which must replace complete hand-written domain fixtures. `FND-003` keeps F3 in progress. |
+| 2026-08-21 | Builder Core received the minimal F4 compatibility scope `packages/validation/src/web/product-details-search-schema.ts`: omitted `tab` must remain an optional typed search value. `FND-004` invalidated `EV-05` until Web reruns its type/browser exits. |
+| 2026-08-21 | F4 route generation changed the required generated tree and also removed pre-existing Start SSR registration. Per routing Rules it was not hand-edited; `FND-005` records the required classification. |
+| 2026-08-21 | Integrated F2/F3 conformance passed: required Core and Server trees are present; each changed path stayed within its scoped owner; FND-002/FND-003/FND-004 corrections are current; `EV-03` and `EV-04` passed. F2 and F3 are completed. |
+| 2026-08-21 | Activated Builder Server for Plan F5-T1, Spec revision 1, `RF-01`–`RF-11` / `CA-01`, `CA-02`, `CA-05`, `CA-08`, `CA-11`–`CA-14`. Owned/prohibited paths, Rule Pack, real-service exits and expected evidence are exactly Plan F5-T1; expected evidence is `EV-06`. |
+| 2026-08-21 | Web automated/browser F4 exit passed: 82 full mocked Playwright tests, 112 unit tests and current code/type checks. The visual matrix remains incomplete; `FND-006` records the unrelated pre-existing Identity warning. |
+| 2026-08-21 | F4 visual expansion failed before render because the populated Recipe mock was not intercepted. `FND-007` invalidates only the attempted populated capture; existing empty-state evidence remains current. |
+| 2026-08-21 | After three resume attempts returned diagnosis without executing the active fixture correction, activated Builder Web Fix for `FND-007` only. It owns `apps/web/tests/fixtures/mrp-module-fixture.ts` and `apps/web/tests/routes/mrp/products.$productId.test.ts`; all feature UI source remains prohibited. Its expected evidence is repaired route interception plus current `VIS-01`–`VIS-10` captures where the implemented UI supports them. |
+| 2026-08-21 | F5 focused real integration passed after healthy Docker preflight. The exact full Server suite did not complete within bounded observation and is recorded as `EV-07` / `FND-008`; F5 remains in progress until integrated validation resolves that sensor. |
+| 2026-08-21 | Builder Web Fix repaired `FND-007` and produced focused mocked captures for all required Recipe/Produce states, but none are accepted as final while `FND-009` route-test instability and `FND-010` narrow responsive UI defect remain active. The original Builder Web is resumed for the UI correction. |
+| 2026-08-21 | Fresh sequential recaptures resolved `FND-010`, but visual inspection found `FND-011` desktop yield wrapping and `FND-012` remove-dialog overlap. `FND-009` remains active because full serial route execution emits repeated React lifecycle errors and ends without a result. |
+| 2026-08-21 | FND-011/FND-012 corrections were recaptured and directly inspected by the Orchestrator. Desktop, narrow and remove visual states are current; FND-009 remains the only F4 blocker. |
+| 2026-08-21 | Matrix reconciliation found the missing-main-brand supplemental production state absent from the current route captures; `FND-013` keeps F4 in progress. |
+| 2026-08-21 | F4/F5 integrated exits are current: generated route tree plus TypeScript, Web code/type/unit checks and 84 mocked browser tests pass; the complete Server suite passes 33 files / 67 tests in 307.69 s. FND-005, FND-008, FND-009 and FND-013 are resolved; all ten visual comparisons are recorded. F6 is active for real Manager scenarios and the one Integrated Reviewer. |
+| 2026-08-21 | The one Integrated Reviewer completed `RV-01`. The Orchestrator accepted FND-014 through FND-018; it classified the real-browser 500 as missing local migration, applied generated migration `0008`, and resumed one Builder Web for the three in-contract UI corrections. The same Reviewer will recheck after corrections and fresh capture. |
+| 2026-08-21 | F6 replay after migration initially misclassified the disabled first-ingredient action as `FND-019`. The Orchestrator reread the Spec, acceptance criteria and empty-state reference, rejected the finding, and corrected the manual sequence to save a positive yield before adding an ingredient; no feature source change is required. |
+| 2026-08-21 | Builder Web resolved FND-014–FND-016. The Orchestrator reran F6 with the contracted save-yield-first sequence: the authentic Manager lifecycle, production, narrow keyboard and cost-field scenarios passed; it then removed the temporary test and reran the full 84-test mocked suite to restore every visual artifact. |
+| 2026-08-21 | The same Integrated Reviewer rechecked the corrected candidate with no remaining finding. All acceptance criteria, final screenshots, F6 manual scenarios and required exits are current; Evaluation is ready for `conclude-spec` when publication authority is available. |
+| 2026-08-22 | Product-route coverage was moved out of the combined route file into dedicated Stock and Recipe files. Core `ProductFaker`, `RecipeFaker` and `ProductionFaker` fixtures now supply the route test entities; the dedicated files pass 14 tests total and were recorded as `EV-09`. |
+| 2026-08-22 | Route-test fixture builders were renamed to the `fake*` convention (`fakeBrand`, `fakeRecipeResponse`, `fakeProductionPreview`, `fakeProduction`, `fakeStockResponse`); Web typecheck and focused renamed-route tests passed. |
+| 2026-08-22 | Playwright fixture bindings were renamed to the explicit `identityFixture` and `mrpFixture` convention across the Web route suites and shared test setup; Web typecheck passed and the focused nested Recipe (3 tests) and Stock (1 test) suites passed. |
+| 2026-08-22 | Product-list category badges now render as semantic Lucide icons with Portuguese tooltips on hover and keyboard focus. The full Products route suite passed 11 tests; desktop and 371px screenshots were refreshed (`products-catalog-1481x1450.png`, `products-long-name-371x900.png`), and the Impeccable detector reported no findings. |
+| 2026-08-22 | Increased the category badge dimensions to 32px with 20px icons; focused desktop, tooltip, and narrow viewport checks passed after the visual adjustment. |
+| 2026-08-22 | Product Details category badges now keep their visible Portuguese names while adding the matching icons and tooltips; the nested Stock and Recipe route checks passed and the populated Recipe screenshot was refreshed. |
+| 2026-08-22 | Extracted the shared `CATEGORY_ICONS` map to `apps/web/src/constants/product-category-icons.ts` and re-used it from the Products list and Product Details header; Web typecheck passed. |
+| 2026-08-22 | Refactored every Products page widget to the UI-layer boundaries: exported widget prop contracts, colocated nested widgets (`ProductTable`, filter controls and brand controls), hook-owned derived state and handlers, `@/` cross-directory imports, shadcn controls, and typed `Anchor` route params. Web typecheck passed, code check retained only four pre-existing `global.css` warnings, the Products route suite passed 11 tests, fresh desktop/narrow screenshots were inspected, and the Impeccable detector found only the pre-existing KPI side-tab accent warning. |
+| 2026-08-22 | Renamed the MRP slot widget boundaries from `product-stock-page`/`product-recipe-page` to `product-stock-slot`/`product-recipe-slot`, including component, hook and test names; route consumers and active feature documentation now use the `-slot` convention. |
+| 2026-08-22 | Added the complete Product Details tab bar from Pencil node `Z6DqU` (Stock, Recipe, Accompaniments, Prices and Settings), typed nested routes for each tab, and a shared placeholder slot for the three unimplemented destinations. New placeholder route checks passed 3 tests and a fresh desktop screenshot was inspected. |
+| 2026-08-22 | Tuned the tab bar styling to the `Z6DqU` reference: slate pill surface, compact 14px typography with semibold inactive labels, 14px icons, tighter line height, and the active white/shadow treatment. Fresh placeholder screenshot was recaptured and inspected; placeholder route checks passed 3 tests. |
+| 2026-08-22 | Recipe error states now retain the Product Details header and active nested tab by loading the product shell independently from recipe data. The dedicated Recipe route suite passed 3 tests, and fresh `products-recipe-error-1560x1200.png` evidence was inspected; the captured error card now appears beneath the complete shell. |
+| 2026-08-22 | Added an explicit active state to the production mode toggle: the selected Lote or Quantidade control now uses the white surface, border ring and shadow treatment from the design reference. Focused production-preview coverage passed and `products-recipe-produce-796x790.png` was freshly inspected. |
+| 2026-08-22 | Migrated `recipe-ingredients-table` to the shared shadcn Table primitives while preserving limiting-row styling, action controls, horizontal overflow and table semantics. Focused populated Recipe coverage passed and `products-recipe-populated-1560x1200.png` was freshly inspected. |
+| 2026-08-22 | Enforced category-gated Product Details navigation: Recipe is Fabricável-only, Acompanhamentos is Porção-only, Preços is available for Porção/Revenda, and Estoque/Configurações remain universal. Unsupported direct URLs redirect to Stock without issuing the invalid request; 7 Recipe/placeholder tests plus the Stock redirect test passed, and `products-category-blocked-stock-1560x1200.png` was freshly inspected. |
+| 2026-08-22 | Refactored `ProductStockSlot` component coverage to mock its colocated `useProductStockSlot` hook, preserving only its rendered state and delegation assertions; the hook’s state/transport behavior remains covered by its dedicated hook test and route tests. Focused widget tests passed 3 cases, alongside Web typecheck and code check (four pre-existing reduced-motion `!important` warnings only). |
+| 2026-08-22 | Audited every Web widget component test. Tests now mock their owning widget hook where one exists; direct-prop and presentation-only widgets remain unmocked. The Stock transaction card now mocks its query hook, and the affected Identity page tests use typed local-hook mocks. All 13 widget test files passed 32 cases; the full Web unit suite passed 37 files / 118 tests, with current typecheck and code check (the same four pre-existing reduced-motion warnings only). |
+| 2026-08-22 | Reinforced `documentation/rules/widget-testing-rules.md`: every widget component test with a colocated owning hook must use a typed `vi.mocked` hook mock; hook behavior and real route composition are separate evidence layers, while prop-only widgets remain direct tests. |
+| 2026-08-22 | Standardized the remaining Recipe production-preview table on the shared shadcn `Table` primitives, preserving the existing responsive overflow, headers, missing-stock state styling and accessible caption. Web typecheck, the focused Recipe table/widget tests and fresh route captures (`apps/web/test-results/products-recipe-populated-1560x1200.png`, `apps/web/test-results/products-recipe-produce-shortage-640x760.png`) passed inspection. |
+| 2026-08-22 | Standardized Recipe currency and percentage displays through shared `pt-BR` formatters with exactly two decimal places (`R$ 9,00`, `R$ 0,01`, `1,00%`). Focused Recipe widget/route tests passed and the fresh populated screenshot was inspected. |
+| 2026-08-22 | Promoted currency, decimal, quantity and date formatting into shared hooks under `apps/web/src/ui/shared/hooks/use-formatters.ts`; production preview balances now suppress floating-point artifacts while retaining locale decimals. Focused Recipe route coverage passed and the fresh production-preview screenshot was inspected. |
+| 2026-08-22 | Refactored the Recipe ingredient dialog onto React Hook Form with the shared `addRecipeIngredientSchema`. A zero quantity now renders an inline field error and is rejected before the mutation; the dedicated nested Recipe route assertion recorded zero POST requests and `products-recipe-add-quantity-validation-676x682.png` was freshly inspected. The complete nested Recipe suite passed 4 tests, alongside Web typecheck and code check (the same four pre-existing reduced-motion `!important` warnings only). |
+| 2026-08-22 | Hardened `ProduceProductDialog` against narrow-width overlap: the modal content and summary regions now allow shrinking, projection columns use fixed proportions, and long ingredient/balance values wrap within the table. The production-preview fixture includes a long ingredient name, the focused Playwright scenario passed, and fresh 320 × 900, 640 × 760 and 796 × 790 captures were inspected with no overlap. |
+| 2026-08-22 | Conclusion preflight passed Core/Validation/Server/Web checks, generated-artifact checks, Playwright health, Server 33-file/67-test suite, Web 37-file/118-test suite, and clean serial Recipe 4/4 plus Stock 12/12 route runs. A concurrent-server exploratory run was recorded as accepted non-blocking `FND-020`; no implementation correction was required. |

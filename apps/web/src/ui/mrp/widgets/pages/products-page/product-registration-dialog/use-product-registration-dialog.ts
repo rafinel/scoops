@@ -10,7 +10,7 @@ import {
   type ProductUnit,
 } from '@scoops/core/mrp/domain/structures'
 
-import { useRegisterProductAction } from '../../../../hooks/use-register-product-action'
+import { useRegisterProductAction } from '@/ui/mrp/hooks/use-register-product-action'
 
 export type BrandDraft = {
   id: string
@@ -29,6 +29,7 @@ const PRODUCT_REGISTRATION_DEFAULT_VALUES: ProductRegistrationFormValues = {
   categories: [],
   stockControl: 'single',
   allowNegativeStock: false,
+  currentUnitCost: '',
   initialStock: '0',
   idealStock: '',
   brands: [],
@@ -46,7 +47,7 @@ function createBrandDraft(id: string): BrandDraft {
 }
 
 export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => void }) {
-  const registration = useRegisterProductAction()
+  const { isPending, mutateAsync } = useRegisterProductAction()
   const [name, setName] = useState('')
   const [unit, setUnitState] = useState<ProductUnit>('un')
   const [categories, setCategories] = useState<ProductCategory[]>([])
@@ -54,6 +55,7 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
   const [allowNegativeStock, setAllowNegativeStockState] = useState(false)
   const [brands, setBrands] = useState<BrandDraft[]>([])
   const [initialStock, setInitialStockState] = useState('0')
+  const [currentUnitCost, setCurrentUnitCostState] = useState('')
   const [idealStock, setIdealStockState] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
   const {
@@ -97,6 +99,11 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
   function handleInitialStockChange(value: string) {
     setInitialStockState(value)
     setFormValue('initialStock', value)
+  }
+
+  function handleCurrentUnitCostChange(value: string) {
+    setCurrentUnitCostState(value)
+    setFormValue('currentUnitCost', value)
   }
 
   function handleUnitChange(value: ProductUnit) {
@@ -184,6 +191,7 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
     setAllowNegativeStockState(false)
     setBrands([])
     setInitialStockState('0')
+    setCurrentUnitCostState('')
     setIdealStockState('')
     setFormError(null)
     reset(PRODUCT_REGISTRATION_DEFAULT_VALUES)
@@ -207,7 +215,7 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
         : Number(values.initialStock)
 
     try {
-      await registration.mutateAsync({
+      await mutateAsync({
         name: values.name,
         unit: values.unit,
         categories: values.categories,
@@ -215,6 +223,12 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
         allowNegativeStock: values.allowNegativeStock,
         idealStock: Number(values.idealStock),
         initialStock: nextInitialStock,
+        currentUnitCost:
+          effectiveStockControl === 'single' &&
+          values.categories.includes(ProductCategory.Ingredient) &&
+          values.currentUnitCost.trim() !== ''
+            ? Number(values.currentUnitCost)
+            : undefined,
         brands:
           effectiveStockControl === 'by-brand'
             ? values.brands.map((brand) => ({
@@ -245,6 +259,7 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
       categories: errors.categories?.message,
       idealStock: errors.idealStock?.message,
       name: errors.name?.message,
+      currentUnitCost: errors.currentUnitCost?.message,
     },
     formError,
     handleAddBrand,
@@ -252,6 +267,7 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
     handleBrandChange,
     handleIdealStockChange,
     handleInitialStockChange,
+    handleCurrentUnitCostChange,
     handleNameChange,
     handleProductCategoryToggle,
     handleRegister: submitForm(handleRegister),
@@ -260,8 +276,9 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
     handleUnitChange,
     idealStock,
     initialStock,
+    currentUnitCost,
     isCategoryDisabled,
-    isPending: registration.isPending,
+    isPending,
     name,
     register,
     stockControl,

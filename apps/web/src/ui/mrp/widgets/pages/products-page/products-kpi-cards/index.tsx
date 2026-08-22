@@ -5,14 +5,13 @@ import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import { useProductsKpiCards } from './use-products-kpi-cards'
 
-export function ProductsKpiCards({
-  page,
-  isLoading,
-}: {
+export type ProductsKpiCardsProps = {
   page?: ProductCatalogPage
   isLoading: boolean
-}) {
-  const cards = useProductsKpiCards(page, isLoading)
+}
+
+export const ProductsKpiCards = ({ page, isLoading }: ProductsKpiCardsProps) => {
+  const { cards } = useProductsKpiCards(page, isLoading)
 
   return (
     <div className='grid gap-4 sm:grid-cols-3'>

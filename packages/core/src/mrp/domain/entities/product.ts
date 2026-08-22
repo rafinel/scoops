@@ -13,23 +13,8 @@ export type Product = Entity & {
   status: ProductStatus
   allowNegativeStock?: boolean
   idealStock?: number
+  currentUnitCost?: number
   internalNotes?: string
   createdAt: Date
   updatedAt: Date
 }
-
-export type ProductCreate = Omit<Product, 'id' | 'createdAt' | 'updatedAt'>
-
-export type ProductUpdate = Partial<
-  Pick<
-    Product,
-    | 'name'
-    | 'unit'
-    | 'categories'
-    | 'stockControl'
-    | 'status'
-    | 'allowNegativeStock'
-    | 'idealStock'
-    | 'internalNotes'
-  >
->

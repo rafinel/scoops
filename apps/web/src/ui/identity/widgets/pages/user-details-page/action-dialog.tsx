@@ -129,14 +129,16 @@ export const CorrectNameDialog = ({
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
       <DialogContent className='max-w-md'>
-        <DialogHeader className='border-b border-border-soft p-6 pr-14'>
+        <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft p-6 pr-14'>
           <span className='grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
             <Icon name='pencil' className='size-5' />
           </span>
-          <DialogTitle>Editar usuário</DialogTitle>
-          <DialogDescription className='leading-5'>
-            Atualize o nome exibido desta conta.
-          </DialogDescription>
+          <div className='min-w-0'>
+            <DialogTitle>Editar usuário</DialogTitle>
+            <DialogDescription className='mt-1 leading-5'>
+              Atualize o nome exibido desta conta.
+            </DialogDescription>
+          </div>
         </DialogHeader>
         <form className='p-6' onSubmit={submitForm(handleSubmit)} noValidate>
           <Label className='grid gap-1.5 text-sm font-bold'>

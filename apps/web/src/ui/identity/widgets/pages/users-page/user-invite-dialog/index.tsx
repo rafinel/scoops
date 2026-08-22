@@ -62,7 +62,7 @@ export const UserInviteDialog = ({
       >
         <form onSubmit={handleSubmit}>
           <div className='px-6 pt-6 pb-7 sm:px-7 sm:pt-7'>
-            <DialogHeader className='border-b border-border-soft pb-6 pr-14'>
+            <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft pb-6 pr-14'>
               <div className='grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
                 <Icon name='user-plus' className='size-5' />
               </div>
@@ -78,12 +78,14 @@ export const UserInviteDialog = ({
               >
                 <Icon name='x' className='size-4' />
               </DialogClose>
-              <DialogTitle className='text-lg text-foreground sm:text-xl'>
-                Novo usuário
-              </DialogTitle>
-              <DialogDescription className='text-sm leading-5'>
-                Envie um convite para fazer parte da sorveteria.
-              </DialogDescription>
+              <div className='min-w-0'>
+                <DialogTitle className='text-lg text-foreground sm:text-xl'>
+                  Novo usuário
+                </DialogTitle>
+                <DialogDescription className='mt-1 text-sm leading-5'>
+                  Envie um convite para fazer parte da sorveteria.
+                </DialogDescription>
+              </div>
             </DialogHeader>
 
             <div className='mt-6 grid gap-4'>

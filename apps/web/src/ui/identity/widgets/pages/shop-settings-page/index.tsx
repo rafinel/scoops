@@ -130,14 +130,16 @@ export const ShopSettingsPage = () => {
       </p>
       <Dialog open={isNameDialogOpen} onOpenChange={handleNameDialogOpenChange}>
         <DialogContent className='sm:max-w-[520px]'>
-          <DialogHeader className='border-b border-border-soft p-6 pr-14'>
+          <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft p-6 pr-14'>
             <span className='grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
               <Icon name='pencil' className='size-5' />
             </span>
-            <DialogTitle>Corrigir nome</DialogTitle>
-            <DialogDescription>
-              Escolha o nome que identifica seu estabelecimento.
-            </DialogDescription>
+            <div className='min-w-0'>
+              <DialogTitle>Corrigir nome</DialogTitle>
+              <DialogDescription className='mt-1'>
+                Escolha o nome que identifica seu estabelecimento.
+              </DialogDescription>
+            </div>
           </DialogHeader>
           <form className='grid gap-4 p-6' onSubmit={handleNameSubmit}>
             <Label className='grid gap-2 text-xs font-extrabold'>

@@ -13,7 +13,17 @@ export const registerProductSchema = z
     stockControl: productStockControlSchema,
     allowNegativeStock: z.boolean().default(false),
     idealStock: z.number().min(0),
+    currentUnitCost: z
+      .number()
+      .finite()
+      .nonnegative()
+      .refine(hasAtMostSixDecimalPlaces)
+      .optional(),
     initialStock: z.number().min(0).optional(),
     brands: z.array(productBrandSchema).optional(),
   })
   .strict()
+
+function hasAtMostSixDecimalPlaces(value: number): boolean {
+  return Math.abs(value * 1_000_000 - Math.round(value * 1_000_000)) < 1e-8
+}

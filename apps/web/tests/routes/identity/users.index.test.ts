@@ -12,10 +12,10 @@ test.describe('Users route', () => {
 
   test('renders manager data, statuses, profiles, and row actions', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     await page.route('**/users?*', async (route) => {
       await route.fulfill({
         contentType: 'application/json',
@@ -43,10 +43,10 @@ test.describe('Users route', () => {
 
   test('updates search and filters in the URL and API request', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     const listRequests: URL[] = []
     const consoleErrors: string[] = []
     const failedRequests: string[] = []
@@ -118,16 +118,21 @@ test.describe('Users route', () => {
       .toBe('inactive')
     expect(listRequests.at(-1)?.searchParams.get('page')).toBe('1')
     await expect(page.getByText('Ana Operator')).toBeVisible()
-    await page.screenshot({ path: 'test-results/users-filtered-global-summary-1481x900.png' })
+    await page.screenshot({
+      path: 'test-results/users-filtered-global-summary-1481x900.png',
+    })
 
     expect(listRequests).toHaveLength(4)
     expect(consoleErrors).toEqual([])
     expect(failedRequests).toEqual([])
   })
 
-  test('renders a retry state when loading users fails', async ({ page, identity }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+  test('renders a retry state when loading users fails', async ({
+    page,
+    identityFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     let listRequests = 0
     await page.route('**/users?*', async (route) => {
       listRequests += 1
@@ -151,10 +156,10 @@ test.describe('Users route', () => {
 
   test('opens and validates the invite dialog before submission', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     await page.route('**/users?*', async (route) => {
       await route.fulfill({
         contentType: 'application/json',
@@ -179,10 +184,10 @@ test.describe('Users route', () => {
 
   test('confirms a row action and sends the expected profile request', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
     let profileBody: { profile?: string } | undefined
     await page.route('**/users?*', async (route) => {
       await route.fulfill({

@@ -156,7 +156,7 @@ test.describe('Ice cream shop onboarding route', () => {
     await page.addInitScript(
       ({ continuationToken: token, onboarding: savedOnboarding }) => {
         window.sessionStorage.setItem(
-          'scoops.identity.onboarding-session',
+          'scoops.identityFixture.onboarding-session',
           JSON.stringify({
             version: 1,
             continuationToken: token,

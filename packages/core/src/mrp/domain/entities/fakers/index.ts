@@ -1,1 +1,5 @@
+export * from '#mrp/domain/entities/fakers/product-faker.ts'
+export * from '#mrp/domain/entities/fakers/production-faker.ts'
+export * from '#mrp/domain/entities/fakers/recipe-faker.ts'
+export * from '#mrp/domain/entities/fakers/recipe-ingredient-faker.ts'
 export * from '#mrp/domain/entities/fakers/stock-transaction-faker.ts'

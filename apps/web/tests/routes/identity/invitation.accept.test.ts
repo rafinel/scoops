@@ -40,10 +40,10 @@ test.describe('Invitation acceptance route', () => {
 
   test('accepts the invitation and exposes the app navigation', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
 
     let acceptanceBody: { confirmationToken?: string } | undefined
     await page.route('**/auth/v1/user', async (route) => {
@@ -75,10 +75,10 @@ test.describe('Invitation acceptance route', () => {
 
   test('surfaces an API failure and leaves the form available for correction', async ({
     page,
-    identity,
+    identityFixture,
   }) => {
-    await identity.mockManagerSession()
-    await identity.mockManagerAccount()
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
 
     await page.route('**/auth/v1/user', async (route) => {
       await route.fulfill({

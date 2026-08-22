@@ -47,13 +47,15 @@ updated authority.
 
 ## Roles
 
-SDD uses three roles. Prompt names such as `create-spec` or `conclude-spec` are workflows,
+SDD uses four roles. Prompt names such as `create-spec` or `conclude-spec` are workflows,
 not additional agents.
 
 | Role | Responsibility | Restrictions |
 | --- | --- | --- |
-| [Orchestrator](./agents/orchestrator-agent.md) | Selects workflows, owns artifact state, creates Builders, runs deterministic sensors, records evidence, publishes the PR and routes failures or changes. | Does not skip required sensors or claim evidence that was not executed. |
+| Orchestrator | The main agent selects workflows, owns artifact state, creates subagents, integrates Builder diffs, runs deterministic sensors, records evidence, publishes the PR and routes failures or changes. | Does not delegate integration or the official evidence verdict, skip required sensors or claim evidence that was not executed. |
 | [Builder](./agents/builder-agent.md) | Implements one bounded direct, phase, task or fix scope against the current Spec revision and Rules. | Does not edit Spec, Plan, Evaluation, PRD or Rules; does not review its own work or publish delivery artifacts. |
+| [Searcher](./agents/searcher-agent.md) | Researches one bounded codebase boundary and returns exact read-only evidence for Spec authoring. | Does not edit files, decide the Contract or create subagents. |
+| [Integrated Reviewer](./agents/reviewer-agent.md) | Independently reviews one integrated Plan-backed candidate against the Spec, Rules, design references and current evidence. | Does not edit files, implement fixes, create subagents or decide the official evidence verdict. |
 
 Builders are scoped subagents created by the Orchestrator in the current task. No subagent
 creates another subagent, fork or user-owned task. Spec quality is enforced by clarification,
@@ -132,10 +134,11 @@ flowchart TD
     C -->|Dependent or risky delivery| E["create-plan"]
     E --> F["implement-spec: Plan-backed strategy"]
     D --> G["Integrated sensors and Playwright CLI evidence"]
-    F --> G
+    F --> R["One Integrated Reviewer and integrated sensors"]
     G --> H{"ready evidence"}
-    H -->|No| I["Builder Fix and refreshed evidence"]
-    I --> G
+    R --> H
+    H -->|No| I["Responsible Builder correction and refreshed evidence"]
+    I --> C
     H -->|Yes| J["conclude-spec"]
     J --> K["commit-code and create-pr"]
     K --> L["PR CI Quality Gate"]
@@ -230,8 +233,8 @@ The Plan contains:
 
 | Section | Purpose |
 | --- | --- |
-| Execution status | Current Spec revision, phase, next action, blockers and shared ownership. |
-| Execution ledger | Waves, lanes, phases, tasks, dependencies, non-overlapping paths and sensor-backed exits. |
+| Execution status | Current Spec revision, phase, active Builders, next action, blockers and shared ownership. |
+| Execution ledger | Waves, stable ownership Builders, phases, tasks, dependencies, non-overlapping paths and sensor-backed exits. |
 | Validation and handoff | Scheduled automated, runtime, manual and visual evidence. |
 | Execution log | Conditional record of findings, failed attempts or material execution events. |
 
@@ -247,15 +250,24 @@ current Plan references the Spec revision. The common workflow:
 2. set the Spec to `in_progress`, and the Plan when present;
 3. create or reconcile `evaluation.md` from the canonical
    [`evaluation.md` template](./templates/evaluation.md) with `status: in_progress`;
-4. dispatch bounded Builders with RF/CA coverage, allowed paths, Rules, Architecture and
-   design references;
-5. inspect Builder diffs and run repository-approved focused sensors;
-6. record exact results, findings and validation-artifact freshness in Evaluation;
-7. create scoped Builder Fixes and rerun only invalidated evidence until the Evaluation is ready.
+4. activate bounded direct or stable ownership Builders with RF/CA coverage, allowed paths,
+   assigned phases, Rules, Architecture and design references;
+5. inspect and integrate Builder diffs, then run repository-approved integrated sensors; for
+   Plan-backed execution, activate one read-only Integrated Reviewer in parallel;
+6. verify applicable review findings and record exact results, findings and validation-artifact
+   freshness in Evaluation;
+7. resume the responsible Builder for corrections when possible and rerun only invalidated
+   evidence until the Evaluation is ready.
 
-The direct route uses one `Builder Direct`. The Plan route may use phase or task Builders in
-parallel only when their contracts are stable and paths do not overlap. The Orchestrator
-coordinates lockfiles, shared files and generated artifacts.
+The direct route activates `Builder Direct` in the current agent context. The Plan route derives
+stable ownership Builders from affected application, package and module boundaries, reuses each
+Builder across related phases and defaults to at most three concurrent implementation Builders.
+It does not create agents linearly with phases, tasks or package count. Builders run in parallel
+only when their contracts are stable and paths do not overlap. After integration, exactly one
+Integrated Reviewer checks the complete candidate, including UI and server-backed surfaces when
+affected; no per-Builder, per-phase, per-application, per-package or specialist Reviewers are
+created. The Orchestrator coordinates root configuration, lockfiles, shared files, generated
+artifacts, integration and the official evidence verdict.
 
 Builder reports are not official evidence. The Orchestrator must verify the diff and sensor
 results. Validation artifacts tied to an earlier affected diff are marked historical or stale
@@ -277,15 +289,23 @@ and stable evidence IDs. An Evaluation records:
 
 ## 6. Integrated validation
 
-After the integrated implementation is current, the Orchestrator runs the required Core, Server,
-Web, database, build and Playwright CLI sensors. It compares every transient implementation capture
-with its original saved reference at the exact viewport and state, records each CA and MV
-result, and inspects console, network and persisted-state evidence.
+After the integrated implementation is current, Plan-backed execution activates one read-only
+Integrated Reviewer while the Orchestrator runs the required Core, Validation, Server, Web,
+database, build and Playwright CLI sensors. Direct execution does not require a separate Reviewer
+unless the Spec or another repository authority requires one. The Reviewer covers cross-Builder
+contracts and, when UI is affected, inspects every final visual comparison and independently
+replays high-risk Playwright CLI interactions. The Orchestrator compares every transient
+implementation capture with its original saved reference at the exact viewport and state, records
+each CA and MV result, and inspects console, network and persisted-state evidence.
 
-On a failed sensor or material discrepancy, findings are recorded, scoped Builder Fixes run,
-affected evidence is invalidated and the sensors are rerun on the updated implementation. When all
-required evidence is current and no blocking finding remains, Evaluation becomes `ready`; the
-Plan route also completes its integrated phase and Plan before routing to conclusion.
+On a failed sensor or material discrepancy, findings are recorded, the responsible Builder is
+resumed when possible, affected evidence is invalidated and the sensors are rerun on the updated
+implementation. A scoped Builder Fix is activated only when the responsible Builder cannot be
+resumed or the correction is genuinely independent. Reviewer reports are not evidence; the
+Orchestrator verifies and records accepted findings, and the same Integrated Reviewer rechecks any
+corrected candidate. When all required evidence and applicable review results are current and no
+verified blocking finding remains, Evaluation becomes `ready`; the Plan route also completes its
+integrated phase and Plan before routing to conclusion.
 
 ## 7. Changes before conclusion
 
@@ -294,7 +314,7 @@ artifacts are changed:
 
 | Classification | Meaning | SDD action |
 | --- | --- | --- |
-| Implementation correction | Existing implementation does not satisfy the current Spec, Design Contract or Rule. | Keep the Spec revision, record a finding, reopen affected work/evidence, run Builder Fixes and rerun the affected validation when invalidated. |
+| Implementation correction | Existing implementation does not satisfy the current Spec, Design Contract or Rule. | Keep the Spec revision, record a finding, reopen affected work/evidence, resume the responsible Builder when possible and rerun the affected validation. |
 | Contract change | Requested product behavior, design intent or technical boundary differs from the current Spec. | Set the Spec to `draft`, route through `create-spec`, update higher authority first when required, increment revision, refresh affected design/validation, reopen and reroute implementation. |
 
 Earlier evidence and verdicts affected by a new Spec revision remain as historical records.
