@@ -103,6 +103,10 @@ coupled packages into one cohesive ownership assignment, and give a package its 
 when its work is substantial and independently executable. Future applications and packages
 follow the same evidence-based grouping instead of increasing the Builder count linearly.
 
+Do not translate a PRD Product Dependency Graph into phases or waves. That graph describes
+product-capability consumption; Plan sequencing comes only from the current Spec's technical
+contracts, path ownership and executable dependencies.
+
 A Builder may own multiple sequential phases inside its ownership boundary. Phases control
 sequencing and exits; they do not trigger fresh agents. Reuse the same Builder across related
 phases and corrections to preserve context. Default to at most three concurrent implementation

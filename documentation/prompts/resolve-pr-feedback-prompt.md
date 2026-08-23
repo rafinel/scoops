@@ -15,6 +15,11 @@ Read the open PR, current head SHA, unresolved conversations, reviews, Spec, Pla
 present, `evaluation.md`, actual diff and GitHub Issue traceability. Ignore stale comments
 that target superseded code only after verifying they are no longer applicable.
 
+Read the applicable PRD and the delivery's `REQ-*`/`RF-*`/`CA-*` traceability. Treat the
+Implemented checkbox as delivery state owned by verified product evidence: this workflow may
+return a requirement to unchecked when feedback invalidates that evidence, but it never marks a
+requirement implemented.
+
 Preserve only actual GitHub Issue or direct-request traceability. Do not resolve a
 conversation before its requested action exists on the branch or an evidence-backed response
 has been accepted.
@@ -43,9 +48,13 @@ Spec or Rules while the PR remains open:
 2. set the Plan and affected tasks/phases to `in_progress` when a Plan exists;
 3. set `evaluation.md` to `status: in_progress`, append a review-cycle entry and record the
    comment URL as a mapped finding;
-4. invoke `implement-spec`; it automatically resumes the current Plan when one exists;
-5. let that implementation workflow own fixes, invalidated evidence and manual validation;
-6. after it returns evaluation to `ready`, invoke `conclude-spec` to commit, update the
+4. verify the finding against the delivered product and its `REQ-*`/`RF-*`/`CA-*` mapping. If
+   it proves an affected PRD requirement is not delivered, change that requirement to
+   `- [ ] **Implemented**`; if it is only an evidence gap or transient CI/infrastructure issue
+   and product behavior remains verified, preserve the current checkbox state;
+5. invoke `implement-spec`; it automatically resumes the current Plan when one exists;
+6. let that implementation workflow own fixes, invalidated evidence and manual validation;
+7. after it returns evaluation to `ready`, invoke `conclude-spec` to commit, update the
    existing PR, run the final PR CI gate and close the Spec again.
 
 Never apply the correction directly from this workflow, even when the comment appears small.
@@ -60,13 +69,18 @@ boundaries while the delivery PR remains open:
 1. set the same Spec from `completed` to `draft`;
 2. append the review comment and reason to its revision history;
 3. route through `create-spec` for product/technical clarification and required authority;
-4. update PRD, Rules, Architecture, Modules, Design or Tooling first when required;
-5. increment the Spec revision, reconcile the design bundle and validation, set
+4. once the amendment is approved, identify every materially changed PRD `REQ-*`, update the
+   PRD first and change each affected requirement to `- [ ] **Implemented**` before the revised
+   Spec is authored; preserve checked state for requirements whose complete current product
+   contract is unchanged;
+5. update Rules, Architecture, Modules, Design or Tooling first when required;
+6. increment the Spec revision, reconcile the design bundle and validation, set
    `evaluation.md` to `status: in_progress`, set a
    reused Plan to `pending` or a replaced Plan to `superseded`, and return the Spec to `open`
    without a separate Spec review stage;
-6. invoke `implement-spec` using the newly selected direct or Plan-backed strategy;
-7. invoke `conclude-spec` again to update the existing PR, run CI and close the delivery.
+7. invoke `implement-spec` using the newly selected direct or Plan-backed strategy;
+8. invoke `conclude-spec` again to resolve full-delivery checkboxes, update the existing PR,
+   run CI and close the delivery.
 
 If classification or expected behavior is ambiguous, ask the user before changing the Spec
 or implementation.
@@ -96,6 +110,7 @@ Return:
 - classification and evidence for every actionable comment;
 - replies or PR metadata changes made;
 - Spec/Plan/evaluation transition when reopened;
+- affected PRD `REQ-*` requirements and any Implemented-checkbox changes or preserved state;
 - workflow invoked or required next;
 - unresolved comments and blockers.
 

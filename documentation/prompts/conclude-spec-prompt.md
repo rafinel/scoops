@@ -42,6 +42,15 @@ states pass; every affected screenshot is fresh and inspected; and Playwright co
 network, HTTP status, accessibility, keyboard and responsive checks are classified. Passing
 tests without this record is not validation-ready.
 
+Require explicit PRD implementation traceability in that record. Map every in-scope `REQ-*`
+through the Spec's `RF-*` requirements and `CA-*` acceptance criteria to current Evaluation
+evidence, then classify it as fully delivered, partially delivered or deferred. A requirement
+is fully delivered only when its complete current Outcome, Actors, applicable Consumes and
+Provides, Capabilities and conditional Experience are implemented and every mapped Contract
+obligation has current passing evidence. Scoped
+delivery, passing only a subset of mapped criteria or deliberately leaving part for later is
+partial or deferred, not full delivery.
+
 Conclusion requires authorization to create commits, push the delivery branch and create or
 update its pull request. If that authority is not explicit or already in scope, ask once and
 keep the Spec `in_progress`. Do not silently publish, merge or deploy.
@@ -55,11 +64,18 @@ it:
   evaluation to `in_progress` and immediately invoke `implement-spec`. It selects the current
   Plan automatically when present and owns the correction and validation.
 - **Contract change:** set the Spec to `draft`, immediately invoke `create-spec`, obtain required
-  product or technical authority, increment the revision, reconcile Plan/evaluation and
-  continue through the recommended implementation route before resuming conclusion.
+  product or technical authority, uncheck every materially changed PRD `REQ-*` before the
+  revised Spec is authored, increment the revision, reconcile Plan/evaluation and continue
+  through the recommended implementation route before resuming conclusion.
 - **Documented transient CI/infrastructure failure:** keep the Spec `in_progress` and allow
   a same-SHA rerun only with concrete evidence that the failure is transient; keep waiting for
   its result in the current task.
+
+When a correction reopens a previously checked delivery, change an affected PRD requirement
+back to `- [ ] **Implemented**` only when current evidence verifies a product failure against
+that requirement. Do not uncheck requirements for a transient CI/infrastructure failure or an
+evidence-only gap where the delivered product behavior remains verified. Preserve partial and
+deferred requirements as unchecked throughout every route.
 
 Do not create a Builder or change the implementation inside `conclude-spec`.
 The invoked implementation workflow creates the Builder and refreshes validation. Resume
@@ -76,15 +92,23 @@ conclusion automatically after it returns evaluation to `ready`.
 4. Rerun the final Spec conformance comparison and verify the current validation evidence covers
    the exact implementation diff. Any later
    implementation or acceptance-evidence change routes back to the implementation workflow.
-5. Invoke `commit-code` to create intentional scoped commits.
-6. Inspect the existing delivery PR, if any, and compare its base, head SHA, title and body
+5. Resolve the PRD implementation-checkbox disposition from the completed `REQ-*`/`RF-*`/`CA-*`
+   traceability record. Change only fully delivered requirements to
+   `- [x] **Implemented**`; leave partially delivered and deferred requirements as
+   `- [ ] **Implemented**`. Make this PRD update only after steps 1–4 pass and before invoking
+   `commit-code`, `create-pr` or the final PR CI gate. If traceability or evidence is incomplete,
+   route the discrepancy through the authority and late-change rules instead of checking the
+   requirement.
+6. Invoke `commit-code` to create intentional scoped commits, including any authorized PRD
+   checkbox changes from step 5.
+7. Inspect the existing delivery PR, if any, and compare its base, head SHA, title and body
    with the current candidate. If no matching PR exists, the PR points at an earlier SHA, or
    its publication details are stale or incomplete, **invoke `create-pr` immediately and
    mandatorily** to create or update it. Do not bypass `create-pr` with an ad hoc PR edit or
    proceed to the final CI gate before it returns the current PR metadata.
-7. Invoke `create-pr` for the final publication whenever the branch was newly committed or
+8. Invoke `create-pr` for the final publication whenever the branch was newly committed or
    the PR needs any update; reuse the existing delivery PR and never create a duplicate.
-8. Record the branch and PR URL in the delivery record; update
+9. Record the branch and PR URL in the delivery record; update
    `evaluation.md` only when the operational ledger needs the reference.
 
 ## Final PR CI Quality Gate
@@ -110,6 +134,10 @@ the check/workflow name, result, run URL, PR head SHA and relevant test/build su
 If CI fails:
 
 - record the failure in `evaluation.md` and keep the Spec `in_progress`;
+- classify whether it proves an affected PRD requirement is not delivered. Uncheck each affected
+  previously checked `REQ-*` only for a verified product failure; preserve checkbox state for a
+  transient CI/infrastructure failure or an evidence-only issue where product behavior remains
+  verified;
 - immediately invoke the applicable implementation or amendment workflow through the
   authority and late-change routing above;
 - after that workflow returns evaluation to `ready`, invoke `commit-code`, update the existing
@@ -160,6 +188,11 @@ After CI passes, verify `evaluation.md` contains:
 Check PRD, Architecture, Modules, Design, Tooling and the Rule Pack against delivered facts.
 Apply factual documentation corrections only. Product, Contract, global Rule, module
 ownership or architecture changes require user authority and the late-change route.
+
+Reconcile the final PRD checkbox state against the same complete `REQ-*`/`RF-*`/`CA-*`
+traceability used before publication. Every checked requirement must still be fully delivered;
+every partial or deferred requirement must remain unchecked. A mismatch is a blocking closure
+finding and follows the same correction, amendment or transient-failure routing above.
 
 Treat material findings as inputs to durable documentation improvement, not only as closure
 records. For every resolved or active finding, classify whether it exposed reusable missing or
@@ -234,6 +267,8 @@ Return:
 - Spec revision and completed status;
 - delivery references, when present;
 - validation result and CA/manual/visual coverage;
+- fully delivered, partially delivered and deferred PRD `REQ-*` requirements with their final
+  Implemented-checkbox disposition;
 - applicable PR CI workflows and results;
 - documentation alignment and remaining non-blocking limitations;
 - finding-derived PRD, Architecture, Design, Tooling and Rule Pack improvements, including
