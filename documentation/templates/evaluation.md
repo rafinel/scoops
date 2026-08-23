@@ -61,3 +61,9 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
 | `CI-01` | `<applicable workflow>` | `<sha>` | `pending` | `<run URL when available>` |
+
+## History
+
+| Date/Time | Event |
+| --- | --- |
+| `YYYY-MM-DD HH:mm` | Evaluation created for Spec revision `<revision>`. |

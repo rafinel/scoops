@@ -27,7 +27,8 @@ import {
   SelectValue,
 } from '@/ui/shadcn/select'
 import { Avatar } from '@/ui/shared/widgets/components/avatar'
-import { useFormatDate, useFormatQuantity } from '@/ui/shared/hooks/use-formatters'
+import { useFormatDate } from '@/ui/shared/hooks/use-format-date'
+import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { Pagination } from '@/ui/shared/widgets/components/pagination'
 import { cn } from '@/ui/shared/lib/utils'

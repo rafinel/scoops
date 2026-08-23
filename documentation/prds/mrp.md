@@ -492,8 +492,17 @@ negative-stock option is enabled.
 - **Type creation modal:** must contain the type name, supporting guidance,
   `Cancel` and `Add type`; successful creation closes the modal and refreshes
   the list, while validation errors preserve the entered context.
-- **Sidebar:** `Accompaniment types` must appear as a top-level destination after
-  `Products`; the page marks that item as active.
+- **Navigation:** `Accompaniment types` remains a Manager-only dedicated page and
+  direct route, but it is not a global sidebar destination. The Products page
+  must provide the contextual link to the page, and the link dialog keeps its
+  `Manage types` shortcut.
+- **Return navigation:** the Accompaniment Types page provides a `Voltar` link
+  with a left-arrow icon that returns the Manager to the previously visited page,
+  preserving its canonical URL state; direct entry falls back to Products.
+- **Type removal actions:** an unused type uses readable destructive red outline/text
+  styling, while an in-use type keeps removal disabled with readable neutral styling.
+- **Shared back navigation:** the Types and Product Details pages use the same shared
+  `Voltar` control with a left-arrow icon, outlined styling and accessible link behavior.
 - **Optional monitoring:** no component should require the creation of a
   accompaniment to a Portion.
 - **Exclusion:** removal of the link requires confirmation.

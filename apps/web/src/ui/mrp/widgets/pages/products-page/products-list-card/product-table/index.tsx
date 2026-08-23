@@ -22,7 +22,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/ui/shadcn/tooltip'
-import { useFormatDate, useFormatQuantity } from '@/ui/shared/hooks/use-formatters'
+import { useFormatDate } from '@/ui/shared/hooks/use-format-date'
+import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
 import { cn } from '@/ui/shared/lib/utils'
 import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Icon } from '@/ui/shared/widgets/components/icon'
@@ -69,7 +70,7 @@ export const ProductTable = ({
   return (
     <Table className='min-w-0 table-fixed text-left'>
       <TableCaption className='sr-only'>Produtos cadastrados</TableCaption>
-      <TableHeader className='bg-muted/40 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground [&_tr]:border-0'>
+      <TableHeader className='bg-muted/40 text-md uppercase font-semibold tracking-wide text-muted-foreground [&_tr]:border-0'>
         <TableRow className='border-0 hover:bg-transparent'>
           {sortableColumns.map(({ align = 'left', className, field, label }) => {
             const isActive = search.sortBy === field

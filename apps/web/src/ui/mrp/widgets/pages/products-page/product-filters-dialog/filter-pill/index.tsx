@@ -4,15 +4,24 @@ import type { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import { ProductCategory as ProductCategories } from '@scoops/core/mrp/domain/structures'
 
 import { Button } from '@/ui/shadcn/button'
+import { Icon } from '@/ui/shared/widgets/components/icon'
+import type { IconName } from '@/ui/shared/widgets/components/icon/types'
 
 export type FilterPillProps = {
   active: boolean
   children: ReactNode
+  icon: IconName
   onClick: () => void
   tone?: ProductCategory | 'stock-low' | 'status-active'
 }
 
-export const FilterPill = ({ active, children, onClick, tone }: FilterPillProps) => {
+export const FilterPill = ({
+  active,
+  children,
+  icon,
+  onClick,
+  tone,
+}: FilterPillProps) => {
   const activeTone =
     tone === ProductCategories.Ingredient
       ? 'border-blue-600 bg-blue-50 text-blue-800'
@@ -33,11 +42,12 @@ export const FilterPill = ({ active, children, onClick, tone }: FilterPillProps)
   return (
     <Button
       aria-pressed={active}
-      className={`rounded-lg border px-2.5 py-1.5 !text-xs font-semibold transition-colors ${active ? activeTone : 'border-border bg-background text-muted-foreground hover:border-primary/50'}`}
+      className={`gap-1.5 rounded-lg border px-2.5 py-1.5 !text-xs font-semibold transition-colors ${active ? activeTone : 'border-border bg-background text-muted-foreground hover:border-primary/50'}`}
       onClick={onClick}
       type='button'
       variant='outline'
     >
+      <Icon className='size-3.5 shrink-0' name={icon} />
       {children}
     </Button>
   )

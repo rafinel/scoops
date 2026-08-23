@@ -12,7 +12,7 @@ import {
 } from '@/ui/shadcn/dialog'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
-import { useFormatQuantity } from '@/ui/shared/hooks/use-formatters'
+import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { cn } from '@/ui/shared/lib/utils'
 

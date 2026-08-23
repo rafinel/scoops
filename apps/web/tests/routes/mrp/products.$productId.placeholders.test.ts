@@ -14,12 +14,11 @@ const PRODUCT = ProductFaker.fake({
 })
 
 const PLACEHOLDER_ROUTES = [
-  { categories: ['portion'], path: 'accompaniments', tab: 'Acompanhamentos' },
   { categories: ['resale'], path: 'prices', tab: 'Preços' },
   { categories: ['ingredient'], path: 'settings', tab: 'Configurações' },
 ] as const
 
-test.describe('Product details placeholder routes', () => {
+test.describe('Remaining product details placeholder routes', () => {
   for (const { categories, path, tab } of PLACEHOLDER_ROUTES) {
     test(`renders the ${tab} placeholder tab`, async ({
       page,
@@ -47,10 +46,6 @@ test.describe('Product details placeholder routes', () => {
       await expect(page.getByRole('heading', { name: product.name })).toBeVisible()
       await expect(page.getByRole('tab', { name: 'Estoque' })).toBeVisible()
       await expect(page.getByRole('tab', { name: 'Configurações' })).toBeVisible()
-      if (categories[0] === 'portion') {
-        await expect(page.getByRole('tab', { name: 'Acompanhamentos' })).toBeVisible()
-        await expect(page.getByRole('tab', { name: 'Preços' })).toBeVisible()
-      }
       if (categories[0] === 'resale') {
         await expect(page.getByRole('tab', { name: 'Preços' })).toBeVisible()
         await expect(page.getByRole('tab', { name: 'Acompanhamentos' })).toHaveCount(0)
@@ -66,38 +61,6 @@ test.describe('Product details placeholder routes', () => {
       )
       await expect(page.getByRole('heading', { name: tab, exact: true })).toBeVisible()
       await expect(page.getByText('Em breve', { exact: true })).toBeVisible()
-      if (path === 'accompaniments') {
-        await page.screenshot({
-          fullPage: true,
-          path: 'test-results/products-details-tabs-placeholder-1280x900.png',
-        })
-      }
     })
   }
-
-  test('redirects an unavailable category tab to Stock', async ({
-    page,
-    identityFixture,
-    mrpFixture,
-  }) => {
-    await identityFixture.mockManagerSession()
-    await identityFixture.mockManagerAccount()
-    await mrpFixture.mockProductStock({
-      respond: () => ({
-        body: {
-          brands: [],
-          idealStock: 0,
-          product: PRODUCT,
-          stockQuantity: 0,
-          stockSituation: 'normal',
-        },
-      }),
-    })
-
-    await page.goto(`/products/${PRODUCT_ID}/accompaniments`)
-
-    await expect(page).toHaveURL(`/products/${PRODUCT_ID}/stock`)
-    await expect(page.getByRole('heading', { name: PRODUCT.name })).toBeVisible()
-    await expect(page.getByRole('tab', { name: 'Acompanhamentos' })).toHaveCount(0)
-  })
 })

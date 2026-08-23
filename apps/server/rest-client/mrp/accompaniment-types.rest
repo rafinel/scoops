@@ -1,0 +1,30 @@
+@baseUrl = http://127.0.0.1:3336
+@accessToken = replace-with-manager-token
+@typeId = 00000000-0000-0000-0000-000000000000
+
+### List accompaniment types
+GET {{baseUrl}}/accompaniment-types?page=1&pageSize=10
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Create an accompaniment type
+POST {{baseUrl}}/accompaniment-types
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Calda"
+}
+
+### Rename an accompaniment type
+PATCH {{baseUrl}}/accompaniment-types/{{typeId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Calda de chocolate"
+}
+
+### Remove an accompaniment type
+DELETE {{baseUrl}}/accompaniment-types/{{typeId}}
+Authorization: Bearer {{accessToken}}

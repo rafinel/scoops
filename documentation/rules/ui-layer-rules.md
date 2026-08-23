@@ -239,6 +239,14 @@ boundary, using the existing formatter hooks and locale/precision conventions.
 Widget-local formatters are permitted only for genuinely private presentation
 rules that are not reusable and do not duplicate a shared formatter contract.
 
+Each shared formatter hook must have its own kebab-case file under
+`apps/web/src/ui/shared/hooks`. For example, `useFormatCurrency` belongs in
+`use-format-currency.ts`, `useFormatDecimal` in `use-format-decimal.ts`,
+`useFormatQuantity` in `use-format-quantity.ts`, and `useFormatDate` in
+`use-format-date.ts`. Do not group multiple formatter hooks in a
+`use-formatters.ts` module or add a formatter barrel; consumers import each
+hook directly from its own file.
+
 Functions declared inside a widget hook must use the `function` form, including
 helpers, interaction handlers, lifecycle callbacks, and async submit handlers:
 
@@ -439,19 +447,15 @@ that is not a UI interaction. Declarative internal links use `Anchor`.
 Sidebar entries belong in `apps/web/src/constants/sidebar-items.ts`, not inside
 the layout. Every item contains a label, a `RouteName`, and an `IconName`.
 
-`SIDEBAR_ITEMS` must define an entry for every `CollaboratorProfile`. Paralegal and
-Supervisor currently reuse the Lawyer collection; share the same constant instead
-of duplicating the array. Communication is not a sidebar item.
+`SIDEBAR_ITEMS` must define an entry for every current `UserProfile`. Reuse shared
+item collections where Manager and Operator have the same destinations instead of
+duplicating arrays, and add profile-specific destinations only to the profile that
+is authorized to reach them. Communication is not a sidebar item.
 
-Until authenticated collaborator profiles are connected to the layout,
-`useAppLayout` must select the Attendant collection explicitly:
-
-```ts
-sidebarItems: SIDEBAR_ITEMS[CollaboratorProfile.Attendant]
-```
-
-This is a temporary application constraint. Do not infer a profile from route,
-local storage, or placeholder user data.
+`useAppLayout` must select the collection from the authenticated account's
+`UserProfile`. Do not infer a profile from the route, local storage, or placeholder
+user data. While the account is loading or unavailable, do not render a
+profile-dependent sidebar collection.
 
 The active item matches either its exact path or a nested path. Normalize a
 trailing slash before matching. The Home item is exact-only and must not become

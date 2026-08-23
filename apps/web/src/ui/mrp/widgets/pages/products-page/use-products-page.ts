@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { UserProfile } from '@scoops/core/identity/domain/structures'
 
 import { type ProductsSearch, useProductsQuery } from '@/ui/mrp/hooks/use-products-query'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 export type ProductsPageHookProps = {
   search: ProductsSearch
@@ -8,6 +10,7 @@ export type ProductsPageHookProps = {
 }
 
 export function useProductsPage({ search, onSearchChange }: ProductsPageHookProps) {
+  const { account } = useAuthContext()
   const {
     data: productsPage,
     isError: hasProductsError,
@@ -45,6 +48,7 @@ export function useProductsPage({ search, onSearchChange }: ProductsPageHookProp
   }
 
   return {
+    canManageTypes: account?.profile === UserProfile.Manager,
     hasProductsError,
     hasFilters,
     isFilterOpen,

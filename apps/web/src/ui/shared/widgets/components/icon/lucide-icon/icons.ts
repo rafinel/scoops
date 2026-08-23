@@ -1,6 +1,7 @@
 import {
   ArrowDown,
   ArrowDownUp,
+  ArrowLeft,
   ArrowRight,
   ArrowUp,
   Bell,
@@ -61,6 +62,7 @@ import type { IconName } from '../types'
 
 export const ICONS: Record<IconName, LucideIcon> = {
   arrow: ArrowRight,
+  'arrow-left': ArrowLeft,
   'arrow-down': ArrowDown,
   'arrow-down-up': ArrowDownUp,
   'arrow-up': ArrowUp,

@@ -18,11 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/ui/shadcn/select'
-import {
-  useFormatCurrency,
-  useFormatDecimal,
-  useFormatQuantity,
-} from '@/ui/shared/hooks/use-formatters'
+import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
+import { useFormatDecimal } from '@/ui/shared/hooks/use-format-decimal'
+import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { useRecipeIngredientDialog } from './use-recipe-ingredient-dialog'
 

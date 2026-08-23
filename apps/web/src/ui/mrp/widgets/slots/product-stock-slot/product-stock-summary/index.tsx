@@ -1,6 +1,6 @@
 import type { ProductUnit, StockSituation } from '@scoops/core/mrp/domain/structures'
 
-import { useFormatQuantity } from '@/ui/shared/hooks/use-formatters'
+import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 export type ProductStockSummaryProps = {
