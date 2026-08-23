@@ -22,6 +22,18 @@ Require explicit authority to commit, push and create or update the PR. Standalo
 invoke `commit-code` for pending scoped changes; when called by `conclude-spec`, reuse its
 prepared commits.
 
+## Mandatory workflow invocation
+
+This prompt is a publication workflow, not a replacement for the commit or conclusion
+workflows. When pending implementation changes require a commit, invoke `commit-code`
+before publishing. After the commit is created, **invoke `create-pr` again** (including when
+the current prompt is being resumed by `conclude-spec`) so the PR metadata, body, head SHA
+and traceability are refreshed through this workflow. Do not create commits or edit PR
+metadata ad hoc while claiming that `commit-code` or `create-pr` was invoked.
+
+When `conclude-spec` calls this prompt, return the exact PR number, URL, base, head SHA and
+check URLs to `conclude-spec`; do not return while publication is only partially complete.
+
 ## Delivery inspection
 
 Before publication, inspect the complete worktree and delivery history:
