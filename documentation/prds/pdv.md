@@ -1,72 +1,79 @@
-### 1. Overview
+# PDV Product Requirements Document
 
-The **Scoops Sales** module allows operators of ice cream and açaí shops to
-set up and register orders with products sold as Portion or
-Resale. The module has four independent navigation entries:
-`New sale`, `Orders`, `Sales channels` and `Discounts`.
+## 1. Executive Summary
 
-In `New sale`, the operator finds eligible products, configures size,
-brand, accompaniments and quantity, review the cart and register the order.
-The record creates an outright sale and performs all stock write-offs in
-a single transaction.
+The Scoops PDV module enables operators of ice cream and açaí shops to assemble and
+register orders containing products sold as Portions or Resales. It provides four independent
+navigation entries: `New sale`, `Orders`, `Sales channels` and `Discounts`.
 
-In `Sales channels`, the manager configures optional percentage adjustments used
-to represent contexts such as delivery, counter or local promotion. An order
-without a channel uses the base prices of the products. A channeled order applies the
-same percentage for all paid products and accompaniments.
+Operators find eligible products, configure size, brand, accompaniments and quantity, review
+the cart and register a definitive sale. Managers configure optional sales-channel percentage
+adjustments and fixed-price Combos. The system calculates prices and discounts, atomically
+records the order and stock consumption, and preserves commercial snapshots for later history.
 
-In `Discounts`, the manager configures Combos made up of at least two
-distinct products sold for a fixed final price. During assembly of the
-order, the system automatically detects eligible Combos, preserves the
-products in separate lines and applies the combination that generates the greatest savings,
-without reusing the same unit in more than one Combo.
+## 2. Problem and Opportunity
 
-In `Orders`, authorized users consult the ice cream shop's sales and
-commercial snapshots preserved at the time of registration.
+Ice cream shops need to combine sizes, quantities, accompaniments and packaging while keeping
+pricing, discounts, inventory consumption and sales history consistent. Without a centralized
+flow, service is exposed to incorrect calculations, divergent inventory, inconsistent discounts
+and incomplete history.
 
-**Purpose:** to allow a trained operator to assemble and record an ordinary order
-in up to 60 seconds, without manual price calculation, partial stock write-off
-or duplicate sales.
+The opportunity is to let a trained operator assemble and record an ordinary order in up to 60
+seconds without manual price calculation, partial stock write-off or duplicate sales. Scoops can
+differentiate through ice-cream-shop-specific Portion consumption, Resale by product and brand,
+atomic stock validation, automatic application of the greatest-savings Combo combination,
+optional channel pricing and snapshots that survive later registration changes or deletion.
 
-**Problem solved:** ice cream shops need to combine sizes, quantities,
-accompaniments and packaging while maintaining consistent prices and sales. Without
-a centralized flow, service is subject to incorrect calculations,
-divergent inventory, inconsistent discounts and incomplete history.
+According to their official pages, Brazilian food-service and point-of-sale competitors commonly
+combine POS, inventory, cash, finance, delivery and tax issuance. Scoops does not seek to
+replicate that breadth in the MVP:
 
-**Value delivered:** fast service, predictable pricing per channel,
-accurate stock consumption, automatic application of Combos and readable history
-even when products, brands, sizes, accompaniments, channels or discounts
-are changed or deleted.
+| Solution | Audience | Value proposition and features | Public price | Relevant limitation or inference |
+| --- | --- | --- | --- | --- |
+| [Consumer](https://consumer.com.br/recursos) | Restaurants, bars, snack bars, coffee shops, ice cream shops and other food businesses | A single platform with POS, stock, technical data sheets, cashier, delivery, tax, digital menu and integrations | The official plan page lists options starting at [R$ 59.90/month](https://loja.consumer.com.br/) | No limitation was publicly identified. |
+| [Saipos](https://saipos.com/sistema/sorveteria) | Ice cream shops and other food establishments | Centralized management, operations, inventory, delivery, scale integration and sales analysis | The official page lists plans starting at R$ 219.90/month. | No limitation was publicly identified. |
+| [Kyte](https://www.kyte.com.br/vender/site-de-pedidos) | Small retail and service businesses | POS, catalog, stock, receipts, credit and cash flow on mobile and computer | PRO at R$49.90/month, GROW at R$69.90/month and PRIME at R$99.90/month | Source-based inference: the official coverage is generalist and does not identify specialization in consumption by size and accompaniment. |
+| [MarketUP](https://suporte.marketup.com/hc/pt-br/articles/360000798983-Aplicativos-MarketUP) | Small businesses, including bars and restaurants | Product registration, sales, cashier, offline mode, ERP and NFC-e | Free according to the official page. | Source-based inference: the official coverage is generalist and does not identify specialized Portion assembly. |
+| [iFood](https://developer.ifood.com.br/pt-BR/docs/guides/modules/catalog/definitions) | Establishments selling through a marketplace and digital menu | Catalogs, products, add-ons, availability and prices by context | Not publicly identified in this source. | It does not replace Scoops' internal operational control; integration is outside the MVP. |
+| Spreadsheet, calculator and manual recording | Small operations without an integrated system | Flexible manual calculation and recording | Variable | Exposes the operation to pricing errors, divergent inventory, duplication and incomplete history. |
 
----
+The official Consumer page states that its platform combines more than one hundred features and
+serves ice cream shops. The official Saipos page for ice cream shops highlights scale integration,
+stock and analysis by channel. Official iFood documentation permits different prices for the same
+item in `Delivery` and `Digital Menu` contexts and describes
+[Combos as structured items](https://developer.ifood.com.br/pt-BR/docs/guides/modules/catalog/guides/combo).
+Scoops instead keeps products as ordinary order lines and applies a Combo as an automatic order
+discount. Although source-based inference suggests product-specific channel pricing is the more
+flexible model used by mature solutions, the confirmed MVP decision is one global percentage per
+channel without product exceptions.
 
-### 2. Target audience
+## 3. Target Audience
 
-#### Main audience
+### Primary audience
 
 Operators of independent, small or medium-sized ice cream and açaí shops,
 who need to assemble and record orders during service.
 
-#### Secondary audiences
+### Secondary audiences
 
 - Managers responsible for configuring sales channels and discounts.
 - Managers and operators who need to check orders registered by the team.
 
-#### Not public
+### Non-audience
 
 - Chains and franchises that depend on advanced multi-store management.
 - Restaurants that need tables, controls, kitchen or bill division.
 - Operations that require cash, payment, tax issuance or operation
   offline on first launch.
 
-#### Context of use
+### Context of use
 
 - Service on computer or tablet in landscape mode.
 - Simultaneous use by more than one operator in the same ice cream shop.
 - Orders received in person or externally and entered manually.
 - Operation connected to the server, with real-time stock validation.
 
-#### Pains and needs
+### Pains and needs
 
 - Quickly find an available product.
 - Assemble portions with size, accompaniments and quantity.
@@ -76,7 +83,7 @@ who need to assemble and record orders during service.
 - Avoid negative stock and partial write-offs.
 - Consult who registered a sale, when and for what amount.
 
-#### Jobs to Be Done
+### Jobs to Be Done
 
 - When serving a customer, I want to find and configure products
   quickly to register the order without interrupting service.
@@ -94,70 +101,45 @@ who need to assemble and record orders during service.
 - When an order meets more than one offer, I want the system to choose
   automatically the greatest savings, so as not to depend on operator calculations.
 
----
+## 4. Objectives and Success Metrics
 
-### 3. Competitive Scenario Analysis
+### Objectives
 
-The Brazilian market has broad solutions for food and
-point of sale generalists. According to their official pages, competitors
-they usually combine POS, inventory, cash, finance, delivery and tax issuance.
-Scoops won't try to replicate that range in MVP.
+- Centralize selection of configured products, cart review, channel pricing, Combo application
+  and order registration in a fast service flow specialized for ice cream shops.
+- Prevent negative stock, partial stock write-offs and duplicate sales during concurrent or
+  retried registration.
+- Preserve readable commercial and operational history after products, brands, sizes,
+  accompaniments, channels or discounts change or are deleted.
 
-The opportunity for differentiation lies in the specialized operation of ice cream shops:
-Portions sold by size, side dishes with configured consumption,
-Resales by product and brand and effectively lowers the quantity
-consumed.
+### Success metrics
 
-#### Competitive matrix
+- A trained Operator can assemble and register an ordinary order in up to 60 seconds.
+- Search results and price or Combo recalculation are presented within 1 second under normal
+  conditions.
+- Order registration completes within 3 seconds under normal conditions.
+- No registered order produces negative stock, a partial stock write-off or a duplicate order or
+  stock write-off from a retry.
+- Displayed and persisted prices, discounts, subtotals and totals use the same calculation and
+  rounding rules.
 
-| Solution | Public | Value proposition | Features | Public price | Limitations |
-|---|---|---|---|---|---|
-| [Consumer](https://consumer.com.br/recursos) | Restaurants, bars, snack bars, coffee shops, ice cream shops and other food businesses | Single platform for restaurant operations | POS, stock, technical data sheet, cashier, delivery, tax, digital menu and integrations | The official plan page informs options starting at [R$ 59.90/month](https://loja.consumer.com.br/) | Not publicly identified |
-| [Saipos](https://saipos.com/sistema/sorveteria) | Ice cream parlors and other food establishments | Centralize management, operations, inventory and delivery | Integration with scales, inventory, finance, delivery and sales analysis | The official page informs plans starting at R$ 219.90/month | Not publicly identified |
-| [Kyte](https://www.kyte.com.br/vender/site-de-pedidos) | Small retail and service businesses | Sell ​​via cell phone, computer and online catalog | POS, catalogue, stock, receipts, credit and cash flow | PRO for R$49.90/month; GROW for R$69.90/month; PRIME for R$99.90/month | Inference based on official coverage: generalist solution, without identified public specialization in consumption by size and monitoring |
-| [MarketUP](https://suporte.marketup.com/hc/pt-br/articles/360000798983-Aplicativos-MarketUP) | Small businesses including bars and restaurants | ERP and POS without monthly fees | Product registration, sales, cash, offline mode, ERP and NFC-e | Free, according to the official page | Inference based on the official page: generalist focus, without public rules identified for specialized assembly of Portions |
-| [iFood](https://developer.ifood.com.br/pt-BR/docs/guides/modules/catalog/definitions) | Establishments that sell via marketplace and digital menu | Distribution and management of offers on digital channels | Different catalogues, products, add-ons, availability and prices by context | Not publicly identified in this source | Does not replace Scoops' internal operational control; integration is out of MVP |
-| Spreadsheet, calculator and manual recording | Small operations without an integrated system | Low initial cost and flexibility | Manual calculation and annotation | Variable | Risk of pricing error, divergent inventory, duplication and incomplete history |
+## 5. Requirements
 
-#### Findings and inferences
+### REQ-01 — Sales Channel Management
 
-- The official Consumer page informs that its platform brings together more than one hundred
-  features and also serves ice cream shops.
-- Saipos' official page for ice cream shops highlights integration with scales,
-  stock and analysis by channel.
-- Official iFood documentation allows different prices for the same item
-  in the `Delivery` and `Digital Menu` contexts.
-- The official iFood documentation describes
-  [Combos as structured items](https://developer.ifood.com.br/pt-BR/docs/guides/modules/catalog/guides/combo)
-  with groups and options; at Scoops, the confirmed decision is to keep the products
-  as common lines and apply the Combo as an automatic order discount.
-- Source-based inference: specific prices by product and channel are a
-  more flexible model adopted by mature solutions.
-- Decision confirmed for Scoops: MVP will use a global percentage per
-  channel, without exceptions per product, reducing configuration and complexity.
+- [ ] **Implemented**
 
-#### Recommended differentials
-
-- Quick assembly aimed at serving ice cream shops.
-- Stock write-off based on size, quantity and accompaniments sold.
-- Resale by product and explicit brand when applicable.
-- Configurable combos with fixed price and automatic application of the biggest savings.
-- Atomic validation in scenarios with simultaneous operators.
-- Optional price per channel without duplicating product registration.
-- Complete snapshots to preserve history after registration changes.
-
----
-
-### 4. Requirements
-
-#### REQ-01 Sales Channel Management
-
-- [ ] **Sales Channel Management**
-
-**Description:** The manager must be able to create and manage optional channels that
+**Outcome:** The Manager can create and manage optional channels that
 apply a global percentage to the paid items of an order.
 
-##### Business Rules
+**Actors:** Manager
+
+**Consumes:** establishment access and profile authorization from the Identity module.
+
+**Provides:** active sales-channel configuration and immutable channel facts consumed by
+REQ-05, REQ-06, REQ-07, REQ-09 and REQ-10.
+
+#### Capabilities
 
 - **Fields:** each channel has a name, percentage and status.
 - **Mandatory name:** the name cannot be empty or composed only of
@@ -178,9 +160,9 @@ apply a global percentage to the paid items of an order.
 - **Snapshot:** editing, inactivating or deleting does not modify the copied data
   for previous orders.
 - **Multi-tenancy:** channels are exclusive to the current ice cream shop.
-- **Dependency:** management permissions depend on the Auth module.
+- **Authorization:** management permissions depend on the Identity module.
 
-##### UI/UX rules
+#### Experience
 
 - **List:** must display name, percentage, type of adjustment, status and actions.
 - **New channel:** must request name, percentage and status.
@@ -194,8 +176,7 @@ apply a global percentage to the paid items of an order.
   will continue to be preserved.
 - **Feedback:** creation, editing, inactivation and deletion must be successful,
   error and loading.
-- **Action blocked:** an Operator without permission must not view action actions
-  management.
+- **Action blocked:** an Operator without permission must not see management actions.
 - **Responsiveness:** table and form cannot cut names, percentages or
   actions on smaller screens.
 - **Accessibility:** fields must have associated labels and errors announced
@@ -203,18 +184,30 @@ apply a global percentage to the paid items of an order.
 
 ---
 
-#### REQ-02 New Sale Product Catalog
+### REQ-02 — New Sale Product Catalog
 
-- [ ] **New Sale Product Catalog**
+- [ ] **Implemented**
 
-**Description:** The `New Sale` screen must only display active and
+**Outcome:** The Operator can find only active products with valid commercial configuration on
+the `New Sale` screen while still seeing unavailable stock states and the product's sale
+category.
+
+**Actors:** Operator, Manager
+
+**Consumes:** product, category, size, brand, accompaniment, base-price and availability facts
+from the MRP module.
+
+**Provides:** eligible product catalog and product availability consumed by REQ-03, REQ-04 and
+REQ-05.
+
+#### Capabilities
+
+- **Eligibility:** the `New Sale` screen must only display active products
 with valid commercial configuration, differentiating availability and category
 of sale.
 
-##### Business Rules
-
 - **Data source:** products, sizes, brands, accompaniments, base prices and
-  Consumed quantities are configured in the Products module.
+  consumed quantities are configured in the MRP module.
 - **Without commercial editing:** the `New Sale` screen does not allow changing registration,
   price or stock.
 - **Portion Category:** appears when it has at least one active size and
@@ -238,7 +231,7 @@ of sale.
   brand or set of accompaniments.
 - **Multi-tenancy:** only products from the current ice cream shop can be displayed.
 
-##### UI/UX rules
+#### Experience
 
 - **Grid:** products must be presented on quick selection cards.
 - **Search:** must filter by name.
@@ -266,14 +259,22 @@ of sale.
 
 ---
 
-#### REQ-03 Portion Item Configuration
+### REQ-03 — Portion Item Configuration
 
-- [ ] **Portion Item Setting**
+- [ ] **Implemented**
 
-**Description:** The operator must be able to select size, sides and
+**Outcome:** The Operator can select size, accompaniments and
 quantity before adding a Portion to the cart.
 
-##### Business Rules
+**Actors:** Operator, Manager
+
+**Consumes:** eligible product catalog from REQ-02 and Portion size, accompaniment, price,
+consumption and availability facts from the MRP module.
+
+**Provides:** valid configured Portion items and their calculated consumption consumed by
+REQ-05 and REQ-13.
+
+#### Capabilities
 
 - **Required size:** every Portion requires an active size.
 - **Mandatory quantity:** must be an integer greater than zero.
@@ -290,10 +291,9 @@ quantity before adding a Portion to the cart.
 - **Invalid main brand:** the configuration is unavailable.
 - **Size change:** must update price, consumption and accompaniments
   available.
-- **Dependency:** size and accompaniment rules belong to the module
-  Products.
+- **Ownership:** size and accompaniment rules belong to the MRP module.
 
-##### UI/UX rules
+#### Experience
 
 - **Single flow:** size, accompaniments and quantity must stay the same
   configuration area.
@@ -313,14 +313,22 @@ quantity before adding a Portion to the cart.
 
 ---
 
-#### REQ-04 Resale Item Configuration
+### REQ-04 — Resale Item Configuration
 
-- [ ] **Resale Item Configuration**
+- [ ] **Implemented**
 
-**Description:** The operator must be able to select the brand, when applicable,
+**Outcome:** The Operator can select the brand, when applicable,
 and the quantity of units from a Resale product before adding it to the cart.
 
-##### Business Rules
+**Actors:** Operator, Manager
+
+**Consumes:** eligible product catalog from REQ-02 and Resale brand, price and availability
+facts from the MRP module.
+
+**Provides:** valid configured Resale items and their calculated consumption consumed by REQ-05
+and REQ-13.
+
+#### Capabilities
 
 - **No size:** Resale does not use portion sizes.
 - **No accompaniment:** Resale does not accept accompaniments.
@@ -333,10 +341,9 @@ and the quantity of units from a Resale product before adding it to the cart.
 - **Price:** uses the base price of the Resale product or brand configuration.
 - **Unavailability:** inactive configurations or without sufficient balance will not
   can be selected.
-- **Dependency:** product, brand, price and availability are configured in the
-  Products module.
+- **Ownership:** product, brand, price and availability are configured in the MRP module.
 
-##### UI/UX rules
+#### Experience
 
 - **Selection:** must display product, brand when applicable, base price and
   availability.
@@ -351,14 +358,21 @@ and the quantity of units from a Resale product before adding it to the cart.
 
 ---
 
-#### REQ-05 Assembling and Editing the Cart
+### REQ-05 — Cart Assembly and Editing
 
-- [ ] **Cart Assembly and Editing**
+- [ ] **Implemented**
 
-**Description:** Operator must be able to review, edit and remove items before
-to register the order.
+**Outcome:** The Operator can review, edit and remove items before registering the order.
 
-##### Business Rules
+**Actors:** Operator, Manager
+
+**Consumes:** active channel configuration from REQ-01, eligible product catalog from REQ-02,
+configured Portion items from REQ-03 and configured Resale items from REQ-04.
+
+**Provides:** the current unpersisted cart, selected channel and configured line items consumed
+by REQ-06, REQ-07, REQ-08 and REQ-14.
+
+#### Capabilities
 
 - **Temporary cart:** the cart is not a persisted order.
 - **No drafts:** exiting or reloading the screen may discard the cart after
@@ -383,7 +397,7 @@ to register the order.
 - **Unreserved stock:** items in the cart do not block balance.
 - **Movement:** no write-off occurs before definitive registration.
 
-##### UI/UX rules
+#### Experience
 
 - **Desktop structure:** catalog and cart must remain visible side by side
   side.
@@ -414,14 +428,21 @@ to register the order.
 
 ---
 
-#### REQ-06 Pricing by Channel
+### REQ-06 — Pricing by Channel
 
-- [ ] **Pricing by Channel**
+- [ ] **Implemented**
 
-**Description:** The system must calculate prices and subtotals using the channel
-option selected for the order.
+**Outcome:** The Operator sees consistent prices, subtotals and totals calculated from the
+optional sales channel selected for the order.
 
-##### Business Rules
+**Actors:** Operator, Manager
+
+**Consumes:** active channel configuration from REQ-01 and the current cart from REQ-05.
+
+**Provides:** channel-adjusted line prices, subtotals and totals consumed by REQ-07, REQ-08,
+REQ-09 and REQ-14.
+
+#### Capabilities
 
 - **Without channel:** the final price is the same as the base price.
 - **With channel:** applies the same percentage to all paid components.
@@ -441,7 +462,7 @@ option selected for the order.
 - **Non-retroactive update:** channel changes do not change orders
   registered.
 
-##### UI/UX rules
+#### Experience
 
 - **Selector:** must offer active channels and the `No channel` option.
 - **Optionality:** the absence of a channel does not block the registration.
@@ -455,20 +476,29 @@ option selected for the order.
 
 ---
 
-#### REQ-07 Channel, Combo and Stock Revalidation
+### REQ-07 — Channel, Combo and Stock Revalidation
 
-- [ ] **Channel and Stock Revalidation**
+- [ ] **Implemented**
 
-**Description:** The system must revalidate the channel, Combos and all balances
-immediately before registering the order.
+**Outcome:** The Operator can register an order only after its channel, Combos, configurations
+and consolidated stock consumption have been revalidated against current authoritative facts.
 
-##### Business Rules
+**Actors:** Operator, Manager
+
+**Consumes:** current channel configuration from REQ-01, the cart from REQ-05, calculated prices
+from REQ-06, active Combo definitions from REQ-13, applied Combo facts from REQ-14 and current
+product, brand and stock availability from the MRP module.
+
+**Provides:** a current, all-or-nothing registration decision and reviewed order values consumed
+by REQ-08.
+
+#### Capabilities
 
 - **Competition:** multiple operators can register orders simultaneously.
 - **Updated channel:** registration uses the current channel configuration.
 - **Channel changed:** if name or percentage changed, the cart is recalculated and
   requires new confirmation.
-- **Inactive or deleted channel:** the selection is removed; the operator can follow
+- **Inactive or deleted channel:** the selection is removed; the operator can proceed
   without channel or choose another one.
 - **Current combos:** eligibility, composition, price, status and best
   combination must be recalculated with the current settings.
@@ -481,25 +511,23 @@ immediately before registering the order.
   before validation.
 - **Negative stock:** is not allowed.
 - **No exception:** there is no configuration to allow sales below zero.
-- **Total blocking:** insufficiency in any component blocks the order
-  entire.
+- **Total blocking:** insufficiency in any component blocks the entire order.
 - **No partial write-off:** no movement is maintained after failure.
-- **Cart preserved:** channel, Combo or stock failures do not discard items
-  items.
+- **Cart preserved:** channel, Combo or stock failures do not discard cart items.
 - **Retry:** the operator must confirm again after the correction.
 
-##### UI/UX rules
+#### Experience
 
 - **Channel changed:** must inform the previous and current percentage.
-- **Channel removed:** must explain that the order is using base prices until further notice
-  selection.
+- **Channel removed:** must explain that the order is using base prices until another channel is
+  selected.
 - **Combo changed:** must inform that the discounts have been recalculated and
   request a review of the values.
 - **Insufficient item:** must be highlighted in the cart.
 - **Details:** must inform product or brand, quantity required,
   available and missing.
 - **Example message:** `Insufficient stock of Granola Frooty: required
-  300 g, 200 g available, 100 g missing.
+  300 g, 200 g available, 100 g missing`.
 - **Fix:** operator should be able to edit or remove the affected item.
 - **Action blocked:** the record remains blocked as long as there is
   known insufficiency.
@@ -508,14 +536,22 @@ immediately before registering the order.
 
 ---
 
-#### REQ-08 Order Confirmation and Registration
+### REQ-08 — Order Confirmation and Registration
 
-- [ ] **Order Confirmation and Registration**
+- [ ] **Implemented**
 
-**Description:** The operator must explicitly confirm the summary before creating
-a definitive order and execute the write-offs.
+**Outcome:** The Operator explicitly confirms a definitive order that is created exactly once
+with all stock consumption in one atomic transaction.
 
-##### Business Rules
+**Actors:** Operator, Manager
+
+**Consumes:** the current cart from REQ-05, channel-adjusted prices from REQ-06, the current
+registration decision from REQ-07 and applied Combo facts from REQ-14.
+
+**Provides:** completed, numbered order facts and atomic stock-consumption facts consumed by
+REQ-09.
+
+#### Capabilities
 
 - **Mandatory confirmation:** the order cannot be registered by an action
   implicit.
@@ -536,7 +572,7 @@ a definitive order and execute the write-offs.
 - **Success:** clears the cart only after confirmation from the server.
 - **Failure:** does not create order or maintain any write-off.
 
-##### UI/UX rules
+#### Experience
 
 - **Final dialog:** must allow `Return to cart` or `Register order`.
 - **Prevention of double sending:** during processing, the action must be
@@ -554,14 +590,22 @@ a definitive order and execute the write-offs.
 
 ---
 
-#### REQ-09 Order Snapshot
+### REQ-09 — Order Snapshot
 
-- [ ] **Order Snapshot**
+- [ ] **Implemented**
 
-**Description:** The request must preserve commercial and operational data
-practiced at the time of registration.
+**Outcome:** Authorized users can rely on immutable commercial and operational facts preserved
+at the time an order is registered.
 
-##### Business Rules
+**Actors:** Operator, Manager
+
+**Consumes:** channel facts from REQ-01, calculated prices from REQ-06, completed order and stock
+consumption facts from REQ-08, applied Combo facts from REQ-14 and product configuration facts
+from the MRP module.
+
+**Provides:** immutable order snapshots consumed by REQ-10.
+
+#### Capabilities
 
 - **General data:** identifier, sequence number, ice cream shop, date, time,
   operator, quantity of items and total.
@@ -586,7 +630,7 @@ practiced at the time of registration.
 - **Non-retroactive update:** no registration changes modify snapshots.
 - **Multi-tenancy:** snapshots belong exclusively to the ice cream shop of the order.
 
-##### UI/UX rules
+#### Experience
 
 - **Readability:** history should show copied names, not identifiers
   technical identifiers.
@@ -601,14 +645,19 @@ practiced at the time of registration.
 
 ---
 
-#### REQ-10 Order History
+### REQ-10 — Order History
 
-- [ ] **Order History**
+- [ ] **Implemented**
 
-**Description:** Operators and Managers must consult all orders from the
-current ice cream shop and open its details.
+**Outcome:** Operators and Managers can consult all orders from the current ice cream shop and
+open their immutable details.
 
-##### Business Rules
+**Actors:** Operator, Manager
+
+**Consumes:** active and historical channel identity from REQ-01, immutable order snapshots from
+REQ-09 and establishment access from the Identity module.
+
+#### Capabilities
 
 - **Sort:** most recent orders appear first.
 - **Period filter:** accepts start and end date.
@@ -623,7 +672,7 @@ current ice cream shop and open its details.
 - **No reports:** metrics, dashboards and exports do not belong to MVP.
 - **Multi-tenancy:** orders from other ice cream shops can never be returned.
 
-##### UI/UX rules
+#### Experience
 
 - **Filters:** period and channel must appear above the listing.
 - **Line:** must display number, date, time, operator, channel, number of items
@@ -645,27 +694,32 @@ current ice cream shop and open its details.
 
 ---
 
-#### REQ-11 Permissions, Navigation and Isolation
+### REQ-11 — Permissions, Navigation and Isolation
 
-- [ ] **Permissions, Navigation and Isolation**
+- [ ] **Implemented**
 
-**Description:** The module must apply distinct responsibilities and maintain
-data isolated by ice cream shop.
+**Outcome:** Operators and Managers see only the PDV navigation and actions authorized for their
+profiles, with all data isolated to the current establishment.
 
-##### Business Rules
+**Actors:** Operator, Manager
+
+**Consumes:** establishment, authentication and profile authorization facts from the Identity
+module.
+
+#### Capabilities
 
 - **Independent navigation:** must contain `New sale`, `Orders`,
   `Sales channels` and `Discounts`, without parent group.
 - **Operator:** can assemble, register and consult orders.
 - **Manager:** has Operator permissions and manages channels and discounts.
 - **Product Configuration:** remains outside the Sales module.
-- **Authorization:** profile rules depend on the Auth module.
+- **Authorization:** profile rules depend on the Identity module.
 - **Isolation:** products, channels, sequences, orders and histories are always
   filtered by the current ice cream shop.
 - **Direct access:** a URL cannot bypass permissions.
-- **Minimum audit:** each request must keep the operator responsible.
+- **Minimum audit:** each order must preserve the responsible Operator.
 
-##### UI/UX rules
+#### Experience
 
 - **Menus:** items without permission should not be displayed.
 - **Access denied:** must present clear guidance without revealing data.
@@ -680,14 +734,16 @@ data isolated by ice cream shop.
 
 ---
 
-#### REQ-12 Performance, Responsiveness and Accessibility
+### REQ-12 — Performance, Responsiveness and Accessibility
 
-- [ ] **Performance, Responsiveness and Accessibility**
+- [ ] **Implemented**
 
-**Description:** The four areas of the module must respond quickly, function
-on priority devices and offer inclusive access.
+**Outcome:** Operators and Managers can use all four PDV areas quickly and accessibly on priority
+devices while receiving consistent server-backed results.
 
-##### Business Rules
+**Actors:** Operator, Manager
+
+#### Capabilities
 
 - **Priority devices:** computer and tablet in landscape mode.
 - **Search:** should present results within 1 second under normal conditions.
@@ -702,7 +758,7 @@ on priority devices and offer inclusive access.
 - **Consistency:** displayed and persisted values must use the same
   calculation and rounding.
 
-##### UI/UX rules
+#### Experience
 
 - **Main layout:** catalog and cart are side by side when available
   space.
@@ -724,14 +780,22 @@ on priority devices and offer inclusive access.
 
 ---
 
-#### REQ-13 Combo Discount Management
+### REQ-13 — Combo Discount Management
 
-- [ ] **Combo Discount Management**
+- [ ] **Implemented**
 
-**Description:** The Manager must be able to create and manage discounts of the type
+**Outcome:** The Manager can create and manage discounts of the type
 Combo, made up of different products and sold for a fixed final price.
 
-##### Business Rules
+**Actors:** Manager
+
+**Consumes:** establishment access and profile authorization from the Identity module; product,
+size, accompaniment, brand, price and availability facts from the MRP module; configured Portion
+and Resale facts from REQ-03 and REQ-04.
+
+**Provides:** active, validated Combo definitions consumed by REQ-07 and REQ-14.
+
+#### Capabilities
 
 - **Type in MVP:** `Combo` is the only type of discount available.
 - **Fields:** each Combo has a name, type, components, fixed final price and
@@ -761,12 +825,11 @@ Combo, made up of different products and sold for a fixed final price.
 - **Exclusion:** any Combo can be deleted after confirmation, even when
   already used.
 - **History:** editing, inactivating or deleting does not change registered orders.
-- **Multi-tenancy:** discounts belong exclusively to the current ice cream store.
+- **Multi-tenancy:** discounts belong exclusively to the current ice cream shop.
 - **Permission:** only Managers can create, edit, activate, inactivate or
   delete Combos.
-- **Dependencies:** Auth, Products, Sales Channels and Orders.
 
-##### UI/UX rules
+#### Experience
 
 - **Navigation:** `Discounts` must be an independent entry of the module.
 - **List:** must display name, type, price of the Combo, quantity of products,
@@ -797,14 +860,22 @@ Combo, made up of different products and sold for a fixed final price.
 
 ---
 
-#### REQ-14 Automatic Combo Application
+### REQ-14 — Automatic Combo Application
 
-- [ ] **Automatic Combo Application**
+- [ ] **Implemented**
 
-**Description:** The system must automatically identify and apply Combos
-eligible in the cart, choosing the combination that produces the greatest savings.
+**Outcome:** The Operator automatically receives the eligible combination of Combos that
+produces the greatest total savings without reusing product units.
 
-##### Business Rules
+**Actors:** Operator, Manager
+
+**Consumes:** the current cart from REQ-05, channel-adjusted prices from REQ-06 and active Combo
+definitions from REQ-13.
+
+**Provides:** applied Combo discounts, savings and participating-unit facts consumed by REQ-07,
+REQ-08 and REQ-09.
+
+#### Capabilities
 
 - **Automatic detection:** add, edit or remove a line, change its
   quantity or changing the channel must recalculate the eligible Combos.
@@ -850,7 +921,7 @@ eligible in the cart, choosing the combination that produces the greatest saving
 - **Performance:** Combo recalculation must finish within 1 second
   normal conditions, including with competing Combos.
 
-##### UI/UX rules
+#### Experience
 
 - **Automatic summary:** the cart must display each Combo applied, a
   application, its participating products and the savings generated.
@@ -880,9 +951,71 @@ eligible in the cart, choosing the combination that produces the greatest saving
 
 ---
 
-### 5. User Flow
+## 6. Product Dependency Graph
 
-#### Flow A - Manager creates a sales channel
+An edge `A --> B` means B consumes a product capability or authoritative fact provided by A.
+
+```mermaid
+flowchart LR
+    Identity["Identity module"]
+    MRP["MRP module"]
+    R01["REQ-01 Sales channels"]
+    R02["REQ-02 Sale catalog"]
+    R03["REQ-03 Portion configuration"]
+    R04["REQ-04 Resale configuration"]
+    R05["REQ-05 Cart"]
+    R06["REQ-06 Channel pricing"]
+    R07["REQ-07 Revalidation"]
+    R08["REQ-08 Registration"]
+    R09["REQ-09 Snapshot"]
+    R10["REQ-10 History"]
+    R11["REQ-11 Access and isolation"]
+    R13["REQ-13 Combo management"]
+    R14["REQ-14 Combo application"]
+
+    Identity --> R01
+    Identity --> R10
+    Identity --> R11
+    Identity --> R13
+    MRP --> R02
+    MRP --> R03
+    MRP --> R04
+    MRP --> R07
+    MRP --> R09
+    MRP --> R13
+    R01 --> R05
+    R01 --> R06
+    R01 --> R07
+    R01 --> R09
+    R01 --> R10
+    R02 --> R03
+    R02 --> R04
+    R02 --> R05
+    R03 --> R05
+    R03 --> R13
+    R04 --> R05
+    R04 --> R13
+    R05 --> R06
+    R05 --> R07
+    R05 --> R08
+    R05 --> R14
+    R06 --> R07
+    R06 --> R08
+    R06 --> R09
+    R06 --> R14
+    R07 --> R08
+    R08 --> R09
+    R09 --> R10
+    R13 --> R07
+    R13 --> R14
+    R14 --> R07
+    R14 --> R08
+    R14 --> R09
+```
+
+## 7. User Journeys
+
+### Journey A — Manager creates a sales channel
 
 1. The Manager accesses `Sales channels`.
 2. The system displays the ice cream shop channels.
@@ -891,9 +1024,9 @@ eligible in the cart, choosing the combination that produces the greatest saving
 5. The system validates:
    - Success: creates the channel and updates the listing.
    - Fail: keeps the data and reports the invalid field.
-6. The flow ends.
+6. The journey ends.
 
-#### Flow B - Manager edits, inactivates or deletes a channel
+### Journey B — Manager edits, inactivates or deletes a channel
 
 1. The Manager opens the actions of a channel.
 2. To edit, change the data and confirm.
@@ -903,9 +1036,9 @@ eligible in the cart, choosing the combination that produces the greatest saving
 6. The system validates:
    - Success: Updates or removes the channel from future operations.
    - Failure: maintains the previous state and reports the error.
-7. The flow ends.
+7. The journey ends.
 
-#### Flow C - Manager creates a Combo
+### Journey C — Manager creates a Combo
 
 1. The Manager accesses `Discounts`.
 2. The system displays the search, the `Type` and `Status` filters and the discounts of the
@@ -921,9 +1054,9 @@ eligible in the cart, choosing the combination that produces the greatest saving
    - Success: creates the Combo and updates the listing.
    - Failure: preserves data and reports duplicate name, invalid composition,
      unavailable component or lack of savings.
-9. The flow ends.
+9. The journey ends.
 
-#### Flow D - Manager edits, inactivates or deletes a Combo
+### Journey D — Manager edits, inactivates or deletes a Combo
 
 1. The Manager opens the actions of a Combo.
 2. To edit, change your data and confirm.
@@ -936,9 +1069,9 @@ eligible in the cart, choosing the combination that produces the greatest saving
 7. The system validates:
    - Success: updates or removes the Combo from future operations.
    - Failure: maintains the previous state and reports the error.
-8. The flow ends.
+8. The journey ends.
 
-#### Flow E - Operator starts a new sale
+### Journey E — Operator starts a new sale
 
 1. The Operator accesses `New sale`.
 2. The system presents the grid, search, filters, optional channel selector
@@ -948,9 +1081,9 @@ eligible in the cart, choosing the combination that produces the greatest saving
 5. Out-of-stock products remain visible as unavailable.
 6. Products already present in the cart remain visible with the seal
    `Added` and locked for reselection.
-7. The flow continues to Portion or Resale configuration.
+7. The journey continues to Portion or Resale configuration.
 
-#### Flow F - Operator adds a Portion
+### Journey F — Operator adds a Portion
 
 1. The Operator selects an available Portion.
 2. The system presents sizes, accompaniments and quantity.
@@ -961,11 +1094,11 @@ eligible in the cart, choosing the combination that produces the greatest saving
    - Product missing from cart: creates a single line and marks your card as
      `Added`.
    - Product already present: blocks inclusion, preserves the existing line and
-     guides the adjustment of the stroller.
+     guides the adjustment of the cart.
    - Failure: preserves the choices and explains the necessary correction.
-7. The flow returns to the assembly.
+7. The journey returns to the assembly.
 
-#### Flow G - Operator adds a Resale product
+### Journey G — Operator adds a Resale product
 
 1. The Operator selects an available Resale product.
 2. The system displays the product, brand when applicable and quantity.
@@ -976,11 +1109,11 @@ eligible in the cart, choosing the combination that produces the greatest saving
    - Product missing from cart: creates a single line and marks your card as
      `Added`.
    - Product already present: blocks inclusion, preserves the existing line and
-     guides the adjustment of the stroller.
+     guides the adjustment of the cart.
    - Failure: preserves the data and explains the necessary correction.
-7. The flow returns to the assembly.
+7. The journey returns to the assembly.
 
-#### Flow H - Operator edits the cart
+### Journey H — Operator edits the cart
 
 1. The Operator opens an item from the cart.
 2. The system displays the current configuration.
@@ -989,9 +1122,9 @@ eligible in the cart, choosing the combination that produces the greatest saving
 5. The Operator confirms:
    - Success: Updates the only existing line for the product.
    - Failure: preserves the edit and reports the problem.
-6. The flow returns to the cart.
+6. The journey returns to the cart.
 
-#### Flow I - System applies Combos automatically
+### Journey I — System applies Combos automatically
 
 1. The Operator adds, edits or removes products or changes quantities.
 2. The system identifies all active Combos with exact matches.
@@ -1002,9 +1135,9 @@ eligible in the cart, choosing the combination that produces the greatest saving
    order summary.
 6. The Operator cannot manually remove eligible Combos.
 7. If no Combo generates savings, the order remains without discount.
-8. The flow returns to the assembly.
+8. The journey returns to the assembly.
 
-#### Flow J - Operator selects or changes the channel
+### Journey J — Operator selects or changes the channel
 
 1. Operator opens the channel selector.
 2. The system displays active channels and `No channel`.
@@ -1012,9 +1145,9 @@ eligible in the cart, choosing the combination that produces the greatest saving
 4. The system recalculates all paid components.
 5. The system updates prices, subtotals and total.
 6. In case of failure, keep the previous selection and preserve the cart.
-7. The flow returns to the assembly.
+7. The journey returns to the assembly.
 
-#### Flow K - Operator records an order
+### Journey K — Operator records an order
 
 1. The Operator selects `Register order`.
 2. The system revalidates channel, Combos, settings and stock.
@@ -1029,9 +1162,9 @@ eligible in the cart, choosing the combination that produces the greatest saving
    - write-off of all stocks.
 6. The system displays `Order #<number> registered successfully`.
 7. The system cleans the cart.
-8. The flow ends.
+8. The journey ends.
 
-#### L Flow - Channel changes during assembly
+### Journey L — Channel changes during assembly
 
 1. The Operator tries to register an order with the selected channel.
 2. The system identifies that the channel has been changed.
@@ -1040,28 +1173,28 @@ eligible in the cart, choosing the combination that produces the greatest saving
 5. Operator reviews and confirms again.
 6. If the channel has been inactivated or deleted, the system removes the selection and allows
    continue without a channel or choose another one.
-7. The flow returns to confirmation.
+7. The journey returns to confirmation.
 
-#### Flow M - Stock is insufficient
+### Journey M — Stock is insufficient
 
 1. The Operator attempts to register an order.
 2. The system consolidates and revalidates all consumption.
 3. A product or brand does not have sufficient balance.
 4. The system blocks the entire order.
-5. No orders or downloads are persisted.
+5. No order or stock write-off is persisted.
 6. The cart is preserved and insufficient items are highlighted.
 7. The Operator edits or removes the items and tries again.
 
-#### Flow N - Connection or processing failure
+### Journey N — Connection or processing failure
 
 1. The Operator attempts to register an order.
 2. The connection or transaction fails.
 3. The system confirms that no partial write-offs were maintained.
 4. The cart remains on the screen.
 5. The system offers `Try again`.
-6. The flow returns to confirmation.
+6. The journey returns to confirmation.
 
-#### Flow O - Combo changes during assembly
+### Journey O — Combo changes during assembly
 
 1. The Operator attempts to register an order with Combo applied.
 2. The system identifies changes, inactivation, exclusion or loss of eligibility
@@ -1074,7 +1207,7 @@ eligible in the cart, choosing the combination that produces the greatest saving
    conflict.
 7. After review, the Operator confirms again.
 
-#### Flow P - User queries orders
+### Journey P — User queries orders
 
 1. The user accesses `Orders`.
 2. The system displays the ice cream shop's most recent orders.
@@ -1084,11 +1217,11 @@ eligible in the cart, choosing the combination that produces the greatest saving
 6. The system presents complete snapshots of the sale, including Combos,
    economy and participating products.
 7. No editing, cancellation, reversal or deletion actions are offered.
-8. The flow ends.
+8. The journey ends.
 
 ---
 
-### 6. Out of Scope
+## 8. Out of Scope
 
 - Methods of payment, cash, change, bleeding, supply and reconciliation.
 - Cancellation or reversal of orders.
@@ -1119,7 +1252,7 @@ eligible in the cart, choosing the combination that produces the greatest saving
 - Advanced multi-store management for chains and franchises.
 - Physical inventory, batches, validity, losses and waste.
 
-#### Discarded during definition
+### Discarded during definition
 
 - **Multiple lines or grouping of the same product:** discarded; each product
   can only occupy one line, and new units or configurations must be
@@ -1146,7 +1279,7 @@ eligible in the cart, choosing the combination that produces the greatest saving
   offer during the service.
 - **Manufacturable as a sales category:** a Manufacturable only appears when it also
   is Portion or Resale.
-- **Separate price table:** base prices remain in the Products module.
+- **Separate price table:** base prices remain in the MRP module.
 - **Negative stock:** discarded; no sale can produce a negative balance.
 - **Partial write-off:** discarded; any insufficiency blocks the entire sale.
 - **Persistent draft:** discarded; the cart exists only during the

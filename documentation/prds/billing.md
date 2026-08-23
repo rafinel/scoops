@@ -1,32 +1,21 @@
-### 1. Overview
+# Billing Product Requirements Document
 
-The **Billing — Subscription** module allows an ice cream shop to experiment,
-Hire and manage the Scoops paywall. The module controls the cycle of
-commercial life of the organization, integrates recurring charges with Asaas,
-issues tax documents and applies blocks or reactivations depending on the state
-confirmed signature.
+## 1. Executive Summary
 
-Billing deals exclusively with the monthly fee for using Scoops. Payments made
-by ice cream shop customers, POS payment methods, cashier, change,
-sales reconciliation and tax issuance of orders do not belong to this module.
+Billing gives Managers of independent ice cream and açaí shops a transparent,
+self-service way to try, subscribe to and manage Scoops. It owns the
+establishment's commercial lifecycle, integrates recurring charges with Asaas,
+issues tax documents, and applies commercial blocking or reactivation from the
+confirmed subscription state.
 
-**Objective:** convert ice cream shops who try Scoops into subscribers
-payers through a unique, transparent and self-service offer, maintaining
-predictability in charges, cancellations, blocking and recovery of access.
+Billing covers only the monthly fee for using Scoops. Payments made by an
+establishment's customers, POS payment methods, cash operations, sales
+reconciliation and tax documents for customer orders remain outside this
+module.
 
-**Issue resolved:** without a core subscription module, Scoops has no
-a reliable source to determine whether an ice cream shop can access the modules
-operations, nor does it offer the Manager clear means to hire, update the
-payment, check charges, obtain invoices or cancel.
+### Confirmed commercial offer
 
-**Delivered value:** no-obligation test, simple contracting, price
-predictable, recurring billing by card or Pix Automatic, recovery of
-default without immediate loss of data and autonomy to manage the
-signature.
-
-#### Commercial offer confirmed
-
-- **Plan:** `Full Scoops`.
+- **Plan:** `Complete Scoops`.
 - **Price:** R$59.90 per month, taxes included.
 - **Frequency:** exclusively monthly.
 - **Scope:** all Scoops features.
@@ -40,15 +29,61 @@ signature.
 
 ---
 
-### 2. Target audience
+## 2. Problem and Opportunity
 
-#### Main audience
+Without an authoritative subscription capability, Scoops cannot reliably
+determine whether an establishment may use operational modules. Managers also
+lack a clear way to subscribe, update payment details, review charges, obtain
+tax documents, cancel or recover access after a payment failure.
+
+The opportunity is to convert establishments that try Scoops into paying
+subscribers through one predictable, self-service offer: a full trial without a
+payment method, one unlimited monthly plan, recurring card or Automatic Pix
+payments, a seven-day recovery period after payment failure, and reactivation
+without immediate loss of operational data.
+
+The Brazilian market combines limited free versions, temporary trials,
+feature-tiered plans and assisted contracting. Scoops is differentiated by a
+simple subscription to a vertical product rather than the breadth and pricing
+complexity of a general-purpose ERP.
+
+### Market evidence and positioning
+
+| Solution | Audience | Value proposition | Features | Public price | Limitations |
+|---|---|---|---|---|---|
+| [Consumer](https://www.consumer.com.br/) | Restaurants, bars, snack bars, coffee shops and ice cream shops | Restaurant operations with a free entry point | POS, orders, stock, tables, reports, tax, delivery and integrations | The official page reports a free version up to 200 orders/month; the [official store](https://loja.consumer.com.br/) reports the Essential plan at R$59.90/month | Free access ends based on order volume; modules and features vary between plans |
+| [Kyte](https://www.kyte.com.br/planos) | Small merchants and sales teams | Simple management by phone and computer | POS, inventory, catalog, orders, reports, users and plan-dependent AI | The official page reports a free plan and paid plans at R$49.90, R$69.90 and R$99.90 per month | Users, platforms and features vary by tier |
+| [Saipos](https://saipos.com/sistema/sorveteria) | Ice cream shops and food establishments | Centralized operations, inventory, finance, tax and delivery | POS, scales, stock, recipes, reports, tax and integrations | The official ice-cream-shop page reports plans starting at R$219.90/month and a seven-day free trial | Demo-driven contracting and a broader operating scope than Scoops' initial scope |
+| [Bling](https://www.bling.com.br/planos-e-precos) | Micro, small and medium multichannel companies | ERP integrating sales, inventory, tax, finance and logistics | ERP, POS, invoices, integrations, finance, reports and tiered limits | The [official communication](https://ajuda.bling.com.br/hc/pt-br/articles/30224184866583-Altera%C3%A7%C3%A3o-nos-planos-e-pre%C3%A7os-do-Bling-em-abril-de-2025) reports monthly plans starting at R$55 and an initial free trial | Plans vary by features, users, storage and imported orders |
+| Spreadsheets, reminders and manual billing | Small operations and software under validation | Low initial technical effort | Manual recording of due dates, payments and access | Variable | No reliable renewal, automatic reconciliation, auditing or consistent blocking |
+
+The [Asaas Checkout documentation](https://docs.asaas.com/docs/checkout-asaas)
+reports hosted checkout, cards, Pix, subscriptions, callbacks, webhooks and a
+Sandbox. Asaas also documents a dedicated
+[AutoPix API](https://docs.asaas.com/reference/criar-uma-autorizacao-pix-automatico).
+[AbacatePay](https://www.abacatepay.com/para/saas) reports card and Pix
+subscriptions, public fees and webhooks, with an expanded API v2 subscription
+cycle in its [April and May 2026 changelog](https://docs.abacatepay.com/pages/changelog).
+No unequivocal public documentation of Automatic Pix was identified for Appmax
+in the sources consulted.
+
+Source-based inference: the R$59.90 price places Scoops near the entry price of
+general-purpose solutions, while vertical specialization in production, stock
+and sale of ice cream and açaí supports its value. A single unlimited offer also
+reduces comparison effort and avoids incentives to share accounts or interrupt
+operations because of user or volume limits.
+
+---
+
+## 3. Target Audience
+
+### Primary audience
 
 Managers of independent ice cream and açaí shops who need to experiment,
 contract and maintain the organization's access to Scoops without depending on customer service
 commercial.
 
-#### Secondary audiences
+### Secondary audiences
 
 - Financial or accounting managers who receive receipts and NFS-e in one
   billing email, without necessarily having access to Scoops.
@@ -56,7 +91,7 @@ commercial.
 - Scoops administrative team, which monitors charges and exceptions for
   Asaas dashboard and technical alerts.
 
-#### Not public
+### Non-audience
 
 - Ice cream shop operators, who cannot view prices, subscriptions,
   charges or tax data.
@@ -65,7 +100,7 @@ commercial.
   consumption.
 - Customers looking to process payments for POS sales in Billing.
 
-#### Context of use
+### Context of use
 
 - Start of the test after activating the ice cream shop and the first Manager.
 - Subscription during or after the test.
@@ -78,7 +113,7 @@ commercial.
 - Future operational retention and disposal after the retention period; no
   customer-facing deletion action is available in the current product.
 
-#### Pains and needs
+### Pains and needs
 
 - Know the total cost before subscribing.
 - Test all features without registering a card.
@@ -89,7 +124,7 @@ commercial.
 - Know when access will be blocked and what future retention lifecycle applies.
 - Preserve the authorship of changes made by different Managers.
 
-#### Jobs to Be Done
+### Jobs to Be Done
 
 - When I create my ice cream shop, I want to test all the features without informing
   a payment method, to evaluate Scoops without the risk of collection.
@@ -108,77 +143,48 @@ commercial.
 
 ---
 
-### 3. Competitive Scenario Analysis
+## 4. Objectives and Success Metrics
 
-The Brazilian market combines four relevant models: free version
-limited, temporary test, multiple plans per resources and contracting
-assisted. Scoops' opportunity is not in replicating the breadth of ERPs
-generalists, but in offering a simple subscription to a vertical product,
-with a single price and no commercial limits that encourage shared accounts
-or interrupt the operation.
+- Convert establishments that start the trial into paying subscribers through
+  a transparent, self-service subscription flow.
+- Maintain predictable access through successful renewals, payment recovery,
+  cancellation, blocking and reactivation.
+- Give Managers reliable access to charge history, receipts and NFS-e without
+  requiring the Asaas dashboard.
+- Keep commercial actions auditable while protecting financial and personal
+  data.
 
-#### Competitive matrix
+Success is measured by:
 
-| Solution | Public | Value proposition | Features | Public price | Limitations |
-|---|---|---|---|---|---|
-| [Consumer](https://www.consumer.com.br/) | Restaurants, bars, snack bars, coffee shops and ice cream shops | Operating restaurants on a platform with free entry | POS, orders, stock, tables, reports, tax, delivery and integrations | The official page informs free version up to 200 orders/month; the [official store](https://loja.consumer.com.br/) informs the Essential plan for R$ 59.90/month | Free access ends based on the volume of orders; modules and features vary between plans |
-| [Kyte](https://www.kyte.com.br/planos) | Small merchants and sales teams | Simple management via cell phone and computer | POS, inventory, catalog, orders, reports, users and AI as per plan | The official page informs the free plan and paid plans of R$49.90, R$69.90 and R$99.90 per month | Number of users, available platform and features vary by level |
-| [Saipos](https://saipos.com/sistema/sorveteria) | Ice cream shops and food establishments | Centralize operations, inventory, financial, tax and delivery | POS, scales, stock, technical data, reports, tax and integrations | The official page for ice cream shops informs plans starting at R$219.90/month and a seven-day free trial | Demo-driven subscription and offering broader than Scoops' initial scope |
-| [Bling](https://www.bling.com.br/planos-e-precos) | Micro, small and medium multichannel companies | ERP integrated with sales, inventory, tax, finance and logistics | ERP, POS, invoices, integrations, financial, reports and limits by band | The [official communication from April 2026](https://ajuda.bling.com.br/hc/pt-br/articles/30224184866583-Altera%C3%A7%C3%A3o-nos-planos-e-pre%C3%A7os-do-Bling-em-abril-de-2025) informs monthly plans starting at R$55 and free initial trial | Plans and tiers vary by features, users, storage, and imported orders |
-| Spreadsheet, reminder and manual billing | Small operations and software under validation | Low initial technical effort | Manual recording of due dates, payments and access | Variable | Does not offer reliable renewal, automatic reconciliation, auditing, or consistent blocking |
-
-#### Rated Payment Providers
-
-- The [Asaas Checkout](https://docs.asaas.com/docs/checkout-asaas) documentation
-  informs hosted checkout, card, Pix, subscriptions, callbacks, webhooks and
-  Sandbox. Asaas also documents a specific API for
-  [AutoPix](https://docs.asaas.com/reference/criar-uma-autorizacao-pix-automatico).
-- [AbacatePay](https://www.abacatepay.com/para/saas) reports subscriptions via
-  card and Pix, public fees and webhooks. Your expanded subscription cycle in
-  API v2 was published in the [changelog for April and May
-  2026](https://docs.abacatepay.com/pages/changelog).
-- Appmax publishes charge recurrence and recovery features, but does not
-  unequivocal public documentation of Pix Automático was identified in the sources
-  consulted.
-
-#### Findings and inferences
-
-- According to official sources, Consumer and Kyte reduce the entry barrier with
-  free versions, but apply limits on volume, users or resources.
-- According to the official Saipos page, its offer for ice cream parlors costs more and
-  includes a larger operating surface.
-- According to Bling's official documentation, volume and resources influence the
-  plan framework.
-- Inference based on sources: the price of R$59.90 places Scoops close
-  to the entry of generalist solutions, but their justification depends on the
-  specialization in production, stock and sale of ice cream and açaí.
-- Source-based inference: A single, unlimited offering reduces data load
-  comparison, protects individual authorship and differentiates Scoops from models with
-  limits per user or operation.
-
-#### Recommended differentials
-
-- A single plan with explicit total price.
-- Full test without card and without unexpected automatic conversion.
-- No charges per user or operational volume.
-- Card and Automatic Pix as equivalent recurring means.
-- Seven days to recover payment failures before the lockdown.
-- Automatic reactivation with full data preservation.
-- Self-service cancellation without losing the period already paid.
-- History of charges, receipts and NFS-e within the product.
+- the percentage of establishments that start a trial and become paying
+  subscribers within 30 days after the trial ends, with an initial hypothesis
+  of at least 20% until sufficient history exists;
+- conversion during trial and median time to subscribe;
+- monthly recurring revenue and voluntary and involuntary churn;
+- renewal-failure rate and recovery rate during the seven-day tolerance period;
+- reactivation rate and use of card compared with Automatic Pix;
+- reconciliation of financial metrics with confirmed charges rather than only
+  interface events.
 
 ---
 
-### 4. Requirements
+## 5. Requirements
 
-#### REQ-01 Commercial Plan and Offer
+### REQ-01 — Commercial Plan and Offer
 
-- [ ] **Commercial Plan and Offer**
+- [ ] **Implemented**
 
-**Description:** Scoops must sell a single monthly subscription, with
-uniform price and scope for all ice cream shops.
+**Outcome:** Establishments can subscribe to one transparent monthly offer
+with a uniform price and complete product scope.
 
-##### Business Rules
+**Actors:** Manager
+
+**Consumes:** Identity — Manager profile and functional permissions
+
+**Provides:** Authoritative commercial offer to REQ-02, REQ-03, REQ-04 and
+REQ-17
+
+#### Capabilities
 
 - **Plan:** the only plan must be called `Complete Scoops`.
 - **Price:** the monthly fee must be R$59.90, taxes included.
@@ -195,7 +201,7 @@ uniform price and scope for all ice cream shops.
 - **Dependency:** functional permissions of each module continue to be
   determined by Identity profiles.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** display plan name, monthly price, included features and
   absence of additional fees in a single presentation, without level table.
@@ -210,14 +216,22 @@ uniform price and scope for all ice cream shops.
 
 ---
 
-#### REQ-02 Free Trial
+### REQ-02 — Free Trial
 
-- [ ] **Free Trial**
+- [ ] **Implemented**
 
-**Description:** A newly activated ice cream shop must fully experience the
-Scoops for 14 days without providing a payment method.
+**Outcome:** A newly activated establishment can experience all of Scoops for
+14 days without providing a payment method.
 
-##### Business Rules
+**Actors:** Manager, System
+
+**Consumes:** Identity — activation of the establishment and first Manager;
+REQ-01 — commercial offer
+
+**Provides:** Authoritative trial eligibility, period and status to REQ-05,
+REQ-12 and REQ-18
+
+#### Capabilities
 
 - **Start:** the test must begin when the confirmation jointly activates the
   ice cream shop and its first Manager.
@@ -238,7 +252,7 @@ Scoops for 14 days without providing a payment method.
 - **Dependency:** the hash or identifier required to prevent retrial
   must be preserved without retaining the deleted account for operational use.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** indicate `In trial` status and end date on the
   Subscription.
@@ -253,14 +267,21 @@ Scoops for 14 days without providing a payment method.
 
 ---
 
-#### REQ-03 Holder, Billing Data and Acceptance
+### REQ-03 — Holder, Billing Data and Acceptance
 
-- [ ] **Owner, Billing Data and Acceptance**
+- [ ] **Implemented**
 
-**Description:** Subscription must identify the holder, collect data
-necessary for billing and register explicit acceptance of the conditions.
+**Outcome:** The subscription identifies its holder, has valid billing data and
+preserves explicit acceptance of the commercial and privacy conditions.
 
-##### Business Rules
+**Actors:** Manager
+
+**Consumes:** Identity — authenticated Manager; REQ-01 — commercial offer
+
+**Provides:** Authoritative billing profile and acceptance evidence to REQ-04
+and REQ-11
+
+#### Capabilities
 
 - **Types of holder:** accept natural person with CPF and legal entity with
   CNPJ.
@@ -281,7 +302,7 @@ necessary for billing and register explicit acceptance of the conditions.
 - **Evidence:** record version of documents, user, date, time and IP address
   accept.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** group holder data and address in a section
   billing, visually distinguishing CPF from CNPJ.
@@ -297,14 +318,21 @@ necessary for billing and register explicit acceptance of the conditions.
 
 ---
 
-#### REQ-04 Checkout and Payment Methods
+### REQ-04 — Checkout and Payment Methods
 
-- [ ] **Checkout and Payment Methods**
+- [ ] **Implemented**
 
-**Description:** The Manager must purchase the plan through a checkout hosted by
-Asaas using credit card or Automatic Pix.
+**Outcome:** A Manager can purchase the plan securely by credit card or
+Automatic Pix through an Asaas-hosted checkout.
 
-##### Business Rules
+**Actors:** Manager, System, Asaas
+
+**Consumes:** REQ-01 — commercial offer; REQ-03 — billing profile and acceptance
+
+**Provides:** Authoritative payment, payment-method and provider-reference facts
+to REQ-05, REQ-06, REQ-07, REQ-09, REQ-10, REQ-11 and REQ-13
+
+#### Capabilities
 
 - **Provider:** Asaas must be the sole provider of the MVP.
 - **Checkout:** Scoops must create a hosted session and redirect the
@@ -324,7 +352,7 @@ Asaas using credit card or Automatic Pix.
 - **Dependency:** Automatic Pix must be approved in the Asaas account before
   launch.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** present final summary and action `Go to payment`; the Asaas
   collects sensitive data.
@@ -341,14 +369,23 @@ Asaas using credit card or Automatic Pix.
 
 ---
 
-#### REQ-05 Signature and Access Control States
+### REQ-05 — Subscription and Access Control States
 
-- [ ] **Subscription and Access Control States**
+- [ ] **Implemented**
 
-**Description:** The system must maintain an auditable local state of the signature and
-Enforce consistent access across all protected routes and actions.
+**Outcome:** Every establishment has an auditable commercial-access state that
+is enforced consistently across protected routes and actions.
 
-##### Business Rules
+**Actors:** Manager, Operator, System
+
+**Consumes:** REQ-02 — trial state; REQ-04 — confirmed financial facts; REQ-06
+— renewal and tolerance state; REQ-08 — cancellation state; REQ-09 — refund
+and chargeback state; REQ-13 — retention and disposal state
+
+**Provides:** Authoritative commercial-access state to Identity and the MRP and
+PDV operational modules, and to REQ-17
+
+#### Capabilities
 
 | Status | Meaning | Operational access |
 |---|---|---|
@@ -377,7 +414,7 @@ Enforce consistent access across all protected routes and actions.
 - **Reactivation:** payment confirmed during the 90 days must restore
   automatically full access without changing data.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** the Subscription screen must display status, period, next action
   and relevant dates.
@@ -395,14 +432,22 @@ Enforce consistent access across all protected routes and actions.
 
 ---
 
-#### REQ-06 Renewal, Billing Failure and Tolerance
+### REQ-06 — Renewal, Billing Failure and Tolerance
 
-- [ ] **Renewal, Billing Failure and Tolerance**
+- [ ] **Implemented**
 
-**Description:** Subscription must renew monthly and offer seven days to
-correct faults before blocking the operation.
+**Outcome:** The subscription renews monthly and gives the establishment seven
+days to recover a failed charge before operational access is blocked.
 
-##### Business Rules
+**Actors:** Manager, System, Asaas
+
+**Consumes:** REQ-04 — recurring payment and payment method; REQ-05 —
+commercial-access state
+
+**Provides:** Authoritative renewal, failure and tolerance facts to REQ-05,
+REQ-07, REQ-12 and REQ-18
+
+#### Capabilities
 
 - **Renewal:** the starting date of the first confirmed payment must define the
   monthly cycle according to Asaas calendar rules.
@@ -420,7 +465,7 @@ correct faults before blocking the operation.
 - **Idempotence:** repeated events cannot extend period, duplicate
   charge or switch states incorrectly.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** display alert with presentable reason, remaining time and actions
   `Pay now` and `Change payment method`.
@@ -434,14 +479,21 @@ correct faults before blocking the operation.
 
 ---
 
-#### REQ-07 Change in Payment Method
+### REQ-07 — Change of Payment Method
 
-- [ ] **Change of Payment Method**
+- [ ] **Implemented**
 
-**Description:** Any Manager must switch between card and Automatic Pix without
-expose sensitive financial data.
+**Outcome:** Any Manager can switch securely between card and Automatic Pix
+without exposing sensitive financial data.
 
-##### Business Rules
+**Actors:** Manager, System, Asaas
+
+**Consumes:** REQ-04 — current payment method and provider references; REQ-06 —
+renewal and tolerance state
+
+**Provides:** Authoritative current payment-method facts to REQ-06 and REQ-10
+
+#### Capabilities
 
 - **Authorization:** only Managers can initiate the change.
 - **Modes:** allow card to card, card to Pix Automatic, Pix
@@ -458,7 +510,7 @@ expose sensitive financial data.
 - **Failure:** a rejected change must preserve the previous payment method when
   it is still valid.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** show current masked payment method and action `Change payment
   method`, with secure redirection to Asaas.
@@ -474,14 +526,22 @@ expose sensitive financial data.
 
 ---
 
-#### REQ-08 Cancellation and Resumption of Renewal
+### REQ-08 — Cancellation and Resumption of Renewal
 
-- [ ] **Cancellation and Resumption of Renewal**
+- [ ] **Implemented**
 
-**Description:** Any Manager must cancel the next renewal without losing the
-period already paid and undo the cancellation before the end date.
+**Outcome:** Any Manager can cancel the next renewal without losing the paid
+period and can resume renewal before that period ends.
 
-##### Business Rules
+**Actors:** Manager, System, Asaas
+
+**Consumes:** REQ-04 — provider subscription; REQ-05 — current
+commercial-access state
+
+**Provides:** Authoritative scheduled-cancellation state to REQ-05, REQ-12,
+REQ-13 and REQ-18
+
+#### Capabilities
 
 - **Authorization:** any Manager can cancel; Operators do not see the
   action.
@@ -500,7 +560,7 @@ period already paid and undo the cancellation before the end date.
 - **Asaas failure:** does not show cancellation as completed until confirmed
   from the provider.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** keep subscription cancellation distinct from any future
   operational retention or deletion lifecycle; the current product has no
@@ -516,14 +576,22 @@ period already paid and undo the cancellation before the end date.
 
 ---
 
-#### REQ-09 Refund and Chargeback
+### REQ-09 — Refund and Chargeback
 
-- [ ] **Refund and Chargeback**
+- [ ] **Implemented**
 
-**Description:** Billing must allow cancellation of the first monthly payment and
-handle subsequent disputes without ambiguous financial status.
+**Outcome:** A Manager can request the eligible first-payment refund, and the
+establishment receives predictable access treatment for refunds and chargebacks.
 
-##### Business Rules
+**Actors:** Manager, System, Asaas
+
+**Consumes:** REQ-04 — confirmed charge; REQ-05 — commercial-access state;
+REQ-11 — issued NFS-e
+
+**Provides:** Authoritative refund and chargeback facts to REQ-05, REQ-10,
+REQ-11, REQ-12, REQ-13 and REQ-18
+
+#### Capabilities
 
 - **Eligibility:** only the first monthly payment can receive a refund
   in full for withdrawal within seven days after payment.
@@ -545,7 +613,7 @@ handle subsequent disputes without ambiguous financial status.
 - **Tax:** refund must trigger cancellation or adjustment of NFS-e according to
   applicable tax rule.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** during eligibility, display `Cancel and request
   refund`, with value, deadline and immediate effect on access.
@@ -561,14 +629,19 @@ handle subsequent disputes without ambiguous financial status.
 
 ---
 
-#### REQ-10 Billing, Receipts and History
+### REQ-10 — Charges, Receipts and History
 
-- [ ] **Charges, Vouchers and History**
+- [ ] **Implemented**
 
-**Description:** Managers must consult the ice cream shop's financial history without
-access to the provider panel.
+**Outcome:** Managers can consult the establishment's complete financial
+history, receipts and tax-document links without accessing the provider panel.
 
-##### Business Rules
+**Actors:** Manager, System
+
+**Consumes:** REQ-04 — charge facts; REQ-07 — payment-method facts; REQ-09 —
+refund and chargeback facts; REQ-11 — NFS-e facts
+
+#### Capabilities
 
 - **Fields:** each charge must preserve billing period, due date, payment,
   value, payment method, status, internal identifier and Asaas identifier.
@@ -583,7 +656,7 @@ access to the provider panel.
 - **Access:** any Manager can consult; Operators cannot access.
 - **Masking:** never show full card or bank details.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** use table on desktop and lines or compact cards on cell phone,
   with expandable detail.
@@ -599,14 +672,22 @@ access to the provider panel.
 
 ---
 
-#### REQ-11 Issuance and Delivery of NFS-e
+### REQ-11 — Issuance and Delivery of NFS-e
 
-- [ ] **Issuance and Delivery of NFS-e**
+- [ ] **Implemented**
 
-**Description:** Each monthly fee paid must generate an NFS-e with tax data
-in force in the jurisdiction.
+**Outcome:** Every paid monthly fee produces an NFS-e with the applicable
+billing and jurisdictional tax data.
 
-##### Business Rules
+**Actors:** System
+
+**Consumes:** REQ-03 — billing profile; REQ-04 — confirmed payment; REQ-09 —
+refund facts
+
+**Provides:** Authoritative NFS-e facts and documents to REQ-09, REQ-10, REQ-12
+and REQ-14
+
+#### Capabilities
 
 - **Trigger:** issue only after payment confirmation.
 - **Owner:** use the billing data in force at the time of billing.
@@ -625,7 +706,7 @@ in force in the jurisdiction.
   Scoops tax must be configured and approved outside the Scoops interface.
   customer.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** display number, billing period, status and action `Download NFS-e`.
 - **Feedback:** use states `Issuing`, `Emitted`, `Temporary failure`,
@@ -640,14 +721,21 @@ in force in the jurisdiction.
 
 ---
 
-#### REQ-12 Billing Notifications
+### REQ-12 — Billing Notifications
 
-- [ ] **Billing Notifications**
+- [ ] **Implemented**
 
-**Description:** Scoops must notify Managers and financial contact about
-events that require knowledge or action.
+**Outcome:** Managers and the financial contact receive timely notice of
+billing events that require knowledge or action.
 
-##### Business Rules
+**Actors:** System
+
+**Consumes:** Communication — transactional email and in-product notification
+delivery; REQ-02 — trial milestones; REQ-06 — failure and tolerance milestones;
+REQ-08 — cancellation state; REQ-09 — refund and chargeback state; REQ-11 —
+NFS-e state; REQ-13 — retention and disposal milestones
+
+#### Capabilities
 
 - **Channels:** use email and notice within the product; SMS and WhatsApp do not belong
   to MVP.
@@ -664,7 +752,7 @@ events that require knowledge or action.
   repeated by duplicate webhooks.
 - **Audit:** record sending attempt and result.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** warnings within the product must show cause, deadline and action
   recommended.
@@ -680,16 +768,23 @@ events that require knowledge or action.
 
 ---
 
-#### REQ-13 Retention, Reactivation and Future Operational Disposal
+### REQ-13 — Retention, Reactivation and Future Operational Disposal
 
-- [ ] **Retention, Reactivation and Future Operational Disposal**
+- [ ] **Implemented**
 
-**Description:** Operational data for a locked ice cream shop must remain
-recoverable for 90 days and be securely disposed of by an authorized future
-operational lifecycle at the end of the period. This is not a customer-facing
-Identity action.
+**Outcome:** A blocked establishment's operational data remains recoverable for
+90 days and can later be disposed of only through an authorized operational
+lifecycle, never through a customer-facing Identity action.
 
-##### Business Rules
+**Actors:** Manager, System, Asaas
+
+**Consumes:** REQ-04 — confirmed reactivation payment; REQ-05 — blocked access
+state; REQ-08 — ended cancellation period; REQ-09 — confirmed refund
+
+**Provides:** Authoritative retention, reactivation and disposal facts to
+REQ-05, REQ-12 and REQ-14
+
+#### Capabilities
 
 - **Start:** test expired, tolerance expired, end of period canceled or
   Confirmed refunds must initiate 90-day retention.
@@ -712,7 +807,7 @@ Identity action.
 - **Export:** there must be no operational export during the blockade in
   MVP.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** when this future lifecycle is implemented, display the
   scheduled operational-disposal date and reactivation action during the 90
@@ -728,15 +823,21 @@ Identity action.
 
 ---
 
-#### REQ-14 Tax Filing and Privacy
+### REQ-14 — Tax Archive and Privacy
 
-- [ ] **Tax File and Privacy**
+- [ ] **Implemented**
 
-**Description:** Any future operational disposal of the ice cream shop must
-remove eligible operational data while separately preserving the tax minimum
-required by legal obligation.
+**Outcome:** Future operational disposal removes eligible operational data
+while preserving only the segregated tax minimum required by legal obligation.
 
-##### Business Rules
+**Actors:** System, authorized Scoops accounting or legal staff
+
+**Consumes:** REQ-11 — NFS-e and fiscal facts; REQ-13 — completed operational
+disposal
+
+**Provides:** Authoritative segregated tax archive
+
+#### Capabilities
 
 - **Term:** maintain minimum tax records for five years after issuance or
   according to the higher legal period that may be applicable.
@@ -756,7 +857,7 @@ required by legal obligation.
 - **Dependency:** the Identity product does not expose manual deletion, and any
   future operational-disposal contract must preserve this fiscal exception.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** before any future operational disposal, inform that minimum tax
   records will be preserved for the legal period and remain unavailable in the
@@ -773,14 +874,22 @@ required by legal obligation.
 
 ---
 
-#### REQ-15 Permissions and Audit
+### REQ-15 — Permissions and Audit
 
-- [ ] **Permissions and Auditing**
+- [ ] **Implemented**
 
-**Description:** Billing must respect Identity's fixed profiles and preserve the
-authorship of administrative actions.
+**Outcome:** Billing respects Identity's fixed profiles and preserves the
+authorship and history of administrative and autonomous commercial actions.
 
-##### Business Rules
+**Actors:** Manager, System
+
+**Consumes:** Identity — authenticated establishment, Manager and Operator
+profiles; authoritative actions and state transitions from REQ-02 through
+REQ-13
+
+**Provides:** Authoritative Billing audit history
+
+#### Capabilities
 
 - **Managers:** any Manager can view, hire, change data and
   payment, cancel, resume, refund and reactivate.
@@ -797,7 +906,7 @@ authorship of administrative actions.
 - **Isolation:** all query and mutation must be limited to the ice cream shop in the
   authenticated user.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** relevant events must appear in the administrative audit
   existing with actor `System` or Manager name.
@@ -812,14 +921,19 @@ authorship of administrative actions.
 
 ---
 
-#### REQ-16 Integration, Reliability and Security
+### REQ-16 — Integration, Reliability and Security
 
-- [ ] **Integration, Reliability and Security**
+- [ ] **Implemented**
 
-**Description:** Integration with Asaas must tolerate repeated events, delays
-and unavailability without double charges or undue blocking.
+**Outcome:** Billing tolerates repeated Asaas events, delays and unavailability
+without duplicate effects, duplicate charges or unjustified blocking.
 
-##### Business Rules
+**Actors:** System, Asaas
+
+**Consumes:** Asaas — authenticated checkout, subscription, charge, webhook and
+reconciliation capabilities
+
+#### Capabilities
 
 - **Webhooks:** validate authenticity, origin and structure before processing.
 - **Idempotence:** use event and operation identifiers to prevent
@@ -841,7 +955,7 @@ and unavailability without double charges or undue blocking.
 - **Backoffice:** do not build an internal financial panel; use the dashboard
   Asaas and correlated technical logs.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** pending states must inform that confirmation may take
   a few moments and allow a new consultation.
@@ -858,14 +972,22 @@ and unavailability without double charges or undue blocking.
 
 ---
 
-#### REQ-17 Navigation, Responsiveness and Accessibility
+### REQ-17 — Navigation, Responsiveness and Accessibility
 
-- [ ] **Navigation, Responsiveness and Accessibility**
+- [ ] **Implemented**
 
-**Description:** The Subscription screen must include offer, status, payment,
-billing, history and cancellation in one coherent experience.
+**Outcome:** Managers can use offer, status, payment, billing, history and
+cancellation capabilities through one coherent, responsive and accessible
+Subscription experience.
 
-##### Business Rules
+**Actors:** Manager, Operator
+
+**Consumes:** Identity — profile and navigation permissions; REQ-01 —
+commercial offer; REQ-05 — commercial-access state; REQ-07 — payment-method
+state; REQ-08 — cancellation actions; REQ-09 — refund actions; REQ-10 —
+financial history; REQ-11 — NFS-e state
+
+#### Capabilities
 
 - **Navigation:** `Signature` must remain in the administrative footer of the
   sidebar and be available only to Managers.
@@ -880,7 +1002,7 @@ billing, history and cancellation in one coherent experience.
 - **Internationalization:** currency and dates must use Brazilian format; rules
   financial calendar follow the provider.
 
-##### UI/UX rules
+#### Experience
 
 - **Interface:** follow the Scoops design system, with protagonist numbers,
   neutral surfaces, purple in primary actions and semantic colors for states.
@@ -897,14 +1019,20 @@ billing, history and cancellation in one coherent experience.
 
 ---
 
-#### REQ-18 Metrics and Instrumentation
+### REQ-18 — Metrics and Instrumentation
 
-- [ ] **Metrics and Instrumentation**
+- [ ] **Implemented**
 
-**Description:** Billing must instrument the trial and subscription funnel to
-evaluate conversion, default and retention.
+**Outcome:** Scoops can evaluate trial conversion, subscription revenue,
+payment recovery and retention from privacy-safe, financially reconciled
+Billing metrics.
 
-##### Business Rules
+**Actors:** System
+
+**Consumes:** Authoritative lifecycle events from REQ-02, REQ-04, REQ-06,
+REQ-08, REQ-09 and REQ-13
+
+#### Capabilities
 
 - **Main metric:** rate of ice cream shops that start the test and become
   payers up to 30 days after its end.
@@ -920,36 +1048,135 @@ evaluate conversion, default and retention.
   card or bank details.
 - **Consistency:** financial metrics must reconcile with charges
   confirmed, not just interface events.
-
-##### UI/UX rules
-
-- **Interface:** there is no need for a metrics dashboard within Billing in
-  MVP.
-- **Feedback:** instrumentation should not block or delay user actions.
-- **Empty state:** not applicable to the client interface.
-- **Action blocked:** analytical failure should not prevent subscription or
-  payment.
-- **Responsiveness:** not applicable to background collection.
-- **Accessibility:** instrumentation cannot interfere with focusing, reading or
-  assistive navigation.
+- **Non-interference:** instrumentation failures must not prevent or delay subscription,
+  payment, focus, reading, or assistive navigation.
 
 ---
 
-### 5. User Flow
+## 6. Product Dependency Graph
 
-#### Flow A - Start Free Trial
+An edge from A to B means B consumes a product capability or authoritative
+fact provided by A. The graph expresses product dependencies only.
+
+```mermaid
+flowchart LR
+    Identity[Identity]
+    Communication[Communication]
+    Asaas[Asaas]
+    MRP[MRP]
+    PDV[PDV]
+    R1[REQ-01]
+    R2[REQ-02]
+    R3[REQ-03]
+    R4[REQ-04]
+    R5[REQ-05]
+    R6[REQ-06]
+    R7[REQ-07]
+    R8[REQ-08]
+    R9[REQ-09]
+    R10[REQ-10]
+    R11[REQ-11]
+    R12[REQ-12]
+    R13[REQ-13]
+    R14[REQ-14]
+    R15[REQ-15]
+    R16[REQ-16]
+    R17[REQ-17]
+    R18[REQ-18]
+
+    Identity --> R1
+    Identity --> R2
+    Identity --> R3
+    Identity --> R15
+    Identity --> R17
+    Communication --> R12
+    Asaas --> R16
+    R1 --> R2
+    R1 --> R3
+    R1 --> R4
+    R1 --> R17
+    R2 --> R5
+    R2 --> R12
+    R2 --> R15
+    R2 --> R18
+    R3 --> R4
+    R3 --> R11
+    R3 --> R15
+    R4 --> R5
+    R4 --> R6
+    R4 --> R7
+    R4 --> R8
+    R4 --> R9
+    R4 --> R10
+    R4 --> R11
+    R4 --> R13
+    R4 --> R15
+    R4 --> R18
+    R5 --> Identity
+    R5 --> MRP
+    R5 --> PDV
+    R5 --> R6
+    R5 --> R8
+    R5 --> R9
+    R5 --> R13
+    R5 --> R15
+    R5 --> R17
+    R6 --> R5
+    R6 --> R7
+    R6 --> R12
+    R6 --> R15
+    R6 --> R18
+    R7 --> R6
+    R7 --> R10
+    R7 --> R15
+    R7 --> R17
+    R8 --> R5
+    R8 --> R12
+    R8 --> R13
+    R8 --> R15
+    R8 --> R17
+    R8 --> R18
+    R9 --> R5
+    R9 --> R10
+    R9 --> R11
+    R9 --> R12
+    R9 --> R13
+    R9 --> R15
+    R9 --> R17
+    R9 --> R18
+    R10 --> R15
+    R10 --> R17
+    R11 --> R9
+    R11 --> R10
+    R11 --> R12
+    R11 --> R14
+    R11 --> R15
+    R11 --> R17
+    R12 --> R15
+    R13 --> R5
+    R13 --> R12
+    R13 --> R14
+    R13 --> R15
+    R13 --> R18
+```
+
+---
+
+## 7. User Journeys
+
+### Journey A — Start Free Trial
 
 1. The first Manager confirms the account created during onboarding.
 2. The system activates the ice cream shop and starts 14 days of full trial.
 3. Billing records the eligibility used for the ice cream shop and email.
 4. The Manager accesses all modules without providing a payment method.
 5. In the last seven days, the system displays the deadline banner.
-6. The flow ends with current trial, subscription, or expiration.
+6. The journey ends with current trial, subscription, or expiration.
 
-#### Flow B - Subscribe during trial
+### Journey B — Subscribe during trial
 
 1. The Manager selects `Subscribe Now`.
-2. The system presents `Full Scoops`, R$ 59.90/month and the conditions.
+2. The system presents `Complete Scoops`, R$59.90/month and the conditions.
 3. The Manager provides billing data and accepts current documents.
 4. The system creates the Asaas checkout and redirects the Manager.
 5. The Manager chooses a card or authorizes Automatic Pix.
@@ -960,7 +1187,7 @@ evaluate conversion, default and retention.
    - Failure or cancellation: the test remains until its original date.
 7. The system issues NFS-e and records the charge.
 
-#### Flow C - Subscribe after trial expiration
+### Journey C — Subscribe after trial expiration
 
 1. The Manager enters Scoops blocked.
 2. The system only allows Subscription, My Account and Logout; no deletion action
@@ -970,7 +1197,7 @@ evaluate conversion, default and retention.
 5. After confirmation, the system reactivates all modules within 60 seconds.
 6. All previous data remains intact.
 
-#### Flow D - Renew successfully
+### Journey D — Renew successfully
 
 1. Asaas carries out the monthly billing on the scheduled date.
 2. Card or Automatic Pix confirms payment.
@@ -979,7 +1206,7 @@ evaluate conversion, default and retention.
    the history.
 5. The system issues NFS-e and sends the documents to the financial email.
 
-#### Flow E - Recover renewal failure
+### Journey E — Recover renewal failure
 
 1. Renewal fails.
 2. The system changes the signature to `In Tolerance` for seven days.
@@ -991,7 +1218,7 @@ evaluate conversion, default and retention.
    - Failed: the original deadline continues, without being restarted.
 5. Without payment after seven days, operational modules are blocked.
 
-#### Flow F - Change payment method
+### Journey F — Change payment method
 
 1. The Manager opens Subscription and selects `Change payment method`.
 2. Scoops starts Asaas secure flow.
@@ -1002,7 +1229,7 @@ evaluate conversion, default and retention.
    - Failure: the previous valid mode is preserved.
 5. Billing records the change in the audit.
 
-#### Flow G - Cancel and undo cancellation
+### Journey G — Cancel and undo cancellation
 
 1. The Manager selects `Cancel subscription`.
 2. The system shows the final access date, 90-day retention and difference to
@@ -1014,7 +1241,7 @@ evaluate conversion, default and retention.
    - No resumption: the period ends, the ice cream shop is blocked and starts
      retention.
 
-#### Flow H - Request refund of the first monthly payment
+### Journey H — Request refund of the first monthly payment
 
 1. During the seven days following the first payment, the Manager selects
    `Cancel and request refund`.
@@ -1027,7 +1254,7 @@ evaluate conversion, default and retention.
    - Failed: Previous access and subscription are preserved.
 5. A future hire does not grant a new test.
 
-#### Flow I - Handle chargeback
+### Journey I — Handle chargeback
 
 1. Asaas informs you that a paid charge has been disputed and reversed.
 2. The system initiates a seven-day grace period and notifies all Managers.
@@ -1037,7 +1264,7 @@ evaluate conversion, default and retention.
    - Failure or lack of action: blocked at the end of the deadline.
 5. The history preserves original payment, dispute and payment recovery.
 
-#### Flow J - Consult history and NFS-e
+### Journey J — Consult history and NFS-e
 
 1. The Manager opens Subscription.
 2. The system displays the most recent charges.
@@ -1046,7 +1273,7 @@ evaluate conversion, default and retention.
 4. If the receipt and NFS-e are available, you can download them.
 5. If the invoice is pending, the system explains the failure without blocking access.
 
-#### Flow K - Reactivate on hold
+### Journey K — Reactivate on hold
 
 1. The Manager enters an ice cream shop that has been locked for less than 90 days.
 2. The system shows the preserved data, the future operational-disposal date and
@@ -1056,7 +1283,7 @@ evaluate conversion, default and retention.
    modules in up to 60 seconds.
 5. Users, products, inventory, orders and settings reappear unchanged.
 
-#### Flow L - Operationally dispose after 90 days
+### Journey L — Operationally dispose after 90 days
 
 1. The system notifies Managers 30, 7 and 1 day before the operational-disposal date.
 2. After completing 90 days, try to cancel any remaining recurrence in the
@@ -1069,7 +1296,7 @@ evaluate conversion, default and retention.
    five years.
 5. Operational backups age and expire within 30 days.
 
-#### Flow M - Asaas unavailability
+### Journey M — Asaas unavailability
 
 1. A query or financial operation fails due to external unavailability.
 2. Scoops preserves the last committed state of the subscription.
@@ -1081,7 +1308,7 @@ evaluate conversion, default and retention.
 
 ---
 
-### 6. Out of Scope
+## 8. Out of Scope
 
 - Payments made by ice cream shop customers at the POS.
 - Cash, change, bleeding, supply and sales reconciliation.
@@ -1103,7 +1330,7 @@ evaluate conversion, default and retention.
 - Proportional refund for renewals or partially used periods.
 - Restoration of ice cream parlor after operational deletion completed.
 
-#### Discarded during definition
+### Discarded during definition
 
 - **Freemium:** discarded; there will only be temporary trial and paid subscription.
 - **Price of R$49.90:** replaced by R$59.90 due to positioning
