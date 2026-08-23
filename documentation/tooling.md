@@ -176,11 +176,11 @@ pnpm --filter web test
 
 ### Web browser tests
 
-Playwright runs browser integration tests with mocked transport from
-`apps/web/tests`. Its web-server configuration starts the application on
-`http://127.0.0.1:4000` and reuses an existing local server outside CI. Every
-browser test uses the shared fixture factory, so the local and CI suites have
-the same deterministic transport boundary:
+Playwright runs browser integration tests from `apps/web/tests`. Route suites
+under `apps/web/tests/routes` use mocked transport and the shared fixture factory;
+real-service scenarios under `apps/web/tests/integration` require their documented
+Server/Supabase prerequisites. Its web-server configuration starts the application
+on `http://127.0.0.1:4000` and reuses an existing local server outside CI.
 
 Use the Playwright CLI for all repository browser interaction, inspection and
 validation, including manual or exploratory flows. Do not use `browser-use`, CDP
@@ -190,6 +190,16 @@ workflows or Playwright MCP.
 pnpm --filter web test:integration
 pnpm --filter web test:integration:ui
 ```
+
+The checked-in Web CI workflow runs only the mocked route suite:
+
+```bash
+pnpm --filter web exec playwright test tests/routes --workers=1
+```
+
+Run a real-service scenario explicitly only after starting the required Server,
+Supabase and database services; mocked route coverage is not persistence or
+authorization evidence.
 
 Browser screenshots used for validation are ephemeral. Write them to Playwright's
 `test-results/` output or retain them as CI artifacts; do not write implementation
@@ -367,8 +377,9 @@ The repository contains three path-filtered GitHub Actions validation workflows:
 - `.github/workflows/server-app-ci.yml` (`Server CI`) runs Server code checks, type checks,
   tests and build for Server or Core inputs;
 - `.github/workflows/web-app-ci.yml` (`Web CI`) generates routes and runs Web code checks,
-  type checks, unit tests, Playwright browser integration tests and build for Web or Core
-  inputs.
+  type checks, unit tests, the mocked Playwright route suite and build for Web or Core
+  inputs. Real-service browser scenarios are validated separately with their required
+  Server/Supabase environment.
 
 The workflows run on matching pushes and pull requests. Their checked-in `paths` filters are
 authoritative for deciding which checks apply to a candidate commit. The repository does not

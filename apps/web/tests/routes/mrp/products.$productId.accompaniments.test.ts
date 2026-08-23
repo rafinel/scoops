@@ -245,6 +245,27 @@ test.describe('Product accompaniments route', () => {
         }
       },
     })
+    let releaseCandidates!: () => void
+    const candidatesGate = new Promise<void>((resolve) => {
+      releaseCandidates = resolve
+    })
+    let candidateRequests = 0
+    await page.route('**/products**', async (route) => {
+      const request = route.request()
+      const requestUrl = new URL(request.url())
+      if (
+        !['fetch', 'xhr'].includes(request.resourceType()) ||
+        request.method() !== 'GET' ||
+        requestUrl.pathname !== '/products'
+      ) {
+        await route.fallback()
+        return
+      }
+
+      candidateRequests += 1
+      if (candidateRequests === 1) await candidatesGate
+      await route.fallback()
+    })
     await mrpFixture.mockProductStock({
       respond: (_request, requestNumber) =>
         requestNumber === 2
@@ -258,9 +279,13 @@ test.describe('Product accompaniments route', () => {
               },
             },
     })
+    let releaseAccompaniments!: () => void
+    const accompanimentsGate = new Promise<void>((resolve) => {
+      releaseAccompaniments = resolve
+    })
     await mrpFixture.mockProductAccompaniments({
       respond: async () => {
-        await new Promise((resolve) => setTimeout(resolve, 250))
+        await accompanimentsGate
         return { body: { product: PRODUCT, accompaniments: [] } }
       },
     })
@@ -287,19 +312,40 @@ test.describe('Product accompaniments route', () => {
       }),
     })
 
-    await page.goto(`/products/${PRODUCT_ID}/accompaniments`)
+    const pendingAccompanimentsRequest = page.waitForRequest(
+      (request) =>
+        ['fetch', 'xhr'].includes(request.resourceType()) &&
+        request.method() === 'GET' &&
+        new URL(request.url()).pathname ===
+          `/products/${PRODUCT_ID}/accompaniments`,
+    )
+    const navigation = page.goto(`/products/${PRODUCT_ID}/accompaniments`, {
+      waitUntil: 'commit',
+    })
+    await navigation
+    await pendingAccompanimentsRequest
     await expect(
       page.getByRole('status', { name: 'Carregando acompanhamentos' }),
     ).toBeVisible()
+    releaseAccompaniments()
     await expect(
       page.getByRole('button', { name: 'Vincular acompanhamento' }),
     ).toBeVisible()
+    const pendingCandidatesRequest = page.waitForRequest(
+      (request) =>
+        ['fetch', 'xhr'].includes(request.resourceType()) &&
+        request.method() === 'GET' &&
+        new URL(request.url()).pathname === '/products',
+    )
     await page.getByRole('button', { name: 'Vincular acompanhamento' }).click()
     const dialog = page.getByRole('dialog', { name: 'Vincular acompanhamento' })
+    await pendingCandidatesRequest
+    await expect(dialog.getByText('Carregando acompanhamentos…')).toBeVisible()
+    releaseCandidates()
     await expect(dialog.getByRole('alert')).toContainText(
       'Não foi possível carregar os acompanhamentos',
     )
-    const candidateRetry = dialog.getByRole('button', { name: 'Tentar novamente' })
+    const candidateRetry = dialog.getByRole('alert').getByText('Tentar novamente')
     await candidateRetry.focus()
     await page.keyboard.press('Enter')
     await dialog.getByRole('combobox', { name: 'Acompanhamento' }).click()
@@ -307,7 +353,7 @@ test.describe('Product accompaniments route', () => {
     await expect(dialog.getByRole('alert')).toContainText(
       'Não foi possível carregar a marca e o custo atuais',
     )
-    const stockRetry = dialog.getByRole('button', { name: 'Tentar novamente' })
+    const stockRetry = dialog.getByRole('alert').getByText('Tentar novamente')
     await stockRetry.focus()
     await page.keyboard.press('Enter')
     await expect(dialog.getByRole('textbox', { name: 'Marca atual' })).toHaveValue(
