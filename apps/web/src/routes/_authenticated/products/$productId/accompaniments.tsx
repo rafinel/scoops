@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { ProductDetailsPlaceholderSlot } from '@/ui/mrp/widgets/slots/product-details-placeholder-slot'
+import { ProductAccompanimentsSlot } from '@/ui/mrp/widgets/slots/product-accompaniments-slot'
 
 export const Route = createFileRoute(
   '/_authenticated/products/$productId/accompaniments',
@@ -11,14 +11,5 @@ export const Route = createFileRoute(
 function ProductAccompanimentsRoute() {
   const { productId } = Route.useParams()
 
-  return (
-    <ProductDetailsPlaceholderSlot
-      allowedCategories={['portion']}
-      description='Em breve você poderá organizar os acompanhamentos vinculados a este produto.'
-      icon='layers'
-      productId={productId}
-      selectedTab='accompaniments'
-      title='Acompanhamentos'
-    />
-  )
+  return <ProductAccompanimentsSlot productId={productId} />
 }

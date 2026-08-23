@@ -18,7 +18,9 @@ vi.mock('./use-product-stock-slot', () => ({
 
 vi.mock('@/ui/shared/widgets/components/anchor', () => ({
   Anchor: ({ children, params: _params, route: _route, ...props }: AnchorProps) => (
-    <a {...props}>{children}</a>
+    <a href='/products' {...props}>
+      {children}
+    </a>
   ),
 }))
 
@@ -57,7 +59,7 @@ describe('ProductStockSlot', () => {
     expect(screen.queryByRole('button', { name: /editar produto/i })).toBeNull()
     expect(screen.queryByRole('button', { name: /excluir produto/i })).toBeNull()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Voltar para produtos' }))
+    fireEvent.click(screen.getByRole('link', { name: 'Voltar para produtos' }))
 
     expect(handleBackMock).toHaveBeenCalledOnce()
   })
@@ -155,5 +157,13 @@ function fakeMrpService(): MrpService {
     setPrimaryProductBrand: vi.fn(),
     removeProductBrand: vi.fn(),
     adjustProductStock: vi.fn(),
+    getProductAccompaniments: vi.fn(),
+    linkProductAccompaniment: vi.fn(),
+    updateProductAccompaniment: vi.fn(),
+    removeProductAccompaniment: vi.fn(),
+    listAccompanimentTypes: vi.fn(),
+    createAccompanimentType: vi.fn(),
+    renameAccompanimentType: vi.fn(),
+    removeAccompanimentType: vi.fn(),
   }
 }

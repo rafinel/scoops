@@ -1,3 +1,5 @@
+export * from './accompaniment-type'
+export * from './product-accompaniment'
 export * from './production'
 export * from './production-ingredient'
 export * from './recipe'

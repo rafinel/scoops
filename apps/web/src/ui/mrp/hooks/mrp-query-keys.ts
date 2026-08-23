@@ -1,4 +1,7 @@
-import type { StockTransactionListParams } from '@scoops/core/mrp/domain/structures'
+import type {
+  AccompanimentTypeListParams,
+  StockTransactionListParams,
+} from '@scoops/core/mrp/domain/structures'
 
 export const mrpQueryKeys = {
   all: ['mrp'] as const,
@@ -7,6 +10,12 @@ export const mrpQueryKeys = {
     [...mrpQueryKeys.products(), productId, 'stock'] as const,
   productRecipe: (productId: string) =>
     [...mrpQueryKeys.products(), productId, 'recipe'] as const,
+  productAccompaniments: (productId: string) =>
+    [...mrpQueryKeys.products(), productId, 'accompaniments'] as const,
+  accompanimentCandidates: (input: unknown) =>
+    [...mrpQueryKeys.products(), 'accompaniment-candidates', input] as const,
+  accompanimentTypes: (input: Omit<AccompanimentTypeListParams, 'establishmentId'>) =>
+    [...mrpQueryKeys.all, 'accompaniment-types', input] as const,
   productionPreview: (productId: string, quantity: number) =>
     [...mrpQueryKeys.productRecipe(productId), 'preview', quantity] as const,
   stockTransactions: (productId: string, input: StockTransactionListParams) =>

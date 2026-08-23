@@ -4,7 +4,9 @@ import { Inject, Injectable } from '@nestjs/common'
 
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 
+import { DrizzleAccompanimentTypesRepository } from './drizzle-accompaniment-types-repository'
 import { DrizzleProductsRepository } from './drizzle-products-repository'
+import { DrizzleProductAccompanimentsRepository } from './drizzle-product-accompaniments-repository'
 import { DrizzleBrandsRepository } from './drizzle-brands-repository'
 import { DrizzleProductionIngredientsRepository } from './drizzle-production-ingredients-repository'
 import { DrizzleProductionsRepository } from './drizzle-productions-repository'
@@ -62,8 +64,14 @@ export class DrizzleMrpDatabase implements MrpDatabase {
               transaction,
             ),
             productSizesRepository: undefined as never,
-            accompanimentTypesRepository: undefined as never,
-            productAccompanimentsRepository: undefined as never,
+            accompanimentTypesRepository: new DrizzleAccompanimentTypesRepository(
+              this.drizzleClient,
+              transaction,
+            ),
+            productAccompanimentsRepository: new DrizzleProductAccompanimentsRepository(
+              this.drizzleClient,
+              transaction,
+            ),
             resaleConfigurationsRepository: undefined as never,
           }),
         { isolationLevel: 'serializable', accessMode: 'read write' },

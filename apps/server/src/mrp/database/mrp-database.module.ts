@@ -4,8 +4,10 @@ import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
 import { MRP_REPOSITORIES } from '@/mrp/constants'
 import {
   DrizzleBrandsRepository,
+  DrizzleAccompanimentTypesRepository,
   DrizzleMrpDatabase,
   DrizzleProductsRepository,
+  DrizzleProductAccompanimentsRepository,
   DrizzleProductionIngredientsRepository,
   DrizzleProductionsRepository,
   DrizzleRecipeIngredientsRepository,
@@ -19,7 +21,9 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
 @Module({
   imports: [SharedDatabaseModule],
   providers: [
+    DrizzleAccompanimentTypesRepository,
     DrizzleProductsRepository,
+    DrizzleProductAccompanimentsRepository,
     DrizzleBrandsRepository,
     DrizzleStockBalancesRepository,
     DrizzleStockTransactionsRepository,
@@ -29,6 +33,14 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
     DrizzleProductionIngredientsRepository,
     DrizzleMrpDatabase,
     MrpSeeder,
+    {
+      provide: MRP_REPOSITORIES.accompanimentTypes,
+      useExisting: DrizzleAccompanimentTypesRepository,
+    },
+    {
+      provide: MRP_REPOSITORIES.productAccompaniments,
+      useExisting: DrizzleProductAccompanimentsRepository,
+    },
     { provide: MRP_REPOSITORIES.products, useExisting: DrizzleProductsRepository },
     { provide: MRP_REPOSITORIES.brands, useExisting: DrizzleBrandsRepository },
     { provide: MRP_REPOSITORIES.recipes, useExisting: DrizzleRecipesRepository },
@@ -52,6 +64,8 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
     { provide: MRP_REPOSITORIES.database, useExisting: DrizzleMrpDatabase },
   ],
   exports: [
+    MRP_REPOSITORIES.accompanimentTypes,
+    MRP_REPOSITORIES.productAccompaniments,
     MRP_REPOSITORIES.products,
     MRP_REPOSITORIES.brands,
     MRP_REPOSITORIES.recipes,

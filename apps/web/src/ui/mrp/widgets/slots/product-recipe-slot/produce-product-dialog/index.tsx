@@ -20,7 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/ui/shadcn/table'
-import { useFormatCurrency, useFormatQuantity } from '@/ui/shared/hooks/use-formatters'
+import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
+import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { useProduceProductDialog } from './use-produce-product-dialog'
 

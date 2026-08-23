@@ -1,5 +1,8 @@
 @productId = 00000000-0000-0000-0000-000000000000
 @brandId = 00000000-0000-0000-0000-000000000000
+@linkId = 00000000-0000-0000-0000-000000000000
+@accompanimentTypeId = 00000000-0000-0000-0000-000000000000
+@accompanimentProductId = 00000000-0000-0000-0000-000000000000
 
 ### List products
 GET {{baseUrl}}/products?page=1&pageSize=10&category=ingredient&category=resale
@@ -93,3 +96,33 @@ Content-Type: application/json
 GET {{baseUrl}}/products/{{productId}}/stock-transactions?type=entry&brandId={{brandId}}&from=2026-08-01T00:00:00.000Z&to=2026-08-31T23:59:59.999Z&page=1&limit=20
 Authorization: Bearer {{accessToken}}
 Accept: application/json
+
+### Get product accompaniments
+GET {{baseUrl}}/products/{{productId}}/accompaniments
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Link a product accompaniment
+POST {{baseUrl}}/products/{{productId}}/accompaniments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "accompanimentProductId": "{{accompanimentProductId}}",
+  "accompanimentTypeId": "{{accompanimentTypeId}}",
+  "quantityPerPortion": 1.25
+}
+
+### Update a product accompaniment
+PATCH {{baseUrl}}/products/{{productId}}/accompaniments/{{linkId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "accompanimentTypeId": "{{accompanimentTypeId}}",
+  "quantityPerPortion": 1.5
+}
+
+### Remove a product accompaniment
+DELETE {{baseUrl}}/products/{{productId}}/accompaniments/{{linkId}}
+Authorization: Bearer {{accessToken}}

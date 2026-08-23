@@ -2460,6 +2460,41 @@
             },
             {
               "type": "frame",
+              "id": "gIUpy",
+              "name": "Item Tipos de acompanhamento",
+              "width": "fill_container",
+              "cornerRadius": 10,
+              "gap": 12,
+              "padding": [
+                10,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "C9FR9v",
+                  "name": "Ic",
+                  "width": 18,
+                  "height": 18,
+                  "icon": "list-tree",
+                  "library": "lucide",
+                  "fill": "$text-primary"
+                },
+                {
+                  "type": "text",
+                  "id": "zAK2t",
+                  "name": "L",
+                  "fill": "$text-primary",
+                  "content": "Tipos de acompanhamento",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "800"
+                }
+              ]
+            },
+            {
+              "type": "frame",
               "id": "dyuVF",
               "name": "Item Nova venda",
               "width": "fill_container",
@@ -81264,6 +81299,2051 @@
       },
       "width": 624,
       "height": 38
+    },
+    {
+      "id": "DyrWo",
+      "type": "ref",
+      "ref": "iSdux",
+      "name": "Modal Editar Acompanhamento",
+      "x": 5375,
+      "y": 833,
+      "descendants": {
+        "epWSZ": {
+          "content": "Editar Acompanhamento"
+        },
+        "w9s7d": {
+          "content": "Atualize como este item aparece no PDV."
+        },
+        "i1laT/dURHs": {
+          "content": "Salvar alterações"
+        }
+      }
+    },
+    {
+      "type": "frame",
+      "id": "A5c2Q",
+      "x": 3726,
+      "y": -966,
+      "name": "Página Tipos de Acompanhamento",
+      "width": 1560,
+      "height": 956,
+      "fill": "$bg-page",
+      "layout": "none",
+      "children": [
+        {
+          "id": "vyvAK",
+          "type": "ref",
+          "ref": "K4g10V",
+          "name": "Sidebar Tipos de acompanhamento",
+          "width": 267,
+          "height": 956,
+          "x": 0,
+          "y": 0,
+          "flipX": false,
+          "flipY": false,
+          "descendants": {
+            "VXrx3": {
+              "fill": "$bg-card"
+            },
+            "bpYPD": {
+              "fill": "$text-primary"
+            },
+            "nqsYt": {
+              "fill": "$text-primary"
+            },
+            "gIUpy": {
+              "fill": "$primary-soft"
+            },
+            "C9FR9v": {
+              "fill": "$primary"
+            },
+            "zAK2t": {
+              "fill": "$primary"
+            }
+          }
+        },
+        {
+          "type": "frame",
+          "id": "n3iGBz",
+          "x": 267,
+          "y": 0,
+          "name": "Conteúdo da Página",
+          "width": 1293,
+          "height": 720,
+          "fill": "$bg-page",
+          "layout": "none",
+          "children": [
+            {
+              "id": "zgJ0z",
+              "type": "ref",
+              "ref": "d8DadK",
+              "name": "Header Tipos de acompanhamento",
+              "width": 1293,
+              "height": 72,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "type": "frame",
+              "id": "cVKEc",
+              "x": 0,
+              "y": 72,
+              "name": "Área Principal",
+              "width": 1293,
+              "height": 648,
+              "layout": "vertical",
+              "gap": 24,
+              "padding": 32,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "WyNGF",
+                  "name": "Cabeçalho da Página",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "CafUa",
+                      "name": "Título e descrição",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "No96r",
+                          "name": "Título da Página",
+                          "fill": "$text-primary",
+                          "content": "Tipos de acompanhamento",
+                          "fontFamily": "$font-body",
+                          "fontSize": 28,
+                          "fontWeight": "800",
+                          "letterSpacing": -0.5
+                        },
+                        {
+                          "type": "text",
+                          "id": "cb57W",
+                          "name": "Descrição da Página",
+                          "fill": "$text-secondary",
+                          "content": "Organize as opções usadas ao vincular acompanhamentos aos produtos porção.",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "aMpWc",
+                      "type": "ref",
+                      "ref": "j81wx",
+                      "name": "Button Novo Tipo",
+                      "descendants": {
+                        "b1bQY": {
+                          "enabled": true,
+                          "icon": "plus"
+                        },
+                        "dURHs": {
+                          "content": "Novo tipo"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "K6rgq",
+                  "name": "Conteúdo de Gestão",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "gap": 20,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Ufr5u",
+                      "name": "Card Tipos Cadastrados",
+                      "width": "fill_container",
+                      "height": 425,
+                      "fill": "$bg-card",
+                      "cornerRadius": 16,
+                      "effect": {
+                        "type": "shadow",
+                        "shadowType": "outer",
+                        "color": "#0000000D",
+                        "offset": {
+                          "x": 0,
+                          "y": 1
+                        },
+                        "blur": 3
+                      },
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 24,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "y8ZD9u",
+                          "name": "Cabeçalho Tipos Cadastrados",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "jXC5A",
+                              "name": "Título e contagem",
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "n0Vs81",
+                                  "name": "Título Tipos Cadastrados",
+                                  "fill": "$text-primary",
+                                  "content": "Tipos cadastrados",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 18,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "KdWn3",
+                                  "name": "Contagem",
+                                  "fill": "$text-secondary",
+                                  "content": "24",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "ynY8d",
+                          "name": "Aviso Tipos em Uso",
+                          "width": "fill_container",
+                          "fill": "$warning-soft",
+                          "cornerRadius": 10,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "HoNY6",
+                              "name": "Ícone Aviso",
+                              "width": 15,
+                              "height": 15,
+                              "icon": "lock",
+                              "library": "lucide",
+                              "fill": "$warning"
+                            },
+                            {
+                              "type": "text",
+                              "id": "W9vH0x",
+                              "name": "Texto Aviso",
+                              "fill": "$warning",
+                              "content": "Tipos em uso só podem ser removidos após resolver seus vínculos.",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "GgVGF",
+                          "name": "Tabela de Tipos",
+                          "clip": true,
+                          "width": "fill_container",
+                          "cornerRadius": 12,
+                          "stroke": "$border-soft",
+                          "strokeWidth": 1,
+                          "layout": "vertical",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "i3Inx7",
+                              "name": "Cabeçalho da Tabela",
+                              "width": "fill_container",
+                              "fill": "$bg-muted",
+                              "padding": [
+                                12,
+                                16
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "RbOcC",
+                                  "name": "Coluna TIPO",
+                                  "width": 300,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "uhFHX",
+                                      "name": "Rótulo TIPO",
+                                      "fill": "$text-secondary",
+                                      "content": "NOME",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 11,
+                                      "fontWeight": "600",
+                                      "letterSpacing": 0.5
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "DX838",
+                                  "name": "Coluna USO",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "T1wBY",
+                                      "name": "Rótulo USO",
+                                      "fill": "$text-secondary",
+                                      "content": "USO",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 11,
+                                      "fontWeight": "600",
+                                      "letterSpacing": 0.5
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "YcbFC",
+                                  "name": "Coluna STATUS",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "UEg4K",
+                                      "name": "Rótulo STATUS",
+                                      "fill": "$text-secondary",
+                                      "content": "STATUS",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 11,
+                                      "fontWeight": "600",
+                                      "letterSpacing": 0.5
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "pP6ZS",
+                                  "name": "Coluna AÇÕES",
+                                  "width": "fill_container",
+                                  "justifyContent": "end",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "qn3b9",
+                                      "name": "Rótulo AÇÕES",
+                                      "fill": "$text-secondary",
+                                      "content": "AÇÕES",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 11,
+                                      "fontWeight": "600",
+                                      "letterSpacing": 0.5
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "qJF09",
+                              "name": "Linha Cobertura",
+                              "width": "fill_container",
+                              "height": 62,
+                              "stroke": "$border-soft",
+                              "strokeWidth": {
+                                "top": 1
+                              },
+                              "strokeLinejoin": "round",
+                              "padding": [
+                                12,
+                                16
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "ukCiE",
+                                  "name": "Tipo Cobertura",
+                                  "width": 300,
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "aHF3K",
+                                      "name": "Ícone Cobertura",
+                                      "width": 32,
+                                      "height": 32,
+                                      "fill": "$primary-soft",
+                                      "cornerRadius": 8,
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "wmK4O",
+                                          "name": "Tag Cobertura",
+                                          "width": 15,
+                                          "height": 15,
+                                          "icon": "tag",
+                                          "library": "lucide",
+                                          "fill": "$primary"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "IvIiV",
+                                      "name": "Nome Cobertura",
+                                      "fill": "$text-primary",
+                                      "content": "Cobertura",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 14,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "EetIk",
+                                  "name": "Uso Cobertura",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "mjGwM",
+                                      "name": "Valor Uso Cobertura",
+                                      "fill": "$text-secondary",
+                                      "content": "4 vínculos",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "XSaUh",
+                                  "name": "Status Cobertura",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "gVxS2",
+                                      "name": "Badge Cobertura",
+                                      "fill": "$warning-soft",
+                                      "cornerRadius": 999,
+                                      "gap": 6,
+                                      "padding": [
+                                        5,
+                                        9
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "gioub",
+                                          "name": "Ícone Status Cobertura",
+                                          "width": 12,
+                                          "height": 12,
+                                          "icon": "lock",
+                                          "library": "lucide",
+                                          "fill": "$warning"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "um6pf",
+                                          "name": "Rótulo Status Cobertura",
+                                          "fill": "$warning",
+                                          "content": "Em uso",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 11,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "P3h4Sx",
+                                  "name": "Ações Cobertura",
+                                  "width": "fill_container",
+                                  "height": 30,
+                                  "gap": 8,
+                                  "justifyContent": "end",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "N1tkBH",
+                                      "name": "Editar Cobertura",
+                                      "fill": "$bg-card",
+                                      "cornerRadius": 8,
+                                      "stroke": "$border",
+                                      "strokeWidth": 1,
+                                      "gap": 6,
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "EV3tU",
+                                          "name": "Lápis Cobertura",
+                                          "width": 13,
+                                          "height": 13,
+                                          "icon": "pencil",
+                                          "library": "lucide",
+                                          "fill": "$text-secondary"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "bTWUq",
+                                          "name": "Rótulo Editar Cobertura",
+                                          "fill": "$text-primary",
+                                          "content": "Editar",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 12,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "cFwzM",
+                              "name": "Linha Extra",
+                              "width": "fill_container",
+                              "height": 62,
+                              "stroke": "$border-soft",
+                              "strokeWidth": {
+                                "top": 1
+                              },
+                              "strokeLinejoin": "round",
+                              "padding": [
+                                12,
+                                16
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "OI6xf",
+                                  "name": "Tipo Extra",
+                                  "width": 300,
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "QntD9",
+                                      "name": "Ícone Extra",
+                                      "width": 32,
+                                      "height": 32,
+                                      "fill": "$primary-soft",
+                                      "cornerRadius": 8,
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "ltbxE",
+                                          "name": "Tag Extra",
+                                          "width": 15,
+                                          "height": 15,
+                                          "icon": "tag",
+                                          "library": "lucide",
+                                          "fill": "$primary"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "WB0pZ",
+                                      "name": "Nome Extra",
+                                      "fill": "$text-primary",
+                                      "content": "Extra",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 14,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "tX2pz",
+                                  "name": "Uso Extra",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "KRLMo",
+                                      "name": "Valor Uso Extra",
+                                      "fill": "$text-secondary",
+                                      "content": "2 vínculos",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "CxAtX",
+                                  "name": "Status Extra",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "C2YvI",
+                                      "name": "Badge Extra",
+                                      "fill": "$warning-soft",
+                                      "cornerRadius": 999,
+                                      "gap": 6,
+                                      "padding": [
+                                        5,
+                                        9
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "uy11u",
+                                          "name": "Ícone Status Extra",
+                                          "width": 12,
+                                          "height": 12,
+                                          "icon": "lock",
+                                          "library": "lucide",
+                                          "fill": "$warning"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "geylq",
+                                          "name": "Rótulo Status Extra",
+                                          "fill": "$warning",
+                                          "content": "Em uso",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 11,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "gqxCy",
+                                  "name": "Ações Extra",
+                                  "width": "fill_container",
+                                  "height": 30,
+                                  "gap": 8,
+                                  "justifyContent": "end",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "VFunM",
+                                      "name": "Editar Extra",
+                                      "fill": "$bg-card",
+                                      "cornerRadius": 8,
+                                      "stroke": "$border",
+                                      "strokeWidth": 1,
+                                      "gap": 6,
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "N5uLk",
+                                          "name": "Lápis Extra",
+                                          "width": 13,
+                                          "height": 13,
+                                          "icon": "pencil",
+                                          "library": "lucide",
+                                          "fill": "$text-secondary"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "gzVY2",
+                                          "name": "Rótulo Editar Extra",
+                                          "fill": "$text-primary",
+                                          "content": "Editar",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 12,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "j4cJV",
+                              "name": "Linha Grátis",
+                              "width": "fill_container",
+                              "height": 62,
+                              "stroke": "$border-soft",
+                              "strokeWidth": {
+                                "top": 1
+                              },
+                              "strokeLinejoin": "round",
+                              "padding": [
+                                12,
+                                16
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "Uzaj9",
+                                  "name": "Tipo Grátis",
+                                  "width": 300,
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "zQooZ",
+                                      "name": "Ícone Grátis",
+                                      "width": 32,
+                                      "height": 32,
+                                      "fill": "$primary-soft",
+                                      "cornerRadius": 8,
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "MTKYE",
+                                          "name": "Tag Grátis",
+                                          "width": 15,
+                                          "height": 15,
+                                          "icon": "tag",
+                                          "library": "lucide",
+                                          "fill": "$primary"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "FuOs3",
+                                      "name": "Nome Grátis",
+                                      "fill": "$text-primary",
+                                      "content": "Grátis",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 14,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "XzWYc",
+                                  "name": "Uso Grátis",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "Y6KNa",
+                                      "name": "Valor Uso Grátis",
+                                      "fill": "$text-secondary",
+                                      "content": "Sem vínculos",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "v2uecl",
+                                  "name": "Status Grátis",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "lsUmf",
+                                      "name": "Badge Grátis",
+                                      "fill": "$success-soft",
+                                      "cornerRadius": 999,
+                                      "gap": 6,
+                                      "padding": [
+                                        5,
+                                        9
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "ngRWZ",
+                                          "name": "Ícone Status Grátis",
+                                          "width": 12,
+                                          "height": 12,
+                                          "icon": "check",
+                                          "library": "lucide",
+                                          "fill": "$success"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "tUY42",
+                                          "name": "Rótulo Status Grátis",
+                                          "fill": "$success",
+                                          "content": "Disponível",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 11,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "nJx6U",
+                                  "name": "Ações Grátis",
+                                  "width": "fill_container",
+                                  "height": 30,
+                                  "gap": 8,
+                                  "justifyContent": "end",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "B2VxiX",
+                                      "name": "Editar Grátis",
+                                      "fill": "$bg-card",
+                                      "cornerRadius": 8,
+                                      "stroke": "$border",
+                                      "strokeWidth": 1,
+                                      "gap": 6,
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "LP4wf",
+                                          "name": "Lápis Grátis",
+                                          "width": 13,
+                                          "height": 13,
+                                          "icon": "pencil",
+                                          "library": "lucide",
+                                          "fill": "$text-secondary"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "E5fux",
+                                          "name": "Rótulo Editar Grátis",
+                                          "fill": "$text-primary",
+                                          "content": "Editar",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 12,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "y8cRaL",
+                                      "name": "Remover Grátis",
+                                      "fill": "$bg-card",
+                                      "cornerRadius": 8,
+                                      "stroke": "#FCA5A5",
+                                      "strokeWidth": 1,
+                                      "gap": 6,
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "N3PLjk",
+                                          "name": "Lixeira Grátis",
+                                          "width": 13,
+                                          "height": 13,
+                                          "icon": "trash-2",
+                                          "library": "lucide",
+                                          "fill": "#991B1B"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "c23Yri",
+                                          "name": "Rótulo Remover Grátis",
+                                          "fill": "#991B1B",
+                                          "content": "Remover",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 12,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "f5u1b",
+                          "type": "ref",
+                          "ref": "GbK0t",
+                          "name": "Paginação Tipos",
+                          "width": "fill_container",
+                          "descendants": {
+                            "a3QYzO": {
+                              "content": "Mostrando 1-3 de 24"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "PUht1",
+      "x": 5426,
+      "y": -953,
+      "name": "Modal Novo Tipo de Acompanhamento",
+      "reusable": true,
+      "width": 520,
+      "height": 400,
+      "fill": "$bg-card",
+      "cornerRadius": 16,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#00000033",
+        "offset": {
+          "x": 0,
+          "y": 20
+        },
+        "blur": 50
+      },
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "FftbI",
+          "name": "Header Novo Tipo",
+          "width": "fill_container",
+          "height": 73,
+          "padding": [
+            24,
+            24,
+            0,
+            24
+          ],
+          "justifyContent": "space_between",
+          "children": [
+            {
+              "type": "frame",
+              "id": "J3ILZX",
+              "name": "Cabeçalho Novo Tipo",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "BK259",
+                  "name": "Título Novo Tipo",
+                  "fill": "$text-primary",
+                  "content": "Novo tipo de acompanhamento",
+                  "fontFamily": "$font-body",
+                  "fontSize": 20,
+                  "fontWeight": "800"
+                },
+                {
+                  "type": "text",
+                  "id": "v1Qmmc",
+                  "name": "Descrição Novo Tipo",
+                  "fill": "$text-secondary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Crie uma opção para classificar acompanhamentos.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "HjNW3",
+              "name": "Button Fechar",
+              "width": 32,
+              "height": 32,
+              "cornerRadius": 8,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "Y7oM6",
+                  "name": "Ícone Fechar",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "x",
+                  "library": "lucide",
+                  "fill": "$text-secondary"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "pr8gt",
+          "name": "Body Novo Tipo",
+          "width": "fill_container",
+          "height": 249,
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            20,
+            24
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "l8Hcy",
+              "name": "Campo Nome",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "N9yyxP",
+                  "name": "Rótulo Nome",
+                  "fill": "$text-secondary",
+                  "content": "Nome do tipo",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "GdsqI",
+                  "name": "Input Nome do Tipo",
+                  "width": "fill_container",
+                  "fill": "$bg-card",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    12,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Ujupo",
+                      "name": "Placeholder Nome",
+                      "fill": "$text-tertiary",
+                      "content": "Ex.: Cobertura",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "gqQq1",
+                  "name": "Ajuda Nome",
+                  "fill": "$text-tertiary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Use um nome único e fácil de reconhecer no PDV.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "X0H9w",
+              "name": "Informação de Uso",
+              "width": "fill_container",
+              "fill": "$primary-soft",
+              "cornerRadius": 12,
+              "gap": 10,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "uzFD6",
+                  "name": "Ícone Informação",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "info",
+                  "library": "lucide",
+                  "fill": "$primary"
+                },
+                {
+                  "type": "text",
+                  "id": "U5yJ7",
+                  "name": "Texto Informação",
+                  "fill": "$primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "O tipo ficará disponível em todos os vínculos de acompanhamento desta sorveteria.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "naIdC",
+          "name": "Footer Novo Tipo",
+          "width": "fill_container",
+          "height": 78,
+          "gap": 12,
+          "padding": [
+            16,
+            24,
+            24,
+            24
+          ],
+          "justifyContent": "end",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "c2o4k",
+              "name": "Button Cancelar",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "padding": [
+                10,
+                20
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "saBze",
+                  "name": "Rótulo Cancelar",
+                  "fill": "$text-primary",
+                  "content": "Cancelar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "id": "cFNbd",
+              "type": "ref",
+              "ref": "j81wx",
+              "name": "Button Criar Tipo",
+              "width": 130,
+              "descendants": {
+                "b1bQY": {
+                  "enabled": true,
+                  "icon": "plus"
+                },
+                "dURHs": {
+                  "content": "Adicionar tipo"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "NdvkH",
+      "x": 6026,
+      "y": -966,
+      "name": "Dialog Novo Tipo de Acompanhamento — Aberto",
+      "width": 1560,
+      "height": 720,
+      "fill": "$bg-page",
+      "layout": "none",
+      "children": [
+        {
+          "id": "UWgyV",
+          "type": "ref",
+          "ref": "K4g10V",
+          "height": 720,
+          "name": "Sidebar Tipos de acompanhamento",
+          "width": 267,
+          "x": 0,
+          "y": 0,
+          "flipX": false,
+          "flipY": false,
+          "descendants": {
+            "VXrx3": {
+              "fill": "$bg-card"
+            },
+            "bpYPD": {
+              "fill": "$text-primary"
+            },
+            "nqsYt": {
+              "fill": "$text-primary"
+            },
+            "gIUpy": {
+              "fill": "$primary-soft"
+            },
+            "C9FR9v": {
+              "fill": "$primary"
+            },
+            "zAK2t": {
+              "fill": "$primary"
+            }
+          }
+        },
+        {
+          "type": "frame",
+          "id": "jqgyA",
+          "x": 267,
+          "y": 0,
+          "name": "Conteúdo da Página",
+          "width": 1293,
+          "height": 720,
+          "fill": "$bg-page",
+          "layout": "none",
+          "children": [
+            {
+              "id": "Fdswy",
+              "type": "ref",
+              "ref": "d8DadK",
+              "name": "Header Tipos de acompanhamento",
+              "width": 1293,
+              "height": 72,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "type": "frame",
+              "id": "TsY8e",
+              "x": 0,
+              "y": 72,
+              "name": "Área Principal",
+              "width": 1293,
+              "height": 648,
+              "layout": "vertical",
+              "gap": 24,
+              "padding": 32,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "w0sE4w",
+                  "name": "Cabeçalho da Página",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "hcIyj",
+                      "name": "Título e descrição",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qGsOT",
+                          "name": "Título da Página",
+                          "fill": "$text-primary",
+                          "content": "Tipos de acompanhamento",
+                          "fontFamily": "$font-body",
+                          "fontSize": 28,
+                          "fontWeight": "800",
+                          "letterSpacing": -0.5
+                        },
+                        {
+                          "type": "text",
+                          "id": "RrchT",
+                          "name": "Descrição da Página",
+                          "fill": "$text-secondary",
+                          "content": "Organize as opções usadas ao vincular acompanhamentos aos produtos porção.",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "ZZwri",
+                      "type": "ref",
+                      "ref": "j81wx",
+                      "name": "Button Novo Tipo",
+                      "descendants": {
+                        "b1bQY": {
+                          "enabled": true,
+                          "icon": "plus"
+                        },
+                        "dURHs": {
+                          "content": "Novo tipo"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "DxCKQ",
+                  "name": "Conteúdo de Gestão",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "gap": 20,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "hypAd",
+                      "name": "Card Tipos Cadastrados",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "fill": "$bg-card",
+                      "cornerRadius": 16,
+                      "effect": {
+                        "type": "shadow",
+                        "shadowType": "outer",
+                        "color": "#0000000D",
+                        "offset": {
+                          "x": 0,
+                          "y": 1
+                        },
+                        "blur": 3
+                      },
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 24,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "dnxWA",
+                          "name": "Cabeçalho Tipos Cadastrados",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Bd5Aq",
+                              "name": "Título e contagem",
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Wuav1",
+                                  "name": "Título Tipos Cadastrados",
+                                  "fill": "$text-primary",
+                                  "content": "Tipos cadastrados",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 18,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "u5MlPp",
+                                  "name": "Contagem",
+                                  "fill": "$text-secondary",
+                                  "content": "3",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "PKCBK",
+                          "name": "Aviso Tipos em Uso",
+                          "width": "fill_container",
+                          "fill": "$warning-soft",
+                          "cornerRadius": 10,
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "TGoc7",
+                              "name": "Ícone Aviso",
+                              "width": 15,
+                              "height": 15,
+                              "icon": "lock",
+                              "library": "lucide",
+                              "fill": "$warning"
+                            },
+                            {
+                              "type": "text",
+                              "id": "lRcmI",
+                              "name": "Texto Aviso",
+                              "fill": "$warning",
+                              "content": "Tipos em uso só podem ser removidos após resolver seus vínculos.",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "xmZL5",
+                          "name": "Tabela de Tipos",
+                          "clip": true,
+                          "width": "fill_container",
+                          "cornerRadius": 12,
+                          "stroke": "$border-soft",
+                          "strokeWidth": 1,
+                          "layout": "vertical",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "nz56o",
+                              "name": "Cabeçalho da Tabela",
+                              "width": "fill_container",
+                              "fill": "$bg-muted",
+                              "padding": [
+                                12,
+                                16
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "kiVFs",
+                                  "name": "Coluna TIPO",
+                                  "width": 300,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "imD3x",
+                                      "name": "Rótulo TIPO",
+                                      "fill": "$text-secondary",
+                                      "content": "NOME",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 11,
+                                      "fontWeight": "600",
+                                      "letterSpacing": 0.5
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "eL1o3",
+                                  "name": "Coluna USO",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "p5YkwS",
+                                      "name": "Rótulo USO",
+                                      "fill": "$text-secondary",
+                                      "content": "USO",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 11,
+                                      "fontWeight": "600",
+                                      "letterSpacing": 0.5
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "i3j0Y",
+                                  "name": "Coluna STATUS",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "j3i8UK",
+                                      "name": "Rótulo STATUS",
+                                      "fill": "$text-secondary",
+                                      "content": "STATUS",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 11,
+                                      "fontWeight": "600",
+                                      "letterSpacing": 0.5
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "nBhcw",
+                                  "name": "Coluna AÇÕES",
+                                  "width": "fill_container",
+                                  "justifyContent": "end",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "mnFlW",
+                                      "name": "Rótulo AÇÕES",
+                                      "fill": "$text-secondary",
+                                      "content": "AÇÕES",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 11,
+                                      "fontWeight": "600",
+                                      "letterSpacing": 0.5
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "yjEiZ",
+                              "name": "Linha Cobertura",
+                              "width": "fill_container",
+                              "height": 62,
+                              "stroke": "$border-soft",
+                              "strokeWidth": {
+                                "top": 1
+                              },
+                              "strokeLinejoin": "round",
+                              "padding": [
+                                12,
+                                16
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "uua6n",
+                                  "name": "Tipo Cobertura",
+                                  "width": 300,
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "B3WAH3",
+                                      "name": "Ícone Cobertura",
+                                      "width": 32,
+                                      "height": 32,
+                                      "fill": "$primary-soft",
+                                      "cornerRadius": 8,
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "GyXs2",
+                                          "name": "Tag Cobertura",
+                                          "width": 15,
+                                          "height": 15,
+                                          "icon": "tag",
+                                          "library": "lucide",
+                                          "fill": "$primary"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "Y2nyep",
+                                      "name": "Nome Cobertura",
+                                      "fill": "$text-primary",
+                                      "content": "Cobertura",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 14,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "mqXTE",
+                                  "name": "Uso Cobertura",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "rFw6z",
+                                      "name": "Valor Uso Cobertura",
+                                      "fill": "$text-secondary",
+                                      "content": "4 vínculos",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "fkcit",
+                                  "name": "Status Cobertura",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "snWbU",
+                                      "name": "Badge Cobertura",
+                                      "fill": "$warning-soft",
+                                      "cornerRadius": 999,
+                                      "gap": 6,
+                                      "padding": [
+                                        5,
+                                        9
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "R5sDpg",
+                                          "name": "Ícone Status Cobertura",
+                                          "width": 12,
+                                          "height": 12,
+                                          "icon": "lock",
+                                          "library": "lucide",
+                                          "fill": "$warning"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "D76tPA",
+                                          "name": "Rótulo Status Cobertura",
+                                          "fill": "$warning",
+                                          "content": "Em uso",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 11,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "HRomN",
+                                  "name": "Ações Cobertura",
+                                  "width": "fill_container",
+                                  "height": "fit_content(16)",
+                                  "justifyContent": "end",
+                                  "alignItems": "center"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "TC7eK",
+                              "name": "Linha Extra",
+                              "width": "fill_container",
+                              "height": 62,
+                              "stroke": "$border-soft",
+                              "strokeWidth": {
+                                "top": 1
+                              },
+                              "strokeLinejoin": "round",
+                              "padding": [
+                                12,
+                                16
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "LYS0h",
+                                  "name": "Tipo Extra",
+                                  "width": 300,
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "R57wIM",
+                                      "name": "Ícone Extra",
+                                      "width": 32,
+                                      "height": 32,
+                                      "fill": "$primary-soft",
+                                      "cornerRadius": 8,
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "CxIzs",
+                                          "name": "Tag Extra",
+                                          "width": 15,
+                                          "height": 15,
+                                          "icon": "tag",
+                                          "library": "lucide",
+                                          "fill": "$primary"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "kUjSc",
+                                      "name": "Nome Extra",
+                                      "fill": "$text-primary",
+                                      "content": "Extra",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 14,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "EMEgl",
+                                  "name": "Uso Extra",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "ZGT1W",
+                                      "name": "Valor Uso Extra",
+                                      "fill": "$text-secondary",
+                                      "content": "2 vínculos",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "E2uSN0",
+                                  "name": "Status Extra",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "C5xka",
+                                      "name": "Badge Extra",
+                                      "fill": "$warning-soft",
+                                      "cornerRadius": 999,
+                                      "gap": 6,
+                                      "padding": [
+                                        5,
+                                        9
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "EBisx",
+                                          "name": "Ícone Status Extra",
+                                          "width": 12,
+                                          "height": 12,
+                                          "icon": "lock",
+                                          "library": "lucide",
+                                          "fill": "$warning"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "DfTZ9",
+                                          "name": "Rótulo Status Extra",
+                                          "fill": "$warning",
+                                          "content": "Em uso",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 11,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "HRGMq",
+                                  "name": "Ações Extra",
+                                  "width": "fill_container",
+                                  "height": "fit_content(16)",
+                                  "justifyContent": "end",
+                                  "alignItems": "center"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "c7A3Dn",
+                              "name": "Linha Grátis",
+                              "width": "fill_container",
+                              "height": 62,
+                              "stroke": "$border-soft",
+                              "strokeWidth": {
+                                "top": 1
+                              },
+                              "strokeLinejoin": "round",
+                              "padding": [
+                                12,
+                                16
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "l06FZD",
+                                  "name": "Tipo Grátis",
+                                  "width": 300,
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "Uj1NB",
+                                      "name": "Ícone Grátis",
+                                      "width": 32,
+                                      "height": 32,
+                                      "fill": "$primary-soft",
+                                      "cornerRadius": 8,
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "r326Jp",
+                                          "name": "Tag Grátis",
+                                          "width": 15,
+                                          "height": 15,
+                                          "icon": "tag",
+                                          "library": "lucide",
+                                          "fill": "$primary"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "Iw7TS",
+                                      "name": "Nome Grátis",
+                                      "fill": "$text-primary",
+                                      "content": "Grátis",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 14,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "qQO3M",
+                                  "name": "Uso Grátis",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "N6nUl4",
+                                      "name": "Valor Uso Grátis",
+                                      "fill": "$text-secondary",
+                                      "content": "Sem vínculos",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "bjogH",
+                                  "name": "Status Grátis",
+                                  "width": 150,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "crWmO",
+                                      "name": "Badge Grátis",
+                                      "fill": "$success-soft",
+                                      "cornerRadius": 999,
+                                      "gap": 6,
+                                      "padding": [
+                                        5,
+                                        9
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "quZXo",
+                                          "name": "Ícone Status Grátis",
+                                          "width": 12,
+                                          "height": 12,
+                                          "icon": "check",
+                                          "library": "lucide",
+                                          "fill": "$success"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "XIxQY",
+                                          "name": "Rótulo Status Grátis",
+                                          "fill": "$success",
+                                          "content": "Disponível",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 11,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "jySGW",
+                                  "name": "Ações Grátis",
+                                  "width": "fill_container",
+                                  "justifyContent": "end",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "SQAAI",
+                                      "name": "Remover Grátis",
+                                      "fill": "$bg-card",
+                                      "cornerRadius": 8,
+                                      "stroke": "#FCA5A5",
+                                      "strokeWidth": 1,
+                                      "gap": 6,
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "EETbC",
+                                          "name": "Lixeira Grátis",
+                                          "width": 13,
+                                          "height": 13,
+                                          "icon": "trash-2",
+                                          "library": "lucide",
+                                          "fill": "$danger"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "h3NMh",
+                                          "name": "Rótulo Remover Grátis",
+                                          "fill": "$danger",
+                                          "content": "Remover",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 12,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "a8oMnj",
+          "x": 0,
+          "y": 0,
+          "name": "Backdrop do Modal",
+          "width": 1560,
+          "height": 720,
+          "fill": "#11182766"
+        },
+        {
+          "id": "d4nDcj",
+          "type": "ref",
+          "ref": "PUht1",
+          "name": "Modal Novo Tipo — Aberto",
+          "x": 520,
+          "y": 160
+        }
+      ]
+    },
+    {
+      "id": "l5ItL",
+      "type": "ref",
+      "ref": "PUht1",
+      "name": "Modal Editar Tipo de Acompanhamento",
+      "x": 5426,
+      "y": -473,
+      "descendants": {
+        "BK259": {
+          "content": "Editar tipo de acompanhamento"
+        },
+        "v1Qmmc": {
+          "content": "Atualize o nome usado para classificar acompanhamentos."
+        },
+        "Ujupo": {
+          "content": "Cobertura",
+          "fill": "$text-primary"
+        },
+        "gqQq1": {
+          "content": "Use um nome único e fácil de reconhecer no PDV."
+        },
+        "U5yJ7": {
+          "content": "A alteração será aplicada aos 4 vínculos que usam este tipo."
+        },
+        "cFNbd": {
+          "width": 156,
+          "height": "fit_content",
+          "flipX": false,
+          "flipY": false,
+          "x": 340,
+          "y": 18
+        },
+        "cFNbd/b1bQY": {
+          "enabled": true,
+          "icon": "check"
+        },
+        "cFNbd/dURHs": {
+          "content": "Salvar alterações"
+        }
+      }
     }
   ],
   "variables": {

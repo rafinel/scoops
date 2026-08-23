@@ -6,10 +6,3 @@ export type AccompanimentType = Entity & {
   createdAt: Date
   updatedAt: Date
 }
-
-export type AccompanimentTypeCreate = Omit<
-  AccompanimentType,
-  'id' | 'createdAt' | 'updatedAt'
->
-
-export type AccompanimentTypeUpdate = Partial<Pick<AccompanimentType, 'name'>>

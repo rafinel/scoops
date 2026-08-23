@@ -1,4 +1,5 @@
 import type {
+  AccompanimentType,
   Brand,
   Product,
   Production,
@@ -15,6 +16,12 @@ import type {
   RegisterProductInput,
   StockBalance,
   StockTransactionPage,
+  ProductAccompanimentsDetails,
+  ProductAccompanimentDetails,
+  LinkProductAccompanimentInput,
+  UpdateProductAccompanimentInput,
+  SaveAccompanimentTypeInput,
+  AccompanimentTypePage,
 } from '@scoops/core/mrp/domain/structures'
 import { RestResponse } from '@scoops/core/shared/responses/rest-response'
 import type { RestClient } from '@scoops/core/shared/interfaces'
@@ -54,6 +61,19 @@ type StockTransactionJson = Omit<StockTransaction, 'occurredAt'> & {
 
 type StockTransactionPageJson = Omit<StockTransactionPage, 'items'> & {
   items: readonly StockTransactionJson[]
+}
+
+type AccompanimentTypeJson = Omit<AccompanimentType, 'createdAt' | 'updatedAt'> & {
+  createdAt: string
+  updatedAt: string
+}
+
+type ProductAccompanimentsDetailsJson = Omit<ProductAccompanimentsDetails, 'product'> & {
+  product: ProductJson
+}
+
+type AccompanimentTypePageJson = Omit<AccompanimentTypePage, 'items'> & {
+  items: readonly { type: AccompanimentTypeJson; usageCount: number }[]
 }
 
 type ProductCatalogPageJson = {
@@ -124,6 +144,34 @@ function mapStockTransactionPage(
       occurredAt: new Date(item.occurredAt),
     })),
   }
+}
+
+function mapAccompanimentType(type: AccompanimentTypeJson): AccompanimentType {
+  return {
+    ...type,
+    createdAt: new Date(type.createdAt),
+    updatedAt: new Date(type.updatedAt),
+  }
+}
+
+function mapProductAccompaniments(
+  response: ProductAccompanimentsDetailsJson,
+): ProductAccompanimentsDetails {
+  return { ...response, product: mapProduct(response.product) }
+}
+
+function mapAccompanimentTypePage(
+  response: AccompanimentTypePageJson,
+): AccompanimentTypePage {
+  return Object.assign(
+    new PaginationResponse(
+      response.items.map((item) => ({ ...item, type: mapAccompanimentType(item.type) })),
+      response.page,
+      response.pageSize,
+      response.total,
+      response.totalPages,
+    ),
+  )
 }
 
 export const MrpService = (restClient: RestClient): MrpRestService => ({
@@ -341,5 +389,92 @@ export const MrpService = (restClient: RestClient): MrpRestService => ({
       statusCode: response.statusCode,
       headers: response.headers,
     })
+  },
+
+  async getProductAccompaniments(productId) {
+    const response = await restClient.get<ProductAccompanimentsDetailsJson>(
+      `/products/${productId}/accompaniments`,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductAccompanimentsDetails>
+    return new RestResponse({
+      body: mapProductAccompaniments(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async linkProductAccompaniment(productId, input: LinkProductAccompanimentInput) {
+    const response = await restClient.post<ProductAccompanimentDetails>(
+      `/products/${productId}/accompaniments`,
+      input,
+    )
+    return response as unknown as RestResponse<ProductAccompanimentDetails>
+  },
+
+  async updateProductAccompaniment(
+    productId,
+    linkId,
+    input: UpdateProductAccompanimentInput,
+  ) {
+    const response = await restClient.patch<ProductAccompanimentDetails>(
+      `/products/${productId}/accompaniments/${linkId}`,
+      input,
+    )
+    return response as unknown as RestResponse<ProductAccompanimentDetails>
+  },
+
+  removeProductAccompaniment(productId, linkId) {
+    return restClient.delete<void>(`/products/${productId}/accompaniments/${linkId}`)
+  },
+
+  async listAccompanimentTypes(input) {
+    const params = new URLSearchParams({
+      page: String(input.page),
+      pageSize: String(input.pageSize),
+    })
+    if (input.search) params.set('search', input.search)
+    const response = await restClient.get<AccompanimentTypePageJson>(
+      `/accompaniment-types?${params.toString()}`,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<AccompanimentTypePage>
+    return new RestResponse({
+      body: mapAccompanimentTypePage(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async createAccompanimentType(input: SaveAccompanimentTypeInput) {
+    const response = await restClient.post<AccompanimentTypeJson>(
+      '/accompaniment-types',
+      input,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<AccompanimentType>
+    return new RestResponse({
+      body: mapAccompanimentType(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async renameAccompanimentType(typeId, input: SaveAccompanimentTypeInput) {
+    const response = await restClient.patch<AccompanimentTypeJson>(
+      `/accompaniment-types/${typeId}`,
+      input,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<AccompanimentType>
+    return new RestResponse({
+      body: mapAccompanimentType(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  removeAccompanimentType(typeId) {
+    return restClient.delete<void>(`/accompaniment-types/${typeId}`)
   },
 })

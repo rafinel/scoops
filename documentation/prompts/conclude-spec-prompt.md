@@ -89,6 +89,12 @@ conclusion automatically after it returns evaluation to `ready`.
 
 ## Final PR CI Quality Gate
 
+The PR CI gate is a blocking loop. After publication, poll every applicable check attached
+to the current PR head SHA until each reaches a terminal result. A pending or in-progress
+check is not a pass, and this workflow must not return a final delivery summary while any
+required check is pending. Use the actual PR check/run URLs and record each workflow's head
+SHA and result in `evaluation.md`.
+
 Use the checks attached to the current pull request and select the applicable checked-in
 GitHub Actions workflows by their real path filters:
 
@@ -111,6 +117,20 @@ If CI fails:
 - rerun the same SHA only for a documented transient CI/infrastructure failure;
 - repeat this correction, publication and CI loop until the gate passes or a permitted pause
   condition from Workflow continuity occurs.
+
+The correction/publication loop must invoke the workflows explicitly in this order:
+
+1. `implement-spec` (or the applicable amendment workflow) for an implementation or
+   Contract correction;
+2. `commit-code` after the correction returns Evaluation to `ready`;
+3. `create-pr` to update the existing delivery PR and obtain its new head SHA;
+4. this CI gate, polling the new head until every applicable check is terminal.
+
+For a same-SHA transient rerun, invoke `create-pr` only if publication metadata changed,
+then continue polling the rerun to a terminal result. Do not stop monitoring because a tool
+call, shell session or assistant turn ended; resume the loop in the current task until the
+gate passes or a permitted pause condition is reached. If a failure remains actionable,
+route it immediately instead of reporting it as a suggested next step.
 
 `conclude-spec` observes and orchestrates CI failures; it does not edit their fixes directly.
 Reporting the failure with a suggested next workflow while fixable work remains is an

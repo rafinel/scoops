@@ -6,10 +6,22 @@ import {
 } from '@scoops/core/identity/domain/entities/fakers'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { ServerAuthProvider } from '@scoops/core/identity/interfaces'
-import type { Brand, BrandCreate, Product } from '@scoops/core/mrp/domain/entities'
-import type { ProductCreate } from '@scoops/core/mrp/domain/structures'
 import type {
+  AccompanimentType,
+  Brand,
+  BrandCreate,
+  Product,
+  ProductAccompaniment,
+} from '@scoops/core/mrp/domain/entities'
+import type {
+  AccompanimentTypeCreate,
+  ProductAccompanimentCreate,
+  ProductCreate,
+} from '@scoops/core/mrp/domain/structures'
+import type {
+  AccompanimentTypesRepository,
   BrandsRepository,
+  ProductAccompanimentsRepository,
   ProductsRepository,
   StockBalancesRepository,
   StockTransactionsRepository,
@@ -67,6 +79,14 @@ export class MrpModuleFixture {
 
   get products(): ProductsRepository {
     return this.get(MRP_REPOSITORIES.products)
+  }
+
+  get accompanimentTypes(): AccompanimentTypesRepository {
+    return this.get(MRP_REPOSITORIES.accompanimentTypes)
+  }
+
+  get productAccompaniments(): ProductAccompanimentsRepository {
+    return this.get(MRP_REPOSITORIES.productAccompaniments)
   }
 
   get brands(): BrandsRepository {
@@ -141,6 +161,16 @@ export class MrpModuleFixture {
 
   addBrand(input: BrandCreate): Promise<Brand> {
     return this.brands.add(input)
+  }
+
+  addAccompanimentType(input: AccompanimentTypeCreate): Promise<AccompanimentType> {
+    return this.accompanimentTypes.add(input)
+  }
+
+  addProductAccompaniment(
+    input: ProductAccompanimentCreate,
+  ): Promise<ProductAccompaniment> {
+    return this.productAccompaniments.add(input)
   }
 
   close() {

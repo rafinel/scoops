@@ -1,3 +1,4 @@
+import type { AccompanimentType } from '#mrp/domain/entities/accompaniment-type.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import type { Production } from '#mrp/domain/entities/production.ts'
 import type {
@@ -18,6 +19,13 @@ import type {
   SaveRecipeYieldInput,
   UpdateRecipeIngredientInput,
   UpdateProductBrandInput,
+  AccompanimentTypePage,
+  AccompanimentTypeListParams,
+  LinkProductAccompanimentInput,
+  ProductAccompanimentsDetails,
+  ProductAccompanimentDetails,
+  SaveAccompanimentTypeInput,
+  UpdateProductAccompanimentInput,
 } from '#mrp/domain/structures/index.ts'
 import type { RestResponse } from '#shared/responses/rest-response.ts'
 
@@ -72,4 +80,31 @@ export interface MrpService {
     productId: string,
     input: StockTransactionListParams,
   ): Promise<RestResponse<StockTransactionPage>>
+  getProductAccompaniments(
+    productId: string,
+  ): Promise<RestResponse<ProductAccompanimentsDetails>>
+  linkProductAccompaniment(
+    productId: string,
+    input: LinkProductAccompanimentInput,
+  ): Promise<RestResponse<ProductAccompanimentDetails>>
+  updateProductAccompaniment(
+    productId: string,
+    linkId: string,
+    input: UpdateProductAccompanimentInput,
+  ): Promise<RestResponse<ProductAccompanimentDetails>>
+  removeProductAccompaniment(
+    productId: string,
+    linkId: string,
+  ): Promise<RestResponse<void>>
+  listAccompanimentTypes(
+    input: Omit<AccompanimentTypeListParams, 'establishmentId'>,
+  ): Promise<RestResponse<AccompanimentTypePage>>
+  createAccompanimentType(
+    input: SaveAccompanimentTypeInput,
+  ): Promise<RestResponse<AccompanimentType>>
+  renameAccompanimentType(
+    typeId: string,
+    input: SaveAccompanimentTypeInput,
+  ): Promise<RestResponse<AccompanimentType>>
+  removeAccompanimentType(typeId: string): Promise<RestResponse<void>>
 }

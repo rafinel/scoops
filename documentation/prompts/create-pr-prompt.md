@@ -22,6 +22,18 @@ Require explicit authority to commit, push and create or update the PR. Standalo
 invoke `commit-code` for pending scoped changes; when called by `conclude-spec`, reuse its
 prepared commits.
 
+## Mandatory workflow invocation
+
+This prompt is a publication workflow, not a replacement for the commit or conclusion
+workflows. When pending implementation changes require a commit, invoke `commit-code`
+before publishing. After the commit is created, **invoke `create-pr` again** (including when
+the current prompt is being resumed by `conclude-spec`) so the PR metadata, body, head SHA
+and traceability are refreshed through this workflow. Do not create commits or edit PR
+metadata ad hoc while claiming that `commit-code` or `create-pr` was invoked.
+
+When `conclude-spec` calls this prompt, return the exact PR number, URL, base, head SHA and
+check URLs to `conclude-spec`; do not return while publication is only partially complete.
+
 ## Delivery inspection
 
 Before publication, inspect the complete worktree and delivery history:
@@ -133,11 +145,22 @@ Include these sections in this order:
 - **PRD and Spec traceability** — applicable PRD, Spec, Plan, exact revision and covered
   `RF-*`/`CA-*` criteria;
 - **Implementation** — coherent frontend, backend, domain, persistence and test slices with
-  the most relevant changed paths;
+  the most relevant changed paths. Describe each affected layer concretely: name the
+  contracts/use cases, schemas, migrations/models, routes/controllers, UI routes/widgets,
+  generated artifacts and test/evidence surfaces that materially changed. Do not use a
+  generic one-line inventory when the delivery crosses multiple layers;
 - **Business-rule changes** — only when behavior, validation, authorization or workflow
-  changed; state the previous behavior, new behavior, reason and evidence;
+  changed; state the previous behavior, new behavior, reason and evidence. Cover ownership,
+  authorization/tenant scope, validation and invariants, persistence/side-effect boundaries,
+  conflict or concurrency behavior, and explicit exclusions. If no business behavior
+  changed, write `None — no behavior, validation, authorization or workflow change`;
 - **Manual testing** — prerequisites, reproducible steps, expected result and error/recovery
-  flows;
+  flows. Include environment/services and fixture prerequisites, then numbered user-visible
+  scenarios covering the primary lifecycle, success persistence, authorization or tenant
+  isolation, validation/conflict recovery, keyboard/accessibility and responsive behavior
+  when applicable. Name the route or entry point, action, expected result and relevant retry,
+  cancellation or failure outcome. Point to `evaluation.md` for exact commands and artifact
+  identifiers;
 - **Automated validation** — exact commands and observed results, including failures,
   limitations and omitted checks;
 - **Known limitations** — explicit non-blocking gaps, or `None`.
@@ -146,8 +169,11 @@ When UI changes, summarize the visual validation result and link the detailed st
 comparisons in `evaluation.md`; do not create a separate `Visual evidence` PR section.
 
 Do not add a generic `Changelog`, `Impact and compatibility` or `Observations` section. Do not
-invent Issue keys, Spec requirements, test results or human approvals. Keep the body concise
-enough to review; it is a traceability and validation summary, not a copy of the full diff.
+invent Issue keys, Spec requirements, test results or human approvals. Before publishing,
+review the three sections above for concrete layer ownership, business decisions and
+reproducible manual coverage; if any is only a generic summary, expand it before returning
+the PR metadata. Keep the body concise enough to review; it is a traceability and validation
+summary, not a copy of the full diff.
 
 Use a short noun-phrase title without a Conventional Commit prefix or fabricated issue key.
 For a bug fix, include the evidence-based cause and correction.

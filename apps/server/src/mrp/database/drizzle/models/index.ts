@@ -1,3 +1,5 @@
+export * from './accompaniment-type-model'
+export * from './product-accompaniment-model'
 export * from './product-brand-model'
 export * from './product-model'
 export * from './production-ingredient-model'

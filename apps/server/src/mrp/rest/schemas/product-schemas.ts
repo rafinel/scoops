@@ -1,4 +1,8 @@
 export {
+  listAccompanimentTypesQuerySchema,
+  linkProductAccompanimentSchema,
+  saveAccompanimentTypeSchema,
+  updateProductAccompanimentSchema,
   addRecipeIngredientSchema,
   adjustProductStockSchema,
   listProductsQuerySchema,

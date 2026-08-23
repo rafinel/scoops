@@ -2,11 +2,10 @@ import type { PropsWithChildren } from 'react'
 
 import { useLocation } from '@tanstack/react-router'
 
-import { UserProfile } from '@scoops/core/identity/domain/structures'
-
 import { Anchor } from '@/ui/shared/widgets/components/anchor'
-import { Icon, type IconName } from '@/ui/shared/widgets/components/icon'
-import { ROUTES, type RouteName } from '@/constants/routes'
+import { Icon } from '@/ui/shared/widgets/components/icon'
+import { ROUTES } from '@/constants/routes'
+import type { SidebarItem } from '@/constants/sidebar-items'
 import { Button } from '@/ui/shadcn/button'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
@@ -14,21 +13,37 @@ import { Label } from '@/ui/shadcn/label'
 import { UserMenu } from './user-menu'
 import { useAppLayout } from './use-app-layout'
 
+export function isSidebarItemActive(
+  pathname: string,
+  item: Pick<SidebarItem, 'route' | 'activePrefixes'>,
+): boolean {
+  const normalizedPathname = normalizePathname(pathname)
+  const normalizedRoute = normalizePathname(ROUTES[item.route])
+  return (
+    normalizedPathname === normalizedRoute ||
+    Boolean(
+      item.activePrefixes?.some((prefix) => {
+        const normalizedPrefix = normalizePathname(prefix)
+        return (
+          normalizedPathname === normalizedPrefix ||
+          normalizedPathname.startsWith(`${normalizedPrefix}/`)
+        )
+      }),
+    )
+  )
+}
+
+function normalizePathname(pathname: string): string {
+  const normalized = pathname.replace(/\/+$/, '')
+  return normalized || '/'
+}
+
 export type AppLayoutProps = PropsWithChildren
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation()
-  const { account, error, isPending, handleLogout } = useAppLayout()
-  const isUsers = location.pathname.startsWith('/users')
-  const isShopSettings = location.pathname === ROUTES.shopSettings
-  const primaryLinks: Array<{ icon: IconName; label: string; route: RouteName }> = [
-    { icon: 'layout-dashboard', label: 'Dashboard', route: 'app' },
-    { icon: 'package', label: 'Produtos', route: 'products' },
-    { icon: 'shopping-cart', label: 'Nova venda', route: 'newSale' },
-    { icon: 'clipboard-list', label: 'Pedidos', route: 'orders' },
-    { icon: 'store', label: 'Canais de venda', route: 'salesChannels' },
-    { icon: 'tags', label: 'Descontos', route: 'discounts' },
-  ]
+  const { account, error, isPending, handleLogout, primaryItems, secondaryItems } =
+    useAppLayout()
   const userMenu = account ? (
     <UserMenu
       account={account}
@@ -41,7 +56,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <div className='min-h-screen bg-background font-sans text-foreground'>
       <div className='flex min-h-screen w-full'>
-        <aside className='hidden w-[266px] shrink-0 border-r border-border bg-card px-5 pb-6 pt-7 lg:flex lg:flex-col'>
+        <aside className='sticky top-0 hidden h-screen max-h-screen w-[266px] shrink-0 overflow-y-auto border-r border-border bg-card px-5 pb-6 pt-7 lg:flex lg:flex-col'>
           <div className='flex items-center gap-3'>
             <span className='grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-primary'>
               <Icon name='ice-cream-bowl' className='size-[22px]' />
@@ -51,12 +66,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </p>
           </div>
           <nav aria-label='Navegação principal' className='mt-14 space-y-1'>
-            {primaryLinks.map(({ icon, label, route }) => {
-              const isActive =
-                route === 'products'
-                  ? location.pathname === ROUTES.products ||
-                    location.pathname.startsWith('/products/')
-                  : location.pathname === ROUTES[route]
+            {primaryItems.map(({ icon, label, route, activePrefixes }) => {
+              const isActive = isSidebarItemActive(location.pathname, {
+                route,
+                activePrefixes,
+              })
 
               return (
                 <Anchor
@@ -76,48 +90,27 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             })}
           </nav>
           <div className='mt-auto space-y-1 border-t border-border-soft pt-5'>
-            {account?.profile === UserProfile.Manager ? (
-              <>
+            {secondaryItems.map(({ icon, label, route, activePrefixes }) => {
+              const isActive = isSidebarItemActive(location.pathname, {
+                route,
+                activePrefixes,
+              })
+              return (
                 <Anchor
-                  aria-current={isUsers ? 'page' : undefined}
+                  aria-current={isActive ? 'page' : undefined}
                   className={`flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-sm font-extrabold transition-colors ${
-                    isUsers
+                    isActive
                       ? 'bg-accent text-primary'
                       : 'text-foreground hover:bg-muted hover:text-foreground'
                   }`}
-                  route='users'
+                  key={route}
+                  route={route}
                 >
-                  <Icon name='users' className='size-[18px]' />
-                  Usuários
+                  <Icon name={icon} className='size-[18px]' />
+                  {label}
                 </Anchor>
-                <Anchor
-                  aria-current={isShopSettings ? 'page' : undefined}
-                  className={`flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-sm font-extrabold transition-colors ${
-                    isShopSettings
-                      ? 'bg-accent text-primary'
-                      : 'text-foreground hover:bg-muted hover:text-foreground'
-                  }`}
-                  route='shopSettings'
-                >
-                  <Icon name='store' className='size-[18px]' />
-                  Sorveteria
-                </Anchor>
-              </>
-            ) : null}
-            <Anchor
-              aria-current={
-                location.pathname === ROUTES.subscription ? 'page' : undefined
-              }
-              className={`flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-sm font-extrabold transition-colors ${
-                location.pathname === ROUTES.subscription
-                  ? 'bg-accent text-primary'
-                  : 'text-foreground hover:bg-muted hover:text-foreground'
-              }`}
-              route='subscription'
-            >
-              <Icon name='credit-card' className='size-[18px]' />
-              Assinatura
-            </Anchor>
+              )
+            })}
           </div>
         </aside>
         <div className='flex min-w-0 flex-1 flex-col'>

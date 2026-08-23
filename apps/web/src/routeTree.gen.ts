@@ -26,6 +26,7 @@ import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders/index'
 import { Route as AuthenticatedDiscountsIndexRouteImport } from './routes/_authenticated/discounts/index'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account/index'
+import { Route as AuthenticatedAccompanimentTypesIndexRouteImport } from './routes/_authenticated/accompaniment-types/index'
 import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users/$userId'
 import { Route as AuthenticatedSalesNewRouteImport } from './routes/_authenticated/sales/new'
 import { Route as AuthenticatedProductsProductIdRouteRouteImport } from './routes/_authenticated/products/$productId/route'
@@ -127,6 +128,12 @@ const AuthenticatedAccountIndexRoute =
     path: '/account/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAccompanimentTypesIndexRoute =
+  AuthenticatedAccompanimentTypesIndexRouteImport.update({
+    id: '/accompaniment-types/',
+    path: '/accompaniment-types/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedUsersUserIdRoute =
   AuthenticatedUsersUserIdRouteImport.update({
     id: '/users/$userId',
@@ -193,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/products/$productId': typeof AuthenticatedProductsProductIdRouteRouteWithChildren
   '/sales/new': typeof AuthenticatedSalesNewRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/accompaniment-types/': typeof AuthenticatedAccompanimentTypesIndexRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/discounts/': typeof AuthenticatedDiscountsIndexRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
@@ -219,6 +227,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordIndexRoute
   '/sales/new': typeof AuthenticatedSalesNewRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/accompaniment-types': typeof AuthenticatedAccompanimentTypesIndexRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/discounts': typeof AuthenticatedDiscountsIndexRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
@@ -248,6 +257,7 @@ export interface FileRoutesById {
   '/_authenticated/products/$productId': typeof AuthenticatedProductsProductIdRouteRouteWithChildren
   '/_authenticated/sales/new': typeof AuthenticatedSalesNewRoute
   '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
+  '/_authenticated/accompaniment-types/': typeof AuthenticatedAccompanimentTypesIndexRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/discounts/': typeof AuthenticatedDiscountsIndexRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
@@ -277,6 +287,7 @@ export interface FileRouteTypes {
     | '/products/$productId'
     | '/sales/new'
     | '/users/$userId'
+    | '/accompaniment-types/'
     | '/account/'
     | '/discounts/'
     | '/orders/'
@@ -303,6 +314,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sales/new'
     | '/users/$userId'
+    | '/accompaniment-types'
     | '/account'
     | '/discounts'
     | '/orders'
@@ -331,6 +343,7 @@ export interface FileRouteTypes {
     | '/_authenticated/products/$productId'
     | '/_authenticated/sales/new'
     | '/_authenticated/users/$userId'
+    | '/_authenticated/accompaniment-types/'
     | '/_authenticated/account/'
     | '/_authenticated/discounts/'
     | '/_authenticated/orders/'
@@ -480,6 +493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/accompaniment-types/': {
+      id: '/_authenticated/accompaniment-types/'
+      path: '/accompaniment-types'
+      fullPath: '/accompaniment-types/'
+      preLoaderRoute: typeof AuthenticatedAccompanimentTypesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/users/$userId': {
       id: '/_authenticated/users/$userId'
       path: '/users/$userId'
@@ -580,6 +600,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProductsProductIdRouteRoute: typeof AuthenticatedProductsProductIdRouteRouteWithChildren
   AuthenticatedSalesNewRoute: typeof AuthenticatedSalesNewRoute
   AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
+  AuthenticatedAccompanimentTypesIndexRoute: typeof AuthenticatedAccompanimentTypesIndexRoute
   AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
   AuthenticatedDiscountsIndexRoute: typeof AuthenticatedDiscountsIndexRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
@@ -595,6 +616,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedProductsProductIdRouteRouteWithChildren,
   AuthenticatedSalesNewRoute: AuthenticatedSalesNewRoute,
   AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,
+  AuthenticatedAccompanimentTypesIndexRoute:
+    AuthenticatedAccompanimentTypesIndexRoute,
   AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
   AuthenticatedDiscountsIndexRoute: AuthenticatedDiscountsIndexRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,

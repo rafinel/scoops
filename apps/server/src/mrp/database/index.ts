@@ -1,5 +1,7 @@
 export * from '@/mrp/database/mrp-database.module'
 export * from './drizzle/models'
 export * from './drizzle/repositories/drizzle-mrp-database'
+export * from './drizzle/repositories/drizzle-accompaniment-types-repository'
+export * from './drizzle/repositories/drizzle-product-accompaniments-repository'
 export * from './drizzle/repositories/drizzle-products-repository'
 export * from './drizzle/repositories/drizzle-stock-balances-repository'

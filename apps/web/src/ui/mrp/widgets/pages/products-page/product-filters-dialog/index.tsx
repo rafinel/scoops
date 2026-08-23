@@ -1,5 +1,6 @@
 import type { ProductCategory } from '@scoops/core/mrp/domain/structures'
 
+import { CATEGORY_ICONS } from '@/constants/product-category-icons'
 import { Button } from '@/ui/shadcn/button'
 import {
   Dialog,
@@ -73,6 +74,7 @@ export const ProductFiltersDialog = ({
               onClick={handleClear}
               variant='outline'
             >
+              <Icon name='x' />
               Limpar
             </Button>
           </div>
@@ -80,6 +82,7 @@ export const ProductFiltersDialog = ({
             {CATEGORY_VALUES.map((category) => (
               <FilterPill
                 active={draftCategories.includes(category)}
+                icon={CATEGORY_ICONS[category]}
                 key={category}
                 onClick={() => handleCategoryToggle(category)}
                 tone={category}
@@ -91,12 +94,14 @@ export const ProductFiltersDialog = ({
           <FilterGroup label='Estoque'>
             <FilterPill
               active={draftStockSituation === 'normal'}
+              icon='circle-check'
               onClick={() => handleStockSituationToggle('normal')}
             >
               Normal
             </FilterPill>
             <FilterPill
               active={draftStockSituation === 'low'}
+              icon='triangle-alert'
               onClick={() => handleStockSituationToggle('low')}
               tone='stock-low'
             >
@@ -106,6 +111,7 @@ export const ProductFiltersDialog = ({
           <FilterGroup label='Status'>
             <FilterPill
               active={draftStatus === 'active'}
+              icon='circle-check'
               onClick={() => handleStatusToggle('active')}
               tone='status-active'
             >
@@ -113,6 +119,7 @@ export const ProductFiltersDialog = ({
             </FilterPill>
             <FilterPill
               active={draftStatus === 'inactive'}
+              icon='eye-off'
               onClick={() => handleStatusToggle('inactive')}
             >
               Inativo
@@ -125,9 +132,14 @@ export const ProductFiltersDialog = ({
             onClick={() => onOpenChange(false)}
             variant='outline'
           >
+            <Icon name='x' />
             Cancelar
           </Button>
-          <Button className='h-8 px-3.5 text-[13px] font-bold' onClick={handleApply}>
+          <Button
+            className='h-8 gap-1.5 px-3.5 text-[13px] font-bold'
+            onClick={handleApply}
+          >
+            <Icon name='check' />
             Aplicar filtros
           </Button>
         </DialogFooter>

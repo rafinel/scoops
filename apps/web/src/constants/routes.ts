@@ -17,6 +17,7 @@ export const ROUTES = {
   productDetailsAccompaniments: '/products/$productId/accompaniments',
   productDetailsPrices: '/products/$productId/prices',
   productDetailsSettings: '/products/$productId/settings',
+  accompanimentTypes: '/accompaniment-types',
   newSale: '/sales/new',
   orders: '/orders',
   salesChannels: '/sales-channels',
@@ -28,6 +29,10 @@ export const ROUTES = {
 
 export function productRecipeRoute(productId: string): string {
   return ROUTES.productDetailsRecipe.replace('$productId', productId)
+}
+
+export function productAccompanimentsRoute(productId: string): string {
+  return ROUTES.productDetailsAccompaniments.replace('$productId', productId)
 }
 
 export type RouteName = keyof typeof ROUTES

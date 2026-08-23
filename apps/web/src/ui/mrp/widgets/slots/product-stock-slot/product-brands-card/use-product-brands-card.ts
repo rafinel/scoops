@@ -1,5 +1,6 @@
 import type { ProductBrandStock, ProductUnit } from '@scoops/core/mrp/domain/structures'
-import { useFormatCurrency, useFormatQuantity } from '@/ui/shared/hooks/use-formatters'
+import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
+import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
 
 export type ProductBrandRow = ProductBrandStock & {
   formattedPackagePrice: string

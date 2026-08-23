@@ -169,6 +169,7 @@ test.describe('Product recipe nested route', () => {
     await identityFixture.mockManagerAccount()
     const client = observeClient(page)
     await mockRecipeCatalog(mrpFixture)
+    await mockRecipeIngredientSources(mrpFixture)
     let releaseRecipe!: () => void
     const recipeGate = new Promise<void>((resolve) => {
       releaseRecipe = resolve
@@ -201,12 +202,28 @@ test.describe('Product recipe nested route', () => {
     })
 
     await page.setViewportSize({ width: 1560, height: 1200 })
+    const productStockResponse = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'GET' &&
+        new URL(response.url()).pathname === `/products/${PRODUCT_ID}/stock`,
+    )
     const pendingRecipeRequest = page.waitForRequest(
       (request) =>
+        ['fetch', 'xhr'].includes(request.resourceType()) &&
         request.method() === 'GET' &&
         new URL(request.url()).pathname === `/products/${PRODUCT_ID}/recipe`,
     )
-    const navigation = page.goto(`/products/${PRODUCT_ID}/recipe`)
+    const recipeResponse = page.waitForResponse(
+      (response) =>
+        ['fetch', 'xhr'].includes(response.request().resourceType()) &&
+        response.request().method() === 'GET' &&
+        new URL(response.url()).pathname === `/products/${PRODUCT_ID}/recipe`,
+    )
+    const navigation = page.goto(`/products/${PRODUCT_ID}/recipe`, {
+      waitUntil: 'domcontentloaded',
+    })
+    await navigation
+    await productStockResponse
     await pendingRecipeRequest
     await expect(page.getByRole('status', { name: 'Carregando receita' })).toBeVisible()
     await captureCleanRecipeState(
@@ -216,7 +233,7 @@ test.describe('Product recipe nested route', () => {
       true,
     )
     releaseRecipe()
-    await navigation
+    await (await recipeResponse).finished()
     await expect(
       page.getByRole('heading', { name: 'Receita', exact: true }),
     ).toBeVisible()
@@ -255,7 +272,13 @@ test.describe('Product recipe nested route', () => {
     await expect(page.getByText('Comece a montar sua receita')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Produzir' })).toBeDisabled()
     await page.setViewportSize({ width: 1201, height: 538 })
-    await captureCleanRecipeState(page, client, 'products-recipe-empty-1201x538.png')
+    await captureCleanRecipeState(
+      page,
+      client,
+      'products-recipe-empty-1201x538.png',
+      false,
+      [EXPECTED_UNMOUNTED_WARNING],
+    )
   })
 
   test('covers production preview states, confirmation, and narrow keyboard access', async ({
@@ -267,6 +290,7 @@ test.describe('Product recipe nested route', () => {
     await identityFixture.mockManagerAccount()
     const client = observeClient(page)
     await mockRecipeCatalog(mrpFixture)
+    await mockRecipeIngredientSources(mrpFixture)
     let previewState:
       | 'sufficient'
       | 'shortage'

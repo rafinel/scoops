@@ -11,7 +11,7 @@ import {
 } from '@/ui/shadcn/dialog'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
-import { useFormatCurrency } from '@/ui/shared/hooks/use-formatters'
+import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import { useProductBrandDialog } from './use-product-brand-dialog'
