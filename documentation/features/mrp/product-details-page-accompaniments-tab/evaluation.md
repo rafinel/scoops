@@ -3,7 +3,7 @@ feature: "mrp/product-details-page-accompaniments-tab"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 7
-status: ready
+status: completed
 updated_at: 2026-08-23
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-08-23
 
 Evaluation of Spec revision `7` against the current implementation.
 
-Current result: Revision-7 compact neutral shared back-link styling is complete. Types and Product Details use the same Anchor-based `BackLink` widget with `Voltar`, a left-arrow icon and preserved navigation behavior. Focused route validation passes 10/10 combined (Types 7/7, Product Details 3/3), Product Stock validation passes 3/3, Web code/types pass, fresh desktop/narrow screenshots were dimension-checked and inspected, and the same Integrated Reviewer found no actionable findings.
+Current result: Revision-7 compact neutral shared back-link styling and the scoped Web CI correction are complete. Generic Web CI now runs the mocked route suite with one worker; the real-service browser flow remains separately gated by Server/Supabase prerequisites. Candidate and Recipe loading fixtures use explicit request gates, the serial route suite passes 108/108, and all exact-head Core, Server and Web PR checks pass for `c9d276209b228b2c344c03cc467b9d16b64e5a4b`. No blocking findings remain.
 
 ## Acceptance matrix
 
@@ -73,6 +73,8 @@ Current result: Revision-7 compact neutral shared back-link styling is complete.
 | `EV-036` | Review | Same Integrated Reviewer final revision-6 recheck | Reviewer inspected the shared Anchor-based widget, both consumers, current tests/docs and VIS-10; no actionable findings remain. | Shared semantics/style, Product Details callback behavior, Types history/fallback and accepted unrelated recovery-test disposition are consistent. | `passed` |
 | `EV-037` | UI | Revision-7 compact neutral BackLink correction | Types route passed 7/7; focused Product Details route passed 3/3; ProductStockSlot passed 3/3; Web code/types passed with four pre-existing global.css warnings; `git diff --check` passed. | Shared widget now uses compact outlined sizing, neutral token border/background, dark foreground/icon and medium-weight label typography. | `passed_with_authorized_difference` |
 | `EV-038` | Review | Same Integrated Reviewer final revision-7 recheck | Reviewer inspected the revision-7 widget, both consumers, tests, docs and fresh screenshots; no actionable findings remain. Combined focused route validation is 10/10 and the requested screenshot dimensions/reference treatment are current. | Existing unrelated full Product Details candidate/stock recovery timing failure remains documented as accepted non-blocking. | `passed` |
+| `EV-039` | CI | Web CI run `32645888308` on the current PR head | Core and Server completed successfully, but Web CI failed after 106/110 browser tests: the live integration test had no Server/Supabase services in this workflow, and the candidate/recipe loading assertions were not deterministic under the full suite. | `failed` |
+| `EV-040` | CI correction | `pnpm --filter web exec playwright test tests/routes --workers=1`; focused correction suites; Web code/types and diff checks | The corrected serial route suite passed 108/108; the focused Accompaniments/Recipe scenarios passed; Web code and type checks passed with four pre-existing `global.css` warnings, and `git diff --check` passed. The workflow now matches the deterministic command and excludes the unprovisioned real-service suite. | `passed_with_authorized_difference` |
 | `EV-012` | Cross-layer | F1 Builder handoff and Wave 2 activation gate | Builder Core F1-T1 handoff was inspected; F1 is complete. Builder Server `01a02b49-f29f-7631-95dc-7be9f9a9e7c7` owns F2, Builder Core `01a02b49-d651-7383-808f-cbf796d568eb` owns F3, and Builder Web `01a02b49-e868-7512-b06b-2f96c6b88b24` owns F4. Each received revision 2, exact Plan paths, RF/CA coverage, Rule Pack, design references where applicable and focused exits before editing. | `passed` |
 
 ## Manual evidence
@@ -146,12 +148,15 @@ Current result: Revision-7 compact neutral shared back-link styling is complete.
 | `FND-030` | `tooling` | Full Product Details route validation | `EV-033` | `accepted_non_blocking` | The existing candidate/stock recovery test remains timing-sensitive and unrelated to the shared BackLink; focused Product Details workflow/back-link coverage passes 3/3 and no source change was made to the recovery path. |
 | `FND-031` | `tooling` | Revision-6 final code check | `EV-035` | `resolved` | The test Anchor mock used an invalid `href="#"`; changed it to the valid `/products` route and reran Web code/types and diff checks successfully. |
 | `FND-032` | `contract_amendment` | Spec revision 7 requested old-style BackLink appearance | `CA-15`, `EV-037`, `VIS-11` | `resolved` | Restored compact neutral token styling in the shared widget, reran focused route/screenshot/static validation and completed the same-Reviewer recheck with no actionable findings. |
+| `FND-033` | `implementation` | Current-head Web CI `32645888308` | `EV-039`, `EV-040`, `MV-01`, `MV-03` | `resolved` | Web CI now runs only the mocked route suite with one worker; candidate and Recipe loading tests hold explicit requests, and the Recipe fixture supplies the Product Details stock response. The corrected serial route suite passes 108/108; real-service integration remains separately validated with healthy services. |
 | `EV-020` | UI | Fresh supplied-state screenshot capture and independent comparison | `VIS-01`–`VIS-04` | Six fresh artifacts exist at exact declared dimensions and were visually inspected against all six saved references; approved runtime/data differences are recorded per row. | `passed` |
 
 ## Lessons learned
 
 - Typed TanStack route consumers must use the generated full path, and adding a public service contract requires updating all existing structural test mocks; no authority change needed because the Rules already require generated-route validation and complete service consumers.
 - Focused Playwright package-script arguments must be verified against the actual package runner; when a wrapper forwards `--`, invoke the repository's direct Playwright CLI with the exact file list and record the correction.
+- Generic Web CI must run the mocked route suite only, with deterministic worker settings; real-service browser integration requires an explicitly provisioned Server/Supabase environment. Authority disposition: `documentation/tooling.md` and the checked-in Web workflow now record the boundary and command; no product or architecture change is required.
+- Inherited uncommitted changes in `AGENTS.md` and the module PRD files were preserved and excluded from this delivery commit; they are unrelated worktree state.
 
 ## PR CI quality gate
 
@@ -160,4 +165,10 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
-| `CI-01` | `<applicable workflow>` | `<sha>` | `pending` | `<run URL when available>` |
+| `CI-01` | Core CI | `b775ce5734ab4d9098c8e21c9d3c7f8cbbc555cb` | `passed` | [run 32645888211](https://github.com/rafinel/scoops/actions/runs/32645888211) |
+| `CI-02` | Server CI | `b775ce5734ab4d9098c8e21c9d3c7f8cbbc555cb` | `passed` | [run 32645888401](https://github.com/rafinel/scoops/actions/runs/32645888401) |
+| `CI-03` | Web CI | `b775ce5734ab4d9098c8e21c9d3c7f8cbbc555cb` | `failed` | [run 32645888308](https://github.com/rafinel/scoops/actions/runs/32645888308) |
+| `CI-04` | Core CI | `c9d276209b228b2c344c03cc467b9d16b64e5a4b` | `passed` | [run 32649362081](https://github.com/rafinel/scoops/actions/runs/32649362081) |
+| `CI-05` | Server CI | `c9d276209b228b2c344c03cc467b9d16b64e5a4b` | `passed` | [run 32649362120](https://github.com/rafinel/scoops/actions/runs/32649362120) |
+| `CI-06` | Web CI | `c9d276209b228b2c344c03cc467b9d16b64e5a4b` | `passed` | [run 32649359327](https://github.com/rafinel/scoops/actions/runs/32649359327) |
+| `CI-07` | Web CI | `c9d276209b228b2c344c03cc467b9d16b64e5a4b` | `passed` | [run 32649362098](https://github.com/rafinel/scoops/actions/runs/32649362098) |
