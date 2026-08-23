@@ -67,8 +67,21 @@ including the file speculatively.
 3. Verify base, head, SHA and ancestry; branch names do not prove incorporation.
 4. Use `main`/`origin/main` as the integration base unless the repository state or user says
    otherwise.
-5. Calculate and review the complete diff against the PR base.
-6. If a delivery PR exists, update its head and body. Otherwise create one PR for the
+5. Before calculating the publication diff or creating/updating the PR, merge the fetched
+   `origin/main` into the delivery branch. The delivery branch must contain the current
+   `main` history; do not submit a PR while it is behind `main`. Treat this merge as part of
+   the publication and require the same explicit commit authority before creating its merge
+   commit.
+6. If the merge has only minor, unambiguous textual conflicts in delivery-owned files, resolve
+   them automatically by preserving the intended delivery change and the current `main`
+   behavior, then stage the resolutions, complete the merge, and review the resulting diff.
+   Never guess when a conflict affects business behavior, authorization, migrations or other
+   generated artifacts, unrelated user work, or the intended ownership of a change.
+7. If conflicts are complex or ambiguous, stop before publishing and ask the user for guidance.
+   Report each conflicted path, the competing changes, and the decision needed; do not abort or
+   complete the merge, push, or create/update the PR until the user directs the resolution.
+8. After the merge is complete, calculate and review the complete diff against the PR base.
+9. If a delivery PR exists, update its head and body. Otherwise create one PR for the
    coherent delivery.
 
 Do not use destructive Git operations, bypass hooks, create accidental dependent branches
@@ -142,8 +155,10 @@ Include these sections in this order:
 - **Objective** — problem, expected outcome, scope and explicit exclusions;
 - **Related issues** — real GitHub Issues and their relationship, or `None` (use closing
   keywords only when closure is intended);
-- **PRD and Spec traceability** — applicable PRD, Spec, Plan, exact revision and covered
-  `RF-*`/`CA-*` criteria;
+- **PRD and Spec traceability** — applicable PRD, fully/partially delivered `REQ-*`
+  requirements and their current Implemented-checkbox disposition, Spec, Plan, exact revision
+  and covered `RF-*`/`CA-*` criteria. Report the state established by `conclude-spec`; this
+  workflow does not change PRD checkboxes;
 - **Implementation** — coherent frontend, backend, domain, persistence and test slices with
   the most relevant changed paths. Describe each affected layer concretely: name the
   contracts/use cases, schemas, migrations/models, routes/controllers, UI routes/widgets,

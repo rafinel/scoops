@@ -1,835 +1,846 @@
-### 1. Overview
-
-The **Identity — Identity and Access** module allows you to create an ice cream shop in
-Scoops, activate your first Manager, authenticate the team and manage the cycle
-users' lives. The module also defines which areas each profile can
-access, preserves authorship of administrative changes and maintains each
-user linked to a single ice cream shop.
-
-The MVP access model is deliberately simple. There are only profiles
-fixed `Manager` and `Operator`. Managers have full access to Scoops and
-manage the team. Operators only access `New Sale` and `Orders`.
-
-**Purpose:** to allow an ice cream shop to start using Scoops through a
-direct onboarding and keep team access updated without configuration
-complex of permissions.
-
-**Problem resolved:** team entries, role changes and terminations
-require quick granting or revocation of access. Without centralized rules, a
-person can access undue functions, actions no longer have reliable authorship and
-old accounts remain available.
-
-**Value delivered:** simple onboarding, predictable access, isolation by
-ice cream shop, individual responsibility and full control of the life cycle
-of the organization's data.
-
----
-
-### 2. Target audience
-
-#### Main audience
-
-Managers of independent ice cream and açaí shops who need to register their
-organization, invite staff, and control who has administrative or
-operational.
-
-#### Secondary audiences
-
-- Operators who need to enter Scoops and only access sales flows
-  authorized.
-- New managers who start using Scoops and become the first
-  Ice cream shop manager.
-
-#### Not public
-
-- Users who need to belong to more than one ice cream shop with the same account.
-- Networks that require multi-store hierarchy or centralized administration.
-- Organizations that need custom profiles or individual permissions.
-- Scoops internal team seeking to assume the identity of a customer or
-  Globally access ice cream shops.
-
-#### Context of use
-
-- First access for an ice cream shop to Scoops.
-- Entry of new Managers or Operators into the team.
-- Promotion, demotion, inactivation or reactivation of users.
-- Use on computers, tablets or cell phones, including devices
-  shared.
-- Consultation of administrative changes and identification of those responsible.
-
-#### Pains and needs
-
-- Start using the product without extensive configuration.
-- Grant access without sharing passwords.
-- Ensure that Operators do not reach administrative functions.
-- Immediately remove access from those who left the team.
-- Know who changed a user and when.
-- Prevent the ice cream shop from being left without an active Manager.
-- Completely exclude the ice cream shop when the customer decides to close his shop
-  use of Scoops.
-
-#### Jobs to Be Done
-
-- When I start using Scoops, I want to create my ice cream shop and confirm
-  my account, to take over the administration safely.
-- When a person joins the team, I want to invite them with the correct profile,
-  so that she can create her own password and access only what is necessary.
-- When a person changes role, I want to promote or demote them, so that the
-  access tracks your current responsibility.
-- When a person leaves the team, I want to immediately revoke their access,
-  to protect the operation without erasing the history.
-- When an administrative change raises doubts, I want to consult whoever
-  carried out and when, to reconstruct what happened.
-- When I decide to permanently stop using Scoops, I want to delete the
-  ice cream shop and all associated data, so as not to maintain a residual operation.
-
----
-
-### 3. Competitive Scenario Analysis
-
-Management solutions for food and point of sale usually offer users
-and permissions as part of broader operating platforms. According to your
-official sources, there are approaches that range from directly configured permissions
-per user to reusable functions and personal codes for identification in the
-box.
-
-Scoops will not seek to replicate this granularity in the MVP. The opportunity is
-in offering an easier to understand model for small teams: two
-fixed profiles, no individual exceptions and explicit rules for promotion,
-inactivation and preservation of authorship.
-
-#### Competitive matrix
-
-| Solution | Public | Value proposition | Features | Public price | Limitations |
-|---|---|---|---|---|---|
-| [Saipos](https://saipos.com/sistema/sorveteria) | Ice cream shops and food establishments | Centralize service, stock, management and delivery | Individual users, types and permissions, in addition to operational modules | The official page informs plans starting at R$ 219.90/month | According to [user documentation](https://meajuda.saipos.com/hc/pt-br/articles/27043903853460-Como-criar-um-novo-usu%C3%A1rio-no-sistema-Saipos), the same user cannot be used simultaneously on two devices |
-| [Toast](https://support.toasttab.com/en/article/Access-Permissions-Reference) | Restaurants, groups and multi-unit operations | Control team responsibilities at the point of sale and in administration | Permissions by role, multiple roles per employee and rules by location | Not publicly identified in the sources consulted | Greater range of configuration than needed for the initial Scoops audience |
-| [Square](https://my.squareup.com/help/us/en/article/8357-require-passcodes-at-point-of-sale) | Small and medium-sized businesses with point of sale | Identify team members and limit actions at the register | Permission Sets, Personal Codes, Shared Code, and Owner Code | [Square Advanced Access](https://squareup.com/us/en/staff/advanced-access) is reported to be included with Square Plus $49/month per location and Premium $149/month per location plans | Shared codes do not allow you to attribute sales and activities to a specific person |
-| Spreadsheet, shared password and verbal control | Small operations without formal access management | Low initial effort | Manual People Listing and Informal Credential Sharing | Variable | Does not reliably revoke access, reduces authorship and increases administrative errors |
-
-#### Findings and inferences
-
-- According to Saipos' official documentation, permissions can be enabled or
-  disabled per user and management requires managerial access.
-- The official Toast page states which permissions are normally assigned
-  by functions and may vary between locations.
-- Square documentation differentiates between personal, shared, and third-party code.
-  owner; only the personal code preserves individual attribution.
-- Source-based inference: mature solutions serve larger operations with
-  Flexible models but require more configuration decisions.
-- Source-based inference: Scoops can differentiate itself for small
-  teams reducing configuration without giving up authorship and revocation.
-
-#### Recommended differentials
-
-- Onboarding of the ice cream shop and the first Manager in a single flow.
-- Only two profiles, with responsibilities that are easy to explain.
-- No individual permissions capable of creating unexpected combinations.
-- Invitations that preserve the secret of the new user's password.
-- Rules that prevent self-elevation and the absence of an active Manager.
-- Administrative audit understandable by the Manager himself.
-- Full exclusion of the ice cream shop under the customer's command.
-
----
-
-### 4. Requirements
-
-#### REQ-01 Ice Cream Shop Onboarding
-
-- [ ] **Ice Cream Shop Onboarding**
-
-**Description:** A new customer must be able to create an ice cream shop and their account
-First Manager via a public stream.
-
-##### Business Rules
-
-- **Mandatory data:** the flow must request the name of the ice cream shop, name of the
-  Manager, email and password.
-- **Ice cream shop:** the name must be mandatory, but may be repeated in
-  different ice cream shops.
-- **First profile:** the first user must receive the `Manager` profile.
-- **Pending access:** the Manager cannot access the system before confirming the
-  account.
-- **Joint activation:** confirmation must activate the ice cream shop and the first
-  Manager.
-- **Post-confirmation session:** after the confirmation link activates the onboarding,
-  the current verified session must become authenticated local access and open the main
-  Scoops page without requiring the Manager to enter their credentials again.
-- **Correction of pending email:** before activation, the person responsible must be able to
-  return to the initial step to correct only the first Manager's email;
-  the name of the ice cream shop and the name of the Manager must remain filled in.
-- **Correction confirmation:** to save the new email, the person responsible must
-  Enter the registered password again.
-- **Correction validation:** the new email must be valid and available;
-  in case of failure, the previous address and pending onboarding must be
-  preserved.
-- **New submission:** after saving a new email, the previous confirmation link
-  must lose its validity and a new confirmation must be sent to the address
-  corrected.
-- **Correction cancellation:** when canceling the edit, the person responsible must return
-  pending confirmation without changing the registration.
-- **Deadline:** an unconfirmed onboarding must expire after seven days.
-- **Deadline after correction:** correcting the email or resending the confirmation should not
-  restart the original seven-day onboarding period.
-- **Expiration:** upon expiration, the pending ice cream shop and the corresponding bill
-  must be removed, freeing the email for another attempt.
-- **Separate registration:** there must be no public user creation without a new
-  ice cream parlor or valid invitation.
-- **Dependency:** commercial subscription can accompany onboarding, but
-  its rules belong to the Subscription module.
-
-##### UI/UX rules
-
-- **Interface:** present short form, with clear progress and language
-  aimed at the person responsible for the ice cream shop.
-- **Feedback:** after sending, inform that the account depends on confirmation and
-  indicate the address used.
-- **Confirmation completion:** after a valid confirmation, redirect the Manager directly
-  to the authenticated main page; do not require a second login.
-- **Correction:** in the pending confirmation step, present the action `Back and
-  fix`; when activating it, return to the initial step in editing mode, keep the
-  filled data and focus on the email field.
-- **Return after correction:** after saving, return to pending confirmation,
-  display the updated address and inform you that a new message has been sent.
-- **Empty state:** not applicable to the initial form.
-- **Action blocked:** prevent access to modules while confirmation is in progress
-  pending.
-- **Responsiveness:** the flow must work fully from 320 px.
-- **Accessibility:** fields must have labels, instructions, visible focus and
-  errors announced by assistive technology.
-
----
-
-#### REQ-02 Authentication and Session
-
-- [ ] **Authentication and Session**
-
-**Description:** Active users must log into Scoops with their email and password and
-remain authenticated only during a valid session.
-
-##### Business Rules
-
-- **Method:** the MVP must only accept email and password.
-- **Active account:** only active users of active ice cream shops can enter.
-- **Neutral message:** failures should not reveal whether an email is registered.
-- **Attempts:** after five consecutive failures, new attempts must be made.
-  blocked for 15 minutes.
-- **Inactivity:** the session must expire after 30 minutes without interaction.
-- **Maximum duration:** a session must require re-authentication after seven days,
-  even if it remains in use.
-- **Concurrency:** the same user can maintain sessions on multiple devices.
-- **Exit:** `Exit this device` should only end the current session.
-- **Session loss:** when possible, uncompleted work should be
-  preserved for resumption after new login.
-
-##### UI/UX rules
-
-- **Interface:** present Scoops brand, email, password, main action
-  entry and access to recovery.
-- **Feedback:** differentiate loading, credential failure, blocking
-  temporary and session expired.
-- **Empty state:** not applicable.
-- **Action blocked:** pending, inactive or accounts belonging to ice cream shops
-  unavailable must receive guidance without exposing internal data.
-- **Responsiveness:** the form must remain readable and operable in
-  cell phone, tablet and computer.
-- **Accessibility:** must allow keyboard filling, screen readers
-  and password managers.
-
----
-
-#### REQ-03 Password and Access Recovery
-
-- [ ] **Password and Access Recovery**
-
-**Description:** The user must create or reset their own password without a
-Manager can know it or define it in its place.
-
-##### Business Rules
-
-- **Length:** the password must be between 8 and 64 characters.
-- **Responsibility:** Managers can never view or set passwords for
-  other users.
-- **Recovery:** every password change must happen through the recovery flow
-  sent to the registered email.
-- **Single use:** the recovery link must be usable once.
-- **Validity:** the link must expire after one hour.
-- **Revocation:** reset must terminate all user sessions.
-- **Non-existent account:** the request must present the same response for
-  registered and unregistered emails.
-- **Individual limit:** an address can receive a maximum of three messages
-  24-hour authentication.
-- **Interval:** resubmissions must respect a minimum interval of two minutes.
-
-##### UI/UX rules
-
-- **Interface:** only request the email upon recovery and the new password after
-  link validation.
-- **Feedback:** confirm the request without revealing the existence of the account.
-- **Empty state:** not applicable.
-- **Action blocked:** expired or used links must guide a new one
-  request.
-- **Responsiveness:** the flow must work without horizontal scrolling on screens
-  small.
-- **Accessibility:** password requirements and errors must be textual and not
-  depend only on color.
-
----
-
-#### REQ-04 Profiles and Authorization
-
-- [ ] **Profiles and Authorization**
-
-**Description:** The system must apply fixed permissions per profile to all
-protected navigation entries and actions.
-
-##### Business Rules
-
-- **Profiles:** there must only be `Manager` and `Operator`.
-- **Immutability:** profiles cannot be created, renamed, edited,
-  duplicated or deleted.
-- **No exceptions:** there must be no individual granting or removal of
-  permissions.
-- **Manager:** has full access to all modules and configurations.
-- **Operator:** can only access `New Sale` and `Orders`.
-- **Direct access:** addresses or shortcuts cannot bypass permissions.
-- **Isolation:** every user and every action must remain restricted to their own
-  ice cream shop.
-- **Own profile:** no user can promote or demote themselves.
-- **Last Manager:** no action can leave the ice cream shop without at least one
-  Active manager.
-
-##### UI/UX rules
-
-- **Interface:** display the profile as a fixed user attribute, without control controls
-  granular permissions.
-- **Feedback:** promotion and relegation must present confirmation and result.
-- **Empty state:** not applicable.
-- **Action blocked:** hide actions incompatible with the profile and explain
-  relevant administrative blocks.
-- **Responsiveness:** authorized menus must remain accessible on screens
-  minors without covering the content.
-- **Accessibility:** the active state and restrictions should not depend solely on
-  of color.
-
----
-
-#### REQ-05 User Registration and Invitation
-
-- [ ] **User Registration and Invitation**
-
-**Description:** A Manager must be able to invite a new user to their own
-ice cream shop with name, email and profile.
-
-##### Business Rules
-
-- **Authorization:** only Managers can register users.
-- **Fields:** name, email and profile are mandatory.
-- **Single email:** each email can belong to only one account in the entire
-  Scoops, ignoring case differences.
-- **Initial state:** the user must remain `Pending` until accepting the invitation
-  and set the password.
-- **Validity:** the invitation must expire after seven days.
-- **Resend:** a new invitation must invalidate the previous link and restart the
-  deadline.
-- **Pending correction:** before activation, the Manager can correct the data of the
+# Identity Product Requirements Document
+
+## 1. Executive Summary
+
+Identity enables an independent ice cream or açaí shop to create its Scoops
+establishment, activate its first Manager, authenticate its team, and manage each
+user's access lifecycle. Each user belongs to one establishment, and the MVP uses
+only the fixed `Manager` and `Operator` profiles. Managers administer Scoops and the
+team; Operators access only `New Sale` and `Orders`.
+
+The module provides direct onboarding, predictable authorization, establishment
+isolation, individual authorship, and access revocation without erasing identity or
+history. It does not expose customer-initiated establishment deletion.
+
+## 2. Problem and Opportunity
+
+Small teams need to grant, change, and revoke access quickly without sharing
+passwords or configuring granular permissions. Without centralized identity rules,
+former team members may retain access, Operators may reach administrative functions,
+and administrative actions may lose reliable authorship.
+
+The opportunity is to give small establishments an access model that is easier to
+understand than configurable role and permission systems: two fixed profiles,
+individual credentials, explicit lifecycle safeguards, and an administrative audit.
+This prioritizes predictable operation and immediate revocation over permission
+granularity.
+
+Public product materials illustrate the more configurable alternatives that informed
+this positioning: [Saipos](https://saipos.com/sistema/sorveteria) documents individual
+users, types, and permissions; [Toast](https://support.toasttab.com/en/article/Access-Permissions-Reference)
+documents role-based permissions; and [Square](https://my.squareup.com/help/us/en/article/8357-require-passcodes-at-point-of-sale)
+documents personal and shared point-of-sale codes. Source-based inference: Scoops can
+differentiate for small teams by reducing configuration choices while preserving
+individual attribution and reliable revocation.
+
+## 3. Target Audience
+
+### Primary audience
+
+Managers of independent ice cream and açaí shops who need to create their
+establishment, invite staff, and control administrative and operational access.
+
+### Secondary audiences
+
+- Operators who need individual Scoops access limited to authorized sales flows.
+- New Managers who create an establishment and become its first Manager.
+
+### Non-audience
+
+- Users who need one account to belong to multiple establishments.
+- Networks that require branch, franchise, or centralized multi-store hierarchy.
+- Organizations that require custom profiles or individual permissions.
+- Internal Scoops staff seeking impersonation or global establishment access.
+
+### Context, pains, and needs
+
+- First access to Scoops from a computer, tablet, mobile phone, or shared device.
+- Entry, promotion, demotion, inactivation, or reactivation of team members.
+- Immediate access revocation without deleting identity or historical authorship.
+- Clear identification of who performed an administrative change and when.
+- Protection against leaving an establishment without an active Manager.
+
+### Jobs to Be Done
+
+- When I start using Scoops, I want to create my establishment and confirm my
+  account, so that I can take over administration safely.
+- When a person joins the team, I want to invite them with the correct profile, so
+  that they create their own password and access only what they need.
+- When a person's role changes, I want to promote or demote them, so that access
+  reflects their current responsibility.
+- When a person leaves the team, I want to revoke access immediately, so that I
+  protect the operation without erasing history.
+- When an administrative change raises a question, I want to see who performed it
+  and when, so that I can reconstruct what happened.
+
+## 4. Objectives and Success Metrics
+
+### Objectives
+
+- Enable an establishment and its first Manager to begin using Scoops through one
+  direct onboarding flow.
+- Let Managers administer team access without granular permission configuration or
+  shared credentials.
+- Prevent cross-establishment access, incompatible profile actions, self-directed
+  administrative changes, and loss of the final active Manager.
+- Preserve immutable, attributable identity history while allowing immediate access
+  revocation.
+
+### Success metrics
+
+- At least 90% of completed onboardings confirm the account within 24 hours.
+- At least 90% of accepted invitations are completed without support intervention.
+- A Manager familiar with the flow can register or change a user in less than two
+  minutes.
+- 100% of the defined administrative actions produce the corresponding audit record.
+- No validation scenario permits cross-establishment access or an action incompatible
+  with the actor's profile.
+- The metrics are evaluated after launch to guide corrections and prioritization.
+
+## 5. Requirements
+
+### REQ-01 — Establishment Onboarding
+
+- [ ] **Implemented**
+
+**Outcome:** A new customer can create an establishment and activate its first
+Manager through a public, confirmed onboarding flow.
+
+**Actors:** Prospective Manager
+
+**Consumes:** Commercial onboarding and subscription lifecycle from the Billing
+module; transactional confirmation delivery from the Communication module.
+
+**Provides:** Pending and active establishment and first-Manager states consumed by
+REQ-02, REQ-10, REQ-13, and REQ-14.
+
+#### Capabilities
+
+- The public flow must require the establishment name, Manager name, email, and
+  password.
+- The establishment name is mandatory and may be duplicated by another
+  establishment.
+- The first user must receive the `Manager` profile and must not access Scoops before
+  confirming the account.
+- Confirmation must activate the establishment and first Manager together. The
+  verified confirmation session must become an authenticated local session and open
+  the main Scoops page without a second login.
+- Before activation, the Prospective Manager may return to the initial step and
+  correct only the first Manager's email. The establishment and Manager names must
+  remain populated, and saving the new email must require the registered password.
+- A corrected email must be valid and available. Failure must preserve the previous
+  address and pending onboarding; cancellation must return to pending confirmation
+  without changing the registration.
+- Saving a corrected email must invalidate the previous confirmation link and send a
+  new link without restarting the original seven-day deadline.
+- Unconfirmed onboarding must expire after seven days. Expiration must remove the
+  pending establishment and corresponding Billing record and release the email for a
+  new attempt.
+- Public user creation must not exist outside a new-establishment onboarding or valid
   invitation.
-- **Cancellation:** pending invitations can be canceled and removed
-  definitely.
-- **Activation:** the activated user must assume the profile chosen in the invitation.
-- **Guest manager:** a Manager can directly register another Manager.
+- Billing may accompany onboarding, but Billing owns commercial subscription rules.
 
-##### UI/UX rules
+#### Experience
 
-- **Interface:** present form with name, email and selection between the two
-  profiles, accompanied by a short explanation of each profile.
-- **Feedback:** inform shipping, resending, activation, expiration and cancellation.
-- **Empty state:** when there is only the first Manager, invite the
-  add the team.
-- **Action blocked:** duplicate email or temporary sending limit must be
-  informed along with the corresponding action.
-- **Responsiveness:** form and confirmations must fit on small screens.
-- **Accessibility:** profile selection and messages must be operable and
-  understandable by keyboard and screen reader.
-
----
-
-#### REQ-06 User Listing and Query
-
-- [ ] **User List and Consultation**
-
-**Description:** Managers must quickly locate users and understand their
-profile, status and recent activity.
-
-##### Business Rules
-
-- **Authorization:** only Managers can consult team management.
-- **Visible data:** the listing must present name, email, profile, status and
-  last access.
-- **Search:** must locate by name or email.
-- **Filters:** must filter by profile and status.
-- **States:** the listing must distinguish between `Pending`, `Active` and `Inactive`.
-- **Detail:** each user must have a view with data, available actions
-  and administrative history.
-- **Current account:** the authenticated user must not appear in this management list or
-  be available through its detail route; personal data is managed through My Account.
-- **Isolation:** no results can include users from another ice cream shop.
-- **Global summary:** the total team count and Manager/Operator counts must represent all
-  manageable users in the current ice cream shop, excluding the authenticated Manager, and
-  must not change when search, profile/status filters or pagination alter the table.
-
-##### UI/UX rules
-
-- **Interface:** use a responsive table or list with contextual actions.
-- **Feedback:** search, filters and loading must indicate the current state.
-- **Empty state:** distinguish absence of search team or filter without
-  results.
-- **Action blocked:** unavailable actions must be hidden or show the
-  reason for blocking.
-- **Responsiveness:** on narrow screens, prioritize name, profile and status and
-  move details to the dedicated view.
-- **Accessibility:** filters, lines and action menus must be navigable by
-  keyboard.
+- Present a short form with clear progress and language for the person responsible
+  for the establishment.
+- After submission, identify the address used and explain that confirmation is still
+  required. While confirmation is pending, block access to protected modules.
+- In pending confirmation, expose `Go back and correct`. Editing must preserve the
+  establishment and Manager names and focus the email field.
+- After a successful correction, return to pending confirmation, display the updated
+  address, and explain that a new message was sent.
+- Valid confirmation must open the authenticated main page. Invalid, expired, or used
+  links must guide the person to the valid next action.
+- The complete flow must work from 320 px. Fields must have labels, instructions,
+  visible focus, and errors announced by assistive technology.
 
 ---
 
-#### REQ-07 Promotion and Demotion
+### REQ-02 — Authentication and Session
 
-- [ ] **Promotion and Demotion**
+- [ ] **Implemented**
 
-**Description:** A Manager must be able to promote an Operator to Manager or
-demoting another Manager to Operator.
+**Outcome:** Active Managers and Operators can enter Scoops with individual
+credentials and remain authenticated only while their session is valid.
 
-##### Business Rules
+**Actors:** Manager, Operator
 
-- **Authorization:** only Managers can change another user's profile.
-- **Self-change:** the user cannot change their own profile.
-- **Promotion:** must immediately grant the full profile set
-  `Manager`.
-- **Demotion:** must immediately remove administrative and
-  preserve `New Sale` and `Orders`.
-- **Last Manager:** relegation must be blocked when leaving
-  ice cream shop without an active Manager.
-- **History:** the change must not modify the authorship of previous actions.
-- **Notification:** the affected user must be notified about the change.
+**Consumes:** Active establishment and first-Manager state from REQ-01; active invited
+user state from REQ-05; fixed authorization facts from REQ-04; active or inactive user
+state from REQ-08.
 
-##### UI/UX rules
+**Provides:** Current-session and session-expiration states consumed by REQ-09 and
+REQ-13.
 
-- **Interface:** display the action in user detail with access description
-  acquired or lost.
-- **Feedback:** require confirmation and report success or failure.
-- **Empty state:** not applicable.
-- **Action blocked:** explain the prohibition of self-change and the protection of
-  last Manager.
-- **Responsiveness:** confirmation must preserve reading and actions on screens
-  small.
-- **Accessibility:** focus must return to the trigger element after closing the
-  confirmation.
+#### Capabilities
+
+- The MVP must accept only email and password.
+- Only active users of active establishments may enter Scoops.
+- Authentication failures must not reveal whether an email is registered.
+- Five consecutive failed attempts must block new attempts for 15 minutes.
+- A session must expire after 30 minutes without interaction and require
+  re-authentication after seven days even if continuously used.
+- The same user may maintain sessions on multiple devices.
+- `Exit this device` must terminate only the current session.
+- When possible, unfinished work must be preserved for resumption after a new login.
+
+#### Experience
+
+- Present the Scoops brand, email and password fields, the primary entry action, and
+  access to recovery.
+- Distinguish loading, invalid credentials, temporary blocking, and expired session.
+  Pending, inactive, or otherwise unavailable accounts must receive guidance without
+  exposing internal data.
+- The form must remain readable and operable on mobile phones, tablets, and computers
+  and support keyboard use, screen readers, and password managers.
 
 ---
 
-#### REQ-08 Inactivation and Reactivation
+### REQ-03 — Password and Access Recovery
 
-- [ ] **Inactivation and Reactivation**
+- [ ] **Implemented**
 
-**Description:** Managers must revoke and restore user access without
-erase your identity or history.
+**Outcome:** A user can create or reset their own password without a Manager viewing
+or setting it.
 
-##### Business Rules
+**Actors:** Manager, Operator, Invited User
 
-- **Inactivation:** must immediately terminate all user sessions and
-  prevent new entries.
-- **Self-inactivation:** no user can inactivate their own account.
-- **Last Manager:** it should not be possible to inactivate the last active Manager.
-- **History:** active users must be inactivated, never deleted
-  individually.
-- **Reserved email:** an inactive user's email cannot be reused.
-- **Reactivation:** must restore access to the same account with the current profile.
-- **Password:** reactivation does not authorize the Manager to set a password.
-- **Notification:** the user must be notified about inactivation and reactivation.
+**Consumes:** Transactional recovery delivery from the Communication module.
 
-##### UI/UX rules
+**Provides:** Recovery request and password-change facts consumed by REQ-10, and link
+states consumed by REQ-13.
 
-- **Interface:** display status and corresponding action in user detail.
-- **Feedback:** inactivation should warn that open sessions will be closed.
-- **Empty state:** not applicable.
-- **Action blocked:** explain prohibited self-inactivation and protection of the latter
+#### Capabilities
+
+- Passwords must contain between 8 and 64 characters.
+- Managers must never view or set another user's password.
+- Password changes must use the recovery flow sent to the registered email.
+- A recovery link must be single-use and expire after one hour.
+- A successful reset must terminate all of the user's sessions.
+- Requests for registered and unregistered emails must produce the same response.
+- An address may receive at most three authentication messages in 24 hours, and
+  resubmissions must be at least two minutes apart.
+
+#### Experience
+
+- Request only the email when recovery begins and the new password after link
+  validation.
+- Confirm the request without revealing whether the account exists.
+- Expired or used links must guide the user to request another link.
+- The flow must avoid horizontal scrolling on small screens. Password requirements
+  and errors must be textual and must not rely only on color.
+
+---
+
+### REQ-04 — Profiles and Authorization
+
+- [ ] **Implemented**
+
+**Outcome:** Every protected area and action applies a predictable, fixed access model
+within the user's own establishment.
+
+**Actors:** Manager, Operator
+
+**Provides:** Fixed profile, authorization, establishment-isolation, self-change, and
+last-active-Manager facts consumed by REQ-02, REQ-05, REQ-06, REQ-07, REQ-08, REQ-09,
+REQ-11, REQ-13, and REQ-14.
+
+#### Capabilities
+
+- The only profiles are `Manager` and `Operator`; profiles cannot be created, renamed,
+  edited, duplicated, or deleted.
+- Individual permission grants or removals must not exist.
+- Managers have full access to all modules and configurations. Operators may access
+  only `New Sale` and `Orders`.
+- Direct addresses and shortcuts must not bypass authorization.
+- Every user and action must remain isolated to the user's establishment.
+- No user may promote or demote themselves, and no action may leave an establishment
+  without at least one active Manager.
+
+#### Experience
+
+- Display the profile as a fixed user attribute without granular permission controls.
+- Profile changes must present confirmation and their result.
+- Hide profile-incompatible actions and explain relevant administrative blocks.
+- Authorized navigation must remain accessible on narrow screens without covering
+  content. Active states and restrictions must not rely only on color.
+
+---
+
+### REQ-05 — User Registration and Invitation
+
+- [ ] **Implemented**
+
+**Outcome:** A Manager can invite a person to the same establishment with an approved
+profile while the invited person retains control of their password.
+
+**Actors:** Manager, Invited User
+
+**Consumes:** Fixed profile and authorization facts from REQ-04; transactional
+invitation delivery from the Communication module.
+
+**Provides:** Pending and active invited-user lifecycle facts consumed by REQ-02,
+REQ-06, REQ-07, REQ-08, REQ-10, REQ-13, and REQ-14.
+
+#### Capabilities
+
+- Only Managers may register users, and name, email, and profile are mandatory.
+- An email, compared without case differences, may belong to only one Scoops account.
+- An invited user must remain `Pending` until accepting the invitation and setting a
+  password, then become `Active` with the invited profile.
+- Invitations must expire after seven days. Resending must invalidate the previous
+  link and restart the deadline.
+- Before activation, a Manager may correct invitation data.
+- A pending invitation may be cancelled and permanently removed, invalidating its
+  link and releasing its email.
+- A Manager may invite another Manager directly.
+
+#### Experience
+
+- Present name, email, and the two profile choices with a short explanation of each.
+- Report sending, resending, activation, expiration, and cancellation states.
+- When the establishment contains only its first Manager, invite the Manager to add
+  the team.
+- Duplicate email and temporary sending limits must explain the blocked action.
+- Forms and confirmations must fit on small screens. Profile selection and messages
+  must work with keyboard and screen readers.
+
+---
+
+### REQ-06 — User Listing and Consultation
+
+- [ ] **Implemented**
+
+**Outcome:** A Manager can locate manageable users and understand each user's profile,
+status, recent activity, available actions, and administrative history.
+
+**Actors:** Manager
+
+**Consumes:** Authorization facts from REQ-04; user lifecycle facts from REQ-05,
+REQ-07, and REQ-08; administrative history from REQ-10.
+
+**Provides:** Team-management outcome facts consumed by REQ-14.
+
+#### Capabilities
+
+- Only Managers may consult team management.
+- The listing must show name, email, profile, status, and last access and support
+  search by name or email and filters by profile and status.
+- The listing must distinguish `Pending`, `Active`, and `Inactive` users.
+- Each manageable user must have a detail view with data, available actions, and
+  administrative history.
+- The authenticated user must not appear in the management list or be available
+  through its detail route; personal data belongs in `My Account`.
+- Results must never include users from another establishment.
+- Total team, Manager, and Operator counts must cover all manageable users in the
+  current establishment, exclude the authenticated Manager, and remain unchanged by
+  search, filters, or pagination.
+
+#### Experience
+
+- Use a responsive table or list with contextual actions and explicit search, filter,
+  and loading states.
+- Distinguish an establishment with no additional team from search or filter results
+  with no matches.
+- Hide unavailable actions or explain why they are blocked.
+- On narrow screens, prioritize name, profile, and status and move other information
+  to the detail view. Filters, rows, and action menus must be keyboard navigable.
+
+---
+
+### REQ-07 — Promotion and Demotion
+
+- [ ] **Implemented**
+
+**Outcome:** A Manager can align another active user's fixed profile with their current
+responsibility without losing historical authorship or the final active Manager.
+
+**Actors:** Manager
+
+**Consumes:** Fixed profile and last-active-Manager facts from REQ-04; active user facts
+from REQ-05; notification delivery from the Communication module.
+
+**Provides:** Profile-change facts consumed by REQ-06, REQ-10, REQ-13, and REQ-14.
+
+#### Capabilities
+
+- Only Managers may change another user's profile, and a user may not change their own
+  profile.
+- Promoting an Operator must immediately grant the full `Manager` profile.
+- Demoting a Manager must immediately remove administrative access while preserving
+  access to `New Sale` and `Orders`.
+- Demotion must be blocked when it would leave the establishment without an active
   Manager.
-- **Responsiveness:** actions must remain available without depending on hover.
-- **Accessibility:** status must have explicit text in addition to color.
+- A profile change must not alter authorship of previous actions.
+- The affected user must be notified of the change.
+
+#### Experience
+
+- Expose profile changes in user detail and describe the access to be gained or lost.
+- Require confirmation and report success or failure.
+- Explain self-change and final-Manager blocks.
+- Confirmation must remain readable and actionable on small screens, and focus must
+  return to the trigger after it closes.
 
 ---
 
-#### REQ-09 Personal Data and My Account
+### REQ-08 — Inactivation and Reactivation
 
-- [ ] **Personal Data and My Account**
+- [ ] **Implemented**
 
-**Description:** Every user must check their identity, change their
-name and close the current session.
+**Outcome:** A Manager can revoke or restore another user's access without deleting
+their identity, profile, reserved email, or history.
 
-##### Business Rules
+**Actors:** Manager
 
-- **First name:** any user can change their own name.
-- **Correction by Manager:** Managers can correct the name of other users.
-- **Active email:** email cannot be changed after activation.
-- **Snapshot:** name changes should not modify names preserved in
-  historical records.
-- **Profile:** the profile must be read-only in `My Account`.
-- **Exit:** there must only be the `Exit this device` action.
-- **Password:** there must be no direct password change within the session; the user
-  uses email recovery.
+**Consumes:** Authorization and last-active-Manager facts from REQ-04; user lifecycle
+facts from REQ-05; notification delivery from the Communication module.
 
-##### UI/UX rules
+**Provides:** Active and inactive user states consumed by REQ-02, REQ-06, REQ-10,
+REQ-13, and REQ-14.
 
-- **Interface:** display editable name, email and read-only profile and action
-  exit.
-- **Feedback:** name changes must inform saving, error and status
-  loading.
-- **Empty state:** not applicable.
-- **Action blocked:** immutable fields must explain why they cannot be
-  changed.
-- **Responsiveness:** the page must work entirely on cell phones.
-- **Accessibility:** read-only fields must be distinguishable without losing
-  readability.
+#### Capabilities
 
----
+- Inactivation must immediately terminate all of the user's sessions and prevent new
+  logins.
+- A user may not inactivate themselves, and the final active Manager may not be
+  inactivated.
+- Active users must be inactivated rather than individually deleted.
+- An inactive user's email remains reserved.
+- Reactivation must restore the same account with its current profile and must not let
+  the Manager set a password.
+- The user must be notified of inactivation and reactivation.
 
-#### REQ-10 Administrative Audit
+#### Experience
 
-- [ ] **Administrative Audit**
-
-**Description:** The module must maintain an immutable history of changes to
-identity and access carried out at the ice cream shop.
-
-##### Business Rules
-
-- **Actions audited:** register, resend invitation, cancel invitation, activate,
-  promote, demote, inactivate, reactivate, initiate recovery and change names.
-- **Content:** each record must identify action, affected user, responsible
-  and date and time.
-- **Changes:** when applicable, preserve previous value and new value.
-- **Secrets:** passwords, activation links and recovery content should never be
-  appear in the audit.
-- **Immutability:** records cannot be edited or removed
-  individually.
-- **Retention:** the audit remains for the entire life of the ice cream shop.
-- **Access:** only Managers can consult the audit.
-- **Time Zone:** dates must be displayed in São Paulo time.
-
-##### UI/UX rules
-
-- **Interface:** display timeline in user detail with action,
-  responsible and moment.
-- **Feedback:** loading and query failure must be reported.
-- **Empty state:** explain when there is still no change beyond creation.
-- **Action blocked:** Operators must not view entries or shortcuts to the
-  audit.
-- **Responsiveness:** events must reorganize their fields without truncating the action.
-- **Accessibility:** the chronological order and relationships must be
-  understandable outside of the visual presentation.
+- Display status and its corresponding action in user detail.
+- Inactivation confirmation must warn that open sessions will close and report
+  success or failure without changing state on failure.
+- Explain self-inactivation and final-Manager blocks.
+- Actions must remain available without hover. Status must use explicit text in
+  addition to color.
 
 ---
 
-#### REQ-11 Ice Cream Shop Management
+### REQ-09 — Personal Data and My Account
 
-- [ ] **Ice Cream Shop Management**
+- [ ] **Implemented**
 
-**Description:** Managers must consult and change the name of their own ice cream shop.
+**Outcome:** A Manager or Operator can inspect their identity, change their own name,
+and end the current session without changing immutable access attributes.
 
-##### Business Rules
+**Actors:** Manager, Operator
 
-- **Unique data:** the MVP institutional registration contains only the name of the company
-  ice cream shop.
-- **Change:** any Manager can change the name.
-- **Historical identity:** the change must not move users or data to
-  another ice cream shop.
-- **Audit:** the change must preserve the previous name, new name, person responsible
-  and moment.
-- **Duplicate names:** another ice cream shop may use the same name.
-- **Access:** Operators cannot consult or change this configuration.
+**Consumes:** Current-session facts from REQ-02; fixed profile facts from REQ-04.
 
-##### UI/UX rules
+**Provides:** Name-change facts consumed by REQ-10.
 
-- **Interface:** display the current name and a clear editing action.
-- **Feedback:** inform success, error and loading of the change.
-- **Empty status:** not applicable, as the name is mandatory from onboarding.
-- **Action blocked:** Operators must not see `Ice Cream Parlor` in the navigation.
-- **Responsiveness:** editing and feedback must work on cell phones.
-- **Accessibility:** the editing state must maintain label, instruction and focus
-  visible.
+#### Capabilities
 
----
+- Any user may change their own name, and Managers may correct another user's name.
+- Email cannot change after activation.
+- Name changes must not rewrite names preserved in historical records.
+- The profile must be read-only in `My Account`.
+- The only session-ending action is `Exit this device`.
+- Direct password change must not exist within an authenticated session; users must
+  use email recovery.
 
-#### REQ-12 Manual Exclusion of Ice Cream Parlor — Removed from Product
+#### Experience
 
-- [x] **Manual Exclusion of Ice Cream Parlor — Removed from Product**
-
-**Description:** The Scoops product does not expose a customer-initiated action
-to delete an ice cream shop. Identity settings must not provide a deletion
-danger zone, deletion dialog, password confirmation, name confirmation or
-customer-facing deletion endpoint.
-
-##### Business Rules
-
-- **Availability:** neither Managers nor Operators can initiate establishment
-  deletion from the product.
-- **Data lifecycle:** any future operational deletion or retention lifecycle is
-  owned by the applicable Billing and operational policies, outside this
-  Identity feature.
-- **History and legal retention:** removing the customer-facing action does not
-  authorize rewriting historical records or bypassing applicable fiscal
-  retention requirements.
-
-##### UI/UX rules
-
-- **Interface:** do not display a deletion danger zone or deletion action in
-  establishment settings or navigation.
-- **Feedback:** no deletion confirmation or deletion-progress state is part of
-  the Identity product surface.
-- **Action blocked:** direct attempts to call an unexposed deletion operation
-  must not be accepted as a supported Identity workflow.
+- Display editable name, immutable email, read-only profile, and the current-device
+  exit action.
+- Name changes must expose saving, loading, success, and error states and preserve the
+  previous value on failure.
+- Immutable fields must explain why they cannot be changed.
+- The page must work completely on mobile phones, and read-only fields must remain
+  visually distinguishable and readable.
 
 ---
 
-#### REQ-13 Navigation, States and Quality of Experience
+### REQ-10 — Administrative Audit
 
-- [ ] **Navigation, States and Quality of Experience**
+- [ ] **Implemented**
 
-**Description:** Identity must offer coherent navigation, clear states and
-an accessible experience across all streams.
+**Outcome:** Managers can reconstruct identity and access changes from an immutable,
+establishment-scoped administrative history that excludes secrets.
 
-##### Business Rules
+**Actors:** Manager
 
-- **Users:** available only to Managers.
-- **Ice Cream Parlor:** available only to Managers.
-- **My account:** available for Managers and Operators in the user menu.
-- **State coverage:** there must be states for pending confirmation,
-  pending invitation, expired link, link already used, inactive account, access
-  denied, communication failure and session expired.
-- **Consistency:** hidden menus do not replace the validation of protected actions.
-- **Authorship:** relevant actions must always remain associated with the user
-  who carried them out.
+**Consumes:** Onboarding facts from REQ-01; recovery facts from REQ-03; invitation and
+activation facts from REQ-05; profile-change facts from REQ-07; inactivation and
+reactivation facts from REQ-08; name-change facts from REQ-09; establishment-name facts
+from REQ-11.
 
-##### UI/UX rules
+**Provides:** Administrative history consumed by REQ-06 and audit-completeness facts
+consumed by REQ-14.
 
-- **Interface:** follow the Scoops design system, with Manrope, surfaces
-  neutral colors, purple as the brand color and Lucide icons.
-- **Feedback:** every action that awaits a response must present loading,
-  success and error.
-- **Empty state:** each list without content must explain the situation and offer
-  the next valid action.
-- **Action blocked:** messages should explain why and, where possible, how
-  resolve.
-- **Responsiveness:** all flows must work from 320 px without
-  Mandatory horizontal scrolling.
-- **Accessibility:** meet WCAG 2.2 level AA, with contrast, visible focus,
-  keyboard navigation, labels, announced messages and appropriate touch targets.
+#### Capabilities
 
----
+- The audit must cover registration, invitation resend, invitation cancellation,
+  activation, promotion, demotion, inactivation, reactivation, recovery initiation,
+  and user or establishment name changes.
+- Each record must identify the action, affected user or establishment, responsible
+  actor, and date and time; when applicable, it must preserve the previous and new
+  values.
+- Passwords, activation links, and recovery content must never appear in the audit.
+- Records must not be individually edited or removed and must remain for the lifetime
+  of the establishment.
+- Only Managers may consult the audit.
+- Dates must be displayed in São Paulo time.
 
-#### REQ-14 MVP Success Criteria
+#### Experience
 
-- [ ] **MVP Success Criteria**
-
-**Description:** Product performance must be monitored by indicators of
-activation, administrative autonomy and functional security.
-
-##### Business Rules
-
-- **Onboarding:** at least 90% of completed onboardings must confirm the account
-  within 24 hours.
-- **Invitations:** at least 90% of accepted invitations must be completed without
-  supportive intervention.
-- **Efficiency:** user registration or change must be able to be completed in
-  less than two minutes by a Manager familiar with the flow.
-- **Audit:** 100% of the planned administrative actions must produce the
-  corresponding record.
-- **Authorization:** no validation scenario can allow access between
-  ice cream shops or action incompatible with the profile.
-- **Monitoring:** indicators must be evaluated after launch to
-  guide corrections and prioritization.
-
-##### UI/UX rules
-
-- **Interface:** events required for measurement should not add steps to the
-  user flow.
-- **Feedback:** failures that prevent completion must be distinguishable from abandonment
-  voluntary.
-- **Empty state:** reports without sufficient volume must indicate no
-  conclusive sample.
-- **Action blocked:** not applicable to everyday use of the module.
-- **Responsiveness:** any future visualization of the indicators must follow the
-  responsive product pattern.
-- **Accessibility:** indicators should not depend solely on color.
+- Display the user's administrative history as a chronological timeline with action,
+  responsible actor, and moment.
+- Report loading and query failure. When no change exists beyond creation, explain
+  that only the initial record is available.
+- Operators must not see audit entries or shortcuts.
+- Events must reorganize on narrow screens without truncating the action, and their
+  chronology and relationships must remain understandable outside the visual layout.
 
 ---
 
-### 5. User Flow
+### REQ-11 — Establishment Management
 
-#### Flow A - Create ice cream shop and first Manager
+- [ ] **Implemented**
 
-1. The person responsible initiates public onboarding.
-2. The system requests the name of the ice cream shop, the name of the Manager, email and password.
-3. The person responsible sends the registration.
-4. The system keeps the ice cream shop and bill pending and requests confirmation.
-5. In the pending confirmation, the person responsible can select `Go back and correct`:
-   - The system returns to the initial stage in editing mode, preserving the name of the
-     ice cream shop and the name of the Manager and focuses on the email.
-   - The person responsible changes the email, enters the password again and saves it.
-   - Success: the system invalidates the previous link, sends a new confirmation,
-     returns to the pending stage and maintains the original seven-day deadline.
-   - Invalid or unavailable email: preserves the previous address and displays
-     the reason for the necessary correction.
-   - Cancellation: returns to pending confirmation without changing the registration.
-6. The person responsible confirms the account:
-   - Success: ice cream shop and first Manager become active.
-   - Invalid link, already used or expired: the system instructs you to resend the
-     confirmation, new registration or entry, if the account is already active.
-7. The Manager enters Scoops and starts configuring the operation.
+**Outcome:** A Manager can inspect and change the name of their own establishment
+without changing its identity, membership, data ownership, or historical snapshots.
 
-#### Flow B - Enter Scoops
+**Actors:** Manager
 
-1. The user enters email and password.
-2. The system validates the account, ice cream shop and previous attempts.
-3. The system decides:
-   - Success: opens the first authorized area for the profile.
-   - Invalid credentials: presents a neutral message and preserves the email.
-   - Temporary blocking: informs you when it will be possible to try again.
-   - Pending or inactive account: guides the user without revealing internal data.
-4. After inactivity or maximum duration, the system requests a new login.
+**Consumes:** Manager authorization and establishment-isolation facts from REQ-04.
 
-#### Flow C - Regain access
+**Provides:** Establishment-name change facts consumed by REQ-10.
 
-1. User selects `I forgot my password`.
-2. Enter the email.
-3. The system presents the same confirmation regardless of the existence of the
-   account.
-4. The user opens a valid link and sets the new password.
-5. The system validates:
-   - Success: change the password and close previous sessions.
-   - Expired or used link: guides new request.
-6. The user logs in again.
+#### Capabilities
 
-#### Flow D - Invite user
+- The MVP establishment record contains only the establishment name.
+- Any Manager may change the name, and the name may duplicate another establishment's
+  name.
+- A name change must not move users or data to another establishment.
+- The change must preserve the previous name, new name, responsible actor, and moment
+  for audit.
+- Operators may not consult or change this configuration.
 
-1. A Manager goes to `Users` and selects `Invite user`.
-2. Provide your name, email and profile.
-3. The system validates uniqueness and mandatory fields.
-4. The Manager confirms the shipment.
-5. The registration appears as `Pending`.
-6. The guest accepts the invitation and sets the password:
-   - Success: the user becomes `Active` with the chosen profile.
-   - Expired link: the Manager can resend a new invitation.
+#### Experience
 
-#### Flow E - Cancel pending invitation
+- Display the current name and a clear edit action with loading, success, and error
+  feedback.
+- The name has no empty state because onboarding requires it.
+- Operators must not see `Ice Cream Parlor` in navigation.
+- Editing and feedback must work on mobile phones and preserve labels, instructions,
+  and visible focus.
 
-1. The Manager opens a `Pending` user.
-2. Select `Cancel invitation`.
-3. The system informs you that the link will no longer be valid and the registration will be removed.
-4. The Manager confirms:
-   - Success: the invitation is invalidated and the email released.
-   - Failed: registration remains pending.
+---
 
-#### Flow F - Promote Operator
+### REQ-12 — Customer-Initiated Establishment Deletion Removed
 
-1. The Manager opens an active Operator.
-2. Select `Promote to Manager`.
-3. The system lists the access that will be granted.
-4. The Manager confirms.
-5. User receives full access, audit log and notification.
+- [ ] **Implemented**
 
-#### Flow G - Demote Manager
+**Outcome:** Customers cannot initiate establishment deletion through Identity, while
+historical and policy-governed data lifecycles remain outside this product surface.
 
-1. The Manager opens another active Manager.
-2. Select `Demote to Operator`.
-3. The system validates:
-   - There is another Manager active: allows to continue.
-   - The action would leave the ice cream shop without a Manager: block and explain the rule.
-4. The Manager confirms.
-5. The user now only accesses `New Sale` and `Orders` and is notified.
+**Actors:** Manager, Operator
 
-#### Flow H - Inactivate user
+#### Capabilities
 
-1. The Manager opens another active user.
-2. Select `Inactivate`.
-3. The system validates self-inactivation and protection of the last Manager.
-4. The system informs you that existing accesses will be closed.
-5. The Manager confirms:
-   - Success: the user becomes `Inactive`, loses access and is notified.
-   - Failed: no state is changed.
+- Neither Managers nor Operators may initiate establishment deletion from the product.
+- Identity must not expose a customer-facing deletion endpoint.
+- Any future operational deletion or retention lifecycle belongs to applicable Billing
+  and operational policies outside this Identity feature.
+- Removing the customer-facing action must not authorize rewriting historical records
+  or bypassing applicable fiscal retention requirements.
 
-#### Flow I - Reactivate user
+#### Experience
 
-1. The Manager filters inactive users.
-2. Open the desired account and select `Reactivate`.
-3. The system preserves and displays the current profile.
-4. The Manager confirms.
-5. The user becomes active and receives a notification.
+- Establishment settings and navigation must not display a deletion danger zone,
+  deletion action, deletion dialog, password confirmation, name confirmation, or
+  deletion-progress state.
+- Direct attempts to call an unexposed deletion operation must not be accepted as a
+  supported Identity workflow.
 
-#### Flow J - Consult audit
+---
+
+### REQ-13 — Navigation, States, and Quality of Experience
+
+- [ ] **Implemented**
+
+**Outcome:** Managers and Operators can understand and recover from Identity states
+through coherent, authorized, responsive, and accessible navigation and feedback.
+
+**Actors:** Manager, Operator, Prospective Manager, Invited User
+
+**Consumes:** Onboarding states from REQ-01; session states from REQ-02; recovery states
+from REQ-03; authorization facts from REQ-04; invitation states from REQ-05; profile
+change facts from REQ-07; active and inactive states from REQ-08.
+
+#### Capabilities
+
+- `Users` and `Ice Cream Parlor` are available only to Managers. `My Account` is
+  available to Managers and Operators from the user menu.
+- Identity must cover pending confirmation, pending invitation, expired link, used
+  link, inactive account, access denied, communication failure, and expired session.
+- Hidden navigation must not replace authorization of protected actions.
+- Relevant actions must remain associated with the user who performed them.
+
+#### Experience
+
+- Follow the Scoops design system with Manrope, neutral surfaces, purple brand color,
+  and Lucide icons.
+- Every action awaiting a response must expose loading, success, and error states.
+- Every empty list must explain the situation and offer the next valid action.
+- Blocked-action messages must explain why and, when possible, how to recover.
+- All flows must work from 320 px without mandatory horizontal scrolling.
+- Meet WCAG 2.2 Level AA with sufficient contrast, visible focus, keyboard navigation,
+  labels, announced messages, and appropriate touch targets.
+
+---
+
+### REQ-14 — Outcome Measurement
+
+- [ ] **Implemented**
+
+**Outcome:** Identity performance can be evaluated against the approved activation,
+administrative-autonomy, audit, and authorization success metrics.
+
+**Actors:** System
+
+**Consumes:** Onboarding outcome facts from REQ-01; authorization facts from REQ-04;
+invitation outcome facts from REQ-05; team-management outcome facts from REQ-06;
+profile-change facts from REQ-07; access-status facts from REQ-08; audit-completeness
+facts from REQ-10.
+
+#### Capabilities
+
+- Measurement must support every metric defined in Objectives and Success Metrics.
+- Required measurement events must not add steps to a user's flow.
+- Failures that prevent completion must be distinguishable from voluntary abandonment.
+- Metrics must be evaluated after launch to guide corrections and prioritization.
+
+## 6. Product Dependency Graph
+
+An edge points from the provider of a product capability or authoritative fact to the
+requirement that consumes it.
+
+```mermaid
+flowchart LR
+    Billing["Billing module"] --> REQ01["REQ-01 Onboarding"]
+    Communication["Communication module"] --> REQ01
+    Communication --> REQ03["REQ-03 Recovery"]
+    Communication --> REQ05["REQ-05 Invitation"]
+    Communication --> REQ07["REQ-07 Profile changes"]
+    Communication --> REQ08["REQ-08 Access status"]
+
+    REQ01 --> REQ02["REQ-02 Authentication"]
+    REQ01 --> REQ10["REQ-10 Audit"]
+    REQ01 --> REQ13["REQ-13 Experience states"]
+    REQ01 --> REQ14["REQ-14 Measurement"]
+
+    REQ02 --> REQ09["REQ-09 My Account"]
+    REQ02 --> REQ13
+    REQ03 --> REQ10
+    REQ03 --> REQ13
+
+    REQ04["REQ-04 Authorization"] --> REQ02
+    REQ04 --> REQ05
+    REQ04 --> REQ06["REQ-06 User consultation"]
+    REQ04 --> REQ07
+    REQ04 --> REQ08
+    REQ04 --> REQ09
+    REQ04 --> REQ11["REQ-11 Establishment management"]
+    REQ04 --> REQ13
+    REQ04 --> REQ14
+
+    REQ05 --> REQ02
+    REQ05 --> REQ06
+    REQ05 --> REQ07
+    REQ05 --> REQ08
+    REQ05 --> REQ10
+    REQ05 --> REQ13
+    REQ05 --> REQ14
+
+    REQ06 --> REQ14
+    REQ07 --> REQ06
+    REQ07 --> REQ10
+    REQ07 --> REQ13
+    REQ07 --> REQ14
+    REQ08 --> REQ02
+    REQ08 --> REQ06
+    REQ08 --> REQ10
+    REQ08 --> REQ13
+    REQ08 --> REQ14
+    REQ09 --> REQ10
+    REQ10 --> REQ06
+    REQ10 --> REQ14
+    REQ11 --> REQ10
+```
+
+## 7. User Journeys
+
+### Journey A — Create an establishment and first Manager
+
+1. The Prospective Manager starts public onboarding.
+2. The system requests the establishment name, Manager name, email, and password.
+3. The Prospective Manager submits the registration.
+4. The system keeps the establishment and Billing record pending and requests
+   confirmation.
+5. From pending confirmation, the Prospective Manager may select `Go back and
+   correct`:
+   - The system returns to the initial step in edit mode, preserves both names, and
+     focuses the email.
+   - The Prospective Manager changes the email, re-enters the password, and saves.
+   - Success: the system invalidates the previous link, sends another confirmation,
+     returns to pending confirmation, and preserves the original seven-day deadline.
+   - Invalid or unavailable email: the system preserves the previous address and
+     explains the required correction.
+   - Cancellation: the system returns to pending confirmation without changing the
+     registration.
+6. The Prospective Manager opens the confirmation link:
+   - Success: the establishment and first Manager become active, and the verified
+     session opens the authenticated Scoops main page without another login.
+   - Invalid, used, or expired link: the system guides confirmation resend, new
+     registration, or login when the account is already active.
+
+### Journey B — Enter Scoops
+
+1. The Manager or Operator enters email and password.
+2. The system validates credentials, account and establishment state, authorization,
+   and previous attempts.
+3. The system resolves the attempt:
+   - Success: it opens the first authorized area for the profile.
+   - Invalid credentials: it presents a neutral message and preserves the email.
+   - Temporary blocking: it explains when another attempt is allowed.
+   - Pending or inactive account: it guides the user without revealing internal data.
+4. After inactivity or maximum session duration, the system requests a new login and,
+   when possible, preserves unfinished work for resumption.
+
+### Journey C — Regain access
+
+1. The user selects `I forgot my password` and enters an email.
+2. The system presents the same confirmation whether or not the account exists.
+3. The user opens a valid link and enters a new password.
+4. The system validates the link and password:
+   - Success: it changes the password and closes all previous sessions.
+   - Expired or used link: it guides the user to request another link.
+5. The user logs in again.
+
+### Journey D — Invite a user
+
+1. A Manager opens `Users`, selects `Invite user`, and provides name, email, and
+   profile.
+2. The system validates required fields and global email uniqueness.
+3. The Manager confirms sending.
+4. The invited user appears as `Pending` and opens the invitation to set a password:
+   - Success: the user becomes `Active` with the invited profile.
+   - Expired link: the Manager may resend a new invitation, invalidating the old link.
+
+### Journey E — Cancel a pending invitation
+
+1. The Manager opens a `Pending` user and selects `Cancel invitation`.
+2. The system explains that the link will become invalid and the pending registration
+   will be removed.
+3. The Manager confirms:
+   - Success: the invitation is invalidated, the registration removed, and the email
+     released.
+   - Failure: the registration remains pending.
+
+### Journey F — Promote an Operator
+
+1. The Manager opens an active Operator and selects `Promote to Manager`.
+2. The system lists the access that will be granted.
+3. The Manager confirms.
+4. The user receives full Manager access, an audit record is created, and the user is
+   notified.
+
+### Journey G — Demote a Manager
+
+1. The Manager opens another active Manager and selects `Demote to Operator`.
+2. The system validates the final-active-Manager rule:
+   - Another active Manager exists: the action may continue.
+   - Demotion would leave no active Manager: the system blocks and explains the rule.
+3. The Manager confirms.
+4. The affected user retains only `New Sale` and `Orders`, an audit record is created,
+   and the user is notified.
+
+### Journey H — Inactivate a user
+
+1. The Manager opens another active user and selects `Inactivate`.
+2. The system validates self-inactivation and final-active-Manager protection and warns
+   that existing sessions will close.
+3. The Manager confirms:
+   - Success: the user becomes `Inactive`, loses access, and is notified.
+   - Failure: no state changes.
+
+### Journey I — Reactivate a user
+
+1. The Manager filters for inactive users, opens the desired account, and selects
+   `Reactivate`.
+2. The system displays and preserves the current profile.
+3. The Manager confirms.
+4. The user becomes active with the same profile and receives a notification.
+
+### Journey J — Consult administrative history
 
 1. The Manager opens a user's detail.
 2. The system displays the administrative timeline.
-3. The Manager identifies action, person responsible, timing and applicable changes.
-4. If there are no additional events, the system explains that there is only the
-   initial registration.
+3. The Manager identifies each action, responsible actor, moment, and applicable value
+   changes.
+4. If no event exists beyond creation, the system explains that only the initial
+   registration is available.
 
-#### Flow K - Change the name of the ice cream shop
+### Journey K — Change the establishment name
 
-1. The Manager accesses `Ice Cream Parlor`.
-2. Change the name and confirm.
-3. The system validates that the value is not empty.
-4. The system saves the change and records the audit.
-5. The new name will appear in future areas without changing history.
+1. The Manager opens `Ice Cream Parlor`, changes the name, and confirms.
+2. The system validates that the name is not empty.
+3. The system saves the change and records the previous name, new name, responsible
+   Manager, and moment.
+4. The new name appears in future product surfaces without rewriting history.
 
-#### Flow L - Change your own name and exit
+### Journey L — Change your own name and exit
 
-1. User opens `My Account`.
-2. Change the name:
-   - Success: the new name will be displayed in future uses.
+1. The Manager or Operator opens `My Account` and changes their name:
+   - Success: the new name appears in future uses without rewriting historical names.
    - Failure: the previous value is preserved.
-3. When desired, select `Leave this device`.
-4. Only the current session is closed and the user returns to login.
+2. When desired, the user selects `Exit this device`.
+3. Only the current session closes, and the user returns to login.
 
----
+## 8. Out of Scope
 
-### 6. Out of Scope
-
-- Multiple ice cream shops linked to the same account.
-- Hierarchy of groups, branches or franchises.
+- Multiple establishments linked to one account.
+- Group, branch, or franchise hierarchy.
 - Profiles beyond `Manager` and `Operator`.
-- Customized profiles and individual permissions.
-- Personal or shared codes for quick access at the POS.
+- Custom profiles and individual permissions.
+- Personal or shared codes for quick point-of-sale access.
 - Two-factor authentication.
-- Social, corporate or passwordless login.
-- Change of email after activation.
+- Social, corporate, or passwordless login.
+- Email changes after activation.
 - Direct password change within `My Account`.
-- Manual action to terminate all sessions.
+- A manual action to terminate all sessions.
 - Individual deletion of users with history.
-- Information about the ice cream shop in addition to the name.
-- Super administrator, impersonation or global access to ice cream shops.
-- Customer-initiated deletion of the ice cream shop from the product.
-- The operational deletion and retention lifecycle, including any future
-  automatic deletion policy.
+- Establishment information beyond its name.
+- Super administrator, impersonation, or global establishment access.
+- Customer-initiated establishment deletion.
+- The operational deletion and retention lifecycle, including a future automatic
+  deletion policy.
 - Data export before deletion.
-- Operational settings for stock, sales, printing or menu within the
-  Identity.
+- Stock, sales, printing, or menu settings within Identity.
 
-#### Discarded during definition
+### Discarded during definition
 
-- **Custom profiles:** dropped in favor of just `Manager` and
-  `Operator`, reducing configuration and unexpected combinations.
-- **Individual permissions:** replaced by fixed sets per profile.
-- **PIN at POS:** discarded; Access uses email and password.
-- **Multiple ice cream shops per user:** discarded to maintain a single link in the
-  MVP.
-- **Additional institutional data:** corporate name, documents, contacts and
-  address were considered and removed; the ice cream shop only has a name.
-- **Authenticated password change:** replaced exclusively by recovery
-  by email.
-- **Single session:** discarded; multiple devices can remain active.
-- **End all sessions manually:** discarded; the interface offers
-  only output from current device.
-- **Customer-initiated deletion:** removed from the product; Identity settings
-  do not expose a deletion action or confirmation flow.
-- **Super Administrator:** discarded to prevent global access to ice cream shops.
+- **Custom profiles:** discarded in favor of only `Manager` and `Operator`, reducing
+  configuration and unexpected combinations.
+- **Individual permissions:** replaced by fixed permission sets for each profile.
+- **Point-of-sale PIN:** discarded; access uses email and password.
+- **Multiple establishments per user:** discarded to preserve a single establishment
+  relationship in the MVP.
+- **Additional institutional data:** corporate name, documents, contacts, and address
+  were considered and removed; the establishment contains only a name.
+- **Authenticated password change:** replaced exclusively by email recovery.
+- **Single session:** discarded; multiple devices may remain active.
+- **Manual termination of all sessions:** discarded; the interface offers only
+  `Exit this device`.
+- **Customer-initiated deletion:** removed from the product; Identity settings expose
+  no deletion action or confirmation flow.
+- **Super Administrator:** discarded to prevent global establishment access.

@@ -1,6 +1,6 @@
 ---
 title: MRP product details Accompaniments tab and type management — implementation plan
-status: ready
+status: completed
 spec: ./spec.md
 spec_revision: 7
 evaluation: ./evaluation.md
@@ -10,11 +10,11 @@ updated_at: 2026-08-23
 
 ## Execution status
 
-- **Spec:** [`spec.md`](./spec.md) — revision `7`, `in_progress`.
+- **Spec:** [`spec.md`](./spec.md) — revision `7`, `completed`.
 - **Rationale:** Plan-backed execution is required because the Contract crosses Core, Validation, transactional Server persistence and migration generation, REST composition, generated routing, design-backed Web surfaces, concurrency/security checks and real full-stack validation.
-- **Current phase:** F7 — revision-7 compact neutral shared back-link styling.
-- **Next action:** Keep the implementation ready; route to `conclude-spec` only when delivery/PR publication is explicitly requested.
-- **Active blockers:** None for implementation readiness. The local foreign Manager browser fixture remains unavailable and is covered by the documented HTTP isolation evidence. Revision 2 moved the real browser/server/database suite to `apps/web/tests/integration/mrp` so mocked route suites remain compliant with the Web Routing Rule.
+- **Current phase:** F7-C1 — completed current-head Web CI correction for browser-suite topology and deterministic loading-state evidence.
+- **Next action:** Post-merge monitoring and normal PR review.
+- **Active blockers:** None. The local foreign Manager browser fixture remains unavailable and is covered by the documented HTTP isolation evidence. Revision 2 moved the real browser/server/database suite to `apps/web/tests/integration/mrp` so mocked route suites remain compliant with the Web Routing Rule.
 - **Builders:** F1 Builder Core `01a02b41-b899-7dc3-8463-136f7815f994` is complete. Wave 2 activates Builder Server for F2, reuses Builder Core for F3, and activates Builder Web for F4; Builder Web is reused for F6 after the Server boundary is integrated.
 - **Coordination:** The Orchestrator owns this Plan, `evaluation.md`, package/lockfile changes, generated Drizzle migration/meta, `apps/web/src/routeTree.gen.ts`, final integration and evidence verdicts. No dependency or lockfile change is planned.
 
@@ -29,6 +29,7 @@ updated_at: 2026-08-23
 | 3 | `Builder Server` | F5 | REST composition and controller integration | F2, F3 | — | `completed` | All eight real HTTP operations pass mapping, authorization, tenant, persistence, constraint and no-stock-side-effect evidence. |
 | 4 | `Builder Web` | F6 | Real authenticated browser integration | F4, F5 | — | `completed` | Serial Playwright flow proves the committed Web → REST → PostgreSQL lifecycle, security and stock invariance; foreign-tenant HTTP isolation remains in F5 because the local stack has no prepared foreign browser account. |
 | 5 | `Orchestrator` | F7 | Integrated conformance and readiness | F6 | Integrated Reviewer | `completed` | Revision-7 compact neutral shared back-link styling, focused validation, fresh screenshots and same-Reviewer recheck are complete; delivery publication remains explicit. |
+| 6 | `Builder Web` / `Orchestrator` | F7-C1 | Current-head Web CI correction | F7 | — | `completed` | Generic Web CI runs only mocked route coverage with one worker, candidate/Recipe loading tests are deterministic, the serial route suite passes 108/108, and Evaluation evidence is refreshed. |
 
 ### F1 — Shared domain and validation contracts
 
@@ -157,6 +158,16 @@ updated_at: 2026-08-23
 - **Outcome:** The shared `BackLink` matches the supplied old-style reference through compact neutral token styling, dark foreground/icon treatment and medium-weight label typography while preserving Anchor semantics and consumer-owned navigation.
 - **Rules:** `documentation/rules/ui-layer-rules.md`; `documentation/rules/widget-testing-rules.md`; `documentation/design.md`.
 - **Exit:** Focused Types and Product Details route scenarios pass, fresh desktop/narrow screenshots are captured and inspected, Web code/type checks pass, and the same Integrated Reviewer recheck reports no actionable findings.
+
+#### F7-C1 — Correct Web CI browser-suite topology and loading-state determinism
+
+- **Status/owner:** `completed` — Builder Web `01a02f14-5d39-7473-92c4-a4045ddcd233` (reused ownership assignment; exact activation recorded in Evaluation before source edits)
+- **Depends/parallel:** Resumes after the current-head Web CI failure; no parallel Web implementation path.
+- **Paths:** `.github/workflows/web-app-ci.yml`, `apps/web/tests/routes/mrp/products.$productId.accompaniments.test.ts`, `apps/web/tests/routes/mrp/products.$productId.recipe.test.ts`, and factual validation guidance under `documentation/tooling.md`.
+- **Contract:** `RF-10`, `CA-13`, plus the validation boundary that mocked Web route CI is distinct from the real-service browser scenario.
+- **Outcome:** Web CI runs only the mocked route suite with one worker and does not invoke the live-service integration without its required services; candidate and Recipe loading assertions hold requests explicitly, and the Recipe production-preview fixture supplies the Product Details stock response so the documented loading, retry and recovery behavior is deterministic.
+- **Rules:** `documentation/rules/web-app-routing-rules.md`, `documentation/rules/widget-testing-rules.md`, `documentation/rules/code-conventions-rules.md`, `documentation/tooling.md`.
+- **Exit:** `pnpm --filter web exec playwright test tests/routes --workers=1` passes 108/108; the focused correction scenarios, Web code/type checks and diff check pass; the real authenticated integration remains separately runnable with healthy Server/Supabase services; and Evaluation records fresh current-candidate evidence.
 
 ## Validation and handoff
 

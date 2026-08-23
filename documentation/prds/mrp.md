@@ -1,733 +1,777 @@
-### 1. Overview
+# MRP Product Requirements Document
 
-**MRP/Scoops Stock** is the operational area responsible for registering
-products, organize brands, control balances, define recipes, register
-productions and set up accompaniments.
+## 1. Executive Summary
 
-The module connects the composition of products to available stock. From
-a recipe and current balances, the manager can know how much he can produce,
-which ingredients limit production and what is the operating cost of the recipe.
+MRP, presented as Scoops Stock, is the operational module for products, categories, brands,
+inventory, recipes, production, and accompaniments. It gives Managers a unified view of the
+`product → brand → recipe → production → stock` cycle so they can identify constraints before
+production, understand current recipe cost, maintain reliable balances, and expose products and
+availability to PDV without transferring ownership of MRP rules.
 
-Quantities displayed in the current design use grams. The stock unit is
-inherited by product-dependent data such as brands, recipes and sizes.
+Products, brands, recipes, productions, balances, and stock transactions are isolated by
+establishment. Product-dependent quantities inherit the product stock unit; the current approved
+experience presents weight quantities in grams.
 
-**Objective:** give the manager control and predictability over the cycle
-`product → brand → recipe → production → stock`.
+## 2. Problem and Opportunity
 
-**Problem solved:** without an integrated vision, the lack of ingredients is only
-perceived during production, causing delays and lost sales. It is also
-difficult to understand how much a manufacturable product consumes and what its cost is
-operational.
+Without an integrated product, recipe, and stock view, ingredient shortages are often discovered
+only when production begins. Managers cannot reliably predict how much can be produced, which
+ingredient limits output, or the current operating cost of a recipe. Fragmented brand, packaging,
+and balance controls also make automatic stock consumption difficult to explain.
 
-**Delivered value:** allows you to identify stock restrictions before production,
-calculate COGS in real time, control brands and packaging, produce with low
-atomic and keep products ready for sale at the POS.
+The opportunity is to make MRP the authoritative operational source for catalog, stock, recipes,
+production, and accompaniments. By recalculating cost and capacity from current product and brand
+facts, preserving an immutable movement history, and applying production stock changes atomically,
+Scoops can surface constraints before they cause delays or lost sales and provide PDV with stable
+product and availability boundaries.
 
-**Users:** Manager manages products, brands, recipes, production and configurations.
+## 3. Target Audience
 
-**Multi-tenancy:** products, brands, recipes, productions and balances are isolated
-by ice cream shop.
+### Primary audience
 
----
+- **Manager:** manages products, categories, brands, balances, recipes, production,
+  accompaniments, and product-dependent commercial configuration for one establishment.
 
-### 2. Requirements
+### Secondary audience
 
-#### REQ-01 Registration and Product Categories
+- **Authorized operational user:** consults products, balances, statuses, and stock-movement
+  history within the access granted by Identity.
+- **Operator:** may use MRP information exposed to permitted operational surfaces, but cannot
+  read, preview, or register production in this version.
 
-- [ ] **Registration and Product Categories**
+### Non-audience
 
-**Description:** The system must allow registering a product with one or more
-categories, unit, stock control and status.
+- Establishment customers and sales operators performing cart, order, payment, or reconciliation
+  work; those experiences belong to PDV.
+- Users managing authentication, profiles, plans, subscriptions, financial reporting, or BI;
+  those outcomes belong to their owning modules.
 
-##### Business Rules
+### Context, pains, needs, and Jobs to Be Done
 
-- **Name:** mandatory and unique within the ice cream shop.
-- **Unit:** belongs to the product and is inherited by brands, recipes, sizes and
-  dependent operations.
-- **Available units:** the model can support `g`, `ml`, `kg`, `l` and `un`,
-  but the examples and current design must use grams.
-- **Control:** the product can use `Single stock` or `By brand`.
-- **Default:** new products start with `Single stock`.
-- **Categories:** `Ingredient`, `Manufacturable`, `Portion`, `Side dish` and
-  `Resale`.
-- **Portion and Resale:** are mutually exclusive.
-- **Manufacturable:** enables recipe and production, but does not make the product salable
-  alone.
-- **Portion:** represents the fractional sale of a bulk stock and requires at least
-  one less size to appear in the POS.
-- **Accompaniment:** represents a product that can be linked to a Portion.
-- **Resale:** represents sale in entire packaging.
-- **Combinations:** Manufacturable + Portion is allowed; Manufacturable without Portion can
-  be produced without appearing in the POS; Accompaniment + Portion or Resale is
-  allowed.
-- **Status:** inactive product remains registered, but does not appear in operations
-  new ones.
-- **Ideal stock:** optional; when completed, allows you to classify the stock
-  as Normal or Low.
-- **Internal notes:** free text visible only to authorized users
-  by the Auth module.
-- **Single-stock current unit cost:** an Ingredient product with `Single stock`
-  can keep its current acquisition cost per base unit. The value is optional while
-  registering the product, but must be defined before that product can be added to a
-  recipe.
-- **Cost maintenance:** the manager may define or replace the current unit cost during
-  product registration, in product settings or while registering a positive stock entry.
-  The latest explicitly informed value applies to future recipe and production
-  calculations; it does not recalculate historical transactions or productions.
-- **Cost validation:** a supplied current unit cost must be greater than or equal to zero.
-  It does not use weighted-average costing in this version.
-- **Negative stock:** products do not allow negative stock by default. Managers
-  may enable the product-level `Allow negative stock` option; when enabled,
-  write-offs may take that product's balance below zero.
-- **Multi-tenancy:** no products from another ice cream shop can be displayed or
-  used.
-
-##### UI/UX rules
-
-- **Registration modal:** must contain Name, Unit, Categories and Stock Control;
-  when the product is an Ingredient with `Single stock`, it may also capture the
-  current unit cost.
-- **Categories:** must be selectable cards with checkbox and indication of
-  dependencies.
-- **Portion × Resale Exclusion:** when selecting one, the other must remain
-  disabled with explanation.
-- **Manufacturable:** when selected, the control must be locked in Stock
-  single, if this is the current rule of the operating model.
-- **Inline validation:** errors must appear next to the corresponding field.
-- **Post-registration:** after creating, the system must open the dedicated page of
-  product.
-- **Unit:** Weight products design must display quantities in grams,
-  without visually switching between grams and kilograms.
-
----
-
-#### REQ-02 Brand Management and Main Brand
-
-- [ ] **Brand Management and Main Brand**
-
-**Description:** Products with stock by brand must allow brands to be registered,
-control your balances and define the main brand used in automatic write-offs.
-
-##### Business Rules
-
-- **Application:** brands only exist on products with `By brand` control.
-- **Fields:** Name, Package quantity, Value per package and Stock
-  current.
-- **Inherited unit:** the brand does not define its own unit; use the unit
-  parent product.
-- **Packaging quantity:** must be greater than zero and represents the quantity
-  of base unit contained in a package.
-- **Stock:** is stored in the product's base unit.
-- **Input per package:** `quantity_of_packaging × quantity_of_packaging`.
-- **Input by unit:** the manager can also inform directly the
-  quantity in base unit.
-- **Unit price:** calculated by
-  `value_per_package ÷ quantity_of_package`.
-- **Main brand:** as long as there are brands registered, there must be one
-  main brand for automatic write-offs without explicit choice.
-- **One active main:** the product maintains a single main brand at a time.
-- **First brand:** when registering the first brand, it is defined
-  automatically as main.
-- **Exchange:** the new brand will only be used in future operations.
-- **Exclusion of the main one:** if there are other brands, one of them must be defined
-  as primary before deletion. If it is the latter, the deletion may occur with
-  notice and the product is unavailable until it receives a new master brand.
-- **Names:** There cannot be two brands with the same name on the product.
-- **Exclusion:** brands are deleted after confirmation and notice of impacts.
-- **Dependencies:** the exclusion must inform recipes, links and configurations
-  which will be deleted together.
-- **Cost of goods sold:** changes in brand value recalculate the COGS of
-  recipes that use the corresponding main product or brand.
-
-##### UI/UX rules
-
-- **Brand table:** must display Brand, Packaging, Value/packaging, Price
-  unit, Stock and Movements.
-- **Main chip:** the main brand must display the `Main` chip.
-- **Switch:** each brand must have a switch to define it as main.
-- **Action menu:** must contain Edit brand, Set as main and Delete
-  brand.
-- **Exclusion:** must open confirmation dialog with the brand name and
-  known impacts.
-- **Empty state:** should display `Add first tag`.
-- **Input:** the modal must allow switching between Packaging and Base Unit.
-- **Preview:** when informing packaging, show the total converted into grams as
-  supporting text.
-
----
-
-#### REQ-03 Inventory Control and Adjustment
-
-- [ ] **Inventory Control and Adjustment**
-
-**Description:** The system must display the current balance, allow entries and write-offs
-manuals and prevent any operation that results in negative stock unless the product's
-negative-stock option is enabled.
-
-##### Business Rules
-
-- **Single stock:** the balance belongs directly to the product.
-- **By brand:** total stock is the sum of brand balances.
-- **Input:** adds positive quantity to the selected product or brand.
-- **Single-stock input cost:** a positive entry for an Ingredient with `Single stock`
-  may also define the current unit cost that applies from that operation onward.
-- **Manual write-off:** removes a positive quantity from the selected product or brand.
-- **Adjustment:** every manual change must be treated as entry or write-off.
-- **Minimum balance:** no write-off can result in a balance less than zero unless
-  the product's `Allow negative stock` option is enabled.
-- **Validation:** mandatory quantity and greater than zero.
-- **Unit:** adjustment quantity must use the base unit of the product.
-- **Production:** increases Fabricable stock after lowering its
-  ingredients.
-- **Sales:** the POS is responsible for downloading products, accompaniments and
-  Resales according to the POS PRD.
-- **Main brand:** production and other automatic write-offs without explicit selection
-  use the main brand.
-- **Availability update:** entries and write-offs recalculate total stock,
-  production situation and capacity.
-- **Cost update:** changing a Single-stock Ingredient's current unit cost recalculates
-  the COGS of dependent recipes without rewriting historical transactions or
-  productions.
-- **Stock transaction:** every committed stock change must create an immutable
-  stock-transaction record in the same database transaction as the balance
-  change.
-- **Transaction types:** this version records manual `Entry` and manual
-  `Write-off`. Production and Sales own their respective transaction records
-  when those flows are implemented.
-- **Initial stock:** a positive stock supplied while registering a product or
-  brand is recorded as an `Entry`; zero creates no transaction.
-- **Historical facts:** the record keeps the product, optional brand, unit,
-  quantity, resulting balance, responsible-user identity and captured display
-  name, and occurrence time needed to explain the committed change. Product,
-  brand and author labels are snapshotted so a later configuration change or
-  deletion does not rewrite history.
-- **Publication:** recording a stock transaction is local persistence and does
-  not require publishing a domain event, broker message or outbox entry.
-- **Multi-tenancy:** transactions are isolated by ice cream shop and can only be
-  read with the same establishment authorization as their product.
-
-##### UI/UX rules
-
-- **Summary:** must display Current stock, Ideal stock and Situation.
-- **Normal Situation:** when the total balance is greater than or equal to the ideal stock.
-- **Low Situation:** when the total balance is less than the ideal stock.
-- **No ideal stock:** display Normal situation without target comparison.
-- **Actions:** Entry and Write-off must be close to the corresponding balance.
-- **Single-stock entry cost:** the entry flow for an Ingredient with `Single stock`
-  may capture the current unit cost and must show its base-unit suffix.
-- **Insufficiency:** the confirmation button must be blocked when the
-  amount exceeds balance.
-- **Message:** inform available quantity and requested quantity.
-- **Zero:** zero balance must be displayed as valid status, not as absence of
-  registration.
-- **Movement history:** the Stock tab must show committed transactions newest
-  first, with type, brand and date-period filters and paginated results.
-- **Author:** each history row must identify the responsible user by the display
-  name captured when the transaction committed.
-- **Author avatar:** show the responsible user's initials in a compact avatar.
-  Choose its accessible semantic color pair deterministically from the captured
-  author name so the same normalized name always receives the same color; color
-  is supportive and never replaces the visible name.
-- **History states:** loading, empty, filter-without-results and error/retry must
-  be distinguishable without hiding the current balance.
-
----
-
-#### REQ-04 Product Listing
-
-- [ ] **Product List**
-
-**Description:** The Products screen must allow consulting, filtering, ordering and
-  open registered products.
-
-##### Business Rules
-
-- **Filters:** category, stock status and product status.
-- **Combined filters:** different sections use AND; multiple categories use
-  OR each other.
-- **Search:** filters by name.
-- **Order:** Name, Stock quantity, Number of brands, Categories and
-  Unit.
-- **Pagination:** the listing must be paginated.
-- **KPIs:** summary cards are establishment-wide operational totals and must not change when search, filters, sorting, or pagination alter the product list.
-- **Operational Cards:** can display Products, Brands, Low Stock and Products
-  with limited production.
-- **Value in stock:** should not appear as a KPI in this module; belongs to a
-  financial view of costs, profits and movements.
-- **Low stock:** uses comparison with ideal stock.
-- **Empty state:** must differentiate absence of products from filters without
-  results.
-
-##### UI/UX rules
-
-- **Table:** must occupy all available space below the filters.
-- **Filters:** must remain in the position defined by the approved layout and not
-  compete for horizontal space with the table.
-- **Columns:** Name, Stock quantity, Number of brands, Categories and
-  Unit, in addition to the necessary actions.
-- **Low line:** can use alert background, red indicator and text
-  explanatory.
-- **Search:** must have an icon and contextual placeholder.
-- **Clear:** must remove all active filters.
-- **Empty status without products:** CTA `Register first product`.
-- **Empty state with filters:** `No products found` message and CTA
-  `Clear filters`.
-
----
-
-#### REQ-05 Dedicated Page and Product Settings
-
-- [ ] **Dedicated Page and Product Settings**
-
-**Description:** Each product must have a dedicated page with tabs and sections
-  conditionals by category.
-
-##### Business Rules
-
-- **Stock Tab:** always available.
-- **Recipe Tab:** available for Manufacturable.
-- **Accompaniments Tab:** available for Portion.
-- **Prices Tab — Sizes:** available for Portion; business data is
-  consumed by the POS.
-- **Prices Tab — Resale:** available for Resale; business data is
-  consumed by the POS.
-- **Settings Tab:** always available.
-- **Categories in use:** cannot be removed without resolving their
-  dependencies.
-- **Unit change:** affects brands, recipes, sizes, consumption and
-  product-dependent operations.
-- **Unit warning:** any unit change should display a dialog with
-  impacts before confirmation.
-- **Conversion:** there is no automatic conversion between g↔kg or ml↔l in this version.
-- **Product deletion:** deletes the product and its dependent data after notice and
-  confirmation, including brands, recipe, sizes, links and settings
+- When planning production, I want to see recipe cost, available stock, and the limiting
+  ingredient, so that I can decide how much can be produced before work begins.
+- When stock changes, I want balances and movement history to remain consistent and attributable,
+  so that I can explain the operation later.
+- When configuring a product, I want categories, brands, recipes, accompaniments, and commercial
+  settings to respect their dependencies, so that the product remains valid for production and
   sale.
-- **External dependencies:** products from other registrations remain intact,
-  but links to the deleted product are removed.
+- When recording production, I want ingredient consumption and finished-product input to commit
+  together, so that a partial failure cannot corrupt inventory.
 
-##### UI/UX rules
+## 4. Objectives and Success Metrics
 
-- **Header:** should display name, unit, status, category chips and actions
-  Edit and Remove.
-- **Breadcrumb:** `Stock > Products > [Product name]`.
-- **Tabs:** should only appear when enabled by the category.
-- **Settings:** must contain Basic Information, Stock Control,
-  Categories, Internal Observations and Danger Zone.
-- **Unit:** the dialogue must explain that the unit is shared by brands,
-  recipes, sizes and movements.
-- **Deletion:** the destructive dialog must list what will be deleted.
-- **Saving:** simple fields can save when losing focus, as per standard
-  module design.
+- Give Managers pre-production visibility into current recipe cost, producible capacity, and the
+  ingredient or brand that limits production.
+- Keep product and brand balances synchronized with every committed manual stock transaction and
+  production operation.
+- Preserve establishment isolation across catalog, inventory, recipes, production, and history.
+- Provide PDV with current product, availability, accompaniment, and commercial-configuration
+  facts while keeping sales rules in PDV.
+
+Success is measured by:
+
+- every committed manual stock change having one immutable transaction record created atomically
+  with its balance change;
+- every confirmed production either applying all ingredient write-offs and finished-product input
+  or applying none of them;
+- no catalog, balance, recipe, production, or transaction fact from another establishment being
+  visible or usable;
+- every recipe view being able to identify current COGS, maximum producible quantity, and the
+  limiting ingredient when ingredients are configured;
+- every salable Portion having at least one active size, and products without an active commercial
+  configuration remaining unavailable to PDV.
+
+## 5. Requirements
+
+### REQ-01 — Product Registration and Categories
+
+- [ ] **Implemented**
+
+**Outcome:** Managers can register an establishment-scoped product with valid categories, unit,
+stock control, status, and optional operational settings that determine its later MRP behavior.
+
+**Actors:** Manager
+
+**Provides:** Establishment product catalog, category assignments, inherited stock unit, stock
+control, status, ideal-stock target, negative-stock policy, and current single-stock ingredient
+unit cost for REQ-02, REQ-03, REQ-04, REQ-05, REQ-06, REQ-07, REQ-08, REQ-09, REQ-10, and PDV.
+
+#### Capabilities
+
+- A product name is mandatory and unique within its establishment.
+- A product owns its stock unit, inherited by brands, recipes, sizes, and dependent operations.
+  The model supports `g`, `ml`, `kg`, `l`, and `un`; current approved examples and weight
+  experiences use grams.
+- Stock control is either `Single stock` or `By brand`; new products default to `Single stock`.
+- Supported categories are `Ingredient`, `Manufacturable`, `Portion`, `Accompaniment`, and
+  `Resale`. `Portion` and `Resale` are mutually exclusive.
+- `Manufacturable` enables recipe and production but does not make a product salable by itself.
+  `Manufacturable + Portion` is allowed, and a Manufacturable without Portion may be produced
+  without appearing in PDV.
+- A Portion represents fractional sale of bulk stock and requires at least one active size to
+  appear in PDV. An Accompaniment can be linked to a Portion. A Resale represents sale of an
+  entire package. `Accompaniment + Portion` and `Accompaniment + Resale` are allowed.
+- An inactive product remains registered but is unavailable to new operations.
+- Ideal stock is optional and enables Normal or Low stock classification.
+- Internal notes are free text visible only to users authorized by Identity.
+- A Single-stock Ingredient may hold a current acquisition cost per base unit. It is optional at
+  registration but must exist before the product can be added to a recipe.
+- A Manager may define or replace that cost during registration, in product settings, or during
+  a positive stock entry. The latest explicit value applies to future recipe and production
+  calculations without rewriting historical transactions or productions, and must be at least
+  zero. Weighted-average costing is not used in this version.
+- Products disallow negative stock by default. A Manager may enable `Allow negative stock`, after
+  which write-offs may take that product below zero.
+- Products and their facts cannot be displayed or used across establishments.
+
+#### Experience
+
+- The registration modal contains Name, Unit, Categories, and Stock Control; for a Single-stock
+  Ingredient, it may also capture current unit cost.
+- Categories appear as selectable cards with checkboxes and dependency guidance. Selecting
+  Portion disables Resale with an explanation, and selecting Resale disables Portion.
+- When Manufacturable requires Single stock under the current operating model, selecting it locks
+  that control with an explanation.
+- Validation appears beside the corresponding field. Successful registration creates an active
+  product with zero balance and opens its dedicated page.
+- Weight-product quantities are displayed in grams without visually switching between grams and
+  kilograms.
 
 ---
 
-#### REQ-06 Manufacturable Product Recipes
+### REQ-02 — Brand Management and Main Brand
 
-- [ ] **Manufacturable Product Recipes**
+- [ ] **Implemented**
 
-**Description:** A recipe must define the ingredients needed to produce
-  a reference quantity of a Manufacturable product.
+**Outcome:** Managers can maintain product-specific brands, packaging economics, brand balances,
+and exactly one main brand for future automatic write-offs.
 
-##### Business Rules
+**Actors:** Manager
 
-- **One recipe:** each Manufacturable has a single recipe in this version.
-- **Reference income:** the manager defines the base quantity of the recipe,
-  always in the unit of the manufacturable product.
-- **Recipe creation:** a Manufacturable starts without a persisted recipe. The manager
-  creates its empty recipe by explicitly saving a positive reference yield; opening the
-  Recipe tab must not write data implicitly.
-- **Empty recipe lifecycle:** ingredients cannot be added until the positive reference
-  yield has been saved. Removing the last ingredient retains the recipe and its reference
-  yield so the manager can add another ingredient without recreating the recipe.
-- **Eligible ingredient:** only products with the Ingredient category can
-  enter the recipe.
-- **Accompaniment:** cannot be used as a recipe ingredient.
-- **Line fields:** product ingredient, quantity and inherited unit.
-- **Unit:** the quantity of the ingredient uses the same stock unit as the
-  ingredient; the current design presents values ​​in grams.
-- **Brand:** when the ingredient is stocked by brand, the recipe uses the brand
-  main force in force at the time of production.
-- **Brand displayed:** the table must identify which main brand will be used.
-- **No main brand:** production is blocked until a main brand
-  be defined.
-- **Quantity:** each quantity must be greater than zero.
-- **Duplicate combinations:** the same ingredient combination cannot appear twice.
-- **COGS:** ingredient cost is calculated using the current unit price.
-- **Single-stock COGS:** an Ingredient with `Single stock` uses the product's current
-  unit cost and cannot be added to a recipe while that cost is undefined.
-- **Total COGS:** sum of the costs of all lines for income
-  reference.
-- **Unit cost:** for Manufacturable, it is calculated by
+**Consumes:** Product stock control and inherited unit from REQ-01.
+
+**Provides:** Brand balances, packaging conversion, current unit price, and main-brand selection
+for REQ-03, REQ-06, REQ-07, REQ-08, REQ-09, and REQ-10.
+
+#### Capabilities
+
+- Brands exist only for products controlled `By brand` and are not shared between products.
+- A brand has Name, Package quantity, Value per package, and Current stock. Its unit is inherited
+  from the parent product.
+- Package quantity is greater than zero and represents base units per package. Stock is stored in
+  the product base unit; package entry converts package count into base-unit quantity.
+- Managers may enter stock by package or directly by base unit. Unit price equals package value
+  divided by package quantity.
+- While brands exist, the product has one main brand for automatic write-offs without explicit
+  selection. The first brand becomes main automatically, and changing the main brand affects only
+  future operations.
+- A main brand cannot be deleted while another brand exists until a replacement is selected. The
+  final brand may be deleted after warning, leaving the product unavailable until a new main brand
+  is added.
+- Brand names are unique within the product.
+- Deletion requires confirmation and discloses recipes, links, and configurations removed with
+  the brand.
+- Changes to a main brand's value recalculate COGS for dependent recipes.
+
+#### Experience
+
+- The brand table displays Brand, Packaging, Value per package, Unit price, Stock, and Movements.
+- The main brand has a `Main` chip. Each row provides a main-brand switch and actions to edit,
+  select as main, or delete.
+- Deletion identifies the brand and known impacts. An empty state offers `Add first brand`.
+- The stock-entry modal switches between Packaging and Base Unit and previews package input as
+  the converted total in grams for the approved weight experience.
+
+---
+
+### REQ-03 — Inventory Control and Stock History
+
+- [ ] **Implemented**
+
+**Outcome:** Authorized users can understand current stock and its attributable history, while
+Managers can apply valid entries and write-offs without leaving balances and transactions
+inconsistent.
+
+**Actors:** Manager, Operator
+
+**Consumes:** Product stock control, unit, ideal-stock target, negative-stock policy, and current
+single-stock cost from REQ-01; brand balances and main-brand facts from REQ-02; responsible-user
+identity and establishment authorization from Identity; production stock changes from REQ-07;
+sales-consumption facts from PDV.
+
+**Provides:** Current product and brand balances, stock status, and immutable stock-transaction
+history for REQ-04, REQ-06, REQ-07, and PDV.
+
+#### Capabilities
+
+- A Single-stock balance belongs to the product; a By-brand total is the sum of brand balances.
+- Entry adds a positive quantity and Write-off removes a positive quantity from the selected
+  product or brand. Every manual adjustment is classified as one of those operations.
+- Quantity is mandatory, greater than zero, and expressed in the product base unit.
+- A positive entry for a Single-stock Ingredient may define the current unit cost from that
+  operation onward. A cost change recalculates dependent recipe COGS without rewriting history.
+- A write-off cannot produce a negative balance unless `Allow negative stock` is enabled for the
+  product.
+- Production adds Manufacturable stock after ingredient write-off. PDV owns product,
+  accompaniment, and Resale consumption caused by sales.
+- Production and other automatic write-offs without explicit brand selection use the main brand.
+- Entries and write-offs recalculate total stock, stock status, recipe cost, production status,
+  and capacity where applicable.
+- Every committed manual stock change creates an immutable stock-transaction record in the same
+  database transaction as the balance change. This version records manual `Entry` and manual
+  `Write-off`; production and PDV own their respective transaction records when implemented.
+- Positive initial stock registered with a product or brand creates an Entry; zero creates no
+  transaction.
+- A transaction retains product, optional brand, unit, quantity, resulting balance,
+  responsible-user identity, captured display labels, and occurrence time. Product, brand, and
+  author labels are snapshots and are not rewritten by later changes or deletion.
+- Stock-transaction persistence is local and does not require a domain event, broker message, or
+  outbox entry.
+- Transactions are isolated by establishment and require the same authorization as their product.
+
+#### Experience
+
+- The Stock tab displays Current stock, Ideal stock, and Situation. Situation is Normal when
+  balance is at least ideal stock, Low when below it, and Normal without target comparison when no
+  ideal stock exists. Zero is shown as a valid balance.
+- Entry and Write-off actions remain near the relevant balance. A Single-stock Ingredient entry
+  may capture current unit cost with its base-unit suffix.
+- A write-off above the permitted balance blocks confirmation and reports available and requested
+  quantities.
+- History is newest first, paginated, and filterable by type, brand, and date period. Each row
+  identifies the captured author name and initials.
+- Author-avatar colors are selected deterministically from the normalized captured name, use an
+  accessible semantic color pair, and never replace the visible name.
+- Loading, empty, no-filter-results, and error/retry states are distinct and do not hide current
+  balance.
+
+---
+
+### REQ-04 — Product Listing
+
+- [ ] **Implemented**
+
+**Outcome:** Authorized users can find, compare, and open products using establishment-wide
+operational context and predictable filters, sorting, and pagination.
+
+**Actors:** Manager, Operator
+
+**Consumes:** Product catalog and classification from REQ-01; brand totals from REQ-02; current
+balances and stock status from REQ-03; production capacity from REQ-06.
+
+#### Capabilities
+
+- Products can be filtered by category, stock status, and product status and searched by name.
+- Different filter groups combine with AND; multiple selected categories combine with OR.
+- Sorting supports Name, Stock quantity, Number of brands, Categories, and Unit.
+- The product list is paginated.
+- Operational cards may show Products, Brands, Low Stock, and Products with limited production.
+  Their establishment-wide totals do not change with search, filters, sorting, or pagination.
+- Low Stock is based on comparison with ideal stock.
+- Stock value is not an MRP KPI and belongs to a financial view of costs, profits, and movements.
+- Empty results distinguish an establishment with no products from filters with no matches.
+
+#### Experience
+
+- The table occupies the available space below the filters. Filters remain in the approved layout
+  position without competing horizontally with the table.
+- Columns show Name, Stock quantity, Number of brands, Categories, Unit, and necessary actions.
+- A Low row may use an alert background, red indicator, and explanatory text without relying on
+  color alone.
+- Search has an icon and contextual placeholder. `Clear filters` removes every active filter.
+- No products presents `Register first product`; no filtered matches presents `No products found`
+  and `Clear filters`.
+
+---
+
+### REQ-05 — Dedicated Product Page and Settings
+
+- [ ] **Implemented**
+
+**Outcome:** Managers can inspect and maintain each product through one category-aware page while
+understanding the impact of category, unit, and deletion changes.
+
+**Actors:** Manager
+
+**Consumes:** Product catalog, categories, unit, status, and stock-control facts from REQ-01.
+
+**Provides:** Product-page context and recoverable settings-change state for REQ-06, REQ-08,
+REQ-09, and REQ-10.
+
+#### Capabilities
+
+- Stock and Settings tabs are always available. Recipe is available for Manufacturable,
+  Accompaniments for Portion, Prices—Sizes for Portion, and Prices—Resale for Resale.
+- PDV consumes size and Resale commercial facts without transferring sales-rule ownership to MRP.
+- A category in use cannot be removed until its dependencies are resolved.
+- Unit changes affect brands, recipes, sizes, consumption, and product-dependent operations and
+  require impact review before confirmation.
+- This version does not automatically convert `g↔kg` or `ml↔l`.
+- Product deletion removes the product and its removable dependent brands, recipe, sizes, links,
+  and sales settings after warning and confirmation. Other products remain intact; links to the
+  deleted product are removed.
+
+#### Experience
+
+- The header displays Name, Unit, Status, category chips, Edit, and Remove. The breadcrumb is
+  `Stock > Products > [Product name]`, and only category-enabled tabs appear.
+- Settings contains Basic Information, Stock Control, Categories, Internal Notes, and Danger Zone.
+- Unit-change and deletion dialogs explain affected records before confirmation.
+- Simple fields may save on blur according to the module design standard.
+
+---
+
+### REQ-06 — Manufacturable Product Recipes
+
+- [ ] **Implemented**
+
+**Outcome:** Managers can define one recipe for a Manufacturable product and see its current cost,
+stock constraints, and maximum producible quantity before recording production.
+
+**Actors:** Manager
+
+**Consumes:** Product categories, units, and single-stock ingredient costs from REQ-01; main-brand
+and brand-price facts from REQ-02; current balances from REQ-03; product-page context from REQ-05.
+
+**Provides:** Persisted recipe, reference yield, current COGS, unit cost, ingredient projections,
+and maximum producible quantity for REQ-04, REQ-07, and REQ-10.
+
+#### Capabilities
+
+- Each Manufacturable has at most one recipe in this version. Its reference yield is a positive
+  quantity in the Manufacturable product unit.
+- A Manufacturable begins without a persisted recipe. Explicitly saving a positive reference
+  yield creates the empty recipe; merely opening Recipe writes no data.
+- Ingredients cannot be added until the yield is saved. Removing the last ingredient retains the
+  recipe and yield.
+- Only Ingredient products are eligible recipe lines; an Accompaniment is not a recipe ingredient.
+- Each line stores ingredient product, positive quantity, and the ingredient's inherited unit.
+  Duplicate ingredient combinations are not allowed.
+- A By-brand ingredient uses the main brand in force at production time, and the recipe identifies
+  that brand. Production is blocked when no main brand exists.
+- Ingredient cost uses current unit price. A Single-stock Ingredient uses its current product unit
+  cost and cannot be added while that cost is undefined.
+- Total COGS is the sum of line costs for the reference yield. Manufacturable unit cost is
   `Total COGS ÷ Reference Yield`.
-- **Producible maximum:** is the lowest limit calculated among all ingredients.
-- **Update:** changes in recipe, brand or stock entry recalculate
-  COGS and production capacity.
-- **Ingredient removal:** only removes the line from the recipe.
+- Maximum producible quantity is the lowest ingredient-derived limit.
+- Recipe, main-brand, price, cost, or stock changes recalculate COGS and production capacity.
+- Removing an ingredient removes only that recipe line.
 
-##### UI/UX rules
+#### Experience
 
-- **Header:** must display the editable positive reference yield and Produce action.
-- **Table:** must display Input, Source/Brand, Quantity, Cost, % of COGS,
-  Stock and Movements.
-- **Units:** the design must use grams in quantities and projections.
-- **Source:** display chip of the main brand when stock is by brand.
-- **Sufficient stock:** show current balance and estimated capacity.
-- **Limiting input:** highlight the line with alert icon and background.
-- **Insufficient input:** the line itself must show necessary, available and
-  missing; do not rely on a separate list.
-- **Add:** `Add ingredient` button must insert or open the new
-  line configuration.
-- **Delete:** must require confirmation and inform that CMV and capacity will be
-  recalculated.
-- **Empty state:** keep the reference-yield control visible, guide the manager to save a
-  positive yield and add the first ingredient, and disable ingredient creation until the
-  yield is persisted.
+- The header keeps the editable positive reference yield and Produce action visible.
+- The table displays Ingredient, Source/Brand, Quantity, Cost, percentage of COGS, Stock, and
+  Movements. Weight quantities and projections use grams in the approved experience.
+- A By-brand source shows the main-brand chip. Sufficient stock shows balance and estimated
+  capacity; the limiting ingredient is highlighted with an alert icon and background.
+- An insufficient line reports needed, available, and missing quantities inline.
+- `Add ingredient` opens or inserts line configuration. Deletion requires confirmation and
+  explains that COGS and capacity will be recalculated.
+- The empty state keeps yield controls visible, guides the Manager to save a positive yield and
+  add the first ingredient, and disables ingredient creation until the yield persists.
 
 ---
 
-#### REQ-07 Production Record
+### REQ-07 — Production Record
 
-- [ ] **Production Record**
+- [ ] **Implemented**
 
-**Description:** The manager must record the production of a Manufacturable,
-  consuming the ingredients and adding the produced product to stock.
+**Outcome:** Managers can record a Manufacturable production quantity with projected ingredient
+consumption and atomic stock updates, while invalid or failed production leaves stock unchanged.
 
-##### Business Rules
+**Actors:** Manager
 
-- **Access:** Produce action is available to the manager in the recipe or
-  Manufacturable product. Operators cannot read, preview or register production in
-  this version.
-- **Modes:** the manager can inform production by Batch or by Quantity.
-- **Switch:** the change between modes is made by a switch.
-- **Lot:** exactly represents the reference yield of the recipe.
-- **Quantity:** must be informed in the product unit; the current design uses
-  grams.
-- **Synchronization:** changing batches updates the quantity and changing quantity
-  updates batches when there is equivalence.
-- **Consumption:**
-  `quantity_of_ingredient × (quantity_produced ÷ reference_yield)`.
-- **Projection:** must calculate consumption, current stock and stock after production for
-  each main ingredient or brand.
-- **Insufficiency:** if any ingredient is insufficient, confirmation is blocked unless
-  that ingredient product allows negative stock.
-- **Low:** occurs in the ingredient product or in the main brand, depending on the
-  stock control.
-- **Input:** the quantity produced is added to the Fabricable stock.
-- **Side dishes:** are not consumed in production.
-- **Cost:** production cost can be calculated by COGS multiplied by
-  number of lots; stock value and profit belong to the financial module.
-- **Atomic:** ingredient write-off and Manufacture input must occur at
-  same transaction.
-- **Failure:** If any operation fails, no changes remain.
-- **Negative stock:** never allow confirmation that generates a negative balance unless
-  the affected product allows negative stock.
+**Consumes:** Product units and negative-stock policies from REQ-01; main-brand selection from
+REQ-02; current balances from REQ-03; recipe, yield, COGS, and ingredient requirements from REQ-06.
 
-##### UI/UX rules
+**Provides:** Atomic ingredient write-offs, finished-product input, and retained production facts
+for REQ-03.
 
-- **Modal:** must display product, yield and Lot/Quantity switch.
-- **Batch:** show the batch field and, below it, the textual preview of the
-  equivalent quantity, such as `Equivalent to 2,000 g`.
-- **Quantity:** show input with suffix `g`.
-- **Layout:** mode and input controls must be arranged side by side
-  when there is space.
-- **Shortcuts:** There may be `1 batch`, `2 batches` and `Maximum` options.
-- **Projection table:** must display Input/Brand, Consumption, Current and After.
-- **Insufficient line:** should turn red and show needed, available and
-  missing from the table itself.
-- **Button:** `Confirm production` must be disabled when there is a shortage.
-- **Success:** close the modal, update stocks and confirm production.
-- **Failed:** maintain the context, inform that no changes were applied and
-  allow retry.
+#### Capabilities
+
+- Produce is available to a Manager from the recipe or Manufacturable product. Operators cannot
+  read, preview, or register production in this version.
+- Production can be entered by Batch or Quantity. One batch equals the recipe reference yield;
+  quantity uses the product unit, with grams in the approved weight experience.
+- Changing batches updates quantity, and changing quantity updates batches when an equivalence
+  exists.
+- Ingredient consumption is
+  `ingredient quantity × (produced quantity ÷ reference yield)`.
+- The projection calculates Consumption, Current stock, and After-production stock for each main
+  ingredient or brand.
+- Insufficient stock blocks confirmation unless the affected ingredient product allows negative
+  stock. Consumption applies to the product or main brand according to stock control.
+- Produced quantity is added to the Manufacturable balance. Accompaniments are not consumed by
+  production.
+- Production cost may be calculated from COGS multiplied by batch count; stock value and profit
+  remain outside MRP.
+- Ingredient write-offs and finished-product input commit in one transaction. Any failure leaves
+  all balances unchanged.
+
+#### Experience
+
+- The production modal displays Product, Yield, and a Batch/Quantity switch, with mode and input
+  side by side when space allows.
+- Batch mode previews the equivalent quantity, such as `Equivalent to 2,000 g`; Quantity mode uses
+  the product-unit suffix. Optional shortcuts may include `1 batch`, `2 batches`, and `Maximum`.
+- The projection table displays Ingredient/Brand, Consumption, Current, and After.
+- An insufficient line is visually distinct and shows needed, available, and missing quantities.
+  `Confirm production` is disabled when the applicable negative-stock policy does not permit the
+  projected result.
+- Success closes the modal, refreshes balances, and confirms production. Failure preserves context,
+  states that no changes were applied, and allows retry.
 
 ---
 
-#### REQ-08 Accompaniments and Types of Accompaniment
+### REQ-08 — Accompaniments and Accompaniment Types
 
-- [ ] **Accompaniments and Types of Accompaniment**
+- [ ] **Implemented**
 
-**Description:** The manager must configure which Accompaniment products can be
-  offered in each Portion.
+**Outcome:** Managers can maintain establishment-scoped accompaniment types and link eligible
+Accompaniment products to Portions with the quantity and brand context needed for sale.
 
-##### Business Rules
+**Actors:** Manager
 
-- **Link:** a Portion may have zero or more accompaniments.
-- **Multiple use:** a Side dish can be linked to multiple Portions.
-- **Eligible product:** only the Accompaniment category can be linked.
-- **Type:** each bond has a type, such as Coverage, Extra or Free.
-- **Contextual type:** the type may vary between Portion products.
-- **Type catalog:** accompaniment types are managed in a dedicated MRP page and
-  are available to links within the same ice cream shop.
-- **Type management:** the manager can list and create types; an unused type can
-  be removed, while a type in use remains protected until its links are resolved.
-- **Quantity per portion:** defines consumption in each unit sold.
-- **Price:** is configured by the combination of product + size + accompaniment and
-  belongs to the POS commercial flow.
-- **Brand:** consumption uses the main brand of the accompaniment when stock
-  It's by brand.
-- **Removal:** deleting the link does not change current balances.
-- **Type in use:** a type used in links cannot be deleted without the
-  links are resolved.
+**Consumes:** Product categories and units from REQ-01; main-brand facts from REQ-02; product-page
+context from REQ-05.
 
-##### UI/UX rules
+**Provides:** Accompaniment types, Portion-accompaniment links, per-portion consumption, and brand
+context for REQ-09, REQ-10, and PDV.
 
-- **Table:** must display Accompaniment, Type, Brand, Quantity per serving and
-  Actions.
-- **Link:** `Link accompaniment` button must open modal.
-- **Modal:** Accompaniment, Type, Quantity per serving and preview fields
-  cost; mark appears when applicable.
-- **Main brand:** display the main brand used in the registration.
-- **Price:** can be displayed by size, but the commercial configuration must
-  remain consistent with the POS PRD.
-- **Types:** the dropdown must offer a `Manage types` link that navigates to the
-  dedicated `Accompaniment types` page.
-- **Types page:** must display registered types, usage status and removal only
-  for unused types, with a `New type` action that opens the creation modal.
-- **Types pagination:** when registered types exceed one page, the types table
-  must display the visible range and total count, with previous, next and
-  numbered-page controls.
-- **Type editing:** each row must provide an edit action that opens a modal with
-  the current name prefilled; saving renames the type across its existing
-  accompaniment links, while duplicate or invalid names preserve the entered
-  context and display validation without closing the modal.
-- **Type creation modal:** must contain the type name, supporting guidance,
-  `Cancel` and `Add type`; successful creation closes the modal and refreshes
-  the list, while validation errors preserve the entered context.
-- **Navigation:** `Accompaniment types` remains a Manager-only dedicated page and
-  direct route, but it is not a global sidebar destination. The Products page
-  must provide the contextual link to the page, and the link dialog keeps its
-  `Manage types` shortcut.
-- **Return navigation:** the Accompaniment Types page provides a `Voltar` link
-  with a left-arrow icon that returns the Manager to the previously visited page,
-  preserving its canonical URL state; direct entry falls back to Products.
-- **Type removal actions:** an unused type uses readable destructive red outline/text
-  styling, while an in-use type keeps removal disabled with readable neutral styling.
-- **Shared back navigation:** the Types and Product Details pages use the same shared
-  `Voltar` control with a left-arrow icon, outlined styling and accessible link behavior.
-- **Optional monitoring:** no component should require the creation of a
-  accompaniment to a Portion.
-- **Exclusion:** removal of the link requires confirmation.
+#### Capabilities
+
+- A Portion may have zero or more accompaniments, and an Accompaniment may link to multiple
+  Portions. Only products in the Accompaniment category are eligible.
+- Each link has a contextual type, such as Coverage, Extra, or Free; the same Accompaniment may
+  have different types for different Portions.
+- Accompaniment types are managed on a dedicated MRP page and are available only within the same
+  establishment. Managers can list, create, and rename types.
+- An unused type may be removed. A type in use remains protected until its links are resolved;
+  renaming updates its existing links.
+- Quantity per portion defines consumption for each unit sold.
+- Price is specific to product + size + accompaniment and belongs to the PDV commercial flow.
+- When accompaniment stock is By brand, consumption uses its current main brand.
+- Removing a link does not change current balances and requires confirmation.
+
+#### Experience
+
+- The link table displays Accompaniment, Type, Brand, Quantity per portion, and Actions.
+  `Link accompaniment` opens a modal for Accompaniment, Type, Quantity per portion, applicable
+  Brand, and cost preview.
+- The current main brand is visible. Price may be displayed by size while remaining consistent
+  with the PDV PRD.
+- The type selector offers `Manage types`, which opens the dedicated `Accompaniment types` page.
+- The types page displays registered types, usage status, and removal only for unused types, with
+  `New type` opening creation. Pagination shows visible range, total count, previous, next, and
+  numbered-page controls when records exceed one page.
+- Editing opens a modal prefilled with the current name. Successful save renames the type across
+  links; invalid or duplicate names retain entered context and show validation without closing.
+- Creation includes the type name, supporting guidance, `Cancel`, and `Add type`. Success closes
+  and refreshes; validation failure preserves entered context.
+- `Accompaniment types` is a Manager-only direct page but not a global sidebar destination. The
+  Products page links to it contextually, and the link modal retains `Manage types`.
+- A shared outlined, accessible `Voltar` link with a left-arrow icon is used on Type and Product
+  Details pages. From Types it returns to the previously visited canonical URL state; direct entry
+  falls back to Products.
+- Unused-type removal uses readable destructive red outline/text styling; in-use removal is
+  disabled with readable neutral styling.
+- No component requires a Portion to have an accompaniment.
 
 ---
 
-#### REQ-09 Integrated Commercial Settings
+### REQ-09 — Integrated Commercial Settings
 
-- [ ] **Integrated Business Settings**
+- [ ] **Implemented**
 
-**Description:** The product page must present the necessary settings
-  so that the POS uses sizes and Resales, without duplicating the sales logic.
+**Outcome:** Managers can maintain the Portion and Resale settings that determine future PDV
+availability without duplicating cart, sale, or historical-order rules in MRP.
 
-##### Business Rules
+**Actors:** Manager
 
-- **Portion:** each size has a name, quantity in stock unit, price
-  sales and status.
-- **Mandatory:** every salable portion must be at least one size
-  active.
-- **Resale:** has sales price, packaging quantity and availability.
-- **Resale by brand:** each brand may have its own price and availability.
-- **Accompaniment:** the price is specific to product + size + accompaniment.
-- **Update:** changes do not modify previous orders.
-- **Responsibility:** calculation rules, cart, sales write-off and history
-  of orders belong to the POS PRD.
+**Consumes:** Product categories, units, and status from REQ-01; brand facts from REQ-02;
+product-page context from REQ-05; accompaniment links from REQ-08.
 
-##### UI/UX rules
+**Provides:** Active Portion sizes, Resale packaging and brand availability, and
+product-size-accompaniment prices for REQ-10 and PDV.
 
-- **Conditional tabs:** Prices — Sizes appear only for Portion; Prices —
-  Resale appears only for Resale.
-- **Sizes:** table must display Name, Quantity, Operating Cost, Price,
-  Profit/Margin when the financial module is available and Movements.
-- **Financial:** the total value in stock, profits and financial reports
-  must be presented as MRP KPI.
-- **Status:** sizes and brands must allow activation and deactivation without deleting
-  settings automatically.
-- **POS:** products without active commercial configuration do not appear in the POS.
+#### Capabilities
 
----
+- Each Portion size has a Name, quantity in the product stock unit, sale price, and status. Every
+  salable Portion has at least one active size.
+- Resale configuration has sale price, packaging quantity, and availability. By-brand Resale may
+  define price and availability per brand.
+- Accompaniment price is specific to product + size + accompaniment.
+- Configuration changes affect future PDV behavior and do not rewrite previous orders.
+- A Manager can edit a size's name, quantity, sale price, and active status from the pricing table.
+  Invalid values are rejected, and the final active size cannot be deactivated.
+- Operating cost, profit, and margin remain calculated read-only values when their owning
+  financial capability is available. Total stock value, profit, margin reporting, cart behavior,
+  sales write-off, and order history are not owned by MRP.
 
-#### REQ-10 Navigation, States and Confirmations
+#### Experience
 
-- [ ] **Navigation, Status and Confirmations**
-
-**Description:** MRP must offer consistent navigation, clear statuses and
-  commits for destructive or high-impact changes.
-
-##### Business Rules
-
-- **Main navigation:** Dashboard, Products, Accompaniment Types, POS, Order
-  History and Price Modifiers.
-- **No sub-buttons:** the main navigation should not create unnecessary sub-navigation.
-- **Product:** opening the Details line or action takes you to the dedicated page.
-- **Categories in use:** removal attempt must be blocked until resolved
-  dependencies.
-- **Exclusions:** products, brands, ingredients, accompaniments and sizes are
-  deleted after notice and confirmation.
-- **Danger zone:** must list what will be deleted before confirmation.
-- **Authentication:** profiles, permissions and users belong to the Auth module.
-- **Unit:** unit change requires warning dialog before saving.
-
-##### UI/UX rules
-
-- **Breadcrumb:** maintain the `Stock > Products > Product` context.
-- **Loading states:** search, rescue, calculation and production must have
-  visual feedback.
-- **Empty state:** each table must guide the next action.
-- **Unit Dialog:** inform that the unit is shared by brands,
-  dependent recipes, sizes and operations.
-- **Delete Dialog:** use clear destructive language, with Cancel and
-  Remove.
-- **Responsiveness:** tables, cards and modals cannot overlap or cut
-  content on smaller screens.
-- **Visual consistency:** use the components, tokens and icons defined in the guide
-  of design.
+- Prices—Sizes appears only for Portion; Prices—Resale appears only for Resale.
+- The size table displays Name, Quantity, Operating Cost, Price, available Profit/Margin values,
+  and Movements.
+- Sizes and brands can be activated or deactivated without automatically deleting configuration.
+- Products without active commercial configuration do not appear in PDV.
+- Invalid size edits preserve the editing context and show validation; successful edits refresh
+  future commercial availability without changing historical orders.
 
 ---
 
-### 3. User Flow
+### REQ-10 — Navigation, States, and High-Impact Changes
 
-**Flow A - User consults Products**
+- [ ] **Implemented**
 
-1. The user accesses `Products`.
-2. The system displays operational cards, filters, search and tables.
-3. The user filters by category, stock or status.
-4. The system applies combined filters and recalculates the cards.
-5. User sorts by Name, Stock quantity, Number of brands,
-   Categories or Unit.
-6. The user opens `Details` of a product.
-7. The system opens the dedicated page in the Stock tab.
+**Outcome:** Managers can navigate MRP and complete or recover from destructive and high-impact
+product changes with clear dependency, loading, success, and error feedback.
 
-**Flow B - User registers product**
+**Actors:** Manager
 
-1. The manager clicks on `New Product`.
-2. The system displays Name, Unit, Categories and Inventory control; a Single-stock
-   Ingredient may also receive its current unit cost.
-3. The manager fills in the fields.
+**Consumes:** Establishment authorization from Identity; product and dependency facts from
+REQ-01, REQ-02, REQ-05, REQ-06, REQ-08, and REQ-09.
+
+#### Capabilities
+
+- MRP navigation provides Products context without unnecessary sub-navigation. Dashboard, PDV,
+  Order History, and Price Modifiers remain destinations of their owning product areas;
+  Accompaniment Types is reached contextually rather than from the global sidebar.
+- Opening a product row or Details action opens its dedicated page.
+- Category removal is blocked until dependencies are resolved.
+- Products, brands, recipe ingredients, accompaniment links, and sizes require warning and
+  confirmation before destructive removal. Danger Zone lists affected records.
+- Identity owns authentication, profiles, permissions, and users.
+- Unit changes require warning before save. When a unit is incompatible for a brand, the flow
+  collects a conversion factor greater than zero for every affected brand before saving.
+- Product removal and removable dependent configuration complete atomically. If any dependency
+  cannot be removed safely, nothing is deleted and the error identifies a recovery action.
+- Product removal does not alter historical orders or retained operational and audit records.
+
+#### Experience
+
+- Breadcrumbs preserve `Stock > Products > Product` context.
+- Search, retrieval, calculation, and production show loading feedback. Every table has an empty
+  state that guides the next action.
+- A unit dialog explains that the unit is shared by brands, dependent recipes, sizes, and
+  operations.
+- Dependency dialogs provide direct actions to the affected recipes, sizes, brands,
+  accompaniments, or Resale settings. Ingredient dependencies open affected recipes;
+  Manufacturable dependencies offer separate Recipe, Prices, and Accompaniments actions;
+  Accompaniment dependencies open Products filtered to users of that accompaniment; Resale
+  dependencies open Prices focused on by-brand settings; Portion dependencies offer separate
+  Prices and Accompaniments actions.
+- Closing a dependency dialog changes nothing. Following an action preserves the attempted
+  category change so it can be retried after dependencies are resolved.
+- Cancelling either unit-conversion step leaves product and dependent quantities unchanged.
+- A deletion dialog uses clear destructive language, `Cancel`, and `Remove`, and consolidates all
+  dependent records to be removed. Failure preserves all data and provides an actionable error.
+- Tables, cards, and modals do not overlap or clip content on smaller screens. Components, tokens,
+  icons, focus behavior, and readable state styling follow the design system.
+
+## 6. Product Dependency Graph
+
+An edge points from the provider to the requirement or module that consumes its capability or
+authoritative fact.
+
+```mermaid
+flowchart LR
+    ID[Identity]
+    PDV[PDV]
+    R1[REQ-01 Product Registration]
+    R2[REQ-02 Brand Management]
+    R3[REQ-03 Inventory Control]
+    R4[REQ-04 Product Listing]
+    R5[REQ-05 Product Page]
+    R6[REQ-06 Recipes]
+    R7[REQ-07 Production]
+    R8[REQ-08 Accompaniments]
+    R9[REQ-09 Commercial Settings]
+    R10[REQ-10 Navigation and Changes]
+
+    R1 --> R2
+    R1 --> R3
+    R1 --> R4
+    R1 --> R5
+    R1 --> R6
+    R1 --> R7
+    R1 --> R8
+    R1 --> R9
+    R1 --> PDV
+    R2 --> R3
+    R2 --> R4
+    R2 --> R6
+    R2 --> R7
+    R2 --> R8
+    R2 --> R9
+    R3 --> R4
+    R3 --> R6
+    R3 --> R7
+    R3 --> PDV
+    R5 --> R6
+    R5 --> R8
+    R5 --> R9
+    R6 --> R4
+    R6 --> R7
+    R7 --> R3
+    R8 --> R9
+    R8 --> PDV
+    R9 --> PDV
+    ID --> R3
+    ID --> R10
+    PDV --> R3
+    R1 --> R10
+    R2 --> R10
+    R5 --> R10
+    R6 --> R10
+    R8 --> R10
+    R9 --> R10
+```
+
+## 7. User Journeys
+
+### Journey A — Authorized user consults products
+
+1. The user opens `Products`.
+2. The system shows establishment-wide operational cards, search, filters, and the paginated
+   table.
+3. The user filters by category, stock, or status and may sort by Name, Stock quantity, Number of
+   brands, Categories, or Unit.
+4. The system combines filter groups with AND, selected categories with OR, and leaves KPI totals
+   unchanged.
+5. The user opens a product's `Details` action.
+6. The system opens the dedicated product page on Stock.
+
+### Journey B — Manager registers a product
+
+1. The Manager selects `New Product`.
+2. The system presents Name, Unit, Categories, and Stock Control; a Single-stock Ingredient may
+   also receive current unit cost.
+3. The Manager completes the fields.
 4. The system validates:
-   - **Success:** creates the active product with zero balance and opens its page.
-   - **Duplicate name:** informs that the name already exists.
-   - **No unit:** requests a unit.
-   - **No category:** requests at least one category.
-5. The manager configures brands, recipe or prices after registration.
+   - **Success:** creates an active product with zero balance and opens its page.
+   - **Duplicate name:** reports that the name already exists in the establishment.
+   - **Missing unit:** requests a unit without discarding entered context.
+   - **Missing category:** requests at least one category without discarding entered context.
+5. The Manager can then configure brands, recipe, accompaniments, or prices according to category.
 
-**Flow C - Manager manages brands**
+### Journey C — Manager manages brands
 
-1. The manager opens a product with `By Brand` control.
-2. Click on `Link brand`.
-3. Enters the name, packaging quantity, packaging value and initial stock.
-4. The system calculates the unit price and updates the total stock.
-5. The first mark automatically receives the `Main` chip.
-6. To change the main one, the manager uses the new brand switch.
-7. To delete, open the actions menu and confirm the dialog.
-8. The system recalculates the dependent data.
+1. The Manager opens a product controlled By brand and selects `Link brand`.
+2. The Manager enters name, package quantity, package value, and initial stock.
+3. The system calculates unit price and total stock; the first brand becomes Main.
+4. The Manager may switch the main brand for future operations.
+5. When deletion is requested, the system shows impacts and requires confirmation.
+6. On success, the system recalculates dependent cost and capacity facts.
 
-**Flow D - Manager adjusts stock**
+### Journey D — Manager adjusts stock
 
-1. The manager opens the Inventory tab.
-2. Choose Entry or Low.
-3. If there is a brand, choose the balance of the corresponding brand.
-4. Select Packaging or Base Unit.
-5. Enter the quantity and, for a Single-stock Ingredient, optionally replace the
-   current unit cost.
-6. The system displays the total in grams.
-7. The system validates:
-   - **Valid entry:** adds to the balance.
-   - **Valid write-off:** subtracts from the balance.
-   - **Write-off greater than balance:** blocks and informs the available quantity.
-8. The system recalculates production status and capacity.
+1. The Manager opens Stock and chooses Entry or Write-off.
+2. For By-brand stock, the Manager selects the relevant brand balance.
+3. The Manager selects Packaging or Base Unit, enters a positive quantity, and may replace current
+   unit cost for a Single-stock Ingredient entry.
+4. The system previews the base-unit total and validates:
+   - **Valid Entry:** adds the balance and records the transaction atomically.
+   - **Valid Write-off:** subtracts the balance and records the transaction atomically.
+   - **Disallowed negative result:** blocks confirmation and reports requested and available
+     quantities.
+5. The system refreshes balance, history, stock status, recipe cost, and production capacity.
 
-**Flow E - Manager assembles recipe**
+### Journey E — Manager assembles a recipe
 
-1. The manager opens a Manufacturable product and accesses Recipe.
-2. Sets and explicitly saves the positive reference yield in grams, creating the empty
-   recipe without writing data merely by opening the tab.
-3. Adds an Ingredient after the yield save succeeds.
-4. Select the quantity; the unit is inherited.
-5. If the ingredient is by brand, the system shows the main brand.
-6. The system calculates cost, COGS percentage, balance and capacity.
-7. The manager saves the line.
-8. The system updates COGS and maximum producible quantity.
+1. The Manager opens a Manufacturable product and selects Recipe.
+2. The Manager explicitly saves a positive reference yield, creating an empty persisted recipe;
+   opening the tab alone writes nothing.
+3. After save succeeds, the Manager adds an eligible Ingredient and positive quantity.
+4. The system inherits the unit and shows the current main brand when applicable.
+5. The system calculates line cost, COGS share, balance, limiting ingredient, and capacity.
+6. Saving the line updates total COGS and maximum producible quantity.
 
-**Flow F - Manager records production**
+### Journey F — Manager records production
 
-1. The manager clicks `Produce`.
-2. The system opens the modal with the Lot/Quantity switch.
-3. The manager enters batches or quantity in grams.
-4. The system shows the equivalent preview and projection table.
-5. If any ingredient is insufficient, the line itself shows necessary,
-   available and missing; confirm is blocked.
-6. If there is sufficient balance, the user confirms.
-7. The system downloads the ingredients and adds the product produced in the same
-   transaction.
-8. If successful, refresh the page and close the modal.
-9. On failure, no changes remain.
+1. The Manager selects `Produce`.
+2. The system opens Batch/Quantity entry with an equivalent-quantity preview and ingredient
+   projection.
+3. The Manager enters batches or produced quantity.
+4. The system validates each projected balance:
+   - **Insufficient and negative stock disallowed:** shows needed, available, and missing inline
+     and blocks confirmation.
+   - **Sufficient or negative stock allowed:** enables confirmation.
+5. On confirmation, the system writes off ingredients and adds produced stock atomically.
+6. Success closes the modal and refreshes stock. Failure applies no change, preserves context, and
+   allows retry.
 
-**Flow G - Manager configures accompaniments**
+### Journey G — Manager configures accompaniments
 
-1. The manager opens a Portion product.
-2. Access Accompaniments and click on `Link accompaniment`.
-3. Select product, type, quantity per serving and, when applicable, brand.
-4. Configure the price per product + size + accompaniment in the commercial section.
-5. The system displays the expected cost and saves the link.
-6. Accompaniment is available at the POS only for active sizes
-   configured.
+1. The Manager opens a Portion and selects Accompaniments, then `Link accompaniment`.
+2. The Manager selects an eligible product, type, quantity per portion, and applicable main brand.
+3. The Manager configures product + size + accompaniment price in the commercial section.
+4. The system shows expected cost and saves the link.
+5. PDV can offer the accompaniment only with configured active sizes.
 
-**Flow H - Manager changes unit**
+### Journey H — Manager changes a product unit
 
-1. The manager goes to Settings and changes the unit.
-2. The system opens a warning dialog.
-3. The dialog tells you which dependent brands, recipes, sizes, and operations use
-   the product unit.
-4. The manager cancels or confirms.
-5. If confirmed, the system saves the new unit according to the conversion rules
-   in force and signals values that require review.
+1. The Manager changes Unit in Settings.
+2. The system lists dependent brands, recipes, sizes, and operations.
+3. If a brand is incompatible, the system requests a positive conversion factor for every
+   affected brand.
+4. The Manager cancels or confirms:
+   - **Cancel:** leaves product and dependent quantities unchanged.
+   - **Confirm:** saves under the approved conversion rules and identifies values requiring review.
 
-**Flow I - Manager removes product**
+### Journey I — Manager resolves a blocked category change
 
-1. The manager clicks `Remove`.
-2. The system lists brands, recipes, sizes, accompaniments and configurations that
-   will be deleted.
-3. The manager cancels or confirms.
-4. Upon confirmation, the system deletes the product and its dependent data.
-5. Products and brands from other registrations remain intact.
+1. The Manager attempts to remove a category that has dependencies.
+2. The system blocks the change and lists direct actions for the relevant recipes, prices,
+   accompaniments, brands, or Resale settings.
+3. The Manager may cancel with no change or follow a dependency action.
+4. After resolving dependencies, the preserved attempt can be retried.
+5. The system applies the category change only when all dependencies are valid.
 
----
+### Journey J — Manager removes a product
 
-### 4. Out of Scope
+1. The Manager selects `Remove`.
+2. The system consolidates the removable brands, recipe, sizes, accompaniment links, and settings,
+   while identifying retained historical records.
+3. The Manager cancels or confirms.
+4. On confirmation, the system removes the product and removable dependencies atomically.
+5. If safe removal fails, nothing is deleted and the system presents a recovery action.
+6. Products from other registrations and retained operational, audit, and order history remain
+   unchanged.
 
-- POS, cart, sales processing and order history.
+## 8. Out of Scope
+
+- PDV cart, sale processing, sales write-off rules, and order history.
 - Price modifiers.
-- Payment methods, cash, change and reconciliation.
-- Total value in stock, profit, margin and financial reports.
+- Payment methods, cash, change, and reconciliation.
+- Total stock value, profit, margin reporting, and financial reports.
 - Physical inventory.
-- Batches and validity.
+- Batches and expiration dates.
 - Losses and waste.
-- Administrative stock-audit export, reconciliation and correction workflows.
-- Automatic minimum stock notifications by email, SMS or push.
+- Administrative stock-audit export, reconciliation, and correction workflows.
+- Automatic minimum-stock notifications by email, SMS, or push.
 - Purchase orders and estimated arrival.
 - Brands shared between products.
-- Multiple recipes for the same manufacturable product.
-- Automatic conversion between g↔kg or ml↔l.
+- Multiple recipes for one Manufacturable product.
+- Automatic conversion between `g↔kg` or `ml↔l`.
 - Multi-store and multiple operational units.
-- Authentication, users, profiles and permissions.
-- Billing, plans and subscriptions.
+- Authentication, users, profiles, and permissions.
+- Billing, plans, and subscriptions.
 - Management dashboard and BI.
-- Automatic composition of cups, lids, spoons and disposables.
-- Monitoring of resale products.
-- Type `Base` as accompaniment; the Portion is already the basis of the order.
+- Automatic composition of cups, lids, spoons, and disposables.
+- Monitoring of Resale products.
+- Accompaniment type `Base`; the Portion is already the order base.
 
-#### Discarded during definition
+### Discarded during definition
 
-- **Stock value in MRP:** removed; costs, profits and movements
-  Financial data belongs to a financial view.
-- **Physical stock, batches and expiration date:** removed from the scope of this version.
-- **Administrative stock audit:** export, reconciliation and correction remain
-  outside this version; the module maintains
-  only the operational data necessary to produce.
-- **Portion not sized:** discarded; every salable Portion needs at least
-  one size.
-- **Mandatory monitoring:** discarded; a Portion may be sold without
-  accompaniment.
-- **Permanent fixed brand on the recipe:** replaced by the current main brand
-  for automatic write-offs by brand.
-- **Global accompaniment price:** replaced by price per product +
-  size + accompaniment.
-- **Mixed visual unit:** current design maintains weight amounts in
-  grams.
+- **Stock value in MRP:** rejected because stock valuation, profit, and financial movements belong
+  to a financial view.
+- **Physical stock, batches, and expiration dates:** removed from this version.
+- **Administrative stock audit:** export, reconciliation, and correction remain outside this
+  version; MRP retains only the operational facts needed to produce and explain committed changes.
+- **Portion without sizes:** rejected because every salable Portion requires at least one active
+  size.
+- **Mandatory accompaniment:** rejected because a Portion may be sold without an accompaniment.
+- **Permanent recipe brand:** replaced by the current main brand for automatic By-brand write-off.
+- **Global accompaniment price:** replaced by price per product + size + accompaniment.
+- **Mixed visual weight units:** replaced by grams throughout the current approved experience.

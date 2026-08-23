@@ -41,6 +41,11 @@ A completed Plan remains current when conclusion or PR feedback reopens an in-Co
 correction; reopen only its affected phases/tasks. Never route from this workflow to
 another implementation prompt.
 
+The PRD Product Dependency Graph is product authority, not an execution plan. Do not derive
+Builder order, technical prerequisites, Plan phases, waves or parallelism from it. Derive those
+only from the current Spec's Technical Contract, affected paths, runtime dependencies and
+ownership boundaries.
+
 ## Fail-closed implementation invariants
 
 These are execution requirements, not recommendations. If any invariant cannot be verified,
@@ -59,6 +64,11 @@ stop before editing feature source and report the exact blocker:
 - The Spec's exact revision, required file/widget tree, contracts, exclusions and validation
   exits are authoritative. Existing code structure, a screenshot, a passing test or a user
   message cannot silently override them.
+- Preserve the applicable PRD's Implemented checkboxes during normal delivery.
+  `implement-spec` never changes an unchecked requirement to checked; it changes a checkbox only
+  to reset a materially amended requirement to unchecked through the approved Contract-change
+  workflow. Evaluation `ready` means the implementation evidence can enter conclusion; it is not
+  PRD closure and does not authorize checking a PRD requirement.
 - An implementation, test, browser, network, console, build, migration or visual error within
   the current Contract is an automatic correction: record it, invalidate affected evidence,
   continue the responsible Builder or activate a scoped Builder Fix only when it cannot be
@@ -80,9 +90,10 @@ stop before editing feature source and report the exact blocker:
 
 For feature implementation changes, the Orchestrator must activate a scoped execution assignment
 before any feature source is edited. The assignment must receive the exact Spec revision,
-acceptance criteria, required file/widget tree, allowed paths, Rule Pack, design references and
-validation exits; its activation and scope must be recorded in Evaluation and the current
-execution artifacts.
+Spec `CA-*` acceptance criteria, mapped PRD `REQ-*` requirements or source statements, required
+file/widget tree, allowed paths, Rule Pack, design references and validation exits; its
+activation and scope must be recorded in Evaluation and the current execution artifacts. PRDs do
+not define a separate Acceptance Criteria section.
 
 Use `Builder Direct` in the current agent context for a small cohesive delivery that fits
 comfortably with correction and validation headroom. With a current Plan, activate stable
@@ -105,6 +116,12 @@ Confirm the Spec is `open` for initial implementation or `in_progress` for a res
 implementation/correction, its revision is current, required design references exist and no
 material ambiguity remains. Preserve actual source and GitHub Issue traceability without
 inventing external records.
+
+When a module PRD is authoritative, confirm each mapped `REQ-*` uses the canonical contract:
+Implemented checkbox, Outcome, Actors, optional Consumes, optional Provides, Capabilities and
+conditional Experience. Treat User Journeys as cross-requirement product narratives, not as
+execution order. Do not expect PRD User Stories or Acceptance Criteria, and do not add them as
+implementation artifacts.
 
 Before the first implementation change for the current revision:
 
@@ -453,13 +470,15 @@ When product behavior, design intent or technical boundaries change:
 1. pause affected work and set the Spec to `draft`;
 2. immediately invoke `create-spec` for clarification and authority alignment, updating PRD,
    Rules, Architecture, Modules, Design or Tooling first when required;
-3. increment the revision, update affected Contracts/design/validation and run integrity
+3. when the approved change materially amends PRD requirements, return every affected `REQ-*`
+   Implemented checkbox to unchecked before authoring the revised Spec;
+4. increment the revision, update affected Contracts/design/validation and run integrity
    checks;
-4. return the Spec to `open` and preserve invalidated evidence as historical;
-5. set Evaluation to `in_progress` and re-evaluate strategy;
-6. create or reconcile a Plan when the revision requires Plan-backed execution, or set the
+5. return the Spec to `open` and preserve invalidated evidence as historical;
+6. set Evaluation to `in_progress` and re-evaluate strategy;
+7. create or reconcile a Plan when the revision requires Plan-backed execution, or set the
    old Plan to `superseded` when direct execution is now appropriate;
-7. resume this workflow automatically under the selected strategy.
+8. resume this workflow automatically under the selected strategy.
 
 Ask the user only when the classification or intended product/technical outcome is genuinely
 ambiguous.
@@ -487,7 +506,8 @@ completed on the current candidate and every verified blocking review finding is
   Builder when possible and rerun invalidated evidence.
 - When all evidence is current and no blocking finding remains, reconcile Evaluation to the
   current implementation, complete the Plan when present, set Evaluation to `ready` and immediately
-  invoke `conclude-spec` when publication authority is available.
+  invoke `conclude-spec` when publication authority is available. Do not check any PRD
+  requirement: Evaluation `ready` is an implementation-evidence transition, not PRD closure.
 - After three materially identical failures, ask the user only when resolution requires a
   decision unavailable in the repository or environment; otherwise continue safely.
 

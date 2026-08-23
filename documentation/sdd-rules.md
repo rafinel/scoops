@@ -35,7 +35,7 @@ sources of truth:
 | [`rules.md`](./rules.md) and selected Rules | Reusable implementation conventions for affected paths and behavior. |
 | [`architecture.md`](./architecture.md) | System boundaries, dependency direction, consistency and integrations. |
 | [`modules.md`](./modules.md) | Business-module ownership. |
-| Module PRD | Product behavior, permissions, workflows and outcomes. |
+| Module PRD | Product outcomes, actors, capabilities, experience, product dependencies, user journeys and implementation inventory. |
 | [`design.md`](./design.md) and saved design references | UI system and feature-specific visual intent. |
 | [`tooling.md`](./tooling.md) | Real generation, validation, build and environment commands. |
 | GitHub Issue, report or direct request | Delivery source and external traceability when present. |
@@ -44,6 +44,38 @@ When a requested feature requires a PRD, Rule, architecture, module, design or t
 change, that authority is updated first. Product behavior, global Rules, architecture and
 module ownership require explicit user approval. The Spec is then written against the
 updated authority.
+
+### PRD requirement contract
+
+Each module PRD expresses a canonical `REQ-*` requirement with these fields, in this order:
+
+1. an **Implemented** checkbox;
+2. **Outcome**;
+3. **Actors**;
+4. optional **Consumes**;
+5. optional **Provides**;
+6. **Capabilities**;
+7. **Experience** when the requirement has a user-visible effect.
+
+Omit `Consumes` or `Provides` when no meaningful product-capability relationship exists, and
+omit `Experience` only for a purely system-executed requirement with no user-visible effect.
+PRDs do not contain User Stories or Acceptance Criteria. Observable implementation acceptance
+belongs to the Spec's `CA-*` contract. PRD User Journeys may cross several `REQ-*` requirements
+and must not become a duplicate requirement list.
+
+A PRD Product Dependency Graph records only product-capability consumption: an edge from A to B
+means B consumes a capability or authoritative fact provided by A. It does not define file or
+technical dependencies, implementation priority, foundation work, execution phases, waves or
+parallelism. Specs and Plans derive execution dependencies from the Technical Contract and real
+repository boundaries, never from the PRD graph.
+
+New and materially amended requirements use an unchecked Implemented checkbox. A material PRD
+amendment returns every affected `REQ-*` to unchecked before the revised Spec is authored.
+`create-prd`, `create-spec` and `implement-spec` never check a PRD requirement. Only
+`conclude-spec` may check a fully delivered current requirement, after conclusion preflight and
+before the delivery commit and final PR CI. Evaluation `ready` means implementation evidence can
+enter conclusion; it is not PRD closure and does not authorize a checkbox change by
+`implement-spec`.
 
 ## Roles
 
@@ -121,7 +153,7 @@ for a revised Spec that replaces the Plan or switches to direct implementation.
 
 | Item | Values | Meaning |
 | --- | --- | --- |
-| Evaluation status | `in_progress`, `ready`, `completed` | Evidence is being gathered, accepted and ready for conclusion, or closed after PR CI. |
+| Evaluation status | `in_progress`, `ready`, `completed` | Evidence is being gathered, accepted and ready for conclusion, or closed after PR CI. `ready` is not PRD closure and does not change a PRD Implemented checkbox. |
 | Validation result | `passed`, `failed`, `blocked` | Sensor-backed result stored in Evaluation history, not Evaluation metadata. |
 
 ## End-to-end lifecycle
@@ -175,6 +207,11 @@ implementation Contract. Before authoring it must resolve every material product
 technical, design and validation ambiguity. Questions include repository evidence, a
 recommendation, alternatives and impact. Facts already fixed by authoritative documents
 are not delegated back to the user.
+
+When a PRD is authoritative, the Spec derives its `RF-*` and `CA-*` contracts from the complete
+mapped requirement: Outcome, Actors, applicable Consumes and Provides, Capabilities, conditional
+Experience and relevant cross-requirement User Journeys. The PRD does not duplicate User Stories
+or Acceptance Criteria, and its Product Dependency Graph is not implementation sequencing.
 
 The Spec has five top-level sections:
 
@@ -274,6 +311,12 @@ results. Validation artifacts tied to an earlier affected diff are marked histor
 rather than silently reused; transient screenshots are regenerated under `test-results/` or
 as CI artifacts instead of being committed under feature documentation.
 
+During normal delivery, `implement-spec` preserves every PRD Implemented checkbox exactly as
+received; an approved material PRD amendment is the sole case in this workflow that changes an
+affected checkbox, and it changes it only to unchecked. Reaching Evaluation `ready` establishes
+only that the current implementation and evidence can proceed to conclusion; it neither closes
+the PRD requirement nor marks it implemented.
+
 The canonical [`evaluation.md` template](./templates/evaluation.md) fixes the table structure
 and stable evidence IDs. An Evaluation records:
 
@@ -315,7 +358,7 @@ artifacts are changed:
 | Classification | Meaning | SDD action |
 | --- | --- | --- |
 | Implementation correction | Existing implementation does not satisfy the current Spec, Design Contract or Rule. | Keep the Spec revision, record a finding, reopen affected work/evidence, resume the responsible Builder when possible and rerun the affected validation. |
-| Contract change | Requested product behavior, design intent or technical boundary differs from the current Spec. | Set the Spec to `draft`, route through `create-spec`, update higher authority first when required, increment revision, refresh affected design/validation, reopen and reroute implementation. |
+| Contract change | Requested product behavior, design intent or technical boundary differs from the current Spec. | Set the Spec to `draft`, route through `create-spec`, update higher authority first when required, return every materially amended PRD `REQ-*` to unchecked, increment revision, refresh affected design/validation, reopen and reroute implementation. |
 
 Earlier evidence and verdicts affected by a new Spec revision remain as historical records.
 If the route changes from Plan to direct implementation, the Plan becomes `superseded`.
@@ -332,13 +375,22 @@ With user authorization to commit, push and publish, conclusion:
 
 1. runs the required local preflight;
 2. verifies generated artifacts, migrations, design evidence and documentation;
-3. uses `commit-code` for scoped commits;
-4. invokes [`create-pr`](./prompts/create-pr-prompt.md) mandatorily whenever the delivery PR
+3. resolves every in-scope PRD requirement through `REQ-*`/`RF-*`/`CA-*` traceability, checks
+   only fully delivered requirements as Implemented and leaves partial/deferred requirements
+   unchecked;
+4. uses `commit-code` for scoped commits, including required PRD checkbox changes;
+5. invokes [`create-pr`](./prompts/create-pr-prompt.md) mandatorily whenever the delivery PR
    is missing, points at an earlier candidate SHA, or has stale/incomplete publication details;
    `conclude-spec` does not bypass this workflow with ad hoc PR edits;
-5. records the branch and PR URL;
-6. waits for every applicable checked-in GitHub Actions workflow on the current PR head SHA;
-7. records workflow name, result, run URL and tested SHA in Evaluation.
+6. records the branch and PR URL;
+7. waits for every applicable checked-in GitHub Actions workflow on the current PR head SHA;
+8. records workflow name, result, run URL and tested SHA in Evaluation.
+
+Checkbox resolution happens after local closure preflight and before the delivery commit, PR
+publication and final PR CI, so the checked PRD state is part of the exact tested candidate. A
+verified product failure returns affected requirements to unchecked; partial/deferred delivery
+stays unchecked. Transient infrastructure failures and evidence-only gaps that do not invalidate
+verified product behavior preserve checkbox state.
 
 Before staging a delivery commit, conclusion and `commit-code` audit the complete
 candidate diff against the Spec scope. Pre-existing SDD, Rule, prompt or other
@@ -374,8 +426,8 @@ open. It classifies each actionable conversation:
 | --- | --- |
 | Explanation only | Reply with evidence; do not reopen SDD artifacts. |
 | PR metadata correction | Update title, body, labels or traceability; do not reopen the Spec. |
-| Implementation correction | Move the same completed Spec back to `open` without a revision increment, set Evaluation and affected Plan work to `in_progress`, implement/validate, then invoke conclusion again. |
-| Contract change | Move the Spec to `draft`, route through `create-spec`, increment the revision, reconcile Plan/Evaluation, implement/validate, then invoke conclusion again. |
+| Implementation correction | Move the same completed Spec back to `open` without a revision increment, return affected PRD requirements to unchecked only when verified product evidence is invalidated, set Evaluation and affected Plan work to `in_progress`, implement/validate, then invoke conclusion again. |
+| Contract change | Move the Spec to `draft`, return materially amended PRD requirements to unchecked, route through `create-spec`, increment the revision, reconcile Plan/Evaluation, implement/validate, then invoke conclusion again. |
 
 The feedback workflow owns comment inspection, classification, replies and reopening. It
 does not implement changes or own final CI. After merge, defects use the

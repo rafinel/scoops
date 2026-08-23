@@ -49,6 +49,14 @@ When implementing a Pencil design:
 4. Implement the smallest coherent screen or component boundary.
 5. Validate the result with the Playwright CLI when the application can be run
    locally.
+6. After an approved Pencil update, treat the affected design as an
+   implementation change when production code is in scope: trace the changed
+   nodes to their owning source paths, update the corresponding UI, routes,
+   behavior and tests in the same task, and validate the runtime result against
+   the updated Pencil reference. Do not finish with only a `.pen` change when
+   the request includes implementation changes. If the Pencil update changes
+   product behavior, use the active Spec amendment and PRD workflow before
+   editing production code.
 
 Use the Pencil design skill whenever a task involves a Pencil workflow and that
 skill is available in the current agent environment.
@@ -93,7 +101,7 @@ evidence that a real authenticated, server-backed flow works.
 1. Identify the services required by the flow. For full-stack behavior, inspect
    `docker compose ps` and verify the relevant health endpoints before running the
    Playwright CLI flow. Default local endpoints are Supabase at
-   `http://127.0.0.1:54321`, the server at `http://127.0.0.1:3333`, and the web
+   `http://127.0.0.1:54321`, the server at `http://127.0.0.1:3336`, and the web
    app at `http://127.0.0.1:4000`.
 2. Start `pnpm --filter server dev` and `pnpm --filter web dev` in persistent
    terminal sessions when the flow needs both applications. Wait for compilation
@@ -155,8 +163,9 @@ infrastructure may support modules but must not absorb their business rules.
 
 ### 4. Module PRDs under [`documentation/prds`](documentation/prds) — product behavior
 
-Read the PRD owned by the affected module before changing business rules, user
-flows, permissions, validation, or product-facing behavior:
+Read the PRD owned by the affected module before changing outcomes, actors,
+capabilities, experience, user journeys, permissions, validation, product
+dependencies, or other product-facing behavior:
 
 - `identity.md` for establishments, users, access, and onboarding;
 - `billing.md` for plans, trials, subscriptions, and charges;
@@ -166,6 +175,11 @@ flows, permissions, validation, or product-facing behavior:
 
 If implementation changes a business rule, update the corresponding PRD in the
 same task so product intent and code remain aligned.
+
+PRD requirement checkboxes are delivery state, not implementation-progress state.
+Only `conclude-spec` marks a complete requirement Implemented, after local closure
+preflight and before the delivery commit and final PR CI. A materially amended
+requirement returns to unchecked before its revised Spec is authored.
 
 ### 5. [`documentation/design.md`](documentation/design.md) — UI work
 

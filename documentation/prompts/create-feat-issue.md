@@ -37,6 +37,32 @@ Before writing the issue:
 6. Inspect relevant existing source files and tests when technical scope needs
    to be grounded in the current implementation.
 
+## Approved PRD consumption
+
+When an applicable PRD requirement exists, derive the issue from its complete approved
+structure:
+
+- use `Outcome` and `Actors` to state who receives which user or business result;
+- use `Consumes` and `Provides` to preserve required product capabilities, authoritative facts
+  and cross-requirement or cross-module boundaries;
+- use `Capabilities` to define included observable behavior, rules, validation, transitions,
+  consistency and exceptions;
+- use `Experience` to define applicable visible interaction, states, responsiveness and
+  accessibility.
+
+Use all of those fields together to derive the issue Outcome and Scope; do not treat any single
+field as the complete requirement. PRDs intentionally have no Acceptance Criteria or User
+Stories sections. Derive issue-level acceptance criteria from the selected requirement fields
+without adding a duplicate PRD contract. Use User Journeys only to preserve end-to-end or
+alternate scenarios that cross one or more `REQ-*` requirements.
+
+The PRD Product Dependency Graph describes consumption of product capabilities or
+authoritative facts. It is not implementation sequencing, issue decomposition, foundation
+work, execution waves or delivery priority.
+
+Treat the PRD `Implemented` checkbox as read-only. Creating an issue never checks, unchecks or
+otherwise changes a requirement's checkbox state.
+
 ## GitHub metadata
 
 Create the issue in the current repository and use only the repository's
@@ -132,8 +158,8 @@ section may link to the design file as supporting context.
 - When Pencil file or node references are supplied, preserve them exactly and
   include them as an explicit Scope bullet rather than only listing them under
   References.
-- Do not claim that a requirement is implemented; this prompt only creates the
-  issue.
+- Do not claim that a requirement is implemented or change its `Implemented`
+  checkbox; this prompt only creates the issue.
 
 ## Approval gate
 

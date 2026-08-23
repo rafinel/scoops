@@ -31,6 +31,19 @@ Repository authority overrides generic workflow assumptions. Use actual reposito
 commands, versions, terminology and source systems. Never invent tickets, migrations,
 framework conventions or validation categories.
 
+When a PRD is authoritative, consume each applicable `REQ-*` through its `Outcome`, `Actors`,
+`Consumes`, `Provides`, `Capabilities` and `Experience`. The PRD does not own Acceptance
+Criteria or User Stories: derive the Spec's `RF-*` and `CA-*` contract from those requirement
+fields instead of expecting, reconstructing or requesting duplicate PRD sections. Use User
+Journeys as cross-`REQ-*` scenario context. Treat the Product Dependency Graph as product
+capability and authoritative-fact dependency evidence only, never as implementation order,
+foundation work, execution waves or Plan sequencing.
+
+The `Implemented` checkbox records conclusion state; it does not define product behavior or
+Spec scope. This workflow never changes an applicable requirement from `[ ]` to `[x]`. Before
+authoring the Spec, return every materially amended applicable requirement to `[ ]`, including
+one that was previously checked, while leaving unchanged requirement checkboxes untouched.
+
 ### 2. Classify and research
 
 Record the real source as `prd`, `issue`, `report` or `direct-request`. Choose depth from
@@ -269,6 +282,25 @@ When the authoritative PRD/source defines `REQ-*` requirements, map every RF to 
 real `REQ-*` identifiers; do not invent requirement IDs. If no REQ taxonomy exists, map each RF
 to the actual source statement or Issue acceptance instead. Show the mapping directly in the RF
 table or an adjacent RF-to-REQ/source traceability table.
+
+For every applicable PRD `REQ-*`, derive the RF and CA set from the complete requirement
+contract:
+
+- `Outcome` defines the user or business result the Spec must deliver;
+- `Actors` define initiators, autonomous triggers and applicable authorization perspectives;
+- `Consumes` and `Provides` define product capability or authoritative-fact boundaries and
+  cross-requirement/module obligations, not implementation dependencies or delivery order;
+- `Capabilities` define observable behavior, validation, limits, transitions, consistency,
+  history and exceptions;
+- `Experience` defines user-visible interaction, feedback, states, responsiveness and
+  accessibility when present.
+
+Do not reduce a requirement to only its Capabilities or Experience bullets. Synthesize RFs from
+the six fields, then derive Spec-owned `CA-*` criteria that prove those RFs. Use PRD User
+Journeys to identify end-to-end and alternate scenarios spanning one or more requirements and
+to inform CA/MV coverage without copying journeys into a second requirement system. Do not
+look for PRD Acceptance Criteria or User Stories; their absence is intentional.
+
 Use a requirements table when there is more than one requirement:
 
 | ID | REQ/source coverage | Required behavior |
@@ -964,6 +996,11 @@ or integrity work remains. Before changing it to `open`, verify:
 - every cross-lane producer, contract, and consumer relationship is consistent or represented
   as a resolved clarification or explicit Contract decision;
 - metadata, source, status and revision consistency;
+- every applicable PRD requirement was consumed through Outcome, Actors, Consumes, Provides,
+  Capabilities and Experience, with cross-REQ User Journeys reflected where relevant;
+- no Product Dependency Graph edge was treated as implementation sequencing;
+- no requirement was marked Implemented by this workflow, and every materially amended
+  applicable requirement is unchecked before Spec authoring;
 - complete RF/CA/evidence traceability;
 - filesystem-valid layer-contract path and change classifications;
 - complete resulting field schemas for every affected Entity and Structure;
