@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://127.0.0.1:4000",
+      "localStorage": [
+        {
+          "name": "sb-127-auth-token",
+          "value": "{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjU0MzIxL2F1dGgvdjEiLCJzdWIiOiI2ZmU3MWU4OC1lZWRjLTQ0ZjgtYWFlNS0zNDM5YjU0OTVlOGYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzg3NTM3MjA5LCJpYXQiOjE3ODc1MzM2MDksImVtYWlsIjoib3BlcmF0b3Iuc2VlZEBzY29vcHMuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmFtZSI6IlNjb29wcyBPcGVyYXRvciJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzg3NTMzNjA5fV0sInNlc3Npb25faWQiOiIwM2EzZjVmMi02NDAxLTQ5NDQtYTg4NC0yMmFjNmIzZDBlYWUiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.LKZ1KkBgy4ibu37tEgu4v52t27XQoVlWDzvFQNndpqk\",\"token_type\":\"bearer\",\"expires_in\":3600,\"expires_at\":1787537209,\"refresh_token\":\"qhp5pb4l3f6b\",\"user\":{\"id\":\"6fe71e88-eedc-44f8-aae5-3439b5495e8f\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"email\":\"operator.seed@scoops.com\",\"email_confirmed_at\":\"2026-08-23T23:42:01.744113Z\",\"phone\":\"\",\"confirmed_at\":\"2026-08-23T23:42:01.744113Z\",\"last_sign_in_at\":\"2026-08-24T01:06:49.047183732Z\",\"app_metadata\":{\"provider\":\"email\",\"providers\":[\"email\"]},\"user_metadata\":{\"email_verified\":true,\"name\":\"Scoops Operator\"},\"identities\":[{\"identity_id\":\"93c50d1b-9899-4d7c-a450-879f8ced58aa\",\"id\":\"6fe71e88-eedc-44f8-aae5-3439b5495e8f\",\"user_id\":\"6fe71e88-eedc-44f8-aae5-3439b5495e8f\",\"identity_data\":{\"email\":\"operator.seed@scoops.com\",\"email_verified\":false,\"phone_verified\":false,\"sub\":\"6fe71e88-eedc-44f8-aae5-3439b5495e8f\"},\"provider\":\"email\",\"last_sign_in_at\":\"2026-08-23T23:42:01.740632Z\",\"created_at\":\"2026-08-23T23:42:01.740661Z\",\"updated_at\":\"2026-08-23T23:42:01.740661Z\",\"email\":\"operator.seed@scoops.com\"}],\"created_at\":\"2026-08-23T23:42:01.738722Z\",\"updated_at\":\"2026-08-24T01:06:49.051101Z\",\"is_anonymous\":false},\"weak_password\":null}"
+        }
+      ]
+    }
+  ]
+}
