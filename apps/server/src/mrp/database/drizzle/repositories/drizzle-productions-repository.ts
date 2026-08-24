@@ -32,4 +32,8 @@ export class DrizzleProductionsRepository
       .returning()
     return DrizzleProductionMapper.toDomain(record)
   }
+
+  async removeAll(): Promise<void> {
+    await this.database.delete(productionModel)
+  }
 }

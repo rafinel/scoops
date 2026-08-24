@@ -201,6 +201,20 @@ Run a real-service scenario explicitly only after starting the required Server,
 Supabase and database services; mocked route coverage is not persistence or
 authorization evidence.
 
+To create reusable authenticated browser sessions for real-service scenarios,
+run the opt-in setup command after seeding the local development accounts:
+
+```bash
+pnpm --filter web test:auth:setup
+```
+
+The command logs in the local Manager and Operator seed accounts and writes
+ignored Playwright storage states to `apps/web/playwright/.auth/`. Override the
+credentials with `PLAYWRIGHT_MANAGER_EMAIL`, `PLAYWRIGHT_MANAGER_PASSWORD`,
+`PLAYWRIGHT_OPERATOR_EMAIL`, and `PLAYWRIGHT_OPERATOR_PASSWORD` when needed.
+Use a generated state in a test with `test.use({ storageState: ... })`; do not
+commit the generated files.
+
 Browser screenshots used for validation are ephemeral. Write them to Playwright's
 `test-results/` output or retain them as CI artifacts; do not write implementation
 captures under `documentation/features/**/evidence/`.

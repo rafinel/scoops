@@ -12,17 +12,23 @@ import type {
   BrandCreate,
   Product,
   ProductAccompaniment,
+  ProductSize,
+  ResaleConfiguration,
 } from '@scoops/core/mrp/domain/entities'
 import type {
   AccompanimentTypeCreate,
   ProductAccompanimentCreate,
   ProductCreate,
+  ProductSizeCreate,
+  ResaleConfigurationCreate,
 } from '@scoops/core/mrp/domain/structures'
 import type {
   AccompanimentTypesRepository,
   BrandsRepository,
   ProductAccompanimentsRepository,
   ProductsRepository,
+  ProductSizesRepository,
+  ResaleConfigurationsRepository,
   StockBalancesRepository,
   StockTransactionsRepository,
 } from '@scoops/core/mrp/interfaces'
@@ -97,6 +103,14 @@ export class MrpModuleFixture {
     return this.get(MRP_REPOSITORIES.stockBalances)
   }
 
+  get productSizes(): ProductSizesRepository {
+    return this.get(MRP_REPOSITORIES.productSizes)
+  }
+
+  get resaleConfigurations(): ResaleConfigurationsRepository {
+    return this.get(MRP_REPOSITORIES.resaleConfigurations)
+  }
+
   get transactions(): StockTransactionsRepository {
     return this.get(MRP_STOCK_TRANSACTIONS_REPOSITORY)
   }
@@ -157,6 +171,14 @@ export class MrpModuleFixture {
 
   addProduct(input: ProductCreate): Promise<Product> {
     return this.products.add(input)
+  }
+
+  addProductSize(input: ProductSizeCreate): Promise<ProductSize> {
+    return this.productSizes.add(input)
+  }
+
+  addResaleConfiguration(input: ResaleConfigurationCreate): Promise<ResaleConfiguration> {
+    return this.resaleConfigurations.add(input)
   }
 
   addBrand(input: BrandCreate): Promise<Brand> {

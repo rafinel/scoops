@@ -156,6 +156,10 @@ export class DrizzleProductAccompanimentsRepository
     }
   }
 
+  async removeAll(): Promise<void> {
+    await this.database.delete(productAccompanimentModel)
+  }
+
   private toConflictError(error: unknown): unknown {
     if (this.isIntegrityConstraintError(error)) {
       return new ConflictError('Database operation conflicted')

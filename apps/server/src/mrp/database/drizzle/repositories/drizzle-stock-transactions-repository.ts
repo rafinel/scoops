@@ -57,6 +57,10 @@ export class DrizzleStockTransactionsRepository
     }
   }
 
+  async removeAll(): Promise<void> {
+    await this.database.delete(stockTransactionModel)
+  }
+
   private buildFilters(
     establishmentId: string,
     productId: string,

@@ -7,11 +7,13 @@ import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 import { DrizzleAccompanimentTypesRepository } from './drizzle-accompaniment-types-repository'
 import { DrizzleProductsRepository } from './drizzle-products-repository'
 import { DrizzleProductAccompanimentsRepository } from './drizzle-product-accompaniments-repository'
+import { DrizzleProductSizesRepository } from './drizzle-product-sizes-repository'
 import { DrizzleBrandsRepository } from './drizzle-brands-repository'
 import { DrizzleProductionIngredientsRepository } from './drizzle-production-ingredients-repository'
 import { DrizzleProductionsRepository } from './drizzle-productions-repository'
 import { DrizzleRecipeIngredientsRepository } from './drizzle-recipe-ingredients-repository'
 import { DrizzleRecipesRepository } from './drizzle-recipes-repository'
+import { DrizzleResaleConfigurationsRepository } from './drizzle-resale-configurations-repository'
 import { DrizzleStockBalancesRepository } from './drizzle-stock-balances-repository'
 import { DrizzleStockTransactionsRepository } from './drizzle-stock-transactions-repository'
 
@@ -63,7 +65,10 @@ export class DrizzleMrpDatabase implements MrpDatabase {
               this.drizzleClient,
               transaction,
             ),
-            productSizesRepository: undefined as never,
+            productSizesRepository: new DrizzleProductSizesRepository(
+              this.drizzleClient,
+              transaction,
+            ),
             accompanimentTypesRepository: new DrizzleAccompanimentTypesRepository(
               this.drizzleClient,
               transaction,
@@ -72,7 +77,10 @@ export class DrizzleMrpDatabase implements MrpDatabase {
               this.drizzleClient,
               transaction,
             ),
-            resaleConfigurationsRepository: undefined as never,
+            resaleConfigurationsRepository: new DrizzleResaleConfigurationsRepository(
+              this.drizzleClient,
+              transaction,
+            ),
           }),
         { isolationLevel: 'serializable', accessMode: 'read write' },
       )

@@ -35,5 +35,9 @@ export function productAccompanimentsRoute(productId: string): string {
   return ROUTES.productDetailsAccompaniments.replace('$productId', productId)
 }
 
+export function productStockRoute(productId: string): string {
+  return ROUTES.productDetailsStock.replace('$productId', productId)
+}
+
 export type RouteName = keyof typeof ROUTES
 export type RoutePath = (typeof ROUTES)[RouteName]

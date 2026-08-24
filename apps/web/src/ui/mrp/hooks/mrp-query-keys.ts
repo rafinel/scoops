@@ -10,6 +10,8 @@ export const mrpQueryKeys = {
     [...mrpQueryKeys.products(), productId, 'stock'] as const,
   productRecipe: (productId: string) =>
     [...mrpQueryKeys.products(), productId, 'recipe'] as const,
+  productPricing: (productId: string) =>
+    [...mrpQueryKeys.products(), productId, 'pricing'] as const,
   productAccompaniments: (productId: string) =>
     [...mrpQueryKeys.products(), productId, 'accompaniments'] as const,
   accompanimentCandidates: (input: unknown) =>

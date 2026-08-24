@@ -12,6 +12,7 @@ node_modules/
 coverage/
 playwright-report/
 test-results/
+apps/web/playwright/.auth/
 
 # production
 **/build/*

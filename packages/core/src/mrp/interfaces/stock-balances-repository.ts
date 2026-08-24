@@ -13,4 +13,5 @@ export interface StockBalancesRepository {
     signedQuantity: number,
     minimumQuantity?: number,
   ): Promise<StockBalance>
+  removeAll(): Promise<void>
 }

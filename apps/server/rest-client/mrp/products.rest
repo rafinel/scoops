@@ -3,6 +3,7 @@
 @linkId = 00000000-0000-0000-0000-000000000000
 @accompanimentTypeId = 00000000-0000-0000-0000-000000000000
 @accompanimentProductId = 00000000-0000-0000-0000-000000000000
+@sizeId = 00000000-0000-0000-0000-000000000000
 
 ### List products
 GET {{baseUrl}}/products?page=1&pageSize=10&category=ingredient&category=resale
@@ -126,3 +127,55 @@ Content-Type: application/json
 ### Remove a product accompaniment
 DELETE {{baseUrl}}/products/{{productId}}/accompaniments/{{linkId}}
 Authorization: Bearer {{accessToken}}
+
+### Get product pricing
+GET {{baseUrl}}/products/{{productId}}/pricing
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Register a Portion size
+POST {{baseUrl}}/products/{{productId}}/sizes
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Pote 500 ml",
+  "quantity": 0.5,
+  "price": 18.9
+}
+
+### Update a Portion size
+PATCH {{baseUrl}}/products/{{productId}}/sizes/{{sizeId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Pote 500 ml atualizado",
+  "quantity": 0.5,
+  "price": 19.9,
+  "isActive": true
+}
+
+### Remove a Portion size
+DELETE {{baseUrl}}/products/{{productId}}/sizes/{{sizeId}}
+Authorization: Bearer {{accessToken}}
+
+### Save Single resale configuration
+PUT {{baseUrl}}/products/{{productId}}/resale-configuration
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "price": 12.5,
+  "isActive": true
+}
+
+### Save By-brand resale configuration
+PUT {{baseUrl}}/products/{{productId}}/brands/{{brandId}}/resale-configuration
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "price": 14.9,
+  "isActive": true
+}
