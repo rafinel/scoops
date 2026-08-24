@@ -12,4 +12,5 @@ export interface RecipesRepository {
     changes: RecipeUpdate,
   ): Promise<Recipe>
   remove(establishmentId: string, recipeId: string): Promise<void>
+  removeAll(): Promise<void>
 }

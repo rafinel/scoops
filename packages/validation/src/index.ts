@@ -32,8 +32,11 @@ export { productUnitSchema } from './mrp/product-unit-schema.ts'
 export { productionSchema } from './mrp/production-schema.ts'
 export { recipeYieldSchema } from './mrp/recipe-yield-schema.ts'
 export { registerProductSchema } from './mrp/register-product-schema.ts'
+export { registerProductSizeSchema } from './mrp/register-product-size-schema.ts'
+export { saveProductResaleConfigurationSchema } from './mrp/save-product-resale-configuration-schema.ts'
 export { stockTransactionListSchema } from './mrp/stock-transaction-list-schema.ts'
 export { updateProductBrandSchema } from './mrp/update-product-brand-schema.ts'
+export { updateProductSizeSchema } from './mrp/update-product-size-schema.ts'
 export {
   linkProductAccompanimentSchema,
   updateProductAccompanimentSchema,
@@ -58,5 +61,7 @@ export { stockAdjustmentFormSchema } from './web/stock-adjustment-form-schema.ts
 export { userInviteFormSchema } from './web/user-invite-form-schema.ts'
 export { usersSearchSchema } from './web/users-search-schema.ts'
 export { productAccompanimentFormSchema } from './web/product-accompaniment-form-schema.ts'
+export { productSizeFormSchema } from './web/product-size-form-schema.ts'
+export { resaleConfigurationFormSchema } from './web/resale-configuration-form-schema.ts'
 export { accompanimentTypeFormSchema } from './web/accompaniment-type-form-schema.ts'
 export { accompanimentTypesSearchSchema } from './web/accompaniment-types-search-schema.ts'

@@ -137,6 +137,12 @@ function fakeProductStock() {
 
 function fakeMrpService(): MrpService {
   return {
+    getProductPricing: vi.fn(),
+    registerProductSize: vi.fn(),
+    updateProductSize: vi.fn(),
+    removeProductSize: vi.fn(),
+    saveSingleResaleConfiguration: vi.fn(),
+    saveBrandResaleConfiguration: vi.fn(),
     getProductStock: vi.fn(),
     listStockTransactions: vi
       .fn()

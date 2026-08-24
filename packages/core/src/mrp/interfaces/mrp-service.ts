@@ -26,6 +26,10 @@ import type {
   ProductAccompanimentDetails,
   SaveAccompanimentTypeInput,
   UpdateProductAccompanimentInput,
+  ProductPricingDetails,
+  RegisterProductSizeInput,
+  SaveProductResaleConfigurationInput,
+  UpdateProductSizeInput,
 } from '#mrp/domain/structures/index.ts'
 import type { RestResponse } from '#shared/responses/rest-response.ts'
 
@@ -34,6 +38,26 @@ export interface MrpService {
     input: Omit<ProductListParams, 'establishmentId'>,
   ): Promise<RestResponse<ProductCatalogPage>>
   registerProduct(input: RegisterProductInput): Promise<RestResponse<Product>>
+  getProductPricing(productId: string): Promise<RestResponse<ProductPricingDetails>>
+  registerProductSize(
+    productId: string,
+    input: RegisterProductSizeInput,
+  ): Promise<RestResponse<ProductPricingDetails>>
+  updateProductSize(
+    productId: string,
+    sizeId: string,
+    input: UpdateProductSizeInput,
+  ): Promise<RestResponse<ProductPricingDetails>>
+  removeProductSize(productId: string, sizeId: string): Promise<RestResponse<void>>
+  saveSingleResaleConfiguration(
+    productId: string,
+    input: SaveProductResaleConfigurationInput,
+  ): Promise<RestResponse<ProductPricingDetails>>
+  saveBrandResaleConfiguration(
+    productId: string,
+    brandId: string,
+    input: SaveProductResaleConfigurationInput,
+  ): Promise<RestResponse<ProductPricingDetails>>
   getProductStock(productId: string): Promise<RestResponse<ProductStockDetails>>
   getProductRecipe(productId: string): Promise<RestResponse<ProductRecipeDetails>>
   saveRecipeYield(

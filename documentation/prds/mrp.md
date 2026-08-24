@@ -498,12 +498,20 @@ product-size-accompaniment prices for REQ-10 and PDV.
 
 - Each Portion size has a Name, quantity in the product stock unit, sale price, and status. Every
   salable Portion has at least one active size.
-- Resale configuration has sale price, packaging quantity, and availability. By-brand Resale may
-  define price and availability per brand.
+- Resale configuration has sale price and availability. A Single-stock Resale sells and writes
+  off one product stock unit per sale. A By-brand Resale defines price and availability per
+  existing brand while inheriting that brand's packaging quantity as read-only commercial
+  context; it has no unbranded fallback configuration.
 - Accompaniment price is specific to product + size + accompaniment.
 - Configuration changes affect future PDV behavior and do not rewrite previous orders.
+- A size name is trimmed, mandatory, and unique within its product without case sensitivity.
+  Quantity is positive with at most three decimal places, and sale price is non-negative with at
+  most two decimal places. New sizes are active by default.
 - A Manager can edit a size's name, quantity, sale price, and active status from the pricing table.
   Invalid values are rejected, and the final active size cannot be deactivated.
+- Size removal requires confirmation. Removing the final active size is allowed and makes the
+  Portion unavailable to future PDV operations until another active size is added; removal does
+  not rewrite previous orders.
 - Operating cost, profit, and margin remain calculated read-only values when their owning
   financial capability is available. Total stock value, profit, margin reporting, cart behavior,
   sales write-off, and order history are not owned by MRP.
@@ -513,7 +521,9 @@ product-size-accompaniment prices for REQ-10 and PDV.
 - Prices—Sizes appears only for Portion; Prices—Resale appears only for Resale.
 - The size table displays Name, Quantity, Operating Cost, Price, available Profit/Margin values,
   and Movements.
-- Sizes and brands can be activated or deactivated without automatically deleting configuration.
+- Sizes and Resale brand configurations can be activated or deactivated without automatically
+  deleting configuration. By-brand packaging is displayed from the current brand and is not
+  edited in the pricing surface.
 - Products without active commercial configuration do not appear in PDV.
 - Invalid size edits preserve the editing context and show validation; successful edits refresh
   future commercial availability without changing historical orders.

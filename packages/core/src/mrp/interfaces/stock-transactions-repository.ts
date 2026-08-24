@@ -9,4 +9,5 @@ export interface StockTransactionsRepository {
     productId: string,
     params: StockTransactionListParams,
   ): Promise<StockTransactionPage>
+  removeAll(): Promise<void>
 }

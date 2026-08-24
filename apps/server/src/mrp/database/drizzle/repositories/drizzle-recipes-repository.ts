@@ -93,4 +93,8 @@ export class DrizzleRecipesRepository
         ),
       )
   }
+
+  async removeAll(): Promise<void> {
+    await this.database.delete(recipeModel)
+  }
 }

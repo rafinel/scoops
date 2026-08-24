@@ -122,4 +122,8 @@ export class DrizzleRecipeIngredientsRepository
         ),
       )
   }
+
+  async removeAll(): Promise<void> {
+    await this.database.delete(recipeIngredientModel)
+  }
 }

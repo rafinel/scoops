@@ -40,6 +40,64 @@ const SEED_USERS = {
   },
 } as const
 
+const SEED_ACCOMPANIMENT_TYPES = [
+  { establishmentId: SEED_ESTABLISHMENT_ID, name: 'Caldas' },
+  { establishmentId: SEED_ESTABLISHMENT_ID, name: 'Frutas' },
+  { establishmentId: SEED_ESTABLISHMENT_ID, name: 'Granolas' },
+  { establishmentId: SEED_ESTABLISHMENT_ID, name: 'Complementos' },
+] as const
+
+const SEED_PRODUCT_ACCOMPANIMENTS = [
+  {
+    productName: 'Açaí tradicional',
+    accompanimentProductName: 'Granola',
+    accompanimentTypeName: 'Granolas',
+    quantityPerPortion: 0.05,
+  },
+  {
+    productName: 'Açaí tradicional',
+    accompanimentProductName: 'Banana fatiada',
+    accompanimentTypeName: 'Frutas',
+    quantityPerPortion: 0.08,
+  },
+  {
+    productName: 'Açaí tradicional',
+    accompanimentProductName: 'Creme de avelã',
+    accompanimentTypeName: 'Complementos',
+    quantityPerPortion: 0.03,
+  },
+  {
+    productName: 'Açaí tradicional',
+    accompanimentProductName: 'Calda de chocolate',
+    accompanimentTypeName: 'Caldas',
+    quantityPerPortion: 0.02,
+  },
+  {
+    productName: 'Açaí tropical',
+    accompanimentProductName: 'Granola',
+    accompanimentTypeName: 'Granolas',
+    quantityPerPortion: 0.05,
+  },
+  {
+    productName: 'Açaí tropical',
+    accompanimentProductName: 'Morango',
+    accompanimentTypeName: 'Frutas',
+    quantityPerPortion: 0.08,
+  },
+  {
+    productName: 'Açaí tropical',
+    accompanimentProductName: 'Creme de avelã',
+    accompanimentTypeName: 'Complementos',
+    quantityPerPortion: 0.03,
+  },
+  {
+    productName: 'Açaí tropical',
+    accompanimentProductName: 'Calda de chocolate',
+    accompanimentTypeName: 'Caldas',
+    quantityPerPortion: 0.02,
+  },
+] as const
+
 const SEED_PRODUCTS = [
   {
     establishmentId: SEED_ESTABLISHMENT_ID,
@@ -119,11 +177,31 @@ const SEED_PRODUCTS = [
   },
   {
     establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Açaí tradicional',
+    unit: ProductUnit.Kilogram,
+    categories: [ProductCategory.Manufacturable, ProductCategory.Portion],
+    stockControl: ProductStockControl.Single,
+    status: ProductStatus.Active,
+    idealStock: 30,
+    initialStock: 60,
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Açaí tropical',
+    unit: ProductUnit.Kilogram,
+    categories: [ProductCategory.Manufacturable, ProductCategory.Portion],
+    stockControl: ProductStockControl.Single,
+    status: ProductStatus.Active,
+    idealStock: 20,
+    initialStock: 45,
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
     name: 'Calda de chocolate',
     unit: ProductUnit.Liter,
     categories: [ProductCategory.Ingredient],
     stockControl: ProductStockControl.ByBrand,
-    status: ProductStatus.Inactive,
+    status: ProductStatus.Active,
     idealStock: 4,
   },
   {
@@ -204,6 +282,7 @@ async function seedDatabase() {
     await resetSeedUsers(envProvider)
     await verifySeedUsers(envProvider)
     await identitySeeder.clear()
+    await mrpSeeder.clear()
     await identitySeeder.run({
       establishments: [
         {
@@ -238,11 +317,42 @@ async function seedDatabase() {
       ],
       registrationAttempts: [],
     })
-    await mrpSeeder.clear()
     await mrpSeeder.run({
+      accompanimentTypes: [...SEED_ACCOMPANIMENT_TYPES],
       products: [...SEED_PRODUCTS],
       brands: [...SEED_BRANDS],
       stockBalances: [],
+      productSizes: [
+        {
+          productName: 'Açaí tradicional',
+          name: '300 g',
+          quantity: 0.3,
+          price: 18,
+          isActive: true,
+        },
+        {
+          productName: 'Açaí tradicional',
+          name: '500 g',
+          quantity: 0.5,
+          price: 27,
+          isActive: true,
+        },
+        {
+          productName: 'Açaí tropical',
+          name: '300 g',
+          quantity: 0.3,
+          price: 21,
+          isActive: true,
+        },
+        {
+          productName: 'Açaí tropical',
+          name: '500 g',
+          quantity: 0.5,
+          price: 31,
+          isActive: true,
+        },
+      ],
+      productAccompaniments: [...SEED_PRODUCT_ACCOMPANIMENTS],
     })
   } finally {
     await app?.close()

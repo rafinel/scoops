@@ -89,18 +89,19 @@ row and one action does not cover the table.
 
 ## File names, locations and test text follow one convention
 
-Place each widget test directly inside the corresponding widget directory:
+Place each widget test inside a `tests/` directory under the corresponding
+widget directory:
 
 ```text
-widgets/layouts/app-layout/app-layout.test.tsx
-widgets/layouts/app-layout/use-app-layout.test.ts
-widgets/pages/products-page/product-filters/product-filters.test.tsx
+widgets/layouts/app-layout/tests/app-layout.test.tsx
+widgets/layouts/app-layout/tests/use-app-layout.test.ts
+widgets/pages/products-page/product-filters/tests/product-filters.test.tsx
 ```
 
 Do not place widget tests in a parent page's `tests/` directory, a feature-level
 `tests/` directory, or a generic shared test folder. If a nested widget warrants
-its own test, colocate that test in the nested widget's directory. Tests for a
-widget's own behavior hook remain beside that hook. Query/action hooks do not
+its own test, place it in that nested widget's `tests/` directory. Tests for a
+widget's own behavior hook use the same directory. Query/action hooks do not
 receive test files.
 
 Use `.test.tsx` for React component tests and `.test.ts` for hook or non-React

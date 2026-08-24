@@ -103,6 +103,11 @@ evidence that a real authenticated, server-backed flow works.
    Playwright CLI flow. Default local endpoints are Supabase at
    `http://127.0.0.1:54321`, the server at `http://127.0.0.1:3336`, and the web
    app at `http://127.0.0.1:4000`.
+   For flows using persisted authentication, verify that the local Manager and
+   Operator seed accounts exist. If they do not, run
+   `pnpm --filter server db:seed` explicitly before
+   `pnpm --filter web test:auth:setup`; the seed resets local Auth users and
+   application seed data, so Playwright must not invoke it implicitly.
 2. Start `pnpm --filter server dev` and `pnpm --filter web dev` in persistent
    terminal sessions when the flow needs both applications. Wait for compilation
    and Nest bootstrap to finish before Playwright assertions.

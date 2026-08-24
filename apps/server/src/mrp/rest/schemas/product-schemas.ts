@@ -13,4 +13,7 @@ export {
   stockTransactionListSchema,
   updateRecipeIngredientSchema,
   updateProductBrandSchema,
+  registerProductSizeSchema,
+  updateProductSizeSchema,
+  saveProductResaleConfigurationSchema,
 } from '@scoops/validation'

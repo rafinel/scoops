@@ -21,4 +21,5 @@ export interface AccompanimentTypesRepository {
     changes: AccompanimentTypeUpdate,
   ): Promise<AccompanimentType>
   remove(establishmentId: string, typeId: string): Promise<void>
+  removeAll(): Promise<void>
 }

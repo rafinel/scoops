@@ -100,6 +100,10 @@ export class DrizzleStockBalancesRepository
     return this.toDomain(record)
   }
 
+  async removeAll(): Promise<void> {
+    await this.database.delete(stockBalanceModel)
+  }
+
   private toDomain(record: typeof stockBalanceModel.$inferSelect): StockBalance {
     return {
       productId: record.productId,
