@@ -55,6 +55,10 @@ Conclusion requires authorization to create commits, push the delivery branch an
 update its pull request. If that authority is not explicit or already in scope, ask once and
 keep the Spec `in_progress`. Do not silently publish, merge or deploy.
 
+All pull requests opened or updated by this workflow must be ready for review, never draft.
+The mandatory `create-pr` publication step must create or convert the delivery PR with
+`draft: false`; verify `isDraft: false` before the conclusion summary.
+
 ## Authority and late-change routing
 
 If local preflight or closure review finds a discrepancy, pause the closure phase and classify
