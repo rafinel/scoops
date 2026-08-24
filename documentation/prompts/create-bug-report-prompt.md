@@ -1,145 +1,131 @@
 ---
-description: Prompt for turning informal reports into clear, actionable, correction-oriented technical bug reports.
+description: Diagnose a GitHub bug issue into a concise, evidence-based Bug Report and recommend its delivery route.
 ---
 
 # Prompt: Create a Bug Report
 
 ## Goal
 
-Turn an error sketch or informal report into a professional, clear, actionable,
-technically focused Bug Report that the development team can consume without
-additional interpretation.
+Turn an informal defect report or GitHub bug issue into two distinct artifacts:
 
-The report must explain what is broken, indicate where and why it is probably
-broken, and provide brief correction guidance without specifying implementation
-as a Spec. The result is always one Markdown document containing only the Bug
-Report. This prompt does not create a correction Spec; request that separately
-with `documentation/prompts/create-spec-prompt.md`.
+1. a concise GitHub bug issue that tracks the symptom, expected behavior, reproduction and
+   context; and
+2. a repository Bug Report that records the evidence-backed technical diagnosis and correction
+   boundary.
+
+The Bug Report is diagnostic input, not an implementation Spec. Do not add acceptance criteria,
+manual validations, implementation phases, tasks, signatures or proposed file inventories. When
+the correction needs a Spec, recommend that route in the output summary instead of creating the
+Spec or adding a `Delivery Route` section to the Bug Report.
 
 ## Input
 
-- **Problem sketch:** free-form description of the observed error (symptom).
-- **Technical context (optional):** device/OS/browser, environment (local,
-  staging, production), and affected feature or flow.
+- **Problem sketch or GitHub bug issue:** observed symptom and any known reproduction steps.
+- **Technical context (optional):** device, OS, browser, environment and affected feature or flow.
 
 ## Applicable rules
 
-Before diagnosing the bug, read `documentation/rules/rules.md`, the general
-code-conventions rules, and every rule for the layers involved. Use rules only
-to validate technical boundaries and patterns; do not turn the report into an
-implementation Spec.
+Read `documentation/rules.md`, `documentation/sdd-rules.md`, the relevant PRD, and every Rule
+selected by dynamic context discovery for the affected layers. Read
+`documentation/architecture.md` and `documentation/modules.md` when module ownership,
+persistence, authentication, asynchronous processing or integrations are involved.
 
-## Execution guidelines
+Use Rules to validate technical boundaries and established patterns; do not turn the report into
+an implementation Spec.
 
-1. Analyze the report by separating observed behavior from expected behavior
-   and removing ambiguity.
-2. Diagnose probable causes using `documentation/architecture.md`, the relevant
-   PRD, the source of truth for affected data, contracts, and cross-layer
-   mappings. Locate real critical nodes in the code: feature entry point,
-   state control, remote call, use case, and persistence/integration. Look for
-   similar implementations and established validation, error, and loading patterns.
-3. Map only these layers: `core` (Use Cases), `rest` (HTTP Controllers and
-   Services), `database` (Repositories, Mappers, Types), `provision` (Providers
-   and external integrations), `rpc` (Actions), `ui` (Widgets, Stores,
-   Contexts), `ai` (Workflows, Tools), `queue` (Inngest Functions), `web`
-   (Pages, Layouts), and `studio` (Pages, Layouts).
-4. Include only brief technical guidance about where the correction should act.
-   Do not detail phases, tasks, signatures, new files, or a structured
-   implementation list. Do not use sections such as “What already exists” or
-   “What should be created/modified/removed”; those belong to a Spec.
-5. After structuring the report, create or update the appropriate Jira ticket
-   and finish by reporting its identifier or URL. Do not save individual Bug
-   Reports in `documentation/` or create `documentation/features/**/reports/`.
+## Parallel Searcher research
 
-Do not create or edit a Spec, include a Spec in the Bug Report, or treat the
-task as incomplete because no Spec exists. The only deliverable is the Bug Report.
+Use [`searcher-agent.md`](../agents/searcher-agent.md) for bounded, read-only diagnosis. The
+Orchestrator owns the final diagnosis and must verify material Searcher findings against the
+repository before writing the report.
 
-## Required output template
+- For one narrow boundary, use one Searcher.
+- When two or more independent boundaries are affected, dispatch the applicable Searchers in
+  parallel.
+- Use bounded Core, Server, Web and Integration lanes as applicable; do not dispatch unrelated
+  lanes merely to fill a fixed set.
+- Give each Searcher the symptom, expected behavior, relevant paths, selected Rules and a precise
+  diagnostic question.
+- Require exact file paths, observed evidence, probable cause, regression risk and unresolved
+  uncertainty in each response.
+- Searchers are read-only sibling subagents. They do not edit artifacts, choose the delivery
+  route, create Specs or create other subagents.
 
-Use the following as the Jira ticket content. The complete report belongs in
-Jira; the repository must not receive an individual Bug Report file.
+After joining the Searchers, resolve conflicts through direct inspection, separate confirmed
+findings from hypotheses, and omit claims that cannot be supported by repository evidence.
+
+## Workflow
+
+1. Separate the observed failure from expected product behavior.
+2. Ensure a GitHub bug issue exists. Create or update it with only:
+   - `Problem`;
+   - `Expected Behavior`;
+   - `Reproduction`; and
+   - `Context`, including module, application, environment and available evidence.
+3. Link the issue to the relevant PRD `REQ-*` when the defect violates an existing product
+   requirement. Do not amend the PRD unless intended product behavior changes.
+4. Dispatch the applicable Searchers and inspect the real feature entry point, state control,
+   remote call, use case, persistence or integration boundaries implicated by the evidence.
+5. Create or update
+   `documentation/reports/{module-name}/{issue-number}-{slug}/bug-report.md` using the required
+   template below. The issue remains the tracking artifact; the report is the durable technical
+   diagnosis.
+6. Determine the delivery route:
+   - **Direct correction** for a narrow, well-understood, low-risk fix that does not require a
+     durable implementation contract; or
+   - **Correction Spec** for ambiguous, cross-layer, high-risk or coordinated work that needs
+     formal `CA-*`, `MV-*` or implementation planning.
+7. Report the GitHub issue, Bug Report path and recommended delivery route in the final output
+   summary. Do not write the route into a separate Bug Report section.
+
+## Required Bug Report template
 
 ```md
 ---
-title: {Short Descriptive Title}
-prd: <link to the relevant PRD, if any>
-issue: <link to the bug issue>
-apps: {web|server|studio}
-status: {open|closed}
+title: {Short descriptive title}
+issue: {GitHub issue URL}
+prd: {PRD path and REQ-* or null}
+status: open
 last_updated_at: {YYYY-MM-DD}
 ---
 
-# Bug Report: {Short Descriptive Title}
+# Bug Report: {Short descriptive title}
 
-## Identified Problem
+## Diagnosis
 
-{Objective description of the incorrect observed behavior. Avoid technical assumptions here.}
+### Observed Failure
 
-## Causes
+{Confirmed incorrect behavior and the conditions in which it occurs.}
 
-{Concise list of probable technical causes, such as missing validation, inconsistent state, broken contract, or mapping error.}
+### Expected Behavior
 
-## Context and Analysis
+{Behavior required by the PRD, existing Spec, design or established contract.}
 
-### Core Layer (Use Cases)
-<!-- Include only when applicable -->
-- **File:** `{relative/path/to/file}`
-- **Diagnosis:** {Explain what is wrong at this point.}
+### Root Cause
 
-### REST Layer (Controllers and Services)
-<!-- Include only when applicable -->
-- **File:** `{relative/path/to/file}`
-- **Diagnosis:** {Explain what is wrong at this point.}
+{Evidence-backed technical explanation. Clearly identify any remaining hypotheses.}
 
-### Database Layer (Repositories, Mappers, and Types)
-<!-- Include only when applicable -->
-- **File:** `{relative/path/to/file}`
-- **Diagnosis:** {Explain what is wrong at this point.}
+### Affected Areas
 
-### Provision Layer (Providers)
-<!-- Include only when applicable -->
-- **File:** `{relative/path/to/file}`
-- **Diagnosis:** {Explain what is wrong at this point.}
+- `{relative/path/to/file}` — {How the file contributes to the defect.}
 
-### RPC Layer (Actions)
-<!-- Include only when applicable -->
-- **File:** `{relative/path/to/file}`
-- **Diagnosis:** {Explain what is wrong at this point.}
+### Regression Risk
 
-### UI Layer (Widgets, Stores, and Contexts)
-<!-- Include only when applicable -->
-- **File:** `{relative/path/to/file}`
-- **Diagnosis:** {Explain what is wrong at this point.}
+{Related behavior that the correction must preserve.}
 
-### AI Layer (Workflows and Tools)
-<!-- Include only when applicable -->
-- **File:** `{relative/path/to/file}`
-- **Diagnosis:** {Explain what is wrong at this point.}
+## Correction Boundary
 
-### Queue Layer (Inngest Functions)
-<!-- Include only when applicable -->
-- **File:** `{relative/path/to/file}`
-- **Diagnosis:** {Explain what is wrong at this point.}
-
-### Web Layer (Pages and Layouts)
-<!-- Include only when applicable -->
-- **File:** `{relative/path/to/file}`
-- **Diagnosis:** {Explain what is wrong at this point.}
-
-### Studio Layer (Pages and Layouts)
-<!-- Include only when applicable -->
-- **File:** `{relative/path/to/file}`
-- **Diagnosis:** {Explain what is wrong at this point.}
-
-## Correction Guidance
-
-{Short paragraph or list indicating the probable correction layer(s) and relevant file(s), without implementation tasks.}
+{What must be corrected and what must remain unchanged.}
 ```
 
 ## Constraints
 
-- Do not invent file paths, methods, or contracts without codebase evidence.
-- Always cite the problematic file; separate facts from hypotheses.
-- Do not propose corrections that violate cross-layer contracts in `documentation/rules/`.
-- Use only the listed layers and omit layers that do not apply.
-- Do not incorporate a correction Spec or Spec-planning sections.
+- Use GitHub Issues, never Jira.
+- Do not invent file paths, methods, contracts, reproduction results or causes.
+- Cite each problematic file and separate confirmed facts from hypotheses.
+- Keep the GitHub issue concise; put technical diagnosis in the Bug Report.
+- Do not add a `Delivery Route` section or Spec link field to the Bug Report.
+- Do not create or edit a Spec from this workflow.
+- Do not include acceptance criteria, manual validations or implementation planning in the Bug
+  Report.
+- Use only repository-relative paths inside the report.

@@ -3,7 +3,7 @@ feature: "mrp/products-details-page-pricing-tab"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 1
-status: ready
+status: completed
 updated_at: 2026-08-24
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-08-24
 
 Evaluation of Spec revision `1` against the current implementation.
 
-Current result: Revision 1 is validation-ready. Core, Validation, Server persistence/REST, migration 0010 and Web pricing implementation pass the final package, full Server, full Web, build, migration and focused Playwright checks. The final Reviewer recheck is clean, 23 exact-viewport visual artifacts remain current, MV-01 and MV-02 both have real Manager/Server/browser evidence, and the malformed local Compose `.env` parser remains a non-blocking environment limitation handled through the healthy running services and isolated Server `:3337` replay.
+Current result: Revision 1 is complete. Core, Validation, Server persistence/REST, migration 0010 and Web pricing implementation pass the final package, full Server, full Web, build, migration and focused Playwright checks. The final Reviewer recheck is clean, 23 exact-viewport visual artifacts remain current, MV-01 and MV-02 both have real Manager/Server/browser evidence, and all required PR CI workflows passed on the delivery head. The malformed local Compose `.env` parser remains a non-blocking environment limitation handled through the healthy running services and isolated Server `:3337` replay.
 
 ## Acceptance matrix
 
@@ -141,7 +141,11 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
-| `CI-01` | conclude-spec PR CI | — | `pending` | — |
+| `CI-01` | `.github/workflows/core-package-ci.yml` — Core CI | `7c6d47b63f3edfc1d5feaeb59cd5c05f67307390` | `passed` | [Run 32679851974](https://github.com/rafinel/scoops/actions/runs/32679851974) |
+| `CI-02` | `.github/workflows/server-app-ci.yml` — Server CI | `7c6d47b63f3edfc1d5feaeb59cd5c05f67307390` | `passed` | [Run 32679852027](https://github.com/rafinel/scoops/actions/runs/32679852027) |
+| `CI-03` | `.github/workflows/web-app-ci.yml` — Web CI | `7c6d47b63f3edfc1d5feaeb59cd5c05f67307390` | `passed` | [Run 32679851969](https://github.com/rafinel/scoops/actions/runs/32679851969) |
+
+The gate uses the current `pull_request` runs above. Earlier `push` runs for the same SHA are retained by GitHub but were not used as the conclusion gate.
 
 ## Lessons learned
 
@@ -164,3 +168,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | Date/Time | Event |
 | --- | --- |
 | `2026-08-23 00:00 America/Sao_Paulo` | Evaluation created for Spec revision 1 after the mandatory Playwright health check passed. Revision frozen; Spec and Plan moved to `in_progress`; F1-T1 Builder Core agent `01a02fe8-e1f0-79f0-9e0b-59774d45c186` activated before feature-source edits. |
+| `2026-08-24 00:00 America/Sao_Paulo` | Delivery commit `7c6d47b63f3edfc1d5feaeb59cd5c05f67307390` published as draft [PR #19](https://github.com/rafinel/scoops/pull/19); Core, Server and Web PR CI runs passed on the current head. Evaluation completed. |

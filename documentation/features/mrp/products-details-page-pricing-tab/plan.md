@@ -1,6 +1,6 @@
 ---
 title: Product details pricing tab — implementation plan
-status: in_progress
+status: completed
 spec: ./spec.md
 spec_revision: 1
 evaluation: ./evaluation.md
@@ -10,10 +10,10 @@ updated_at: 2026-08-24
 
 ## Execution status
 
-- **Spec:** [`spec.md`](./spec.md) — revision `1`, `in_progress` (frozen for implementation).
+- **Spec:** [`spec.md`](./spec.md) — revision `1`, `completed`.
 - **Rationale:** Plan-backed execution is required because the feature spans Core, Validation, transactional Server persistence and migration generation, REST composition, generated routing, design-backed Web surfaces, concurrency/security checks and complex manual/runtime validation.
-- **Current phase:** F6 integrated conformance (`completed`); all source, generated-artifact, automated, runtime, manual and visual evidence is current and Evaluation is `ready` for `conclude-spec`.
-- **Next action:** Publish the authorized delivery through `commit-code`/`create-pr`, run the final PR CI Quality Gate on the delivery head, then close the SDD artifacts.
+- **Current phase:** F6 integrated conformance and conclusion (`completed`); all source, generated-artifact, automated, runtime, manual, visual and PR CI evidence is complete.
+- **Next action:** No further implementation action; draft PR #19 is ready for human review and merge authorization.
 - **Active blockers:** None. The existing malformed local `.env` parser error remains a non-blocking environment finding (`FND-005`); healthy service probes and an isolated `:3337` Server replay supplied the required live evidence.
 - **Builders:** Wave 2 assignments completed with `Builder Server` agent `01a02ff0-c404-7842-8544-47a154b51b2e` for F2/F5, the reused `Builder Core` agent `01a02fe8-e1f0-79f0-9e0b-59774d45c186` for F3, and the reused `Builder Web` agent `01a02ff0-b12a-7492-929c-0d39c8eab361` for F4. The single `Integrated Reviewer` agent `01a03020-4c4a-7f50-a82d-ab1b0fec6ae9` completed the final read-only recheck with no source findings.
 - **Coordination:** The Orchestrator owns this Plan, `evaluation.md`, package/lockfile or root-configuration changes, generated migration `0010` and Drizzle metadata, `apps/web/src/routeTree.gen.ts`, final integration and official evidence verdicts. No dependency installation is planned.
@@ -103,7 +103,7 @@ updated_at: 2026-08-24
 
 #### F6-T1 — Validate one integrated revision-1 candidate and route to conclusion
 
-- **Status/owner:** `in_progress` — Orchestrator; Integrated Reviewer agent `01a03020-4c4a-7f50-a82d-ab1b0fec6ae9` completed the final read-only recheck with no source findings
+- **Status/owner:** `completed` — Orchestrator; Integrated Reviewer agent `01a03020-4c4a-7f50-a82d-ab1b0fec6ae9` completed the final read-only recheck with no source findings
 - **Depends/parallel:** Depends on F4 and F5; no implementation parallelism. After all Builder diffs are integrated, run the required sensors in parallel with exactly one read-only [`Integrated Reviewer`](../../../agents/reviewer-agent.md); any discrepancy keeps the responsible item `in_progress`, invalidates affected evidence and resumes the responsible Builder through `implement-spec`.
 - **Paths:** `documentation/features/mrp/products-details-page-pricing-tab/{plan.md,evaluation.md}`, Orchestrator-owned generated `apps/server/src/shared/database/drizzle/migrations/**`, `apps/server/src/shared/database/drizzle/migrations/meta/**` and `apps/web/src/routeTree.gen.ts`; read-only conformance review covers all Spec-owned Core, Validation, Server, REST, Web, test and saved design paths.
 - **Contract:** `RF-01`–`RF-08`; `CA-01`–`CA-12`; `MV-01`–`MV-02`.
@@ -148,4 +148,4 @@ updated_at: 2026-08-24
 
 The single read-only Integrated Reviewer is scheduled after F4/F5 diffs are integrated and before readiness. It checks the complete candidate, cross-Builder contracts, generated migration/meta and route artifacts, every supplied and supplemental visual comparison, and high-risk Playwright CLI keyboard, responsive, console, network, authorization and persistence paths. The report is advisory: the Orchestrator verifies each finding, records accepted findings in `evaluation.md`, invalidates stale evidence, resumes the responsible Builder for in-Contract corrections and resumes the same Reviewer after corrections.
 
-Final handoff is complete: every task and phase is completed; current revision-1 Core, Validation, Server and Web commands pass; generated migration/meta and route tree are reviewed; healthy services and seeded accounts were verified; executable `MV-01`–`MV-02` pass; transient screenshot identifiers and independent final Spec-tree/visual comparisons are recorded; supplemental-state decisions are resolved; the Integrated Reviewer recheck is complete; every verified finding is resolved or accepted as non-blocking; and Evaluation is `ready`. Route directly to `conclude-spec`.
+Final delivery is complete: every task and phase is completed; current revision-1 Core, Validation, Server and Web commands pass; generated migration/meta and route tree are reviewed; healthy services and seeded accounts were verified; executable `MV-01`–`MV-02` pass; transient screenshot identifiers and independent final Spec-tree/visual comparisons are recorded; supplemental-state decisions are resolved; the Integrated Reviewer recheck is complete; every verified finding is resolved or accepted as non-blocking; and the three required PR CI workflows pass on the delivery head. Draft PR #19 is ready for human review and merge authorization.

@@ -22,6 +22,13 @@ Require explicit authority to commit, push and create or update the PR. Standalo
 invoke `commit-code` for pending scoped changes; when called by `conclude-spec`, reuse its
 prepared commits.
 
+## Pull request readiness policy
+
+Every pull request opened or updated by this workflow must be ready for review, never draft.
+Create PRs with `draft: false` (or the equivalent `gh` behavior), and if an existing delivery
+PR is draft, run `gh pr ready <number>` before returning its publication metadata. Do not leave
+a delivery PR in draft status unless the user explicitly changes this repository policy.
+
 ## Mandatory workflow invocation
 
 This prompt is a publication workflow, not a replacement for the commit or conclusion
