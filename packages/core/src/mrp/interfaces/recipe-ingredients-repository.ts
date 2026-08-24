@@ -25,4 +25,5 @@ export interface RecipeIngredientsRepository {
     changes: RecipeIngredientUpdate,
   ): Promise<RecipeIngredient>
   remove(establishmentId: string, recipeId: string, lineId: string): Promise<void>
+  removeAll(): Promise<void>
 }

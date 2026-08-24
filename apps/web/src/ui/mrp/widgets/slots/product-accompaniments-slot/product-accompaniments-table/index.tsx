@@ -38,7 +38,7 @@ export const ProductAccompanimentsTable = ({
             {['ACOMPANHAMENTO', 'TIPO', 'MARCA', 'QTD POR PORÇÃO', 'PREÇO', 'AÇÕES'].map(
               (label) => (
                 <TableHead
-                  className='p-3 text-xs font-semibold text-muted-foreground'
+                  className='px-6 py-3 text-xs font-semibold text-muted-foreground'
                   key={label}
                 >
                   {label}
@@ -50,7 +50,7 @@ export const ProductAccompanimentsTable = ({
         <TableBody>
           {items.map((item) => (
             <TableRow key={item.id}>
-              <TableCell className='p-3 font-bold'>
+              <TableCell className='p-6 font-bold'>
                 {item.accompanimentProductName}
               </TableCell>
               <TableCell>{item.accompanimentTypeName}</TableCell>

@@ -240,14 +240,19 @@ Seeders must also follow these rules:
 - implement `clear()` through the injected repository contracts and their
   `removeAll()` methods; never import `DrizzleClient`, `DrizzleDB`, models,
   query builders, or SQL into a seeder or the seed orchestration entrypoint;
+- make `clear()` a complete module reset: every table owned by the module must
+  be emptied before any module `run()` begins. Delete dependent rows in
+  reverse foreign-key order, including rows protected by `RESTRICT`; clearing
+  only a root table or relying on database cascades is insufficient;
 - implement `run()` through repository methods, normally `addMany()`, and pass
   domain creation records rather than persistence rows;
 - use domain fakers for generated development records. Fixed credentials or
   other values required to make a development account usable may remain
   explicit;
-- keep cleanup ownership inside module seeders. When foreign keys require an
-  order, the central orchestrator must call the module `clear()` methods in
-  dependency order before calling their `run()` methods;
+- keep cleanup ownership inside module seeders. The central orchestrator must
+  call every module `clear()` before calling any module `run()`, and must call
+  module clears and runs in dependency order when cross-module foreign keys
+  require it;
 - centralize execution in `apps/server/src/shared/database/seed.ts`. It must
   verify `HMS_SERVER_APP_MODE` is `dev` or `stg` before any cleanup or insertion,
   abort in every other mode, require `HMS_USER_SEED_PASSWORD` in `dev` and `stg`, and

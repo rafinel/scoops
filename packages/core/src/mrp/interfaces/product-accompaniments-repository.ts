@@ -26,4 +26,5 @@ export interface ProductAccompanimentsRepository {
     changes: ProductAccompanimentUpdate,
   ): Promise<ProductAccompaniment>
   remove(establishmentId: string, productId: string, linkId: string): Promise<void>
+  removeAll(): Promise<void>
 }

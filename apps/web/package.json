@@ -12,6 +12,7 @@
     "test": "vitest run --passWithNoTests",
     "test:integration": "playwright test",
     "test:integration:ui": "playwright test --ui",
+    "test:auth:setup": "playwright test --config=playwright.auth.config.ts --workers=1",
     "check:playwright": "bash scripts/check-playwright-cli.sh",
     "format": "biome format --write .",
     "check:code": "biome check src",

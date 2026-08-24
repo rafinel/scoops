@@ -37,4 +37,8 @@ export class DrizzleProductionIngredientsRepository
       .returning()
     return records.map(DrizzleProductionIngredientMapper.toDomain)
   }
+
+  async removeAll(): Promise<void> {
+    await this.database.delete(productionIngredientModel)
+  }
 }

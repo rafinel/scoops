@@ -163,6 +163,10 @@ export class DrizzleAccompanimentTypesRepository
     }
   }
 
+  async removeAll(): Promise<void> {
+    await this.database.delete(accompanimentTypeModel)
+  }
+
   private toConflictError(error: unknown): unknown {
     if (this.isIntegrityConstraintError(error)) {
       return new ConflictError('Database operation conflicted')

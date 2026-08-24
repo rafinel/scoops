@@ -4,4 +4,5 @@ export interface ProductionIngredientsRepository {
   addMany(
     input: readonly Omit<ProductionIngredient, 'id'>[],
   ): Promise<readonly ProductionIngredient[]>
+  removeAll(): Promise<void>
 }

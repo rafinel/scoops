@@ -1,6 +1,7 @@
 import type { Entity } from '#shared/domain/entities/entity.ts'
 
 export type ProductSize = Entity & {
+  establishmentId: string
   productId: string
   name: string
   quantity: number
@@ -9,9 +10,3 @@ export type ProductSize = Entity & {
   createdAt: Date
   updatedAt: Date
 }
-
-export type ProductSizeCreate = Omit<ProductSize, 'id' | 'createdAt' | 'updatedAt'>
-
-export type ProductSizeUpdate = Partial<
-  Pick<ProductSize, 'name' | 'quantity' | 'price' | 'isActive'>
->

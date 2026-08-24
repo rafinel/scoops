@@ -9,4 +9,5 @@ export interface BrandsRepository {
   replace(productId: string, brandId: string, changes: BrandUpdate): Promise<Brand>
   setPrimary(productId: string, brandId: string): Promise<Brand>
   remove(productId: string, brandId: string): Promise<void>
+  removeAll(): Promise<void>
 }

@@ -22,6 +22,12 @@ import type {
   UpdateProductAccompanimentInput,
   SaveAccompanimentTypeInput,
   AccompanimentTypePage,
+  ProductPricingDetails,
+  ProductSizePricing,
+  ResalePricing,
+  RegisterProductSizeInput,
+  SaveProductResaleConfigurationInput,
+  UpdateProductSizeInput,
 } from '@scoops/core/mrp/domain/structures'
 import { RestResponse } from '@scoops/core/shared/responses/rest-response'
 import type { RestClient } from '@scoops/core/shared/interfaces'
@@ -50,6 +56,33 @@ type ProductStockDetailsJson = Omit<ProductStockDetails, 'product' | 'brands'> &
 
 type ProductRecipeDetailsJson = Omit<ProductRecipeDetails, 'product'> & {
   product: ProductJson
+}
+
+type ProductSizePricingJson = Omit<ProductSizePricing, 'size'> & {
+  size: Omit<ProductSizePricing['size'], 'createdAt' | 'updatedAt'> & {
+    createdAt: string
+    updatedAt: string
+  }
+}
+
+type ResalePricingJson = Omit<ResalePricing, 'configuration' | 'brand'> & {
+  configuration?: Omit<
+    NonNullable<ResalePricing['configuration']>,
+    'createdAt' | 'updatedAt'
+  > & {
+    createdAt: string
+    updatedAt: string
+  }
+  brand?: BrandJson
+}
+
+type ProductPricingDetailsJson = Omit<
+  ProductPricingDetails,
+  'product' | 'sizes' | 'resale'
+> & {
+  product: ProductJson
+  sizes: readonly ProductSizePricingJson[]
+  resale: readonly ResalePricingJson[]
 }
 type ProductionJson = Omit<Production, 'occurredAt'> & {
   occurredAt: string
@@ -125,6 +158,32 @@ function mapProductStock(response: ProductStockDetailsJson): ProductStockDetails
 
 function mapProductRecipe(response: ProductRecipeDetailsJson): ProductRecipeDetails {
   return { ...response, product: mapProduct(response.product) }
+}
+
+function mapProductPricing(response: ProductPricingDetailsJson): ProductPricingDetails {
+  return {
+    ...response,
+    product: mapProduct(response.product),
+    sizes: response.sizes.map(({ size, ...pricing }) => ({
+      ...pricing,
+      size: {
+        ...size,
+        createdAt: new Date(size.createdAt),
+        updatedAt: new Date(size.updatedAt),
+      },
+    })),
+    resale: response.resale.map(({ brand, configuration, ...pricing }) => ({
+      ...pricing,
+      brand: brand ? mapBrand(brand) : undefined,
+      configuration: configuration
+        ? {
+            ...configuration,
+            createdAt: new Date(configuration.createdAt),
+            updatedAt: new Date(configuration.updatedAt),
+          }
+        : undefined,
+    })),
+  }
 }
 
 function mapProduction(production: ProductionJson): Production {
@@ -208,6 +267,91 @@ export const MrpService = (restClient: RestClient): MrpRestService => ({
 
     return new RestResponse({
       body: mapProduct(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async getProductPricing(productId) {
+    const response = await restClient.get<ProductPricingDetailsJson>(
+      `/products/${productId}/pricing`,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductPricingDetails>
+
+    return new RestResponse({
+      body: mapProductPricing(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async registerProductSize(productId, input: RegisterProductSizeInput) {
+    const response = await restClient.post<ProductPricingDetailsJson>(
+      `/products/${productId}/sizes`,
+      input,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductPricingDetails>
+
+    return new RestResponse({
+      body: mapProductPricing(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async updateProductSize(productId, sizeId, input: UpdateProductSizeInput) {
+    const response = await restClient.patch<ProductPricingDetailsJson>(
+      `/products/${productId}/sizes/${sizeId}`,
+      input,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductPricingDetails>
+
+    return new RestResponse({
+      body: mapProductPricing(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  removeProductSize(productId, sizeId) {
+    return restClient.delete<void>(`/products/${productId}/sizes/${sizeId}`)
+  },
+
+  async saveSingleResaleConfiguration(
+    productId,
+    input: SaveProductResaleConfigurationInput,
+  ) {
+    const response = await restClient.put<ProductPricingDetailsJson>(
+      `/products/${productId}/resale-configuration`,
+      input,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductPricingDetails>
+
+    return new RestResponse({
+      body: mapProductPricing(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async saveBrandResaleConfiguration(
+    productId,
+    brandId,
+    input: SaveProductResaleConfigurationInput,
+  ) {
+    const response = await restClient.put<ProductPricingDetailsJson>(
+      `/products/${productId}/brands/${brandId}/resale-configuration`,
+      input,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductPricingDetails>
+
+    return new RestResponse({
+      body: mapProductPricing(response.body),
       statusCode: response.statusCode,
       headers: response.headers,
     })

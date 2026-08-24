@@ -14,7 +14,6 @@ const PRODUCT = ProductFaker.fake({
 })
 
 const PLACEHOLDER_ROUTES = [
-  { categories: ['resale'], path: 'prices', tab: 'Preços' },
   { categories: ['ingredient'], path: 'settings', tab: 'Configurações' },
 ] as const
 
@@ -46,14 +45,8 @@ test.describe('Remaining product details placeholder routes', () => {
       await expect(page.getByRole('heading', { name: product.name })).toBeVisible()
       await expect(page.getByRole('tab', { name: 'Estoque' })).toBeVisible()
       await expect(page.getByRole('tab', { name: 'Configurações' })).toBeVisible()
-      if (categories[0] === 'resale') {
-        await expect(page.getByRole('tab', { name: 'Preços' })).toBeVisible()
-        await expect(page.getByRole('tab', { name: 'Acompanhamentos' })).toHaveCount(0)
-      }
-      if (categories[0] === 'ingredient') {
-        await expect(page.getByRole('tab', { name: 'Acompanhamentos' })).toHaveCount(0)
-        await expect(page.getByRole('tab', { name: 'Preços' })).toHaveCount(0)
-      }
+      await expect(page.getByRole('tab', { name: 'Acompanhamentos' })).toHaveCount(0)
+      await expect(page.getByRole('tab', { name: 'Preços' })).toHaveCount(0)
       await expect(page.getByRole('tab', { name: 'Receita' })).toHaveCount(0)
       await expect(page.getByRole('tab', { name: tab })).toHaveAttribute(
         'aria-selected',

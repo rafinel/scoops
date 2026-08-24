@@ -127,4 +127,8 @@ export class DrizzleBrandsRepository
         ),
       )
   }
+
+  async removeAll(): Promise<void> {
+    await this.database.delete(productBrandModel)
+  }
 }

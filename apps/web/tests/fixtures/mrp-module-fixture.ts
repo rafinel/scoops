@@ -65,6 +65,7 @@ export type MrpFixture = {
   mockProductRecipe: (options: MrpRecipeMockOptions) => Promise<MrpRecipeMock>
   mockProductAccompaniments: (options: MrpStockMockOptions) => Promise<MrpStockMock>
   mockAccompanimentTypes: (options: MrpStockMockOptions) => Promise<MrpStockMock>
+  mockProductPricing: (options: MrpStockMockOptions) => Promise<MrpStockMock>
 }
 
 const resolveResponse = (
@@ -137,6 +138,42 @@ export const MrpFixture = (page: Page): MrpFixture => ({
       })
     })
 
+    return { requests }
+  },
+
+  async mockProductPricing({ respond }) {
+    const requests: MrpRequestRecord[] = []
+    await page.route('**/products/**', async (route) => {
+      if (!['fetch', 'xhr'].includes(route.request().resourceType())) {
+        await route.continue()
+        return
+      }
+
+      const requestUrl = new URL(route.request().url())
+      if (
+        !/^\/products\/[^/]+\/(?:pricing|sizes|resale|resale-configuration|brands\/[^/]+\/resale-configuration)(?:\/|$)/.test(
+          requestUrl.pathname,
+        )
+      ) {
+        await route.continue()
+        return
+      }
+
+      const request: MrpRequestRecord = {
+        method: route.request().method(),
+        url: requestUrl,
+      }
+      const postData = route.request().postData()
+      if (postData) request.body = route.request().postDataJSON()
+      requests.push(request)
+      const response = await respond(request, requests.length)
+
+      await route.fulfill({
+        contentType: 'application/json',
+        status: response.status ?? 200,
+        body: JSON.stringify(response.body),
+      })
+    })
     return { requests }
   },
 
