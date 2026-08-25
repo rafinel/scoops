@@ -51,7 +51,9 @@ import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MrpSeeder } from '@/mrp/database/mrp-seeder'
 import { MRP_STOCK_TRANSACTIONS_REPOSITORY } from '@/mrp/database/mrp-repositories'
 import { MrpModule } from '@/mrp/mrp.module'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { InngestModule } from '@/shared/messaging/inngest/inngest.module'
+import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
 import { SharedModule } from '@/shared/shared.module'
 import { RestFixture } from '@/shared/rest/tests/rest-fixture'
 
@@ -80,7 +82,11 @@ export class MrpModuleFixture {
         ],
       },
       (builder: TestingModuleBuilder) =>
-        builder.overrideProvider(IDENTITY_PROVIDERS.authIdentity).useValue(authProvider),
+        builder
+          .overrideProvider(IDENTITY_PROVIDERS.authIdentity)
+          .useValue(authProvider)
+          .overrideProvider(InngestBroker)
+          .useValue(new InngestMock()),
     )
     return new MrpModuleFixture(restFixture)
   }
