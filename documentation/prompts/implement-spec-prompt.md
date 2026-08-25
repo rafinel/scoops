@@ -110,6 +110,26 @@ required assignment cannot be activated, stop before editing feature code and re
 orchestration blocker. Prompt, Spec, Plan or evaluation-only documentation maintenance may be
 handled directly when explicitly requested.
 
+### Subagent display names
+
+Pass an explicit stable `task_name` whenever activating a subagent so the Subagents panel shows
+its role and ownership boundary. Use lowercase snake case; Codex renders underscores as spaces
+and title-cases the display label:
+
+| Assignment | `task_name` | Display label |
+| --- | --- | --- |
+| Builder Core | `builder_core` | `Builder core` |
+| Builder Validation | `builder_validation` | `Builder validation` |
+| Builder Server | `builder_server` | `Builder server` |
+| Builder Web | `builder_web` | `Builder web` |
+| Integrated Reviewer | `reviewer` | `Reviewer` |
+
+For a future ownership boundary, use `builder_<normalized-boundary>`. When a genuinely independent
+replacement fix Builder is required, use `builder_fix_<normalized-boundary>`. Resume an existing
+Builder or Reviewer by its original identifier so its name and context remain stable. Do not use
+phase numbers, task numbers, generated IDs or vague names such as `worker`, `agent` or `reviewer`
+alone. `Builder Direct` runs in the current context and therefore has no subagent `task_name`.
+
 ## Preflight and evaluation kickoff
 
 Confirm the Spec is `open` for initial implementation or `in_progress` for a resumed
@@ -329,6 +349,21 @@ in Evaluation in the same task turn. A Builder handoff is incomplete until its c
 affected evidence freshness and any applicable lesson are materialized there. Keep Builder checks focused;
 do not run a full workspace or UI regression after every small edit unless the task exit requires it.
 
+### Behavior-hook coverage gate
+
+When a feature or widget tree contains colocated `use-*.ts` behavior hooks, enumerate every hook
+under the active scope before handoff and verify that each one has a colocated
+`tests/use-*.test.ts` file. The component test that mocks the owning hook is not a substitute for
+the hook test: the dedicated test must exercise the hook's public state, derived values, guards,
+effects and action outcomes that are relevant to the contract. Mock the nearest domain query or
+action abstraction rather than React Query or another third-party primitive.
+
+If the repository Rule Pack explicitly excludes dedicated tests for a query/action hook, record
+that hook as an explicit exception with the consuming-widget or route evidence that covers it. If
+the Spec or user request requires every hook in a directory, that request takes precedence over
+the default exception and every in-scope hook receives a focused test. Record the hook inventory,
+test paths, exact focused command, result and any documented exception in `evaluation.md`.
+
 ### Integrated Reviewer
 
 For Plan-backed execution, activate exactly one read-only
@@ -404,6 +439,7 @@ the result is unchanged:
 | File/widget tree | Every required path exists, no path is misplaced, and any intentional extra path is mapped to the Spec or explicitly excluded from the candidate. |
 | Boundary ownership | Each changed path is inside the active Builder scope and the Spec's declared layer/module boundary. |
 | Contract | RF/CA, API fields, domain rules, persistence behavior, error semantics and exclusions match the current revision. |
+| Behavior hooks | Every in-scope `use-*.ts` behavior hook has a colocated `tests/use-*.test.ts` file, or an explicit Rule Pack exception with linked consumer/route evidence. |
 | UI states | Loading, empty, success, error, recovery, disabled, selected, focus, keyboard and responsive states applicable to the change are exercised. |
 | Design references | Every supplied and required supplemental screenshot has an exact state/viewport capture, direct comparison, and current transient artifact identifier. |
 | Validation | Commands actually ran on the current candidate; console errors, failed requests, HTTP 4xx/5xx, hydration warnings and persistence results are classified. |

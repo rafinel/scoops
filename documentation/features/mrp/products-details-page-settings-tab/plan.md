@@ -1,20 +1,20 @@
 ---
 title: Product details Settings tab — implementation plan
-status: in_progress
+status: completed
 spec: ./spec.md
 spec_revision: 3
 evaluation: ./evaluation.md
 github_issue: https://github.com/rafinel/scoops/issues/18
-updated_at: 2026-08-24
+updated_at: 2026-08-25
 ---
 
 ## Execution status
 
-- **Spec:** [`spec.md`](./spec.md) — revision `3`, `in_progress`.
+- **Spec:** [`spec.md`](./spec.md) — revision `3`, `completed`.
 - **Rationale:** Plan-backed execution is required because this delivery crosses Core, Validation, transactional Server persistence and generated migration artifacts, eight REST operations, protected Web routing, multiple ownership boundaries, nine saved design references and real authenticated browser evidence.
 - **Current phase:** F1 shared contracts and boundary schemas (`completed`); Wave 2 F2/F3/F4 (`completed`); Wave 3 F5/F6 (`completed`); F7 integrated conformance and handoff (`completed`); F8 no-conversion unit semantics (`completed`); F9 accompaniment recovery correction (`completed`).
-- **Next action:** Commit and push the Server fixture correction, rerun the applicable Core/Server/Web PR quality gates, then close the Spec, Plan and Evaluation artifacts after CI passes.
-- **Active blockers:** FND-032 — PR #20 Server CI exposed a missing deterministic Inngest test double; Builder Server corrected the MRP fixture and local affected suites pass 12/12, pending CI rerun.
+- **Next action:** Review PR #20; merge and deploy remain outside this conclusion task.
+- **Active blockers:** None. Current head `d3acfda` passed Core, Server and Web CI (`EV-31`); FND-032 is resolved.
 - **Builders:** Next dependency-ready Builder Core for F1; Wave 2 reuses Builder Core for F3 and activates Builder Server for F2 plus Builder Web for F4; Wave 3 reuses Builder Server for F5 and Builder Web for F6.
 - **Coordination:** The Orchestrator owns this Plan, `evaluation.md`, package/lockfile or root configuration changes, generated `0011_<generated-tag>` migration/meta files, `apps/web/src/routeTree.gen.ts`, final integration, visual verdicts and official evidence. `apps/server/rest-client/mrp/products.rest` is synchronized by the REST owner because the REST Rule requires one example file for every MRP product route group.
 
@@ -28,7 +28,7 @@ updated_at: 2026-08-24
 | 2 | `Builder Web` | F4 | Web REST adapter, query/action boundaries and recovery routes | F1 | F2, F3 | `completed` | Eight Web service operations, query/action hooks and validated Settings/direct-action route contracts are wired without duplicated product truth or invalid search state. |
 | 3 | `Builder Server` | F5 | REST composition and real controller integration | F2, F3 | F6 | `completed` | Eight Settings controllers plus the list-filter integration pass real HTTP, authorization, tenant, DTO, persistence, rollback and retained-history assertions. |
 | 3 | `Builder Web` | F6 | Settings widgets, dialogs and browser route coverage | F4 | F5 | `completed` | The exact Settings widget tree, all stateful dialogs, mocked transport route matrix, responsive/keyboard behavior and fresh design comparisons pass; `FND-030` is resolved by `EV-26`. |
-| 4 | `Orchestrator` | F7 | Integrated conformance and handoff | F5, F6 | Integrated Reviewer | `in_progress` | Revision-3 technical, runtime, visual and acceptance evidence is current; EV-26 passes the corrected exact route matrix at 145/145 and EV-28/FND-031 are resolved as unrelated serial browser-harness instability, but FND-032 reopened F7 after Server CI exposed the missing MRP Inngest test double. |
+| 4 | `Orchestrator` | F7 | Integrated conformance and handoff | F5, F6 | Integrated Reviewer | `completed` | Revision-3 technical, runtime, visual and acceptance evidence is current; EV-26 passes the corrected exact route matrix at 145/145, EV-28/FND-031 are resolved as unrelated serial browser-harness instability, FND-032 is resolved by the MRP fixture correction, and current-head Core/Server/Web CI passes in EV-31. |
 | 4 | `Builder Core`, `Builder Server`, `Builder Web` | F8 | No-conversion unit semantics correction | F7 | — | `completed` | Product unit changes update the product unit while all product-owned numeric values remain unchanged; no compatible/incompatible branch or conversion factor remains; Core, Server, Web and browser evidence are current in `EV-21`. |
 | 4 | `Builder Web` | F9 | Accompaniment recovery filter correction | F7 | — | `completed` | The `Ver produtos` recovery link filters by the removed accompaniment product, while retaining the dependent product label; focused Web and browser evidence is current in `EV-22` and `EV-23`. |
 
@@ -148,11 +148,11 @@ updated_at: 2026-08-24
 
 #### F7-T1 — Validate one integrated revision-1 candidate and prepare conclusion
 
-- **Status/owner:** `in_progress` — Orchestrator
+- **Status/owner:** `completed` — Orchestrator
 - **Depends/parallel:** Starts only after F5 and F6 diffs are integrated; runs required sensors in parallel with exactly one read-only [`Integrated Reviewer`](../../../agents/reviewer-agent.md), who checks the complete candidate and all affected Core, Validation, Server, database, Web, route, migration, visual and recovery surfaces.
 - **Paths:** `documentation/features/mrp/products-details-page-settings-tab/plan.md`; `documentation/features/mrp/products-details-page-settings-tab/evaluation.md`; generated migration/meta files and `apps/web/src/routeTree.gen.ts` under Orchestrator ownership; no new product source path.
 - **Contract:** All `RF-01`–`RF-07`, `CA-01`–`CA-15`, `MV-01`–`MV-03`, supplied design references, supplemental-state decisions and final handoff condition.
-- **Outcome:** The integrated candidate has current command evidence, real services/accounts/fixtures, migration review, exact Spec tree/conformance comparisons, current screenshot identifiers and complete acceptance mapping. EV-26 is the accepted exact route gate; EV-28 documents unrelated serial browser-harness instability and EV-29 independently rechecks the affected Pricing route. FND-032 reopened the handoff after Server CI found the MRP fixture's missing Inngest test double; Builder Server corrected it and CI rerun is required.
+- **Outcome:** The integrated candidate has current command evidence, real services/accounts/fixtures, migration review, exact Spec tree/conformance comparisons, current screenshot identifiers and complete acceptance mapping. EV-26 is the accepted exact route gate; EV-28 documents unrelated serial browser-harness instability and EV-29 independently rechecks the affected Pricing route. FND-032 was corrected by Builder Server, and current-head Core/Server/Web CI passes in EV-31.
 - **Rules:** `documentation/rules/sdd-rules.md` (Plan ledger, living Evaluation, integrated validation, Reviewer and conclusion lifecycle); `documentation/tooling.md` (workspace checks, migration/build/browser workflow); `documentation/design.md` and all selected layer/testing Rules for final conformance. No selected Rule file contains an `Antipatterns to Avoid` subsection.
 - **Exit:** Run the full Spec command list, `docker compose ps` and required health checks, explicit auth setup only when seed accounts are absent, persistent Server/Web validation with Playwright CLI, MV-01 desktop simple saves and both unit paths, MV-02 390×844 keyboard category recovery, MV-03 removal rollback/access isolation, every supplied/supplemental visual comparison, console/network classification and final reviewer recheck. Keep F7 `in_progress` through corrections; route to `conclude-spec` only when every task/phase is complete, all transient artifact identifiers are recorded, all verified findings are resolved and no blocker remains.
 

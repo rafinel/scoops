@@ -1,6 +1,6 @@
 ---
 title: Product details Settings tab
-status: in_progress
+status: completed
 revision: 3
 source:
   type: issue
@@ -15,7 +15,7 @@ scope:
   - apps/web/src/routes/_authenticated/products
   - apps/web/src/rest/services/mrp-service.ts
   - apps/web/tests/routes/mrp
-last_updated_at: 2026-08-24
+last_updated_at: 2026-08-25
 ---
 
 # 1. Context and scope
