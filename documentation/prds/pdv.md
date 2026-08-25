@@ -11,6 +11,10 @@ the cart and register a definitive sale. Managers configure optional sales-chann
 adjustments and fixed-price Combos. The system calculates prices and discounts, atomically
 records the order and stock consumption, and preserves commercial snapshots for later history.
 
+Managers can also cancel any registered order through an explicit, one-way action. Cancellation
+preserves the original commercial history, atomically restores the stock consumed by the sale,
+records the cancellation facts and keeps the order available in history with a `Canceled` status.
+
 ## 2. Problem and Opportunity
 
 Ice cream shops need to combine sizes, quantities, accompaniments and packaging while keeping
@@ -567,8 +571,8 @@ REQ-09.
 - **Visible identification:** the user sees `Order #<number>`.
 - **Internal identifier:** may exist separately and should not be displayed
   as the main reference.
-- **Immutability:** the order cannot be edited, canceled, reversed or
-  deleted in MVP.
+- **Immutability:** the order cannot be edited, reversed or deleted in MVP;
+  cancellation follows REQ-15 and does not alter preserved snapshots.
 - **Success:** clears the cart only after confirmation from the server.
 - **Failure:** does not create order or maintain any write-off.
 
@@ -583,8 +587,9 @@ REQ-09.
   No stocks were changed. Please try again`.
 - **Connection lost:** must preserve the cart on the screen and allow new
   attempt.
-- **Irreversible action:** the dialog must inform that the MVP does not allow
-  cancellation or refund.
+- **Irreversible action:** the dialog must inform that payment refunds and
+  payment reversals are not available in the MVP; order cancellation is a
+  separate Manager-only lifecycle action.
 - **Accessibility:** focus must be moved to the dialog and returned to the element
   source when it is closed.
 
@@ -625,9 +630,17 @@ from the MRP module.
   subtotal.
 - **Consumptions:** the quantities of stock calculated for the
   sale.
+- **Cancellation snapshot:** when canceled, the order preserves status,
+  cancellation date and time, canceling Manager and optional cancellation
+  reason without changing any original order snapshot.
+- **Restoration facts:** exact product and brand consumptions restored by
+  cancellation remain auditable alongside original sale consumptions.
 - **Registration exclusions:** deletion of any registration cannot make the
   invalid order.
 - **Non-retroactive update:** no registration changes modify snapshots.
+- **Cancellation preservation:** cancellation changes lifecycle and stock
+  balance only; it does not rewrite products, configurations, channel,
+  Combos, prices, totals or original sale consumptions.
 - **Multi-tenancy:** snapshots belong exclusively to the ice cream shop of the order.
 
 #### Experience
@@ -668,7 +681,10 @@ REQ-09 and establishment access from the Identity module.
 - **Loading:** must use pagination or incremental loading.
 - **Restart:** changing filters restarts the results navigation.
 - **Details:** exclusively use registered snapshots.
-- **No mutations:** there are no edit, cancel, reverse or delete actions.
+- **Status:** each order displays `Registered` or `Canceled`, and users can
+  filter by status.
+- **No edit/reversal/deletion:** there are no edit, reverse or delete actions;
+  a Manager can cancel a registered order according to REQ-15.
 - **No reports:** metrics, dashboards and exports do not belong to MVP.
 - **Multi-tenancy:** orders from other ice cream shops can never be returned.
 
@@ -712,6 +728,8 @@ module.
   `Sales channels` and `Discounts`, without parent group.
 - **Operator:** can assemble, register and consult orders.
 - **Manager:** has Operator permissions and manages channels and discounts.
+- **Cancellation authorization:** only Managers can cancel registered orders;
+  Operators can view cancellation status and details but cannot initiate it.
 - **Product Configuration:** remains outside the Sales module.
 - **Authorization:** profile rules depend on the Identity module.
 - **Isolation:** products, channels, sequences, orders and histories are always
@@ -951,6 +969,59 @@ REQ-08 and REQ-09.
 
 ---
 
+### REQ-15 — Order Cancellation
+
+- [ ] **Implemented**
+
+**Outcome:** A Manager can cancel any registered order as a one-way lifecycle transition while
+restoring its consumed stock atomically and preserving the original commercial and operational
+history.
+
+**Actors:** Manager
+
+**Consumes:** registered order and immutable stock-consumption facts from REQ-08 and REQ-09;
+establishment access and Manager authorization from Identity; current stock facts from MRP.
+
+**Provides:** canceled order facts and restored stock facts consumed by REQ-10 and future
+operational history.
+
+#### Capabilities
+
+- **Eligibility:** only orders with status `Registered` can be canceled.
+- **Authorization:** only Managers can initiate cancellation; Operators can view canceled
+  status and details but cannot cancel.
+- **No time limit:** a Manager may cancel any registered order regardless of age.
+- **Mandatory confirmation:** cancellation requires explicit confirmation.
+- **Reason:** cancellation reason is optional; when supplied, it is preserved.
+- **Atomic restoration:** cancellation changes order status and metadata and restores every
+  product and brand stock consumption from the original sale in one atomic transaction.
+- **Failure:** if restoration or cancellation cannot complete, the order remains `Registered`,
+  no partial stock restoration is kept, and retry is allowed.
+- **One-way transition:** `Registered` -> `Canceled` only. Canceled orders cannot be edited,
+  reactivated, canceled again or deleted.
+- **History preservation:** cancellation does not change original products, configurations,
+  quantities, channel, Combo facts, prices, totals or original consumption snapshots.
+- **No refunds:** cancellation does not refund or reverse payments in the MVP because payment
+  is not part of PDV.
+- **Multi-tenancy:** cancellation is limited to orders in the current establishment.
+
+#### Experience
+
+- **Detail action:** registered order details show `Cancel order` only to Managers.
+- **Confirmation:** dialog shows order number, date/time, item count, total, optional reason,
+  and warns that the order remains in history with status `Canceled` while products, channel
+  and values remain preserved.
+- **Success:** details show `Canceled`, cancellation timestamp, canceling Manager and optional
+  reason.
+- **Failure:** display a retryable error, keep the order `Registered`, and explain that no
+  partial stock restoration occurred.
+- **History:** order list displays status and supports `Registered` and `Canceled` filters;
+  canceled details remain readable using preserved snapshots.
+- **Accessibility:** confirmation focus, labels, reason field, status, errors and cancellation
+  updates are keyboard and assistive-technology accessible.
+
+---
+
 ## 6. Product Dependency Graph
 
 An edge `A --> B` means B consumes a product capability or authoritative fact provided by A.
@@ -972,17 +1043,20 @@ flowchart LR
     R11["REQ-11 Access and isolation"]
     R13["REQ-13 Combo management"]
     R14["REQ-14 Combo application"]
+    R15["REQ-15 Order cancellation"]
 
     Identity --> R01
     Identity --> R10
     Identity --> R11
     Identity --> R13
+    Identity --> R15
     MRP --> R02
     MRP --> R03
     MRP --> R04
     MRP --> R07
     MRP --> R09
     MRP --> R13
+    MRP --> R15
     R01 --> R05
     R01 --> R06
     R01 --> R07
@@ -1011,6 +1085,10 @@ flowchart LR
     R14 --> R07
     R14 --> R08
     R14 --> R09
+    R08 --> R15
+    R09 --> R15
+    R11 --> R15
+    R15 --> R10
 ```
 
 ## 7. User Journeys
@@ -1216,16 +1294,36 @@ flowchart LR
 5. The user opens an order.
 6. The system presents complete snapshots of the sale, including Combos,
    economy and participating products.
-7. No editing, cancellation, reversal or deletion actions are offered.
-8. The journey ends.
+7. Operators can view cancellation status and details; only Managers see the
+   cancellation action for registered orders.
+8. No editing, reversal or deletion actions are offered.
+9. The journey ends.
+
+### Journey Q — Manager cancels a registered order
+
+1. The Manager opens the details of a `Registered` order.
+2. The system displays the cancellation action and preserved order number,
+   date, item count and total.
+3. The Manager selects `Cancel order`.
+4. The system opens a confirmation dialog with an optional reason and explains
+   that the order remains in history with status `Canceled`, while products,
+   channel and values remain preserved.
+5. The Manager confirms the cancellation.
+6. The system atomically restores all product and brand stock consumptions,
+   records canceled status, timestamp, Manager and optional reason.
+7. Success: details show `Canceled` and cancellation metadata.
+8. Failure: order remains `Registered`, no partial stock restoration is
+   maintained, and the Manager can retry.
+9. A canceled order cannot be edited, reactivated, canceled again or deleted.
 
 ---
 
 ## 8. Out of Scope
 
 - Methods of payment, cash, change, bleeding, supply and reconciliation.
-- Cancellation or reversal of orders.
+- Payment refunds or payment reversals for canceled orders.
 - Editing or deleting registered orders.
+- Reactivation of canceled orders.
 - Identification, registration or customer history.
 - Loyalty, cashback, coupons or customer credit.
 - Types of discounts other than Combo.

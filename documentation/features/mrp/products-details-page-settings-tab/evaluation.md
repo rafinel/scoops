@@ -3,15 +3,15 @@ feature: "mrp/products-details-page-settings-tab"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 3
-status: in_progress
-updated_at: 2026-08-24
+status: completed
+updated_at: 2026-08-25
 ---
 
 # Evaluation
 
 Evaluation of Spec revision `3` against the current implementation.
 
-Current result: Revision 3 implementation and integrated validation are complete after resolving FND-030. The product contract requires unit relabeling without numeric conversion: product-owned stock quantities, ideal stock, costs, recipe quantities, sizes and accompaniment quantities retain their values and adopt the selected unit; existing brand units and historical facts remain unchanged. EV-26 is the accepted corrected full Web route gate at 145/145. Fresh explicit-process reruns recorded under EV-27 and EV-28 reproduced unrelated serial browser-harness failures while every Settings case in the matrix passed; the affected Pricing route also passed 19/19 in isolation under EV-29. FND-031 is resolved as environment-only. PR #20 then passed Core and Web CI but exposed a CI-only Server fixture defect in EV-30; FND-032 is active while the Builder Server correction is validated and the PR quality gate reruns.
+Current result: Revision 3 implementation, integrated validation and publication quality gates are complete. The product contract requires unit relabeling without numeric conversion: product-owned stock quantities, ideal stock, costs, recipe quantities, sizes and accompaniment quantities retain their values and adopt the selected unit; existing brand units and historical facts remain unchanged. EV-26 is the accepted corrected full Web route gate at 145/145. Fresh explicit-process reruns recorded under EV-27 and EV-28 reproduced unrelated serial browser-harness failures while every Settings case in the matrix passed; the affected Pricing route also passed 19/19 in isolation under EV-29. FND-031 is resolved as environment-only. The superseded PR #20 head exposed the CI-only fixture defect recorded in EV-30/FND-032; Builder Server corrected it, and current head d3acfda passed Core, Server and Web CI in EV-31. All verified findings are resolved and the Spec is ready for review/merge; no merge or deployment was performed.
 
 ## Acceptance matrix
 
@@ -68,6 +68,7 @@ Current result: Revision 3 implementation and integrated validation are complete
 | `EV-28` | Web integrated route clean-process rerun | `pnpm --filter web exec playwright test tests/routes --workers=1` after restarting only the explicit Scoops Server/Web processes and verifying Supabase, Server and Web health | The clean-process matrix reached 138 passed and 7 failed. The failures were limited to unrelated Identity access/users/reset-password timing, Accompaniment types navigation timing and one Pricing pre-mount console warning; all Settings cases reached in the same matrix passed. This confirms a serial browser-harness/environment instability distinct from the corrected Settings implementation; EV-26 remains the accepted exact feature gate. | `environment_failure` |
 | `EV-29` | Web isolated affected-route recheck | `pnpm --filter web exec playwright test 'tests/routes/mrp/products.\$productId.prices.test.ts' --workers=1` | The affected Pricing route, including the additive persisted-brand-unit fixture and validated focus destination, passed 19/19 with no console or failed-request assertion failures. | `passed` |
 | `EV-30` | PR #20 CI quality gate, head `5dabfdd0a70af149acafcd36b28e345dd7bffe44` | Core CI, Server CI and Web CI | Core CI and Web CI passed. Server CI passed code/types and infrastructure setup but failed 7 MRP controller integration tests with HTTP 500 because CI does not provide `INNGEST_EVENT_KEY` and `MrpModuleFixture` used the real `InngestBroker`; the broker error was the only failure mechanism. | `failed` |
+| `EV-31` | PR #20 current-head CI quality gate, head `d3acfda1eada37e319d0ef9508f1755ff35010e7` | Core CI run 54; Server CI run 62; Web CI run 71 | All applicable current-head workflows passed after the MRP fixture correction: Core CI, Server CI and Web CI are green. | `passed` |
 
 ## Manual evidence
 
@@ -141,7 +142,7 @@ Current result: Revision 3 implementation and integrated validation are complete
 | `FND-029` | implementation/validation | User-reported empty products result after clicking `Ver produtos` from an accompaniment dependency dialog | `EV-20`; `EV-22`; `EV-23`; `CA-06`; `CA-14` | `resolved` | The dialog now uses the product being removed as `usedAsAccompanimentId` instead of the dependent portion ID. The focused hook regression and Products route browser check passed; the dependent product remains the displayed result context. |
 | `FND-030` | implementation/validation | CI-equivalent mocked route suite `pnpm --filter web exec playwright test tests/routes --workers=1` | `EV-24`; `EV-26`; Web route coverage; `CA-01`–`CA-04`; `CA-14`; `CA-15` | `resolved` | Builder Web updated the affected route fixtures/assertions for the persisted brand unit, used the portal-owned option locator, added deterministic waits for auth/data responses and the Settings mocked 500 response, and preserved strict console-error assertions. The exact full route suite then passed 145/145; no production source or visual state changed. |
 | `FND-031` | environment/validation | Orchestrator reruns of the full mocked Web route suite and isolated affected-route recheck | `EV-26`–`EV-29`; Web route coverage; `CA-01`–`CA-15` | `resolved` | EV-26 is the exact corrected 145/145 route gate. After restarting only the explicit Scoops processes and verifying all health endpoints, EV-28 reproduced seven unrelated Identity/Accompaniment/Pricing serial-run failures while every Settings case passed; EV-29 passed the affected Pricing file 19/19. The finding is closed as browser-harness/environment instability, not a product or Settings regression. No durable documentation change is warranted because the repository tooling already requires health checks and app lifecycle management; the limitation is disclosed in the delivery PR. |
-| `FND-032` | CI/validation | PR #20 Server CI run `32795793324` | `EV-30`; Server CI; `CA-01`–`CA-13` | `active` | The MRP integration fixture used the real Inngest broker, so valid product mutation requests attempted external event publication and returned HTTP 500 when CI omitted `INNGEST_EVENT_KEY`. Builder Server corrected `apps/server/src/mrp/fixtures/mrp-module-fixture.ts` to override `InngestBroker` with `InngestMock`; affected suites now pass 12/12 locally. Re-run Server CI on the correction before closing this finding. This is a test-fixture correction, not a production behavior change; no durable tooling/PRD change is warranted. |
+| `FND-032` | CI/validation | PR #20 Server CI run `32795793324` and corrected-head run `32796802689` | `EV-30`; `EV-31`; Server CI; `CA-01`–`CA-13` | `resolved` | The MRP integration fixture used the real Inngest broker, so valid product mutation requests attempted external event publication and returned HTTP 500 when CI omitted `INNGEST_EVENT_KEY`. Builder Server corrected `apps/server/src/mrp/fixtures/mrp-module-fixture.ts` to override `InngestBroker` with `InngestMock`; affected suites passed 12/12 locally and current-head Server CI passed. This was a test-fixture correction, not a production behavior change; no durable tooling/PRD change was warranted. |
 
 ## Lessons learned
 
@@ -161,6 +162,12 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| `CI-00` | Core CI | `5dabfdd0a70af149acafcd36b28e345dd7bffe44` | `passed` (superseded) | [run 53](https://github.com/rafinel/scoops/actions/runs/32795793337) |
+| `CI-01` | Server CI | `5dabfdd0a70af149acafcd36b28e345dd7bffe44` | `failed` (superseded; FND-032) | [run 60](https://github.com/rafinel/scoops/actions/runs/32795793324) |
+| `CI-02` | Web CI | `5dabfdd0a70af149acafcd36b28e345dd7bffe44` | `passed` (superseded) | [run 70](https://github.com/rafinel/scoops/actions/runs/32795793241) |
+| `CI-03` | Core CI | `d3acfda1eada37e319d0ef9508f1755ff35010e7` | `passed` | [run 54](https://github.com/rafinel/scoops/actions/runs/32796802683) |
+| `CI-04` | Server CI | `d3acfda1eada37e319d0ef9508f1755ff35010e7` | `passed` | [run 62](https://github.com/rafinel/scoops/actions/runs/32796802689) |
+| `CI-05` | Web CI | `d3acfda1eada37e319d0ef9508f1755ff35010e7` | `passed` | [run 71](https://github.com/rafinel/scoops/actions/runs/32796802617) |
 
 ## History
 
@@ -190,3 +197,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-08-24` | Orchestrator reran the full route suite against long-lived local app processes; unrelated cross-route failures produced 138/145 in `EV-27`, so `FND-031` opened and clean process restart was required before accepting the browser gate. |
 | `2026-08-24` | Explicit Scoops Server/Web processes were restarted and health/compilation verified. The clean full matrix reproduced unrelated serial Identity/Accompaniment/Pricing failures while all Settings cases passed (`EV-28`); the isolated affected Pricing route passed 19/19 (`EV-29`), so `FND-031` was resolved as environment-only and EV-26 retained as the accepted 145/145 feature gate. |
 | `2026-08-25` | PR #20 Core and Web CI passed, but Server CI failed seven MRP controller tests because the MRP fixture used the real Inngest broker without an event key (`EV-30`); FND-032 opened and Builder Server corrected the fixture to use `InngestMock`. |
+| `2026-08-25` | Corrected head `d3acfda` passed Core CI run 54, Server CI run 62 and Web CI run 71 (`EV-31`); FND-032 resolved, all findings closed and the Spec/Plan/Evaluation routed to completed. |
