@@ -9,7 +9,6 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 
-import { productModel } from './product-model'
 import { productionModel } from './production-model'
 
 export const stockTransactionModel = pgTable(
@@ -17,9 +16,7 @@ export const stockTransactionModel = pgTable(
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),
-    productId: uuid('product_id')
-      .notNull()
-      .references(() => productModel.id, { onDelete: 'cascade' }),
+    productId: uuid('product_id').notNull(),
     brandId: uuid('brand_id'),
     productionId: uuid('production_id').references(() => productionModel.id, {
       onDelete: 'cascade',

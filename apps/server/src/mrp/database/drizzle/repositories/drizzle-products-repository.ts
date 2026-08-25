@@ -9,12 +9,14 @@ import type { Product } from '@scoops/core/mrp/domain/entities'
 import type { ProductListParams } from '@scoops/core/mrp/domain/structures'
 import type { ProductCreate, ProductUpdate } from '@scoops/core/mrp/domain/structures'
 import type { ProductsRepository } from '@scoops/core/mrp/interfaces'
-import { and, arrayOverlaps, asc, count, desc, eq, ilike, sql } from 'drizzle-orm'
+import { ConflictError } from '@scoops/core/shared/domain/errors'
+import { and, arrayOverlaps, asc, count, desc, eq, exists, ilike, sql } from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
 
 import { DrizzleProductMapper } from '../mappers/drizzle-product-mapper'
+import { productAccompanimentModel } from '../models/product-accompaniment-model'
 import { productBrandModel } from '../models/product-brand-model'
 import { productModel } from '../models/product-model'
 import { stockBalanceModel } from '../models/stock-balance-model'
@@ -32,9 +34,8 @@ export class DrizzleProductsRepository
         ...input,
         id: crypto.randomUUID(),
         categories: [...input.categories],
-        idealStock: input.idealStock === undefined ? null : String(input.idealStock),
-        currentUnitCost:
-          input.currentUnitCost === undefined ? null : String(input.currentUnitCost),
+        idealStock: this.toNumericValue(input.idealStock) ?? null,
+        currentUnitCost: this.toNumericValue(input.currentUnitCost) ?? null,
         createdAt: now,
         updatedAt: now,
       })
@@ -52,9 +53,8 @@ export class DrizzleProductsRepository
           ...input,
           id: crypto.randomUUID(),
           categories: [...input.categories],
-          idealStock: input.idealStock === undefined ? null : String(input.idealStock),
-          currentUnitCost:
-            input.currentUnitCost === undefined ? null : String(input.currentUnitCost),
+          idealStock: this.toNumericValue(input.idealStock) ?? null,
+          currentUnitCost: this.toNumericValue(input.currentUnitCost) ?? null,
           createdAt: now,
           updatedAt: now,
         })),
@@ -116,6 +116,25 @@ export class DrizzleProductsRepository
     if (input.status) filters.push(eq(productModel.status, input.status))
     if (input.categories?.length)
       filters.push(arrayOverlaps(productModel.categories, [...input.categories]))
+    if (input.usedAsAccompanimentId) {
+      filters.push(
+        exists(
+          this.database
+            .select({ id: productAccompanimentModel.id })
+            .from(productAccompanimentModel)
+            .where(
+              and(
+                eq(productAccompanimentModel.establishmentId, input.establishmentId),
+                eq(productAccompanimentModel.productId, productModel.id),
+                eq(
+                  productAccompanimentModel.accompanimentProductId,
+                  input.usedAsAccompanimentId,
+                ),
+              ),
+            ),
+        ),
+      )
+    }
     if (input.stockSituation === ProductStockSituation.Low) {
       filters.push(
         sql`${productModel.idealStock} is not null and coalesce(${stockTotals.stockQuantity}, 0) < ${productModel.idealStock}`,
@@ -204,30 +223,90 @@ export class DrizzleProductsRepository
     )
   }
 
-  async replace(productId: string, changes: ProductUpdate) {
+  async findByIdForUpdate(
+    establishmentId: string,
+    productId: string,
+  ): Promise<Product | undefined> {
+    const [record] = await this.database
+      .select()
+      .from(productModel)
+      .where(
+        and(
+          eq(productModel.establishmentId, establishmentId),
+          eq(productModel.id, productId),
+        ),
+      )
+      .for('update')
+      .limit(1)
+    return record ? DrizzleProductMapper.toDomain(record) : undefined
+  }
+
+  async replace(
+    establishmentId: string,
+    productId: string,
+    changes: ProductUpdate,
+  ): Promise<Product>
+  async replace(productId: string, changes: ProductUpdate): Promise<Product>
+  async replace(
+    establishmentOrProductId: string,
+    productIdOrChanges: string | ProductUpdate,
+    scopedChanges?: ProductUpdate,
+  ): Promise<Product> {
+    const isScoped = typeof productIdOrChanges === 'string'
+    const productId = isScoped ? productIdOrChanges : establishmentOrProductId
+    const changes = isScoped ? scopedChanges : productIdOrChanges
+    if (!changes) throw new ConflictError('Database operation conflicted')
+
+    const productFilters = isScoped
+      ? [
+          eq(productModel.establishmentId, establishmentOrProductId),
+          eq(productModel.id, productId),
+        ]
+      : [eq(productModel.id, productId)]
     const [record] = await this.database
       .update(productModel)
       .set({
         ...changes,
         categories: changes.categories ? [...changes.categories] : undefined,
-        idealStock:
-          changes.idealStock === undefined ? undefined : String(changes.idealStock),
-        currentUnitCost:
-          changes.currentUnitCost === undefined
-            ? undefined
-            : String(changes.currentUnitCost),
+        idealStock: this.toNumericValue(changes.idealStock),
+        currentUnitCost: this.toNumericValue(changes.currentUnitCost),
+        internalNotes:
+          changes.internalNotes === undefined ? undefined : changes.internalNotes,
         updatedAt: new Date(),
       })
-      .where(eq(productModel.id, productId))
+      .where(and(...productFilters))
       .returning()
+    if (!record) throw new ConflictError('Database operation conflicted')
     return DrizzleProductMapper.toDomain(record)
   }
 
-  async remove(productId: string) {
-    await this.database.delete(productModel).where(eq(productModel.id, productId))
+  async remove(establishmentId: string, productId: string): Promise<void>
+  async remove(productId: string): Promise<void>
+  async remove(
+    establishmentOrProductId: string,
+    scopedProductId?: string,
+  ): Promise<void> {
+    const isScoped = scopedProductId !== undefined
+    const productId = scopedProductId ?? establishmentOrProductId
+    const filters = isScoped
+      ? [
+          eq(productModel.establishmentId, establishmentOrProductId),
+          eq(productModel.id, productId),
+        ]
+      : [eq(productModel.id, productId)]
+    const deleted = await this.database
+      .delete(productModel)
+      .where(and(...filters))
+      .returning({ id: productModel.id })
+    if (!deleted.length) throw new ConflictError('Database operation conflicted')
   }
 
   async removeAll() {
     await this.database.delete(productModel)
+  }
+
+  private toNumericValue(value: number | null | undefined): string | null | undefined {
+    if (value === undefined || value === null) return value
+    return String(value)
   }
 }

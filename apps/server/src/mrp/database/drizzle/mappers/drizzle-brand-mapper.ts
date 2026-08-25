@@ -8,6 +8,7 @@ export class DrizzleBrandMapper {
       id: record.id,
       productId: record.productId,
       name: record.name,
+      unit: record.unit,
       packageQuantity: Number(record.packageQuantity ?? 0),
       packagePrice: Number(record.packageValue ?? 0),
       isPrimary: record.isPrimary,

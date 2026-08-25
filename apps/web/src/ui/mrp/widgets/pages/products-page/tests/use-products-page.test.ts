@@ -71,4 +71,39 @@ describe('useProductsPage', () => {
     expect(result.current.isLoadingProducts).toBe(true)
     expect(result.current.isPendingProducts).toBe(true)
   })
+
+  it('treats the accompaniment relationship filter as active and clears it', () => {
+    const onSearchChange = vi.fn()
+    useAuthContextMock.mockReturnValue({
+      account: { profile: UserProfile.Manager },
+    } as never)
+    useProductsQueryMock.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: false,
+      isPending: false,
+      refetch: vi.fn(),
+    } as never)
+    const filteredSearch = {
+      ...search,
+      search: '',
+      usedAsAccompanimentId: 'accompaniment-1',
+    }
+    const { result } = renderHook(() =>
+      useProductsPage({ onSearchChange, search: filteredSearch }),
+    )
+
+    expect(result.current.hasFilters).toBe(true)
+    act(() => result.current.handleEmptyStateClear())
+
+    expect(onSearchChange).toHaveBeenCalledWith({
+      ...filteredSearch,
+      search: '',
+      categories: [],
+      usedAsAccompanimentId: undefined,
+      status: undefined,
+      stockSituation: undefined,
+      page: 1,
+    })
+  })
 })

@@ -12,6 +12,7 @@ export const listProductsQuerySchema = z
   .object({
     search: z.string().trim().max(120).optional(),
     category: z.union([productCategorySchema, z.array(productCategorySchema)]).optional(),
+    usedAsAccompanimentId: z.uuid().optional(),
     status: z.enum(ProductStatus).optional(),
     stockSituation: z.enum(StockSituation).optional(),
     sortBy: z.enum(ProductSortField).default(ProductSortField.CreatedAt),

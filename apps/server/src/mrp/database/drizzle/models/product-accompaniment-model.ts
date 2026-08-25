@@ -43,6 +43,10 @@ export const productAccompanimentModel = pgTable(
       table.establishmentId,
       table.productId,
     ),
+    index('mrp_product_accompaniments_establishment_accompaniment_idx').on(
+      table.establishmentId,
+      table.accompanimentProductId,
+    ),
     index('mrp_product_accompaniments_establishment_type_idx').on(
       table.establishmentId,
       table.accompanimentTypeId,

@@ -11,7 +11,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 
-import { productModel } from './product-model'
+import { productModel, productUnitModel } from './product-model'
 
 export const productBrandModel = pgTable(
   'mrp_product_brands',
@@ -21,6 +21,7 @@ export const productBrandModel = pgTable(
       .notNull()
       .references(() => productModel.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
+    unit: productUnitModel('unit').notNull(),
     packageQuantity: numeric('package_quantity', { precision: 18, scale: 3 }).notNull(),
     packageValue: numeric('package_value', { precision: 18, scale: 3 }).notNull(),
     isPrimary: boolean('is_primary').notNull().default(false),

@@ -11,6 +11,13 @@ import {
 } from '@/ui/shadcn/dialog'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/ui/shadcn/select'
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
@@ -40,6 +47,8 @@ export const ProductBrandDialog = (props: ProductBrandDialogProps) => {
     handleOpenChange,
     handleSubmit,
     register,
+    setUnit,
+    brandUnit,
   } = useProductBrandDialog(props)
   const isAdd = variant === 'add'
 
@@ -87,9 +96,24 @@ export const ProductBrandDialog = (props: ProductBrandDialogProps) => {
             />
           </Field>
 
+          <Field label='Unidade da marca' error={errors.unit?.message}>
+            <Select value={brandUnit} onValueChange={(value) => value && setUnit(value)}>
+              <SelectTrigger aria-label='Unidade da marca' className='h-11 rounded-xl'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='g'>Gramas (g)</SelectItem>
+                <SelectItem value='ml'>Mililitros (ml)</SelectItem>
+                <SelectItem value='kg'>Quilogramas (kg)</SelectItem>
+                <SelectItem value='l'>Litros (l)</SelectItem>
+                <SelectItem value='un'>Unidades (un)</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+
           <div className='grid gap-4 sm:grid-cols-2'>
             <Field label='Qtd. por embalagem' error={errors.packageQuantity?.message}>
-              <AffixedInput suffix={unit}>
+              <AffixedInput suffix={brandUnit}>
                 <Input
                   {...register('packageQuantity')}
                   aria-invalid={Boolean(errors.packageQuantity)}
@@ -139,14 +163,14 @@ export const ProductBrandDialog = (props: ProductBrandDialogProps) => {
                 Preço unitário
               </p>
               <p className='text-lg font-extrabold'>
-                {formatCurrency(unitPrice)} / {unit}
+                {formatCurrency(unitPrice)} / {brandUnit}
               </p>
             </div>
             <div className='text-right text-xs text-muted-foreground'>
               <p className='font-semibold uppercase'>Cálculo</p>
               <p>
                 {formatCurrency(Number(packageValue) || 0)} ÷{' '}
-                {Number(packageQuantity) || 0} {unit}
+                {Number(packageQuantity) || 0} {brandUnit}
               </p>
             </div>
           </div>

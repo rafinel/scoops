@@ -89,6 +89,106 @@ export class DrizzleProductAccompanimentsRepository
     return records.map(DrizzleProductAccompanimentMapper.toDomain)
   }
 
+  async countByProductId(establishmentId: string, productId: string): Promise<number> {
+    const [record] = await this.database
+      .select({ count: count() })
+      .from(productAccompanimentModel)
+      .where(
+        and(
+          eq(productAccompanimentModel.establishmentId, establishmentId),
+          eq(productAccompanimentModel.productId, productId),
+        ),
+      )
+    return Number(record?.count ?? 0)
+  }
+
+  async findManyByAccompanimentProductId(
+    establishmentId: string,
+    accompanimentProductId: string,
+  ): Promise<readonly ProductAccompaniment[]> {
+    const records = await this.database
+      .select()
+      .from(productAccompanimentModel)
+      .where(
+        and(
+          eq(productAccompanimentModel.establishmentId, establishmentId),
+          eq(productAccompanimentModel.accompanimentProductId, accompanimentProductId),
+        ),
+      )
+      .orderBy(asc(productAccompanimentModel.id))
+    return records.map(DrizzleProductAccompanimentMapper.toDomain)
+  }
+
+  async countByAccompanimentProductId(
+    establishmentId: string,
+    accompanimentProductId: string,
+  ): Promise<number> {
+    const [record] = await this.database
+      .select({ count: count() })
+      .from(productAccompanimentModel)
+      .where(
+        and(
+          eq(productAccompanimentModel.establishmentId, establishmentId),
+          eq(productAccompanimentModel.accompanimentProductId, accompanimentProductId),
+        ),
+      )
+    return Number(record?.count ?? 0)
+  }
+
+  async replaceQuantitiesByAccompanimentProductId(
+    establishmentId: string,
+    accompanimentProductId: string,
+    quantities: readonly { linkId: string; quantityPerPortion: number }[],
+  ): Promise<void> {
+    for (const { linkId, quantityPerPortion } of quantities) {
+      const records = await this.database
+        .update(productAccompanimentModel)
+        .set({ quantityPerPortion: String(quantityPerPortion), updatedAt: new Date() })
+        .where(
+          and(
+            eq(productAccompanimentModel.establishmentId, establishmentId),
+            eq(productAccompanimentModel.accompanimentProductId, accompanimentProductId),
+            eq(productAccompanimentModel.id, linkId),
+          ),
+        )
+        .returning({ id: productAccompanimentModel.id })
+      if (records.length !== 1) throw new ConflictError('Database operation conflicted')
+    }
+  }
+
+  async removeByProductId(establishmentId: string, productId: string): Promise<void> {
+    try {
+      await this.database
+        .delete(productAccompanimentModel)
+        .where(
+          and(
+            eq(productAccompanimentModel.establishmentId, establishmentId),
+            eq(productAccompanimentModel.productId, productId),
+          ),
+        )
+    } catch (error) {
+      throw this.toConflictError(error)
+    }
+  }
+
+  async removeByAccompanimentProductId(
+    establishmentId: string,
+    accompanimentProductId: string,
+  ): Promise<void> {
+    try {
+      await this.database
+        .delete(productAccompanimentModel)
+        .where(
+          and(
+            eq(productAccompanimentModel.establishmentId, establishmentId),
+            eq(productAccompanimentModel.accompanimentProductId, accompanimentProductId),
+          ),
+        )
+    } catch (error) {
+      throw this.toConflictError(error)
+    }
+  }
+
   async findByProductAndAccompaniment(
     establishmentId: string,
     productId: string,
@@ -142,7 +242,7 @@ export class DrizzleProductAccompanimentsRepository
     linkId: string,
   ): Promise<void> {
     try {
-      await this.database
+      const records = await this.database
         .delete(productAccompanimentModel)
         .where(
           and(
@@ -151,6 +251,8 @@ export class DrizzleProductAccompanimentsRepository
             eq(productAccompanimentModel.id, linkId),
           ),
         )
+        .returning({ id: productAccompanimentModel.id })
+      if (!records.length) throw new ConflictError('Database operation conflicted')
     } catch (error) {
       throw this.toConflictError(error)
     }

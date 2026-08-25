@@ -22,6 +22,14 @@ import type {
   UpdateProductAccompanimentInput,
   SaveAccompanimentTypeInput,
   AccompanimentTypePage,
+  ProductCategoryRemovalImpact,
+  ChangeProductCategoriesInput,
+  PreviewProductUnitChangeInput,
+  ProductUnitChangePreview,
+  ChangeProductUnitInput,
+  ProductRemovalImpact,
+  ProductSettingsDetails,
+  UpdateProductSettingsInput,
   ProductPricingDetails,
   ProductSizePricing,
   ResalePricing,
@@ -83,6 +91,10 @@ type ProductPricingDetailsJson = Omit<
   product: ProductJson
   sizes: readonly ProductSizePricingJson[]
   resale: readonly ResalePricingJson[]
+}
+
+type ProductSettingsDetailsJson = Omit<ProductSettingsDetails, 'product'> & {
+  product: ProductJson
 }
 type ProductionJson = Omit<Production, 'occurredAt'> & {
   occurredAt: string
@@ -186,6 +198,12 @@ function mapProductPricing(response: ProductPricingDetailsJson): ProductPricingD
   }
 }
 
+function mapProductSettings(
+  response: ProductSettingsDetailsJson,
+): ProductSettingsDetails {
+  return { ...response, product: mapProduct(response.product) }
+}
+
 function mapProduction(production: ProductionJson): Production {
   return {
     ...production,
@@ -238,6 +256,9 @@ export const MrpService = (restClient: RestClient): MrpRestService => ({
     const params = new URLSearchParams()
     if (input.search) params.set('search', input.search)
     input.categories?.forEach((category) => params.append('category', category))
+    if (input.usedAsAccompanimentId) {
+      params.set('usedAsAccompanimentId', input.usedAsAccompanimentId)
+    }
     if (input.status) params.set('status', input.status)
     if (input.stockSituation) params.set('stockSituation', input.stockSituation)
     if (input.sortBy) params.set('sortBy', input.sortBy)
@@ -270,6 +291,92 @@ export const MrpService = (restClient: RestClient): MrpRestService => ({
       statusCode: response.statusCode,
       headers: response.headers,
     })
+  },
+
+  async getProductSettings(productId) {
+    const response = await restClient.get<ProductSettingsDetailsJson>(
+      `/products/${productId}/settings`,
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductSettingsDetails>
+
+    return new RestResponse({
+      body: mapProductSettings(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async updateProductSettings(productId, input: UpdateProductSettingsInput) {
+    const response = await restClient.patch<ProductSettingsDetailsJson>(
+      `/products/${productId}/settings`,
+      { ...input, expectedUpdatedAt: input.expectedUpdatedAt.toISOString() },
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductSettingsDetails>
+
+    return new RestResponse({
+      body: mapProductSettings(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async getProductCategoryRemovalImpact(productId, category) {
+    const params = new URLSearchParams({ category })
+    const response = await restClient.get<ProductCategoryRemovalImpact>(
+      `/products/${productId}/category-removal-impact?${params.toString()}`,
+    )
+    return response as unknown as RestResponse<ProductCategoryRemovalImpact>
+  },
+
+  async changeProductCategories(productId, input: ChangeProductCategoriesInput) {
+    const response = await restClient.patch<ProductSettingsDetailsJson>(
+      `/products/${productId}/categories`,
+      { ...input, expectedUpdatedAt: input.expectedUpdatedAt.toISOString() },
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductSettingsDetails>
+
+    return new RestResponse({
+      body: mapProductSettings(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async previewProductUnitChange(productId, input: PreviewProductUnitChangeInput) {
+    const response = await restClient.post<ProductUnitChangePreview>(
+      `/products/${productId}/unit-change-preview`,
+      input,
+    )
+    return response as unknown as RestResponse<ProductUnitChangePreview>
+  },
+
+  async changeProductUnit(productId, input: ChangeProductUnitInput) {
+    const response = await restClient.patch<ProductSettingsDetailsJson>(
+      `/products/${productId}/unit`,
+      { ...input, expectedUpdatedAt: input.expectedUpdatedAt.toISOString() },
+    )
+    if (!response.isSuccessful)
+      return response as unknown as RestResponse<ProductSettingsDetails>
+
+    return new RestResponse({
+      body: mapProductSettings(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  async getProductRemovalImpact(productId) {
+    const response = await restClient.get<ProductRemovalImpact>(
+      `/products/${productId}/removal-impact`,
+    )
+    return response as unknown as RestResponse<ProductRemovalImpact>
+  },
+
+  removeProduct(productId) {
+    return restClient.delete<void>(`/products/${productId}`)
   },
 
   async getProductPricing(productId) {

@@ -6,6 +6,7 @@ export type ProductListParams = {
   readonly establishmentId: string
   readonly search?: string
   readonly categories?: readonly ProductCategory[]
+  readonly usedAsAccompanimentId?: string
   readonly status?: ProductStatus
   readonly stockSituation?: StockSituation
   readonly sortBy?: ProductSortField

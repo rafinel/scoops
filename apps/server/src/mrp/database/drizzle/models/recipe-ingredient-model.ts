@@ -36,6 +36,10 @@ export const recipeIngredientModel = pgTable(
       table.establishmentId,
       table.recipeId,
     ),
+    index('mrp_recipe_ingredients_establishment_ingredient_idx').on(
+      table.establishmentId,
+      table.ingredientProductId,
+    ),
     check('mrp_recipe_ingredients_quantity_positive', sql`${table.quantity} > 0`),
   ],
 )

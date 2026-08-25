@@ -92,17 +92,19 @@ stock control, status, and optional operational settings that determine its late
 
 **Actors:** Manager
 
-**Provides:** Establishment product catalog, category assignments, inherited stock unit, stock
+**Provides:** Establishment product catalog, category assignments, product stock unit, stock
 control, status, ideal-stock target, negative-stock policy, and current single-stock ingredient
 unit cost for REQ-02, REQ-03, REQ-04, REQ-05, REQ-06, REQ-07, REQ-08, REQ-09, REQ-10, and PDV.
 
 #### Capabilities
 
 - A product name is mandatory and unique within its establishment.
-- A product owns its stock unit, inherited by brands, recipes, sizes, and dependent operations.
-  The model supports `g`, `ml`, `kg`, `l`, and `un`; current approved examples and weight
-  experiences use grams.
+- A product owns its stock unit for product-dependent operations. Brands copy that unit when they
+  are created, but each brand stores and may configure its own unit independently. Changing the
+  product unit never rewrites an existing brand's unit. The model supports `g`, `ml`, `kg`, `l`,
+  and `un`; current approved examples and weight experiences use grams.
 - Stock control is either `Single stock` or `By brand`; new products default to `Single stock`.
+  The selected mode cannot be changed after registration.
 - Supported categories are `Ingredient`, `Manufacturable`, `Portion`, `Accompaniment`, and
   `Resale`. `Portion` and `Resale` are mutually exclusive.
 - `Manufacturable` enables recipe and production but does not make a product salable by itself.
@@ -121,7 +123,7 @@ unit cost for REQ-02, REQ-03, REQ-04, REQ-05, REQ-06, REQ-07, REQ-08, REQ-09, RE
   calculations without rewriting historical transactions or productions, and must be at least
   zero. Weighted-average costing is not used in this version.
 - Products disallow negative stock by default. A Manager may enable `Allow negative stock`, after
-  which write-offs may take that product below zero.
+  which an initial balance or a write-off may take that product below zero.
 - Products and their facts cannot be displayed or used across establishments.
 
 #### Experience
@@ -148,7 +150,7 @@ and exactly one main brand for future automatic write-offs.
 
 **Actors:** Manager
 
-**Consumes:** Product stock control and inherited unit from REQ-01.
+**Consumes:** Product stock control and the product unit default from REQ-01.
 
 **Provides:** Brand balances, packaging conversion, current unit price, and main-brand selection
 for REQ-03, REQ-06, REQ-07, REQ-08, REQ-09, and REQ-10.
@@ -156,10 +158,13 @@ for REQ-03, REQ-06, REQ-07, REQ-08, REQ-09, and REQ-10.
 #### Capabilities
 
 - Brands exist only for products controlled `By brand` and are not shared between products.
-- A brand has Name, Package quantity, Value per package, and Current stock. Its unit is inherited
-  from the parent product.
-- Package quantity is greater than zero and represents base units per package. Stock is stored in
-  the product base unit; package entry converts package count into base-unit quantity.
+- A brand has Name, Unit, Package quantity, Value per package, and Current stock. Its unit is
+  initialized from the parent product when the brand is created, then persists independently.
+  Later product-unit changes never rewrite an existing brand unit.
+- Package quantity is greater than zero and is expressed in the brand's configured unit. Stock is
+  stored in the product stock unit; package entry uses only canonical compatible conversions and
+  rejects an incompatible product/brand-unit pair because no user-entered conversion factor is
+  supported.
 - Managers may enter stock by package or directly by base unit. Unit price equals package value
   divided by package quantity.
 - While brands exist, the product has one main brand for automatic write-offs without explicit
@@ -304,18 +309,28 @@ REQ-09, and REQ-10.
   Accompaniments for Portion, Prices—Sizes for Portion, and Prices—Resale for Resale.
 - PDV consumes size and Resale commercial facts without transferring sales-rule ownership to MRP.
 - A category in use cannot be removed until its dependencies are resolved.
-- Unit changes affect brands, recipes, sizes, consumption, and product-dependent operations and
-  require impact review before confirmation.
-- This version does not automatically convert `g↔kg` or `ml↔l`.
+- Unit changes affect product-owned balances, ideal stock, costs, recipes, sizes, consumption,
+  and product-dependent operations and require impact review before confirmation. Existing brand
+  units and brand package quantities are not rewritten.
+- Every confirmed unit change updates the product unit and causes product-owned quantities and
+  costs to adopt the new unit while preserving their existing numeric values exactly. No
+  multiplication, division, rounding, density assumption, or conversion factor is applied.
+- Unit changes are not blocked because the source and target units belong to different dimensions;
+  the product's numeric facts remain unchanged and simply inherit the selected unit.
+- Unit relabeling updates only current configuration and balances used by future operations.
+  Historical stock transactions, productions, orders, and other retained audit facts keep their
+  captured unit, quantity, cost, and labels unchanged.
 - Product deletion removes the product and its removable dependent brands, recipe, sizes, links,
   and sales settings after warning and confirmation. Other products remain intact; links to the
   deleted product are removed.
 
 #### Experience
 
-- The header displays Name, Unit, Status, category chips, Edit, and Remove. The breadcrumb is
-  `Stock > Products > [Product name]`, and only category-enabled tabs appear.
-- Settings contains Basic Information, Stock Control, Categories, Internal Notes, and Danger Zone.
+- The header displays Name, Unit, Status, category chips, and stock-control context. The breadcrumb
+  is `Stock > Products > [Product name]`, and only category-enabled tabs appear.
+- Settings contains Basic Information, read-only Stock Control with editable negative-stock
+  policy, Categories, Internal Notes, and Danger Zone. Product removal is available from the
+  Danger Zone rather than from the header.
 - Unit-change and deletion dialogs explain affected records before confirmation.
 - Simple fields may save on blur according to the module design standard.
 
@@ -548,12 +563,16 @@ REQ-01, REQ-02, REQ-05, REQ-06, REQ-08, and REQ-09.
   Order History, and Price Modifiers remain destinations of their owning product areas;
   Accompaniment Types is reached contextually rather than from the global sidebar.
 - Opening a product row or Details action opens its dedicated page.
-- Category removal is blocked until dependencies are resolved.
+- Category removal is blocked only by configuration whose validity depends on that category:
+  recipes consuming an Ingredient, the owned recipe of a Manufacturable, sizes and accompaniment
+  links of a Portion, Portion products using an Accompaniment, and resale configurations of a
+  Resale product.
 - Products, brands, recipe ingredients, accompaniment links, and sizes require warning and
   confirmation before destructive removal. Danger Zone lists affected records.
 - Identity owns authentication, profiles, permissions, and users.
-- Unit changes require warning before save. When a unit is incompatible for a brand, the flow
-  collects a conversion factor greater than zero for every affected brand before saving.
+- Unit changes require warning before save. The confirmed product unit changes while product-owned
+  current values keep their numeric values unchanged and adopt the new unit; existing brand units
+  and package quantities remain independent. No conversion factor is requested or applied.
 - Product removal and removable dependent configuration complete atomically. If any dependency
   cannot be removed safely, nothing is deleted and the error identifies a recovery action.
 - Product removal does not alter historical orders or retained operational and audit records.
@@ -563,17 +582,16 @@ REQ-01, REQ-02, REQ-05, REQ-06, REQ-08, and REQ-09.
 - Breadcrumbs preserve `Stock > Products > Product` context.
 - Search, retrieval, calculation, and production show loading feedback. Every table has an empty
   state that guides the next action.
-- A unit dialog explains that the unit is shared by brands, dependent recipes, sizes, and
-  operations.
-- Dependency dialogs provide direct actions to the affected recipes, sizes, brands,
-  accompaniments, or Resale settings. Ingredient dependencies open affected recipes;
-  Manufacturable dependencies offer separate Recipe, Prices, and Accompaniments actions;
-  Accompaniment dependencies open Products filtered to users of that accompaniment; Resale
-  dependencies open Prices focused on by-brand settings; Portion dependencies offer separate
+- A unit dialog explains that the product unit affects product-dependent operations while each
+  brand keeps its own configured unit.
+- Dependency dialogs provide direct actions to the configuration that blocks the category
+  removal. Ingredient dependencies open affected recipes; Manufacturable dependencies open its
+  Recipe; Accompaniment dependencies open Products filtered to Portions using that accompaniment;
+  Resale dependencies open Prices focused on resale settings; Portion dependencies offer separate
   Prices and Accompaniments actions.
 - Closing a dependency dialog changes nothing. Following an action preserves the attempted
   category change so it can be retried after dependencies are resolved.
-- Cancelling either unit-conversion step leaves product and dependent quantities unchanged.
+- Cancelling a unit-change dialog leaves product and dependent quantities unchanged.
 - A deletion dialog uses clear destructive language, `Cancel`, and `Remove`, and consolidates all
   dependent records to be removed. Failure preserves all data and provides an actionable error.
 - Tables, cards, and modals do not overlap or clip content on smaller screens. Components, tokens,
@@ -722,12 +740,15 @@ flowchart LR
 ### Journey H — Manager changes a product unit
 
 1. The Manager changes Unit in Settings.
-2. The system lists dependent brands, recipes, sizes, and operations.
-3. If a brand is incompatible, the system requests a positive conversion factor for every
-   affected brand.
+2. The system lists dependent product-owned records, recipes, sizes, balances, and operations and
+   makes clear that existing brands keep their configured units.
+3. The system previews the affected product-owned records and explains that the new unit will be
+   adopted without changing any existing numeric values. No conversion factor is requested.
 4. The Manager cancels or confirms:
    - **Cancel:** leaves product and dependent quantities unchanged.
-   - **Confirm:** saves under the approved conversion rules and identifies values requiring review.
+   - **Confirm:** atomically updates the product unit and makes product-owned current
+     configuration and balances adopt that unit without changing their numeric values, leaves
+     brand units and package quantities unchanged, and leaves retained historical facts unchanged.
 
 ### Journey I — Manager resolves a blocked category change
 
@@ -763,7 +784,6 @@ flowchart LR
 - Purchase orders and estimated arrival.
 - Brands shared between products.
 - Multiple recipes for one Manufacturable product.
-- Automatic conversion between `g↔kg` or `ml↔l`.
 - Multi-store and multiple operational units.
 - Authentication, users, profiles, and permissions.
 - Billing, plans, and subscriptions.

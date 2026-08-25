@@ -14,6 +14,12 @@ export interface ProductSizesRepository {
     productId: string,
   ): Promise<readonly ProductSize[]>
   countActive(establishmentId: string, productId: string): Promise<number>
+  countByProductId(establishmentId: string, productId: string): Promise<number>
+  replaceQuantities(
+    establishmentId: string,
+    productId: string,
+    quantities: readonly { sizeId: string; quantity: number }[],
+  ): Promise<void>
   replace(
     establishmentId: string,
     productId: string,

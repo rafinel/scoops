@@ -4,6 +4,7 @@ import {
   ProductCategory,
   ProductStatus,
   ProductStockControl,
+  ProductUnit,
   type ProductActor,
   type RegisterProductInput,
 } from '#mrp/domain/structures/index.ts'
@@ -61,7 +62,7 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
 
       if (request.stockControl === ProductStockControl.Single) {
         await scope.stockBalancesRepository.initialize(createdProduct.id)
-        if (request.initialStock && request.initialStock > 0) {
+        if (request.initialStock !== undefined && request.initialStock !== 0) {
           const balance = await scope.stockBalancesRepository.add(
             { productId: createdProduct.id },
             request.initialStock,
@@ -71,8 +72,8 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
             productId: createdProduct.id,
             productName: createdProduct.name,
             unit: createdProduct.unit,
-            type: 'entry',
-            quantity: request.initialStock,
+            type: request.initialStock > 0 ? 'entry' : 'write-off',
+            quantity: Math.abs(request.initialStock),
             balanceAfter: balance.quantity,
             performedBy: request.actor.id,
             performedByName: request.actor.name,
@@ -84,6 +85,7 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
           const createdBrand = await scope.brandsRepository.add({
             productId: createdProduct.id,
             name: brand.name.trim(),
+            unit: brand.unit ?? createdProduct.unit,
             packageQuantity: brand.packageQuantity,
             packagePrice: brand.packageValue,
             isPrimary: index === 0,
@@ -92,7 +94,7 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
             createdProduct.id,
             createdBrand.id,
           )
-          if (brand.initialQuantity > 0) {
+          if (brand.initialQuantity !== 0) {
             const balance = await scope.stockBalancesRepository.add(
               { productId: createdProduct.id, brandId: createdBrand.id },
               brand.initialQuantity,
@@ -104,8 +106,8 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
               productName: createdProduct.name,
               brandName: createdBrand.name,
               unit: createdProduct.unit,
-              type: 'entry',
-              quantity: brand.initialQuantity,
+              type: brand.initialQuantity > 0 ? 'entry' : 'write-off',
+              quantity: Math.abs(brand.initialQuantity),
               balanceAfter: balance.quantity,
               performedBy: request.actor.id,
               performedByName: request.actor.name,
@@ -162,7 +164,11 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
       )
     }
 
-    if (input.initialStock !== undefined && input.initialStock < 0) {
+    if (
+      input.initialStock !== undefined &&
+      input.initialStock < 0 &&
+      !input.allowNegativeStock
+    ) {
       throw new BadRequestError('O estoque inicial não pode ser negativo.')
     }
 
@@ -208,9 +214,12 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
       if (
         brand.packageQuantity <= 0 ||
         brand.packageValue < 0 ||
-        brand.initialQuantity < 0
+        (brand.initialQuantity < 0 && !input.allowNegativeStock)
       ) {
         throw new BadRequestError('Os valores da marca não podem ser negativos.')
+      }
+      if (brand.unit !== undefined && !Object.values(ProductUnit).includes(brand.unit)) {
+        throw new BadRequestError('A unidade da marca é inválida.')
       }
     }
   }

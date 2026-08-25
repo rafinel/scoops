@@ -196,7 +196,15 @@ test.describe('Accompaniment types route', () => {
       },
     })
     await page.setViewportSize({ width: 1560, height: 956 })
+    const accountResponse = page.waitForResponse(
+      (response) => new URL(response.url()).pathname === '/auth/session',
+    )
+    const typesResponse = page.waitForResponse(
+      (response) => new URL(response.url()).pathname === '/accompaniment-types',
+    )
     await page.goto('/accompaniment-types?page=1')
+    await (await accountResponse).finished()
+    await (await typesResponse).finished()
     await expect(page.getByText('Cobertura', { exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Remover Cobertura' })).toHaveClass(
       /text-destructive/,

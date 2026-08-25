@@ -1,3 +1,4 @@
+import { ProductUnit } from '@scoops/core/mrp/domain/structures'
 import { z } from 'zod'
 
 const brandNameSchema = z
@@ -28,6 +29,7 @@ export const productBrandFormSchema = z.discriminatedUnion('variant', [
   z.strictObject({
     variant: z.literal('add'),
     name: brandNameSchema,
+    unit: z.enum(ProductUnit),
     packageQuantity: positiveNumericStringSchema,
     packageValue: nonNegativeCurrencyStringSchema,
     initialQuantity: nonNegativeStockStringSchema,
@@ -35,6 +37,7 @@ export const productBrandFormSchema = z.discriminatedUnion('variant', [
   z.strictObject({
     variant: z.literal('edit'),
     name: brandNameSchema,
+    unit: z.enum(ProductUnit),
     packageQuantity: positiveNumericStringSchema,
     packageValue: nonNegativeCurrencyStringSchema,
   }),

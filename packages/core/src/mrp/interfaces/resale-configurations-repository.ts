@@ -18,11 +18,13 @@ export interface ResaleConfigurationsRepository {
     establishmentId: string,
     productId: string,
   ): Promise<readonly ResaleConfiguration[]>
+  countByProductId(establishmentId: string, productId: string): Promise<number>
   replace(
     establishmentId: string,
     productId: string,
     configurationId: string,
     changes: ResaleConfigurationUpdate,
   ): Promise<ResaleConfiguration>
+  removeByProductId(establishmentId: string, productId: string): Promise<void>
   removeAll(): Promise<void>
 }

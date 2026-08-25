@@ -82,6 +82,8 @@ function fakeProductBrandDialog(
     packageQuantity: '2',
     packageValue: '10',
     unitPrice: 5,
+    brandUnit: 'kg',
+    setUnit: vi.fn(),
     register: vi.fn(() => ({})) as never,
     ...overrides,
   }

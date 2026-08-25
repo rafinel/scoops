@@ -18,9 +18,12 @@ export function useProductBrandsCard(
   const rows: ProductBrandRow[] = brands.map((brandStock) => ({
     ...brandStock,
     formattedPackagePrice: formatCurrency(brandStock.brand.packagePrice),
-    formattedPackageQuantity: formatQuantity(brandStock.brand.packageQuantity, unit),
+    formattedPackageQuantity: formatQuantity(
+      brandStock.brand.packageQuantity,
+      brandStock.brand.unit ?? unit,
+    ),
     formattedStockQuantity: formatQuantity(brandStock.stockQuantity, unit),
-    formattedUnitPrice: `${formatCurrency(brandStock.unitPrice)} / ${unit}`,
+    formattedUnitPrice: `${formatCurrency(brandStock.unitPrice)} / ${brandStock.brand.unit ?? unit}`,
   }))
 
   return { rows }

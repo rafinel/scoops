@@ -222,6 +222,59 @@ describe('Register Product Use Case', () => {
     )
   })
 
+  it('records negative initial stock for brands when negative stock is enabled', async () => {
+    productsRepository.add.mockResolvedValue({
+      ...product,
+      allowNegativeStock: true,
+      stockControl: ProductStockControl.ByBrand,
+    })
+    brandsRepository.add.mockResolvedValue({
+      id: 'brand-1',
+      productId: product.id,
+      name: 'A',
+      packageQuantity: 2,
+      packagePrice: 10,
+      isPrimary: true,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+    })
+    stockBalancesRepository.add.mockResolvedValue({
+      productId: product.id,
+      brandId: 'brand-1',
+      quantity: -3,
+      situation: 'normal',
+    })
+
+    await useCase.execute({
+      actor: {
+        id: 'manager-1',
+        name: 'Manager',
+        establishmentId: 'establishment-1',
+        profile: UserProfile.Manager,
+      },
+      name: 'Milk',
+      unit: ProductUnit.Liter,
+      categories: [ProductCategory.Ingredient],
+      stockControl: ProductStockControl.ByBrand,
+      allowNegativeStock: true,
+      idealStock: 0,
+      initialStock: -3,
+      brands: [{ name: 'A', packageQuantity: 2, packageValue: 10, initialQuantity: -3 }],
+    })
+
+    expect(stockBalancesRepository.add).toHaveBeenCalledWith(
+      { productId: product.id, brandId: 'brand-1' },
+      -3,
+    )
+    expect(stockTransactionsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'write-off',
+        quantity: 3,
+        balanceAfter: -3,
+      }),
+    )
+  })
+
   it('rejects duplicate and invalid registrations without persistence or events', async () => {
     productsRepository.findByName.mockResolvedValue(product)
 

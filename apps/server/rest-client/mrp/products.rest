@@ -4,11 +4,71 @@
 @accompanimentTypeId = 00000000-0000-0000-0000-000000000000
 @accompanimentProductId = 00000000-0000-0000-0000-000000000000
 @sizeId = 00000000-0000-0000-0000-000000000000
+@expectedUpdatedAt = 2026-08-24T12:00:00.000Z
 
 ### List products
-GET {{baseUrl}}/products?page=1&pageSize=10&category=ingredient&category=resale
+GET {{baseUrl}}/products?page=1&pageSize=10&category=ingredient&category=resale&usedAsAccompanimentId={{productId}}
 Authorization: Bearer {{accessToken}}
 Accept: application/json
+
+### Get product settings
+GET {{baseUrl}}/products/{{productId}}/settings
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Update product settings
+PATCH {{baseUrl}}/products/{{productId}}/settings
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "idealStock": null,
+  "internalNotes": "Atualizado pelo gestor",
+  "expectedUpdatedAt": "{{expectedUpdatedAt}}"
+}
+
+### Preview category removal dependencies
+GET {{baseUrl}}/products/{{productId}}/category-removal-impact?category=ingredient
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Change product categories
+PATCH {{baseUrl}}/products/{{productId}}/categories
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "categories": ["ingredient", "manufacturable"],
+  "expectedUpdatedAt": "{{expectedUpdatedAt}}"
+}
+
+### Preview product unit change
+POST {{baseUrl}}/products/{{productId}}/unit-change-preview
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "targetUnit": "g"
+}
+
+### Change product unit
+PATCH {{baseUrl}}/products/{{productId}}/unit
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "targetUnit": "g",
+  "expectedUpdatedAt": "{{expectedUpdatedAt}}"
+}
+
+### Get product removal impact
+GET {{baseUrl}}/products/{{productId}}/removal-impact
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Remove product
+DELETE {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{accessToken}}
 
 ### Register a single-stock product
 POST {{baseUrl}}/products

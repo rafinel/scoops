@@ -346,7 +346,7 @@ All text 12/600.
 
 **Header:**
 - Padding 24 on all sides, with 56px reserved on the right for the close action.
-- The header is a vertical stack: 44×44 semantic icon tile first, then title, then supporting text. Do not place the icon beside the title block.
+- The header uses a two-column layout: the 44×44 semantic icon tile stays on the left and spans the title/supporting-text block on the right. Keep the icon beside the title block in ordinary, blocking, and destructive dialogs; do not stack it above the copy.
 - Use the existing semantic soft background and foreground pair (`$accent`/`$primary`, `$warning-soft`/`$warning`, `$danger-soft`/`$danger`, or `$success-soft`/`$success`) with a central Lucide icon at 20–22px.
 - Title 18–20/800 + subtitle 13/400 `$text-secondary`; supporting context stays immediately below the title.
 - Close 32×32 outline button with `x` 16 `$text-secondary` icon, isolated at the top-right.

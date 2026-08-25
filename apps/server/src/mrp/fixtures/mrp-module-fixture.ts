@@ -13,6 +13,10 @@ import type {
   Product,
   ProductAccompaniment,
   ProductSize,
+  Production,
+  ProductionIngredient,
+  Recipe,
+  RecipeIngredient,
   ResaleConfiguration,
 } from '@scoops/core/mrp/domain/entities'
 import type {
@@ -20,6 +24,8 @@ import type {
   ProductAccompanimentCreate,
   ProductCreate,
   ProductSizeCreate,
+  RecipeCreate,
+  RecipeIngredientCreate,
   ResaleConfigurationCreate,
 } from '@scoops/core/mrp/domain/structures'
 import type {
@@ -28,6 +34,10 @@ import type {
   ProductAccompanimentsRepository,
   ProductsRepository,
   ProductSizesRepository,
+  ProductionIngredientsRepository,
+  ProductionsRepository,
+  RecipeIngredientsRepository,
+  RecipesRepository,
   ResaleConfigurationsRepository,
   StockBalancesRepository,
   StockTransactionsRepository,
@@ -115,6 +125,22 @@ export class MrpModuleFixture {
     return this.get(MRP_STOCK_TRANSACTIONS_REPOSITORY)
   }
 
+  get recipes(): RecipesRepository {
+    return this.get(MRP_REPOSITORIES.recipes)
+  }
+
+  get recipeIngredients(): RecipeIngredientsRepository {
+    return this.get(MRP_REPOSITORIES.recipeIngredients)
+  }
+
+  get productions(): ProductionsRepository {
+    return this.get(MRP_REPOSITORIES.productions)
+  }
+
+  get productionIngredients(): ProductionIngredientsRepository {
+    return this.get(MRP_REPOSITORIES.productionIngredients)
+  }
+
   async resetDatabase() {
     await this.restFixture.resetDatabase()
   }
@@ -193,6 +219,24 @@ export class MrpModuleFixture {
     input: ProductAccompanimentCreate,
   ): Promise<ProductAccompaniment> {
     return this.productAccompaniments.add(input)
+  }
+
+  addRecipe(input: RecipeCreate): Promise<Recipe> {
+    return this.recipes.add(input)
+  }
+
+  addRecipeIngredient(input: RecipeIngredientCreate): Promise<RecipeIngredient> {
+    return this.recipeIngredients.add(input)
+  }
+
+  addProduction(input: Omit<Production, 'id'>): Promise<Production> {
+    return this.productions.add(input)
+  }
+
+  addProductionIngredients(
+    input: readonly Omit<ProductionIngredient, 'id'>[],
+  ): Promise<readonly ProductionIngredient[]> {
+    return this.productionIngredients.addMany(input)
   }
 
   close() {

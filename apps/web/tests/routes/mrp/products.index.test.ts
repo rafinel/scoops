@@ -41,6 +41,31 @@ test.describe('Products route', () => {
     expect(new URL(page.url()).searchParams.get('returnTo')).toContain('page=2')
   })
 
+  test('forwards the validated inverse-accompaniment filter without changing the catalog URL', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    const { requests } = await mrpFixture.mockProducts({
+      getResponse: { body: PRODUCTS_RESPONSE },
+    })
+
+    await page.goto(
+      '/products?usedAsAccompanimentId=00000000-0000-4000-8000-000000000001',
+    )
+
+    await expect(page.getByText('Leite integral')).toBeVisible()
+    await expect.poll(() => requests).toHaveLength(1)
+    expect(requests[0]?.searchParams.get('usedAsAccompanimentId')).toBe(
+      '00000000-0000-4000-8000-000000000001',
+    )
+    await expect(page).toHaveURL(
+      /usedAsAccompanimentId=00000000-0000-4000-8000-000000000001/,
+    )
+  })
+
   test('renders catalog, synchronizes search, opens registration, and captures desktop evidence', async ({
     page,
     identityFixture,
@@ -217,6 +242,14 @@ test.describe('Products route', () => {
     await expect(portionCheckbox).toBeDisabled()
     await resaleCheckbox.uncheck()
     await registrationDialog.getByRole('button', { name: 'Por marca' }).click()
+    await registrationDialog.getByRole('combobox', { name: 'Unidade da marca 1' }).click()
+    const brandUnitOptions = page.getByRole('listbox')
+    await expect(brandUnitOptions).toBeVisible()
+    const kilogramOption = brandUnitOptions.getByRole('option', {
+      name: 'Quilogramas (kg)',
+    })
+    await expect(kilogramOption).toBeVisible()
+    await kilogramOption.click()
     await expect(
       registrationDialog.getByRole('heading', { name: 'Marcas do produto' }),
     ).toBeVisible()
@@ -562,6 +595,18 @@ test.describe('Products route', () => {
     await page.getByRole('button', { name: 'Limpar filtros' }).click()
     await expect(page).not.toHaveURL(/search=milk/)
     await expect(page.getByText('Seu catálogo está vazio')).toBeVisible()
+
+    await navigateToProducts(
+      page,
+      '/products?usedAsAccompanimentId=00000000-0000-4000-8000-000000000001',
+    )
+    await expect(page.getByText('Nenhum produto encontrado')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Limpar filtros' })).toBeVisible()
+    await expect
+      .poll(() => requests.at(-1)?.searchParams.get('usedAsAccompanimentId'))
+      .toBe('00000000-0000-4000-8000-000000000001')
+    await page.getByRole('button', { name: 'Limpar filtros' }).click()
+    await expect(page).not.toHaveURL(/usedAsAccompanimentId/)
   })
 
   test('creates a product with single stock control', async ({
@@ -640,6 +685,14 @@ test.describe('Products route', () => {
       .fill('Açaí Frooty')
     await registrationDialog.getByRole('checkbox', { name: 'Ingrediente' }).check()
     await registrationDialog.getByRole('button', { name: 'Por marca' }).click()
+    await registrationDialog.getByRole('combobox', { name: 'Unidade da marca 1' }).click()
+    const brandUnitOptions = page.getByRole('listbox')
+    await expect(brandUnitOptions).toBeVisible()
+    const kilogramOption = brandUnitOptions.getByRole('option', {
+      name: 'Quilogramas (kg)',
+    })
+    await expect(kilogramOption).toBeVisible()
+    await kilogramOption.click()
     await registrationDialog
       .getByRole('textbox', { name: 'Nome', exact: true })
       .fill('Frooty')
@@ -677,9 +730,79 @@ test.describe('Products route', () => {
           brands: [
             {
               name: 'Frooty',
+              unit: 'kg',
               packageQuantity: 2,
               packageValue: 12.5,
               initialQuantity: 6,
+            },
+          ],
+        },
+      ])
+  })
+
+  test('creates a by-brand product with a negative initial balance when enabled', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    const { registrations } = await mrpFixture.mockProducts({
+      getResponse: { body: PRODUCTS_RESPONSE },
+      postResponse: {
+        body: { ...PRODUCT, name: 'Açaí com saldo negativo' },
+        status: 201,
+      },
+    })
+
+    await navigateToProducts(page)
+    await page.getByRole('button', { name: /Novo produto/ }).click()
+    const registrationDialog = page.getByRole('dialog', { name: 'Novo produto' })
+    await registrationDialog
+      .getByRole('textbox', { name: 'Nome do produto' })
+      .fill('Açaí com saldo negativo')
+    await registrationDialog.getByRole('checkbox', { name: 'Ingrediente' }).check()
+    await registrationDialog.getByRole('button', { name: 'Por marca' }).click()
+    await registrationDialog
+      .getByRole('textbox', { name: 'Nome', exact: true })
+      .fill('Frooty')
+    await registrationDialog
+      .getByRole('textbox', { name: 'Valor por embalagem' })
+      .fill('12,50')
+    await registrationDialog
+      .getByRole('spinbutton', { name: 'Quantidade de embalagens' })
+      .fill('-3')
+    await registrationDialog.getByRole('spinbutton', { name: 'Estoque ideal' }).fill('10')
+    await registrationDialog
+      .getByText('Permitir estoque negativo', { exact: true })
+      .click()
+    await expect(
+      registrationDialog.getByRole('spinbutton', { name: 'Estoque inicial' }),
+    ).toHaveValue('-3')
+    await page.screenshot({
+      path: 'test-results/products-registration-by-brand-negative-stock.png',
+    })
+    await registrationDialog.getByRole('button', { name: 'Criar produto' }).click()
+
+    await expect(registrationDialog).toBeHidden()
+    await expect
+      .poll(() => registrations)
+      .toEqual([
+        {
+          name: 'Açaí com saldo negativo',
+          unit: 'un',
+          categories: ['ingredient'],
+          stockControl: 'by-brand',
+          allowNegativeStock: true,
+          idealStock: 10,
+          initialStock: -3,
+          brands: [
+            {
+              name: 'Frooty',
+              unit: 'un',
+              packageQuantity: 1,
+              packageValue: 12.5,
+              initialQuantity: -3,
             },
           ],
         },

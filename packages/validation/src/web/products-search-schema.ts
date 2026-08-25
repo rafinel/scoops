@@ -10,6 +10,7 @@ import { z } from 'zod'
 export const productsSearchSchema = z.object({
   search: z.string().catch(''),
   categories: z.array(z.enum(ProductCategory)).catch([]),
+  usedAsAccompanimentId: z.uuid().optional().catch(undefined),
   status: z.enum(ProductStatus).optional().catch(undefined),
   stockSituation: z.enum(StockSituation).optional().catch(undefined),
   sortBy: z.enum(ProductSortField).catch(ProductSortField.CreatedAt),

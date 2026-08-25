@@ -27,6 +27,15 @@ import type {
   SaveAccompanimentTypeInput,
   UpdateProductAccompanimentInput,
   ProductPricingDetails,
+  ProductSettingsDetails,
+  UpdateProductSettingsInput,
+  ProductCategory,
+  ProductCategoryRemovalImpact,
+  ChangeProductCategoriesInput,
+  PreviewProductUnitChangeInput,
+  ProductUnitChangePreview,
+  ChangeProductUnitInput,
+  ProductRemovalImpact,
   RegisterProductSizeInput,
   SaveProductResaleConfigurationInput,
   UpdateProductSizeInput,
@@ -38,6 +47,29 @@ export interface MrpService {
     input: Omit<ProductListParams, 'establishmentId'>,
   ): Promise<RestResponse<ProductCatalogPage>>
   registerProduct(input: RegisterProductInput): Promise<RestResponse<Product>>
+  getProductSettings(productId: string): Promise<RestResponse<ProductSettingsDetails>>
+  updateProductSettings(
+    productId: string,
+    input: UpdateProductSettingsInput,
+  ): Promise<RestResponse<ProductSettingsDetails>>
+  getProductCategoryRemovalImpact(
+    productId: string,
+    category: ProductCategory,
+  ): Promise<RestResponse<ProductCategoryRemovalImpact>>
+  changeProductCategories(
+    productId: string,
+    input: ChangeProductCategoriesInput,
+  ): Promise<RestResponse<ProductSettingsDetails>>
+  previewProductUnitChange(
+    productId: string,
+    input: PreviewProductUnitChangeInput,
+  ): Promise<RestResponse<ProductUnitChangePreview>>
+  changeProductUnit(
+    productId: string,
+    input: ChangeProductUnitInput,
+  ): Promise<RestResponse<ProductSettingsDetails>>
+  getProductRemovalImpact(productId: string): Promise<RestResponse<ProductRemovalImpact>>
+  removeProduct(productId: string): Promise<RestResponse<void>>
   getProductPricing(productId: string): Promise<RestResponse<ProductPricingDetails>>
   registerProductSize(
     productId: string,

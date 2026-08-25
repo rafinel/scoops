@@ -9,5 +9,6 @@ export interface StockTransactionsRepository {
     productId: string,
     params: StockTransactionListParams,
   ): Promise<StockTransactionPage>
+  countByProductId(establishmentId: string, productId: string): Promise<number>
   removeAll(): Promise<void>
 }

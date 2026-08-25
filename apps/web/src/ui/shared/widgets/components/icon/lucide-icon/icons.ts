@@ -26,6 +26,7 @@ import {
   KeyRound,
   LayoutDashboard,
   Layers,
+  Link2,
   Link2Off,
   LockKeyhole,
   Mail,
@@ -120,6 +121,7 @@ export const ICONS: Record<IconName, LucideIcon> = {
   'confirm-password': KeyRound,
   'layout-dashboard': LayoutDashboard,
   layers: Layers,
+  link: Link2,
   settings: Settings,
   tag: Tag,
 }
