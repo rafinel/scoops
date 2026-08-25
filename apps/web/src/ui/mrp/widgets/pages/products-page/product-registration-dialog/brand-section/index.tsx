@@ -7,6 +7,7 @@ import { BrandEditor } from '../brand-editor'
 import type { BrandDraft } from '../use-product-registration-dialog'
 
 export type BrandSectionProps = {
+  allowNegativeStock: boolean
   brands: BrandDraft[]
   onAdd: () => void
   onChange: (brandId: string, changes: Partial<BrandDraft>) => void
@@ -15,6 +16,7 @@ export type BrandSectionProps = {
 }
 
 export const BrandSection = ({
+  allowNegativeStock,
   brands,
   onAdd,
   onChange,
@@ -29,12 +31,16 @@ export const BrandSection = ({
       </h3>
       <p className='mt-2 flex items-center gap-2 text-sm text-muted-foreground'>
         <Icon name='info' className='size-4 shrink-0' />
-        <span>Todas as marcas usam a unidade do produto ({unit}).</span>
+        <span>
+          Cada marca começa com a unidade do produto ({unit}), mas pode usar outra
+          unidade.
+        </span>
       </p>
     </div>
     <div className='space-y-4'>
       {brands.map((brand, index) => (
         <BrandEditor
+          allowNegativeStock={allowNegativeStock}
           brand={brand}
           index={index}
           key={brand.id}

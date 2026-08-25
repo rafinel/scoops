@@ -241,6 +241,7 @@ export const ProductRegistrationDialog = ({
           </fieldset>
           {stockControl === 'by-brand' ? (
             <BrandSection
+              allowNegativeStock={allowNegativeStock}
               brands={brands}
               unit={unit}
               onAdd={handleAddBrand}
@@ -276,7 +277,7 @@ export const ProductRegistrationDialog = ({
             Estoque inicial
             <Input
               {...register('initialStock')}
-              min='0'
+              min={allowNegativeStock ? undefined : '0'}
               onChange={(event) => handleInitialStockChange(event.target.value)}
               readOnly={stockControl === 'by-brand'}
               type='number'

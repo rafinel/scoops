@@ -2,6 +2,7 @@ import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { ProductBrandStock } from '#mrp/domain/structures/product-brand-stock.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
+import { ProductUnit } from '#mrp/domain/structures/product-unit.ts'
 import type { RegisterProductBrandInput } from '#mrp/domain/structures/register-product-brand-input.ts'
 import { StockAdjustmentType } from '#mrp/domain/structures/stock-adjustment-type.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
@@ -49,6 +50,7 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
       const brand = await scope.brandsRepository.add({
         productId: product.id,
         name,
+        unit: request.input.unit ?? product.unit,
         packageQuantity: request.input.packageQuantity,
         packagePrice: request.input.packageValue,
         isPrimary,
@@ -103,6 +105,9 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
     }
     if (!Number.isFinite(input.packageValue) || input.packageValue < 0) {
       throw new BadRequestError('O valor da embalagem não pode ser negativo.')
+    }
+    if (input.unit !== undefined && !Object.values(ProductUnit).includes(input.unit)) {
+      throw new BadRequestError('A unidade da marca é inválida.')
     }
     if (!Number.isFinite(input.initialQuantity) || input.initialQuantity < 0) {
       throw new BadRequestError('O estoque inicial não pode ser negativo.')

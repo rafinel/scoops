@@ -16,4 +16,9 @@ export {
   registerProductSizeSchema,
   updateProductSizeSchema,
   saveProductResaleConfigurationSchema,
+  updateProductSettingsSchema,
+  changeProductCategoriesSchema,
+  productCategoryRemovalQuerySchema,
+  previewProductUnitChangeSchema,
+  changeProductUnitSchema,
 } from '@scoops/validation'

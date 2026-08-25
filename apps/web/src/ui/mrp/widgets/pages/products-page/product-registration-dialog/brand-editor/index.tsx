@@ -3,11 +3,19 @@ import type { ProductUnit } from '@scoops/core/mrp/domain/structures'
 import { Button } from '@/ui/shadcn/button'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/ui/shadcn/select'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import type { BrandDraft } from '../use-product-registration-dialog'
 
 export type BrandEditorProps = {
+  allowNegativeStock: boolean
   brand: BrandDraft
   index: number
   onChange: (changes: Partial<BrandDraft>) => void
@@ -16,6 +24,7 @@ export type BrandEditorProps = {
 }
 
 export const BrandEditor = ({
+  allowNegativeStock,
   brand,
   index,
   onChange,
@@ -50,6 +59,27 @@ export const BrandEditor = ({
         />
       </Label>
       <Label className='grid gap-2 text-sm font-semibold text-muted-foreground'>
+        Unidade
+        <Select
+          value={brand.unit ?? unit}
+          onValueChange={(value) => onChange({ unit: value as ProductUnit })}
+        >
+          <SelectTrigger
+            aria-label={`Unidade da marca ${index + 1}`}
+            className='h-10 rounded-xl bg-background px-3 text-sm'
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value='g'>Gramas (g)</SelectItem>
+            <SelectItem value='ml'>Mililitros (ml)</SelectItem>
+            <SelectItem value='kg'>Quilogramas (kg)</SelectItem>
+            <SelectItem value='l'>Litros (l)</SelectItem>
+            <SelectItem value='un'>Unidades (un)</SelectItem>
+          </SelectContent>
+        </Select>
+      </Label>
+      <Label className='grid gap-2 text-sm font-semibold text-muted-foreground'>
         Qtd. por embalagem
         <div className='flex h-10 items-center rounded-xl border bg-background focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
           <Input
@@ -61,7 +91,7 @@ export const BrandEditor = ({
             value={brand.packageQuantity}
           />
           <span className='h-full shrink-0 whitespace-nowrap border-l bg-muted/30 px-3 py-2 text-sm font-semibold text-muted-foreground'>
-            {unit}
+            {brand.unit ?? unit}
           </span>
         </div>
       </Label>
@@ -83,7 +113,7 @@ export const BrandEditor = ({
         Quantidade de embalagens
         <Input
           className='h-10 rounded-xl px-3 text-sm'
-          min='0'
+          min={allowNegativeStock ? undefined : '0'}
           onChange={(event) => onChange({ packageCount: event.target.value })}
           type='number'
           value={brand.packageCount}

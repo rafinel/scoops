@@ -18,6 +18,23 @@ export interface RecipeIngredientsRepository {
     recipeId: string,
     productId: string,
   ): Promise<RecipeIngredient | undefined>
+  findManyByIngredientProductId(
+    establishmentId: string,
+    ingredientProductId: string,
+  ): Promise<readonly RecipeIngredient[]>
+  countByIngredientProductId(
+    establishmentId: string,
+    ingredientProductId: string,
+  ): Promise<number>
+  replaceQuantitiesByIngredientProductId(
+    establishmentId: string,
+    ingredientProductId: string,
+    quantities: readonly { lineId: string; quantity: number }[],
+  ): Promise<void>
+  removeByIngredientProductId(
+    establishmentId: string,
+    ingredientProductId: string,
+  ): Promise<void>
   replace(
     establishmentId: string,
     recipeId: string,

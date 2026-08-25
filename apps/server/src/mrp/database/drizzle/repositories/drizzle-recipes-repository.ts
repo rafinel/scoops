@@ -1,7 +1,8 @@
 import type { Recipe } from '@scoops/core/mrp/domain/entities'
 import type { RecipeCreate, RecipeUpdate } from '@scoops/core/mrp/domain/structures'
+import { ConflictError } from '@scoops/core/shared/domain/errors'
 import type { RecipesRepository } from '@scoops/core/mrp/interfaces'
-import { and, eq } from 'drizzle-orm'
+import { and, count, eq } from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
@@ -61,6 +62,37 @@ export class DrizzleRecipesRepository
     return record ? DrizzleRecipeMapper.toDomain(record) : undefined
   }
 
+  async countByProductId(establishmentId: string, productId: string): Promise<number> {
+    const [record] = await this.database
+      .select({ count: count() })
+      .from(recipeModel)
+      .where(
+        and(
+          eq(recipeModel.establishmentId, establishmentId),
+          eq(recipeModel.productId, productId),
+        ),
+      )
+    return Number(record?.count ?? 0)
+  }
+
+  async replaceYieldQuantity(
+    establishmentId: string,
+    productId: string,
+    yieldQuantity: number,
+  ): Promise<void> {
+    const records = await this.database
+      .update(recipeModel)
+      .set({ yieldQuantity: String(yieldQuantity), updatedAt: new Date() })
+      .where(
+        and(
+          eq(recipeModel.establishmentId, establishmentId),
+          eq(recipeModel.productId, productId),
+        ),
+      )
+      .returning({ id: recipeModel.id })
+    if (records.length !== 1) throw new ConflictError('Database operation conflicted')
+  }
+
   async replace(
     establishmentId: string,
     recipeId: string,
@@ -84,7 +116,7 @@ export class DrizzleRecipesRepository
   }
 
   async remove(establishmentId: string, recipeId: string): Promise<void> {
-    await this.database
+    const records = await this.database
       .delete(recipeModel)
       .where(
         and(
@@ -92,6 +124,8 @@ export class DrizzleRecipesRepository
           eq(recipeModel.id, recipeId),
         ),
       )
+      .returning({ id: recipeModel.id })
+    if (!records.length) throw new ConflictError('Database operation conflicted')
   }
 
   async removeAll(): Promise<void> {

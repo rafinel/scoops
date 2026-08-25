@@ -1,4 +1,4 @@
-import type { ProductCreate } from '@scoops/core/mrp/domain/entities'
+import type { Product, ProductCreate } from '@scoops/core/mrp/domain/entities'
 import {
   ProductCategory,
   ProductStatus,
@@ -20,6 +20,10 @@ export function createProduct(overrides: Partial<ProductCreate> = {}): ProductCr
     allowNegativeStock: false,
     ...overrides,
   }
+}
+
+export function expectedUpdatedAt(product: Pick<Product, 'updatedAt'>): string {
+  return product.updatedAt.toISOString()
 }
 
 export async function prepareMrpFixture() {

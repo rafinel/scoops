@@ -5,7 +5,7 @@ import type {
 } from '@scoops/core/mrp/domain/structures'
 import { ConflictError } from '@scoops/core/shared/domain/errors'
 import type { ResaleConfigurationsRepository } from '@scoops/core/mrp/interfaces'
-import { and, asc, eq, isNull } from 'drizzle-orm'
+import { and, asc, count, eq, isNull } from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
@@ -97,6 +97,19 @@ export class DrizzleResaleConfigurationsRepository
     return records.map(DrizzleResaleConfigurationMapper.toDomain)
   }
 
+  async countByProductId(establishmentId: string, productId: string): Promise<number> {
+    const [record] = await this.database
+      .select({ count: count() })
+      .from(resaleConfigurationModel)
+      .where(
+        and(
+          eq(resaleConfigurationModel.establishmentId, establishmentId),
+          eq(resaleConfigurationModel.productId, productId),
+        ),
+      )
+    return Number(record?.count ?? 0)
+  }
+
   async replace(
     establishmentId: string,
     productId: string,
@@ -120,6 +133,21 @@ export class DrizzleResaleConfigurationsRepository
         )
         .returning()
       return DrizzleResaleConfigurationMapper.toDomain(record)
+    } catch (error) {
+      throw this.toConflictError(error)
+    }
+  }
+
+  async removeByProductId(establishmentId: string, productId: string): Promise<void> {
+    try {
+      await this.database
+        .delete(resaleConfigurationModel)
+        .where(
+          and(
+            eq(resaleConfigurationModel.establishmentId, establishmentId),
+            eq(resaleConfigurationModel.productId, productId),
+          ),
+        )
     } catch (error) {
       throw this.toConflictError(error)
     }

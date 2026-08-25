@@ -299,6 +299,7 @@ test.describe('Product stock route with mocked transport', () => {
     expect(request?.url.pathname).toBe(`/products/${PRODUCT_ID}/brands`)
     expect(request?.body).toEqual({
       name: 'Nova marca',
+      unit: 'kg',
       packageQuantity: 2,
       packageValue: 10,
       initialQuantity: 3,
@@ -597,6 +598,7 @@ function fakeBrand(id: string, name: string, isPrimary: boolean, stockQuantity: 
       establishmentId: 'establishment-1',
       productId: PRODUCT_ID,
       name,
+      unit: 'kg',
       packageQuantity: 2,
       packagePrice: 10,
       isPrimary,

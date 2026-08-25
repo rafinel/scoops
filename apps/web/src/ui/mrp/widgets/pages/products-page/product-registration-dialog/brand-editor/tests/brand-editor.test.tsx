@@ -20,6 +20,7 @@ describe('BrandEditor', () => {
     const onRemove = vi.fn()
     const { rerender } = render(
       <BrandEditor
+        allowNegativeStock={false}
         brand={brand}
         index={0}
         onChange={onChange}
@@ -40,6 +41,7 @@ describe('BrandEditor', () => {
 
     rerender(
       <BrandEditor
+        allowNegativeStock={false}
         brand={{ ...brand, id: 'brand-2' }}
         index={1}
         onChange={onChange}

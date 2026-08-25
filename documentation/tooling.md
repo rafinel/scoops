@@ -248,8 +248,11 @@ The server configuration gives tests and lifecycle hooks a 60-second timeout to
 allow container startup. The test command currently passes when no test files are
 present.
 
-The core package currently exposes code and type checks but does not define a
-test script.
+The Core package uses Vitest for use-case unit tests:
+
+```bash
+pnpm --filter @scoops/core test
+```
 
 ## Frontend tooling
 
@@ -408,6 +411,7 @@ Before handing off a change, run the checks for each affected workspace:
 ```bash
 pnpm --filter @scoops/core check:code
 pnpm --filter @scoops/core check:types
+pnpm --filter @scoops/core test
 
 pnpm --filter server check:code
 pnpm --filter server check:types

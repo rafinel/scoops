@@ -6,6 +6,12 @@ export interface RecipesRepository {
   add(input: RecipeCreate): Promise<Recipe>
   findById(establishmentId: string, recipeId: string): Promise<Recipe | undefined>
   findByProductId(establishmentId: string, productId: string): Promise<Recipe | undefined>
+  countByProductId(establishmentId: string, productId: string): Promise<number>
+  replaceYieldQuantity(
+    establishmentId: string,
+    productId: string,
+    yieldQuantity: number,
+  ): Promise<void>
   replace(
     establishmentId: string,
     recipeId: string,

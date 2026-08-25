@@ -21,7 +21,11 @@ export function useProductsPage({ search, onSearchChange }: ProductsPageHookProp
   const [isFilterOpen, setFilterOpen] = useState(false)
   const [isRegisterOpen, setRegisterOpen] = useState(false)
   const hasFilters = Boolean(
-    search.search || search.categories.length || search.status || search.stockSituation,
+    search.search ||
+      search.categories.length ||
+      search.usedAsAccompanimentId ||
+      search.status ||
+      search.stockSituation,
   )
 
   function handleEmptyStateClear() {
@@ -29,6 +33,7 @@ export function useProductsPage({ search, onSearchChange }: ProductsPageHookProp
       ...search,
       search: '',
       categories: [],
+      usedAsAccompanimentId: undefined,
       status: undefined,
       stockSituation: undefined,
       page: 1,

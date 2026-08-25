@@ -3,8 +3,9 @@ import type {
   RecipeIngredientCreate,
   RecipeIngredientUpdate,
 } from '@scoops/core/mrp/domain/structures'
+import { ConflictError } from '@scoops/core/shared/domain/errors'
 import type { RecipeIngredientsRepository } from '@scoops/core/mrp/interfaces'
-import { and, eq } from 'drizzle-orm'
+import { and, count, eq } from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
@@ -88,6 +89,73 @@ export class DrizzleRecipeIngredientsRepository
     return record ? DrizzleRecipeIngredientMapper.toDomain(record) : undefined
   }
 
+  async findManyByIngredientProductId(
+    establishmentId: string,
+    ingredientProductId: string,
+  ): Promise<readonly RecipeIngredient[]> {
+    const records = await this.database
+      .select()
+      .from(recipeIngredientModel)
+      .where(
+        and(
+          eq(recipeIngredientModel.establishmentId, establishmentId),
+          eq(recipeIngredientModel.ingredientProductId, ingredientProductId),
+        ),
+      )
+    return records.map(DrizzleRecipeIngredientMapper.toDomain)
+  }
+
+  async countByIngredientProductId(
+    establishmentId: string,
+    ingredientProductId: string,
+  ): Promise<number> {
+    const [record] = await this.database
+      .select({ count: count() })
+      .from(recipeIngredientModel)
+      .where(
+        and(
+          eq(recipeIngredientModel.establishmentId, establishmentId),
+          eq(recipeIngredientModel.ingredientProductId, ingredientProductId),
+        ),
+      )
+    return Number(record?.count ?? 0)
+  }
+
+  async replaceQuantitiesByIngredientProductId(
+    establishmentId: string,
+    ingredientProductId: string,
+    quantities: readonly { lineId: string; quantity: number }[],
+  ): Promise<void> {
+    for (const { lineId, quantity } of quantities) {
+      const records = await this.database
+        .update(recipeIngredientModel)
+        .set({ quantity: String(quantity), updatedAt: new Date() })
+        .where(
+          and(
+            eq(recipeIngredientModel.establishmentId, establishmentId),
+            eq(recipeIngredientModel.ingredientProductId, ingredientProductId),
+            eq(recipeIngredientModel.id, lineId),
+          ),
+        )
+        .returning({ id: recipeIngredientModel.id })
+      if (records.length !== 1) throw new ConflictError('Database operation conflicted')
+    }
+  }
+
+  async removeByIngredientProductId(
+    establishmentId: string,
+    ingredientProductId: string,
+  ): Promise<void> {
+    await this.database
+      .delete(recipeIngredientModel)
+      .where(
+        and(
+          eq(recipeIngredientModel.establishmentId, establishmentId),
+          eq(recipeIngredientModel.ingredientProductId, ingredientProductId),
+        ),
+      )
+  }
+
   async replace(
     establishmentId: string,
     recipeId: string,
@@ -112,7 +180,7 @@ export class DrizzleRecipeIngredientsRepository
   }
 
   async remove(establishmentId: string, recipeId: string, lineId: string): Promise<void> {
-    await this.database
+    const records = await this.database
       .delete(recipeIngredientModel)
       .where(
         and(
@@ -121,6 +189,8 @@ export class DrizzleRecipeIngredientsRepository
           eq(recipeIngredientModel.id, lineId),
         ),
       )
+      .returning({ id: recipeIngredientModel.id })
+    if (!records.length) throw new ConflictError('Database operation conflicted')
   }
 
   async removeAll(): Promise<void> {

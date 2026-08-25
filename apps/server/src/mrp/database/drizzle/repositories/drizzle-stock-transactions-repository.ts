@@ -57,6 +57,19 @@ export class DrizzleStockTransactionsRepository
     }
   }
 
+  async countByProductId(establishmentId: string, productId: string): Promise<number> {
+    const [record] = await this.database
+      .select({ count: count() })
+      .from(stockTransactionModel)
+      .where(
+        and(
+          eq(stockTransactionModel.establishmentId, establishmentId),
+          eq(stockTransactionModel.productId, productId),
+        ),
+      )
+    return Number(record?.count ?? 0)
+  }
+
   async removeAll(): Promise<void> {
     await this.database.delete(stockTransactionModel)
   }

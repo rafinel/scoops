@@ -110,6 +110,24 @@ test.describe('Product pricing route with mocked transport', () => {
     expect(failedRequests).toEqual([])
   })
 
+  test('focuses the validated size destination after the pricing card loads', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    await mrpFixture.mockProductPricing({
+      respond: () => ({ body: portionPricingResponse([PORTION_SIZE]) }),
+    })
+
+    await page.goto(`/products/${PRODUCT_ID}/prices?focus=sizes`)
+
+    const heading = page.getByRole('heading', { name: 'Tamanhos e preços' })
+    await expect(heading).toBeVisible()
+    await expect(heading.locator('xpath=ancestor::section[1]')).toBeFocused()
+  })
+
   test('captures a populated Portion table with horizontal scrolling at 390x844', async ({
     page,
     identityFixture,
@@ -715,6 +733,7 @@ function byBrandPricingResponse() {
           establishmentId: 'establishment-1',
           productId: PRODUCT_ID,
           name: 'Frooty',
+          unit: 'kg',
           packageQuantity: 2,
           packagePrice: 20,
           isPrimary: true,

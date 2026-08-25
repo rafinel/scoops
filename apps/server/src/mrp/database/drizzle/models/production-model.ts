@@ -9,16 +9,12 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 
-import { productModel } from './product-model'
-
 export const productionModel = pgTable(
   'mrp_productions',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),
-    productId: uuid('product_id')
-      .notNull()
-      .references(() => productModel.id, { onDelete: 'cascade' }),
+    productId: uuid('product_id').notNull(),
     recipeId: uuid('recipe_id').notNull(),
     productName: text('product_name').notNull(),
     unit: text('unit').notNull(),

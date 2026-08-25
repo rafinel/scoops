@@ -19,8 +19,33 @@ export const registerProductSchema = z
       .nonnegative()
       .refine(hasAtMostSixDecimalPlaces)
       .optional(),
-    initialStock: z.number().min(0).optional(),
+    initialStock: z.number().finite().optional(),
     brands: z.array(productBrandSchema).optional(),
+  })
+  .superRefine((input, context) => {
+    if (
+      !input.allowNegativeStock &&
+      input.initialStock !== undefined &&
+      input.initialStock < 0
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['initialStock'],
+        message: 'Initial stock cannot be negative unless negative stock is enabled.',
+      })
+    }
+
+    if (!input.allowNegativeStock) {
+      for (const [index, brand] of (input.brands ?? []).entries()) {
+        if (brand.initialQuantity < 0) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['brands', index, 'initialQuantity'],
+            message: 'Initial stock cannot be negative unless negative stock is enabled.',
+          })
+        }
+      }
+    }
   })
   .strict()
 

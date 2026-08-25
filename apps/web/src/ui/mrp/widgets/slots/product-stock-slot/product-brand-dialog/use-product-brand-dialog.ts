@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
-import type { ProductBrandStock } from '@scoops/core/mrp/domain/structures'
+import type { ProductBrandStock, ProductUnit } from '@scoops/core/mrp/domain/structures'
 import { productBrandFormSchema } from '@scoops/validation'
 
 import { useRegisterProductBrandAction } from '@/ui/mrp/hooks/use-register-product-brand-action'
@@ -20,23 +20,25 @@ export function useProductBrandDialog({
   onSuccess,
   open,
   productId,
+  unit,
   variant,
 }: ProductBrandDialogProps) {
   const registerAction = useRegisterProductBrandAction(productId)
   const updateAction = useUpdateProductBrandAction(productId)
   const form = useForm<ProductBrandFormValues>({
-    defaultValues: getDefaultValues(variant, brand),
+    defaultValues: getDefaultValues(variant, unit, brand),
     resolver: zodResolver(productBrandFormSchema),
   })
   const packageQuantity = useWatch({ control: form.control, name: 'packageQuantity' })
   const packageValue = useWatch({ control: form.control, name: 'packageValue' })
+  const brandUnit = useWatch({ control: form.control, name: 'unit' }) ?? unit
   const isPending = registerAction.isPending || updateAction.isPending
   const actionError = registerAction.error ?? updateAction.error
   const unitPrice = calculateUnitPrice(packageValue, packageQuantity)
 
   useEffect(() => {
-    if (open) form.reset(getDefaultValues(variant, brand))
-  }, [brand, form, open, variant])
+    if (open) form.reset(getDefaultValues(variant, unit, brand))
+  }, [brand, form, open, unit, variant])
 
   function handleOpenChange(nextOpen: boolean) {
     if (isPending) return
@@ -48,6 +50,7 @@ export function useProductBrandDialog({
       if (values.variant === 'add') {
         await registerAction.registerProductBrand({
           name: values.name.trim(),
+          unit: values.unit,
           packageQuantity: Number(values.packageQuantity),
           packageValue: Number(values.packageValue),
           initialQuantity: Number(values.initialQuantity),
@@ -57,6 +60,7 @@ export function useProductBrandDialog({
         await updateAction.updateProductBrand({
           brandId: brand.brand.id,
           name: values.name.trim(),
+          unit: values.unit,
           packageQuantity: Number(values.packageQuantity),
           packageValue: Number(values.packageValue),
         })
@@ -81,19 +85,24 @@ export function useProductBrandDialog({
     isPending,
     packageQuantity,
     packageValue,
+    brandUnit,
     unitPrice,
     register: form.register,
+    setUnit: (value: string) =>
+      form.setValue('unit', value as ProductBrandFormValues['unit']),
   }
 }
 
 function getDefaultValues(
   variant: ProductBrandDialogProps['variant'],
+  productUnit: ProductUnit,
   brand?: ProductBrandStock,
 ): ProductBrandFormValues {
   if (variant === 'edit') {
     return {
       variant: 'edit',
       name: brand?.brand.name ?? '',
+      unit: brand?.brand.unit ?? productUnit,
       packageQuantity: String(brand?.brand.packageQuantity ?? 1),
       packageValue: String(brand?.brand.packagePrice ?? 0),
     }
@@ -102,6 +111,7 @@ function getDefaultValues(
   return {
     variant: 'add',
     name: '',
+    unit: productUnit,
     packageQuantity: '1',
     packageValue: '0',
     initialQuantity: '0',

@@ -25,6 +25,13 @@ export {
   updateRecipeIngredientSchema,
 } from './mrp/recipe-ingredient-schema.ts'
 export { listProductsQuerySchema } from './mrp/list-products-query-schema.ts'
+export { updateProductSettingsSchema } from './mrp/update-product-settings-schema.ts'
+export { changeProductCategoriesSchema } from './mrp/change-product-categories-schema.ts'
+export { productCategoryRemovalQuerySchema } from './mrp/product-category-removal-query-schema.ts'
+export {
+  changeProductUnitSchema,
+  previewProductUnitChangeSchema,
+} from './mrp/product-unit-change-schema.ts'
 export { productBrandSchema } from './mrp/product-brand-schema.ts'
 export { productCategorySchema } from './mrp/product-category-schema.ts'
 export { productStockControlSchema } from './mrp/product-stock-control-schema.ts'
@@ -55,6 +62,9 @@ export { productBrandFormSchema } from './web/product-brand-form-schema.ts'
 export { productRegistrationFormSchema } from './web/product-registration-form-schema.ts'
 export { productDetailsSearchSchema } from './web/product-details-search-schema.ts'
 export { productsSearchSchema } from './web/products-search-schema.ts'
+export { productSettingsFormSchema } from './web/product-settings-form-schema.ts'
+export { productSettingsSearchSchema } from './web/product-settings-search-schema.ts'
+export { productPricingSearchSchema } from './web/product-pricing-search-schema.ts'
 export { resetPasswordFormSchema } from './web/reset-password-form-schema.ts'
 export { shopNameFormSchema } from './web/shop-name-form-schema.ts'
 export { stockAdjustmentFormSchema } from './web/stock-adjustment-form-schema.ts'

@@ -15,6 +15,7 @@ import { useRegisterProductAction } from '@/ui/mrp/hooks/use-register-product-ac
 export type BrandDraft = {
   id: string
   name: string
+  unit?: ProductUnit
   packageQuantity: string
   packagePrice: string
   packageCount: string
@@ -35,10 +36,11 @@ const PRODUCT_REGISTRATION_DEFAULT_VALUES: ProductRegistrationFormValues = {
   brands: [],
 }
 
-function createBrandDraft(id: string): BrandDraft {
+function createBrandDraft(id: string, unit: ProductUnit): BrandDraft {
   return {
     id,
     name: '',
+    unit,
     packageQuantity: '1',
     packagePrice: '0,00',
     packageCount: '0',
@@ -141,7 +143,7 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
     setStockControlState(value)
     setFormValue('stockControl', value)
     if (value === 'by-brand' && brands.length === 0) {
-      const firstBrand = createBrandDraft('brand-1')
+      const firstBrand = createBrandDraft('brand-1', unit)
       setBrands([firstBrand])
       setFormValue('brands', [firstBrand])
     }
@@ -168,7 +170,10 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
 
   function handleAddBrand() {
     setBrands((current) => {
-      const nextBrands = [...current, createBrandDraft(`brand-${current.length + 1}`)]
+      const nextBrands = [
+        ...current,
+        createBrandDraft(`brand-${current.length + 1}`, unit),
+      ]
       setFormValue('brands', nextBrands)
       return nextBrands
     })
@@ -233,6 +238,7 @@ export function useProductRegistrationDialog({ onSuccess }: { onSuccess: () => v
           effectiveStockControl === 'by-brand'
             ? values.brands.map((brand) => ({
                 name: brand.name,
+                unit: brand.unit ?? values.unit,
                 packageQuantity: Number(brand.packageQuantity) || 0,
                 packageValue: Number(brand.packagePrice.replace(',', '.')) || 0,
                 initialQuantity:

@@ -23,6 +23,7 @@ describe('BrandSection', () => {
     const onRemove = vi.fn()
     render(
       <BrandSection
+        allowNegativeStock={false}
         brands={brands}
         onAdd={onAdd}
         onChange={onChange}

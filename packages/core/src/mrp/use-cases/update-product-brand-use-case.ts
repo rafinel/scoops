@@ -2,6 +2,7 @@ import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { ProductBrandStock } from '#mrp/domain/structures/product-brand-stock.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
+import { ProductUnit } from '#mrp/domain/structures/product-unit.ts'
 import type { UpdateProductBrandInput } from '#mrp/domain/structures/update-product-brand-input.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
 import {
@@ -41,6 +42,7 @@ export class UpdateProductBrandUseCase implements UseCase<Request, ProductBrandS
         throw new ConflictError('Já existe uma marca com esse nome para o produto.')
       const savedBrand = await scope.brandsRepository.replace(product.id, brand.id, {
         name,
+        unit: request.input.unit ?? brand.unit,
         packageQuantity: request.input.packageQuantity,
         packagePrice: request.input.packageValue,
       })
@@ -68,5 +70,7 @@ export class UpdateProductBrandUseCase implements UseCase<Request, ProductBrandS
       throw new BadRequestError('A quantidade por embalagem deve ser maior que zero.')
     if (!Number.isFinite(input.packageValue) || input.packageValue < 0)
       throw new BadRequestError('O valor da embalagem não pode ser negativo.')
+    if (input.unit !== undefined && !Object.values(ProductUnit).includes(input.unit))
+      throw new BadRequestError('A unidade da marca é inválida.')
   }
 }

@@ -12,6 +12,7 @@ import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 export type ProductsSearch = {
   search: string
   categories: ProductCategory[]
+  usedAsAccompanimentId?: string
   status?: ProductStatus
   stockSituation?: 'normal' | 'low'
   sortBy: ProductSortField

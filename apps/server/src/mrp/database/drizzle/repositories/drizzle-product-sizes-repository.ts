@@ -90,6 +90,40 @@ export class DrizzleProductSizesRepository
     return Number(record?.count ?? 0)
   }
 
+  async countByProductId(establishmentId: string, productId: string): Promise<number> {
+    const [record] = await this.database
+      .select({ count: count() })
+      .from(productSizeModel)
+      .where(
+        and(
+          eq(productSizeModel.establishmentId, establishmentId),
+          eq(productSizeModel.productId, productId),
+        ),
+      )
+    return Number(record?.count ?? 0)
+  }
+
+  async replaceQuantities(
+    establishmentId: string,
+    productId: string,
+    quantities: readonly { sizeId: string; quantity: number }[],
+  ): Promise<void> {
+    for (const { sizeId, quantity } of quantities) {
+      const records = await this.database
+        .update(productSizeModel)
+        .set({ quantity: String(quantity), updatedAt: new Date() })
+        .where(
+          and(
+            eq(productSizeModel.establishmentId, establishmentId),
+            eq(productSizeModel.productId, productId),
+            eq(productSizeModel.id, sizeId),
+          ),
+        )
+        .returning({ id: productSizeModel.id })
+      if (records.length !== 1) throw new ConflictError('Database operation conflicted')
+    }
+  }
+
   async replace(
     establishmentId: string,
     productId: string,
@@ -126,7 +160,7 @@ export class DrizzleProductSizesRepository
     sizeId: string,
   ): Promise<void> {
     try {
-      await this.database
+      const records = await this.database
         .delete(productSizeModel)
         .where(
           and(
@@ -135,6 +169,8 @@ export class DrizzleProductSizesRepository
             eq(productSizeModel.id, sizeId),
           ),
         )
+        .returning({ id: productSizeModel.id })
+      if (!records.length) throw new ConflictError('Database operation conflicted')
     } catch (error) {
       throw this.toConflictError(error)
     }

@@ -29,6 +29,7 @@ export class ListProductsUseCase implements UseCase<Request, ProductCatalogPage>
       establishmentId: actor.establishmentId,
       search: request.search?.trim() || undefined,
       categories: request.categories ? [...new Set(request.categories)] : undefined,
+      usedAsAccompanimentId: request.usedAsAccompanimentId?.trim() || undefined,
       page: this.normalizePage(request.page),
       pageSize: this.normalizePageSize(request.pageSize),
       sortBy: request.sortBy ?? ProductSortField.CreatedAt,

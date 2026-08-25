@@ -8,9 +8,18 @@ export interface ProductsRepository {
   add(input: ProductCreate): Promise<Product>
   addMany(inputs: ProductCreate[]): Promise<readonly Product[]>
   findById(establishmentId: string, productId: string): Promise<Product | undefined>
+  findByIdForUpdate(
+    establishmentId: string,
+    productId: string,
+  ): Promise<Product | undefined>
   findByName(establishmentId: string, name: string): Promise<Product | undefined>
   findMany(input: ProductListParams): Promise<ProductCatalogPage>
+  replace(
+    establishmentId: string,
+    productId: string,
+    changes: ProductUpdate,
+  ): Promise<Product>
   replace(productId: string, changes: ProductUpdate): Promise<Product>
-  remove(productId: string): Promise<void>
+  remove(establishmentId: string, productId: string): Promise<void>
   removeAll(): Promise<void>
 }
