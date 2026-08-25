@@ -2460,41 +2460,6 @@
             },
             {
               "type": "frame",
-              "id": "gIUpy",
-              "name": "Item Tipos de acompanhamento",
-              "width": "fill_container",
-              "cornerRadius": 10,
-              "gap": 12,
-              "padding": [
-                10,
-                14
-              ],
-              "alignItems": "center",
-              "children": [
-                {
-                  "type": "icon",
-                  "id": "C9FR9v",
-                  "name": "Ic",
-                  "width": 18,
-                  "height": 18,
-                  "icon": "list-tree",
-                  "library": "lucide",
-                  "fill": "$text-primary"
-                },
-                {
-                  "type": "text",
-                  "id": "zAK2t",
-                  "name": "L",
-                  "fill": "$text-primary",
-                  "content": "Tipos de acompanhamento",
-                  "fontFamily": "$font-body",
-                  "fontSize": 13,
-                  "fontWeight": "800"
-                }
-              ]
-            },
-            {
-              "type": "frame",
               "id": "dyuVF",
               "name": "Item Nova venda",
               "width": "fill_container",
@@ -7918,12 +7883,12 @@
     {
       "type": "frame",
       "id": "Fa5wO",
-      "x": 8364,
-      "y": 70,
+      "x": 8384,
+      "y": -208,
       "name": "Screen Configurações",
       "clip": true,
       "width": 1560,
-      "height": 1269,
+      "height": 1450,
       "fill": "$bg-card",
       "children": [
         {
@@ -7953,34 +7918,34 @@
               "type": "frame",
               "id": "N6QX2l",
               "name": "ContentWrap",
-              "width": "fill_container",
-              "layout": "vertical",
-              "gap": 20,
-              "padding": [
-                8,
-                32,
-                32,
-                32
-              ],
+              "width": 1293,
+              "height": 1314,
+              "layout": "none",
               "children": [
                 {
                   "id": "ru7ya",
                   "type": "ref",
                   "ref": "xylQM",
-                  "name": "Breadcrumb"
+                  "name": "Breadcrumb",
+                  "x": 32,
+                  "y": 8
                 },
                 {
                   "id": "ZlJMn",
                   "type": "ref",
                   "ref": "RaIQ2",
                   "name": "Product Header",
-                  "width": "fill_container"
+                  "width": 1229,
+                  "x": 32,
+                  "y": 46
                 },
                 {
                   "id": "o9Dg23",
                   "type": "ref",
                   "ref": "Z6DqU",
                   "name": "Tabs",
+                  "x": 32,
+                  "y": 219,
                   "descendants": {
                     "vTUzZ": {
                       "fill": "#FFFFFF00",
@@ -8024,8 +7989,11 @@
                 {
                   "type": "frame",
                   "id": "vZkIb",
+                  "x": 32,
+                  "y": 282,
                   "name": "Card Informações Básicas",
-                  "width": "fill_container",
+                  "width": 1229,
+                  "height": 291,
                   "fill": "$bg-card",
                   "cornerRadius": 16,
                   "effect": {
@@ -8305,8 +8273,11 @@
                 {
                   "type": "frame",
                   "id": "uDVS5",
+                  "x": 32,
+                  "y": 601,
                   "name": "Card Categorias",
-                  "width": "fill_container",
+                  "width": 1229,
+                  "height": 220,
                   "fill": "$bg-card",
                   "cornerRadius": 16,
                   "effect": {
@@ -8360,13 +8331,16 @@
                       "id": "HI3Tp",
                       "name": "Grid",
                       "width": "fill_container",
-                      "gap": 12,
+                      "height": 105,
+                      "layout": "none",
                       "children": [
                         {
                           "type": "frame",
                           "id": "NgvFi",
+                          "x": 0,
+                          "y": 0,
                           "name": "Cat Ingrediente",
-                          "width": "fill_container",
+                          "width": 226.6,
                           "fill": "$info-soft",
                           "cornerRadius": 12,
                           "stroke": "#93C5FD",
@@ -8426,8 +8400,10 @@
                         {
                           "type": "frame",
                           "id": "ibiNX",
+                          "x": 238.6,
+                          "y": 0,
                           "name": "Cat Fabricável",
-                          "width": "fill_container",
+                          "width": 226.6,
                           "fill": "$primary-soft",
                           "cornerRadius": 12,
                           "stroke": "#C4B5FD",
@@ -8487,8 +8463,10 @@
                         {
                           "type": "frame",
                           "id": "ZIOpj",
+                          "x": 477.2,
+                          "y": 0,
                           "name": "Cat Acompanhamento",
-                          "width": "fill_container",
+                          "width": 226.6,
                           "fill": "$warning-soft",
                           "cornerRadius": 12,
                           "stroke": "#FCD34D",
@@ -8548,8 +8526,10 @@
                         {
                           "type": "frame",
                           "id": "lZtty",
+                          "x": 715.8,
+                          "y": 0,
                           "name": "Cat Revenda",
-                          "width": "fill_container",
+                          "width": 226.6,
                           "fill": "$danger-soft",
                           "cornerRadius": 12,
                           "stroke": "#FCA5A5",
@@ -8613,8 +8593,10 @@
                 {
                   "type": "frame",
                   "id": "Jfdkz",
+                  "x": 32,
+                  "y": 837,
                   "name": "Card Observações internas",
-                  "width": "fill_container",
+                  "width": 1229,
                   "fill": "$bg-card",
                   "cornerRadius": 16,
                   "effect": {
@@ -8724,8 +8706,10 @@
                 {
                   "type": "frame",
                   "id": "tTzcU",
+                  "x": 32,
+                  "y": 1083,
                   "name": "Card Zona de Perigo",
-                  "width": "fill_container",
+                  "width": 1229,
                   "fill": "#FEF2F2",
                   "cornerRadius": 16,
                   "stroke": "#FCA5A5",
@@ -8837,7 +8821,7 @@
       "y": 1455,
       "name": "Dialog Bloqueio Ingrediente",
       "width": 520,
-      "height": 400,
+      "height": 336,
       "fill": "$bg-card",
       "cornerRadius": 16,
       "effect": {
@@ -9102,19 +9086,59 @@
           "id": "f58gPO",
           "name": "Footer",
           "width": "fill_container",
+          "height": 66,
+          "gap": 8,
           "padding": [
-            16,
-            24,
-            24,
-            24
+            14,
+            16
           ],
           "justifyContent": "end",
+          "alignItems": "center",
           "children": [
+            {
+              "type": "frame",
+              "id": "oLjND",
+              "name": "Ver Receitas",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                10,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "NfMVu",
+                  "name": "Ícone Ver Receitas",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "book-open",
+                  "library": "lucide",
+                  "fill": "$primary"
+                },
+                {
+                  "type": "text",
+                  "id": "maY5K",
+                  "name": "Rótulo Ver Receitas",
+                  "fill": "$text-primary",
+                  "content": "Ver receitas",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
             {
               "id": "VWWLm",
               "type": "ref",
               "ref": "j81wx",
               "name": "Btn Entendi",
+              "x": 427,
+              "y": 16,
               "descendants": {
                 "b1bQY": {
                   "enabled": false
@@ -9135,7 +9159,7 @@
       "y": 1455,
       "name": "Dialog Bloqueio Fabricável",
       "width": 520,
-      "height": 400,
+      "height": 372,
       "fill": "$bg-card",
       "cornerRadius": 16,
       "effect": {
@@ -9436,27 +9460,125 @@
           "id": "vmbdb",
           "name": "Footer",
           "width": "fill_container",
+          "height": 66,
+          "gap": 8,
           "padding": [
-            16,
-            24,
-            24,
-            24
+            14,
+            16
           ],
           "justifyContent": "end",
+          "alignItems": "center",
           "children": [
             {
-              "id": "J8fOmi",
-              "type": "ref",
-              "ref": "j81wx",
-              "name": "Btn Entendi",
-              "descendants": {
-                "b1bQY": {
-                  "enabled": false
+              "type": "frame",
+              "id": "uUlwO",
+              "name": "Ver Receita",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                10,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "S70Nmq",
+                  "name": "Ícone Ver Dependências",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "list-checks",
+                  "library": "lucide",
+                  "fill": "$primary"
                 },
-                "dURHs": {
-                  "content": "Entendi"
+                {
+                  "type": "text",
+                  "id": "yMP2Y",
+                  "name": "Rótulo Ver Dependências",
+                  "fill": "$text-primary",
+                  "content": "Ver receita",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
                 }
-              }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Hw8Ve",
+              "name": "Ver Preços",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                10,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "MDyuv",
+                  "name": "Ícone Ver Dependências",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "list-checks",
+                  "library": "lucide",
+                  "fill": "$primary"
+                },
+                {
+                  "type": "text",
+                  "id": "qE1JS",
+                  "name": "Rótulo Ver Dependências",
+                  "fill": "$text-primary",
+                  "content": "Ver preços",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "i5gQH",
+              "name": "Ver Acompanhamentos",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                10,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "zWXpj",
+                  "name": "Ícone Ver Dependências",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "list-checks",
+                  "library": "lucide",
+                  "fill": "$primary"
+                },
+                {
+                  "type": "text",
+                  "id": "sBNtE",
+                  "name": "Rótulo Ver Dependências",
+                  "fill": "$text-primary",
+                  "content": "Ver acompanhamentos",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
             }
           ]
         }
@@ -9469,7 +9591,7 @@
       "y": 1455,
       "name": "Dialog Bloqueio Acompanhamento",
       "width": 520,
-      "height": 400,
+      "height": 336,
       "fill": "$bg-card",
       "cornerRadius": 16,
       "effect": {
@@ -9734,19 +9856,59 @@
           "id": "m8I0Wk",
           "name": "Footer",
           "width": "fill_container",
+          "height": 66,
+          "gap": 8,
           "padding": [
-            16,
-            24,
-            24,
-            24
+            14,
+            16
           ],
           "justifyContent": "end",
+          "alignItems": "center",
           "children": [
+            {
+              "type": "frame",
+              "id": "tGHoe",
+              "name": "Ver Produtos",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                10,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "e2NxpH",
+                  "name": "Ícone Ver Produtos",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "package",
+                  "library": "lucide",
+                  "fill": "$primary"
+                },
+                {
+                  "type": "text",
+                  "id": "qYmbp",
+                  "name": "Rótulo Ver Produtos",
+                  "fill": "$text-primary",
+                  "content": "Ver produtos",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
             {
               "id": "c99Rs",
               "type": "ref",
               "ref": "j81wx",
               "name": "Btn Entendi",
+              "x": 427,
+              "y": 16,
               "descendants": {
                 "b1bQY": {
                   "enabled": false
@@ -9767,7 +9929,7 @@
       "y": 1455,
       "name": "Dialog Bloqueio Revenda",
       "width": 520,
-      "height": 400,
+      "height": 329,
       "fill": "$bg-card",
       "cornerRadius": 16,
       "effect": {
@@ -10032,19 +10194,59 @@
           "id": "kgdcl",
           "name": "Footer",
           "width": "fill_container",
+          "height": 66,
+          "gap": 8,
           "padding": [
-            16,
-            24,
-            24,
-            24
+            14,
+            16
           ],
           "justifyContent": "end",
+          "alignItems": "center",
           "children": [
+            {
+              "type": "frame",
+              "id": "QicCU",
+              "name": "Ver Preços",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                10,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "imZdO",
+                  "name": "Ícone Ver Preços",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "tag",
+                  "library": "lucide",
+                  "fill": "$primary"
+                },
+                {
+                  "type": "text",
+                  "id": "O1Gvm",
+                  "name": "Rótulo Ver Preços",
+                  "fill": "$text-primary",
+                  "content": "Ver preços",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
             {
               "id": "aJ5Hn",
               "type": "ref",
               "ref": "j81wx",
               "name": "Btn Entendi",
+              "x": 427,
+              "y": 16,
               "descendants": {
                 "b1bQY": {
                   "enabled": false
@@ -13797,6 +13999,35 @@
                       "fontFamily": "$font-body",
                       "fontSize": 14,
                       "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "IRb7o",
+                      "name": "Link Tipos de acompanhamento",
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "N6LQc",
+                          "name": "Link Icon",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "list-tree",
+                          "library": "lucide",
+                          "fill": "$primary"
+                        },
+                        {
+                          "type": "text",
+                          "id": "yGdqf",
+                          "name": "Link Label",
+                          "fill": "$primary",
+                          "content": "Tipos de acompanhamento",
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "800"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -13805,7 +14036,7 @@
                   "id": "jjon7",
                   "layoutPosition": "absolute",
                   "x": 32,
-                  "y": 140,
+                  "y": 160,
                   "name": "Metrics Row",
                   "width": 1150,
                   "gap": 12,
@@ -14117,7 +14348,7 @@
                   "id": "k4cVOe",
                   "layoutPosition": "absolute",
                   "x": 32,
-                  "y": 256,
+                  "y": 276,
                   "name": "Table Card V2",
                   "clip": true,
                   "width": 1150,
@@ -20744,7 +20975,7 @@
       "name": "Modal Novo Produto",
       "reusable": true,
       "width": 571,
-      "height": 1090,
+      "height": 1165,
       "fill": "$bg-card",
       "cornerRadius": 16,
       "effect": {
@@ -22109,6 +22340,64 @@
                           "fontWeight": "700"
                         }
                       ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "AUQqK",
+                      "name": "Field Unidade da marca",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "kpbsL",
+                          "name": "L",
+                          "fill": "$text-secondary",
+                          "content": "Unidade da marca",
+                          "fontFamily": "$font-body",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "nvNzB",
+                          "name": "Select",
+                          "width": "fill_container",
+                          "fill": "$bg-card",
+                          "cornerRadius": 10,
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            12,
+                            14
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "uGwTk",
+                              "name": "V",
+                              "fill": "$text-primary",
+                              "content": "g (gramas)",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "icon",
+                              "id": "LINyJ",
+                              "name": "Chev",
+                              "width": 14,
+                              "height": 14,
+                              "icon": "chevron-down",
+                              "library": "lucide",
+                              "fill": "$text-secondary"
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
@@ -22672,6 +22961,51 @@
               "fontWeight": "600"
             }
           ]
+        },
+        {
+          "type": "rectangle",
+          "id": "mIIvB",
+          "name": "Separador antes de excluir canal",
+          "fill": "$border-soft",
+          "width": "fill_container",
+          "height": 1
+        },
+        {
+          "type": "frame",
+          "id": "ue7EJ",
+          "name": "Botão Excluir canal",
+          "width": "fill_container",
+          "height": 36,
+          "fill": "#FFFFFF",
+          "cornerRadius": 8,
+          "gap": 8,
+          "padding": [
+            8,
+            10
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "I02mt",
+              "name": "Ícone Excluir canal",
+              "width": 16,
+              "height": 16,
+              "icon": "trash-2",
+              "library": "lucide",
+              "fill": "$danger"
+            },
+            {
+              "type": "text",
+              "id": "xhaPs",
+              "name": "Texto Excluir canal",
+              "fill": "$danger",
+              "content": "Excluir canal",
+              "fontFamily": "Manrope",
+              "fontSize": 13,
+              "fontWeight": "600"
+            }
+          ]
         }
       ]
     },
@@ -22728,7 +23062,7 @@
       "y": 1455,
       "name": "Dialog Bloqueio Porção",
       "width": 520,
-      "height": 400,
+      "height": 353,
       "fill": "$bg-card",
       "cornerRadius": 16,
       "effect": {
@@ -22993,19 +23327,96 @@
           "id": "tifMV",
           "name": "Footer",
           "width": "fill_container",
+          "height": 66,
+          "gap": 8,
           "padding": [
-            16,
-            24,
-            24,
-            24
+            14,
+            16
           ],
           "justifyContent": "end",
+          "alignItems": "center",
           "children": [
+            {
+              "type": "frame",
+              "id": "OFqk5",
+              "name": "Ver Preços",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                10,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "h3Sx5S",
+                  "name": "Ícone Ver Configurações",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "ruler",
+                  "library": "lucide",
+                  "fill": "$primary"
+                },
+                {
+                  "type": "text",
+                  "id": "JZeMo",
+                  "name": "Rótulo Ver Configurações",
+                  "fill": "$text-primary",
+                  "content": "Ver preços",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "MF1b3",
+              "name": "Ver Acompanhamentos",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 6,
+              "padding": [
+                10,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "APDV0",
+                  "name": "Ícone Ver Configurações",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "ruler",
+                  "library": "lucide",
+                  "fill": "$primary"
+                },
+                {
+                  "type": "text",
+                  "id": "OIPx7",
+                  "name": "Rótulo Ver Configurações",
+                  "fill": "$text-primary",
+                  "content": "Ver acompanhamentos",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
             {
               "id": "g5l9x",
               "type": "ref",
               "ref": "j81wx",
               "name": "Btn Entendi",
+              "x": 427,
+              "y": 16,
               "descendants": {
                 "b1bQY": {
                   "enabled": false
@@ -23039,7 +23450,7 @@
           "content": "Alterar unidade do produto?"
         },
         "G2y6O": {
-          "content": "A unidade é compartilhada por todas as marcas, receitas, tamanhos e movimentações. Quantidades compatíveis serão convertidas automaticamente; trocas incompatíveis exigem um fator por marca."
+          "content": "A unidade é compartilhada por marcas, receitas, tamanhos e movimentações. Quantidades compatíveis serão convertidas automaticamente; informe o fator por marca quando necessário."
         },
         "tHLPg": {
           "fill": "#6D28D9",
@@ -24663,13 +25074,20 @@
       "y": 5689,
       "width": 232,
       "descendants": {
+        "S2OS7": {
+          "name": "Botão Editar canal"
+        },
         "Gnw9G": {
           "icon": "pencil",
           "fill": "$text-secondary"
         },
         "smm7T": {
           "content": "Editar canal",
-          "fill": "$text-primary"
+          "fill": "$text-primary",
+          "name": "Texto Editar canal"
+        },
+        "D2hMu": {
+          "name": "Botão Ver pedidos"
         },
         "P9O1Cl": {
           "icon": "receipt-text",
@@ -24677,10 +25095,14 @@
         },
         "O78wY0": {
           "content": "Ver pedidos",
-          "fill": "$text-primary"
+          "fill": "$text-primary",
+          "name": "Texto Ver pedidos"
         },
         "hEmh9": {
           "fill": "$border-soft"
+        },
+        "xC15q": {
+          "name": "Botão Desativar canal"
         },
         "FL5vx": {
           "icon": "circle-off",
@@ -24688,7 +25110,8 @@
         },
         "G6aY3s": {
           "content": "Desativar canal",
-          "fill": "$danger"
+          "fill": "$danger",
+          "name": "Texto Desativar canal"
         }
       }
     },
@@ -42095,7 +42518,7 @@
                           "id": "LKp2T",
                           "name": "Descrição Pedidos",
                           "fill": "$text-secondary",
-                          "content": "Consulte as vendas registradas e abra os detalhes de cada pedido.",
+                          "content": "Consulte as vendas registradas ou canceladas e abra os detalhes de cada pedido.",
                           "fontFamily": "$font-body",
                           "fontSize": 13,
                           "fontWeight": "500"
@@ -42437,6 +42860,7 @@
                           "name": "Cabeçalho Status",
                           "width": 140,
                           "height": "fill_container",
+                          "justifyContent": "end",
                           "alignItems": "center",
                           "children": [
                             {
@@ -42445,7 +42869,7 @@
                               "name": "Rótulo Status",
                               "fill": "$text-secondary",
                               "textGrowth": "fixed-width",
-                              "width": "fill_container",
+                              "width": 84,
                               "content": "Status",
                               "fontFamily": "$font-body",
                               "fontSize": 11,
@@ -42602,6 +43026,7 @@
                           "name": "Célula Status #00124",
                           "width": 140,
                           "height": "fill_container",
+                          "justifyContent": "end",
                           "alignItems": "center",
                           "children": [
                             {
@@ -42817,13 +43242,14 @@
                           "name": "Célula Status #00123",
                           "width": 140,
                           "height": "fill_container",
+                          "justifyContent": "end",
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "frame",
                               "id": "nXDkZ",
-                              "name": "Status Registrado #00123",
-                              "fill": "$success-soft",
+                              "name": "Status Cancelado #00123",
+                              "fill": "$danger-soft",
                               "cornerRadius": 7,
                               "gap": 5,
                               "padding": [
@@ -42835,19 +43261,19 @@
                                 {
                                   "type": "icon",
                                   "id": "i7mJqp",
-                                  "name": "Ícone Registrado #00123",
+                                  "name": "Ícone Cancelado #00123",
                                   "width": 12,
                                   "height": 12,
-                                  "icon": "check",
+                                  "icon": "circle-x",
                                   "library": "lucide",
-                                  "fill": "$success"
+                                  "fill": "$danger"
                                 },
                                 {
                                   "type": "text",
                                   "id": "p43jd",
-                                  "name": "Rótulo Registrado #00123",
-                                  "fill": "$success",
-                                  "content": "Registrado",
+                                  "name": "Rótulo Cancelado #00123",
+                                  "fill": "$danger",
+                                  "content": "Cancelado",
                                   "fontFamily": "$font-body",
                                   "fontSize": 10,
                                   "fontWeight": "700"
@@ -43032,6 +43458,7 @@
                           "name": "Célula Status #00122",
                           "width": 140,
                           "height": "fill_container",
+                          "justifyContent": "end",
                           "alignItems": "center",
                           "children": [
                             {
@@ -43247,6 +43674,7 @@
                           "name": "Célula Status #00121",
                           "width": 140,
                           "height": "fill_container",
+                          "justifyContent": "end",
                           "alignItems": "center",
                           "children": [
                             {
@@ -43462,6 +43890,7 @@
                           "name": "Célula Status #00120",
                           "width": 140,
                           "height": "fill_container",
+                          "justifyContent": "end",
                           "alignItems": "center",
                           "children": [
                             {
@@ -43677,6 +44106,7 @@
                           "name": "Célula Status #00119",
                           "width": 140,
                           "height": "fill_container",
+                          "justifyContent": "end",
                           "alignItems": "center",
                           "children": [
                             {
@@ -44792,12 +45222,14 @@
                   "id": "mrz5A",
                   "name": "Cabeçalho Detalhes do pedido",
                   "width": "fill_container",
-                  "justifyContent": "space_between",
-                  "alignItems": "center",
+                  "height": 56,
+                  "layout": "none",
                   "children": [
                     {
                       "type": "frame",
                       "id": "NkK1h",
+                      "x": 0,
+                      "y": 0,
                       "name": "Identificação do pedido",
                       "layout": "vertical",
                       "gap": 7,
@@ -44855,7 +45287,10 @@
                     {
                       "type": "frame",
                       "id": "iQ73s",
-                      "name": "Ações do pedido registrado",
+                      "layoutPosition": "absolute",
+                      "x": 740,
+                      "y": 10,
+                      "name": "Ações do pedido registrado — Apenas gerentes",
                       "gap": 16,
                       "alignItems": "center",
                       "children": [
@@ -44892,7 +45327,7 @@
                         {
                           "type": "frame",
                           "id": "RikoM",
-                          "name": "Botão Cancelar pedido — Detalhes",
+                          "name": "Botão Cancelar pedido — Apenas gerentes",
                           "fill": "$bg-card",
                           "cornerRadius": 10,
                           "stroke": "$danger",
@@ -46142,7 +46577,7 @@
                                   "fill": "$info",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "Produtos, canal e valores refletem exatamente o momento em que o pedido foi registrado.",
+                                  "content": "Produtos, canal e valores refletem exatamente o momento em que o pedido foi registrado. O cancelamento está disponível apenas para Gerentes.",
                                   "lineHeight": 1.4,
                                   "fontFamily": "$font-body",
                                   "fontSize": 10,
@@ -54463,7 +54898,7 @@
                   "fill": "$danger",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "O pedido permanecerá no histórico com status Cancelado. Produtos, canal e valores registrados não serão apagados.",
+                  "content": "O pedido permanecerá no histórico com status Cancelado. O estoque consumido será restaurado. Produtos, canal e valores registrados serão preservados.",
                   "lineHeight": 1.4,
                   "fontFamily": "$font-body",
                   "fontSize": 12,
@@ -58896,7 +59331,7 @@
                                   "fill": "$danger",
                                   "textGrowth": "fixed-width",
                                   "width": "fill_container",
-                                  "content": "O cancelamento não altera os itens, o canal nem os valores registrados neste pedido.",
+                                  "content": "O cancelamento restaurou o estoque consumido. Os itens, o canal e os valores registrados neste pedido foram preservados.",
                                   "lineHeight": 1.4,
                                   "fontFamily": "$font-body",
                                   "fontSize": 10,
@@ -65456,9 +65891,9 @@
                       "id": "F5vgP",
                       "name": "Sub",
                       "fill": "$text-secondary",
-                      "content": "Refine a lista por categoria, estoque e status.",
+                      "content": "Refine por categoria, estoque e status.",
                       "fontFamily": "$font-body",
-                      "fontSize": 13,
+                      "fontSize": 14,
                       "fontWeight": "normal"
                     }
                   ]
@@ -65498,11 +65933,8 @@
           "name": "Conteúdo dos filtros",
           "width": "fill_container",
           "layout": "vertical",
-          "gap": 20,
-          "padding": [
-            20,
-            24
-          ],
+          "gap": 24,
+          "padding": 24,
           "children": [
             {
               "type": "frame",
@@ -65522,20 +65954,20 @@
                   "type": "text",
                   "id": "VFxwp",
                   "name": "Filtros aplicados",
-                  "fill": "$text-secondary",
-                  "content": "3 grupos de filtros aplicados",
+                  "fill": "$text-primary",
+                  "content": "Filtros ativos",
                   "fontFamily": "$font-body",
-                  "fontSize": 12,
-                  "fontWeight": "600"
+                  "fontSize": 13,
+                  "fontWeight": "700"
                 },
                 {
                   "type": "text",
                   "id": "AV8pJ",
                   "name": "Limpar filtros",
                   "fill": "$primary",
-                  "content": "Limpar",
+                  "content": "Limpar tudo",
                   "fontFamily": "$font-body",
-                  "fontSize": 12,
+                  "fontSize": 13,
                   "fontWeight": "700"
                 }
               ]
@@ -65555,8 +65987,8 @@
                   "fill": "$text-secondary",
                   "content": "CATEGORIA",
                   "fontFamily": "$font-body",
-                  "fontSize": 11,
-                  "fontWeight": "600",
+                  "fontSize": 12,
+                  "fontWeight": "700",
                   "letterSpacing": 0.5
                 },
                 {
@@ -65656,8 +66088,8 @@
                   "fill": "$text-secondary",
                   "content": "ESTOQUE",
                   "fontFamily": "$font-body",
-                  "fontSize": 11,
-                  "fontWeight": "600",
+                  "fontSize": 12,
+                  "fontWeight": "700",
                   "letterSpacing": 0.5
                 },
                 {
@@ -65713,8 +66145,8 @@
                   "fill": "$text-secondary",
                   "content": "STATUS",
                   "fontFamily": "$font-body",
-                  "fontSize": 11,
-                  "fontWeight": "600",
+                  "fontSize": 12,
+                  "fontWeight": "700",
                   "letterSpacing": 0.5
                 },
                 {
@@ -65803,53 +66235,18 @@
               ]
             },
             {
-              "type": "frame",
-              "id": "J48e52",
-              "name": "Btn Criar",
-              "fill": "$primary",
-              "cornerRadius": 10,
-              "effect": {
-                "type": "shadow",
-                "shadowType": "outer",
-                "color": "#6D28D940",
-                "offset": {
-                  "x": 0,
-                  "y": 8
+              "id": "mRDYh",
+              "type": "ref",
+              "ref": "j81wx",
+              "name": "Btn Aplicar filtros",
+              "descendants": {
+                "b1bQY": {
+                  "enabled": false
                 },
-                "blur": 20
-              },
-              "gap": 6,
-              "padding": [
-                8,
-                14
-              ],
-              "justifyContent": "center",
-              "alignItems": "center",
-              "children": [
-                {
-                  "type": "icon",
-                  "id": "o7VBr",
-                  "x": 14,
-                  "y": 10,
-                  "name": "Ic",
-                  "enabled": false,
-                  "width": 14,
-                  "height": 14,
-                  "icon": "plus",
-                  "library": "lucide",
-                  "fill": "#FFFFFF"
-                },
-                {
-                  "type": "text",
-                  "id": "ct4rt",
-                  "name": "Lbl",
-                  "fill": "#FFFFFF",
-                  "content": "Aplicar filtros",
-                  "fontFamily": "$font-body",
-                  "fontSize": 13,
-                  "fontWeight": "700"
+                "dURHs": {
+                  "content": "Aplicar filtros"
                 }
-              ]
+              }
             }
           ]
         }
@@ -65905,7 +66302,7 @@
           "content": "O saldo será controlado diretamente neste produto."
         },
         "k0VnQ": {
-          "enabled": true
+          "enabled": false
         }
       }
     },
@@ -78391,7 +78788,8 @@
         "gXXLb": {
           "enabled": false,
           "width": 0,
-          "height": 0
+          "height": 0,
+          "name": "Acompanhamentos — não aplicável a revenda"
         },
         "ozaLq": {
           "content": "R$ 6,00"
@@ -80971,8 +81369,8 @@
       "type": "ref",
       "ref": "lSA6c",
       "name": "Diálogo Escolher tipo de desconto",
-      "x": -2436,
-      "y": 11374,
+      "x": -2779,
+      "y": 11256,
       "width": 520,
       "descendants": {
         "Qqe3C": {
@@ -81350,15 +81748,6 @@
             },
             "nqsYt": {
               "fill": "$text-primary"
-            },
-            "gIUpy": {
-              "fill": "$primary-soft"
-            },
-            "C9FR9v": {
-              "fill": "$primary"
-            },
-            "zAK2t": {
-              "fill": "$primary"
             }
           }
         },
@@ -82503,808 +82892,6 @@
       ]
     },
     {
-      "type": "frame",
-      "id": "NdvkH",
-      "x": 6026,
-      "y": -966,
-      "name": "Dialog Novo Tipo de Acompanhamento — Aberto",
-      "width": 1560,
-      "height": 720,
-      "fill": "$bg-page",
-      "layout": "none",
-      "children": [
-        {
-          "id": "UWgyV",
-          "type": "ref",
-          "ref": "K4g10V",
-          "height": 720,
-          "name": "Sidebar Tipos de acompanhamento",
-          "width": 267,
-          "x": 0,
-          "y": 0,
-          "flipX": false,
-          "flipY": false,
-          "descendants": {
-            "VXrx3": {
-              "fill": "$bg-card"
-            },
-            "bpYPD": {
-              "fill": "$text-primary"
-            },
-            "nqsYt": {
-              "fill": "$text-primary"
-            },
-            "gIUpy": {
-              "fill": "$primary-soft"
-            },
-            "C9FR9v": {
-              "fill": "$primary"
-            },
-            "zAK2t": {
-              "fill": "$primary"
-            }
-          }
-        },
-        {
-          "type": "frame",
-          "id": "jqgyA",
-          "x": 267,
-          "y": 0,
-          "name": "Conteúdo da Página",
-          "width": 1293,
-          "height": 720,
-          "fill": "$bg-page",
-          "layout": "none",
-          "children": [
-            {
-              "id": "Fdswy",
-              "type": "ref",
-              "ref": "d8DadK",
-              "name": "Header Tipos de acompanhamento",
-              "width": 1293,
-              "height": 72,
-              "x": 0,
-              "y": 0
-            },
-            {
-              "type": "frame",
-              "id": "TsY8e",
-              "x": 0,
-              "y": 72,
-              "name": "Área Principal",
-              "width": 1293,
-              "height": 648,
-              "layout": "vertical",
-              "gap": 24,
-              "padding": 32,
-              "children": [
-                {
-                  "type": "frame",
-                  "id": "w0sE4w",
-                  "name": "Cabeçalho da Página",
-                  "width": "fill_container",
-                  "justifyContent": "space_between",
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "hcIyj",
-                      "name": "Título e descrição",
-                      "layout": "vertical",
-                      "gap": 6,
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "qGsOT",
-                          "name": "Título da Página",
-                          "fill": "$text-primary",
-                          "content": "Tipos de acompanhamento",
-                          "fontFamily": "$font-body",
-                          "fontSize": 28,
-                          "fontWeight": "800",
-                          "letterSpacing": -0.5
-                        },
-                        {
-                          "type": "text",
-                          "id": "RrchT",
-                          "name": "Descrição da Página",
-                          "fill": "$text-secondary",
-                          "content": "Organize as opções usadas ao vincular acompanhamentos aos produtos porção.",
-                          "fontFamily": "$font-body",
-                          "fontSize": 14,
-                          "fontWeight": "500"
-                        }
-                      ]
-                    },
-                    {
-                      "id": "ZZwri",
-                      "type": "ref",
-                      "ref": "j81wx",
-                      "name": "Button Novo Tipo",
-                      "descendants": {
-                        "b1bQY": {
-                          "enabled": true,
-                          "icon": "plus"
-                        },
-                        "dURHs": {
-                          "content": "Novo tipo"
-                        }
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "DxCKQ",
-                  "name": "Conteúdo de Gestão",
-                  "width": "fill_container",
-                  "height": "fill_container",
-                  "gap": 20,
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "hypAd",
-                      "name": "Card Tipos Cadastrados",
-                      "width": "fill_container",
-                      "height": "fill_container",
-                      "fill": "$bg-card",
-                      "cornerRadius": 16,
-                      "effect": {
-                        "type": "shadow",
-                        "shadowType": "outer",
-                        "color": "#0000000D",
-                        "offset": {
-                          "x": 0,
-                          "y": 1
-                        },
-                        "blur": 3
-                      },
-                      "layout": "vertical",
-                      "gap": 16,
-                      "padding": 24,
-                      "children": [
-                        {
-                          "type": "frame",
-                          "id": "dnxWA",
-                          "name": "Cabeçalho Tipos Cadastrados",
-                          "width": "fill_container",
-                          "justifyContent": "space_between",
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "Bd5Aq",
-                              "name": "Título e contagem",
-                              "gap": 8,
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "Wuav1",
-                                  "name": "Título Tipos Cadastrados",
-                                  "fill": "$text-primary",
-                                  "content": "Tipos cadastrados",
-                                  "fontFamily": "$font-body",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "u5MlPp",
-                                  "name": "Contagem",
-                                  "fill": "$text-secondary",
-                                  "content": "3",
-                                  "fontFamily": "$font-body",
-                                  "fontSize": 14,
-                                  "fontWeight": "500"
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "PKCBK",
-                          "name": "Aviso Tipos em Uso",
-                          "width": "fill_container",
-                          "fill": "$warning-soft",
-                          "cornerRadius": 10,
-                          "gap": 10,
-                          "padding": [
-                            10,
-                            12
-                          ],
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "icon",
-                              "id": "TGoc7",
-                              "name": "Ícone Aviso",
-                              "width": 15,
-                              "height": 15,
-                              "icon": "lock",
-                              "library": "lucide",
-                              "fill": "$warning"
-                            },
-                            {
-                              "type": "text",
-                              "id": "lRcmI",
-                              "name": "Texto Aviso",
-                              "fill": "$warning",
-                              "content": "Tipos em uso só podem ser removidos após resolver seus vínculos.",
-                              "fontFamily": "$font-body",
-                              "fontSize": 12,
-                              "fontWeight": "600"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "xmZL5",
-                          "name": "Tabela de Tipos",
-                          "clip": true,
-                          "width": "fill_container",
-                          "cornerRadius": 12,
-                          "stroke": "$border-soft",
-                          "strokeWidth": 1,
-                          "layout": "vertical",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "nz56o",
-                              "name": "Cabeçalho da Tabela",
-                              "width": "fill_container",
-                              "fill": "$bg-muted",
-                              "padding": [
-                                12,
-                                16
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "kiVFs",
-                                  "name": "Coluna TIPO",
-                                  "width": 300,
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "imD3x",
-                                      "name": "Rótulo TIPO",
-                                      "fill": "$text-secondary",
-                                      "content": "NOME",
-                                      "fontFamily": "$font-body",
-                                      "fontSize": 11,
-                                      "fontWeight": "600",
-                                      "letterSpacing": 0.5
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "eL1o3",
-                                  "name": "Coluna USO",
-                                  "width": 150,
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "p5YkwS",
-                                      "name": "Rótulo USO",
-                                      "fill": "$text-secondary",
-                                      "content": "USO",
-                                      "fontFamily": "$font-body",
-                                      "fontSize": 11,
-                                      "fontWeight": "600",
-                                      "letterSpacing": 0.5
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "i3j0Y",
-                                  "name": "Coluna STATUS",
-                                  "width": 150,
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "j3i8UK",
-                                      "name": "Rótulo STATUS",
-                                      "fill": "$text-secondary",
-                                      "content": "STATUS",
-                                      "fontFamily": "$font-body",
-                                      "fontSize": 11,
-                                      "fontWeight": "600",
-                                      "letterSpacing": 0.5
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "nBhcw",
-                                  "name": "Coluna AÇÕES",
-                                  "width": "fill_container",
-                                  "justifyContent": "end",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "mnFlW",
-                                      "name": "Rótulo AÇÕES",
-                                      "fill": "$text-secondary",
-                                      "content": "AÇÕES",
-                                      "fontFamily": "$font-body",
-                                      "fontSize": 11,
-                                      "fontWeight": "600",
-                                      "letterSpacing": 0.5
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "type": "frame",
-                              "id": "yjEiZ",
-                              "name": "Linha Cobertura",
-                              "width": "fill_container",
-                              "height": 62,
-                              "stroke": "$border-soft",
-                              "strokeWidth": {
-                                "top": 1
-                              },
-                              "strokeLinejoin": "round",
-                              "padding": [
-                                12,
-                                16
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "uua6n",
-                                  "name": "Tipo Cobertura",
-                                  "width": 300,
-                                  "gap": 10,
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "B3WAH3",
-                                      "name": "Ícone Cobertura",
-                                      "width": 32,
-                                      "height": 32,
-                                      "fill": "$primary-soft",
-                                      "cornerRadius": 8,
-                                      "justifyContent": "center",
-                                      "alignItems": "center",
-                                      "children": [
-                                        {
-                                          "type": "icon",
-                                          "id": "GyXs2",
-                                          "name": "Tag Cobertura",
-                                          "width": 15,
-                                          "height": 15,
-                                          "icon": "tag",
-                                          "library": "lucide",
-                                          "fill": "$primary"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type": "text",
-                                      "id": "Y2nyep",
-                                      "name": "Nome Cobertura",
-                                      "fill": "$text-primary",
-                                      "content": "Cobertura",
-                                      "fontFamily": "$font-body",
-                                      "fontSize": 14,
-                                      "fontWeight": "700"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "mqXTE",
-                                  "name": "Uso Cobertura",
-                                  "width": 150,
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "rFw6z",
-                                      "name": "Valor Uso Cobertura",
-                                      "fill": "$text-secondary",
-                                      "content": "4 vínculos",
-                                      "fontFamily": "$font-body",
-                                      "fontSize": 13,
-                                      "fontWeight": "500"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "fkcit",
-                                  "name": "Status Cobertura",
-                                  "width": 150,
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "snWbU",
-                                      "name": "Badge Cobertura",
-                                      "fill": "$warning-soft",
-                                      "cornerRadius": 999,
-                                      "gap": 6,
-                                      "padding": [
-                                        5,
-                                        9
-                                      ],
-                                      "alignItems": "center",
-                                      "children": [
-                                        {
-                                          "type": "icon",
-                                          "id": "R5sDpg",
-                                          "name": "Ícone Status Cobertura",
-                                          "width": 12,
-                                          "height": 12,
-                                          "icon": "lock",
-                                          "library": "lucide",
-                                          "fill": "$warning"
-                                        },
-                                        {
-                                          "type": "text",
-                                          "id": "D76tPA",
-                                          "name": "Rótulo Status Cobertura",
-                                          "fill": "$warning",
-                                          "content": "Em uso",
-                                          "fontFamily": "$font-body",
-                                          "fontSize": 11,
-                                          "fontWeight": "700"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "HRomN",
-                                  "name": "Ações Cobertura",
-                                  "width": "fill_container",
-                                  "height": "fit_content(16)",
-                                  "justifyContent": "end",
-                                  "alignItems": "center"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "frame",
-                              "id": "TC7eK",
-                              "name": "Linha Extra",
-                              "width": "fill_container",
-                              "height": 62,
-                              "stroke": "$border-soft",
-                              "strokeWidth": {
-                                "top": 1
-                              },
-                              "strokeLinejoin": "round",
-                              "padding": [
-                                12,
-                                16
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "LYS0h",
-                                  "name": "Tipo Extra",
-                                  "width": 300,
-                                  "gap": 10,
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "R57wIM",
-                                      "name": "Ícone Extra",
-                                      "width": 32,
-                                      "height": 32,
-                                      "fill": "$primary-soft",
-                                      "cornerRadius": 8,
-                                      "justifyContent": "center",
-                                      "alignItems": "center",
-                                      "children": [
-                                        {
-                                          "type": "icon",
-                                          "id": "CxIzs",
-                                          "name": "Tag Extra",
-                                          "width": 15,
-                                          "height": 15,
-                                          "icon": "tag",
-                                          "library": "lucide",
-                                          "fill": "$primary"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type": "text",
-                                      "id": "kUjSc",
-                                      "name": "Nome Extra",
-                                      "fill": "$text-primary",
-                                      "content": "Extra",
-                                      "fontFamily": "$font-body",
-                                      "fontSize": 14,
-                                      "fontWeight": "700"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "EMEgl",
-                                  "name": "Uso Extra",
-                                  "width": 150,
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "ZGT1W",
-                                      "name": "Valor Uso Extra",
-                                      "fill": "$text-secondary",
-                                      "content": "2 vínculos",
-                                      "fontFamily": "$font-body",
-                                      "fontSize": 13,
-                                      "fontWeight": "500"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "E2uSN0",
-                                  "name": "Status Extra",
-                                  "width": 150,
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "C5xka",
-                                      "name": "Badge Extra",
-                                      "fill": "$warning-soft",
-                                      "cornerRadius": 999,
-                                      "gap": 6,
-                                      "padding": [
-                                        5,
-                                        9
-                                      ],
-                                      "alignItems": "center",
-                                      "children": [
-                                        {
-                                          "type": "icon",
-                                          "id": "EBisx",
-                                          "name": "Ícone Status Extra",
-                                          "width": 12,
-                                          "height": 12,
-                                          "icon": "lock",
-                                          "library": "lucide",
-                                          "fill": "$warning"
-                                        },
-                                        {
-                                          "type": "text",
-                                          "id": "DfTZ9",
-                                          "name": "Rótulo Status Extra",
-                                          "fill": "$warning",
-                                          "content": "Em uso",
-                                          "fontFamily": "$font-body",
-                                          "fontSize": 11,
-                                          "fontWeight": "700"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "HRGMq",
-                                  "name": "Ações Extra",
-                                  "width": "fill_container",
-                                  "height": "fit_content(16)",
-                                  "justifyContent": "end",
-                                  "alignItems": "center"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "frame",
-                              "id": "c7A3Dn",
-                              "name": "Linha Grátis",
-                              "width": "fill_container",
-                              "height": 62,
-                              "stroke": "$border-soft",
-                              "strokeWidth": {
-                                "top": 1
-                              },
-                              "strokeLinejoin": "round",
-                              "padding": [
-                                12,
-                                16
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "l06FZD",
-                                  "name": "Tipo Grátis",
-                                  "width": 300,
-                                  "gap": 10,
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "Uj1NB",
-                                      "name": "Ícone Grátis",
-                                      "width": 32,
-                                      "height": 32,
-                                      "fill": "$primary-soft",
-                                      "cornerRadius": 8,
-                                      "justifyContent": "center",
-                                      "alignItems": "center",
-                                      "children": [
-                                        {
-                                          "type": "icon",
-                                          "id": "r326Jp",
-                                          "name": "Tag Grátis",
-                                          "width": 15,
-                                          "height": 15,
-                                          "icon": "tag",
-                                          "library": "lucide",
-                                          "fill": "$primary"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type": "text",
-                                      "id": "Iw7TS",
-                                      "name": "Nome Grátis",
-                                      "fill": "$text-primary",
-                                      "content": "Grátis",
-                                      "fontFamily": "$font-body",
-                                      "fontSize": 14,
-                                      "fontWeight": "700"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "qQO3M",
-                                  "name": "Uso Grátis",
-                                  "width": 150,
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "N6nUl4",
-                                      "name": "Valor Uso Grátis",
-                                      "fill": "$text-secondary",
-                                      "content": "Sem vínculos",
-                                      "fontFamily": "$font-body",
-                                      "fontSize": 13,
-                                      "fontWeight": "500"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "bjogH",
-                                  "name": "Status Grátis",
-                                  "width": 150,
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "crWmO",
-                                      "name": "Badge Grátis",
-                                      "fill": "$success-soft",
-                                      "cornerRadius": 999,
-                                      "gap": 6,
-                                      "padding": [
-                                        5,
-                                        9
-                                      ],
-                                      "alignItems": "center",
-                                      "children": [
-                                        {
-                                          "type": "icon",
-                                          "id": "quZXo",
-                                          "name": "Ícone Status Grátis",
-                                          "width": 12,
-                                          "height": 12,
-                                          "icon": "check",
-                                          "library": "lucide",
-                                          "fill": "$success"
-                                        },
-                                        {
-                                          "type": "text",
-                                          "id": "XIxQY",
-                                          "name": "Rótulo Status Grátis",
-                                          "fill": "$success",
-                                          "content": "Disponível",
-                                          "fontFamily": "$font-body",
-                                          "fontSize": 11,
-                                          "fontWeight": "700"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
-                                  "id": "jySGW",
-                                  "name": "Ações Grátis",
-                                  "width": "fill_container",
-                                  "justifyContent": "end",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "SQAAI",
-                                      "name": "Remover Grátis",
-                                      "fill": "$bg-card",
-                                      "cornerRadius": 8,
-                                      "stroke": "#FCA5A5",
-                                      "strokeWidth": 1,
-                                      "gap": 6,
-                                      "padding": [
-                                        7,
-                                        10
-                                      ],
-                                      "alignItems": "center",
-                                      "children": [
-                                        {
-                                          "type": "icon",
-                                          "id": "EETbC",
-                                          "name": "Lixeira Grátis",
-                                          "width": 13,
-                                          "height": 13,
-                                          "icon": "trash-2",
-                                          "library": "lucide",
-                                          "fill": "$danger"
-                                        },
-                                        {
-                                          "type": "text",
-                                          "id": "h3NMh",
-                                          "name": "Rótulo Remover Grátis",
-                                          "fill": "$danger",
-                                          "content": "Remover",
-                                          "fontFamily": "$font-body",
-                                          "fontSize": 12,
-                                          "fontWeight": "700"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "frame",
-          "id": "a8oMnj",
-          "x": 0,
-          "y": 0,
-          "name": "Backdrop do Modal",
-          "width": 1560,
-          "height": 720,
-          "fill": "#11182766"
-        },
-        {
-          "id": "d4nDcj",
-          "type": "ref",
-          "ref": "PUht1",
-          "name": "Modal Novo Tipo — Aberto",
-          "x": 520,
-          "y": 160
-        }
-      ]
-    },
-    {
       "id": "l5ItL",
       "type": "ref",
       "ref": "PUht1",
@@ -83342,6 +82929,1362 @@
         },
         "cFNbd/dURHs": {
           "content": "Salvar alterações"
+        }
+      }
+    },
+    {
+      "type": "frame",
+      "id": "hqaUm",
+      "x": 7717,
+      "y": 597,
+      "name": "Modal Editar Tamanho",
+      "width": 520,
+      "height": 548,
+      "fill": "$bg-card",
+      "cornerRadius": 16,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#00000033",
+        "offset": {
+          "x": 0,
+          "y": 20
+        },
+        "blur": 50
+      },
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "y9fsb0",
+          "name": "Header",
+          "width": "fill_container",
+          "padding": [
+            24,
+            24,
+            0,
+            24
+          ],
+          "justifyContent": "space_between",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Bn9hG",
+              "name": "TitleWrap",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "DN6Im",
+                  "name": "Title",
+                  "fill": "$text-primary",
+                  "content": "Editar Tamanho",
+                  "fontFamily": "$font-body",
+                  "fontSize": 20,
+                  "fontWeight": "800"
+                },
+                {
+                  "type": "text",
+                  "id": "KYWGe",
+                  "name": "Sub",
+                  "fill": "$text-secondary",
+                  "content": "Atualize a opção de venda no PDV.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "LzPnV",
+              "name": "CloseBtn",
+              "width": 32,
+              "height": 32,
+              "cornerRadius": 8,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "Vpy2p",
+                  "name": "I",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "x",
+                  "library": "lucide",
+                  "fill": "$text-secondary"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "L0u8VI",
+          "name": "Body",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            20,
+            24
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "zpXXv",
+              "name": "Field Nome",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "HfC4F",
+                  "name": "L",
+                  "fill": "$text-secondary",
+                  "content": "Nome",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "mZeAG",
+                  "name": "Input",
+                  "width": "fill_container",
+                  "fill": "$bg-card",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    12,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "C4NUA",
+                      "name": "V",
+                      "fill": "$text-primary",
+                      "content": "Médio",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "MpL4d",
+              "name": "Row",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "j17Dl",
+                  "name": "Field Quantidade",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "cGkRQ",
+                      "name": "L",
+                      "fill": "$text-secondary",
+                      "content": "Quantidade",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "j37Tyg",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "fill": "$bg-card",
+                      "cornerRadius": 10,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "xTM4A",
+                          "name": "VW",
+                          "width": "fill_container",
+                          "padding": [
+                            12,
+                            14
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "iQ3zv",
+                              "name": "V",
+                              "fill": "$text-primary",
+                              "content": "500",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "K3t06V",
+                          "name": "Suffix",
+                          "fill": "$bg-muted",
+                          "cornerRadius": [
+                            0,
+                            10,
+                            10,
+                            0
+                          ],
+                          "stroke": "$border",
+                          "strokeWidth": {
+                            "left": 1
+                          },
+                          "strokeLinejoin": "round",
+                          "padding": [
+                            12,
+                            14
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "LrdiM",
+                              "name": "L",
+                              "fill": "$text-secondary",
+                              "content": "ml",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "800"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "qV6xL",
+                  "name": "Field Preço",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "gIHhn",
+                      "name": "L",
+                      "fill": "$text-secondary",
+                      "content": "Preço de venda",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "uv20x",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "fill": "$bg-card",
+                      "cornerRadius": 10,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "H6Q2B",
+                          "name": "Prefix",
+                          "fill": "$bg-muted",
+                          "cornerRadius": [
+                            10,
+                            0,
+                            0,
+                            10
+                          ],
+                          "stroke": "$border",
+                          "strokeWidth": {
+                            "right": 1
+                          },
+                          "strokeLinejoin": "round",
+                          "padding": [
+                            12,
+                            14
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "OjZ81",
+                              "name": "L",
+                              "fill": "$text-secondary",
+                              "content": "R$",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "800"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "GfUrt",
+                          "name": "VW",
+                          "width": "fill_container",
+                          "padding": [
+                            12,
+                            14
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "fEC3O",
+                              "name": "V",
+                              "fill": "$text-primary",
+                              "content": "15,00",
+                              "fontFamily": "$font-body",
+                              "fontSize": 14,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "SoJrE",
+              "type": "ref",
+              "ref": "oFz3s",
+              "name": "Status do tamanho",
+              "width": "fill_container",
+              "descendants": {
+                "s8jRt": {
+                  "content": "Status do tamanho"
+                },
+                "DE0qq": {
+                  "content": "Ativo"
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "jcX68",
+              "name": "Preview",
+              "width": "fill_container",
+              "fill": "$bg-muted",
+              "cornerRadius": 12,
+              "stroke": "$border-soft",
+              "strokeWidth": 1,
+              "padding": [
+                16,
+                20
+              ],
+              "justifyContent": "space_between",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "maT2u",
+                  "name": "M CUSTO",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zyHEg",
+                      "name": "L",
+                      "fill": "$text-secondary",
+                      "content": "CUSTO",
+                      "fontFamily": "$font-body",
+                      "fontSize": 11,
+                      "fontWeight": "700",
+                      "letterSpacing": 0.4
+                    },
+                    {
+                      "type": "text",
+                      "id": "cNLJ8",
+                      "name": "V",
+                      "fill": "$text-primary",
+                      "content": "R$ 4,50",
+                      "fontFamily": "$font-body",
+                      "fontSize": 18,
+                      "fontWeight": "800"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "pw2cs",
+                  "name": "M LUCRO",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "uDzEM",
+                      "name": "L",
+                      "fill": "$text-secondary",
+                      "content": "LUCRO SOBRE VENDA",
+                      "fontFamily": "$font-body",
+                      "fontSize": 11,
+                      "fontWeight": "700",
+                      "letterSpacing": 0.4
+                    },
+                    {
+                      "type": "text",
+                      "id": "WJuJk",
+                      "name": "V",
+                      "fill": "$text-primary",
+                      "content": "R$ 10,50",
+                      "fontFamily": "$font-body",
+                      "fontSize": 18,
+                      "fontWeight": "800"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "C9EM7N",
+                  "name": "M MARGEM",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "yjLCE",
+                      "name": "L",
+                      "fill": "$text-secondary",
+                      "content": "MARGEM SOBRE VENDA",
+                      "fontFamily": "$font-body",
+                      "fontSize": 11,
+                      "fontWeight": "700",
+                      "letterSpacing": 0.4
+                    },
+                    {
+                      "type": "text",
+                      "id": "yZv1Z",
+                      "name": "V",
+                      "fill": "$text-primary",
+                      "content": "70%",
+                      "fontFamily": "$font-body",
+                      "fontSize": 18,
+                      "fontWeight": "800"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "y4Sv23",
+          "name": "Footer",
+          "width": "fill_container",
+          "gap": 12,
+          "padding": [
+            16,
+            24,
+            24,
+            24
+          ],
+          "justifyContent": "end",
+          "children": [
+            {
+              "type": "frame",
+              "id": "TT92Z",
+              "name": "Cancel",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "padding": [
+                10,
+                20
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "VB1r9",
+                  "name": "L",
+                  "fill": "$text-primary",
+                  "content": "Cancelar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "jDgLI",
+              "name": "Btn Adicionar",
+              "fill": "$primary",
+              "cornerRadius": 10,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#6D28D940",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 20
+              },
+              "gap": 6,
+              "padding": [
+                8,
+                14
+              ],
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "iaHfo",
+                  "name": "Ic",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "check",
+                  "library": "lucide",
+                  "fill": "#FFFFFF"
+                },
+                {
+                  "type": "text",
+                  "id": "y5Rsr",
+                  "name": "Lbl",
+                  "fill": "#FFFFFF",
+                  "content": "Salvar alterações",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "O11tq",
+      "x": 8364,
+      "y": 1935,
+      "name": "Dialog Remover Produto",
+      "width": 560,
+      "height": 385,
+      "fill": "$bg-card",
+      "cornerRadius": 16,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#00000033",
+        "offset": {
+          "x": 0,
+          "y": 20
+        },
+        "blur": 50
+      },
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "dVA5R",
+          "name": "Header Remover Produto",
+          "width": "fill_container",
+          "padding": [
+            24,
+            24,
+            0,
+            24
+          ],
+          "justifyContent": "space_between",
+          "children": [
+            {
+              "type": "frame",
+              "id": "pNpzO",
+              "name": "Título Remover Produto",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "gtX8q",
+                  "name": "Título Confirmação Remoção",
+                  "fill": "$text-primary",
+                  "content": "Remover produto?",
+                  "fontFamily": "$font-body",
+                  "fontSize": 20,
+                  "fontWeight": "800"
+                },
+                {
+                  "type": "text",
+                  "id": "EkxZp",
+                  "name": "Descrição Confirmação Remoção",
+                  "fill": "$text-secondary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "“Polpa de Açaí” e todas as configurações abaixo serão removidas juntas. Nenhuma remoção parcial será feita.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ykzhE",
+              "name": "Fechar Confirmação Remoção",
+              "width": 32,
+              "height": 32,
+              "cornerRadius": 8,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "S3ed3",
+                  "name": "Ícone Fechar Remoção",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "x",
+                  "library": "lucide",
+                  "fill": "$text-secondary"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "cmv9c",
+          "name": "Lista Dependências Remoção",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "padding": [
+            20,
+            24
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "Wkxh2",
+              "name": "Item Receitas Remoção",
+              "width": "fill_container",
+              "fill": "$danger-soft",
+              "cornerRadius": 10,
+              "gap": 10,
+              "padding": [
+                10,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "JzF4k",
+                  "name": "Ícone Receitas Remoção",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "book-open",
+                  "library": "lucide",
+                  "fill": "$danger"
+                },
+                {
+                  "type": "text",
+                  "id": "zHKXM",
+                  "name": "Texto Receitas Remoção",
+                  "fill": "$danger",
+                  "content": "3 receitas vinculadas",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "CJANJ",
+              "name": "Item Tamanhos Remoção",
+              "width": "fill_container",
+              "fill": "$danger-soft",
+              "cornerRadius": 10,
+              "gap": 10,
+              "padding": [
+                10,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "a0GrCG",
+                  "name": "Ícone Tamanhos Remoção",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "ruler",
+                  "library": "lucide",
+                  "fill": "$danger"
+                },
+                {
+                  "type": "text",
+                  "id": "edRZU",
+                  "name": "Texto Tamanhos Remoção",
+                  "fill": "$danger",
+                  "content": "3 tamanhos precificados",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "P2Gaa",
+              "name": "Item Acompanhamentos Remoção",
+              "width": "fill_container",
+              "fill": "$danger-soft",
+              "cornerRadius": 10,
+              "gap": 10,
+              "padding": [
+                10,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "YFvS0",
+                  "name": "Ícone Acompanhamentos Remoção",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "layers",
+                  "library": "lucide",
+                  "fill": "$danger"
+                },
+                {
+                  "type": "text",
+                  "id": "PkSqK",
+                  "name": "Texto Acompanhamentos Remoção",
+                  "fill": "$danger",
+                  "content": "5 acompanhamentos vinculados",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ZKuBG",
+              "name": "Item Revendas Remoção",
+              "width": "fill_container",
+              "fill": "$danger-soft",
+              "cornerRadius": 10,
+              "gap": 10,
+              "padding": [
+                10,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "H84yo",
+                  "name": "Ícone Revendas Remoção",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "tag",
+                  "library": "lucide",
+                  "fill": "$danger"
+                },
+                {
+                  "type": "text",
+                  "id": "DtxXQ",
+                  "name": "Texto Revendas Remoção",
+                  "fill": "$danger",
+                  "content": "3 marcas com preços de revenda",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "M5Cu92",
+          "name": "Footer Remover Produto",
+          "width": "fill_container",
+          "gap": 12,
+          "padding": [
+            16,
+            24,
+            24,
+            24
+          ],
+          "justifyContent": "end",
+          "children": [
+            {
+              "type": "frame",
+              "id": "sw7dD",
+              "name": "Cancelar Remoção",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "padding": [
+                10,
+                20
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "uPtBO",
+                  "name": "Rótulo Cancelar Remoção",
+                  "fill": "$text-primary",
+                  "content": "Cancelar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "auKGM",
+              "name": "Confirmar Remover Produto",
+              "fill": "$danger",
+              "cornerRadius": 10,
+              "gap": 6,
+              "padding": [
+                10,
+                20
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "je2AF",
+                  "name": "Ícone Confirmar Remoção",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "trash-2",
+                  "library": "lucide",
+                  "fill": "#FFFFFF"
+                },
+                {
+                  "type": "text",
+                  "id": "YEMIe",
+                  "name": "Rótulo Confirmar Remoção",
+                  "fill": "#FFFFFF",
+                  "content": "Remover produto",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "FyBRF",
+      "x": 11244,
+      "y": 2776,
+      "name": "Dialog Fatores por Marca",
+      "width": 560,
+      "height": 500,
+      "fill": "$bg-card",
+      "cornerRadius": 16,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#00000033",
+        "offset": {
+          "x": 0,
+          "y": 20
+        },
+        "blur": 50
+      },
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "eeIRe",
+          "name": "Header Fatores por Marca",
+          "width": "fill_container",
+          "padding": [
+            24,
+            24,
+            0,
+            24
+          ],
+          "justifyContent": "space_between",
+          "children": [
+            {
+              "type": "frame",
+              "id": "olxaq",
+              "name": "Título Fatores por Marca",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "g6hEY",
+                  "name": "Título Conversão por Marca",
+                  "fill": "$text-primary",
+                  "content": "Confirmar conversão por marca",
+                  "fontFamily": "$font-body",
+                  "fontSize": 20,
+                  "fontWeight": "800"
+                },
+                {
+                  "type": "text",
+                  "id": "d3rArD",
+                  "name": "Descrição Conversão por Marca",
+                  "fill": "$text-secondary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Informe como cada embalagem será convertida para a nova unidade. Valores inválidos impedem a continuação.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "u0652R",
+              "name": "Fechar Fatores por Marca",
+              "width": 32,
+              "height": 32,
+              "cornerRadius": 8,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "i0lROy",
+                  "name": "Ícone Fechar Fatores",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "x",
+                  "library": "lucide",
+                  "fill": "$text-secondary"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "J3SKlG",
+          "name": "Body Fatores por Marca",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            20,
+            24
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "j0lRgZ",
+              "name": "Ajuda Fatores por Marca",
+              "fill": "$text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Fator de conversão por marca — obrigatório e maior que zero.",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "H2QjqY",
+              "name": "Fator Frooty",
+              "width": "fill_container",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Fp6Va",
+                  "name": "Marca Frooty",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "IxC9U",
+                      "name": "Nome Marca Frooty",
+                      "fill": "$text-primary",
+                      "content": "Frooty",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "D1HEU",
+                      "name": "Unidade Marca Frooty",
+                      "fill": "$text-secondary",
+                      "content": "g → nova unidade",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "cfGgZ",
+                  "name": "Input Fator Frooty",
+                  "width": 150,
+                  "fill": "$bg-card",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    12,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Nnu5e",
+                      "name": "Valor Fator Frooty",
+                      "fill": "$text-primary",
+                      "content": "1,00",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "C0Bgiu",
+              "name": "Fator Açaí Brasil",
+              "width": "fill_container",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "qj7P9",
+                  "name": "Marca Açaí Brasil",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Ls9EK",
+                      "name": "Nome Marca Açaí Brasil",
+                      "fill": "$text-primary",
+                      "content": "Açaí Brasil",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "a2PLbA",
+                      "name": "Unidade Marca Açaí Brasil",
+                      "fill": "$text-secondary",
+                      "content": "g → nova unidade",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "WAek3",
+                  "name": "Input Fator Açaí Brasil",
+                  "width": 150,
+                  "fill": "$bg-card",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    12,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "H2PG81",
+                      "name": "Valor Fator Açaí Brasil",
+                      "fill": "$text-primary",
+                      "content": "1,00",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Bgvdo",
+              "name": "Fator Marca da Casa",
+              "width": "fill_container",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "hc4P1",
+                  "name": "Marca Marca da Casa",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zfujy",
+                      "name": "Nome Marca Marca da Casa",
+                      "fill": "$text-primary",
+                      "content": "Marca da Casa",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "YnLUR",
+                      "name": "Unidade Marca Marca da Casa",
+                      "fill": "$text-secondary",
+                      "content": "g → nova unidade",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "NHiMg",
+                  "name": "Input Fator Marca da Casa",
+                  "width": 150,
+                  "fill": "$bg-card",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    12,
+                    14
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "oPl8U",
+                      "name": "Valor Fator Marca da Casa",
+                      "fill": "$text-primary",
+                      "content": "1,00",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "rSXjr",
+              "name": "Aviso Fatores por Marca",
+              "width": "fill_container",
+              "fill": "$warning-soft",
+              "cornerRadius": 10,
+              "gap": 8,
+              "padding": [
+                10,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "FGgHS",
+                  "name": "Ícone Aviso Fatores",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "triangle-alert",
+                  "library": "lucide",
+                  "fill": "$warning"
+                },
+                {
+                  "type": "text",
+                  "id": "F7Na2",
+                  "name": "Texto Aviso Fatores",
+                  "fill": "$warning",
+                  "content": "A alteração será aplicada somente às operações futuras.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "kq0uN",
+          "name": "Footer Fatores por Marca",
+          "width": "fill_container",
+          "gap": 12,
+          "padding": [
+            16,
+            24,
+            24,
+            24
+          ],
+          "justifyContent": "end",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Xsiaz",
+              "name": "Cancelar Fatores",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "padding": [
+                10,
+                20
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "mMYtE",
+                  "name": "Rótulo Cancelar Fatores",
+                  "fill": "$text-primary",
+                  "content": "Cancelar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "lRyLM",
+              "name": "Continuar Fatores",
+              "fill": "$primary",
+              "cornerRadius": 10,
+              "gap": 6,
+              "padding": [
+                10,
+                20
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "ePI8N",
+                  "name": "Ícone Continuar Fatores",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "arrow-right",
+                  "library": "lucide",
+                  "fill": "#FFFFFF"
+                },
+                {
+                  "type": "text",
+                  "id": "DcxvM",
+                  "name": "Rótulo Continuar Fatores",
+                  "fill": "#FFFFFF",
+                  "content": "Continuar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "uQYUR",
+      "type": "ref",
+      "reusable": true,
+      "ref": "FpJbN",
+      "name": "Dialog Remover Tamanho",
+      "x": 7717,
+      "y": 1225,
+      "height": 212,
+      "descendants": {
+        "xN6H3": {
+          "content": "Remover tamanho?"
+        },
+        "G2y6O": {
+          "content": "Médio será removido. O produto ficará indisponível no PDV se não houver outro tamanho ativo."
+        },
+        "difTh": {
+          "content": "Remover tamanho"
+        }
+      }
+    },
+    {
+      "id": "hNvBr",
+      "type": "ref",
+      "ref": "L5eUNa",
+      "name": "Confirmar exclusão de canal",
+      "x": -1989,
+      "y": 5689,
+      "descendants": {
+        "gqu6E": {
+          "icon": "trash-2"
+        },
+        "xN6H3": {
+          "content": "Excluir canal?"
+        },
+        "G2y6O": {
+          "content": "O canal será removido das novas vendas. Os pedidos já registrados continuarão no histórico."
+        },
+        "sIEZe": {
+          "icon": "trash-2"
+        },
+        "difTh": {
+          "content": "Excluir canal"
         }
       }
     }
