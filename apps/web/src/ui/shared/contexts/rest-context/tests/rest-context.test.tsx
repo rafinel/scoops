@@ -22,13 +22,23 @@ describe('Rest Context', () => {
     )
 
     expect(screen.getByText('REST client ready').textContent).toBe('REST client ready')
+    expect(screen.getByText('PDV service ready').textContent).toBe('PDV service ready')
   })
 })
 
 const RestClientConsumer = () => {
-  const { restClient } = useRestContext()
+  const { pdvService, restClient } = useRestContext()
 
   return (
-    <span>{typeof restClient.get === 'function' ? 'REST client ready' : 'Missing'}</span>
+    <>
+      <span>
+        {typeof restClient.get === 'function' ? 'REST client ready' : 'Missing'}
+      </span>
+      <span>
+        {typeof pdvService.listSalesChannels === 'function'
+          ? 'PDV service ready'
+          : 'Missing'}
+      </span>
+    </>
   )
 }

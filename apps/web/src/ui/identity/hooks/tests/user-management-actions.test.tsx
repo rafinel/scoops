@@ -30,6 +30,7 @@ describe('User-management action hooks', () => {
       restClient: {} as never,
       identityService: service as never,
       mrpService: {} as never,
+      pdvService: {} as never,
     })
 
     const { result } = renderHook(() => useInviteUserAction(), {
@@ -61,6 +62,7 @@ describe('User-management action hooks', () => {
       restClient: {} as never,
       identityService: service as never,
       mrpService: {} as never,
+      pdvService: {} as never,
     })
 
     const { result } = renderHook(() => useCancelUserInvitationAction(), {

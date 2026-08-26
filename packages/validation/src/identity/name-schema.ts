@@ -1,3 +1,7 @@
 import { z } from 'zod'
 
-export const nameSchema = z.string().trim().min(1).max(120)
+export const nameSchema = z
+  .string({ error: 'Informe um nome válido.' })
+  .trim()
+  .min(1, 'Informe um nome.')
+  .max(120, 'Use no máximo 120 caracteres.')

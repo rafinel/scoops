@@ -22,7 +22,12 @@ export const SIDEBAR_ITEMS: readonly SidebarItem[] = [
   },
   { icon: 'shopping-cart', label: 'Nova venda', route: 'newSale' },
   { icon: 'clipboard-list', label: 'Pedidos', route: 'orders' },
-  { icon: 'store', label: 'Canais de venda', route: 'salesChannels' },
+  {
+    icon: 'store',
+    label: 'Canais de venda',
+    route: 'salesChannels',
+    profiles: [UserProfile.Manager],
+  },
   { icon: 'tags', label: 'Descontos', route: 'discounts' },
 ]
 

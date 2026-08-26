@@ -131,7 +131,7 @@ who need to assemble and record orders during service.
 
 ### REQ-01 — Sales Channel Management
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** The Manager can create and manage optional channels that
 apply a global percentage to the paid items of an order.

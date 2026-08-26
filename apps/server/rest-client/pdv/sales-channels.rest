@@ -1,0 +1,49 @@
+@baseUrl = http://127.0.0.1:3336
+@accessToken = replace-with-manager-token
+@salesChannelId = 00000000-0000-0000-0000-000000000000
+
+### List sales channels (Manager)
+GET {{baseUrl}}/sales-channels
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### List active sales channels (Manager or Operator)
+GET {{baseUrl}}/sales-channels/active
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Create sales channel
+POST {{baseUrl}}/sales-channels
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Delivery próprio",
+  "percentage": 12.5,
+  "status": "active"
+}
+
+### Update sales channel
+PATCH {{baseUrl}}/sales-channels/{{salesChannelId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Delivery próprio atualizado",
+  "percentage": -5.25
+}
+
+### Inactivate sales channel
+PATCH {{baseUrl}}/sales-channels/{{salesChannelId}}/inactivate
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Reactivate sales channel
+PATCH {{baseUrl}}/sales-channels/{{salesChannelId}}/reactivate
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Delete sales channel
+DELETE {{baseUrl}}/sales-channels/{{salesChannelId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json

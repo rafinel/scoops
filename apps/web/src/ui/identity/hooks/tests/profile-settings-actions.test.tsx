@@ -49,6 +49,7 @@ describe('Profile and settings action hooks', () => {
       restClient: {} as never,
       identityService: service as never,
       mrpService: {} as never,
+      pdvService: {} as never,
     })
     useAuthContextMock.mockReturnValue({
       refreshAccount: refreshAccountMock,
@@ -80,6 +81,7 @@ describe('Profile and settings action hooks', () => {
       restClient: {} as never,
       identityService: service as never,
       mrpService: {} as never,
+      pdvService: {} as never,
     })
     useAuthContextMock.mockReturnValue({
       refreshAccount: vi.fn(),
@@ -111,6 +113,7 @@ describe('Profile and settings action hooks', () => {
       restClient: {} as never,
       identityService: service as never,
       mrpService: {} as never,
+      pdvService: {} as never,
     })
     useAuthContextMock.mockReturnValue({
       retryLocalAccess: retryLocalAccessMock,
@@ -144,6 +147,7 @@ describe('Profile and settings action hooks', () => {
       restClient: {} as never,
       identityService: service as never,
       mrpService: {} as never,
+      pdvService: {} as never,
     })
     useAuthContextMock.mockReturnValue({
       retryLocalAccess: retryLocalAccessMock,
