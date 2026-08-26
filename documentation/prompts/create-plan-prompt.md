@@ -24,6 +24,11 @@ Read the current Spec, its Rule Pack, Architecture and Tooling. Confirm:
 - the Spec is `open` and its revision is current;
 - the Technical and Validation Contracts contain enough detail to schedule work;
 - every required design manifest/reference exists;
+- every affected HTTP route group has a matching REST-client artifact under
+  `apps/server/rest-client/<module>/<route-group>.rest`, or the Spec explicitly declares its
+  creation;
+- each declared REST-client artifact covers every route in its group and has an owning Builder
+  or Orchestrator assignment;
 - every supplied design screenshot has a completed visual inventory, and all required
   supplemental-screenshot suggestions are captured or explicitly accepted as documented
   assumptions;
@@ -137,6 +142,11 @@ paths, RF/CA coverage, observable outcome, applicable Rules (including relevant
 detail. Assign every task to its stable ownership Builder; do not create one Builder per task.
 Paths may not overlap between active Builders.
 
+For every task that changes HTTP routes or request shapes, its paths and exit must also include
+the matching `.rest` artifact. The exit must verify one labeled request for every route in the
+group, current methods/paths/parameters/headers/bodies, reusable local variables and no
+credentials. Record the parity result in `evaluation.md`.
+
 For every task that changes UI or browser behavior, its exit must also require: the exact Spec
 widget tree comparison, applicable keyboard/narrow-viewport states, console and failed-request
 inspection, and a fresh Playwright CLI screenshot for each affected design state. For every task
@@ -171,6 +181,11 @@ Use one coverage table to schedule evidence without repeating the Spec's scenari
 | Visual (optional) | `<state>` | CA-02 | `./design/<reference>.png` | `Playwright test-results path or CI artifact identifier` | `pending` |
 | Runtime | `<integration>` | CA-03 | Integration Contract | `./evaluation.md` | `pending` |
 
+Add a `REST client` row for every affected route-group example file. Its evidence target must
+name the exact `.rest` path and record that its requests were compared with the controller
+routes and shared request schemas. This is artifact-parity evidence, not a substitute for real
+HTTP integration evidence.
+
 Include only applicable rows. For design-backed UI, schedule every supplied screenshot and every
 required supplemental state at its exact viewport and record an independent comparison row for
 each. Do not create a dedicated visual-reference test or use one generic capture as evidence for
@@ -178,21 +193,21 @@ multiple states/viewports. Recommended supplemental screenshots may be deferred 
 manifest records the decision and no acceptance gap remains. Builders and the Orchestrator use
 saved references and do not depend on Pencil MCP.
 
-Schedule exactly one read-only [`Integrated Reviewer`](../agents/reviewer-agent.md) after Builder
+Schedule exactly one read-only [`Implementation Reviewer`](../agents/implementation-reviewer-agent.md) after Builder
 diffs are integrated and before readiness. Do not create Reviewers per Builder, phase, application
 or package. The Reviewer checks
 the complete candidate, cross-Builder contracts and all affected surfaces; when UI is affected,
 it also inspects every required final visual comparison and independently replays high-risk
 Playwright CLI interactions. Its report is not evidence: the Orchestrator verifies each finding,
 records accepted findings in Evaluation and resumes the responsible Builder for correction. After
-any correction, resume the same Integrated Reviewer to recheck the affected candidate; never
+any correction, resume the same Implementation Reviewer to recheck the affected candidate; never
 activate a replacement Reviewer merely because the implementation changed.
 
 Define the final handoff condition: all tasks and phases completed, Spec validation
 commands current on the integrated commit, generated artifacts/migrations reviewed,
 services/accounts/fixtures ready, every `MV-*` executable, transient validation-artifact
 identifiers recorded, the final Spec tree/conformance comparison passed, all additional-screenshot
-decisions resolved, the Integrated Reviewer completed, every verified review finding resolved and
+decisions resolved, every affected REST-client artifact present and route-complete, the Implementation Reviewer completed, every verified review finding resolved and
 no blocking finding active. Then
 route directly to `conclude-spec`.
 
@@ -223,7 +238,7 @@ After creating or materially revising `plan.md`, return a concise summary with:
 - number of waves, phases and tasks;
 - active Builders, reused phase assignments, parallel waves, critical dependencies and
   shared ownership;
-- the scheduled Integrated Reviewer and its affected surfaces;
+- the scheduled Implementation Reviewer and its affected surfaces;
 - planned manual/runtime/visual coverage;
 - active risks or blockers;
 - initial phase and next action.

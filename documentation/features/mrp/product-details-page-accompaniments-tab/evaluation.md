@@ -106,7 +106,7 @@ Current result: Revision-7 compact neutral shared back-link styling and the scop
 
 | Authority | Reference | Result | Notes |
 | --- | --- | --- | --- |
-| SDD workflow | `documentation/sdd-rules.md` | `passed` | Plan-backed execution selected because the current Plan references Spec revision 2; Evaluation is materialized before feature edits. |
+| SDD workflow | `documentation/sdd.md` | `passed` | Plan-backed execution selected because the current Plan references Spec revision 2; Evaluation is materialized before feature edits. |
 | Rule Pack | `documentation/features/mrp/product-details-page-accompaniments-tab/spec.md` §5 | `passed` | The complete selected Rule Pack was recorded, assigned to the scoped Builders, and rechecked against the current candidate. |
 | Architecture and ownership | `documentation/architecture.md`, `documentation/modules.md`, `documentation/prds/mrp.md` | `passed` | Preflight authorities were read; MRP owns links/types and PDV pricing remains excluded. |
 | UI/design | `documentation/design.md`, `documentation/features/mrp/product-details-page-accompaniments-tab/design/manifest.md` | `passed_with_authorized_difference` | VIS-01–VIS-07 have fresh, dimension-checked and visually inspected artifacts. Runtime shell/data differences and the absent narrow Pencil artboard follow the manifest decisions. |

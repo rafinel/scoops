@@ -52,11 +52,14 @@ create a hierarchy between Builders.
 6. Use only the tools that are applicable and available in the current environment.
 7. Run the exact proportional commands defined by the Spec, Plan, and
    `documentation/tooling.md`; do not invent generic validation aliases.
-8. Run integration, Playwright CLI, architecture, and build checks when required
+8. When the assigned scope changes an HTTP route group, update its matching
+   `apps/server/rest-client/<module>/<route-group>.rest` file in the same handoff. Verify one
+   labeled example per route, current request details and reusable non-secret variables.
+9. Run integration, Playwright CLI, architecture, and build checks when required
    by the scope and Validation Contract.
-9. Report documentation, Contract, visual, or scope discrepancies to the
+10. Report documentation, Contract, visual, or scope discrepancies to the
    Orchestrator.
-10. Finish without changing the Spec, Plan, status, or evaluations.
+11. Finish without changing the Spec, Plan, status, or evaluations.
 
 The Builder does not create subagents. The Orchestrator creates every Builder and
 coordinates integration of their diffs.

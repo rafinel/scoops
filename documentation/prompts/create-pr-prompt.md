@@ -11,7 +11,7 @@ and update an existing delivery PR instead of creating a duplicate.
 ## Inputs and authority
 
 Read the implemented Spec or Bug Report, Plan when present, `evaluation.md`, actual diff,
-`documentation/sdd-rules.md`, `documentation/tooling.md`, applicable Rules and
+`documentation/sdd.md`, `documentation/tooling.md`, applicable Rules and
 `documentation/rules/commit-rules.md`. For a feature delivery, confirm that the Evaluation
 uses the canonical `documentation/templates/evaluation.md` structure and that its evidence is
 current for the exact Spec revision.
@@ -107,6 +107,9 @@ the exact Spec revision is frozen, every changed path is within the recorded Bui
 required file/widget tree and contracts match, and no affected evidence is stale. If any check
 fails, stop publication and route the correction through `implement-spec`; do not repair the
 implementation directly in the PR workflow.
+When HTTP routes are affected, include the matching `.rest` files in that scope review and
+confirm their route/example parity is recorded in Evaluation. Do not omit a REST-client file
+from the delivery diff merely because it is manually executed or not compiled by the workspace.
 
 For design-backed UI, use the saved Spec design bundle—not live Pencil—and include an independent
 comparison for every supplied screenshot and every required supplemental screenshot:

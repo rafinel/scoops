@@ -51,7 +51,7 @@ traced to [`documentation/prds/identity.md`](../../../../prds/identity.md), espe
 REQ-02, REQ-03, REQ-04, REQ-07 and REQ-13.
 
 The current workflow authority is
-[`documentation/sdd-rules.md`](../../../sdd-rules.md). It postdates Spec revision 16;
+[`documentation/sdd.md`](../../../sdd.md). It postdates Spec revision 16;
 that revision followed the then-available repository Rules, Architecture, module ownership,
 Identity PRD and Tooling documents.
 

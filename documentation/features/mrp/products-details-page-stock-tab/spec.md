@@ -828,7 +828,7 @@ Builder exits require every command applicable to its layer to pass, generated a
 
 | Rule | Applies to | Evaluated revision |
 | --- | --- | --- |
-| `documentation/sdd-rules.md` | Spec lifecycle/artifact authority | `1ff582e99731171cf5c1af703fa149f5612b0c36` plus user-owned working-tree edits inspected 2026-08-18 |
+| `documentation/sdd.md` | Spec lifecycle/artifact authority | `1ff582e99731171cf5c1af703fa149f5612b0c36` plus user-owned working-tree edits inspected 2026-08-18 |
 | `documentation/rules/code-conventions-rules.md` | All planned TypeScript paths | `1ff582e99731171cf5c1af703fa149f5612b0c36` |
 | `documentation/rules/core-package-rules.md` | Core structures/interfaces/use cases | `1ff582e99731171cf5c1af703fa149f5612b0c36` |
 | `documentation/rules/use-case-testing-rules.md` | Core use-case tests/fakers | `1ff582e99731171cf5c1af703fa149f5612b0c36` |

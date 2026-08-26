@@ -105,7 +105,7 @@ Current result: Revision 1 is complete. Core, Validation, Server persistence/RES
 
 | Authority | Reference | Result | Notes |
 | --- | --- | --- | --- |
-| SDD workflow | `documentation/sdd-rules.md`; `.agents/skills/implement-spec/SKILL.md` | `passed` | Plan-backed execution selected because current `plan.md` references Spec revision 1. Evaluation was materialized before feature-source edits; Playwright health and baseline conformance are recorded. |
+| SDD workflow | `documentation/sdd.md`; `.agents/skills/implement-spec/SKILL.md` | `passed` | Plan-backed execution selected because current `plan.md` references Spec revision 1. Evaluation was materialized before feature-source edits; Playwright health and baseline conformance are recorded. |
 | Module ownership | `documentation/modules.md`; `documentation/prds/mrp.md` | `passed` | Scope remains inside MRP; mapped PRD requirements are REQ-01, REQ-02, REQ-05, REQ-09 and REQ-10, preserving their current `partial` delivery state. |
 | Architecture | `documentation/architecture.md` | `passed` | Core, Validation, Server/Drizzle, REST and Web boundaries are recorded in the Spec and Plan; PDV history remains excluded. |
 | Rule Pack | `documentation/rules.md` and selected rules listed in `spec.md` | `passed` | Selected Core, Validation, database, REST, controller-testing, UI, routing and widget-testing rules were read. No selected Rule contains an `Antipatterns to Avoid` subsection. |

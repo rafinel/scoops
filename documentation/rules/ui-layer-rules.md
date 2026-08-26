@@ -100,6 +100,23 @@ layout, external links and other cases where no shadcn abstraction exists or
 native semantics are required. Preserve accessibility semantics and keyboard
 behavior in either case.
 
+### User-visible values use pt-BR labels
+
+The product interface is presented in Brazilian Portuguese (`pt-BR`). Keep
+domain discriminators, enum members, URL search values, form payloads and REST
+values in their canonical technical representation, but map them to explicit
+pt-BR labels before rendering them anywhere a user can read or hear them.
+
+This applies to text content, badges, table cells, menu items, placeholders,
+accessible names and every state of a form control. Select controls must render
+the localized selected label in the closed trigger as well as in the popup; do
+not assume that a primitive will derive the visible label from `SelectItem`
+children. Use a typed label map or an explicit localized value child when the
+control stores values such as `all`, `active`, `inactive`, `portion` or `resale`.
+Tests must assert the visible or accessible pt-BR label for representative
+default and selected states while preserving the canonical value passed to
+handlers, URLs and services.
+
 ### Shared code conventions
 
 Apply [`code-conventions-rules.md`](code-conventions-rules.md) for function
@@ -748,3 +765,10 @@ and a soft separator between header and body. Preserve the icon and semantic col
 that communicate the dialog's purpose, but do not replace this hierarchy with a
 horizontal icon-and-copy row or omit the header separator. Reserve enough right
 padding that long titles and descriptions cannot collide with the close action.
+
+## Antipatterns to Avoid
+
+- Do not expose raw technical values such as `all`, `active` or `inactive` in
+  user-visible controls. Render `Todos`, `Ativo` or `Inativo` as appropriate,
+  verify the closed control displays that pt-BR label, and keep the raw value
+  only at the state, URL, form or transport boundary.

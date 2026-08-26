@@ -219,7 +219,7 @@ updated_at: 2026-08-18
 - **Paths:** `documentation/features/mrp/products-details-page-stock-tab/evaluation.md`; read-only conformance review of every Spec-owned implementation path and generated artifact. Implementation screenshots remain transient Playwright or CI artifacts.
 - **Contract:** `RF-01–RF-11`; `CA-01–CA-18`.
 - **Outcome:** One integrated commit has current automated, runtime, manual and visual evidence proving the complete Contract, with generated artifacts reviewed and no blocking finding.
-- **Rules:** Entire revision-6 Rule Pack in `spec.md`, `documentation/sdd-rules.md` (living evidence and integrated validation), `documentation/tooling.md` (workspace, Docker and Playwright commands), and `documentation/design.md` (final conformance comparison).
+- **Rules:** Entire revision-6 Rule Pack in `spec.md`, `documentation/sdd.md` (living evidence and integrated validation), `documentation/tooling.md` (workspace, Docker and Playwright commands), and `documentation/design.md` (final conformance comparison).
 - **Exit:** Run every command in the Spec Validation Contract on the integrated implementation; verify `docker compose ps`, Supabase/server/web health, execute `MV-01–MV-05`, and run `pnpm --filter web test:integration -- tests/routes/mrp/products.real.integration.test.ts` against real authenticated services. Record exact request/response, persisted balance/ledger/authorization outcomes, console and failed-request classification, keyboard/narrow behavior, generated migration/route review and every independent screenshot comparison in `evaluation.md`. Stop only application processes started for validation.
 
 ## Validation and handoff

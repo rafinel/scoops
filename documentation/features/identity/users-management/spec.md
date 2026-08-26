@@ -57,7 +57,7 @@ The available authority is the root and web `AGENTS.md`, the selected repository
 Architecture, module ownership, Identity and Communication PRDs, Design System, Tooling,
 Issue #5, the completed auth/onboarding features, current source and the mapped Pencil
 nodes. The current workflow authority is
-[`documentation/sdd-rules.md`](../../../sdd-rules.md).
+[`documentation/sdd.md`](../../../sdd.md).
 
 Two current limitations are material:
 

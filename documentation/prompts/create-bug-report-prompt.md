@@ -22,7 +22,7 @@ Spec or adding a `Delivery Route` section to the Bug Report.
 
 ## Applicable rules
 
-Read `documentation/rules.md`, `documentation/sdd-rules.md`, the relevant PRD, and every Rule
+Read `documentation/rules.md`, `documentation/sdd.md`, the relevant PRD, and every Rule
 selected by dynamic context discovery for the affected layers. Read
 `documentation/architecture.md` and `documentation/modules.md` when module ownership,
 persistence, authentication, asynchronous processing or integrations are involved.

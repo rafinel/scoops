@@ -367,16 +367,21 @@ Ports and local credentials can be overridden in the root `.env`.
 
 ## Helper scripts
 
-The repository currently provides one helper script:
+The repository provides prompt and agent synchronization helpers:
 
 ```bash
 bash scripts/sync-commands.sh
+bash scripts/sync-agents.sh
 ```
 
-It synchronizes Markdown prompts from `documentation/prompts` into command files
+`sync-commands.sh` synchronizes Markdown prompts from `documentation/prompts` into command files
 for Cursor, Claude, and OpenCode, and generates matching local agent skills under
 `.agents/skills`. It creates symlinks when supported and copies files as a
 fallback.
+
+`sync-agents.sh` validates the canonical `documentation/agents/*-agent.md` contracts, removes
+stale managed definitions, and generates matching Codex, Claude Code, and OpenCode agent
+configuration.
 
 ## Commit conventions
 

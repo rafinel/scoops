@@ -20,6 +20,14 @@ Implemented checkbox as delivery state owned by verified product evidence: this 
 return a requirement to unchecked when feedback invalidates that evidence, but it never marks a
 requirement implemented.
 
+When feedback affects an HTTP route group or request contract, inspect the matching
+`apps/server/rest-client/<module>/<route-group>.rest` file as part of the same review. Classify
+the file as an affected implementation artifact, verify that every current controller operation
+has one labeled example with current parameters, headers, body and reusable non-secret variables,
+and include any required REST-client correction in the `implement-spec` scope. Do not resolve the
+conversation or report the implementation as ready while the example file is missing, stale,
+untracked or absent from the Spec/Plan/Evaluation traceability.
+
 Preserve only actual GitHub Issue or direct-request traceability. Do not resolve a
 conversation before its requested action exists on the branch or an evidence-backed response
 has been accepted.
@@ -59,7 +67,8 @@ Spec or Rules while the PR remains open:
 
 Never apply the correction directly from this workflow, even when the comment appears small.
 The resumed `implement-spec` run must repeat Builder activation/scope verification, Spec tree
-conformance, affected Playwright behavior and fresh screenshot comparison where applicable.
+conformance, affected REST-client route/example parity, affected Playwright behavior and fresh
+screenshot comparison where applicable.
 
 ### Contract change
 
@@ -76,8 +85,9 @@ boundaries while the delivery PR remains open:
 5. update Rules, Architecture, Modules, Design or Tooling first when required;
 6. increment the Spec revision, reconcile the design bundle and validation, set
    `evaluation.md` to `status: in_progress`, set a
-   reused Plan to `pending` or a replaced Plan to `superseded`, and return the Spec to `open`
-   without a separate Spec review stage;
+   reused Plan to `pending` or a replaced Plan to `superseded`, run the applicable Spec Reviewer
+   inside the `create-spec` integrity gate, and return the Spec to `open` after verified findings
+   are resolved without a separate user-facing approval stage;
 7. invoke `implement-spec` using the newly selected direct or Plan-backed strategy;
 8. invoke `conclude-spec` again to resolve full-delivery checkboxes, update the existing PR,
    run CI and close the delivery.

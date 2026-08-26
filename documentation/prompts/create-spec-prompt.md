@@ -691,15 +691,21 @@ operation chain before individual files:
 | `<HTTP method and path>` | `<controller.handle>` | `<use case and service structures>` | `<service method or external consumer>` | `<authentication, permission and establishment context>` | `<schema/DTO, serializer and error translator>` |
 
 Then map every affected REST path, including route decorators, boundary-local DTOs,
-controllers, web service adapters, transport utilities and `.rest` examples. Put reusable
-Zod schema declarations under Validation; REST rows name how each operation consumes them:
+controllers, web service adapters, transport utilities and the matching `.rest` example file.
+Every controller route group must have exactly one matching
+`apps/server/rest-client/<module>/<route-group>.rest` artifact; declare it as `Create` when
+absent or `Modify` when an existing example file must change. The file must cover every route
+in the group, not only the highest-risk operation. Put reusable Zod schema declarations under
+Validation; REST rows name how each operation consumes them:
 
 | Path | Change | Declaration/operation | Boundary/security | Request/response/errors | Effects/consumers | Registration/examples |
 | --- | --- | --- | --- | --- | --- | --- |
 | `<exact path>` | `<change>` | `<controller, service, schema, DTO or method/path>` | `<session, actor, permission, tenant and trust boundary>` | `<validation, serialization, compatibility and statuses>` | `<idempotency, use case, service or UI consumer>` | `<decorator, module, Swagger and REST example>` |
 
 Add a request/response field table or short JSON example only when the signature remains
-ambiguous. Do not reproduce unchanged fields.
+ambiguous. Do not reproduce unchanged fields. For each `.rest` row, record its base URL and
+reusable identifiers, request labels, method/path/query/header coverage and representative
+body coverage; do not place secrets or environment credentials in the file.
 
 When a browser-facing service adapter is affected, enumerate its exact methods explicitly.
 For each HTTP operation, name the corresponding Core service/interface method and the web
@@ -958,7 +964,10 @@ For each `MV-*`, provide:
 - evidence target and cleanup.
 
 List applicable commands in a `Command | Purpose/coverage` table and link the expected
-evidence record as `./evaluation.md`.
+evidence record as `./evaluation.md`. Include a REST-client parity check in the validation
+coverage whenever a route group is affected: verify the declared `.rest` path exists, every
+controller operation is represented once, and its examples match the current route and
+request contract.
 
 The Orchestrator executes every applicable `MV-*` with the Playwright CLI. Design-backed
 visual comparison is optional evidence for material acceptance decisions and does not require
@@ -984,10 +993,40 @@ Use these required tables:
 Searchers, Builders, and the Orchestrator read Rule source files directly. Do not
 put implementation attempts, test results or verdicts in revision history.
 
+## Independent Spec review
+
+After the Orchestrator has authored an otherwise open-ready draft and completed its own
+deterministic integrity checks, activate exactly one read-only
+[`Spec Reviewer`](../agents/spec-reviewer-agent.md) before changing the Spec to `open`:
+
+- the review is mandatory for every `complete` Spec and every material amendment to one;
+- for a `compact` Spec, activate the Reviewer only when cross-boundary, generated-artifact,
+  security, concurrency, provider, migration, design or validation risk makes independent review
+  useful;
+- give the Reviewer the exact draft revision, source/mode, governing documents, Rule Pack,
+  relevant repository paths and declarations, planned change classifications, design manifest,
+  accepted assumptions, exclusions, validation commands and known risks;
+- do not give it a Plan, implementation diff or Evaluation as substitutes for authoring
+  authority; those artifacts belong to later workflows;
+- do not create Reviewers per application, package, layer, Rule or design frame.
+
+The Reviewer checks the Contract itself for source/RF/CA traceability, path and declaration
+completeness, ownership and naming, exports and registration, producer-consumer wiring,
+generated artifacts, test ownership, command ordering, design handoff and validation
+executability. It never edits files, resolves ambiguity, asks the user questions directly or
+decides the Spec status.
+
+The report is advisory and transient. Verify every finding against repository authority. Apply
+accepted corrections to the draft, rerun affected integrity checks and resume the same Reviewer
+to recheck the affected Contract. If a finding exposes a material product or technical ambiguity,
+return to the clarification gate before further authoring. The Spec may become `open` only when
+the applicable review is current and every verified Contract finding is resolved. This is part of
+the `create-spec` integrity gate, not a separate user-facing review or approval stage.
+
 ## Integrity gate and handoff
 
-There is no separate Spec review stage. Keep the Spec `draft` while clarification, authority alignment
-or integrity work remains. Before changing it to `open`, verify:
+Keep the Spec `draft` while clarification, authority alignment, integrity work or an applicable
+Spec review remains. Before changing it to `open`, verify:
 
 - every applicable independent research lane was covered, with parallel Searchers used when
   two or more lanes could proceed independently;
@@ -1013,7 +1052,10 @@ or integrity work remains. Before changing it to `open`, verify:
   inline SQL unless explicitly required);
 - executable manual scenarios and real validation commands;
 - valid documentation and Rule Pack paths;
+- every affected HTTP route group has a matching `.rest` path with complete route/example parity;
 - valid Markdown tables, links, Mermaid and artifact structure.
+- the applicable Spec Reviewer inspected the current draft revision, every verified finding was
+  resolved and the same Reviewer rechecked affected corrections.
 
 For every implementation-facing Spec, also verify that the handoff is executable rather than
 interpretive:
@@ -1062,8 +1104,9 @@ For a material amendment before conclusion:
 3. repeat clarification and authority alignment;
 4. refresh affected Contracts, design references and validation coverage;
 5. mark superseded evidence as historical;
-6. rerun the integrity gate and return the Spec directly to `open`;
-7. re-evaluate direct versus Plan-backed `implement-spec` execution.
+6. rerun the integrity gate and the applicable Spec Reviewer against the amended draft;
+7. return the Spec directly to `open` after verified findings are resolved;
+8. re-evaluate direct versus Plan-backed `implement-spec` execution.
 
 Amend the same Spec; do not create another Spec unless the original feature is already
 concluded and the request is a distinct new change.

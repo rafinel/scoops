@@ -25,6 +25,12 @@ Current result: `<concise statement of validated, pending and blocking evidence>
 | --- | --- | --- | --- | --- |
 | `EV-01` | `<Domain, Use cases, Interfaces, Validation, REST, Provision, Database, Messaging, UI or Cross-layer>` | `<exact command or runtime scenario>` | `<observed result>` | `pending` |
 
+When HTTP routes are affected, include a REST-client parity row in this section for each
+matching `apps/server/rest-client/<module>/<route-group>.rest` file. Record the exact path and
+verify that every controller route has one current labeled request with its parameters,
+headers, representative body and reusable non-secret variables. This artifact check is
+separate from real HTTP integration evidence.
+
 ## Manual evidence
 
 | ID | Scenario | Criteria | Expected | Observed | Status |
