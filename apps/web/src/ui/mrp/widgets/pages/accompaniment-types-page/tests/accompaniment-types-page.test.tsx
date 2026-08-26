@@ -33,10 +33,12 @@ const createView = () => ({
   handleActionOpenChange: vi.fn(),
   handleActionSuccess: vi.fn(),
   handleBack: vi.fn(),
+  handleCreateAction: vi.fn(),
+  handleEditAction: vi.fn(),
+  handleRemoveAction: vi.fn(),
   handleRetry: vi.fn(),
   onPageChange: vi.fn(),
   selectedAction: undefined,
-  setSelectedAction: vi.fn(),
 })
 
 describe('AccompanimentTypesPage', () => {
@@ -51,8 +53,8 @@ describe('AccompanimentTypesPage', () => {
     expect(screen.getByRole('heading', { name: 'Tipos de acompanhamento' })).toBeTruthy()
     fireEvent.click(screen.getAllByRole('button', { name: 'Novo tipo' })[0])
     expect(
-      useAccompanimentTypesPageMock.mock.results[0].value.setSelectedAction,
-    ).toHaveBeenCalledWith({ kind: 'create' })
+      useAccompanimentTypesPageMock.mock.results[0].value.handleCreateAction,
+    ).toHaveBeenCalledTimes(1)
   })
 
   it('renders loading, error and populated states', () => {

@@ -15,47 +15,53 @@ export type ProductAccompanimentsSlotProps = {
 export const ProductAccompanimentsSlot = ({
   productId,
 }: ProductAccompanimentsSlotProps) => {
-  const slot = useProductAccompanimentsSlot(productId)
+  const {
+    details,
+    handleActionOpenChange,
+    handleActionSuccess,
+    handleAddAction,
+    handleBack,
+    handleEditAction,
+    handleRemoveAction,
+    handleRetry,
+    isError,
+    isLoading,
+    product,
+    selectedAction,
+  } = useProductAccompanimentsSlot(productId)
   return (
     <ProductDetailsPage
-      onBack={slot.handleBack}
-      product={slot.product}
+      onBack={handleBack}
+      product={product}
       selectedTab='accompaniments'
     >
-      {slot.isLoading ? <ProductAccompanimentsLoading /> : null}
-      {slot.isError ? <ProductAccompanimentsError onRetry={slot.handleRetry} /> : null}
-      {slot.details && !slot.isLoading && !slot.isError ? (
-        slot.details.accompaniments.length === 0 ? (
-          <AccompanimentsEmptyState
-            onAdd={() => slot.setSelectedAction({ kind: 'add' })}
-          />
+      {isLoading ? <ProductAccompanimentsLoading /> : null}
+      {isError ? <ProductAccompanimentsError onRetry={handleRetry} /> : null}
+      {details && !isLoading && !isError ? (
+        details.accompaniments.length === 0 ? (
+          <AccompanimentsEmptyState onAdd={handleAddAction} />
         ) : (
           <>
             <ProductAccompanimentsCard
-              details={slot.details}
-              onAdd={() => slot.setSelectedAction({ kind: 'add' })}
-              onEdit={(item) => slot.setSelectedAction({ kind: 'edit', item })}
-              onRemove={(item) => slot.setSelectedAction({ kind: 'remove', item })}
+              details={details}
+              onAdd={handleAddAction}
+              onEdit={handleEditAction}
+              onRemove={handleRemoveAction}
             />
-            {slot.selectedAction?.kind === 'add' ||
-            slot.selectedAction?.kind === 'edit' ? (
+            {selectedAction?.kind === 'add' || selectedAction?.kind === 'edit' ? (
               <ProductAccompanimentDialog
-                item={
-                  slot.selectedAction.kind === 'edit'
-                    ? slot.selectedAction.item
-                    : undefined
-                }
-                onOpenChange={slot.handleActionOpenChange}
-                onSuccess={slot.handleActionSuccess}
+                item={selectedAction.kind === 'edit' ? selectedAction.item : undefined}
+                onOpenChange={handleActionOpenChange}
+                onSuccess={handleActionSuccess}
                 open
                 productId={productId}
               />
             ) : null}
-            {slot.selectedAction?.kind === 'remove' ? (
+            {selectedAction?.kind === 'remove' ? (
               <RemoveProductAccompanimentDialog
-                item={slot.selectedAction.item}
-                onOpenChange={slot.handleActionOpenChange}
-                onSuccess={slot.handleActionSuccess}
+                item={selectedAction.item}
+                onOpenChange={handleActionOpenChange}
+                onSuccess={handleActionSuccess}
                 open
                 productId={productId}
               />
@@ -63,12 +69,12 @@ export const ProductAccompanimentsSlot = ({
           </>
         )
       ) : null}
-      {slot.details &&
-      slot.details.accompaniments.length === 0 &&
-      slot.selectedAction?.kind === 'add' ? (
+      {details &&
+      details.accompaniments.length === 0 &&
+      selectedAction?.kind === 'add' ? (
         <ProductAccompanimentDialog
-          onOpenChange={slot.handleActionOpenChange}
-          onSuccess={slot.handleActionSuccess}
+          onOpenChange={handleActionOpenChange}
+          onSuccess={handleActionSuccess}
           open
           productId={productId}
         />

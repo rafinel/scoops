@@ -35,9 +35,22 @@ export const ProductCategoriesCard = ({
   product,
   retrySearch,
 }: ProductCategoriesCardProps) => {
-  const state = useProductCategoriesCard(product, retrySearch)
-  const selectedImpact = state.categoryRemovalImpact
-  const dialogOpen = Boolean(state.selectedCategory)
+  const {
+    categoryRemovalImpact,
+    categoryRemovalImpactError,
+    error,
+    handleCategoryClick,
+    handleConfirmRemoval,
+    handleDialogOpenChange,
+    handleRetry,
+    isChangingCategories,
+    isLoadingImpact,
+    isPendingImpact,
+    retryImpact,
+    selectedCategory,
+  } = useProductCategoriesCard(product, retrySearch)
+  const selectedImpact = categoryRemovalImpact
+  const dialogOpen = Boolean(selectedCategory)
 
   return (
     <section
@@ -61,7 +74,7 @@ export const ProductCategoriesCard = ({
         {CATEGORIES.map((category) => {
           const active = product.categories.includes(category)
           const disabled =
-            state.isChangingCategories ||
+            isChangingCategories ||
             (category === 'manufacturable' && product.stockControl === 'by-brand') ||
             (!active &&
               ((category === 'portion' && product.categories.includes('resale')) ||
@@ -72,7 +85,7 @@ export const ProductCategoriesCard = ({
               className={`flex min-h-12 items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none ${active ? CATEGORY_STYLES[category] : 'border-border bg-background hover:bg-muted'} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
               disabled={disabled}
               key={category}
-              onClick={() => state.handleCategoryClick(category)}
+              onClick={() => handleCategoryClick(category)}
               type='button'
             >
               <Icon className='size-4 shrink-0' name={CATEGORY_ICONS[category]} />
@@ -95,45 +108,45 @@ export const ProductCategoriesCard = ({
           Porção e Revenda são mutuamente exclusivas neste produto.
         </p>
       ) : null}
-      {state.error ? (
+      {error ? (
         <div
           className='mt-4 grid gap-2 rounded-xl bg-danger/10 p-3 text-sm text-danger'
           role='alert'
         >
           <div className='flex items-start gap-2'>
             <Icon className='mt-0.5 size-4 shrink-0' name='triangle-alert' />
-            <span>{state.error}</span>
+            <span>{error}</span>
           </div>
           <button
             className='w-fit text-xs font-bold underline-offset-2 hover:underline'
-            onClick={state.handleRetry}
+            onClick={handleRetry}
             type='button'
           >
             Tentar novamente
           </button>
         </div>
       ) : null}
-      {state.isChangingCategories ? (
+      {isChangingCategories ? (
         <p className='mt-3 text-xs font-semibold text-muted-foreground' role='status'>
           Atualizando categorias…
         </p>
       ) : null}
 
-      {state.selectedCategory ? (
+      {selectedCategory ? (
         <CategoryDependencyDialog
           canRemove={selectedImpact?.canRemove ?? false}
-          category={state.selectedCategory}
+          category={selectedCategory}
           dependencies={selectedImpact?.dependencies ?? []}
           error={
-            state.categoryRemovalImpactError
+            categoryRemovalImpactError
               ? 'Não foi possível carregar os vínculos.'
               : undefined
           }
-          isLoading={state.isLoadingImpact || state.isPendingImpact}
-          isPending={state.isChangingCategories}
-          onConfirm={() => void state.handleConfirmRemoval()}
-          onOpenChange={state.handleDialogOpenChange}
-          onRetry={() => void state.retryImpact()}
+          isLoading={isLoadingImpact || isPendingImpact}
+          isPending={isChangingCategories}
+          onConfirm={() => void handleConfirmRemoval()}
+          onOpenChange={handleDialogOpenChange}
+          onRetry={() => void retryImpact()}
           open={dialogOpen}
           productId={product.id}
           productName={product.name}

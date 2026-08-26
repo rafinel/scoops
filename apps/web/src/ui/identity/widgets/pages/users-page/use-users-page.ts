@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 
 import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
@@ -37,6 +37,24 @@ export type UserActionItem = {
 }
 
 export function useUsersPage() {
+  const [isMobileLayout, setIsMobileLayout] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      (typeof window.matchMedia !== 'function' ||
+        window.matchMedia('(max-width: 767px)').matches),
+  )
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
+
+    const mediaQuery = window.matchMedia('(max-width: 767px)')
+    function handleMediaQueryChange() {
+      setIsMobileLayout(mediaQuery.matches)
+    }
+
+    handleMediaQueryChange()
+    mediaQuery.addEventListener('change', handleMediaQueryChange)
+    return () => mediaQuery.removeEventListener('change', handleMediaQueryChange)
+  }, [])
   const searchParams = useSearch({ strict: false }) as Partial<{
     search: string
     status: UserStatus
@@ -82,6 +100,10 @@ export function useUsersPage() {
   }) {
     await invite.inviteUser(input)
     setInviteOpen(false)
+  }
+
+  function handleInviteOpenChange(open: boolean) {
+    setInviteOpen(open)
   }
 
   function getUserActionItems(user: UserSummary): UserActionItem[] {
@@ -243,10 +265,11 @@ export function useUsersPage() {
     page,
     setPage,
     isInviteOpen,
-    setInviteOpen,
+    handleInviteOpenChange,
     inviteUser,
     inviteError: invite.error,
     isInviting: invite.isPending,
+    isMobileLayout,
     actionError,
     actionPending,
     actionState,

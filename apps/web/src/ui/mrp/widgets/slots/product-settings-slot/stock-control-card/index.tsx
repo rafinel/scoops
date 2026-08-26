@@ -7,7 +7,14 @@ import { useStockControlCard } from './use-stock-control-card'
 export type StockControlCardProps = { product: Product }
 
 export const StockControlCard = ({ product }: StockControlCardProps) => {
-  const state = useStockControlCard(product)
+  const {
+    allowNegativeStock,
+    error,
+    handleAllowNegativeStockChange,
+    handleRetry,
+    handleRevert,
+    isPending,
+  } = useStockControlCard(product)
   const stockControlLabel = product.stockControl === 'by-brand' ? 'Por marca' : 'Único'
 
   return (
@@ -41,11 +48,11 @@ export const StockControlCard = ({ product }: StockControlCardProps) => {
         <label className='flex cursor-pointer items-center gap-3 rounded-xl border border-border-soft p-4 text-sm font-bold'>
           <input
             aria-label='Permitir estoque negativo'
-            checked={state.allowNegativeStock}
+            checked={allowNegativeStock}
             className='peer sr-only'
-            disabled={state.isPending}
+            disabled={isPending}
             onChange={(event) =>
-              void state.handleAllowNegativeStockChange(event.target.checked)
+              void handleAllowNegativeStockChange(event.target.checked)
             }
             type='checkbox'
           />
@@ -53,20 +60,20 @@ export const StockControlCard = ({ product }: StockControlCardProps) => {
           <span>Permitir estoque negativo</span>
         </label>
       </div>
-      {state.error ? (
+      {error ? (
         <div className='mt-3 grid gap-2 text-sm font-semibold text-danger' role='alert'>
-          <p>{state.error}</p>
+          <p>{error}</p>
           <div className='flex flex-wrap gap-3'>
             <button
               className='w-fit text-xs underline-offset-2 hover:underline'
-              onClick={state.handleRetry}
+              onClick={handleRetry}
               type='button'
             >
               Tentar novamente
             </button>
             <button
               className='w-fit text-xs text-muted-foreground underline-offset-2 hover:underline'
-              onClick={state.handleRevert}
+              onClick={handleRevert}
               type='button'
             >
               Reverter

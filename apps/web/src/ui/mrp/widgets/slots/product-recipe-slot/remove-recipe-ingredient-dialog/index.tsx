@@ -26,7 +26,7 @@ export const RemoveRecipeIngredientDialog = ({
   open,
   productId,
 }: RemoveRecipeIngredientDialogProps) => {
-  const dialog = useRemoveRecipeIngredientDialog(productId)
+  const { error, handleRemove, isPending } = useRemoveRecipeIngredientDialog(productId)
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className='overflow-visible'>
@@ -41,20 +41,19 @@ export const RemoveRecipeIngredientDialog = ({
             será removido da receita. CMV e máximo produzível serão recalculados.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        {dialog.error ? (
+        {error ? (
           <p className='px-6 pt-4 text-sm font-semibold text-destructive' role='alert'>
-            {dialog.error}
+            {error}
           </p>
         ) : null}
         <AlertDialogFooter className='gap-3 sm:flex-nowrap'>
-          <AlertDialogCancel disabled={dialog.isPending}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
           <Button
-            disabled={dialog.isPending}
-            onClick={() => void dialog.handleRemove(ingredient.id, onSuccess)}
+            disabled={isPending}
+            onClick={() => void handleRemove(ingredient.id, onSuccess)}
             variant='destructive'
           >
-            <Icon name='trash-2' />{' '}
-            {dialog.isPending ? 'Removendo…' : 'Remover ingrediente'}
+            <Icon name='trash-2' /> {isPending ? 'Removendo…' : 'Remover ingrediente'}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

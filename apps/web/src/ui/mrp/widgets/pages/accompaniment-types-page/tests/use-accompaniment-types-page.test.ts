@@ -31,7 +31,7 @@ describe('useAccompanimentTypesPage', () => {
     const onPageChange = vi.fn()
     const { result } = renderHook(() => useAccompanimentTypesPage(1, onPageChange))
 
-    act(() => result.current.setSelectedAction({ kind: 'edit', item }))
+    act(() => result.current.handleEditAction(item))
     expect(result.current.selectedAction).toEqual({ kind: 'edit', item })
     act(() => result.current.handleActionOpenChange(false))
     expect(result.current.selectedAction).toBeUndefined()

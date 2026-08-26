@@ -28,7 +28,10 @@ export const RemoveAccompanimentTypeDialog = ({
   onSuccess,
   open,
 }: RemoveAccompanimentTypeDialogProps) => {
-  const dialog = useRemoveAccompanimentTypeDialog({ onSuccess, typeId: item.type.id })
+  const { actionError, handleConfirm, isPending } = useRemoveAccompanimentTypeDialog({
+    onSuccess,
+    typeId: item.type.id,
+  })
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -42,22 +45,22 @@ export const RemoveAccompanimentTypeDialog = ({
             ser removidos.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        {dialog.actionError ? (
+        {actionError ? (
           <p className='px-6 pb-4 text-sm font-semibold text-destructive' role='alert'>
-            {dialog.actionError}
+            {actionError}
           </p>
         ) : null}
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={dialog.isPending}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
-            disabled={dialog.isPending}
+            disabled={isPending}
             onClick={(event) => {
               event.preventDefault()
-              void dialog.handleConfirm()
+              void handleConfirm()
             }}
             variant='destructive'
           >
-            {dialog.isPending ? 'Removendo…' : 'Remover'}
+            {isPending ? 'Removendo…' : 'Remover'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

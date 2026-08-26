@@ -47,7 +47,21 @@ export const RecipeIngredientDialog = ({
   const formatCurrency = useFormatCurrency()
   const formatDecimal = useFormatDecimal()
   const formatQuantity = useFormatQuantity()
-  const form = useRecipeIngredientDialog({
+  const {
+    actionError,
+    candidates,
+    errors,
+    handleIngredientProductChange,
+    handleQuantityChange,
+    handleSubmit,
+    ingredientProductId,
+    isPending,
+    previewCogsPercentage,
+    previewLineCost,
+    register,
+    selectedProduct,
+    selectedSource,
+  } = useRecipeIngredientDialog({
     existingProductIds,
     ingredient,
     open,
@@ -74,7 +88,7 @@ export const RecipeIngredientDialog = ({
             </DialogDescription>
           </div>
         </DialogHeader>
-        <form className='grid gap-5' onSubmit={form.handleSubmit}>
+        <form className='grid gap-5' onSubmit={handleSubmit}>
           <div className='grid gap-5 p-6'>
             {isEdit ? (
               <Label className='grid gap-2 font-bold'>
@@ -85,16 +99,16 @@ export const RecipeIngredientDialog = ({
               <Label className='grid gap-2 font-bold'>
                 Produto
                 <Select
-                  onValueChange={form.handleIngredientProductChange}
-                  value={form.ingredientProductId}
+                  onValueChange={handleIngredientProductChange}
+                  value={ingredientProductId}
                 >
                   <SelectTrigger aria-label='Produto' className='w-full'>
                     <SelectValue placeholder='Selecione um ingrediente'>
-                      {form.selectedProduct?.product.name}
+                      {selectedProduct?.product.name}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {form.candidates.map(({ product, source, unavailableReason }) => (
+                    {candidates.map(({ product, source, unavailableReason }) => (
                       <SelectItem disabled={!source} key={product.id} value={product.id}>
                         {unavailableReason
                           ? `${product.name} — ${unavailableReason}`
@@ -103,7 +117,7 @@ export const RecipeIngredientDialog = ({
                     ))}
                   </SelectContent>
                 </Select>
-                {form.candidates.length === 0 ? (
+                {candidates.length === 0 ? (
                   <span className='text-sm text-muted-foreground'>
                     Não há ingredientes elegíveis com custo ou fonte atual.
                   </span>
@@ -119,56 +133,54 @@ export const RecipeIngredientDialog = ({
               Quantidade
               <div className='flex overflow-hidden rounded-xl border focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
                 <Input
-                  {...form.register('quantity', {
-                    onChange: form.handleQuantityChange,
+                  {...register('quantity', {
+                    onChange: handleQuantityChange,
                     valueAsNumber: true,
                   })}
                   aria-describedby={
-                    form.errors.quantity ? 'recipe-ingredient-quantity-error' : undefined
+                    errors.quantity ? 'recipe-ingredient-quantity-error' : undefined
                   }
-                  aria-invalid={Boolean(form.errors.quantity)}
+                  aria-invalid={Boolean(errors.quantity)}
                   className='h-11 border-0 shadow-none focus-visible:ring-0'
                   inputMode='decimal'
                   min='0'
                   type='number'
                 />
                 <span className='grid min-w-16 place-items-center border-l bg-muted px-3 text-sm font-bold text-muted-foreground'>
-                  {ingredient?.unit ?? form.selectedProduct?.product.unit ?? unit}
+                  {ingredient?.unit ?? selectedProduct?.product.unit ?? unit}
                 </span>
               </div>
             </Label>
-            {form.selectedSource || ingredient ? (
+            {selectedSource || ingredient ? (
               <div className='grid grid-cols-2 gap-3 rounded-xl bg-muted p-4 text-sm sm:grid-cols-4'>
                 <p>
                   <span className='block text-xs text-muted-foreground'>FONTE</span>
-                  {ingredient?.ingredientBrandName ?? form.selectedSource?.name}
+                  {ingredient?.ingredientBrandName ?? selectedSource?.name}
                 </p>
                 <p>
                   <span className='block text-xs text-muted-foreground'>CUSTO ATUAL</span>
-                  {formatCurrency(
-                    ingredient?.unitCost ?? form.selectedSource?.unitCost ?? 0,
-                  )}
+                  {formatCurrency(ingredient?.unitCost ?? selectedSource?.unitCost ?? 0)}
                 </p>
                 <p>
                   <span className='block text-xs text-muted-foreground'>LINHA / CMV</span>
                   {ingredient
                     ? `${formatCurrency(ingredient.lineCost)} · ${formatDecimal(ingredient.cogsPercentage)}%`
-                    : `${formatCurrency(form.previewLineCost)} · ${formatDecimal(form.previewCogsPercentage)}%`}
+                    : `${formatCurrency(previewLineCost)} · ${formatDecimal(previewCogsPercentage)}%`}
                 </p>
                 <p>
                   <span className='block text-xs text-muted-foreground'>ESTOQUE</span>
                   {ingredient
                     ? formatQuantity(ingredient.currentBalance, ingredient.unit)
-                    : form.selectedSource
+                    : selectedSource
                       ? formatQuantity(
-                          form.selectedSource.currentBalance,
-                          form.selectedProduct?.product.unit ?? unit,
+                          selectedSource.currentBalance,
+                          selectedProduct?.product.unit ?? unit,
                         )
                       : null}
                 </p>
               </div>
             ) : null}
-            {form.errors.quantity ? (
+            {errors.quantity ? (
               <p
                 className='text-sm font-semibold text-destructive'
                 id='recipe-ingredient-quantity-error'
@@ -177,28 +189,25 @@ export const RecipeIngredientDialog = ({
                 Informe uma quantidade maior que zero.
               </p>
             ) : null}
-            {form.actionError ? (
+            {actionError ? (
               <p className='text-sm font-semibold text-destructive' role='alert'>
-                {form.actionError}
+                {actionError}
               </p>
             ) : null}
           </div>
           <DialogFooter>
             <DialogClose
-              render={
-                <Button disabled={form.isPending} type='button' variant='outline' />
-              }
+              render={<Button disabled={isPending} type='button' variant='outline' />}
             >
               Cancelar
             </DialogClose>
             <Button
               disabled={
-                form.isPending ||
-                (!isEdit && (!form.ingredientProductId || !form.selectedSource))
+                isPending || (!isEdit && (!ingredientProductId || !selectedSource))
               }
               type='submit'
             >
-              {form.isPending ? 'Salvando…' : isEdit ? 'Salvar alterações' : 'Adicionar'}
+              {isPending ? 'Salvando…' : isEdit ? 'Salvar alterações' : 'Adicionar'}
             </Button>
           </DialogFooter>
         </form>

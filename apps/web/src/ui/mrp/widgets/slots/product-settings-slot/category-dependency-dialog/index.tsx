@@ -1,5 +1,4 @@
 import type { ProductCategory } from '@scoops/core/mrp/domain/structures'
-import type { ProductCategoryDependency } from '@scoops/core/mrp/domain/structures'
 
 import { Button } from '@/ui/shadcn/button'
 import {
@@ -16,6 +15,7 @@ import {
   useCategoryDependencyDialog,
   type CategoryDependencyDialogProps,
 } from './use-category-dependency-dialog'
+import { DependencyItem } from './dependency-item'
 
 const CATEGORY_LABELS: Record<ProductCategory, string> = {
   ingredient: 'Ingrediente',
@@ -89,30 +89,12 @@ export const CategoryDependencyDialog = (props: CategoryDependencyDialogProps) =
           {!props.isLoading && !props.error && props.dependencies.length > 0 ? (
             <ul aria-label='Cadastros relacionados' className='grid gap-2'>
               {props.dependencies.map((dependency) => (
-                <li
-                  className='flex items-center gap-3 rounded-xl border border-border-soft p-3'
+                <DependencyItem
+                  canRemove={props.canRemove}
+                  dependency={dependency}
                   key={`${dependency.kind}-${dependency.productId}`}
-                >
-                  <span className='grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground'>
-                    <Icon name='link' />
-                  </span>
-                  <div className='min-w-0 flex-1'>
-                    <p className='font-bold'>{dependency.productName}</p>
-                    <p className='text-xs text-muted-foreground'>
-                      {dependencyLabel(dependency)}
-                    </p>
-                  </div>
-                  {!props.canRemove ? (
-                    <Button
-                      onClick={() => handleDependencyAction(dependency)}
-                      size='sm'
-                      type='button'
-                      variant='outline'
-                    >
-                      {dependencyActionLabel(dependency)}
-                    </Button>
-                  ) : null}
-                </li>
+                  onAction={() => handleDependencyAction(dependency)}
+                />
               ))}
             </ul>
           ) : null}
@@ -141,37 +123,4 @@ export const CategoryDependencyDialog = (props: CategoryDependencyDialogProps) =
       </DialogContent>
     </Dialog>
   )
-}
-
-function dependencyLabel(dependency: ProductCategoryDependency) {
-  switch (dependency.kind) {
-    case 'consuming-recipe':
-      return 'Usado em receita'
-    case 'owned-recipe':
-      return 'Receita própria'
-    case 'portion-size':
-      return `${dependency.sizeCount} tamanho(s) configurado(s)`
-    case 'portion-accompaniment':
-      return `${dependency.linkCount} acompanhamento(s) vinculado(s)`
-    case 'accompaniment-user':
-      return 'Usado como acompanhamento'
-    case 'resale-configuration':
-      return `${dependency.configurationCount} configuração(ões) de revenda`
-  }
-}
-
-function dependencyActionLabel(dependency: ProductCategoryDependency) {
-  switch (dependency.kind) {
-    case 'consuming-recipe':
-    case 'owned-recipe':
-      return 'Abrir receita'
-    case 'portion-size':
-      return 'Abrir tamanhos'
-    case 'portion-accompaniment':
-      return 'Abrir acompanhamentos'
-    case 'accompaniment-user':
-      return 'Ver produtos'
-    case 'resale-configuration':
-      return 'Abrir revenda'
-  }
 }

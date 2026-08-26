@@ -9,6 +9,7 @@ import {
 } from '@/ui/shadcn/dialog'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
+import { ImpactRow } from './impact-row'
 import {
   useRemoveProductDialog,
   type RemoveProductDialogProps,
@@ -17,11 +18,21 @@ import {
 export type { RemoveProductDialogProps }
 
 export const RemoveProductDialog = (props: RemoveProductDialogProps) => {
-  const state = useRemoveProductDialog(props)
-  const impact = state.productRemovalImpact
+  const {
+    handleConfirm,
+    handleOpenChange,
+    hasProductRemovalImpactError,
+    isLoadingProductRemovalImpact,
+    isPendingProductRemovalImpact,
+    isRemovingProduct,
+    productRemovalImpact,
+    removeProductError,
+    retryProductRemovalImpact,
+  } = useRemoveProductDialog(props)
+  const impact = productRemovalImpact
 
   return (
-    <Dialog open={props.open} onOpenChange={state.handleOpenChange}>
+    <Dialog open={props.open} onOpenChange={handleOpenChange}>
       <DialogContent className='max-h-[calc(100vh-1rem)] overflow-y-auto data-open:animate-none sm:max-w-[560px]'>
         <DialogHeader className='grid gap-3 border-b border-border-soft p-4 pr-14 sm:p-6 sm:pr-14'>
           <span className='grid size-11 place-items-center rounded-xl bg-danger/10 text-danger'>
@@ -35,7 +46,7 @@ export const RemoveProductDialog = (props: RemoveProductDialogProps) => {
           </div>
         </DialogHeader>
         <div className='grid gap-4 p-4 sm:p-6'>
-          {state.isLoadingProductRemovalImpact || state.isPendingProductRemovalImpact ? (
+          {isLoadingProductRemovalImpact || isPendingProductRemovalImpact ? (
             <div
               aria-label='Carregando impacto da remoção'
               className='grid gap-3'
@@ -45,14 +56,14 @@ export const RemoveProductDialog = (props: RemoveProductDialogProps) => {
               <div className='h-12 animate-pulse rounded-xl bg-muted motion-reduce:animate-none' />
             </div>
           ) : null}
-          {state.hasProductRemovalImpactError ? (
+          {hasProductRemovalImpactError ? (
             <div
               className='grid gap-3 rounded-xl bg-danger/10 p-4 text-sm text-danger'
               role='alert'
             >
               <span>Não foi possível verificar o impacto da remoção.</span>
               <Button
-                onClick={() => void state.retryProductRemovalImpact()}
+                onClick={() => void retryProductRemovalImpact()}
                 type='button'
                 variant='outline'
               >
@@ -60,7 +71,7 @@ export const RemoveProductDialog = (props: RemoveProductDialogProps) => {
               </Button>
             </div>
           ) : null}
-          {impact && !state.hasProductRemovalImpactError ? (
+          {impact && !hasProductRemovalImpactError ? (
             <>
               <div className='grid gap-2 rounded-xl border border-border-soft p-4'>
                 <p className='font-extrabold'>Serão removidos</p>
@@ -91,7 +102,7 @@ export const RemoveProductDialog = (props: RemoveProductDialogProps) => {
               </p>
             </>
           ) : null}
-          {state.removeProductError ? (
+          {removeProductError ? (
             <p className='text-sm font-semibold text-danger' role='alert'>
               Não foi possível remover o produto. Corrija o impedimento e tente novamente.
             </p>
@@ -99,34 +110,25 @@ export const RemoveProductDialog = (props: RemoveProductDialogProps) => {
         </div>
         <DialogFooter>
           <Button
-            disabled={state.isRemovingProduct}
-            onClick={() => state.handleOpenChange(false)}
+            disabled={isRemovingProduct}
+            onClick={() => handleOpenChange(false)}
             type='button'
             variant='outline'
           >
             Cancelar
           </Button>
-          {impact && !state.hasProductRemovalImpactError ? (
+          {impact && !hasProductRemovalImpactError ? (
             <Button
               color='danger'
-              disabled={state.isRemovingProduct}
-              onClick={() => void state.handleConfirm()}
+              disabled={isRemovingProduct}
+              onClick={() => void handleConfirm()}
               type='button'
             >
-              {state.isRemovingProduct ? 'Removendo…' : 'Remover produto'}
+              {isRemovingProduct ? 'Removendo…' : 'Remover produto'}
             </Button>
           ) : null}
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
-}
-
-function ImpactRow({ label, value }: { label: string; value: number }) {
-  return (
-    <div className='flex items-center justify-between gap-4 border-t border-border-soft pt-2 first:border-t-0 first:pt-0'>
-      <span className='text-sm text-muted-foreground'>{label}</span>
-      <strong className='text-sm'>{value}</strong>
-    </div>
   )
 }

@@ -41,8 +41,20 @@ export const ProduceProductDialog = ({
 }: ProduceProductDialogProps) => {
   const formatCurrency = useFormatCurrency()
   const formatQuantity = useFormatQuantity()
-  const dialog = useProduceProductDialog({ open, productId: product.id, recipe })
-  const preview = dialog.preview.data
+  const {
+    error,
+    handleConfirm,
+    handleModeChange,
+    isInputValid,
+    isPending,
+    mode,
+    preview: previewQuery,
+    quantity,
+    setValue,
+    validationError,
+    value,
+  } = useProduceProductDialog({ open, productId: product.id, recipe })
+  const preview = previewQuery.data
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='min-w-0 max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-2xl'>
@@ -62,26 +74,26 @@ export const ProduceProductDialog = ({
           <div className='grid gap-3 sm:grid-cols-[1fr_auto]'>
             <div className='grid grid-cols-2 rounded-xl bg-muted p-1'>
               <Button
-                aria-pressed={dialog.mode === 'batches'}
+                aria-pressed={mode === 'batches'}
                 className={
-                  dialog.mode === 'batches'
+                  mode === 'batches'
                     ? 'bg-card font-semibold text-foreground shadow-sm ring-1 ring-border/70'
                     : 'text-muted-foreground hover:bg-background/70'
                 }
-                onClick={() => dialog.handleModeChange('batches')}
+                onClick={() => handleModeChange('batches')}
                 type='button'
                 variant='ghost'
               >
                 Lote
               </Button>
               <Button
-                aria-pressed={dialog.mode === 'quantity'}
+                aria-pressed={mode === 'quantity'}
                 className={
-                  dialog.mode === 'quantity'
+                  mode === 'quantity'
                     ? 'bg-card font-semibold text-foreground shadow-sm ring-1 ring-border/70'
                     : 'text-muted-foreground hover:bg-background/70'
                 }
-                onClick={() => dialog.handleModeChange('quantity')}
+                onClick={() => handleModeChange('quantity')}
                 type='button'
                 variant='ghost'
               >
@@ -91,48 +103,48 @@ export const ProduceProductDialog = ({
             <div className='flex overflow-hidden rounded-xl border focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
               <Input
                 aria-describedby={
-                  dialog.validationError ? 'production-quantity-error' : undefined
+                  validationError ? 'production-quantity-error' : undefined
                 }
-                aria-invalid={Boolean(dialog.validationError)}
-                aria-label={dialog.mode === 'batches' ? 'Lotes' : 'Quantidade'}
+                aria-invalid={Boolean(validationError)}
+                aria-label={mode === 'batches' ? 'Lotes' : 'Quantidade'}
                 className='h-11 border-0 shadow-none focus-visible:ring-0'
                 inputMode='decimal'
                 min='0'
-                onChange={(event) => dialog.setValue(event.target.value)}
-                step={dialog.mode === 'batches' ? '1' : '0.001'}
+                onChange={(event) => setValue(event.target.value)}
+                step={mode === 'batches' ? '1' : '0.001'}
                 type='number'
-                value={dialog.value}
+                value={value}
               />
               <span className='grid min-w-16 place-items-center border-l bg-muted px-3 text-sm font-bold'>
-                {dialog.mode === 'batches' ? 'lotes' : product.unit}
+                {mode === 'batches' ? 'lotes' : product.unit}
               </span>
             </div>
           </div>
           <p className='text-sm text-primary'>
-            Equivale a {formatQuantity(dialog.quantity || 0, product.unit)}
+            Equivale a {formatQuantity(quantity || 0, product.unit)}
           </p>
-          {dialog.validationError ? (
+          {validationError ? (
             <p
               className='text-sm font-semibold text-destructive'
               id='production-quantity-error'
               role='alert'
             >
-              {dialog.validationError}
+              {validationError}
             </p>
           ) : null}
-          {dialog.preview.isPending ? (
+          {previewQuery.isPending ? (
             <p aria-busy='true' role='status'>
               Calculando projeção…
             </p>
           ) : null}
-          {dialog.preview.isError ? (
+          {previewQuery.isError ? (
             <div
               role='alert'
               className='rounded-xl border border-destructive/30 bg-destructive/5 p-4'
             >
               Não foi possível calcular a produção.{' '}
               <Button
-                onClick={() => void dialog.preview.refetch()}
+                onClick={() => void previewQuery.refetch()}
                 size='sm'
                 variant='outline'
               >
@@ -222,28 +234,26 @@ export const ProduceProductDialog = ({
               ) : null}
             </>
           ) : null}
-          {dialog.error ? (
+          {error ? (
             <p
               className='break-words text-sm font-semibold text-destructive'
               role='alert'
             >
-              {dialog.error}
+              {error}
             </p>
           ) : null}
         </div>
         <DialogFooter className='min-w-0'>
           <DialogClose
-            render={
-              <Button disabled={dialog.isPending} type='button' variant='outline' />
-            }
+            render={<Button disabled={isPending} type='button' variant='outline' />}
           >
             Cancelar
           </DialogClose>
           <Button
-            disabled={dialog.isPending || !dialog.isInputValid || !preview?.canProduce}
-            onClick={() => void dialog.handleConfirm(onSuccess)}
+            disabled={isPending || !isInputValid || !preview?.canProduce}
+            onClick={() => void handleConfirm(onSuccess)}
           >
-            {dialog.isPending ? 'Confirmando…' : 'Confirmar produção'}
+            {isPending ? 'Confirmando…' : 'Confirmar produção'}
           </Button>
         </DialogFooter>
       </DialogContent>
