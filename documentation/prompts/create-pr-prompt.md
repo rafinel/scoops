@@ -160,8 +160,9 @@ the user whether an in-Contract discrepancy should be fixed.
 Include these sections in this order:
 
 - **Objective** — problem, expected outcome, scope and explicit exclusions;
-- **Related issues** — real GitHub Issues and their relationship, or `None` (use closing
-  keywords only when closure is intended);
+- **Related issues** — real GitHub Issues and their relationship, or `None`. When the delivery
+  completes an issue, use the GitHub closing keyword `Closes #<number>`; use `Refs #<number>`
+  only for related issues that should remain open.
 - **PRD and Spec traceability** — applicable PRD, fully/partially delivered `REQ-*`
   requirements and their current Implemented-checkbox disposition, Spec, Plan, exact revision
   and covered `RF-*`/`CA-*` criteria. Report the state established by `conclude-spec`; this
