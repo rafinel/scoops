@@ -9,6 +9,7 @@ import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { RecipeEmptyState } from '../recipe-empty-state'
 import { RecipeIngredientsTable } from '../recipe-ingredients-table'
+import { Metric } from './metric'
 import { useProductRecipeCard } from './use-product-recipe-card'
 
 export type ProductRecipeCardProps = {
@@ -28,7 +29,8 @@ export const ProductRecipeCard = ({
   const { product, recipe } = details
   const formatCurrency = useFormatCurrency()
   const formatQuantity = useFormatQuantity()
-  const card = useProductRecipeCard(product.id, recipe)
+  const { error, handleSaveYield, isPending, setYieldQuantity, yieldQuantity } =
+    useProductRecipeCard(product.id, recipe)
   const hasIngredients = Boolean(recipe?.ingredients.length)
   return (
     <section className='rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5 sm:p-6'>
@@ -54,15 +56,15 @@ export const ProductRecipeCard = ({
         >
           Rendimento estimado por:
           <Input
-            aria-describedby={card.error ? 'recipe-yield-error' : undefined}
-            aria-invalid={Boolean(card.error)}
+            aria-describedby={error ? 'recipe-yield-error' : undefined}
+            aria-invalid={Boolean(error)}
             className='h-9 min-w-0 bg-card'
             id='recipe-yield-quantity'
             inputMode='decimal'
             min='0'
-            onChange={(event) => card.setYieldQuantity(event.target.value)}
+            onChange={(event) => setYieldQuantity(event.target.value)}
             type='number'
-            value={card.yieldQuantity}
+            value={yieldQuantity}
           />
         </label>
         <span className='grid place-items-center rounded-lg bg-card px-3 py-2 text-sm font-bold sm:rounded-none sm:border-l sm:bg-transparent sm:py-0'>
@@ -70,22 +72,22 @@ export const ProductRecipeCard = ({
         </span>
         <Button
           className='w-full sm:ml-1 sm:w-auto'
-          disabled={card.isPending}
-          onClick={() => void card.handleSaveYield()}
+          disabled={isPending}
+          onClick={() => void handleSaveYield()}
           size='sm'
           type='button'
           variant='outline'
         >
-          {card.isPending ? 'Salvando…' : 'Salvar'}
+          {isPending ? 'Salvando…' : 'Salvar'}
         </Button>
       </div>
-      {card.error ? (
+      {error ? (
         <p
           className='mt-2 text-sm font-semibold text-destructive'
           id='recipe-yield-error'
           role='alert'
         >
-          {card.error}
+          {error}
         </p>
       ) : null}
       {recipe ? (
@@ -138,27 +140,5 @@ export const ProductRecipeCard = ({
         </div>
       )}
     </section>
-  )
-}
-
-function Metric({
-  attention,
-  detail,
-  label,
-  value,
-}: {
-  attention?: boolean
-  detail: string
-  label: string
-  value: string
-}) {
-  return (
-    <div
-      className={`rounded-2xl p-5 ${attention ? 'bg-warning-soft text-warning' : 'bg-muted'}`}
-    >
-      <p className='text-xs font-bold tracking-wide uppercase'>{label}</p>
-      <p className='mt-2 text-xl font-extrabold'>{value}</p>
-      <p className='mt-1 text-xs'>{detail}</p>
-    </div>
   )
 }

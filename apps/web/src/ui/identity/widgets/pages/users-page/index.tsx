@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 
 import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
@@ -30,29 +29,7 @@ import { UserActionsMenu } from './user-actions-menu'
 import { UserInviteDialog } from './user-invite-dialog'
 import { useUsersPage } from './use-users-page'
 
-function useIsMobileUsersLayout() {
-  const [isMobile, setIsMobile] = useState(
-    () =>
-      typeof window !== 'undefined' &&
-      (typeof window.matchMedia !== 'function' ||
-        window.matchMedia('(max-width: 767px)').matches),
-  )
-
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return
-
-    const mediaQuery = window.matchMedia('(max-width: 767px)')
-    const update = () => setIsMobile(mediaQuery.matches)
-    update()
-    mediaQuery.addEventListener('change', update)
-    return () => mediaQuery.removeEventListener('change', update)
-  }, [])
-
-  return isMobile
-}
-
 export const UsersPage = () => {
-  const isMobileLayout = useIsMobileUsersLayout()
   const {
     actionDialogMessage,
     actionDialogTitle,
@@ -69,13 +46,14 @@ export const UsersPage = () => {
     isError,
     isInviting,
     isInviteOpen,
+    isMobileLayout,
     isLoading,
     page,
     pagination,
     profile,
     refetch,
     search,
-    setInviteOpen,
+    handleInviteOpenChange,
     setPage,
     setProfile,
     setSearch,
@@ -101,7 +79,7 @@ export const UsersPage = () => {
         </div>
         <Button
           className='min-h-11 rounded-[10px] px-4 text-sm font-extrabold shadow-primary hover:brightness-105'
-          onClick={() => setInviteOpen(true)}
+          onClick={() => handleInviteOpenChange(true)}
           type='button'
         >
           <Icon name='user-plus' className='size-[18px]' />
@@ -361,7 +339,7 @@ export const UsersPage = () => {
       <UserInviteDialog
         error={inviteError instanceof Error ? inviteError : null}
         isPending={isInviting}
-        onClose={() => setInviteOpen(false)}
+        onClose={() => handleInviteOpenChange(false)}
         onSubmit={inviteUser}
         open={isInviteOpen}
       />

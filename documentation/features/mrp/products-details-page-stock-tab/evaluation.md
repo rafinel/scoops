@@ -131,7 +131,7 @@ Required runtime resources: Docker PostgreSQL/Supabase, authenticated manager an
 
 | Authority | Reference | Result | Notes |
 | --- | --- | --- | --- |
-| SDD | `documentation/sdd-rules.md` | `passed` | Revision/status/Plan/evaluation kickoff reconciled before source edits |
+| SDD | `documentation/sdd.md` | `passed` | Revision/status/Plan/evaluation kickoff reconciled before source edits |
 | Architecture/modules | `documentation/architecture.md`; `documentation/modules.md` | `passed` | MRP ownership, tenant scope, server authority and atomic writes preserved across conformance checkpoints |
 | Rule Pack | `documentation/rules/code-conventions-rules.md`; `core-package-rules.md`; `use-case-testing-rules.md`; `validation-package-rules.md`; `rest-layer-rules.md`; `controllers-testing-rules.md`; `database-layer-rules.md`; `ui-layer-rules.md`; `web-app-routing-rules.md`; `widget-testing-rules.md` | `passed` | Task-specific and integrated gates passed; no blocking rule deviation remains |
 | Tooling | `documentation/tooling.md` | `passed` | Workspace, Docker, migration, static, unit, controller and Playwright CLI workflows completed |

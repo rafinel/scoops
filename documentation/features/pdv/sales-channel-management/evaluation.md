@@ -150,7 +150,7 @@ passed for head `34d2159af17a50f22abde6fc8d1d5c02f37ee8d9`; the Evaluation is co
 
 | Authority | Reference | Result | Notes |
 | --- | --- | --- | --- |
-| SDD rules | `documentation/rules/sdd-rules.md` | `passed` | Plan-backed execution, canonical Evaluation, stable ownership Builders and conformance gates are recorded here. |
+| SDD rules | `documentation/sdd.md` | `passed` | Plan-backed execution, canonical Evaluation, stable ownership Builders and conformance gates are recorded here. |
 | Rule Pack | `documentation/rules/code-conventions-rules.md`; `core-package-rules.md`; `use-case-testing-rules.md`; `validation-package-rules.md`; `rest-layer-rules.md`; `controllers-testing-rules.md`; `database-layer-rules.md`; `ui-layer-rules.md`; `web-app-routing-rules.md`; `widget-testing-rules.md` | `passed` | Selected rules were read in full and mapped to Plan tasks; no selected Rule contains an additional Antipatterns section. |
 | Architecture and modules | `documentation/architecture.md`; `documentation/modules.md`; `documentation/prds/pdv.md` | `passed` | PDV owns domain, persistence, REST and management UI; tenant/auth/history boundaries are recorded in the Spec and Plan. |
 | Design | `documentation/design.md`; `design/manifest.md`; `design/*.png` | `passed` | Six supplied references exist; supplemental VIS-07–VIS-09 decisions and fresh VIS-01–VIS-11 captures are present and inspected at their declared viewports. |

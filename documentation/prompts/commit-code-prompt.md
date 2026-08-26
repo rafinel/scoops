@@ -59,6 +59,8 @@ Identify:
 - which files belong to the requested task
 - unrelated or pre-existing user changes
 - generated files, lockfile changes, migrations, and configuration updates
+- matching `apps/server/rest-client/<module>/<route-group>.rest` files whenever an HTTP route
+  group changes; verify they are intentionally scoped, route-complete and free of credentials
 - files that may contain secrets or machine-specific data
 
 Do not assume every dirty file belongs to the same task. If ownership remains

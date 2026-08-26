@@ -55,7 +55,7 @@ describe('useProductAccompanimentsSlot', () => {
 
     const { result } = renderHook(() => useProductAccompanimentsSlot('product-1'))
 
-    act(() => result.current.setSelectedAction({ kind: 'add' }))
+    act(() => result.current.handleAddAction())
     expect(result.current.selectedAction).toEqual({ kind: 'add' })
     act(() => result.current.handleActionOpenChange(false))
     expect(result.current.selectedAction).toBeUndefined()

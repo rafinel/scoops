@@ -8,7 +8,7 @@ This document is the entry point for the rules under `documentation/rules`. Read
 it before starting repository work, then load only the rule documents that match
 the task's paths and architectural impact.
 
-For feature SDD, also read [`sdd-rules.md`](sdd-rules.md). It defines the canonical PRD
+For feature SDD, also read [`sdd.md`](sdd.md). It defines the canonical PRD
 requirement contract and Implemented-checkbox lifecycle, artifact ownership, statuses,
 workflow transitions and the mandatory SDD authority preflight; this router still owns
 selection of the task-specific Rule Pack.

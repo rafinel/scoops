@@ -1,4 +1,4 @@
-# Specification-Driven Development Rules
+# Specification-Driven Development
 
 Specification-Driven Development (SDD) is the delivery workflow used for Scoops features
 and feature-scoped changes. It keeps product intent, implementation contracts, execution
@@ -79,7 +79,7 @@ enter conclusion; it is not PRD closure and does not authorize a checkbox change
 
 ## Roles
 
-SDD uses four roles. Prompt names such as `create-spec` or `conclude-spec` are workflows,
+SDD uses five roles. Prompt names such as `create-spec` or `conclude-spec` are workflows,
 not additional agents.
 
 | Role | Responsibility | Restrictions |
@@ -87,11 +87,14 @@ not additional agents.
 | Orchestrator | The main agent selects workflows, owns artifact state, creates subagents, integrates Builder diffs, runs deterministic sensors, records evidence, publishes the PR and routes failures or changes. | Does not delegate integration or the official evidence verdict, skip required sensors or claim evidence that was not executed. |
 | [Builder](./agents/builder-agent.md) | Implements one bounded direct, phase, task or fix scope against the current Spec revision and Rules. | Does not edit Spec, Plan, Evaluation, PRD or Rules; does not review its own work or publish delivery artifacts. |
 | [Searcher](./agents/searcher-agent.md) | Researches one bounded codebase boundary and returns exact read-only evidence for Spec authoring. | Does not edit files, decide the Contract or create subagents. |
-| [Integrated Reviewer](./agents/reviewer-agent.md) | Independently reviews one integrated Plan-backed candidate against the Spec, Rules, design references and current evidence. | Does not edit files, implement fixes, create subagents or decide the official evidence verdict. |
+| [Spec Reviewer](./agents/spec-reviewer-agent.md) | Independently audits one otherwise open-ready draft Spec against its source authorities, Rule Pack, real repository paths, design references and validation taxonomy. | Does not edit files, resolve product or technical ambiguity, create subagents or decide the Spec status. |
+| [Implementation Reviewer](./agents/implementation-reviewer-agent.md) | Independently reviews one integrated Plan-backed implementation candidate against the Spec, Rules, design references and current evidence. | Does not edit files, implement fixes, create subagents or decide the official evidence verdict. |
 
-Builders are scoped subagents created by the Orchestrator in the current task. No subagent
-creates another subagent, fork or user-owned task. Spec quality is enforced by clarification,
-authoring-integrity checks, deterministic sensors and Playwright CLI evidence.
+Builders and Reviewers are scoped subagents created by the Orchestrator in the current task.
+No subagent creates another subagent, fork or user-owned task. Spec quality is enforced by
+clarification, authoring-integrity checks and the applicable independent Spec Reviewer;
+implementation quality is enforced by deterministic sensors, Playwright CLI evidence and the
+applicable Implementation Reviewer.
 
 ## Durable artifacts
 
@@ -160,13 +163,14 @@ for a revised Spec that replaces the Plan or switches to direct implementation.
 
 ```mermaid
 flowchart TD
-    A["PRD, GitHub Issue, report or direct request"] --> B["create-spec"]
-    B --> C{"Implementation route"}
+    A["PRD, GitHub Issue, report or direct request"] --> B["create-spec authoring and integrity"]
+    B --> SR["Applicable Spec Reviewer and verified corrections"]
+    SR --> C{"Implementation route"}
     C -->|Small cohesive delivery| D["implement-spec: direct strategy"]
     C -->|Dependent or risky delivery| E["create-plan"]
     E --> F["implement-spec: Plan-backed strategy"]
     D --> G["Integrated sensors and Playwright CLI evidence"]
-    F --> R["One Integrated Reviewer and integrated sensors"]
+    F --> R["One Implementation Reviewer and integrated sensors"]
     G --> H{"ready evidence"}
     R --> H
     H -->|No| I["Responsible Builder correction and refreshed evidence"]
@@ -230,9 +234,20 @@ its owning layer. Reusable Zod schemas belong to Validation; their application c
 remain in their respective boundary layers. Migration paths include the complete expected
 SQL body.
 
+REST-client examples are first-class implementation artifacts. Whenever a Spec adds or
+changes an HTTP route group, its matching `apps/server/rest-client/<module>/<route-group>.rest`
+file is part of the REST Contract and must appear as an exact allowed path with a `Create` or
+`Modify` classification. The file must cover every route in that group with the current method,
+path parameters, headers, representative request body and reusable variables. The Plan assigns
+the file to the REST-owning Builder (or the Orchestrator when it is a shared generated or
+coordination artifact), and Evaluation records the route/example parity check. A route group
+is not implementation-complete while its REST-client file is missing, stale or untracked.
+
 The Spec remains `draft` until its metadata, RF/CA traceability, technical map, design
-bundle, manual scenarios, commands, links and Rule Pack pass integrity checks. There is no
-separate Spec review stage. A valid Spec moves directly to `open` and its author summary recommends:
+bundle, manual scenarios, commands, links and Rule Pack pass Orchestrator integrity checks and
+the applicable independent [`Spec Reviewer`](./agents/spec-reviewer-agent.md) findings are
+verified and resolved. This review is part of `create-spec`, not a separate user-facing stage or
+approval verdict. A valid Spec then moves directly to `open` and its author summary recommends:
 
 - direct `implement-spec` for a small cohesive change with stable dependencies;
 - `create-plan` followed by Plan-backed `implement-spec` for dependent phases, shared
@@ -290,7 +305,7 @@ current Plan references the Spec revision. The common workflow:
 4. activate bounded direct or stable ownership Builders with RF/CA coverage, allowed paths,
    assigned phases, Rules, Architecture and design references;
 5. inspect and integrate Builder diffs, then run repository-approved integrated sensors; for
-   Plan-backed execution, activate one read-only Integrated Reviewer in parallel;
+   Plan-backed execution, activate one read-only Implementation Reviewer in parallel;
 6. verify applicable review findings and record exact results, findings and validation-artifact
    freshness in Evaluation;
 7. resume the responsible Builder for corrections when possible and rerun only invalidated
@@ -301,7 +316,7 @@ stable ownership Builders from affected application, package and module boundari
 Builder across related phases and defaults to at most three concurrent implementation Builders.
 It does not create agents linearly with phases, tasks or package count. Builders run in parallel
 only when their contracts are stable and paths do not overlap. After integration, exactly one
-Integrated Reviewer checks the complete candidate, including UI and server-backed surfaces when
+Implementation Reviewer checks the complete candidate, including UI and server-backed surfaces when
 affected; no per-Builder, per-phase, per-application, per-package or specialist Reviewers are
 created. The Orchestrator coordinates root configuration, lockfiles, shared files, generated
 artifacts, integration and the official evidence verdict.
@@ -333,19 +348,22 @@ and stable evidence IDs. An Evaluation records:
 ## 6. Integrated validation
 
 After the integrated implementation is current, Plan-backed execution activates one read-only
-Integrated Reviewer while the Orchestrator runs the required Core, Validation, Server, Web,
+Implementation Reviewer while the Orchestrator runs the required Core, Validation, Server, Web,
 database, build and Playwright CLI sensors. Direct execution does not require a separate Reviewer
 unless the Spec or another repository authority requires one. The Reviewer covers cross-Builder
 contracts and, when UI is affected, inspects every final visual comparison and independently
 replays high-risk Playwright CLI interactions. The Orchestrator compares every transient
 implementation capture with its original saved reference at the exact viewport and state, records
-each CA and MV result, and inspects console, network and persisted-state evidence.
+each CA and MV result, inspects console, network and persisted-state evidence, and verifies every
+affected REST-client example file against the current controller operations and shared request
+schemas. REST-client parity is a separate artifact check and does not replace real HTTP integration
+evidence.
 
 On a failed sensor or material discrepancy, findings are recorded, the responsible Builder is
 resumed when possible, affected evidence is invalidated and the sensors are rerun on the updated
 implementation. A scoped Builder Fix is activated only when the responsible Builder cannot be
 resumed or the correction is genuinely independent. Reviewer reports are not evidence; the
-Orchestrator verifies and records accepted findings, and the same Integrated Reviewer rechecks any
+Orchestrator verifies and records accepted findings, and the same Implementation Reviewer rechecks any
 corrected candidate. When all required evidence and applicable review results are current and no
 verified blocking finding remains, Evaluation becomes `ready`; the Plan route also completes its
 integrated phase and Plan before routing to conclusion.

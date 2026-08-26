@@ -15,6 +15,15 @@ export function useAccompanimentTypesPage(
   const router = useRouter()
   const query = useAccompanimentTypesQuery({ page, pageSize: 10 })
   const [selectedAction, setSelectedAction] = useState<AccompanimentTypesAction>()
+  function handleCreateAction() {
+    setSelectedAction({ kind: 'create' })
+  }
+  function handleEditAction(item: AccompanimentTypeListItem) {
+    setSelectedAction({ kind: 'edit', item })
+  }
+  function handleRemoveAction(item: AccompanimentTypeListItem) {
+    setSelectedAction({ kind: 'remove', item })
+  }
   function handleActionOpenChange(open: boolean) {
     if (!open) setSelectedAction(undefined)
   }
@@ -34,9 +43,11 @@ export function useAccompanimentTypesPage(
     handleActionOpenChange,
     handleActionSuccess,
     handleBack,
+    handleCreateAction,
+    handleEditAction,
+    handleRemoveAction,
     handleRetry: () => void query.refetch(),
     onPageChange,
     selectedAction,
-    setSelectedAction,
   }
 }

@@ -9,7 +9,15 @@ import { useInternalNotesCard } from './use-internal-notes-card'
 export type InternalNotesCardProps = { product: Product }
 
 export const InternalNotesCard = ({ product }: InternalNotesCardProps) => {
-  const state = useInternalNotesCard(product)
+  const {
+    error,
+    handleBlur,
+    handleRetry,
+    handleRevert,
+    internalNotes,
+    isPending,
+    setInternalNotes,
+  } = useInternalNotesCard(product)
 
   return (
     <section
@@ -29,44 +37,44 @@ export const InternalNotesCard = ({ product }: InternalNotesCardProps) => {
       <Label className='mt-5 grid gap-2 text-sm font-bold'>
         Observação
         <Textarea
-          aria-describedby={state.error ? 'internal-notes-error' : undefined}
-          aria-invalid={Boolean(state.error)}
-          disabled={state.isPending}
+          aria-describedby={error ? 'internal-notes-error' : undefined}
+          aria-invalid={Boolean(error)}
+          disabled={isPending}
           maxLength={2000}
-          onBlur={() => void state.handleBlur()}
-          onChange={(event) => state.setInternalNotes(event.target.value)}
+          onBlur={() => void handleBlur()}
+          onChange={(event) => setInternalNotes(event.target.value)}
           placeholder='Adicione uma observação que ajude a equipe.'
-          value={state.internalNotes}
+          value={internalNotes}
         />
-        {state.error ? (
+        {error ? (
           <span
             className='text-sm font-semibold text-danger'
             id='internal-notes-error'
             role='alert'
           >
-            {state.error}
+            {error}
           </span>
         ) : null}
       </Label>
-      {state.error ? (
+      {error ? (
         <div className='flex flex-wrap gap-3 text-xs font-bold'>
           <button
             className='text-primary underline-offset-2 hover:underline'
-            onClick={state.handleRetry}
+            onClick={handleRetry}
             type='button'
           >
             Tentar novamente
           </button>
           <button
             className='text-muted-foreground underline-offset-2 hover:underline'
-            onClick={state.handleRevert}
+            onClick={handleRevert}
             type='button'
           >
             Reverter
           </button>
         </div>
       ) : null}
-      {state.isPending ? (
+      {isPending ? (
         <p className='mt-2 text-xs font-semibold text-muted-foreground'>Salvando…</p>
       ) : null}
     </section>

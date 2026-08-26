@@ -3,13 +3,13 @@ feature: "pdv/combo-discount-management"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 10
-status: ready
+status: completed
 updated_at: 2026-08-26
 ---
 
 # Evaluation
 
-Current result: Spec revision 10 is ready for conclusion. The Discounts list search, Type and Status controls now stack at full available width below `lg`, while the desktop arrangement and canonical filter behavior remain unchanged. Core, Validation, Server and Web checks/builds, focused component/controller/job tests, fresh route evidence, the independent detail-route check and Impeccable detector passed. The full Server aggregate run remains operationally unbounded in this checkout, and the full Web aggregate run has one unrelated dirty-worktree MRP timeout; neither affects the scoped delivery evidence.
+Current result: Spec revision 10 is completed through PR `#26` at head `87f59606b3ed537b99751f383cf0cd79d777f241`. The Discounts list search, Type and Status controls stack at full available width below `lg`, while the desktop arrangement and canonical filter behavior remain unchanged. Core, Validation, Server and Web checks/builds, focused component/controller/job tests, fresh route evidence, the independent detail-route check, Impeccable detector and all applicable PR CI checks passed. The full local Server aggregate run remains operationally unbounded in the dirty checkout, and the full local Web aggregate run has one unrelated dirty-worktree MRP timeout; both are recorded as accepted limitations because the scoped evidence and clean-commit CI passed.
 
 ## Acceptance matrix
 
@@ -204,6 +204,12 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| `PRCI-01` | Core CI (`push`) | `87f59606b3ed537b99751f383cf0cd79d777f241` | `success` | [run 33013615191](https://github.com/rafinel/scoops/actions/runs/33013615191) |
+| `PRCI-02` | Core CI (`pull_request`) | `87f59606b3ed537b99751f383cf0cd79d777f241` | `success` | [run 33013648969](https://github.com/rafinel/scoops/actions/runs/33013648969) |
+| `PRCI-03` | Server CI (`push`) | `87f59606b3ed537b99751f383cf0cd79d777f241` | `success` | [run 33013615279](https://github.com/rafinel/scoops/actions/runs/33013615279) |
+| `PRCI-04` | Server CI (`pull_request`) | `87f59606b3ed537b99751f383cf0cd79d777f241` | `success` | [run 33013648706](https://github.com/rafinel/scoops/actions/runs/33013648706) |
+| `PRCI-05` | Web CI (`push`) | `87f59606b3ed537b99751f383cf0cd79d777f241` | `success` | [run 33013615224](https://github.com/rafinel/scoops/actions/runs/33013615224) |
+| `PRCI-06` | Web CI (`pull_request`) | `87f59606b3ed537b99751f383cf0cd79d777f241` | `success` | [run 33013648871](https://github.com/rafinel/scoops/actions/runs/33013648871) |
 
 ## History
 
@@ -231,3 +237,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-08-26` | Reopened revision `9` for `FND-012`; Builder Web reconciled stale manual fixed-price errors after derived total changes and aligned validation with inactive non-saving pricing. Focused consumer tests, Web sensors and the create-route Playwright suite passed with a fresh inspected screenshot. |
 | `2026-08-26` | Reopened revision `9` for `FND-013`; Resale brand options changed from pressed buttons to shared Checkbox controls while preserving single-brand/canonical ID behavior. Focused tests, Web sensors, four create-route scenarios and fresh visual inspection passed. |
 | `2026-08-26` | Spec revision `10` completed the requested mobile adaptation: Discounts list search/Type/Status controls now use full available width and stack below `lg`; desktop layout and filter transport semantics remain unchanged. Focused component/route checks, fresh mobile visual inspection and the Impeccable detector passed. |
+| `2026-08-26` | PR `#26` was published from commit `87f59606b3ed537b99751f383cf0cd79d777f241`; Core, Server and Web push/pull-request CI runs passed, and the Evaluation was closed with the accepted dirty-checkout aggregate-test limitations retained as evidence. |

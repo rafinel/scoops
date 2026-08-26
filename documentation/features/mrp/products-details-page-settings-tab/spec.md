@@ -264,7 +264,7 @@ and Web phases only after the shared structures and HTTP boundary are fixed.
 | Rule source | Why selected | Binding implications |
 | --- | --- | --- |
 | `documentation/rules.md` | Root router for every changed path. | Re-run routing if scope expands. |
-| `documentation/rules/sdd-rules.md` | Open Spec and later Plan/evaluation lifecycle. | Spec is the contract; acceptance and exact paths remain traceable. |
+| `documentation/sdd.md` | Open Spec and later Plan/evaluation lifecycle. | Spec is the contract; acceptance and exact paths remain traceable. |
 | `documentation/rules/code-conventions-rules.md` | All TypeScript changes. | One exported type/class per file, aliases, import grouping, no barrel bypass. |
 | `documentation/rules/core-package-rules.md` | New MRP structures, interfaces and use cases. | Framework-free domain; semantic use cases; actor and tenant facts explicit. |
 | `documentation/rules/use-case-testing-rules.md` | Core behavior and transaction branches. | Fakes, arranged contexts and success/error/rollback coverage. |

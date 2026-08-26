@@ -23683,61 +23683,6 @@
                           ]
                         }
                       ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "r3gzQt",
-                      "name": "Exemplo de cálculo",
-                      "fill": "$primary-soft",
-                      "cornerRadius": 10,
-                      "gap": 8,
-                      "padding": [
-                        9,
-                        12
-                      ],
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "m8OV71",
-                          "name": "Preço base",
-                          "fill": "$text-secondary",
-                          "content": "R$ 20,00",
-                          "fontFamily": "$font-body",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "nWxx1",
-                          "name": "Operação",
-                          "fill": "$primary",
-                          "content": "+ 12%",
-                          "fontFamily": "$font-body",
-                          "fontSize": 12,
-                          "fontWeight": "800"
-                        },
-                        {
-                          "type": "icon",
-                          "id": "zvXxV",
-                          "name": "Seta do cálculo",
-                          "width": 14,
-                          "height": 14,
-                          "icon": "arrow-right",
-                          "library": "lucide",
-                          "fill": "$primary"
-                        },
-                        {
-                          "type": "text",
-                          "id": "G4KCM",
-                          "name": "Preço ajustado",
-                          "fill": "$primary",
-                          "content": "R$ 22,40",
-                          "fontFamily": "$font-body",
-                          "fontSize": 13,
-                          "fontWeight": "900"
-                        }
-                      ]
                     }
                   ]
                 },

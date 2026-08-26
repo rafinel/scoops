@@ -1,8 +1,5 @@
-import { useState } from 'react'
-
 import type {
   ProductBrandStock,
-  StockAdjustmentType,
   StockTransactionType,
 } from '@scoops/core/mrp/domain/structures'
 
@@ -33,9 +30,7 @@ import { Icon } from '@/ui/shared/widgets/components/icon'
 import { Pagination } from '@/ui/shared/widgets/components/pagination'
 import { cn } from '@/ui/shared/lib/utils'
 
-import { useStockTransactionsQuery } from '../../../../hooks/use-stock-transactions-query'
-
-const PAGE_SIZE = 5
+import { useStockTransactionHistoryCard } from './use-stock-transaction-history-card'
 
 const TYPE_LABELS: Record<StockTransactionType, string> = {
   entry: 'Entrada Manual',
@@ -54,34 +49,24 @@ export const StockTransactionHistoryCard = ({
   productId,
 }: StockTransactionHistoryCardProps) => {
   const formatDate = useFormatDate()
-  const [type, setType] = useState<StockAdjustmentType | ''>('')
-  const [brandId, setBrandId] = useState('')
-  const [from, setFrom] = useState('')
-  const [to, setTo] = useState('')
-  const [page, setPage] = useState(1)
-  const query = useStockTransactionsQuery(productId, {
-    page,
-    limit: PAGE_SIZE,
-    type: type || undefined,
-    brandId: brandId || undefined,
-    from: from ? new Date(`${from}T00:00:00.000`) : undefined,
-    to: to ? new Date(`${to}T23:59:59.999`) : undefined,
-  })
-  const hasFilters = Boolean(type || brandId || from || to)
-  const selectedBrandName = brands.find(({ brand }) => brand.id === brandId)?.brand.name
-
-  function changeFilter(callback: () => void) {
-    callback()
-    setPage(1)
-  }
-
-  function handleClearFilters() {
-    setType('')
-    setBrandId('')
-    setFrom('')
-    setTo('')
-    setPage(1)
-  }
+  const {
+    brandId,
+    from,
+    handleBrandChange,
+    handleClearFilters,
+    handleFromChange,
+    handlePageChange,
+    handleToChange,
+    handleTypeChange,
+    hasFilters,
+    isError,
+    isLoading,
+    refetch,
+    selectedBrandName,
+    to,
+    transactionsPage,
+    type,
+  } = useStockTransactionHistoryCard(productId, brands)
 
   return (
     <section className='min-w-0 overflow-hidden rounded-2xl bg-card shadow-sm ring-1 ring-foreground/5'>
@@ -93,11 +78,7 @@ export const StockTransactionHistoryCard = ({
           </Label>
           <Select
             value={type || 'all'}
-            onValueChange={(value) =>
-              changeFilter(() =>
-                setType(value === 'all' ? '' : (value as StockAdjustmentType)),
-              )
-            }
+            onValueChange={(value) => handleTypeChange(value)}
           >
             <SelectTrigger
               aria-label='Tipo'
@@ -117,11 +98,7 @@ export const StockTransactionHistoryCard = ({
           </Label>
           <Select
             value={brandId || 'all'}
-            onValueChange={(value) =>
-              changeFilter(() =>
-                setBrandId(value === 'all' || value === null ? '' : value),
-              )
-            }
+            onValueChange={(value) => handleBrandChange(value)}
           >
             <SelectTrigger
               aria-label='Marca'
@@ -148,7 +125,7 @@ export const StockTransactionHistoryCard = ({
               id='history-from'
               className='border-0 p-0 shadow-none focus-visible:border-transparent focus-visible:ring-0'
               data-focus-ring='delegated'
-              onChange={(event) => changeFilter(() => setFrom(event.target.value))}
+              onChange={(event) => handleFromChange(event.target.value)}
               type='date'
               value={from}
             />
@@ -162,7 +139,7 @@ export const StockTransactionHistoryCard = ({
               id='history-to'
               className='border-0 p-0 shadow-none focus-visible:border-transparent focus-visible:ring-0'
               data-focus-ring='delegated'
-              onChange={(event) => changeFilter(() => setTo(event.target.value))}
+              onChange={(event) => handleToChange(event.target.value)}
               type='date'
               value={to}
             />
@@ -180,20 +157,20 @@ export const StockTransactionHistoryCard = ({
         </div>
       </div>
 
-      {query.isPending ? (
+      {isLoading ? (
         <HistoryStatus icon='clock' isAnimated text='Carregando histórico…' />
       ) : null}
-      {query.isError ? (
+      {isError ? (
         <HistoryStatus
           icon='triangle-alert'
           text='Não foi possível carregar o histórico.'
         >
-          <Button onClick={() => void query.refetch()} type='button' variant='outline'>
+          <Button onClick={() => void refetch()} type='button' variant='outline'>
             Tentar novamente
           </Button>
         </HistoryStatus>
       ) : null}
-      {query.data && query.data.items.length === 0 ? (
+      {transactionsPage && transactionsPage.items.length === 0 ? (
         <HistoryStatus
           icon='clipboard-list'
           text={
@@ -203,10 +180,10 @@ export const StockTransactionHistoryCard = ({
           }
         />
       ) : null}
-      {query.data && query.data.items.length > 0 ? (
+      {transactionsPage && transactionsPage.items.length > 0 ? (
         <>
           <div className='grid gap-3 px-4 pb-4 lg:hidden'>
-            {query.data.items.map((transaction) => (
+            {transactionsPage.items.map((transaction) => (
               <article
                 className='rounded-xl border border-border-soft p-4'
                 key={transaction.id}
@@ -259,7 +236,7 @@ export const StockTransactionHistoryCard = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {query.data.items.map((transaction) => (
+                {transactionsPage.items.map((transaction) => (
                   <TableRow
                     className='border-b-0 border-t border-border-soft hover:bg-transparent'
                     key={transaction.id}
@@ -298,11 +275,11 @@ export const StockTransactionHistoryCard = ({
             </Table>
           </div>
           <Pagination
-            currentPage={query.data.page}
+            currentPage={transactionsPage.page}
             itemLabel='movimentações'
-            onPageChange={setPage}
-            pageSize={query.data.limit}
-            totalItems={query.data.total}
+            onPageChange={handlePageChange}
+            pageSize={transactionsPage.limit}
+            totalItems={transactionsPage.total}
           />
         </>
       ) : null}

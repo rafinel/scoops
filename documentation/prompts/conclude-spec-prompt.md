@@ -41,6 +41,11 @@ scope match the diff; the required file/widget tree, contracts, exclusions and a
 states pass; every affected screenshot is fresh and inspected; and Playwright console,
 network, HTTP status, accessibility, keyboard and responsive checks are classified. Passing
 tests without this record is not validation-ready.
+For every affected HTTP route group, the same record must verify the matching
+`apps/server/rest-client/<module>/<route-group>.rest` file is present, included in the scoped
+diff, and contains one current labeled example for every controller route with the required
+parameters, headers and representative body. A passing controller test does not replace this
+REST-client artifact check.
 
 Require explicit PRD implementation traceability in that record. Map every in-scope `REQ-*`
 through the Spec's `RF-*` requirements and `CA-*` acceptance criteria to current Evaluation
@@ -91,7 +96,7 @@ conclusion automatically after it returns evaluation to `ready`.
    `documentation/tooling.md`.
 2. Run the applicable local generation, formatting/code, type, unit, integration, Playwright CLI,
    architecture and build preflight required by the Spec and changed paths.
-3. Reconcile generated artifacts, migrations, saved design evidence and factual
+3. Reconcile generated artifacts, migrations, REST-client examples, saved design evidence and factual
    documentation against the current diff.
 4. Rerun the final Spec conformance comparison and verify the current validation evidence covers
    the exact implementation diff. Any later

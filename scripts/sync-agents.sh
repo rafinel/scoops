@@ -80,6 +80,10 @@ def is_judge(name: str) -> bool:
     return name.startswith("judge-")
 
 
+def is_reviewer(name: str) -> bool:
+    return name.endswith("-reviewer-agent")
+
+
 def generated_marker(source: Path) -> str:
     return f"<!-- Auto-generated from {source.relative_to(root).as_posix()} -->"
 
@@ -126,7 +130,7 @@ codex_roles: list[str] = [begin_marker]
 for name, description, body, source in agents:
     source_relative = source.relative_to(root).as_posix()
     codex_prompt_relative = Path("../..") / source_relative
-    sandbox_mode = "read-only" if is_judge(name) else "workspace-write"
+    sandbox_mode = "read-only" if is_judge(name) or is_reviewer(name) else "workspace-write"
 
     codex_role = (
         f"# Auto-generated from {source_relative}\n"
@@ -154,6 +158,9 @@ for name, description, body, source in agents:
     elif is_judge(name):
         opencode_mode = "subagent"
         opencode_permissions = "  edit: deny\n  bash: deny\n  task: deny"
+    elif is_reviewer(name):
+        opencode_mode = "subagent"
+        opencode_permissions = "  edit: deny\n  bash: allow\n  task: deny"
     elif name == "builder-agent":
         opencode_mode = "subagent"
         opencode_permissions = "  edit: allow\n  bash: allow\n  task: deny"
@@ -184,6 +191,8 @@ for name, description, body, source in agents:
     ]
     if is_judge(name):
         claude_fields.extend(["tools: Read, Glob, Grep", "permissionMode: plan"])
+    elif is_reviewer(name):
+        claude_fields.append("disallowedTools: Write, Edit, Agent")
     elif name == "builder-agent":
         claude_fields.append("disallowedTools: Agent")
     claude_fields.extend(["---", "", generated_marker(source), "", body.rstrip(), ""])

@@ -19,12 +19,25 @@ export const AccompanimentTypesPage = ({
   page,
   onPageChange,
 }: AccompanimentTypesPageProps) => {
-  const view = useAccompanimentTypesPage(page, onPageChange)
+  const {
+    data,
+    handleActionOpenChange,
+    handleActionSuccess,
+    handleBack,
+    handleCreateAction,
+    handleEditAction,
+    handleRemoveAction,
+    handleRetry,
+    isError,
+    isLoading,
+    onPageChange: changePage,
+    selectedAction,
+  } = useAccompanimentTypesPage(page, onPageChange)
   return (
     <section className='min-w-0 space-y-5'>
       <header className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
         <div>
-          <BackLink onClick={view.handleBack} route='products' />
+          <BackLink onClick={handleBack} route='products' />
           <h1 className='text-[28px] font-extrabold tracking-tight'>
             Tipos de acompanhamento
           </h1>
@@ -34,43 +47,39 @@ export const AccompanimentTypesPage = ({
         </div>
         <Button
           className='min-h-10 shadow-primary'
-          onClick={() => view.setSelectedAction({ kind: 'create' })}
+          onClick={handleCreateAction}
           type='button'
         >
           <Icon name='plus' /> Novo tipo
         </Button>
       </header>
-      {view.isLoading ? (
+      {isLoading ? (
         <AccompanimentTypesLoading />
-      ) : view.isError ? (
-        <AccompanimentTypesError onRetry={view.handleRetry} />
-      ) : view.data && view.data.items.length > 0 ? (
+      ) : isError ? (
+        <AccompanimentTypesError onRetry={handleRetry} />
+      ) : data && data.items.length > 0 ? (
         <AccompanimentTypesCard
-          onEdit={(item) => view.setSelectedAction({ kind: 'edit', item })}
-          onPageChange={view.onPageChange}
-          onRemove={(item) => view.setSelectedAction({ kind: 'remove', item })}
-          page={view.data}
+          onEdit={handleEditAction}
+          onPageChange={changePage}
+          onRemove={handleRemoveAction}
+          page={data}
         />
       ) : (
-        <AccompanimentTypesEmptyState
-          onAdd={() => view.setSelectedAction({ kind: 'create' })}
-        />
+        <AccompanimentTypesEmptyState onAdd={handleCreateAction} />
       )}
-      {view.selectedAction?.kind === 'create' || view.selectedAction?.kind === 'edit' ? (
+      {selectedAction?.kind === 'create' || selectedAction?.kind === 'edit' ? (
         <AccompanimentTypeDialog
-          item={
-            view.selectedAction.kind === 'edit' ? view.selectedAction.item : undefined
-          }
-          onOpenChange={view.handleActionOpenChange}
-          onSuccess={view.handleActionSuccess}
+          item={selectedAction.kind === 'edit' ? selectedAction.item : undefined}
+          onOpenChange={handleActionOpenChange}
+          onSuccess={handleActionSuccess}
           open
         />
       ) : null}
-      {view.selectedAction?.kind === 'remove' ? (
+      {selectedAction?.kind === 'remove' ? (
         <RemoveAccompanimentTypeDialog
-          item={view.selectedAction.item}
-          onOpenChange={view.handleActionOpenChange}
-          onSuccess={view.handleActionSuccess}
+          item={selectedAction.item}
+          onOpenChange={handleActionOpenChange}
+          onSuccess={handleActionSuccess}
           open
         />
       ) : null}

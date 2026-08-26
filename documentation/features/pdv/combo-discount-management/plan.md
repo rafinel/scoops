@@ -1,6 +1,6 @@
 ---
 title: Combo discount management — implementation plan
-status: in_progress
+status: completed
 spec: ./spec.md
 spec_revision: 10
 evaluation: ./evaluation.md
@@ -12,10 +12,10 @@ updated_at: 2026-08-26
 
 ## Execution status
 
-- **Spec:** [`./spec.md`](./spec.md), revision `10`, status `in_progress`.
+- **Spec:** [`./spec.md`](./spec.md), revision `10`, status `completed`.
 - **Plan rationale:** Plan-backed execution is required because this delivery crosses Core, Validation, transactional PDV persistence and migration generation, MRP-owned event publication, provider and messaging boundaries, eight REST operations, protected multi-route Web UI, optimistic concurrency, tenant authorization and real full-stack validation.
-- **Current phase:** F7 integrated validation and handoff for Spec revision 10 — Discounts list mobile filter evidence is complete.
-- **Next action:** Route to `conclude-spec` when delivery publication is requested.
+- **Current phase:** F7 conclusion completed for Spec revision 10 — PR `#26` is published and all applicable Core, Server and Web CI checks passed.
+- **Next action:** Await review and approval; merge or deployment is outside this conclusion.
 - **Active blockers:** None identified in planning; all five saved design references, the manifest and the explicit revision-10 mobile reference are recorded and dimension-verified.
 - **Active Builders:** None; Builder Web completed the revision-10 Discounts list correction. The Orchestrator owns final handoff.
 - **Shared/generated ownership:** The Orchestrator owns package/lockfile changes, shared-file conflicts, Drizzle migration generation and metadata review (`0014_combo_discount_management.sql`, snapshot and journal), `apps/web/src/routeTree.gen.ts` regeneration, and final integration. Builder Server owns feature schema-barrel edits with Orchestrator coordination; Builder Web owns route sources, never generated route output.
@@ -30,7 +30,7 @@ updated_at: 2026-08-26
 | 2 | `Builder Server` | F4 | Transactional persistence and catalog provision | F1 | F2, F3 | `completed` | Tenant-scoped Combo persistence, shared production seed wiring, serializable transaction composition, catalog adapter/module and reviewed migration are ready for server composition. |
 | 3 | `Builder Server` | F5 | Messaging and REST operations | F2, F3, F4 | F6 | `completed` | MRP publishers are wired to the broker, the revalidation job is registered, all eight controllers are composed, and real controller tests prove HTTP, persistence, authorization, tenant and provider effects. |
 | 3 | `Builder Web` | F6 | Protected Combo management experience | F1, F3 | F5 | `completed` | Routes, service, cache/query/action consumers, widgets and mocked-transport route suites satisfy the exact Spec widget tree, accessible/responsive states and UI-to-REST contract, including the selected primary filter, product-removal confirmation state and mobile full-width Discounts filters. |
-| 4 | `Orchestrator` | F7 | Integrated validation and handoff | F5, F6 | — | `in_progress` | Integrated sensors, shared seed verification, migration/build checks, real server-backed MV-01–MV-05 and current visual evidence leave no blocking finding before `conclude-spec`. |
+| 4 | `Orchestrator` | F7 | Integrated validation and handoff | F5, F6 | — | `completed` | Integrated sensors, shared seed verification, migration/build checks, real server-backed MV-01–MV-05, current visual evidence and PR CI passed with no blocking finding. |
 
 ### F1 — Core contracts and MRP-facing structures
 
@@ -188,4 +188,4 @@ updated_at: 2026-08-26
 | Visual | Portion product dialog — surface `900 × 539`, saved PNG `1056 × 705` | `CA-05`, `CA-06`, `CA-14` | [`design/zBoAn.png`](./design/zBoAn.png) | Fresh Playwright screenshot and comparison recorded in `./evaluation.md` | `passed` |
 | Visual | Resale product dialog — surface `900 × 536`, saved PNG `1056 × 702` | `CA-05`, `CA-06`, `CA-14` | [`design/t86j5.png`](./design/t86j5.png) | Fresh Playwright screenshot and comparison recorded in `./evaluation.md` | `passed` |
 
-The final handoff requires all phases and tasks completed; current Spec validation commands on the integrated commit; generated migration and route artifacts reviewed; the shared production seed source verified with valid MRP references and Combo records; services, accounts and fixtures ready; every in-scope `MV-01`–`MV-05` executable; transient screenshot identifiers recorded; the five baseline visual comparisons plus the explicit revision-10 mobile reference passed; every verified finding resolved; and no blocking finding active. Then route directly to [`conclude-spec`](../../../prompts/conclude-spec-prompt.md).
+The final handoff required all phases and tasks completed; current Spec validation commands on the integrated commit; generated migration and route artifacts reviewed; the shared production seed source verified with valid MRP references and Combo records; services, accounts and fixtures ready; every in-scope `MV-01`–`MV-05` executable; transient screenshot identifiers recorded; the five baseline visual comparisons plus the explicit revision-10 mobile reference passed; every verified finding resolved; and no blocking finding active. These conditions are satisfied by PR `#26`; the Evaluation records the final CI gate and delivery traceability.

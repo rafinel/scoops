@@ -15,6 +15,16 @@ export function useProductAccompanimentsSlot(productId: string) {
   const { navigateTo } = useNavigation()
   const [selectedAction, setSelectedAction] = useState<ProductAccompanimentsAction>()
 
+  function handleAddAction() {
+    setSelectedAction({ kind: 'add' })
+  }
+  function handleEditAction(item: ProductAccompanimentDetails) {
+    setSelectedAction({ kind: 'edit', item })
+  }
+  function handleRemoveAction(item: ProductAccompanimentDetails) {
+    setSelectedAction({ kind: 'remove', item })
+  }
+
   function handleBack() {
     void navigateTo('products')
   }
@@ -37,10 +47,12 @@ export function useProductAccompanimentsSlot(productId: string) {
     handleActionOpenChange,
     handleActionSuccess,
     handleBack,
+    handleAddAction,
+    handleEditAction,
+    handleRemoveAction,
     handleRetry: () => {
       void stockQuery.refetch()
       void query.refetch()
     },
-    setSelectedAction,
   }
 }

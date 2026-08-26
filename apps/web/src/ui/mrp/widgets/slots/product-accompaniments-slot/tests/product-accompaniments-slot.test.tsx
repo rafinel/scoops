@@ -40,12 +40,14 @@ const fakeSlotState = () => ({
   handleActionOpenChange: vi.fn(),
   handleActionSuccess: vi.fn(),
   handleBack: vi.fn(),
+  handleAddAction: vi.fn(),
+  handleEditAction: vi.fn(),
+  handleRemoveAction: vi.fn(),
   handleRetry: vi.fn(),
   isError: false,
   isLoading: false,
   product,
   selectedAction: undefined,
-  setSelectedAction: vi.fn(),
 })
 
 describe('ProductAccompanimentsSlot', () => {

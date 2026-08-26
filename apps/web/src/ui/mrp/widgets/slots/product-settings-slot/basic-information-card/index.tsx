@@ -2,7 +2,6 @@ import type { Product } from '@scoops/core/mrp/domain/entities'
 import { ProductStatus, type ProductUnit } from '@scoops/core/mrp/domain/structures'
 
 import { Input } from '@/ui/shadcn/input'
-import { Label } from '@/ui/shadcn/label'
 import {
   Select,
   SelectContent,
@@ -13,6 +12,8 @@ import {
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import { useBasicInformationCard } from './use-basic-information-card'
+import { Field } from './field'
+import { RecoveryActions } from './recovery-actions'
 
 const UNIT_OPTIONS: readonly { value: ProductUnit; label: string }[] = [
   { value: 'g', label: 'Gramas (g)' },
@@ -36,7 +37,23 @@ export const BasicInformationCard = ({
   onUnitChange,
   product,
 }: BasicInformationCardProps) => {
-  const state = useBasicInformationCard(product, onUnitChange)
+  const {
+    errors,
+    handleIdealStockBlur,
+    handleIdealStockChange,
+    handleNameBlur,
+    handleNameChange,
+    handleRetry,
+    handleRevert,
+    handleStatusChange,
+    handleUnitChange,
+    idealStock,
+    isPending,
+    name,
+    pendingField,
+    status,
+    unitTriggerRef,
+  } = useBasicInformationCard(product, onUnitChange)
 
   return (
     <section
@@ -60,36 +77,34 @@ export const BasicInformationCard = ({
       <div className='mt-6 grid gap-4 sm:grid-cols-2'>
         <div>
           <Field
-            error={state.errors.name}
+            error={errors.name}
             errorId='basic-information-name-error'
             label='Nome do produto'
           >
             <Input
-              aria-describedby={
-                state.errors.name ? 'basic-information-name-error' : undefined
-              }
-              aria-invalid={Boolean(state.errors.name)}
-              disabled={state.isPending && state.pendingField === 'name'}
-              onBlur={state.handleNameBlur}
-              onChange={(event) => state.handleNameChange(event.target.value)}
-              value={state.name}
+              aria-describedby={errors.name ? 'basic-information-name-error' : undefined}
+              aria-invalid={Boolean(errors.name)}
+              disabled={isPending && pendingField === 'name'}
+              onBlur={handleNameBlur}
+              onChange={(event) => handleNameChange(event.target.value)}
+              value={name}
             />
           </Field>
           <RecoveryActions
-            error={state.errors.name}
-            onRetry={() => state.handleRetry('name')}
-            onRevert={() => state.handleRevert('name')}
+            error={errors.name}
+            onRetry={() => handleRetry('name')}
+            onRevert={() => handleRevert('name')}
           />
         </div>
         <Field label='Unidade de estoque'>
           <Select
             value={product.unit}
-            onValueChange={(value) => state.handleUnitChange(value as ProductUnit)}
+            onValueChange={(value) => handleUnitChange(value as ProductUnit)}
           >
             <SelectTrigger
               aria-label='Unidade de estoque'
               className='w-full'
-              ref={state.unitTriggerRef}
+              ref={unitTriggerRef}
             >
               <SelectValue />
             </SelectTrigger>
@@ -104,24 +119,22 @@ export const BasicInformationCard = ({
         </Field>
         <div>
           <Field
-            error={state.errors.idealStock}
+            error={errors.idealStock}
             errorId='basic-information-ideal-stock-error'
             label='Estoque ideal'
           >
             <div className='flex overflow-hidden rounded-lg border bg-background focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
               <Input
                 aria-describedby={
-                  state.errors.idealStock
-                    ? 'basic-information-ideal-stock-error'
-                    : undefined
+                  errors.idealStock ? 'basic-information-ideal-stock-error' : undefined
                 }
-                aria-invalid={Boolean(state.errors.idealStock)}
+                aria-invalid={Boolean(errors.idealStock)}
                 className='h-12 rounded-none border-0 shadow-none focus-visible:ring-0'
-                disabled={state.isPending && state.pendingField === 'idealStock'}
+                disabled={isPending && pendingField === 'idealStock'}
                 inputMode='decimal'
-                onBlur={state.handleIdealStockBlur}
-                onChange={(event) => state.handleIdealStockChange(event.target.value)}
-                value={state.idealStock}
+                onBlur={handleIdealStockBlur}
+                onChange={(event) => handleIdealStockChange(event.target.value)}
+                value={idealStock}
               />
               <span className='grid min-w-12 place-items-center border-l bg-muted px-2 text-sm font-bold text-muted-foreground'>
                 {product.unit}
@@ -129,31 +142,31 @@ export const BasicInformationCard = ({
             </div>
           </Field>
           <RecoveryActions
-            error={state.errors.idealStock}
-            onRetry={() => state.handleRetry('idealStock')}
-            onRevert={() => state.handleRevert('idealStock')}
+            error={errors.idealStock}
+            onRetry={() => handleRetry('idealStock')}
+            onRevert={() => handleRevert('idealStock')}
           />
         </div>
         <div>
           <Field
-            error={state.errors.status}
+            error={errors.status}
             errorId='basic-information-status-error'
             label='Status'
           >
             <Select
-              value={state.status}
-              onValueChange={(value) => state.handleStatusChange(value as ProductStatus)}
+              value={status}
+              onValueChange={(value) => handleStatusChange(value as ProductStatus)}
             >
               <SelectTrigger
                 aria-describedby={
-                  state.errors.status ? 'basic-information-status-error' : undefined
+                  errors.status ? 'basic-information-status-error' : undefined
                 }
-                aria-invalid={Boolean(state.errors.status)}
+                aria-invalid={Boolean(errors.status)}
                 aria-label='Status'
                 className='w-full'
-                disabled={state.isPending && state.pendingField === 'status'}
+                disabled={isPending && pendingField === 'status'}
               >
-                <SelectValue>{STATUS_LABELS[state.status]}</SelectValue>
+                <SelectValue>{STATUS_LABELS[status]}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={ProductStatus.Active}>Ativo</SelectItem>
@@ -162,13 +175,13 @@ export const BasicInformationCard = ({
             </Select>
           </Field>
           <RecoveryActions
-            error={state.errors.status}
-            onRetry={() => state.handleRetry('status')}
-            onRevert={() => state.handleRevert('status')}
+            error={errors.status}
+            onRetry={() => handleRetry('status')}
+            onRevert={() => handleRevert('status')}
           />
         </div>
       </div>
-      {state.errors.name || state.errors.idealStock || state.errors.status ? (
+      {errors.name || errors.idealStock || errors.status ? (
         <div
           className='mt-4 flex items-start gap-2 rounded-xl bg-danger/10 p-3 text-sm text-danger'
           role='alert'
@@ -177,65 +190,11 @@ export const BasicInformationCard = ({
           <span>Corrija os campos destacados para salvar as informações.</span>
         </div>
       ) : null}
-      {state.isPending ? (
+      {isPending ? (
         <p className='mt-3 text-xs font-semibold text-muted-foreground' role='status'>
           Salvando alteração…
         </p>
       ) : null}
     </section>
-  )
-}
-
-function Field({
-  children,
-  error,
-  errorId,
-  label,
-}: {
-  children: React.ReactNode
-  error?: string
-  errorId?: string
-  label: string
-}) {
-  return (
-    <Label className='grid gap-2 text-sm font-bold'>
-      {label}
-      {children}
-      {error ? (
-        <span className='text-xs font-semibold text-danger' id={errorId} role='alert'>
-          {error}
-        </span>
-      ) : null}
-    </Label>
-  )
-}
-
-function RecoveryActions({
-  error,
-  onRetry,
-  onRevert,
-}: {
-  error?: string
-  onRetry: () => void
-  onRevert: () => void
-}) {
-  if (!error) return null
-  return (
-    <div className='mt-2 flex flex-wrap gap-2'>
-      <button
-        className='text-xs font-bold text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
-        onClick={onRetry}
-        type='button'
-      >
-        Tentar novamente
-      </button>
-      <button
-        className='text-xs font-bold text-muted-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
-        onClick={onRevert}
-        type='button'
-      >
-        Reverter
-      </button>
-    </div>
   )
 }

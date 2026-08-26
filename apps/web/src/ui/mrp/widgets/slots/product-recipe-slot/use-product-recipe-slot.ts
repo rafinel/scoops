@@ -22,6 +22,19 @@ export function useProductRecipeSlot(productId: string) {
   const { navigateTo, navigateToPath } = useNavigation()
   const [selectedAction, setSelectedAction] = useState<RecipeSlotAction>()
 
+  function handleAddAction() {
+    setSelectedAction({ kind: 'add' })
+  }
+  function handleEditAction(ingredient: RecipeIngredientDetails) {
+    setSelectedAction({ kind: 'edit', ingredient })
+  }
+  function handleProduceAction() {
+    setSelectedAction({ kind: 'produce' })
+  }
+  function handleRemoveAction(ingredient: RecipeIngredientDetails) {
+    setSelectedAction({ kind: 'remove', ingredient })
+  }
+
   useEffect(() => {
     if (productStock && !isManufacturable) {
       void navigateToPath(`/products/${productId}/stock`)
@@ -47,7 +60,10 @@ export function useProductRecipeSlot(productId: string) {
     handleActionOpenChange,
     handleActionSuccess,
     handleBack,
+    handleAddAction,
+    handleEditAction,
+    handleProduceAction,
+    handleRemoveAction,
     handleRetry: () => void refetchRecipe(),
-    setSelectedAction,
   }
 }

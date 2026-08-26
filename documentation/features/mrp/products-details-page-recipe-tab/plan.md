@@ -98,7 +98,7 @@ updated_at: 2026-08-22
 - **Paths:** Integrated candidate only; `documentation/features/mrp/products-details-page-recipe-tab/{plan.md,evaluation.md}` are Orchestrator-owned, and no Builder owns shared/generated-file corrections.
 - **Contract:** `RF-01`–`RF-12`; `CA-01`–`CA-15`; `MV-01`–`MV-04`
 - **Outcome:** Current evidence demonstrates the real server-backed workflow, the design-backed browser surface and complete final Spec-tree conformance on one integrated commit.
-- **Rules:** `documentation/sdd-rules.md`; all Rule-Pack paths recorded in [`spec.md`](./spec.md#5-documentation-alignment-and-revision-history); `documentation/architecture.md`; `documentation/modules.md`; `documentation/design.md`; `documentation/tooling.md`.
+- **Rules:** `documentation/sdd.md`; all Rule-Pack paths recorded in [`spec.md`](./spec.md#5-documentation-alignment-and-revision-history); `documentation/architecture.md`; `documentation/modules.md`; `documentation/design.md`; `documentation/tooling.md`.
 - **Exit:** Re-run affected workspace checks and the Spec validation commands on the integrated candidate; execute all `MV-*` with required services/accounts/fixtures, compare each saved visual reference independently, inspect generated artifacts, and validate review findings before routing to `conclude-spec`.
 
 ## Validation and handoff
@@ -123,7 +123,7 @@ updated_at: 2026-08-22
 | Visual | Shortage, no-main-brand, pending and failed-confirm production states at 640 × 760 | `CA-09`–`CA-12`, `CA-15` | Manifest supplemental decision / `MV-02` | Playwright `test-results/` screenshot and comparison notes | `passed` |
 | Visual | Recipe page and Produce dialog at 320 × 900 | `CA-15` | Manifest supplemental decision / `MV-03` | Playwright `test-results/` screenshot and comparison notes | `passed` |
 | Visual | Current-unit-cost registration and Entry fields at 1560 × 1200 and 320 × 900 | `CA-13`, `CA-15` | Manifest supplemental decision / `MV-04` | Playwright `test-results/` screenshot and comparison notes | `passed` |
-| Review | One complete integrated candidate, cross-Builder contracts and all affected surfaces | `RF-01`–`RF-12`, `CA-01`–`CA-15` | [`reviewer-agent.md`](../../../agents/reviewer-agent.md) | Integrated Reviewer report + verified findings in `./evaluation.md` | `passed` |
+| Review | One complete integrated candidate, cross-Builder contracts and all affected surfaces | `RF-01`–`RF-12`, `CA-01`–`CA-15` | [`implementation-reviewer-agent.md`](../../../agents/implementation-reviewer-agent.md) | Integrated Reviewer report + verified findings in `./evaluation.md` | `passed` |
 
 The Integrated Reviewer is scheduled exactly once after F4/F5 integration and before readiness. It independently inspects the complete diff, generated migration/route tree, every final visual comparison, high-risk Playwright CLI keyboard/responsive interactions, real Server-backed authorization/persistence behavior and current evidence. Its report is advisory; the Orchestrator verifies every finding, invalidates stale evidence, resumes the responsible Builder for in-Contract corrections, and resumes the same Reviewer after corrections.
 

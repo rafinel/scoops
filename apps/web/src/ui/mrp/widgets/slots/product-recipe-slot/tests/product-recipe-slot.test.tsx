@@ -31,8 +31,11 @@ const baseSlot = () => ({
   handleActionOpenChange: vi.fn(),
   handleActionSuccess: vi.fn(),
   handleBack: vi.fn(),
+  handleAddAction: vi.fn(),
+  handleEditAction: vi.fn(),
+  handleProduceAction: vi.fn(),
+  handleRemoveAction: vi.fn(),
   handleRetry: vi.fn(),
-  setSelectedAction: vi.fn(),
 })
 
 describe('ProductRecipeSlot', () => {

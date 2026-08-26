@@ -30,7 +30,7 @@ export const RemoveProductAccompanimentDialog = ({
   open,
   productId,
 }: RemoveProductAccompanimentDialogProps) => {
-  const dialog = useRemoveProductAccompanimentDialog({
+  const { actionError, handleConfirm, isPending } = useRemoveProductAccompanimentDialog({
     itemId: item.id,
     onSuccess,
     productId,
@@ -48,23 +48,23 @@ export const RemoveProductAccompanimentDialog = ({
             histórico permanecem intactos.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        {dialog.actionError ? (
+        {actionError ? (
           <p className='px-6 pb-4 text-sm font-semibold text-destructive' role='alert'>
-            {dialog.actionError}
+            {actionError}
           </p>
         ) : null}
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={dialog.isPending}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
-            disabled={dialog.isPending}
+            disabled={isPending}
             onClick={(event) => {
               event.preventDefault()
-              void dialog.handleConfirm()
+              void handleConfirm()
             }}
             className='border border-destructive/40 bg-background text-destructive hover:bg-destructive/5 hover:text-destructive'
             variant='destructive'
           >
-            {dialog.isPending ? 'Removendo…' : 'Remover'}
+            {isPending ? 'Removendo…' : 'Remover'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

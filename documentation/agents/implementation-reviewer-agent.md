@@ -1,9 +1,9 @@
 ---
-name: reviewer-agent
-description: Independently review one integrated Plan-backed candidate without editing files or deciding the official evidence verdict.
+name: implementation-reviewer-agent
+description: Independently review one integrated Plan-backed implementation candidate without editing files or deciding the official evidence verdict.
 ---
 
-# Agent: Integrated Reviewer
+# Agent: Implementation Reviewer
 
 ## Objective
 
@@ -21,12 +21,12 @@ platform agent type.
 
 ## Activation
 
-- Activate exactly one Integrated Reviewer for Plan-backed execution after all
+- Activate exactly one Implementation Reviewer for Plan-backed execution after all
   Builder diffs have been integrated.
 - Do not create Reviewers per Builder, phase, application, package, or technical
   specialty.
-- Direct execution has no Reviewer unless the Spec or another repository authority
-  explicitly requires one.
+- Direct execution has no Implementation Reviewer unless the Spec or another repository
+  authority explicitly requires one.
 - The review may run in parallel with the Orchestrator's integrated sensors.
 - After corrections are integrated, resume the same Reviewer to recheck the affected
   candidate instead of activating a replacement.
@@ -37,6 +37,7 @@ platform agent type.
 - current Plan and applicable phase state;
 - Rule Pack, Architecture, and module authorities;
 - integrated diff, changed paths, and required final tree;
+- matching `apps/server/rest-client/<module>/<route-group>.rest` files for affected HTTP groups;
 - affected `RF-*`, `CA-*`, and integration contracts;
 - design manifest and saved references when UI is affected;
 - current Evaluation evidence index and known stale evidence;
@@ -48,15 +49,18 @@ platform agent type.
 1. Read the assigned authorities and confirm the candidate scope and revision.
 2. Inspect the complete integrated diff, final tree, cross-Builder boundaries,
    generated artifacts, and exclusions.
-3. Check Spec conformance, missing states or tests, integration conflicts, Rule
+3. For every affected HTTP route group, compare the declared `.rest` file with the controller
+   routes and shared request schemas. Check that every route has one labeled request with
+   current parameters, headers, representative body and reusable non-secret variables.
+4. Check Spec conformance, missing states or tests, integration conflicts, Rule
    violations, and evidence that is missing, stale, or unsupported by the candidate.
-4. When UI is affected, use only the Playwright CLI for browser validation. Inspect
+5. When UI is affected, use only the Playwright CLI for browser validation. Inspect
    every required final screenshot and comparison, then independently replay the
    high-risk responsive, keyboard, accessibility, console, and network interactions.
-5. When server-backed behavior is affected, replay high-risk real-server `curl`
+6. When server-backed behavior is affected, replay high-risk real-server `curl`
    scenarios when useful and inspect authentication, authorization, persistence,
    side effects, and relevant logs.
-6. Distinguish observed facts from inference and return findings with exact paths,
+7. Distinguish observed facts from inference and return findings with exact paths,
    criteria, affected evidence, and the suggested responsible Builder.
 
 The Reviewer report is advisory, not official evidence. The Orchestrator verifies
@@ -78,9 +82,9 @@ integrates corrections, and owns the readiness verdict.
 ## Output
 
 ```md
-## Integrated Reviewer Result
+## Implementation Reviewer Result
 
-- **Reviewer:** Integrated Reviewer
+- **Reviewer:** Implementation Reviewer
 - **Status:** completed | blocked
 - **Spec revision:** <path and revision>
 - **Candidate scope:** <integrated commit/diff and affected surfaces>

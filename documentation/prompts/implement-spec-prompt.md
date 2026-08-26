@@ -16,7 +16,7 @@ implement-spec
                      ↓
              integrated candidate
                      ↓
-        one Integrated Reviewer + sensors
+        one Implementation Reviewer + sensors
                      ↓
                 conclude-spec
 ```
@@ -25,7 +25,7 @@ Run the workflow in the current task. Do not create another user-owned thread.
 
 ## Strategy selection
 
-Read `documentation/sdd-rules.md` and its mandatory authorities—the Spec, Modules,
+Read `documentation/sdd.md` and its mandatory authorities—the Spec, Modules,
 Architecture, `documentation/rules.md`, every selected Rule and
 `documentation/tooling.md`—then inspect colocated `plan.md` when present.
 
@@ -64,6 +64,10 @@ stop before editing feature source and report the exact blocker:
 - The Spec's exact revision, required file/widget tree, contracts, exclusions and validation
   exits are authoritative. Existing code structure, a screenshot, a passing test or a user
   message cannot silently override them.
+- Any affected `apps/server/rest-client/**/*.rest` file is part of the implementation scope,
+  not an optional documentation afterthought. A route-group change cannot be handed off until
+  its matching example file is present, assigned, route-complete and synchronized with the
+  current request contract.
 - Preserve the applicable PRD's Implemented checkboxes during normal delivery.
   `implement-spec` never changes an unchecked requirement to checked; it changes a checkbox only
   to reset a materially amended requirement to unchecked through the approved Contract-change
@@ -122,7 +126,7 @@ and title-cases the display label:
 | Builder Validation | `builder_validation` | `Builder validation` |
 | Builder Server | `builder_server` | `Builder server` |
 | Builder Web | `builder_web` | `Builder web` |
-| Integrated Reviewer | `reviewer` | `Reviewer` |
+| Implementation Reviewer | `implementation-reviewer` | `Implementation Reviewer` |
 
 For a future ownership boundary, use `builder_<normalized-boundary>`. When a genuinely independent
 replacement fix Builder is required, use `builder_fix_<normalized-boundary>`. Resume an existing
@@ -339,6 +343,10 @@ Each Builder runs focused feedback checks for the paths it changes before handof
 - `Builder Server` runs applicable sensors plus focused `curl` scenarios against the real local
   server for changed runtime behavior, covering status/body, validation, authentication,
   authorization, persistence, side effects and relevant logs;
+- For every changed HTTP route group, the owning Builder verifies the matching `.rest` file
+  contains one labeled request per controller route, current parameters/headers/bodies and
+  reusable non-secret variables; the Orchestrator records this route/example parity in
+  `evaluation.md`.
 - `Builder Web` uses the Playwright CLI for affected interactions and states, including keyboard,
   focus, narrow viewport, console, failed requests and fresh screenshots against applicable
   design references.
@@ -364,10 +372,10 @@ the Spec or user request requires every hook in a directory, that request takes 
 the default exception and every in-scope hook receives a focused test. Record the hook inventory,
 test paths, exact focused command, result and any documented exception in `evaluation.md`.
 
-### Integrated Reviewer
+### Implementation Reviewer
 
 For Plan-backed execution, activate exactly one read-only
-[`Integrated Reviewer`](../agents/reviewer-agent.md) after all
+[`Implementation Reviewer`](../agents/implementation-reviewer-agent.md) after all
 implementation Builder diffs are integrated. Never create a Reviewer per Builder, phase,
 application or package, and do not add specialist Reviewers. Direct execution does not require a
 separate Reviewer unless the Spec or another repository authority explicitly requires one.
@@ -383,7 +391,7 @@ real `curl` scenarios and inspect the resulting authorization, persistence or si
 The Reviewer may run in parallel with the Orchestrator's integrated sensors, but it never edits
 feature code, Spec, Plan or Evaluation. Its report is not official evidence. The Orchestrator
 verifies every finding, records accepted findings in Evaluation, invalidates affected evidence and
-resumes the responsible Builder. After a correction, resume the same Integrated Reviewer to
+resumes the responsible Builder. After a correction, resume the same Implementation Reviewer to
 recheck the affected candidate; never activate a replacement Reviewer merely because the
 implementation changed. Readiness requires the review to be current and every verified blocking
 finding to be resolved.
@@ -438,6 +446,7 @@ the result is unchanged:
 | --- | --- |
 | File/widget tree | Every required path exists, no path is misplaced, and any intentional extra path is mapped to the Spec or explicitly excluded from the candidate. |
 | Boundary ownership | Each changed path is inside the active Builder scope and the Spec's declared layer/module boundary. |
+| REST-client parity | Every affected route group has its declared `.rest` file; each controller route is represented once with current method, path, parameters, headers and representative body, and no credentials are committed. |
 | Contract | RF/CA, API fields, domain rules, persistence behavior, error semantics and exclusions match the current revision. |
 | Behavior hooks | Every in-scope `use-*.ts` behavior hook has a colocated `tests/use-*.test.ts` file, or an explicit Rule Pack exception with linked consumer/route evidence. |
 | UI states | Loading, empty, success, error, recovery, disabled, selected, focus, keyboard and responsive states applicable to the change are exercised. |
@@ -522,20 +531,23 @@ ambiguous.
 ## Integrated validation and readiness
 
 After implementation work is complete, validate the exact Spec revision and implementation. For
-Plan-backed execution, activate the single Integrated Reviewer on the integrated candidate while
+Plan-backed execution, activate the single Implementation Reviewer on the integrated candidate while
 the Orchestrator runs the applicable sensors:
 
 1. run integrated technical sensors and the final build Quality Gate;
 2. review generated artifacts and migration bodies;
 3. preflight real services, database/Auth/provider state, accounts and fixtures;
 4. execute every applicable `MV-*` with the Playwright CLI;
-5. inspect every CA, manual scenario and supplied/supplemental screenshot with exact
+5. verify every affected REST-client file against its controller route group and shared request
+   schemas, then record the parity result;
+6. inspect every CA, manual scenario and supplied/supplemental screenshot with exact
    viewport/state, console/network, accessibility, DOM/layout and persistence evidence;
-6. when an Integrated Reviewer applies, verify and classify every finding;
-7. record commands, captures, results, review findings and resolutions in Evaluation.
+7. when an Implementation Reviewer applies, verify and classify every finding;
+8. record commands, captures, REST-client parity, results, review findings and resolutions in Evaluation.
 
 For Plan-backed execution, keep the integrated phase `in_progress` during this validation and
-complete the Plan only after all affected phases and evidence pass, the Integrated Reviewer has
+complete the Plan only after all affected phases and evidence pass, every affected REST-client file
+is route-complete, the Implementation Reviewer has
 completed on the current candidate and every verified blocking review finding is resolved.
 
 - On failure, record the finding, reopen affected direct/Plan work, resume the responsible
