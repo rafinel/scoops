@@ -198,7 +198,9 @@ reproducible manual coverage; if any is only a generic summary, expand it before
 the PR metadata. Keep the body concise enough to review; it is a traceability and validation
 summary, not a copy of the full diff.
 
-Use a short noun-phrase title without a Conventional Commit prefix or fabricated issue key.
+Never include a Conventional Commit type or scope prefix in any PR title, including
+`feat(scope):`, `fix:`, `docs:`, or `chore(scope):`. Use only a concise noun-phrase title
+without a fabricated issue key; commit messages may still use Conventional Commit format.
 For a bug fix, include the evidence-based cause and correction.
 
 ## Publish and return
