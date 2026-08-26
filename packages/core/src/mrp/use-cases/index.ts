@@ -1,6 +1,7 @@
 export * from '#mrp/use-cases/create-product-use-case.ts'
 export * from '#mrp/use-cases/adjust-product-stock-use-case.ts'
 export * from '#mrp/use-cases/get-product-stock-use-case.ts'
+export * from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
 export * from '#mrp/use-cases/get-product-recipe-use-case.ts'
 export * from '#mrp/use-cases/list-products-use-case.ts'
 export * from '#mrp/use-cases/get-product-settings-use-case.ts'

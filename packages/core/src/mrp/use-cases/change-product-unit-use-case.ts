@@ -11,6 +11,10 @@ import {
   ConflictError,
   NotFoundError,
 } from '#shared/domain/errors/index.ts'
+import {
+  GetAffectedProductSalesConfigurationsUseCase,
+  publishAffectedProductSalesConfigurations,
+} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
 import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
@@ -30,6 +34,8 @@ export class ChangeProductUnitUseCase implements UseCase<Request, Product> {
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
+    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
+      []
     const product = await this.database.run(async (scope) => {
       const currentProduct = await scope.productsRepository.findByIdForUpdate(
         request.actor.establishmentId,
@@ -46,11 +52,24 @@ export class ChangeProductUnitUseCase implements UseCase<Request, Product> {
         throw new BadRequestError('A unidade de destino deve ser diferente da atual.')
       }
 
-      return scope.productsRepository.replace(
+      const savedProduct = await scope.productsRepository.replace(
         request.actor.establishmentId,
         currentProduct.id,
         { unit: request.input.targetUnit },
       )
+      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
+        scope,
+        establishmentId: request.actor.establishmentId,
+        productId: request.productId,
+      })
+      return savedProduct
+    })
+
+    await publishAffectedProductSalesConfigurations({
+      broker: this.broker,
+      establishmentId: request.actor.establishmentId,
+      productId: request.productId,
+      configurations,
     })
 
     await this.broker.publish(

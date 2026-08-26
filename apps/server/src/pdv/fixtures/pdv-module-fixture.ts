@@ -6,14 +6,46 @@ import {
 } from '@scoops/core/identity/domain/entities/fakers'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { ServerAuthProvider } from '@scoops/core/identity/interfaces'
+import type {
+  AccompanimentType,
+  Brand,
+  BrandCreate,
+  Product,
+  ProductAccompaniment,
+  ProductSize,
+  ResaleConfiguration,
+} from '@scoops/core/mrp/domain/entities'
+import type {
+  AccompanimentTypeCreate,
+  ProductAccompanimentCreate,
+  ProductCreate,
+  ProductSizeCreate,
+  ResaleConfigurationCreate,
+} from '@scoops/core/mrp/domain/structures'
+import type {
+  AccompanimentTypesRepository,
+  BrandsRepository,
+  ProductAccompanimentsRepository,
+  ProductsRepository,
+  ProductSizesRepository,
+  ResaleConfigurationsRepository,
+} from '@scoops/core/mrp/interfaces'
 import type { SalesChannel, SalesChannelCreate } from '@scoops/core/pdv/domain/entities'
-import type { SalesChannelsRepository } from '@scoops/core/pdv/interfaces'
+import type { Combo } from '@scoops/core/pdv/domain/entities'
+import type { ComboCreate } from '@scoops/core/pdv/domain/structures'
+import type {
+  DiscountsRepository,
+  SalesChannelsRepository,
+} from '@scoops/core/pdv/interfaces'
 import type { TestingModuleBuilder } from '@nestjs/testing'
 
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
 import { IdentityModule } from '@/identity/identity.module'
+import { MRP_REPOSITORIES } from '@/mrp/constants'
+import { MrpSeeder } from '@/mrp/database/mrp-seeder'
+import { MrpModule } from '@/mrp/mrp.module'
 import { PDV_REPOSITORIES } from '@/pdv/constants'
 import { PdvSeeder } from '@/pdv/database/pdv-seeder'
 import { PdvModule } from '@/pdv/pdv.module'
@@ -43,6 +75,7 @@ export class PdvModuleFixture {
         imports: [
           SharedModule,
           IdentityModule,
+          MrpModule,
           PdvModule,
           InngestModule.forRoot({ functions: [] }),
         ],
@@ -72,6 +105,42 @@ export class PdvModuleFixture {
 
   get seeder(): PdvSeeder {
     return this.get(PdvSeeder)
+  }
+
+  get broker(): InngestMock {
+    return this.get(InngestBroker) as unknown as InngestMock
+  }
+
+  get mrpSeeder(): MrpSeeder {
+    return this.get(MrpSeeder)
+  }
+
+  get products(): ProductsRepository {
+    return this.get(MRP_REPOSITORIES.products)
+  }
+
+  get productSizes(): ProductSizesRepository {
+    return this.get(MRP_REPOSITORIES.productSizes)
+  }
+
+  get resaleConfigurations(): ResaleConfigurationsRepository {
+    return this.get(MRP_REPOSITORIES.resaleConfigurations)
+  }
+
+  get brands(): BrandsRepository {
+    return this.get(MRP_REPOSITORIES.brands)
+  }
+
+  get accompanimentTypes(): AccompanimentTypesRepository {
+    return this.get(MRP_REPOSITORIES.accompanimentTypes)
+  }
+
+  get productAccompaniments(): ProductAccompanimentsRepository {
+    return this.get(MRP_REPOSITORIES.productAccompaniments)
+  }
+
+  get discounts(): DiscountsRepository {
+    return this.get(PDV_REPOSITORIES.discounts)
   }
 
   async resetDatabase() {
@@ -115,6 +184,7 @@ export class PdvModuleFixture {
       users,
       registrationAttempts: [],
     })
+    await this.mrpSeeder.run()
     await this.seeder.run()
     return users
   }
@@ -131,6 +201,36 @@ export class PdvModuleFixture {
 
   addSalesChannel(input: SalesChannelCreate): Promise<SalesChannel> {
     return this.salesChannels.add(input)
+  }
+
+  addProduct(input: ProductCreate): Promise<Product> {
+    return this.products.add(input)
+  }
+
+  addProductSize(input: ProductSizeCreate): Promise<ProductSize> {
+    return this.productSizes.add(input)
+  }
+
+  addResaleConfiguration(input: ResaleConfigurationCreate): Promise<ResaleConfiguration> {
+    return this.resaleConfigurations.add(input)
+  }
+
+  addBrand(input: BrandCreate): Promise<Brand> {
+    return this.brands.add(input)
+  }
+
+  addAccompanimentType(input: AccompanimentTypeCreate): Promise<AccompanimentType> {
+    return this.accompanimentTypes.add(input)
+  }
+
+  addProductAccompaniment(
+    input: ProductAccompanimentCreate,
+  ): Promise<ProductAccompaniment> {
+    return this.productAccompaniments.add(input)
+  }
+
+  addCombo(input: ComboCreate): Promise<Combo> {
+    return this.discounts.add(input)
   }
 
   close() {
@@ -151,6 +251,7 @@ export async function resetPdvFixture(
   await auth.clear()
   await fixture.resetDatabase()
   await fixture.seedAccounts()
+  fixture.broker.events.length = 0
   fixture.authenticate(auth.setUser.bind(auth))
 }
 

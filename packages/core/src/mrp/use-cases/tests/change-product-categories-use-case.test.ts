@@ -58,7 +58,8 @@ describe('Change Product Categories Use Case', () => {
     expect(scope.productsRepository.replace).toHaveBeenCalledWith('e1', 'p1', {
       categories: [ProductCategory.Portion, ProductCategory.Accompaniment],
     })
-    expect(broker.publish).toHaveBeenCalledTimes(1)
+    expect(database.run).toHaveBeenCalledTimes(1)
+    expect(broker.publish).toHaveBeenCalledTimes(2)
     expect(result.product.categories).toEqual([
       ProductCategory.Portion,
       ProductCategory.Accompaniment,

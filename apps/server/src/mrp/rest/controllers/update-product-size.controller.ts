@@ -4,12 +4,14 @@ import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { MrpDatabase } from '@scoops/core/mrp/interfaces'
 import { UpdateProductSizeUseCase } from '@scoops/core/mrp/use-cases'
+import type { Broker } from '@scoops/core/shared/interfaces'
 
 import { CurrentAccount, RequiredProfiles } from '@/identity/decorators'
 import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MrpController } from '@/mrp/decorators'
 import { ProductPricingResponseDto } from '@/mrp/rest/dtos'
 import { updateProductSizeSchema } from '@/mrp/rest/schemas/product-schemas'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 
@@ -19,8 +21,11 @@ type RequestBody = Parameters<UpdateProductSizeUseCase['execute']>[0]['input']
 export class UpdateProductSizeController {
   private readonly useCase: UpdateProductSizeUseCase
 
-  constructor(@Inject(MRP_REPOSITORIES.database) database: MrpDatabase) {
-    this.useCase = new UpdateProductSizeUseCase(database)
+  constructor(
+    @Inject(MRP_REPOSITORIES.database) database: MrpDatabase,
+    @Inject(InngestBroker) broker: Broker,
+  ) {
+    this.useCase = new UpdateProductSizeUseCase(database, broker)
   }
 
   @Patch(':productId/sizes/:sizeId')

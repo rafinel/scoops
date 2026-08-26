@@ -3,6 +3,7 @@ import { ConflictError } from '@scoops/core/shared/domain/errors'
 import { Inject, Injectable } from '@nestjs/common'
 
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
+import { DrizzleDiscountsRepository } from '@/pdv/database/drizzle/repositories/drizzle-discounts-repository'
 import { DrizzleSalesChannelsRepository } from '@/pdv/database/drizzle/repositories/drizzle-sales-channels-repository'
 
 @Injectable()
@@ -22,6 +23,10 @@ export class DrizzlePdvDatabase implements PdvDatabase {
         async (transaction) =>
           operation({
             salesChannelsRepository: new DrizzleSalesChannelsRepository(
+              this.drizzleClient,
+              transaction,
+            ),
+            discountsRepository: new DrizzleDiscountsRepository(
               this.drizzleClient,
               transaction,
             ),

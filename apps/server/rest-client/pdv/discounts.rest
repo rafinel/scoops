@@ -1,0 +1,109 @@
+@baseUrl = http://127.0.0.1:3336
+@accessToken = replace-with-manager-token
+@comboId = 00000000-0000-0000-0000-000000000000
+@portionProductId = 00000000-0000-0000-0000-000000000000
+@portionSizeId = 00000000-0000-0000-0000-000000000000
+@accompanimentLinkId = 00000000-0000-0000-0000-000000000000
+@resaleProductId = 00000000-0000-0000-0000-000000000000
+@resaleBrandId = 00000000-0000-0000-0000-000000000000
+@expectedUpdatedAt = 2026-08-24T12:00:00.000Z
+
+### List Combos
+GET {{baseUrl}}/discounts?page=1&pageSize=10&type=combo&status=active
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Search and filter Combos by current product
+GET {{baseUrl}}/discounts?search=chocolate&type=combo&status=inactive&page=1&pageSize=10
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### List Portion products available for a Combo
+GET {{baseUrl}}/discounts/catalog?kind=portion&page=1&pageSize=10
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### List Resale products available for a Combo
+GET {{baseUrl}}/discounts/catalog?kind=resale&search=chocolate&page=1&pageSize=10
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Get Combo details
+GET {{baseUrl}}/discounts/{{comboId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Create an active Combo with Portion and Resale components
+POST {{baseUrl}}/discounts
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Combo chocolate",
+  "status": "active",
+  "fixedPrice": 25.5,
+  "components": [
+    {
+      "kind": "portion",
+      "productId": "{{portionProductId}}",
+      "quantity": 1,
+      "sizeId": "{{portionSizeId}}",
+      "accompanimentIds": ["{{accompanimentLinkId}}"]
+    },
+    {
+      "kind": "resale",
+      "productId": "{{resaleProductId}}",
+      "quantity": 1,
+      "brandId": "{{resaleBrandId}}"
+    }
+  ]
+}
+
+### Update a Combo
+PATCH {{baseUrl}}/discounts/{{comboId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Combo chocolate atualizado",
+  "fixedPrice": 24.9,
+  "expectedUpdatedAt": "{{expectedUpdatedAt}}",
+  "components": [
+    {
+      "kind": "portion",
+      "productId": "{{portionProductId}}",
+      "quantity": 1,
+      "sizeId": "{{portionSizeId}}",
+      "accompanimentIds": []
+    },
+    {
+      "kind": "resale",
+      "productId": "{{resaleProductId}}",
+      "quantity": 1,
+      "brandId": "{{resaleBrandId}}"
+    }
+  ]
+}
+
+### Inactivate a Combo
+PATCH {{baseUrl}}/discounts/{{comboId}}/inactivate
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "expectedUpdatedAt": "{{expectedUpdatedAt}}"
+}
+
+### Reactivate a Combo
+PATCH {{baseUrl}}/discounts/{{comboId}}/reactivate
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "expectedUpdatedAt": "{{expectedUpdatedAt}}"
+}
+
+### Delete a Combo
+DELETE {{baseUrl}}/discounts/{{comboId}}?expectedUpdatedAt={{expectedUpdatedAt}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json

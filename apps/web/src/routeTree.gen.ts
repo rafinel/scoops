@@ -29,6 +29,8 @@ import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedAccompanimentTypesIndexRouteImport } from './routes/_authenticated/accompaniment-types/index'
 import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users/$userId'
 import { Route as AuthenticatedSalesNewRouteImport } from './routes/_authenticated/sales/new'
+import { Route as AuthenticatedDiscountsNewRouteImport } from './routes/_authenticated/discounts/new'
+import { Route as AuthenticatedDiscountsDiscountIdRouteImport } from './routes/_authenticated/discounts/$discountId'
 import { Route as AuthenticatedProductsProductIdRouteRouteImport } from './routes/_authenticated/products/$productId/route'
 import { Route as AuthenticatedProductsProductIdIndexRouteImport } from './routes/_authenticated/products/$productId/index'
 import { Route as AuthenticatedProductsProductIdStockRouteImport } from './routes/_authenticated/products/$productId/stock'
@@ -145,6 +147,18 @@ const AuthenticatedSalesNewRoute = AuthenticatedSalesNewRouteImport.update({
   path: '/sales/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDiscountsNewRoute =
+  AuthenticatedDiscountsNewRouteImport.update({
+    id: '/discounts/new',
+    path: '/discounts/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDiscountsDiscountIdRoute =
+  AuthenticatedDiscountsDiscountIdRouteImport.update({
+    id: '/discounts/$discountId',
+    path: '/discounts/$discountId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProductsProductIdRouteRoute =
   AuthenticatedProductsProductIdRouteRouteImport.update({
     id: '/products/$productId',
@@ -198,6 +212,8 @@ export interface FileRoutesByFullPath {
   '/onboarding/': typeof OnboardingIndexRoute
   '/reset-password/': typeof ResetPasswordIndexRoute
   '/products/$productId': typeof AuthenticatedProductsProductIdRouteRouteWithChildren
+  '/discounts/$discountId': typeof AuthenticatedDiscountsDiscountIdRoute
+  '/discounts/new': typeof AuthenticatedDiscountsNewRoute
   '/sales/new': typeof AuthenticatedSalesNewRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/accompaniment-types/': typeof AuthenticatedAccompanimentTypesIndexRoute
@@ -225,6 +241,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
   '/reset-password': typeof ResetPasswordIndexRoute
+  '/discounts/$discountId': typeof AuthenticatedDiscountsDiscountIdRoute
+  '/discounts/new': typeof AuthenticatedDiscountsNewRoute
   '/sales/new': typeof AuthenticatedSalesNewRoute
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/accompaniment-types': typeof AuthenticatedAccompanimentTypesIndexRoute
@@ -255,6 +273,8 @@ export interface FileRoutesById {
   '/onboarding/': typeof OnboardingIndexRoute
   '/reset-password/': typeof ResetPasswordIndexRoute
   '/_authenticated/products/$productId': typeof AuthenticatedProductsProductIdRouteRouteWithChildren
+  '/_authenticated/discounts/$discountId': typeof AuthenticatedDiscountsDiscountIdRoute
+  '/_authenticated/discounts/new': typeof AuthenticatedDiscountsNewRoute
   '/_authenticated/sales/new': typeof AuthenticatedSalesNewRoute
   '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/_authenticated/accompaniment-types/': typeof AuthenticatedAccompanimentTypesIndexRoute
@@ -285,6 +305,8 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/reset-password/'
     | '/products/$productId'
+    | '/discounts/$discountId'
+    | '/discounts/new'
     | '/sales/new'
     | '/users/$userId'
     | '/accompaniment-types/'
@@ -312,6 +334,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/reset-password'
+    | '/discounts/$discountId'
+    | '/discounts/new'
     | '/sales/new'
     | '/users/$userId'
     | '/accompaniment-types'
@@ -341,6 +365,8 @@ export interface FileRouteTypes {
     | '/onboarding/'
     | '/reset-password/'
     | '/_authenticated/products/$productId'
+    | '/_authenticated/discounts/$discountId'
+    | '/_authenticated/discounts/new'
     | '/_authenticated/sales/new'
     | '/_authenticated/users/$userId'
     | '/_authenticated/accompaniment-types/'
@@ -514,6 +540,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSalesNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/discounts/new': {
+      id: '/_authenticated/discounts/new'
+      path: '/discounts/new'
+      fullPath: '/discounts/new'
+      preLoaderRoute: typeof AuthenticatedDiscountsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/discounts/$discountId': {
+      id: '/_authenticated/discounts/$discountId'
+      path: '/discounts/$discountId'
+      fullPath: '/discounts/$discountId'
+      preLoaderRoute: typeof AuthenticatedDiscountsDiscountIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/products/$productId': {
       id: '/_authenticated/products/$productId'
       path: '/products/$productId'
@@ -598,6 +638,8 @@ const AuthenticatedProductsProductIdRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedProductsProductIdRouteRoute: typeof AuthenticatedProductsProductIdRouteRouteWithChildren
+  AuthenticatedDiscountsDiscountIdRoute: typeof AuthenticatedDiscountsDiscountIdRoute
+  AuthenticatedDiscountsNewRoute: typeof AuthenticatedDiscountsNewRoute
   AuthenticatedSalesNewRoute: typeof AuthenticatedSalesNewRoute
   AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
   AuthenticatedAccompanimentTypesIndexRoute: typeof AuthenticatedAccompanimentTypesIndexRoute
@@ -614,6 +656,8 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProductsProductIdRouteRoute:
     AuthenticatedProductsProductIdRouteRouteWithChildren,
+  AuthenticatedDiscountsDiscountIdRoute: AuthenticatedDiscountsDiscountIdRoute,
+  AuthenticatedDiscountsNewRoute: AuthenticatedDiscountsNewRoute,
   AuthenticatedSalesNewRoute: AuthenticatedSalesNewRoute,
   AuthenticatedUsersUserIdRoute: AuthenticatedUsersUserIdRoute,
   AuthenticatedAccompanimentTypesIndexRoute:

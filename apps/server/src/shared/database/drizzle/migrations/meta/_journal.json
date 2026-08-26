@@ -99,6 +99,13 @@
       "when": 1787668577274,
       "tag": "0013_sales_channel_management",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1787744792703,
+      "tag": "0014_combo_discount_management",
+      "breakpoints": true
     }
   ]
 }

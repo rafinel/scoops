@@ -4,12 +4,14 @@ import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { MrpDatabase } from '@scoops/core/mrp/interfaces'
 import { UpdateProductBrandUseCase } from '@scoops/core/mrp/use-cases'
+import type { Broker } from '@scoops/core/shared/interfaces'
 
 import { CurrentAccount, RequiredProfiles } from '@/identity/decorators'
 import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MrpController } from '@/mrp/decorators'
 import { ProductBrandStockResponseDto } from '@/mrp/rest/dtos'
 import { updateProductBrandSchema } from '@/mrp/rest/schemas/product-schemas'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 
@@ -19,8 +21,11 @@ type RequestBody = Parameters<UpdateProductBrandUseCase['execute']>[0]['input']
 export class UpdateProductBrandController {
   private readonly useCase: UpdateProductBrandUseCase
 
-  constructor(@Inject(MRP_REPOSITORIES.database) database: MrpDatabase) {
-    this.useCase = new UpdateProductBrandUseCase(database)
+  constructor(
+    @Inject(MRP_REPOSITORIES.database) database: MrpDatabase,
+    @Inject(InngestBroker) broker: Broker,
+  ) {
+    this.useCase = new UpdateProductBrandUseCase(database, broker)
   }
 
   @Patch(':productId/brands/:brandId')

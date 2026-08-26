@@ -4,6 +4,11 @@ import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
 import {
+  GetAffectedProductSalesConfigurationsUseCase,
+  publishAffectedProductSalesConfigurations,
+} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
+import {
   AuthorizationError,
   BadRequestError,
   NotFoundError,
@@ -17,10 +22,15 @@ type Request = {
 }
 
 export class RemoveProductAccompanimentUseCase implements UseCase<Request, void> {
-  constructor(private readonly database: MrpDatabase) {}
+  constructor(
+    private readonly database: MrpDatabase,
+    private readonly broker?: Broker,
+  ) {}
 
   async execute(request: Request): Promise<void> {
     this.validateActor(request.actor)
+    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
+      []
     await this.database.run(async (scope) => {
       const owner = await scope.productsRepository.findById(
         request.actor.establishmentId,
@@ -44,6 +54,17 @@ export class RemoveProductAccompanimentUseCase implements UseCase<Request, void>
         owner.id,
         link.id,
       )
+      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
+        scope,
+        establishmentId: request.actor.establishmentId,
+        productId: request.productId,
+      })
+    })
+    await publishAffectedProductSalesConfigurations({
+      broker: this.broker,
+      establishmentId: request.actor.establishmentId,
+      productId: request.productId,
+      configurations,
     })
   }
 

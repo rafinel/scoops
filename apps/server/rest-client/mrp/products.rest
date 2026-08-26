@@ -1,9 +1,12 @@
+@baseUrl = http://127.0.0.1:3336
+@accessToken = replace-with-manager-token
 @productId = 00000000-0000-0000-0000-000000000000
 @brandId = 00000000-0000-0000-0000-000000000000
 @linkId = 00000000-0000-0000-0000-000000000000
 @accompanimentTypeId = 00000000-0000-0000-0000-000000000000
 @accompanimentProductId = 00000000-0000-0000-0000-000000000000
 @sizeId = 00000000-0000-0000-0000-000000000000
+@recipeIngredientLineId = 00000000-0000-0000-0000-000000000000
 @expectedUpdatedAt = 2026-08-24T12:00:00.000Z
 
 ### List products
@@ -192,6 +195,61 @@ Authorization: Bearer {{accessToken}}
 GET {{baseUrl}}/products/{{productId}}/pricing
 Authorization: Bearer {{accessToken}}
 Accept: application/json
+
+### Get product recipe
+GET {{baseUrl}}/products/{{productId}}/recipe
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+### Save recipe yield
+PUT {{baseUrl}}/products/{{productId}}/recipe
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "yieldQuantity": 10
+}
+
+### Add a recipe ingredient
+POST {{baseUrl}}/products/{{productId}}/recipe/ingredients
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "ingredientProductId": "{{productId}}",
+  "quantity": 1.5
+}
+
+### Update a recipe ingredient
+PATCH {{baseUrl}}/products/{{productId}}/recipe/ingredients/{{recipeIngredientLineId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "quantity": 2
+}
+
+### Remove a recipe ingredient
+DELETE {{baseUrl}}/products/{{productId}}/recipe/ingredients/{{recipeIngredientLineId}}
+Authorization: Bearer {{accessToken}}
+
+### Preview production
+POST {{baseUrl}}/products/{{productId}}/production-preview
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "quantity": 5
+}
+
+### Register production
+POST {{baseUrl}}/products/{{productId}}/productions
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "quantity": 5
+}
 
 ### Register a Portion size
 POST {{baseUrl}}/products/{{productId}}/sizes

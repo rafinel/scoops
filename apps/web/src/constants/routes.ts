@@ -22,6 +22,8 @@ export const ROUTES = {
   orders: '/orders',
   salesChannels: '/sales-channels',
   discounts: '/discounts',
+  newDiscount: '/discounts/new',
+  discountDetails: '/discounts/$discountId',
   subscription: '/subscription',
   account: '/account',
   shopSettings: '/shop-settings',
@@ -37,6 +39,10 @@ export function productAccompanimentsRoute(productId: string): string {
 
 export function productStockRoute(productId: string): string {
   return ROUTES.productDetailsStock.replace('$productId', productId)
+}
+
+export function discountDetailsRoute(discountId: string): string {
+  return ROUTES.discountDetails.replace('$discountId', discountId)
 }
 
 export type RouteName = keyof typeof ROUTES
