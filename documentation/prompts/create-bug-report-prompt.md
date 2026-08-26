@@ -6,12 +6,8 @@ description: Diagnose a GitHub bug issue into a concise, evidence-based Bug Repo
 
 ## Goal
 
-Turn an informal defect report or GitHub bug issue into two distinct artifacts:
-
-1. a concise GitHub bug issue that tracks the symptom, expected behavior, reproduction and
-   context; and
-2. a repository Bug Report that records the evidence-backed technical diagnosis and correction
-   boundary.
+Turn an approved GitHub bug issue into a repository Bug Report that records the evidence-backed
+technical diagnosis and correction boundary.
 
 The Bug Report is diagnostic input, not an implementation Spec. Do not add acceptance criteria,
 manual validations, implementation phases, tasks, signatures or proposed file inventories. When
@@ -20,7 +16,8 @@ Spec or adding a `Delivery Route` section to the Bug Report.
 
 ## Input
 
-- **Problem sketch or GitHub bug issue:** observed symptom and any known reproduction steps.
+- **GitHub bug issue:** approved intake issue containing the observed symptom, expected behavior,
+  reproduction and context.
 - **Technical context (optional):** device, OS, browser, environment and affected feature or flow.
 
 ## Applicable rules
@@ -56,13 +53,10 @@ findings from hypotheses, and omit claims that cannot be supported by repository
 
 ## Workflow
 
-1. Separate the observed failure from expected product behavior.
-2. Ensure a GitHub bug issue exists. Create or update it with only:
-   - `Problem`;
-   - `Expected Behavior`;
-   - `Reproduction`; and
-   - `Context`, including module, application, environment and available evidence.
-3. Link the issue to the relevant PRD `REQ-*` when the defect violates an existing product
+1. Require an existing GitHub bug issue. If none exists, stop and route intake through
+   `create-bug-issue`; do not create or update the issue from this workflow.
+2. Separate the observed failure from expected product behavior.
+3. Link the report to the relevant PRD `REQ-*` when the defect violates an existing product
    requirement. Do not amend the PRD unless intended product behavior changes.
 4. Dispatch the applicable Searchers and inspect the real feature entry point, state control,
    remote call, use case, persistence or integration boundaries implicated by the evidence.

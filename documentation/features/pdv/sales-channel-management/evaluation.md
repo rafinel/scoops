@@ -3,7 +3,7 @@ feature: "pdv/sales-channel-management"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 1
-status: ready
+status: completed
 updated_at: 2026-08-25
 ---
 
@@ -11,14 +11,14 @@ updated_at: 2026-08-25
 
 Evaluation of Spec revision `1` against the current implementation.
 
-Current result: The integrated candidate satisfies the Spec acceptance matrix. The current
-Core, Validation, Server and Web preflight passes, the tracked migration is applied locally,
-real authenticated Manager/Operator/anonymous runtime scenarios pass, fresh visual states are
-reconciled, the channel form’s Zod validation messages are explicitly pt-BR, and the adjustment
-filter is synchronized with the public URL. The full mocked route suite reproduced the known
-intermittent closed-session failure only in the Operator navigation assertion; its 12-test
-regression subset and isolated Operator scenario pass. The Evaluation is ready for conclusion;
-the final PR CI gate remains to be recorded.
+Current result: The integrated candidate satisfies the Spec acceptance matrix. Core, Validation,
+Server and Web preflight passes, the tracked migration is applied locally, real authenticated
+Manager/Operator/anonymous runtime scenarios pass, fresh visual states are reconciled, the
+channel form’s Zod validation messages are explicitly pt-BR, and the adjustment filter is
+synchronized with the public URL. The full mocked route suite reproduced the known intermittent
+closed-session failure only in the Operator navigation assertion; its 12-test regression subset
+and isolated Operator scenario pass. The required Core, Server and Web pull-request CI workflows
+passed for head `34d2159af17a50f22abde6fc8d1d5c02f37ee8d9`; the Evaluation is complete.
 
 ## Acceptance matrix
 
@@ -90,7 +90,7 @@ the final PR CI gate remains to be recorded.
 | `EV-CLOSE-04` | Web browser closure | `pnpm --filter web test:integration tests/routes/pdv/sales-channels.index.test.ts --workers=1` | 12 of 13 tests passed; only the known closed-session Operator navigation assertion failed in the full run and was rerun in isolation | `failed` |
 | `EV-CLOSE-05` | Web browser closure | `pnpm --filter web test:integration tests/routes/pdv/sales-channels.index.test.ts --workers=1 --grep-invert 'denies Operator management access'` and `--grep 'denies Operator management access'` | Regression subset passed 12/12 and isolated Operator-denial scenario passed 1/1; fresh route screenshots were captured and inspected | `passed` |
 | `EV-CLOSE-06` | Real runtime closure | Temporary Playwright CLI full-stack harness against Server/Supabase/Web, `--workers=1` | 2 tests passed in 16.0s: persisted Manager lifecycle and active-only API exclusion; Operator denial, anonymous redirect, narrow 44px action target and console diagnostics also passed; temporary harness removed after execution | `passed` |
-| `EV-CLOSE-07` | Auth/runtime setup | `pnpm --filter web test:auth:setup` after verifying seeded Manager/Operator accounts | Authenticated Manager and Operator storage states created successfully; generated state files were restored and excluded from the delivery diff | `passed` |
+| `EV-CLOSE-07` | Auth/runtime setup | `pnpm --filter web test:auth:setup` after verifying seeded Manager/Operator accounts | Authenticated Manager and Operator storage states created successfully; their semantic contents were restored and the remaining local EOF-only churn was excluded from the delivery commit | `passed` |
 
 ## Manual evidence
 
@@ -167,7 +167,7 @@ the final PR CI gate remains to be recorded.
 | `FND-005` | implementation | Operator-denial browser scenario and console output | `EV-F5-07`, `EV-F5-09`, `CA-07` | `resolved` | The final focused suite passes Operator-denial and anonymous access assertions; no authorization assertion was weakened. |
 | `FND-006` | accepted_non_blocking | Strict console diagnostics during loading/error recovery | `EV-F5-08`, `EV-F5-09`, `CA-08`, `VIS-08b`, `VIS-08c` | `accepted_non_blocking` | The exact pre-mount React warning is a repository-wide existing warning covered by established route-test precedent; final diagnostics remain strict for unexpected console errors and failed requests, and the 9-test suite passes. |
 | `FND-007` | environment | Integrated Reviewer: full Web Vitest was incomplete | `EV-F6-02` | `resolved` | Reran with `--reporter=dot --maxWorkers=2`; 131 files and 270 tests passed in 116.50s. |
-| `FND-008` | hygiene | Integrated Reviewer: generated Playwright auth states were modified | `apps/web/playwright/.auth/manager.json`, `apps/web/playwright/.auth/operator.json` | `resolved` | Restored both tracked auth-state files to their baseline contents; they are ignored and absent from the final worktree diff. |
+| `FND-008` | hygiene | Integrated Reviewer: generated Playwright auth states were modified | `apps/web/playwright/.auth/manager.json`, `apps/web/playwright/.auth/operator.json` | `resolved` | Restored both tracked auth-state files to their baseline semantic contents; local EOF-only churn remains unstaged and was excluded from the delivery commit. |
 | `FND-009` | implementation | User-reported English Zod validation copy in the channel dialog | `packages/validation/src/identity/name-schema.ts`, `packages/validation/src/pdv/save-channel-schema.ts`, `packages/validation/src/pdv/sales-channel-status-schema.ts`, `packages/validation/src/web/sales-channel-form-schema.ts`, `EV-F5-10`, `VIS-10` | `resolved` | Added explicit pt-BR messages for required/type/range/precision/status validation and verified the rendered dialog with 10 passing Playwright tests. |
 | `FND-010` | environment | Full focused route rerun after adding adjustment filters | `EV-F5-14`, `EV-F5-11`, `EV-F5-12`, `EV-F5-13` | `resolved` | The Operator navigation assertion hit the same transient closed-session failure seen in earlier route runs; the new filter tests and the Operator scenario pass in isolation, and the remaining 10 route scenarios pass in the regression subset. |
 | `FND-011` | implementation | User-requested URL synchronization for adjustment filters | `EV-F5-17`–`EV-F5-21`, `VIS-11a`, `VIS-11b` | `resolved` | Added the typed route search schema, route-controlled filter state, URL hydration/update/removal and deterministic invalid-value fallback; browser and static sensors pass. |
@@ -192,6 +192,9 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| `CI-01` | Core CI | `34d2159af17a50f22abde6fc8d1d5c02f37ee8d9` | `passed` | [Run 32913918073](https://github.com/rafinel/scoops/actions/runs/32913918073) — Core code, types and tests |
+| `CI-02` | Server CI | `34d2159af17a50f22abde6fc8d1d5c02f37ee8d9` | `passed` | [Run 32913918107](https://github.com/rafinel/scoops/actions/runs/32913918107) — Server code, types, full tests, Supabase gateway and build |
+| `CI-03` | Web CI | `34d2159af17a50f22abde6fc8d1d5c02f37ee8d9` | `passed` | [Run 32913918084](https://github.com/rafinel/scoops/actions/runs/32913918084) — route generation, code, types, unit tests, Chromium, mocked routes and build |
 
 ## History
 
@@ -213,3 +216,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-08-25` | Converted adjustment legend chips into toggleable accessible filters; widget/type/unit checks passed, the focused browser scenarios passed at desktop and 768×1024 with fresh `VIS-11a`/`VIS-11b`, and FND-010 was resolved through isolated and regression-subset reruns. |
 | `2026-08-25` | Synchronized adjustment filters with the `adjustment` URL search parameter; Validation/Web type and unit checks, route generation, browser health and 3 focused URL scenarios passed, and FND-011 resolved. |
 | `2026-08-25` | Conclusion preflight reran Core, Validation, Server, Web, migration, focused controller, full Web unit, health and route checks; transient full-route Operator session closure was isolated, real authenticated runtime passed 2/2, fresh visual captures were inspected, and FND-012 resolved. |
+| `2026-08-25` | PR #25 was opened from commit `34d2159`; the required Core, Server and Web pull-request workflows passed for the exact head SHA. Evaluation closure is complete; external Vercel contexts were not part of the checked-in CI gate. |
