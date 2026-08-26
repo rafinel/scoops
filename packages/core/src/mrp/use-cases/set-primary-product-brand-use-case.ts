@@ -2,6 +2,11 @@ import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { ProductBrandStock } from '#mrp/domain/structures/product-brand-stock.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
+import {
+  GetAffectedProductSalesConfigurationsUseCase,
+  publishAffectedProductSalesConfigurations,
+} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
 import { AuthorizationError, NotFoundError } from '#shared/domain/errors/index.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
@@ -10,11 +15,16 @@ type Request = { actor: ProductActor; productId: string; brandId: string }
 export class SetPrimaryProductBrandUseCase
   implements UseCase<Request, ProductBrandStock>
 {
-  constructor(private readonly database: MrpDatabase) {}
+  constructor(
+    private readonly database: MrpDatabase,
+    private readonly broker?: Broker,
+  ) {}
 
   async execute(request: Request): Promise<ProductBrandStock> {
     this.validateActor(request.actor)
-    return this.database.run(async (scope) => {
+    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
+      []
+    const result = await this.database.run(async (scope) => {
       const product = await scope.productsRepository.findById(
         request.actor.establishmentId,
         request.productId,
@@ -29,12 +39,24 @@ export class SetPrimaryProductBrandUseCase
         product.id,
         brand.id,
       )
+      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
+        scope,
+        establishmentId: request.actor.establishmentId,
+        productId: request.productId,
+      })
       return {
         brand: savedBrand,
         stockQuantity: balance?.quantity ?? 0,
         unitPrice: savedBrand.packagePrice / savedBrand.packageQuantity,
       }
     })
+    await publishAffectedProductSalesConfigurations({
+      broker: this.broker,
+      establishmentId: request.actor.establishmentId,
+      productId: request.productId,
+      configurations,
+    })
+    return result
   }
 
   private validateActor(actor: ProductActor): void {

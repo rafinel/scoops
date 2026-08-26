@@ -7,9 +7,3 @@ export type Combo = Discount & {
   fixedPrice: number
   components: readonly DiscountComponent[]
 }
-
-export type ComboCreate = Omit<Combo, 'id' | 'createdAt' | 'updatedAt'>
-
-export type ComboUpdate = Partial<
-  Pick<Combo, 'name' | 'status' | 'fixedPrice' | 'components'>
->

@@ -11,18 +11,23 @@ import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { MrpDatabase } from '@scoops/core/mrp/interfaces'
 import { RemoveProductSizeUseCase } from '@scoops/core/mrp/use-cases'
+import type { Broker } from '@scoops/core/shared/interfaces'
 
 import { CurrentAccount, RequiredProfiles } from '@/identity/decorators'
 import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MrpController } from '@/mrp/decorators'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 @MrpController()
 export class RemoveProductSizeController {
   private readonly useCase: RemoveProductSizeUseCase
 
-  constructor(@Inject(MRP_REPOSITORIES.database) database: MrpDatabase) {
-    this.useCase = new RemoveProductSizeUseCase(database)
+  constructor(
+    @Inject(MRP_REPOSITORIES.database) database: MrpDatabase,
+    @Inject(InngestBroker) broker: Broker,
+  ) {
+    this.useCase = new RemoveProductSizeUseCase(database, broker)
   }
 
   @Delete(':productId/sizes/:sizeId')

@@ -5,6 +5,11 @@ import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { UpdateProductAccompanimentInput } from '#mrp/domain/structures/update-product-accompaniment-input.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
+import {
+  GetAffectedProductSalesConfigurationsUseCase,
+  publishAffectedProductSalesConfigurations,
+} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
 import { GetProductAccompanimentsUseCase } from '#mrp/use-cases/get-product-accompaniments-use-case.ts'
 import { validateQuantity } from '#mrp/use-cases/link-product-accompaniment-use-case.ts'
 import {
@@ -24,13 +29,18 @@ type Request = {
 export class UpdateProductAccompanimentUseCase
   implements UseCase<Request, ProductAccompanimentDetails>
 {
-  constructor(private readonly database: MrpDatabase) {}
+  constructor(
+    private readonly database: MrpDatabase,
+    private readonly broker?: Broker,
+  ) {}
 
   async execute(request: Request): Promise<ProductAccompanimentDetails> {
     this.validateActor(request.actor)
     validateQuantity(request.input.quantityPerPortion)
 
-    return this.database.run(async (scope) => {
+    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
+      []
+    const result = await this.database.run(async (scope) => {
       const owner = await scope.productsRepository.findById(
         request.actor.establishmentId,
         request.productId,
@@ -64,12 +74,24 @@ export class UpdateProductAccompanimentUseCase
           quantityPerPortion: request.input.quantityPerPortion,
         },
       )
+      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
+        scope,
+        establishmentId: request.actor.establishmentId,
+        productId: request.productId,
+      })
       return GetProductAccompanimentsUseCase.buildDetails(
         scope,
         request.actor.establishmentId,
         updated,
       )
     })
+    await publishAffectedProductSalesConfigurations({
+      broker: this.broker,
+      establishmentId: request.actor.establishmentId,
+      productId: request.productId,
+      configurations,
+    })
+    return result
   }
 
   private validateActor(actor: ProductActor): void {

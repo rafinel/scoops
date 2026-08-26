@@ -55,7 +55,8 @@ describe('Update Product Settings Use Case', () => {
       idealStock: null,
       internalNotes: null,
     })
-    expect(broker.publish).toHaveBeenCalledTimes(1)
+    expect(database.run).toHaveBeenCalledTimes(1)
+    expect(broker.publish).toHaveBeenCalledTimes(2)
     expect(result.product.id).toBe('p1')
   })
 
@@ -68,6 +69,7 @@ describe('Update Product Settings Use Case', () => {
       }),
     ).rejects.toBeInstanceOf(BadRequestError)
     expect(scope.productsRepository.replace).not.toHaveBeenCalled()
+    expect(broker.publish).not.toHaveBeenCalled()
 
     scope.productsRepository.findByName.mockResolvedValue({ ...product, id: 'other' })
     await expect(

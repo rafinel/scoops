@@ -800,7 +800,7 @@ devices while receiving consistent server-backed results.
 
 ### REQ-13 — Combo Discount Management
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** The Manager can create and manage discounts of the type
 Combo, made up of different products and sold for a fixed final price.

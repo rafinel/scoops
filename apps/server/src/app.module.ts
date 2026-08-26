@@ -9,6 +9,7 @@ import { InngestModule } from '@/shared/messaging/inngest/inngest.module'
 import { SharedModule } from '@/shared/shared.module'
 import { SendInvitationEmailJob } from '@/communication/messaging/inngest/jobs'
 import { ExpireIceCreamShopOnboardingsJob } from '@/identity/messaging/inngest/jobs'
+import { RevalidateCombosForProductJob } from '@/pdv/messaging/inngest/jobs'
 
 @Module({
   imports: [
@@ -19,7 +20,11 @@ import { ExpireIceCreamShopOnboardingsJob } from '@/identity/messaging/inngest/j
     PdvModule,
     CommunicationModule,
     InngestModule.forRoot({
-      functions: [SendInvitationEmailJob, ExpireIceCreamShopOnboardingsJob],
+      functions: [
+        SendInvitationEmailJob,
+        ExpireIceCreamShopOnboardingsJob,
+        RevalidateCombosForProductJob,
+      ],
     }),
   ],
 })

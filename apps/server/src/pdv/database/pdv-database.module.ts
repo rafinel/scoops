@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 
 import { PDV_REPOSITORIES } from '@/pdv/constants'
 import {
+  DrizzleDiscountsRepository,
   DrizzlePdvDatabase,
   DrizzleSalesChannelsRepository,
 } from '@/pdv/database/drizzle/repositories'
@@ -11,9 +12,14 @@ import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
 @Module({
   imports: [SharedDatabaseModule],
   providers: [
+    DrizzleDiscountsRepository,
     DrizzleSalesChannelsRepository,
     DrizzlePdvDatabase,
     PdvSeeder,
+    {
+      provide: PDV_REPOSITORIES.discounts,
+      useExisting: DrizzleDiscountsRepository,
+    },
     {
       provide: PDV_REPOSITORIES.salesChannels,
       useExisting: DrizzleSalesChannelsRepository,
@@ -23,6 +29,11 @@ import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
       useExisting: DrizzlePdvDatabase,
     },
   ],
-  exports: [PDV_REPOSITORIES.salesChannels, PDV_REPOSITORIES.database, PdvSeeder],
+  exports: [
+    PDV_REPOSITORIES.discounts,
+    PDV_REPOSITORIES.salesChannels,
+    PDV_REPOSITORIES.database,
+    PdvSeeder,
+  ],
 })
 export class PdvDatabaseModule {}

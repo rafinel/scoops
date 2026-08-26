@@ -28,7 +28,13 @@ export const SIDEBAR_ITEMS: readonly SidebarItem[] = [
     route: 'salesChannels',
     profiles: [UserProfile.Manager],
   },
-  { icon: 'tags', label: 'Descontos', route: 'discounts' },
+  {
+    icon: 'tags',
+    label: 'Descontos',
+    route: 'discounts',
+    profiles: [UserProfile.Manager],
+    activePrefixes: ['/discounts/'],
+  },
 ]
 
 export const SIDEBAR_SECONDARY_ITEMS: readonly SidebarItem[] = [

@@ -160,8 +160,9 @@ the user whether an in-Contract discrepancy should be fixed.
 Include these sections in this order:
 
 - **Objective** — problem, expected outcome, scope and explicit exclusions;
-- **Related issues** — real GitHub Issues and their relationship, or `None` (use closing
-  keywords only when closure is intended);
+- **Related issues** — real GitHub Issues and their relationship, or `None`. For every listed
+  issue, use the GitHub closing keyword `Closes #<number>`; do not use `Refs #<number>` or
+  another non-closing relationship when an issue is listed.
 - **PRD and Spec traceability** — applicable PRD, fully/partially delivered `REQ-*`
   requirements and their current Implemented-checkbox disposition, Spec, Plan, exact revision
   and covered `RF-*`/`CA-*` criteria. Report the state established by `conclude-spec`; this
@@ -197,7 +198,9 @@ reproducible manual coverage; if any is only a generic summary, expand it before
 the PR metadata. Keep the body concise enough to review; it is a traceability and validation
 summary, not a copy of the full diff.
 
-Use a short noun-phrase title without a Conventional Commit prefix or fabricated issue key.
+Never include a Conventional Commit type or scope prefix in any PR title, including
+`feat(scope):`, `fix:`, `docs:`, or `chore(scope):`. Use only a concise noun-phrase title
+without a fabricated issue key; commit messages may still use Conventional Commit format.
 For a bug fix, include the evidence-based cause and correction.
 
 ## Publish and return

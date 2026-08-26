@@ -2,6 +2,7 @@ import type {
   AccompanimentTypeCreate,
   ProductCreate,
 } from '@scoops/core/mrp/domain/structures'
+import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import type {
   AccompanimentTypesRepository,
   BrandsRepository,
@@ -60,6 +61,15 @@ type MrpProductAccompanimentSeed = {
   quantityPerPortion: number
 }
 
+type MrpResaleConfigurationSeed = {
+  productId?: string
+  productName?: string
+  brandId?: string
+  brandName?: string
+  price: number
+  isActive: boolean
+}
+
 export type MrpSeed = {
   accompanimentTypes: AccompanimentTypeCreate[]
   products: MrpProductSeed[]
@@ -67,6 +77,7 @@ export type MrpSeed = {
   stockBalances: MrpStockBalanceSeed[]
   productSizes: MrpProductSizeSeed[]
   productAccompaniments: MrpProductAccompanimentSeed[]
+  resaleConfigurations: MrpResaleConfigurationSeed[]
 }
 
 @Injectable()
@@ -122,6 +133,7 @@ export class MrpSeeder {
       stockBalances,
       productSizes,
       productAccompaniments,
+      resaleConfigurations,
     } = Array.isArray(seed)
       ? {
           accompanimentTypes: [],
@@ -130,6 +142,7 @@ export class MrpSeeder {
           stockBalances: [],
           productSizes: [],
           productAccompaniments: [],
+          resaleConfigurations: [],
         }
       : seed
 
@@ -242,6 +255,68 @@ export class MrpSeeder {
       if (stockBalance.quantity !== 0) {
         await this.stockBalancesRepository.add(target, stockBalance.quantity)
       }
+    }
+
+    for (const resaleConfiguration of resaleConfigurations) {
+      const resolvedProductId =
+        resaleConfiguration.productId ??
+        (resaleConfiguration.productName
+          ? productIdsByName.get(resaleConfiguration.productName)
+          : undefined)
+      if (!resolvedProductId) {
+        throw new AppError(
+          'O produto da configuração de revenda seed não foi encontrado.',
+          'Seed MRP inválido',
+        )
+      }
+
+      const product = createdProducts.find(({ id }) => id === resolvedProductId)
+      if (!product) {
+        throw new AppError(
+          'A configuração de revenda seed referencia um produto que não foi criado nesta seed.',
+          'Seed MRP inválido',
+        )
+      }
+
+      const resolvedBrandId =
+        resaleConfiguration.brandId ??
+        (resaleConfiguration.brandName
+          ? brandIdsByProductAndName.get(
+              this.getBrandKey(resolvedProductId, resaleConfiguration.brandName),
+            )
+          : undefined)
+      if (resaleConfiguration.brandName && !resolvedBrandId) {
+        throw new AppError(
+          'A marca da configuração de revenda seed não foi encontrada.',
+          'Seed MRP inválido',
+        )
+      }
+      if (
+        product.stockControl === ProductStockControl.Single &&
+        resolvedBrandId !== undefined
+      ) {
+        throw new AppError(
+          'O produto de estoque único não pode ter marca na configuração de revenda seed.',
+          'Seed MRP inválido',
+        )
+      }
+      if (
+        product.stockControl === ProductStockControl.ByBrand &&
+        resolvedBrandId === undefined
+      ) {
+        throw new AppError(
+          'Informe a marca da configuração de revenda seed para produtos por marca.',
+          'Seed MRP inválido',
+        )
+      }
+
+      await this.resaleConfigurationsRepository.add({
+        establishmentId: product.establishmentId,
+        productId: resolvedProductId,
+        ...(resolvedBrandId ? { brandId: resolvedBrandId } : {}),
+        price: resaleConfiguration.price,
+        isActive: resaleConfiguration.isActive,
+      })
     }
 
     for (const accompanimentSeed of productAccompaniments) {

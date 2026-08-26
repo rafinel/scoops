@@ -9,6 +9,11 @@ import { ProductStockControl } from '#mrp/domain/structures/product-stock-contro
 import { GetProductAccompanimentsUseCase } from '#mrp/use-cases/get-product-accompaniments-use-case.ts'
 import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
 import {
+  GetAffectedProductSalesConfigurationsUseCase,
+  publishAffectedProductSalesConfigurations,
+} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
+import {
   AuthorizationError,
   BadRequestError,
   ConflictError,
@@ -25,13 +30,18 @@ type Request = {
 export class LinkProductAccompanimentUseCase
   implements UseCase<Request, ProductAccompanimentDetails>
 {
-  constructor(private readonly database: MrpDatabase) {}
+  constructor(
+    private readonly database: MrpDatabase,
+    private readonly broker?: Broker,
+  ) {}
 
   async execute(request: Request): Promise<ProductAccompanimentDetails> {
     this.validateActor(request.actor)
     validateQuantity(request.input.quantityPerPortion)
 
-    return this.database.run(async (scope) => {
+    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
+      []
+    const result = await this.database.run(async (scope) => {
       const owner = await scope.productsRepository.findById(
         request.actor.establishmentId,
         request.productId,
@@ -68,12 +78,24 @@ export class LinkProductAccompanimentUseCase
         accompanimentTypeId: type.id,
         quantityPerPortion: request.input.quantityPerPortion,
       })
+      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
+        scope,
+        establishmentId: request.actor.establishmentId,
+        productId: request.productId,
+      })
       return GetProductAccompanimentsUseCase.buildDetails(
         scope,
         request.actor.establishmentId,
         link,
       )
     })
+    await publishAffectedProductSalesConfigurations({
+      broker: this.broker,
+      establishmentId: request.actor.establishmentId,
+      productId: request.productId,
+      configurations,
+    })
+    return result
   }
 
   private validateActor(actor: ProductActor): void {

@@ -3,6 +3,11 @@ import type { Product } from '#mrp/domain/entities/product.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { ProductRemovalImpact } from '#mrp/domain/structures/product-removal-impact.ts'
 import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import {
+  GetAffectedProductSalesConfigurationsUseCase,
+  publishAffectedProductSalesConfigurations,
+} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
 import { AuthorizationError, NotFoundError } from '#shared/domain/errors/index.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
@@ -12,11 +17,17 @@ type Request = {
 }
 
 export class RemoveProductUseCase implements UseCase<Request, void> {
-  constructor(private readonly database: MrpDatabase) {}
+  constructor(
+    private readonly database: MrpDatabase,
+    private readonly broker?: Broker,
+  ) {}
 
   async execute(request: Request): Promise<void> {
     this.validateActor(request.actor)
 
+    let inverseOwnerIds: readonly string[] = []
+    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
+      []
     await this.database.run(async (scope) => {
       const product = await scope.productsRepository.findByIdForUpdate(
         request.actor.establishmentId,
@@ -27,6 +38,23 @@ export class RemoveProductUseCase implements UseCase<Request, void> {
       }
 
       await this.readImpact(scope, request.actor.establishmentId, product)
+
+      const inverseLinks =
+        (await scope.productAccompanimentsRepository.findManyByAccompanimentProductId(
+          request.actor.establishmentId,
+          product.id,
+        )) ?? []
+      inverseOwnerIds = [
+        ...new Set(
+          inverseLinks
+            .filter(
+              (link) =>
+                link.establishmentId === request.actor.establishmentId &&
+                link.productId !== product.id,
+            )
+            .map((link) => link.productId),
+        ),
+      ]
 
       const [brands, sizes, recipe] = await Promise.all([
         scope.brandsRepository.findManyByProductId(
@@ -79,6 +107,19 @@ export class RemoveProductUseCase implements UseCase<Request, void> {
       }
 
       await scope.productsRepository.remove(request.actor.establishmentId, product.id)
+      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
+        scope,
+        establishmentId: request.actor.establishmentId,
+        productId: request.productId,
+        affectedProductIds: inverseOwnerIds,
+      })
+    })
+    await publishAffectedProductSalesConfigurations({
+      broker: this.broker,
+      establishmentId: request.actor.establishmentId,
+      productId: request.productId,
+      configurations,
+      deleted: true,
     })
   }
 

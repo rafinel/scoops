@@ -7,6 +7,11 @@ import {
   type RegisterProductSizeInput,
 } from '#mrp/domain/structures/index.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
+import {
+  GetAffectedProductSalesConfigurationsUseCase,
+  publishAffectedProductSalesConfigurations,
+} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
 import { GetProductPricingUseCase } from '#mrp/use-cases/get-product-pricing-use-case.ts'
 import {
   AuthorizationError,
@@ -25,13 +30,18 @@ type Request = {
 export class RegisterProductSizeUseCase
   implements UseCase<Request, ProductPricingDetails>
 {
-  constructor(private readonly database: MrpDatabase) {}
+  constructor(
+    private readonly database: MrpDatabase,
+    private readonly broker?: Broker,
+  ) {}
 
   async execute(request: Request): Promise<ProductPricingDetails> {
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    return this.database.run(async (scope) => {
+    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
+      []
+    const result = await this.database.run(async (scope) => {
       const product = await scope.productsRepository.findById(
         request.actor.establishmentId,
         request.productId,
@@ -58,12 +68,25 @@ export class RegisterProductSizeUseCase
         isActive: true,
       })
 
-      return GetProductPricingUseCase.buildDetails(
+      const details = await GetProductPricingUseCase.buildDetails(
         scope,
         request.actor.establishmentId,
         product,
       )
+      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
+        scope,
+        establishmentId: request.actor.establishmentId,
+        productId: request.productId,
+      })
+      return details
     })
+    await publishAffectedProductSalesConfigurations({
+      broker: this.broker,
+      establishmentId: request.actor.establishmentId,
+      productId: request.productId,
+      configurations,
+    })
+    return result
   }
 
   private validateActor(actor: ProductActor): void {

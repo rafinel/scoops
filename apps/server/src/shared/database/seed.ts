@@ -15,9 +15,16 @@ import {
   ProductStockControl,
   ProductUnit,
 } from '@scoops/core/mrp/domain/structures'
+import type {
+  ProductAccompanimentsRepository,
+  ProductsRepository,
+  ProductSizesRepository,
+} from '@scoops/core/mrp/interfaces'
+import type { ComboCreate } from '@scoops/core/pdv/domain/structures'
 
 import { AppModule } from '@/app.module'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
+import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MrpSeeder } from '@/mrp/database/mrp-seeder'
 import { PdvSeeder } from '@/pdv/database/pdv-seeder'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
@@ -268,6 +275,125 @@ const SEED_BRANDS = [
   },
 ] as const
 
+const SEED_COMBO_DEFINITIONS = [
+  {
+    name: 'Combo Açaí Clássico',
+    status: 'active',
+    fixedPrice: 32.5,
+    components: [
+      {
+        productName: 'Açaí tradicional',
+        sizeName: '300 g',
+        accompanimentProductNames: ['Granola', 'Banana fatiada'],
+      },
+      {
+        productName: 'Açaí tropical',
+        sizeName: '300 g',
+        accompanimentProductNames: ['Granola', 'Calda de chocolate'],
+      },
+    ],
+  },
+  {
+    name: 'Combo Açaí Família',
+    status: 'inactive',
+    fixedPrice: 48.9,
+    components: [
+      {
+        productName: 'Açaí tradicional',
+        sizeName: '500 g',
+        accompanimentProductNames: ['Granola', 'Creme de avelã'],
+      },
+      {
+        productName: 'Açaí tropical',
+        sizeName: '500 g',
+        accompanimentProductNames: ['Granola', 'Calda de chocolate'],
+      },
+    ],
+  },
+] as const
+
+async function buildSeedCombos(app: INestApplicationContext): Promise<ComboCreate[]> {
+  const productsRepository = app.get<ProductsRepository>(MRP_REPOSITORIES.products)
+  const productSizesRepository = app.get<ProductSizesRepository>(
+    MRP_REPOSITORIES.productSizes,
+  )
+  const productAccompanimentsRepository = app.get<ProductAccompanimentsRepository>(
+    MRP_REPOSITORIES.productAccompaniments,
+  )
+
+  async function findProduct(productName: string) {
+    const product = await productsRepository.findByName(
+      SEED_ESTABLISHMENT_ID,
+      productName,
+    )
+    if (!product) {
+      throw new AppError(
+        `O produto do combo seed ${productName} não foi encontrado.`,
+        'Seed PDV inválido',
+      )
+    }
+    return product
+  }
+
+  return Promise.all(
+    SEED_COMBO_DEFINITIONS.map(async (comboDefinition) => {
+      const components = await Promise.all(
+        comboDefinition.components.map(async (component) => {
+          const product = await findProduct(component.productName)
+          const sizes = await productSizesRepository.findManyByProductId(
+            SEED_ESTABLISHMENT_ID,
+            product.id,
+          )
+          const size = sizes.find((candidate) => candidate.name === component.sizeName)
+          if (!size?.isActive) {
+            throw new AppError(
+              `O tamanho ${component.sizeName} do combo seed ${comboDefinition.name} não foi encontrado ou está inativo.`,
+              'Seed PDV inválido',
+            )
+          }
+
+          const links = await productAccompanimentsRepository.findManyByProductId(
+            SEED_ESTABLISHMENT_ID,
+            product.id,
+          )
+          const accompanimentIds = await Promise.all(
+            component.accompanimentProductNames.map(async (accompanimentProductName) => {
+              const accompanimentProduct = await findProduct(accompanimentProductName)
+              const link = links.find(
+                (candidate) =>
+                  candidate.accompanimentProductId === accompanimentProduct.id,
+              )
+              if (!link) {
+                throw new AppError(
+                  `O acompanhamento ${accompanimentProductName} não está vinculado ao produto ${component.productName} do combo seed.`,
+                  'Seed PDV inválido',
+                )
+              }
+              return link.id
+            }),
+          )
+
+          return {
+            kind: 'portion' as const,
+            productId: product.id,
+            quantity: 1,
+            sizeId: size.id,
+            accompanimentIds,
+          }
+        }),
+      )
+
+      return {
+        establishmentId: SEED_ESTABLISHMENT_ID,
+        name: comboDefinition.name,
+        status: comboDefinition.status,
+        fixedPrice: comboDefinition.fixedPrice,
+        components,
+      }
+    }),
+  )
+}
+
 async function seedDatabase() {
   let app: INestApplicationContext | undefined
 
@@ -324,6 +450,19 @@ async function seedDatabase() {
       accompanimentTypes: [...SEED_ACCOMPANIMENT_TYPES],
       products: [...SEED_PRODUCTS],
       brands: [...SEED_BRANDS],
+      resaleConfigurations: [
+        {
+          productName: 'Copo 300 ml',
+          price: 4.5,
+          isActive: true,
+        },
+        {
+          productName: 'Creme de avelã',
+          brandName: 'Nutella',
+          price: 75,
+          isActive: true,
+        },
+      ],
       stockBalances: [],
       productSizes: [
         {
@@ -357,7 +496,7 @@ async function seedDatabase() {
       ],
       productAccompaniments: [...SEED_PRODUCT_ACCOMPANIMENTS],
     })
-    await pdvSeeder.run()
+    await pdvSeeder.run({ combos: await buildSeedCombos(app) })
   } finally {
     await app?.close()
   }
