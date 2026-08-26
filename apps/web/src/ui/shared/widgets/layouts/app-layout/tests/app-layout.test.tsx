@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 
 import { getSidebarItems } from '@/constants/sidebar-items'
-import { isSidebarItemActive } from './index'
+import { isSidebarItemActive } from '../index'
 
 describe('AppLayout sidebar profile configuration', () => {
-  it('keeps Types contextual and marks nested product routes active', () => {
+  it('keeps manager-only destinations out of the Operator navigation', () => {
     expect(
       getSidebarItems(UserProfile.Manager).some(
         (item) => item.route === 'accompanimentTypes',
@@ -15,6 +15,14 @@ describe('AppLayout sidebar profile configuration', () => {
     expect(
       getSidebarItems(UserProfile.Operator).some(
         (item) => item.route === 'accompanimentTypes',
+      ),
+    ).toBe(false)
+    expect(
+      getSidebarItems(UserProfile.Manager).some((item) => item.route === 'salesChannels'),
+    ).toBe(true)
+    expect(
+      getSidebarItems(UserProfile.Operator).some(
+        (item) => item.route === 'salesChannels',
       ),
     ).toBe(false)
     const products = getSidebarItems(UserProfile.Operator).find(

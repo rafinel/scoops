@@ -1,17 +1,34 @@
 import { createFileRoute } from '@tanstack/react-router'
+import {
+  salesChannelsSearchSchema,
+  type SalesChannelAdjustmentFilter,
+} from '@scoops/validation'
 
-import { PlaceholderPage } from '@/ui/shared/widgets/pages/placeholder-page'
+import { requireManagerMiddleware } from '@/middlewares/require-manager-middleware'
+import { SalesChannelsPage } from '@/ui/pdv/widgets/pages/sales-channels-page'
 
 export const Route = createFileRoute('/_authenticated/sales-channels/')({
-  component: SalesChannelsPlaceholderRoute,
+  beforeLoad: requireManagerMiddleware,
+  validateSearch: salesChannelsSearchSchema,
+  component: SalesChannelsRoute,
 })
 
-function SalesChannelsPlaceholderRoute() {
+function SalesChannelsRoute() {
+  const { adjustment } = Route.useSearch()
+  const navigate = Route.useNavigate()
+
+  function handleAdjustmentFilterChange(
+    nextAdjustment: SalesChannelAdjustmentFilter | undefined,
+  ) {
+    void navigate({
+      search: (previous) => ({ ...previous, adjustment: nextAdjustment }),
+    })
+  }
+
   return (
-    <PlaceholderPage
-      icon='store'
-      title='Canais de venda'
-      description='A configuração dos canais de venda estará disponível aqui em breve.'
+    <SalesChannelsPage
+      adjustmentFilter={adjustment}
+      onAdjustmentFilterChange={handleAdjustmentFilterChange}
     />
   )
 }

@@ -19,6 +19,8 @@ export { sendInvitationEmailEventSchema } from './communication/send-invitation-
 export { browserEnvSchema } from './environment/browser-env-schema.ts'
 export { seedEnvSchema } from './environment/seed-env-schema.ts'
 export { serverEnvSchema } from './environment/server-env-schema.ts'
+export { salesChannelStatusSchema } from './pdv/sales-channel-status-schema.ts'
+export { saveChannelSchema } from './pdv/save-channel-schema.ts'
 export { adjustProductStockSchema } from './mrp/adjust-product-stock-schema.ts'
 export {
   addRecipeIngredientSchema,
@@ -75,3 +77,8 @@ export { productSizeFormSchema } from './web/product-size-form-schema.ts'
 export { resaleConfigurationFormSchema } from './web/resale-configuration-form-schema.ts'
 export { accompanimentTypeFormSchema } from './web/accompaniment-type-form-schema.ts'
 export { accompanimentTypesSearchSchema } from './web/accompaniment-types-search-schema.ts'
+export { salesChannelFormSchema } from './web/sales-channel-form-schema.ts'
+export {
+  salesChannelsSearchSchema,
+  type SalesChannelAdjustmentFilter,
+} from './web/sales-channels-search-schema.ts'

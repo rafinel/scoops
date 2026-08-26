@@ -19,6 +19,7 @@ import {
 import { AppModule } from '@/app.module'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { MrpSeeder } from '@/mrp/database/mrp-seeder'
+import { PdvSeeder } from '@/pdv/database/pdv-seeder'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
 import { parseSeedEnv } from '@/shared/database/seed-env'
 
@@ -278,11 +279,13 @@ async function seedDatabase() {
     const envProvider = app.get(EnvProvider)
     const identitySeeder = app.get(IdentitySeeder)
     const mrpSeeder = app.get(MrpSeeder)
+    const pdvSeeder = app.get(PdvSeeder)
 
     await resetSeedUsers(envProvider)
     await verifySeedUsers(envProvider)
     await identitySeeder.clear()
     await mrpSeeder.clear()
+    await pdvSeeder.clear()
     await identitySeeder.run({
       establishments: [
         {
@@ -354,6 +357,7 @@ async function seedDatabase() {
       ],
       productAccompaniments: [...SEED_PRODUCT_ACCOMPANIMENTS],
     })
+    await pdvSeeder.run()
   } finally {
     await app?.close()
   }
