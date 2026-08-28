@@ -3,6 +3,7 @@ export const StockTransactionType = {
   WriteOff: 'write-off',
   ProductionConsumption: 'production-consumption',
   ProductionOutput: 'production-output',
+  Sale: 'sale',
 } as const
 
 export type StockTransactionType =

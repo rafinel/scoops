@@ -20,17 +20,29 @@ describe('List Combo Products Controller [GET /discounts/catalog]', () => {
   beforeEach(async () => resetPdvFixture(fixture, auth))
   afterAll(async () => fixture?.close())
 
-  it('uses the static catalog route and returns current MRP products', async () => {
+  it('returns commercially eligible MRP products from the current establishment', async () => {
     const product = await fixture.addProduct(
       productCreate({ name: 'Catalog Resale', categories: [ProductCategory.Resale] }),
     )
-    await fixture.addProduct(
+    await fixture.addResaleConfiguration({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      price: 12.5,
+      isActive: true,
+    })
+    const foreignProduct = await fixture.addProduct(
       productCreate({
         establishmentId: '44000000-0000-0000-0000-000000000001',
         name: 'Foreign Catalog Resale',
         categories: [ProductCategory.Resale],
       }),
     )
+    await fixture.addResaleConfiguration({
+      establishmentId: foreignProduct.establishmentId,
+      productId: foreignProduct.id,
+      price: 9.75,
+      isActive: true,
+    })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/discounts/catalog?kind=resale&page=1&pageSize=10')
@@ -51,6 +63,8 @@ describe('List Combo Products Controller [GET /discounts/catalog]', () => {
         kind: 'resale',
         stockControl: 'single',
         isActive: true,
+        isAvailable: false,
+        resalePrice: 12.5,
         resaleBrands: [],
       }),
     ])

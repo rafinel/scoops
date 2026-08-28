@@ -10,6 +10,7 @@ export class DrizzleStockTransactionMapper {
       productId: record.productId,
       brandId: record.brandId ?? undefined,
       productionId: record.productionId ?? undefined,
+      orderId: record.orderId ?? undefined,
       productName: record.productName,
       brandName: record.brandName ?? undefined,
       unit: record.unit as StockTransaction['unit'],

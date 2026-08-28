@@ -20,6 +20,7 @@ import { ServiceUnavailableError } from '@scoops/core/shared/domain/errors'
 import { PaginationResponse } from '@scoops/core/shared/responses/pagination-response'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { TransactionBoundSalesCatalogProvider } from '@/mrp/provision/pdv/transaction-bound-sales-catalog-provider'
 import { MrpSalesCatalogProvider } from '@/pdv/provision/mrp/mrp-sales-catalog-provider'
 
 const ESTABLISHMENT_ID = '41000000-0000-0000-0000-000000000001'
@@ -139,8 +140,23 @@ describe('MRP Sales Catalog Provider', () => {
       RESALE_ID,
       PORTION_ID,
     ])
+    const transactionBoundProvider = new TransactionBoundSalesCatalogProvider(
+      repositories.products,
+      repositories.sizes,
+      repositories.accompaniments,
+      repositories.types,
+      repositories.resaleConfigurations,
+      repositories.brands,
+      repositories.balances,
+    )
 
     expect(products).toHaveLength(2)
+    await expect(
+      transactionBoundProvider.findByProductIds(ESTABLISHMENT_ID, [
+        RESALE_ID,
+        PORTION_ID,
+      ]),
+    ).resolves.toEqual(products)
     expect(products[0]).toMatchObject({
       productId: RESALE_ID,
       kind: 'resale',
@@ -167,11 +183,13 @@ describe('MRP Sales Catalog Provider', () => {
           accompaniments: [
             {
               accompanimentId: LINK_ID,
+              productId: ACCOMPANIMENT_ID,
               name: 'Cookie',
               type: 'Toppings',
               basePrice: 3,
               isActive: true,
               isAvailable: true,
+              availableQuantity: 10,
             },
           ],
         },
@@ -238,6 +256,91 @@ describe('MRP Sales Catalog Provider', () => {
       resalePrice: 4.5,
       resaleBrands: [],
     })
+  })
+
+  it('filters commercial eligibility before slicing source pages', async () => {
+    const incompletePortionId = '41000000-0000-0000-0000-000000000020'
+    const unavailablePortionId = '41000000-0000-0000-0000-000000000021'
+    const completeResaleId = '41000000-0000-0000-0000-000000000022'
+    const incompletePortion = makeProduct({
+      id: incompletePortionId,
+      name: 'Incomplete Portion',
+    })
+    const unavailablePortion = makeProduct({
+      id: unavailablePortionId,
+      name: 'Unavailable Portion',
+    })
+    const completeResale = makeProduct({
+      id: completeResaleId,
+      name: 'Complete Resale',
+      categories: [ProductCategory.Resale],
+      stockControl: ProductStockControl.Single,
+    })
+    vi.mocked(repositories.products.findMany).mockImplementation(async (input) => {
+      const pages = [incompletePortion, unavailablePortion, completeResale]
+      const product = pages[input.page - 1]
+      return new PaginationResponse(
+        product
+          ? [
+              {
+                product,
+                brandCount: 0,
+                stockQuantity: product.id === unavailablePortionId ? 0 : 1,
+                stockSituation: 'normal',
+              },
+            ]
+          : [],
+        input.page,
+        1,
+        pages.length,
+        pages.length,
+      ) as never
+    })
+    vi.mocked(repositories.sizes.findManyByProductId).mockImplementation(
+      async (_establishmentId, productId) =>
+        productId === unavailablePortionId
+          ? [makeSize({ id: unavailablePortionId, productId })]
+          : [],
+    )
+    vi.mocked(repositories.resaleConfigurations.findManyByProductId).mockImplementation(
+      async (_establishmentId, productId) =>
+        productId === completeResaleId
+          ? [
+              makeResaleConfiguration({
+                productId,
+                brandId: undefined,
+                price: 4.5,
+              }),
+            ]
+          : [],
+    )
+
+    const firstEligiblePage = await provider.findMany({
+      establishmentId: ESTABLISHMENT_ID,
+      page: 1,
+      pageSize: 1,
+    })
+    const secondEligiblePage = await provider.findMany({
+      establishmentId: ESTABLISHMENT_ID,
+      page: 2,
+      pageSize: 1,
+    })
+
+    expect(firstEligiblePage).toMatchObject({
+      items: [{ productId: unavailablePortionId, isAvailable: false }],
+      page: 1,
+      pageSize: 1,
+      total: 2,
+      totalPages: 2,
+    })
+    expect(secondEligiblePage).toMatchObject({
+      items: [{ productId: completeResaleId, resalePrice: 4.5 }],
+      page: 2,
+      pageSize: 1,
+      total: 2,
+      totalPages: 2,
+    })
+    expect(repositories.products.findMany).toHaveBeenCalledTimes(6)
   })
 
   it('translates MRP failures without exposing provider details', async () => {

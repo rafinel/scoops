@@ -1,5 +1,5 @@
-import type { StockConsumptionRequest } from '#pdv/domain/structures/stock-consumption-request.ts'
+import type { OrderRegisteredEvent } from '#pdv/domain/events/order-registered-event.ts'
 
 export interface StockConsumer {
-  consume(input: StockConsumptionRequest): Promise<void>
+  consume(event: OrderRegisteredEvent): Promise<void>
 }

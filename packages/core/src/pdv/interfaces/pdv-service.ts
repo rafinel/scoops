@@ -3,6 +3,10 @@ import type { ComboDetails } from '#pdv/domain/structures/combo-details.ts'
 import type { ComboCreate } from '#pdv/domain/structures/combo-create.ts'
 import type { ComboListParams } from '#pdv/domain/structures/combo-list-params.ts'
 import type { ComboUpdate } from '#pdv/domain/structures/combo-update.ts'
+import type { OrderRegistrationInput } from '#pdv/domain/structures/order-registration-input.ts'
+import type { OrderRegistrationResult } from '#pdv/domain/structures/order-registration-result.ts'
+import type { OrderPreview } from '#pdv/domain/structures/order-preview.ts'
+import type { OrderPreviewInput } from '#pdv/domain/structures/order-preview.ts'
 import type { SaleItemKind } from '#pdv/domain/structures/sale-item-kind.ts'
 import type { SalesCatalogProduct } from '#pdv/domain/structures/sales-catalog-product.ts'
 import type { SalesCatalogListParams } from '#pdv/domain/structures/sales-catalog-list-params.ts'
@@ -12,6 +16,15 @@ import type { PaginationResponse } from '#shared/responses/pagination-response.t
 import type { RestResponse } from '#shared/responses/rest-response.ts'
 
 export interface PdvService {
+  listOrderCatalog(
+    input: Omit<SalesCatalogListParams, 'establishmentId'> & {
+      readonly kind?: SaleItemKind
+    },
+  ): Promise<RestResponse<PaginationResponse<SalesCatalogProduct>>>
+  registerOrder(
+    input: OrderRegistrationInput,
+  ): Promise<RestResponse<OrderRegistrationResult>>
+  previewOrder(input: OrderPreviewInput): Promise<RestResponse<OrderPreview>>
   listCombos(
     input: Omit<ComboListParams, 'establishmentId'>,
   ): Promise<RestResponse<PaginationResponse<ComboDetails>>>

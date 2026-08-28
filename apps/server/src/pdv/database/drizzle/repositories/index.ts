@@ -1,3 +1,5 @@
 export { DrizzlePdvDatabase } from '@/pdv/database/drizzle/repositories/drizzle-pdv-database'
 export { DrizzleDiscountsRepository } from '@/pdv/database/drizzle/repositories/drizzle-discounts-repository'
+export { DrizzleOrderSequencesRepository } from '@/pdv/database/drizzle/repositories/drizzle-order-sequences-repository'
+export { DrizzleOrdersRepository } from '@/pdv/database/drizzle/repositories/drizzle-orders-repository'
 export { DrizzleSalesChannelsRepository } from '@/pdv/database/drizzle/repositories/drizzle-sales-channels-repository'

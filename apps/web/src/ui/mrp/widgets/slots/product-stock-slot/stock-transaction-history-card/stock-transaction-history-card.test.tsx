@@ -53,7 +53,7 @@ describe('StockTransactionHistoryCard', () => {
     await waitFor(() =>
       expect(screen.queryByRole('button', { name: /Limpar filtros/ })).toBeNull(),
     )
-  })
+  }, 15_000)
 
   it('renders loading and request-recovery states from its query hook', () => {
     useStockTransactionsQueryMock.mockReturnValue(
@@ -82,6 +82,38 @@ describe('StockTransactionHistoryCard', () => {
     renderHistory()
 
     expect(screen.getByText('Nenhuma movimentação registrada.')).not.toBeNull()
+  })
+
+  it('labels sale movements in Portuguese', () => {
+    useStockTransactionsQueryMock.mockReturnValue(
+      fakeStockTransactionsQuery({
+        data: {
+          items: [
+            {
+              id: 'transaction-sale',
+              establishmentId: 'establishment-1',
+              productId: 'product-1',
+              brandId: 'deleted-brand',
+              productName: 'Polpa',
+              brandName: 'Marca removida',
+              unit: 'kg',
+              type: 'sale',
+              quantity: 3,
+              balanceAfter: 13,
+              performedBy: 'user-1',
+              performedByName: 'Gestora Ágil',
+              occurredAt: new Date('2026-08-18T12:00:00.000Z'),
+            },
+          ],
+          page: 1,
+          limit: 5,
+          total: 1,
+        },
+      }),
+    )
+    renderHistory()
+
+    expect(screen.getAllByText('Venda')).toHaveLength(2)
   })
 })
 

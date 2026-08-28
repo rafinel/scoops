@@ -6,6 +6,7 @@
   "scripts": {
     "format": "biome format --write .",
     "check:code": "biome check src",
+    "check:architecture": "dependency-cruise --config ../../.dependency-cruiser.mjs -- src",
     "check:types": "tsc --noEmit"
   },
   "exports": {

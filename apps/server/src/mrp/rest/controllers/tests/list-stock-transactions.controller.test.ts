@@ -109,6 +109,35 @@ describe('List Stock Transactions Controller [GET /products/:productId/stock-tra
     })
   })
 
+  it('filters sale history and returns its nullable order correlation', async () => {
+    const product = await fixture.addProduct(createProduct())
+    const orderId = crypto.randomUUID()
+    const { id: _id, ...transaction } = createTransaction({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      type: 'sale',
+      orderId,
+      productName: 'Sold Chocolate',
+    })
+    await fixture.transactions.add(transaction)
+
+    const response = await request(fixture.app.getHttpServer())
+      .get(`/products/${product.id}/stock-transactions?type=sale&page=1&limit=20`)
+      .set('Authorization', managerRequestAuthorization())
+
+    expect(response.status).toBe(200)
+    expect(response.body).toMatchObject({
+      total: 1,
+      items: [
+        {
+          type: 'sale',
+          orderId,
+          productName: 'Sold Chocolate',
+        },
+      ],
+    })
+  })
+
   it('returns uniform not-found for foreign and missing products', async () => {
     const product = await fixture.addProduct(createProduct())
     const foreign = await request(fixture.app.getHttpServer())

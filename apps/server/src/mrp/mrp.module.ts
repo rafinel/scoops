@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 
 import { MrpDatabaseModule } from '@/mrp/database/mrp-database.module'
+import { MrpProvisionModule } from '@/mrp/provision/mrp-provision.module'
 import { ProvisionModule } from '@/shared/provision/provision.module'
 import { SharedMessagingModule } from '@/shared/messaging/shared-messaging.module'
 import {
@@ -45,7 +46,12 @@ import {
 } from '@/mrp/rest/controllers'
 
 @Module({
-  imports: [MrpDatabaseModule, ProvisionModule, SharedMessagingModule],
+  imports: [
+    MrpDatabaseModule,
+    MrpProvisionModule,
+    ProvisionModule,
+    SharedMessagingModule,
+  ],
   controllers: [
     CreateAccompanimentTypeController,
     GetProductAccompanimentsController,
@@ -86,6 +92,6 @@ import {
     UpdateProductSizeController,
     UpdateRecipeIngredientController,
   ],
-  exports: [MrpDatabaseModule],
+  exports: [MrpDatabaseModule, MrpProvisionModule],
 })
 export class MrpModule {}

@@ -4,4 +4,5 @@ export type SalesCatalogBrand = {
   readonly basePrice: number
   readonly isActive: boolean
   readonly isAvailable: boolean
+  readonly availableQuantity?: number
 }

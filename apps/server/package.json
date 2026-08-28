@@ -9,6 +9,7 @@
     "build": "nest build",
     "format": "biome format --write .",
     "check:code": "biome check src",
+    "check:architecture": "dependency-cruise --config ../../.dependency-cruiser.mjs -- src",
     "check:types": "tsc --noEmit -p tsconfig.build.json",
     "start": "nest start",
     "dev": "nest start --watch",
@@ -20,7 +21,8 @@
     "db:studio": "drizzle-kit studio",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
-    "test:cov": "vitest run --coverage",
+    "test:cov": "pnpm test:coverage",
+    "test:coverage": "vitest run --coverage",
     "db:seed": "tsx src/shared/database/seed.ts"
   },
   "dependencies": {
@@ -48,6 +50,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
+    "@vitest/coverage-v8": "4.1.10",
     "drizzle-kit": "^0.31.10",
     "node-gyp": "^11.4.2",
     "supertest": "^7.0.0",

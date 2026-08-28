@@ -2,6 +2,11 @@ import type { Combo, SalesChannel } from '@scoops/core/pdv/domain/entities'
 import type {
   ComboDetails,
   ComboListParams,
+  OrderDetails,
+  OrderPreview,
+  OrderPreviewInput,
+  OrderRegistrationInput,
+  OrderRegistrationResult,
   ComboUpdate,
   SalesCatalogListParams,
   SalesCatalogProduct,
@@ -37,6 +42,20 @@ type SalesCatalogPageJson = Omit<PaginationResponse<SalesCatalogProduct>, 'items
 }
 
 type SalesCatalogProductJson = SalesCatalogProduct
+
+type OrderJson = Omit<OrderDetails, 'createdAt'> & {
+  createdAt: string
+}
+
+type OrderRegistrationResultJson =
+  | {
+      kind: 'registered'
+      order: OrderJson
+      replayed: boolean
+    }
+  | Extract<OrderRegistrationResult, { kind: 'repriced' }>
+  | Extract<OrderRegistrationResult, { kind: 'review-required' }>
+  | Extract<OrderRegistrationResult, { kind: 'correction-required' }>
 
 function mapSalesChannel(channel: SalesChannelJson): SalesChannel {
   return {
@@ -106,7 +125,92 @@ function mapSalesCatalogPage(
   )
 }
 
+function mapOrder(order: OrderJson): OrderDetails {
+  return {
+    ...order,
+    createdAt: new Date(order.createdAt),
+  }
+}
+
+function mapOrderRegistrationResult(
+  result: OrderRegistrationResultJson,
+): OrderRegistrationResult {
+  if (result.kind !== 'registered') return result
+
+  return {
+    ...result,
+    order: mapOrder(result.order),
+  }
+}
+
+function readResponseBody<ResponseBody>(response: RestResponse<ResponseBody>) {
+  try {
+    return response.body
+  } catch {
+    // Axios stores typed 409 response bodies on the RestResponse while also
+    // exposing the transport error message. The adapter preserves that body
+    // when the result is one of the declared order envelopes.
+    return undefined
+  }
+}
+
+function mapOrderRegistrationResponse(
+  response: RestResponse<OrderRegistrationResultJson>,
+): RestResponse<OrderRegistrationResult> {
+  const body = readResponseBody(response)
+  if (!body) {
+    const rawBody = (response as unknown as { _body?: OrderRegistrationResultJson })._body
+    if (!rawBody || typeof rawBody !== 'object' || !('kind' in rawBody)) {
+      return response as unknown as RestResponse<OrderRegistrationResult>
+    }
+
+    return new RestResponse({
+      body: mapOrderRegistrationResult(rawBody),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  }
+
+  return new RestResponse({
+    body: mapOrderRegistrationResult(body),
+    statusCode: response.statusCode,
+    headers: response.headers,
+  })
+}
+
 export const PdvService = (restClient: RestClient): PdvRestService => ({
+  async listOrderCatalog(input) {
+    const params = new URLSearchParams({
+      page: String(input.page),
+      pageSize: String(input.pageSize),
+    })
+    if (input.search) params.set('search', input.search)
+    if (input.kind) params.set('kind', input.kind)
+
+    const response = await restClient.get<SalesCatalogPageJson>(
+      `/orders/catalog?${params.toString()}`,
+    )
+    if (!response.isSuccessful) {
+      return response as unknown as RestResponse<PaginationResponse<SalesCatalogProduct>>
+    }
+
+    return new RestResponse({
+      body: mapSalesCatalogPage(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  },
+
+  previewOrder(input: OrderPreviewInput) {
+    return restClient.post<OrderPreview>('/orders/preview', input)
+  },
+
+  async registerOrder(input: OrderRegistrationInput) {
+    return mapOrderRegistrationResponse(
+      await restClient.post<OrderRegistrationResultJson>('/orders', input),
+    )
+  },
+
   async listCombos(input: Omit<ComboListParams, 'establishmentId'>) {
     const params = new URLSearchParams({
       page: String(input.page),

@@ -13,6 +13,9 @@ export * from '@/pdv/rest/controllers/update-combo.controller'
 export * from '@/pdv/rest/controllers/inactivate-combo.controller'
 export * from '@/pdv/rest/controllers/reactivate-combo.controller'
 export * from '@/pdv/rest/controllers/delete-combo.controller'
+export * from '@/pdv/rest/controllers/list-order-catalog.controller'
+export * from '@/pdv/rest/controllers/preview-order.controller'
+export * from '@/pdv/rest/controllers/register-order.controller'
 
 import { CreateComboController } from '@/pdv/rest/controllers/create-combo.controller'
 import { DeleteComboController } from '@/pdv/rest/controllers/delete-combo.controller'
@@ -50,4 +53,14 @@ export const SalesChannelControllers = [
   InactivateSalesChannelController,
   ReactivateSalesChannelController,
   DeleteSalesChannelController,
+]
+
+import { ListOrderCatalogController } from '@/pdv/rest/controllers/list-order-catalog.controller'
+import { PreviewOrderController } from '@/pdv/rest/controllers/preview-order.controller'
+import { RegisterOrderController } from '@/pdv/rest/controllers/register-order.controller'
+
+export const OrderControllers = [
+  ListOrderCatalogController,
+  PreviewOrderController,
+  RegisterOrderController,
 ]

@@ -1,7 +1,7 @@
-import type { StockAdjustmentType } from '#mrp/domain/structures/stock-adjustment-type.ts'
+import type { StockTransactionType } from '#mrp/domain/structures/stock-transaction-type.ts'
 
 export type StockTransactionListParams = {
-  readonly type?: StockAdjustmentType
+  readonly type?: StockTransactionType
   readonly brandId?: string
   readonly from?: Date
   readonly to?: Date

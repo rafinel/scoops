@@ -6,8 +6,10 @@
   "scripts": {
     "format": "biome format --write .",
     "check:code": "biome check src",
+    "check:architecture": "dependency-cruise --config ../../.dependency-cruiser.mjs -- src",
     "check:types": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "exports": {
     "./identity/domain/entities": "./src/identity/domain/entities/index.ts",
@@ -51,6 +53,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.5.0",
+    "@vitest/coverage-v8": "4.1.10",
     "vitest": "^4.1.10",
     "vitest-mock-extended": "^5.1.1"
   }
