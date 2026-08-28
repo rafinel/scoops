@@ -42,6 +42,7 @@ jobs:
     env:
       INNGEST_BASE_URL: http://127.0.0.1:8288
       SUPABASE_URL: http://127.0.0.1:54321
+      SCOOPS_PDV_PREVIEW_TOKEN_SECRET: scoops-ci-preview-token-secret-at-least-32-characters
 
     steps:
       - name: Checkout
