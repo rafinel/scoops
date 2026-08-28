@@ -94,8 +94,10 @@ conclusion automatically after it returns evaluation to `ready`.
 
 1. Read the Spec Validation Contract, Rule Pack, current evaluation and
    `documentation/tooling.md`.
-2. Run the applicable local generation, formatting/code, type, unit, integration, Playwright CLI,
-   architecture and build preflight required by the Spec and changed paths.
+2. Run the applicable local generation, formatting/code, type, unit coverage, integration,
+   Playwright CLI, architecture and build preflight required by the Spec and changed paths. Every
+   affected Core, Server or Web workspace must pass its `test:coverage` command without reducing
+   the configured floor.
 3. Reconcile generated artifacts, migrations, REST-client examples, saved design evidence and factual
    documentation against the current diff.
 4. Rerun the final Spec conformance comparison and verify the current validation evidence covers

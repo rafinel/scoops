@@ -23,6 +23,36 @@ If the request is ambiguous, inspect the repository documentation and code for
 evidence before asking for clarification. Do not invent product behavior that
 is not supported by the request or the applicable PRD.
 
+## Grilling protocol
+
+Before drafting the issue, build a design tree of the decisions that determine its scope. Work
+the tree in rounds:
+
+- The frontier is every decision whose prerequisites are already settled.
+- Ask the whole frontier in one round, numbering each question and giving a recommended answer.
+- Use this format for every round:
+
+  ```yaml
+  ❓ **Q1** - **<question title>**: <question body, including choices when useful>
+
+  ➡️ <recommended answer>
+
+  ---
+
+  ❓ **Q2** - **<question title>**: <question body>
+
+  ➡️ <recommended answer>
+  ```
+
+- Wait for the user's answers before recomputing the next frontier.
+- Research repository facts directly; do not ask the user for facts that can be inspected. Keep
+  decisions with the user.
+- Challenge contradictions, record resolved decisions and do not silently assume material scope,
+  ownership, permissions, dependencies or exclusions.
+- When the frontier is empty, present the shared understanding and ask for explicit confirmation.
+- Do not draft or publish the issue until the user confirms the shared understanding. The existing
+  issue approval gate still applies after the draft is prepared.
+
 ## Required repository context
 
 Before writing the issue:

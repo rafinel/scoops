@@ -47,29 +47,34 @@ requirements unless the user explicitly requests a complete document normalizati
 
 ## Mandatory Skill: Grilling
 
-Interview the user rigorously about all aspects of the product until
-shared understanding is achieved.
+Interview the user relentlessly until shared understanding is achieved. Map the product as a
+design tree: every decision branches into the decisions that depend on it.
 
-For each question:
+Work the tree in rounds:
 
-- ask only one question at a time;
-- explain why the decision is necessary;
-- present a recommendation;
-- wait for the response before continuing;
-- record the decision;
-- identify dependencies with future decisions;
-- challenge contradictions or risks.
+- The frontier is every decision whose prerequisites are already settled.
+- Ask the whole frontier in one round, numbering each question and giving a recommendation.
+- Format every round as:
 
-Never ask multiple questions in the same message.
+  ```yaml
+  ❓ **Q1** - **<question title>**: <question body, including choices when useful>
 
-If information can be found in files, code, designs, tools
-or internet, research before asking.
+  ➡️ <recommended answer>
 
-Decisions belong to the user. Don't make important decisions without
-confirmation.
+  ---
 
-Do not perform PRD creation until the user confirms understanding is
-correct.
+  ❓ **Q2** - **<question title>**: <question body>
+
+  ➡️ <recommended answer>
+  ```
+
+- Wait for the user's answers before recomputing the next frontier.
+- Research facts in files, code, designs, tools or the internet before asking about them. Perform
+  repository research directly; do not delegate it to subagents.
+- Keep decisions with the user; record decisions, dependencies and unresolved assumptions.
+- Challenge contradictions, risks and scope creep.
+- When the frontier is empty, present the shared understanding and ask for explicit confirmation.
+- Do not create or update the PRD until the user confirms the shared understanding.
 
 ---
 
@@ -185,20 +190,8 @@ Do not ask questions about items already resolved in the materials or by the use
 
 ## Question Format
 
-Use exactly this format:
-
-```text
-Question [number] — [topic]
-
-Context:
-[Explain why this decision is necessary.]
-
-My recommendation:
-[Present an objective, justified recommendation.]
-
-Question:
-[Ask only one question.]
-```
+Use the YAML-style grilling format defined in `Mandatory Skill: Grilling`. Ask every currently
+unblocked frontier question in the same round; do not ask one question per message.
 
 ---
 
@@ -218,7 +211,7 @@ with:
 - out of scope;
 - remaining risks and hypotheses.
 
-Then just ask this question:
+Then ask this question:
 
 ```text
 Is this understanding correct, and may I write the PRD?
@@ -393,8 +386,8 @@ Before saving, validate:
 - there are no contradictions;
 - there are no relevant decisions pending.
 
-If there is a relevant decision pending, come back to the interview and ask a question
-at a time. Do not finalize the PRD until you reach shared understanding.
+If there is a relevant decision pending, return to the interview and ask the complete current
+frontier in the next round. Do not finalize the PRD until you reach shared understanding.
 
 ---
 
@@ -423,7 +416,7 @@ Final format:
 ## Prohibited Behaviors
 
 - Create the PRD before user confirmation.
-- Ask multiple questions in the same message.
+- Do not skip unresolved frontier questions or silently assume their answers.
 - Ask facts that can be researched.
 - Invent competitor or price data.
 - Present inferences as facts.

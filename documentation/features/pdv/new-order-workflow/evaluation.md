@@ -3,7 +3,7 @@ feature: "pdv/new-order-workflow"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 3
-status: ready
+status: completed
 updated_at: 2026-08-27
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-08-27
 
 Evaluation of Spec revision `3` against the current implementation.
 
-Current result: Spec revision 3 is ready for conclusion. The same read-only Implementation Reviewer’s final recheck found no remaining implementation or evidence blockers; the only preserved worktree changes outside the candidate are explicitly excluded user-owned governance edits. Local conclusion preflight, coverage, build, migration, REST parity and fresh Playwright evidence pass. PR publication and the final PR CI quality gate remain open.
+Current result: Spec revision 3 is complete. The same read-only Implementation Reviewer’s final recheck found no remaining implementation or evidence blockers; the only preserved worktree changes outside the candidate are explicitly excluded user-owned governance edits. Local conclusion preflight, coverage, build, migration, REST parity and fresh Playwright evidence pass. Delivery was published through PR #27 at head `73ab7f81fa67ee3b0d04650c45f67e892301236f`, and every applicable current-head CI check passed.
 
 ## Acceptance matrix
 
@@ -173,6 +173,7 @@ requirements.
 | `FND-018` | blocking implementation/evidence | Implementation Reviewer recheck found rollback/contention tests assert status, balance and order count but not sequence and sale-ledger rollback, and no database-failure injection covers the Spec’s full transaction rollback requirement. | `EV-40`, `EV-42`, `CA-09`, `CA-11`, `MV-05` | `resolved` | Database-bound failure injection now verifies original stock restoration, no sequence/order/ledger rows, while contention verifies one Sale row linked to the single registered order. |
 | `FND-019` | blocking UI/evidence | Implementation Reviewer recheck found portion/resale configuration and repriced/review/correction/rollback browser scenarios still lack equivalent state-specific keyboard/focus and console/network assertions. | `EV-40`, `EV-42`, `CA-12`, `MV-01`, `MV-03`, `MV-04`, `MV-06` | `resolved` | All named configuration and outcome scenarios now include settled-state, keyboard/focus and console/response/request diagnostics with fresh captures. |
 | `FND-020` | high REST contract | Implementation Reviewer recheck found `orders.rest` review-required and correction-required response examples use `requested`/`available` and omit required shortage/configuration fields. | `EV-40`, `EV-42`, `CA-07`, `CA-08`, `EV-06`, `EV-11` | `resolved` | Both examples now use the exact shortage/configuration fields and a shared `invalidSizeId` variable consistently between request and response. |
+| `FND-021` | CI/environment | The first Server CI run on delivery commit `899550d` failed before tests because the required `SCOOPS_PDV_PREVIEW_TOKEN_SECRET` was not declared in the workflow environment. | `https://github.com/rafinel/scoops/actions/runs/33133588093`, `CI-03`, `CI-05` | `resolved` | The Server workflow now supplies a fixed test-only value of the required length in commit `73ab7f8`; the same-head Server push and pull-request runs then passed coverage and build. |
 
 ## Finding-derived documentation dispositions
 
@@ -195,6 +196,7 @@ requirements.
 | `FND-016`, `FND-020` | `documentation/rules/rest-layer-rules.md` | No change — current status/body parity and route examples are already required; the examples were stale implementation artifacts. |
 | `FND-017` | `documentation/sdd.md`; `documentation/rules/commit-rules.md` | No change — this is inherited user-owned governance scope explicitly excluded from the delivery candidate, not a reusable feature lesson. |
 | `FND-018` | `documentation/rules/database-layer-rules.md` | No change — full sequence/order/stock/ledger rollback proof is already required by the persistence contract; the correction added the missing assertions. |
+| `FND-021` | `documentation/tooling.md`; `.github/workflows/server-app-ci.yml` | Delivery correction applied in the Server workflow; no global tooling-rule change warranted because the workflow now explicitly declares its required test-only environment and the repository tooling guidance remains accurate. |
 
 ## Lessons learned
 
@@ -204,12 +206,18 @@ requirements.
 | A server cannot compare registration against a prior browser preview unless the contract carries a comparable snapshot/version or the server owns a preview record; strict-body and no-draft constraints must choose one explicitly. | `FND-002` | No change — `documentation/features/pdv/new-order-workflow/spec.md` revision 3 records the approved stateless preview-token choice; the repository authorities remain accurate. |
 | Transaction rollback evidence must assert every correlated record and side effect, not only the primary order and balance. | `FND-018` | No change — `documentation/rules/database-layer-rules.md` and the Spec already require atomic persistence proof; the finding exposed missing test assertions, not ambiguous reusable guidance. |
 | Modal-state evidence must verify settled focus and transport diagnostics in addition to visible copy. | `FND-014`, `FND-015`, `FND-019` | No change — `documentation/design.md` and `documentation/rules/widget-testing-rules.md` already require focus, keyboard, console/network and fresh visual validation. |
+| CI jobs must declare every required environment-schema field explicitly; a local `.env.example` or developer shell value cannot be assumed in a clean runner. | `FND-021` | No global change — the feature-specific Server workflow now declares the fixed test-only token, and `documentation/tooling.md` already covers explicit environment setup. |
 
 ## PR CI quality gate
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
-| `CI-01` | Awaiting PR publication | — | `pending` | — |
+| `CI-01` | Core CI (pull request) | `73ab7f81fa67ee3b0d04650c45f67e892301236f` | `passed` | [Run 33134005306](https://github.com/rafinel/scoops/actions/runs/33134005306) |
+| `CI-02` | Validation CI (pull request) | `73ab7f81fa67ee3b0d04650c45f67e892301236f` | `passed` | [Run 33134005262](https://github.com/rafinel/scoops/actions/runs/33134005262) |
+| `CI-03` | Server CI (pull request) | `73ab7f81fa67ee3b0d04650c45f67e892301236f` | `passed` | [Run 33134005257](https://github.com/rafinel/scoops/actions/runs/33134005257) |
+| `CI-04` | Web CI (pull request) | `73ab7f81fa67ee3b0d04650c45f67e892301236f` | `passed` | [Run 33134005291](https://github.com/rafinel/scoops/actions/runs/33134005291) |
+| `CI-05` | Server CI (push, same delivery head) | `73ab7f81fa67ee3b0d04650c45f67e892301236f` | `passed` | [Run 33134002484](https://github.com/rafinel/scoops/actions/runs/33134002484) |
+| `CI-06` | Vercel preview deployments | `73ab7f81fa67ee3b0d04650c45f67e892301236f` | `passed` | [Server preview](https://vercel.com/johnpetros-projects/scoops-server/B8m23s7v6226S2sSr5Hd1a7zSzQK); [Web preview](https://vercel.com/johnpetros-projects/scoops-web/22f6PixZncx9piAcW4Do7NSyV9qv) |
 
 ## History
 
@@ -221,3 +229,4 @@ requirements.
 | `2026-08-27` | Revision-3 Spec Reviewer returned blocking findings; Spec/Plan corrections were applied and the same reviewer was resumed for recheck. |
 | `2026-08-27` | Revision-3 Spec Reviewer final recheck passed with no findings; Spec reopened and implementation may resume under the reconciled Plan. |
 | `2026-08-27` | Conclusion preflight reran Core, Validation, Server and Web checks, coverage, builds, migration/REST parity and the 13-test focused Playwright suite; all passed. Evaluation moved to `ready` pending PR publication and final CI. |
+| `2026-08-28` | Published ready-for-review [PR #27](https://github.com/rafinel/scoops/pull/27) at head `73ab7f81fa67ee3b0d04650c45f67e892301236f`; the first push run exposed a missing CI test environment value, which was corrected in `73ab7f8`, and the resulting current-head Core, Validation, Server and Web PR checks plus same-head Server push and Vercel checks all passed. |

@@ -39,6 +39,36 @@ Planning must not redefine product behavior or technical contracts. If planning 
 material ambiguity or requires a different contract, stop, return the Spec to the
 `create-spec` amendment workflow and resume only after the revised Spec is `open`.
 
+## Grilling protocol
+
+Before writing `plan.md`, map unresolved planning choices as a design tree: every decision
+branches into decisions that depend on it. Work the tree in rounds:
+
+- The frontier is every decision whose prerequisites are already settled.
+- Ask the whole frontier in one round, numbering each question and giving a recommendation.
+- Use this format for every round:
+
+  ```yaml
+  ❓ **Q1** - **<question title>**: <question body, including choices when useful>
+
+  ➡️ <recommended answer>
+
+  ---
+
+  ❓ **Q2** - **<question title>**: <question body>
+
+  ➡️ <recommended answer>
+  ```
+
+- Wait for the user's answers before recomputing the next frontier.
+- Research repository facts directly; do not ask the user for facts that can be inspected. Keep
+  planning decisions with the user.
+- Limit the tree to execution concerns such as phase boundaries, ownership, parallelism,
+  dependencies, recovery, validation coverage and handoff. Product or technical Contract
+  ambiguity belongs in `create-spec`.
+- Challenge contradictions and risks. When the frontier is empty, present the shared
+  understanding and request explicit confirmation before creating or revising `plan.md`.
+
 Use the Spec's real source and GitHub Issue traceability. Do not invent or migrate external
 records.
 
@@ -208,7 +238,8 @@ commands current on the integrated commit, generated artifacts/migrations review
 services/accounts/fixtures ready, every `MV-*` executable, transient validation-artifact
 identifiers recorded, the final Spec tree/conformance comparison passed, all additional-screenshot
 decisions resolved, every affected REST-client artifact present and route-complete, the Implementation Reviewer completed, every verified review finding resolved and
-no blocking finding active. Then
+no blocking finding active, and every affected workspace coverage command passed without lowering
+its configured floor. Then
 route directly to `conclude-spec`.
 
 ### 4. Execution log — conditional

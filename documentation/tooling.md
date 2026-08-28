@@ -10,7 +10,7 @@ monorepo. For application architecture and runtime technology choices, see
 
 ## Requirements
 
-- **Node.js** `>= 18`, as declared by the root `package.json`.
+- **Node.js** `>= 20.0.0`, as declared by the root `package.json` and required by Vitest 4.
 - **pnpm** `9.0.0`, pinned through the root `packageManager` field.
 - **Docker Engine with Docker Compose** for the local PostgreSQL, Supabase,
   Mailpit, MinIO, and Inngest services.
@@ -163,6 +163,30 @@ pnpm --filter @scoops/core check:code
 pnpm --filter @scoops/validation check:code
 ```
 
+## Architecture boundaries
+
+Each workspace exposes a `check:architecture` command backed by Dependency Cruiser. Its
+shared `.dependency-cruiser.mjs` policy parses TypeScript dependencies and enforces the
+dependency direction documented in
+[`architecture.md`](architecture.md): Core remains framework-independent, Validation
+depends only on Zod and Core structures, Web cannot import authoritative server or
+use-case implementation, and Server shared/module boundaries remain explicit.
+
+Run every architecture check from the repository root:
+
+```bash
+pnpm check:architecture
+```
+
+Run one boundary independently:
+
+```bash
+pnpm --filter web check:architecture
+pnpm --filter server check:architecture
+pnpm --filter @scoops/core check:architecture
+pnpm --filter @scoops/validation check:architecture
+```
+
 ## Testing
 
 ### Web unit tests
@@ -241,7 +265,7 @@ docker compose up -d supabase-gateway
 ```bash
 pnpm --filter server test
 pnpm --filter server test:watch
-pnpm --filter server test:cov
+pnpm --filter server test:coverage
 ```
 
 The server configuration gives tests and lifecycle hooks a 60-second timeout to
@@ -253,6 +277,52 @@ The Core package uses Vitest for use-case unit tests:
 ```bash
 pnpm --filter @scoops/core test
 ```
+
+### Unit-test coverage
+
+Core, Server and Web use Vitest's V8 coverage provider. Coverage includes unimported production
+source files so an untested file remains visible at `0%`; tests, fixtures, generated route
+metadata and pure export barrels are excluded where applicable.
+
+Run all coverage suites from the repository root:
+
+```bash
+pnpm test:coverage
+```
+
+Run one workspace independently:
+
+```bash
+pnpm --filter @scoops/core test:coverage
+pnpm --filter server test:coverage
+pnpm --filter web test:coverage
+```
+
+Each workspace writes ignored HTML, JSON and LCOV reports to its local `coverage/` directory and
+prints a text summary. CI runs these commands and enforces the measured no-regression floors
+configured in each Vitest file. Falling below any statements, branches, functions or lines floor
+makes Vitest exit non-zero and fails the CI job. Automatic threshold updates are disabled. These
+floors are not the quality target and must never be lowered to make a change pass.
+
+After a workspace coverage gate passes, its CI workflow writes the metrics to the GitHub Actions
+job summary and creates or updates that workspace's coverage comment on internal pull requests.
+The complete HTML, JSON and LCOV output is uploaded as a workflow artifact with 14-day retention.
+Pull requests from forks still receive the job summary and artifact, but skip the comment because
+their workflow token cannot safely receive pull-request write permission. No external coverage
+service or upload token is required.
+
+| Workspace | Statements | Branches | Functions | Lines |
+| --- | ---: | ---: | ---: | ---: |
+| Core baseline floor | 62.4% | 57.7% | 68.6% | 64.5% |
+| Server baseline floor | 71.6% | 52.7% | 71.6% | 75.2% |
+| Web baseline floor | 52.2% | 49.2% | 49.0% | 54.1% |
+| Project target | 85.0% | 80.0% | 85.0% | 85.0% |
+
+The project target is at least 85% lines, statements and functions and 80% branches in every
+workspace. New and materially changed behavior must add scenario-complete tests and improve or
+preserve the workspace result until those targets become the enforced floors. Coverage
+percentages supplement behavioral assertions; they do not prove acceptance, authorization,
+failure, persistence, integration or user-journey correctness by themselves.
 
 ## Frontend tooling
 
@@ -392,16 +462,18 @@ automatically enforced by local Git hooks.
 
 ## CI/CD status
 
-The repository contains three path-filtered GitHub Actions validation workflows:
+The repository contains four path-filtered GitHub Actions validation workflows:
 
-- `.github/workflows/core-package-ci.yml` (`Core CI`) runs Core code checks, type checks
-  and tests for Core and shared package inputs;
-- `.github/workflows/server-app-ci.yml` (`Server CI`) runs Server code checks, type checks,
-  tests and build for Server or Core inputs;
-- `.github/workflows/web-app-ci.yml` (`Web CI`) generates routes and runs Web code checks,
-  type checks, unit tests, the mocked Playwright route suite and build for Web or Core
-  inputs. Real-service browser scenarios are validated separately with their required
-  Server/Supabase environment.
+- `.github/workflows/core-package-ci.yml` (`Core CI`) runs Core code, architecture and
+  type checks plus tests for Core and shared tooling inputs;
+- `.github/workflows/validation-package-ci.yml` (`Validation CI`) runs Validation code,
+  architecture and type checks for Validation or Core inputs;
+- `.github/workflows/server-app-ci.yml` (`Server CI`) runs Server code, architecture and
+  type checks, tests and build for Server, Validation or Core inputs;
+- `.github/workflows/web-app-ci.yml` (`Web CI`) generates routes and runs Web code,
+  architecture and type checks, unit tests, the mocked Playwright route suite and build
+  for Web, Validation or Core inputs. Real-service browser scenarios are validated
+  separately with their required Server/Supabase environment.
 
 The workflows run on matching pushes and pull requests. Their checked-in `paths` filters are
 authoritative for deciding which checks apply to a candidate commit. The repository does not
@@ -415,17 +487,24 @@ Before handing off a change, run the checks for each affected workspace:
 
 ```bash
 pnpm --filter @scoops/core check:code
+pnpm --filter @scoops/core check:architecture
 pnpm --filter @scoops/core check:types
-pnpm --filter @scoops/core test
+pnpm --filter @scoops/core test:coverage
+
+pnpm --filter @scoops/validation check:code
+pnpm --filter @scoops/validation check:architecture
+pnpm --filter @scoops/validation check:types
 
 pnpm --filter server check:code
+pnpm --filter server check:architecture
 pnpm --filter server check:types
-pnpm --filter server test
+pnpm --filter server test:coverage
 pnpm --filter server build
 
 pnpm --filter web check:code
+pnpm --filter web check:architecture
 pnpm --filter web check:types
-pnpm --filter web test
+pnpm --filter web test:coverage
 pnpm --filter web test:integration
 pnpm --filter web build
 ```
