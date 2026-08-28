@@ -23,6 +23,36 @@ If required intake facts are missing, inspect repository documentation for estab
 behavior and ask only for information that cannot be discovered safely. Do not invent a
 reproduction, environment, result or product expectation.
 
+## Grilling protocol
+
+Before drafting the issue, build a design tree of the decisions that determine whether the report
+is a valid bug and what intake context is needed. Work the tree in rounds:
+
+- The frontier is every decision whose prerequisites are already settled.
+- Ask the whole frontier in one round, numbering each question and giving a recommended answer.
+- Use this format for every round:
+
+  ```yaml
+  ❓ **Q1** - **<question title>**: <question body, including choices when useful>
+
+  ➡️ <recommended answer>
+
+  ---
+
+  ❓ **Q2** - **<question title>**: <question body>
+
+  ➡️ <recommended answer>
+  ```
+
+- Wait for the user's answers before recomputing the next frontier.
+- Research repository facts directly; do not ask the user for facts that can be inspected. Keep
+  decisions with the user.
+- Challenge contradictions between the report and the existing product contract, record resolved
+  decisions and do not silently assume severity, affected profiles, scope or reproducibility.
+- When the frontier is empty, present the shared understanding and ask for explicit confirmation.
+- Do not draft or publish the issue until the user confirms the shared understanding. The existing
+  issue approval gate still applies after the draft is prepared.
+
 ## Required repository context
 
 Before drafting the issue:

@@ -79,14 +79,13 @@ enter conclusion; it is not PRD closure and does not authorize a checkbox change
 
 ## Roles
 
-SDD uses five roles. Prompt names such as `create-spec` or `conclude-spec` are workflows,
+SDD uses four roles. Prompt names such as `create-spec` or `conclude-spec` are workflows,
 not additional agents.
 
 | Role | Responsibility | Restrictions |
 | --- | --- | --- |
 | Orchestrator | The main agent selects workflows, owns artifact state, creates subagents, integrates Builder diffs, runs deterministic sensors, records evidence, publishes the PR and routes failures or changes. | Does not delegate integration or the official evidence verdict, skip required sensors or claim evidence that was not executed. |
 | [Builder](./agents/builder-agent.md) | Implements one bounded direct, phase, task or fix scope against the current Spec revision and Rules. | Does not edit Spec, Plan, Evaluation, PRD or Rules; does not review its own work or publish delivery artifacts. |
-| [Searcher](./agents/searcher-agent.md) | Researches one bounded codebase boundary and returns exact read-only evidence for Spec authoring. | Does not edit files, decide the Contract or create subagents. |
 | [Spec Reviewer](./agents/spec-reviewer-agent.md) | Independently audits one otherwise open-ready draft Spec against its source authorities, Rule Pack, real repository paths, design references and validation taxonomy. | Does not edit files, resolve product or technical ambiguity, create subagents or decide the Spec status. |
 | [Implementation Reviewer](./agents/implementation-reviewer-agent.md) | Independently reviews one integrated Plan-backed implementation candidate against the Spec, Rules, design references and current evidence. | Does not edit files, implement fixes, create subagents or decide the official evidence verdict. |
 
@@ -349,7 +348,10 @@ and stable evidence IDs. An Evaluation records:
 
 After the integrated implementation is current, Plan-backed execution activates one read-only
 Implementation Reviewer while the Orchestrator runs the required Core, Validation, Server, Web,
-database, build and Playwright CLI sensors. Direct execution does not require a separate Reviewer
+database, coverage, build and Playwright CLI sensors. Every affected Core, Server and Web
+workspace must pass its configured `test:coverage` floor; lowering a floor to make a delivery pass
+is prohibited, and any result below a configured floor is a blocking validation failure. Direct
+execution does not require a separate Reviewer
 unless the Spec or another repository authority requires one. The Reviewer covers cross-Builder
 contracts and, when UI is affected, inspects every final visual comparison and independently
 replays high-risk Playwright CLI interactions. The Orchestrator compares every transient

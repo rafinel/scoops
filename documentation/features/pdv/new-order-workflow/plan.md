@@ -5,17 +5,18 @@ spec: ./spec.md
 spec_revision: 3
 evaluation: ./evaluation.md
 github_issue: https://github.com/rafinel/scoops/issues/23
+pull_request: https://github.com/rafinel/scoops/pull/27
 updated_at: 2026-08-27
 ---
 
 # Execution status
 
-- **Spec:** [`./spec.md`](./spec.md), revision `3`, status `in_progress` during conclusion handoff.
+- **Spec:** [`./spec.md`](./spec.md), revision `3`, status `completed`.
 - **Plan rationale:** Plan-backed execution is required because this delivery crosses Core, Validation, MRP and PDV persistence, a generated migration, a transaction-bound cross-module event, REST, protected Web UI, responsive visual states and real server-backed recovery validation.
 - **Current phase:** F7 integrated validation and handoff completed.
-- **Next action:** Run `commit-code`, publish the ready-for-review delivery PR through `create-pr`, and complete the final PR CI quality gate.
+- **Next action:** Await review and merge of [PR #27](https://github.com/rafinel/scoops/pull/27); no implementation action is pending.
 - **Active blockers:** None within the feature candidate. User-owned governance edits remain preserved and explicitly excluded.
-- **Active Builders:** Existing Builder Server and Builder Web owners are resumed for the latest reviewer corrections. Builder Core and Validation work is complete. The Orchestrator owns generated migrations, shared/generated coordination, integration and handoff.
+- **Active Builders:** None; all Builder phases and the Orchestrator handoff are complete. The Orchestrator retains the historical generated-artifact and evidence ownership record below.
 - **Shared/generated ownership:** The Orchestrator generates and reviews the next Drizzle migration plus journal/snapshot outputs after F4; it also owns `evaluation.md`, transient Playwright evidence and final integration. Builders do not edit generated route metadata or unrelated shared configuration.
 
 # Execution ledger

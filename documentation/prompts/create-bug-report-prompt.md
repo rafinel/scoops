@@ -30,26 +30,12 @@ persistence, authentication, asynchronous processing or integrations are involve
 Use Rules to validate technical boundaries and established patterns; do not turn the report into
 an implementation Spec.
 
-## Parallel Searcher research
+## Direct repository diagnosis
 
-Use [`searcher-agent.md`](../agents/searcher-agent.md) for bounded, read-only diagnosis. The
-Orchestrator owns the final diagnosis and must verify material Searcher findings against the
-repository before writing the report.
-
-- For one narrow boundary, use one Searcher.
-- When two or more independent boundaries are affected, dispatch the applicable Searchers in
-  parallel.
-- Use bounded Core, Server, Web and Integration lanes as applicable; do not dispatch unrelated
-  lanes merely to fill a fixed set.
-- Give each Searcher the symptom, expected behavior, relevant paths, selected Rules and a precise
-  diagnostic question.
-- Require exact file paths, observed evidence, probable cause, regression risk and unresolved
-  uncertainty in each response.
-- Searchers are read-only sibling subagents. They do not edit artifacts, choose the delivery
-  route, create Specs or create other subagents.
-
-After joining the Searchers, resolve conflicts through direct inspection, separate confirmed
-findings from hypotheses, and omit claims that cannot be supported by repository evidence.
+The Orchestrator performs diagnosis directly. Do not delegate diagnosis to subagents. Inspect the
+real feature entry point, state control, remote call, use case,
+persistence and integration boundaries implicated by the evidence. Separate confirmed findings
+from hypotheses and omit claims that cannot be supported by repository evidence.
 
 ## Workflow
 
@@ -58,8 +44,8 @@ findings from hypotheses, and omit claims that cannot be supported by repository
 2. Separate the observed failure from expected product behavior.
 3. Link the report to the relevant PRD `REQ-*` when the defect violates an existing product
    requirement. Do not amend the PRD unless intended product behavior changes.
-4. Dispatch the applicable Searchers and inspect the real feature entry point, state control,
-   remote call, use case, persistence or integration boundaries implicated by the evidence.
+4. Inspect the real feature entry point, state control, remote call, use case, persistence and
+   integration boundaries implicated by the evidence.
 5. Create or update
    `documentation/reports/{module-name}/{issue-number}-{slug}/bug-report.md` using the required
    template below. The issue remains the tracking artifact; the report is the durable technical

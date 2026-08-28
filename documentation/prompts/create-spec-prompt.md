@@ -54,49 +54,10 @@ delivery risk, not file or endpoint counts:
 | `compact` | One cohesive outcome, stable dependencies, limited ownership and low delivery risk. |
 | `complete` | Multiple applications or layers, persistence/integration changes, several UI states, or material security, concurrency, migration or operational risk. |
 
-#### Parallel Searcher research
+#### Direct repository research
 
-Use [`searcher-agent.md`](../agents/searcher-agent.md) for bounded codebase research. The
-Orchestrator must complete the authority preflight in stage 1 itself before dispatching
-Searchers; Searcher reports do not replace the Orchestrator's required reading of
-`AGENTS.md`, repository authority, or the selected Rules.
-
-Prioritize parallel research over serial exploration:
-
-- identify independent lanes from real ownership and technical boundaries;
-- for a compact Spec with only one cohesive boundary, the Orchestrator may research it
-  directly or use one Searcher;
-- when two or more independent lanes are affected, dispatch all applicable Searchers in
-  the same parallel wave;
-- for a complete Spec, dispatch the affected `Searcher Core`, `Searcher Server`, and
-  `Searcher Web` lanes concurrently;
-- add `Searcher Integration` only when producer-consumer contracts, generated artifacts,
-  or cross-workspace wiring form a distinct research lane;
-- do not create a mandatory separate Validation Searcher: each owning lane reports its
-  existing tests, fixtures, commands, and validation gaps.
-
-Give every Searcher a bounded question, included paths, explicit search limits, applicable
-authority and Rules, known starting declarations, sibling lanes, and the expected report
-shape. Searchers are read-only sibling subagents in the current task. They do not author
-the Spec, modify authority, create artifacts, make product or architecture decisions, ask
-the user questions, or create other agents.
-
-After all dispatched Searchers return, the Orchestrator must:
-
-1. join the reports by path, declaration, responsibility, and runtime boundary;
-2. deduplicate findings and resolve conflicting reports through direct inspection;
-3. verify every consequential claim before using it in clarification or the Spec;
-4. trace each cross-lane producer → contract → consumer relationship and identify missing,
-   partial, or conflicting ownership;
-5. aggregate material ambiguities for stage 3 instead of letting a Searcher resolve them;
-6. complete any blocked or uncovered research directly, or keep the ambiguity unresolved.
-
-Searcher reports are research input, not durable SDD artifacts or authoritative evidence.
-Do not paste raw reports into the Spec. Do not begin clarification or Spec authoring until
-the applicable reports have been joined and the Orchestrator has completed its verification
-pass.
-
-The Searchers and Orchestrator must collectively inspect every affected boundary for:
+The Orchestrator performs repository research directly. Do not delegate research to subagents.
+Inspect every affected boundary for:
 
 - current paths, declarations, exports, registration, configuration and generated files;
 - current control/data flow, reusable contracts and the exact technical gap;
@@ -111,9 +72,37 @@ record any intentional deviation from supplied references.
 
 ### 3. Clarify product and technical choices
 
-After the Searcher join and verification pass, and before creating or modifying
+After research and the verification pass, and before creating or modifying
 `spec.md`, identify every unresolved choice that could materially alter the
 Contract.
+
+#### Grilling protocol
+
+Map unresolved choices as a design tree: every decision branches into decisions that depend on
+it. Work the tree in rounds:
+
+- The frontier is every decision whose prerequisites are already settled.
+- Ask the whole frontier in one round, numbering each question and giving a recommendation.
+- Use this format for every round:
+
+  ```yaml
+  ❓ **Q1** - **<question title>**: <question body, including choices when useful>
+
+  ➡️ <recommended answer>
+
+  ---
+
+  ❓ **Q2** - **<question title>**: <question body>
+
+  ➡️ <recommended answer>
+  ```
+
+- Wait for the user's answers before recomputing the next frontier.
+- Research repository facts directly; do not ask the user for facts that can be inspected.
+- Keep product, technical, design and validation decisions with the user unless repository
+  authority already fixes them. Record decisions, dependencies and assumptions.
+- Challenge contradictions and risks. When the frontier is empty, present the shared
+  understanding and request explicit confirmation before authoring or amending `spec.md`.
 
 | Area | Clarify when unresolved |
 | --- | --- |
@@ -925,7 +914,8 @@ technical decisions: keep the Spec `draft` and return to clarification.
 Testing is part of implementation. Derive each boundary from the repository test taxonomy
 and name real test files/suites and the CA IDs they prove. Keep mocked transport, real
 integration and manual Playwright CLI evidence distinct. Do not invent test functions, arbitrary
-coverage percentages or commands.
+coverage percentages or commands. Use the repository coverage policy and real
+`test:coverage` commands from `documentation/tooling.md` for every affected testable workspace.
 
 When a feature has more than one test boundary or test file, include an explicit testing
 strategy with these two tables:
@@ -967,7 +957,8 @@ List applicable commands in a `Command | Purpose/coverage` table and link the ex
 evidence record as `./evaluation.md`. Include a REST-client parity check in the validation
 coverage whenever a route group is affected: verify the declared `.rest` path exists, every
 controller operation is represented once, and its examples match the current route and
-request contract.
+request contract. Include the affected Core, Server and Web `test:coverage` commands; a Spec may
+omit one only when that workspace is unaffected and the reason is explicit.
 
 The Orchestrator executes every applicable `MV-*` with the Playwright CLI. Design-backed
 visual comparison is optional evidence for material acceptance decisions and does not require
@@ -990,7 +981,7 @@ Use these required tables:
 | --- | --- | --- | --- |
 | `1` | `YYYY-MM-DD` | `<contract created or amended>` | `<source decision/change>` |
 
-Searchers, Builders, and the Orchestrator read Rule source files directly. Do not
+Builders and the Orchestrator read Rule source files directly. Do not
 put implementation attempts, test results or verdicts in revision history.
 
 ## Independent Spec review
@@ -1028,9 +1019,7 @@ the `create-spec` integrity gate, not a separate user-facing review or approval 
 Keep the Spec `draft` while clarification, authority alignment, integrity work or an applicable
 Spec review remains. Before changing it to `open`, verify:
 
-- every applicable independent research lane was covered, with parallel Searchers used when
-  two or more lanes could proceed independently;
-- every dispatched Searcher report was joined, conflicting findings were resolved by direct
+- every applicable research lane was covered, conflicting findings were resolved by direct
   inspection, and consequential claims were verified by the Orchestrator;
 - every cross-lane producer, contract, and consumer relationship is consistent or represented
   as a resolved clarification or explicit Contract decision;
