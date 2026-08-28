@@ -8,6 +8,15 @@ documentation, and normal validation commands are sufficient. Use the Playwright
 CLI for all browser interaction, inspection and validation; do not use
 `browser-use`, CDP workflows or Playwright MCP for repository implementation.
 
+## Parallel work and subagents
+
+Whenever the work contains independent workstreams that can be executed in
+parallel, create subagents and delegate those workstreams instead of performing
+them sequentially. Give each subagent a clearly bounded responsibility, identify
+the files or paths it owns, and avoid assigning overlapping edits. Keep shared
+decisions and integration in the main task, then review and validate all
+subagent results together before completion.
+
 ### Pencil (`mcp__pencil__*`)
 
 Use Pencil for `.pen` files, Pencil node inspection or editing, design-system
