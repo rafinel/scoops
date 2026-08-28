@@ -6,17 +6,20 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "biome format --write .",
+    "test:coverage": "pnpm --filter @scoops/core test:coverage && pnpm --filter server test:coverage && pnpm --filter web test:coverage",
+    "check:architecture": "pnpm --filter @scoops/core check:architecture && pnpm --filter @scoops/validation check:architecture && pnpm --filter server check:architecture && pnpm --filter web check:architecture",
     "check-types": "turbo run check-types",
     "check:code": "biome check src",
     "check:types": "tsc --noEmit"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.7",
+    "dependency-cruiser": "16.10.4",
     "turbo": "^2.10.8",
     "typescript": "5.9.2"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=20.0.0"
   }
 }

@@ -29,31 +29,43 @@ import type {
   ProductsRepository,
   ProductSizesRepository,
   ResaleConfigurationsRepository,
+  StockBalancesRepository,
 } from '@scoops/core/mrp/interfaces'
 import type { SalesChannel, SalesChannelCreate } from '@scoops/core/pdv/domain/entities'
 import type { Combo } from '@scoops/core/pdv/domain/entities'
 import type { ComboCreate } from '@scoops/core/pdv/domain/structures'
+import type { AppError } from '@scoops/core/shared/domain/errors'
+import type { StockTransactionsRepository } from '@scoops/core/mrp/interfaces'
 import type {
   DiscountsRepository,
+  OrdersRepository,
+  PdvDatabase,
+  PdvDatabaseScope,
   SalesChannelsRepository,
 } from '@scoops/core/pdv/interfaces'
 import type { TestingModuleBuilder } from '@nestjs/testing'
+import { eq } from 'drizzle-orm'
 
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
 import { IdentityModule } from '@/identity/identity.module'
-import { MRP_REPOSITORIES } from '@/mrp/constants'
+import { MRP_PROVIDERS, MRP_REPOSITORIES } from '@/mrp/constants'
+import { MRP_STOCK_TRANSACTIONS_REPOSITORY } from '@/mrp/database/mrp-repositories'
 import { MrpSeeder } from '@/mrp/database/mrp-seeder'
 import { MrpModule } from '@/mrp/mrp.module'
+import { TransactionBoundOrderRegistrationDependenciesFactory } from '@/mrp/provision/pdv/transaction-bound-order-registration-dependencies-factory'
 import { PDV_REPOSITORIES } from '@/pdv/constants'
 import { PdvSeeder } from '@/pdv/database/pdv-seeder'
+import { DrizzlePdvDatabase } from '@/pdv/database/drizzle/repositories/drizzle-pdv-database'
 import { PdvModule } from '@/pdv/pdv.module'
 import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { InngestModule } from '@/shared/messaging/inngest/inngest.module'
 import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
+import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 import { SharedModule } from '@/shared/shared.module'
 import { RestFixture } from '@/shared/rest/tests/rest-fixture'
+import { orderSequenceModel } from '@/pdv/database/drizzle/models/order-sequence-model'
 
 export class PdvModuleFixture {
   static readonly accounts = {
@@ -67,9 +79,19 @@ export class PdvModuleFixture {
     foreignManagerToken: 'pdv-foreign-manager-token',
   } as const
 
-  private constructor(private readonly restFixture: RestFixture) {}
+  private constructor(
+    private readonly restFixture: RestFixture,
+    private readonly originalPreviewTokenSecret: string | undefined,
+    private readonly stockConsumerFailure: { error?: AppError },
+    private readonly databaseFailure: { error?: AppError },
+  ) {}
 
   static async register(authProvider: ServerAuthProvider) {
+    const originalPreviewTokenSecret = process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET
+    process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET ??=
+      'pdv-test-preview-token-secret-0123456789'
+    const stockConsumerFailure: { error?: AppError } = {}
+    const databaseFailure: { error?: AppError } = {}
     const restFixture = await RestFixture.register(
       {
         imports: [
@@ -85,10 +107,48 @@ export class PdvModuleFixture {
           .overrideProvider(IDENTITY_PROVIDERS.authIdentity)
           .useValue(authProvider)
           .overrideProvider(InngestBroker)
-          .useValue(new InngestMock()),
+          .useValue(new InngestMock())
+          .overrideProvider(MRP_PROVIDERS.orderRegistrationDependencies)
+          .useFactory({
+            inject: [TransactionBoundOrderRegistrationDependenciesFactory],
+            factory: (factory: TransactionBoundOrderRegistrationDependenciesFactory) => ({
+              forExecutor: (executor: Parameters<typeof factory.forExecutor>[0]) => {
+                const dependencies = factory.forExecutor(executor)
+                return {
+                  ...dependencies,
+                  stockConsumer: {
+                    consume: async (
+                      ...args: Parameters<typeof dependencies.stockConsumer.consume>
+                    ) => {
+                      if (stockConsumerFailure.error) throw stockConsumerFailure.error
+                      return dependencies.stockConsumer.consume(...args)
+                    },
+                  },
+                }
+              },
+            }),
+          })
+          .overrideProvider(PDV_REPOSITORIES.database)
+          .useFactory({
+            inject: [DrizzlePdvDatabase],
+            factory: (database: DrizzlePdvDatabase): PdvDatabase => ({
+              run<Result>(operation: (scope: PdvDatabaseScope) => Promise<Result>) {
+                return database.run(async (scope) => {
+                  const result = await operation(scope)
+                  if (databaseFailure.error) throw databaseFailure.error
+                  return result
+                })
+              },
+            }),
+          }),
     )
 
-    return new PdvModuleFixture(restFixture)
+    return new PdvModuleFixture(
+      restFixture,
+      originalPreviewTokenSecret,
+      stockConsumerFailure,
+      databaseFailure,
+    )
   }
 
   get app(): INestApplication {
@@ -127,6 +187,10 @@ export class PdvModuleFixture {
     return this.get(MRP_REPOSITORIES.resaleConfigurations)
   }
 
+  get stockBalances(): StockBalancesRepository {
+    return this.get(MRP_REPOSITORIES.stockBalances)
+  }
+
   get brands(): BrandsRepository {
     return this.get(MRP_REPOSITORIES.brands)
   }
@@ -141,6 +205,32 @@ export class PdvModuleFixture {
 
   get discounts(): DiscountsRepository {
     return this.get(PDV_REPOSITORIES.discounts)
+  }
+
+  get orders(): OrdersRepository {
+    return this.get(PDV_REPOSITORIES.orders)
+  }
+
+  get stockTransactions(): StockTransactionsRepository {
+    return this.get(MRP_STOCK_TRANSACTIONS_REPOSITORY)
+  }
+
+  async getOrderSequenceNumber(establishmentId: string): Promise<number | undefined> {
+    const [record] = await this.get(DrizzleClient)
+      .requireDatabase()
+      .select({ lastSequenceNumber: orderSequenceModel.lastSequenceNumber })
+      .from(orderSequenceModel)
+      .where(eq(orderSequenceModel.establishmentId, establishmentId))
+      .limit(1)
+    return record?.lastSequenceNumber
+  }
+
+  setStockConsumerFailure(error?: AppError) {
+    this.stockConsumerFailure.error = error
+  }
+
+  setDatabaseFailure(error?: AppError) {
+    this.databaseFailure.error = error
   }
 
   async resetDatabase() {
@@ -234,7 +324,13 @@ export class PdvModuleFixture {
   }
 
   close() {
-    return this.restFixture.close()
+    return this.restFixture.close().finally(() => {
+      if (this.originalPreviewTokenSecret === undefined) {
+        delete process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET
+      } else {
+        process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET = this.originalPreviewTokenSecret
+      }
+    })
   }
 }
 
@@ -252,6 +348,8 @@ export async function resetPdvFixture(
   await fixture.resetDatabase()
   await fixture.seedAccounts()
   fixture.broker.events.length = 0
+  fixture.setStockConsumerFailure()
+  fixture.setDatabaseFailure()
   fixture.authenticate(auth.setUser.bind(auth))
 }
 

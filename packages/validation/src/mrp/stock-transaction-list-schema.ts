@@ -1,9 +1,9 @@
-import { StockAdjustmentType } from '@scoops/core/mrp/domain/structures'
+import { StockTransactionType } from '@scoops/core/mrp/domain/structures'
 import { z } from 'zod'
 
 export const stockTransactionListSchema = z
   .object({
-    type: z.enum(StockAdjustmentType).optional(),
+    type: z.enum(StockTransactionType).optional(),
     brandId: z.uuid().optional(),
     from: z.coerce.date().optional(),
     to: z.coerce.date().optional(),

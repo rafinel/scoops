@@ -7,5 +7,6 @@ export type SalesCatalogSize = {
   readonly basePrice: number
   readonly isActive: boolean
   readonly isAvailable: boolean
+  readonly availableQuantity?: number
   readonly accompaniments: readonly SalesCatalogAccompaniment[]
 }

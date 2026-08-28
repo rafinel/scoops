@@ -1,17 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { PlaceholderPage } from '@/ui/shared/widgets/pages/placeholder-page'
+import { NewSalePage } from '@/ui/pdv/widgets/pages/new-sale-page'
 
 export const Route = createFileRoute('/_authenticated/sales/new')({
-  component: NewSalePlaceholderRoute,
+  component: NewSaleRoute,
 })
 
-function NewSalePlaceholderRoute() {
-  return (
-    <PlaceholderPage
-      icon='shopping-cart'
-      title='Nova venda'
-      description='O fluxo de criação de vendas estará disponível aqui em breve.'
-    />
-  )
+function NewSaleRoute() {
+  return <NewSalePage />
 }

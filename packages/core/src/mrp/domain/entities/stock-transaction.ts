@@ -7,6 +7,7 @@ export type StockTransaction = Entity & {
   readonly productId: string
   readonly brandId?: string
   readonly productionId?: string
+  readonly orderId?: string
   readonly productName: string
   readonly brandName?: string
   readonly unit: ProductUnit

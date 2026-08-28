@@ -190,7 +190,7 @@ REQ-05, REQ-06, REQ-07, REQ-09 and REQ-10.
 
 ### REQ-02 — New Sale Product Catalog
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** The Operator can find only active products with valid commercial configuration on
 the `New Sale` screen while still seeing unavailable stock states and the product's sale
@@ -265,7 +265,7 @@ of sale.
 
 ### REQ-03 — Portion Item Configuration
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** The Operator can select size, accompaniments and
 quantity before adding a Portion to the cart.
@@ -319,7 +319,7 @@ REQ-05 and REQ-13.
 
 ### REQ-04 — Resale Item Configuration
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** The Operator can select the brand, when applicable,
 and the quantity of units from a Resale product before adding it to the cart.
@@ -364,7 +364,7 @@ and REQ-13.
 
 ### REQ-05 — Cart Assembly and Editing
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** The Operator can review, edit and remove items before registering the order.
 
@@ -434,7 +434,7 @@ by REQ-06, REQ-07, REQ-08 and REQ-14.
 
 ### REQ-06 — Pricing by Channel
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** The Operator sees consistent prices, subtotals and totals calculated from the
 optional sales channel selected for the order.
@@ -482,7 +482,7 @@ REQ-09 and REQ-14.
 
 ### REQ-07 — Channel, Combo and Stock Revalidation
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** The Operator can register an order only after its channel, Combos, configurations
 and consolidated stock consumption have been revalidated against current authoritative facts.
@@ -542,7 +542,7 @@ by REQ-08.
 
 ### REQ-08 — Order Confirmation and Registration
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** The Operator explicitly confirms a definitive order that is created exactly once
 with all stock consumption in one atomic transaction.
@@ -880,7 +880,7 @@ and Resale facts from REQ-03 and REQ-04.
 
 ### REQ-14 — Automatic Combo Application
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** The Operator automatically receives the eligible combination of Combos that
 produces the greatest total savings without reusing product units.

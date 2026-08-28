@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import type { ProductUnit } from '@scoops/core/mrp/domain/structures'
 import type { SalesCatalogProduct } from '@scoops/core/pdv/domain/structures'
 import type { PaginationResponse } from '@scoops/core/shared/responses/pagination-response'
 
@@ -8,6 +9,9 @@ class SalesCatalogAccompanimentResponseDto {
 
   @ApiProperty()
   name!: string
+
+  @ApiProperty({ enum: ['g', 'ml', 'kg', 'l', 'un'] })
+  unit!: ProductUnit
 
   @ApiProperty()
   type!: string
@@ -97,6 +101,7 @@ export class SalesCatalogProductResponseDto {
     return Object.assign(new SalesCatalogProductResponseDto(), {
       productId: product.productId,
       name: product.name,
+      unit: product.unit,
       kind: product.kind,
       stockControl: product.stockControl,
       isActive: product.isActive,

@@ -21,6 +21,7 @@ export const stockTransactionModel = pgTable(
     productionId: uuid('production_id').references(() => productionModel.id, {
       onDelete: 'cascade',
     }),
+    orderId: uuid('order_id'),
     productName: text('product_name').notNull(),
     brandName: text('brand_name'),
     unit: text('unit').notNull(),
@@ -47,6 +48,9 @@ export const stockTransactionModel = pgTable(
     index('mrp_stock_transactions_production_idx')
       .on(table.establishmentId, table.productionId)
       .where(sql`${table.productionId} is not null`),
+    index('mrp_stock_transactions_order_idx')
+      .on(table.establishmentId, table.orderId)
+      .where(sql`${table.orderId} is not null`),
     check('mrp_stock_transactions_quantity_positive', sql`${table.quantity} > 0`),
     check(
       'mrp_stock_transactions_unit_allowed',
@@ -54,11 +58,11 @@ export const stockTransactionModel = pgTable(
     ),
     check(
       'mrp_stock_transactions_type_allowed',
-      sql`${table.type} in ('entry', 'write-off', 'production-consumption', 'production-output')`,
+      sql`${table.type} in ('entry', 'write-off', 'production-consumption', 'production-output', 'sale')`,
     ),
     check(
-      'mrp_stock_transactions_production_correlation',
-      sql`(${table.type} in ('production-consumption', 'production-output') and ${table.productionId} is not null) or (${table.type} in ('entry', 'write-off') and ${table.productionId} is null)`,
+      'mrp_stock_transactions_correlation',
+      sql`(${table.type} in ('production-consumption', 'production-output') and ${table.productionId} is not null and ${table.orderId} is null) or (${table.type} in ('entry', 'write-off') and ${table.productionId} is null and ${table.orderId} is null) or (${table.type} = 'sale' and ${table.productionId} is null and ${table.orderId} is not null)`,
     ),
   ],
 )

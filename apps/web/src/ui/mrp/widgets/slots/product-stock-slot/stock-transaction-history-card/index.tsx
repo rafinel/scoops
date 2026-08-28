@@ -37,6 +37,7 @@ const TYPE_LABELS: Record<StockTransactionType, string> = {
   'write-off': 'Baixa Manual',
   'production-consumption': 'Consumo de produção',
   'production-output': 'Produção',
+  sale: 'Venda',
 }
 
 export type StockTransactionHistoryCardProps = {
@@ -91,6 +92,7 @@ export const StockTransactionHistoryCard = ({
               <SelectItem value='all'>Tipo: Todos</SelectItem>
               <SelectItem value='entry'>Entrada Manual</SelectItem>
               <SelectItem value='write-off'>Baixa Manual</SelectItem>
+              <SelectItem value='sale'>Venda</SelectItem>
             </SelectContent>
           </Select>
           <Label className='sr-only' htmlFor='history-brand'>

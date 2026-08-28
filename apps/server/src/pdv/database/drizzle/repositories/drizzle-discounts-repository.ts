@@ -280,7 +280,7 @@ export class DrizzleDiscountsRepository
           eq(discountModel.status, 'active'),
         ),
       )
-      .orderBy(asc(sql`lower(btrim(${discountModel.name}))`), asc(discountModel.id))
+      .orderBy(asc(discountModel.createdAt), asc(discountModel.id))
 
     if (records.length === 0) return []
     const aggregateRows = await this.findAggregateRows(

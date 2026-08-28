@@ -9,6 +9,8 @@ on:
       - 'packages/core/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'scripts/write-coverage-report.mjs'
+      - '.dependency-cruiser.mjs'
   pull_request:
     paths:
       - '.github/workflows/core-package-ci.yml'
@@ -17,9 +19,12 @@ on:
       - 'packages/core/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'scripts/write-coverage-report.mjs'
+      - '.dependency-cruiser.mjs'
 
 permissions:
   contents: read
+  pull-requests: write
 
 concurrency:
   group: core-ci-${{ github.workflow }}-${{ github.ref }}
@@ -52,8 +57,57 @@ jobs:
       - name: Check code
         run: pnpm --filter @scoops/core check:code
 
+      - name: Check architecture
+        run: pnpm --filter @scoops/core check:architecture
+
       - name: Check types
         run: pnpm --filter @scoops/core check:types
 
-      - name: Run tests
-        run: pnpm --filter @scoops/core test
+      - name: Run tests with coverage
+        id: coverage
+        run: pnpm --filter @scoops/core test:coverage
+
+      - name: Write Core coverage report
+        if: always() && hashFiles('packages/core/coverage/coverage-summary.json') != ''
+        run: node scripts/write-coverage-report.mjs core packages/core/coverage/coverage-summary.json packages/core/coverage/coverage-comment.md
+        env:
+          COVERAGE_OUTCOME: ${{ steps.coverage.outcome }}
+
+      - name: Publish Core coverage on pull request
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && hashFiles('packages/core/coverage/coverage-comment.md') != ''
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('node:fs')
+            const marker = '<!-- coverage-report:core -->'
+            const body = fs.readFileSync('packages/core/coverage/coverage-comment.md', 'utf8')
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            })
+            const existing = comments.find(
+              (comment) => comment.user?.type === 'Bot' && comment.body?.includes(marker),
+            )
+            const request = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            }
+            if (existing) {
+              await github.rest.issues.updateComment({ ...request, comment_id: existing.id })
+            } else {
+              await github.rest.issues.createComment({
+                ...request,
+                issue_number: context.issue.number,
+              })
+            }
+
+      - name: Upload Core coverage artifact
+        if: always() && hashFiles('packages/core/coverage/**') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-coverage-${{ github.run_id }}
+          path: packages/core/coverage/
+          retention-days: 14

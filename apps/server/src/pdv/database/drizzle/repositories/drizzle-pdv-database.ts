@@ -1,14 +1,34 @@
-import type { PdvDatabase, PdvDatabaseScope } from '@scoops/core/pdv/interfaces'
+import type {
+  PdvDatabase,
+  PdvDatabaseScope,
+  SalesCatalogProvider,
+  StockConsumer,
+} from '@scoops/core/pdv/interfaces'
 import { ConflictError } from '@scoops/core/shared/domain/errors'
 import { Inject, Injectable } from '@nestjs/common'
 
+import { MRP_PROVIDERS } from '@/mrp/constants'
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 import { DrizzleDiscountsRepository } from '@/pdv/database/drizzle/repositories/drizzle-discounts-repository'
+import { DrizzleOrderSequencesRepository } from '@/pdv/database/drizzle/repositories/drizzle-order-sequences-repository'
+import { DrizzleOrdersRepository } from '@/pdv/database/drizzle/repositories/drizzle-orders-repository'
 import { DrizzleSalesChannelsRepository } from '@/pdv/database/drizzle/repositories/drizzle-sales-channels-repository'
+import type { DrizzleExecutor } from '@/shared/database/drizzle/drizzle-repository'
+
+type TransactionBoundOrderRegistrationDependenciesFactory = {
+  forExecutor(executor: DrizzleExecutor): {
+    salesCatalogProvider: SalesCatalogProvider
+    stockConsumer: StockConsumer
+  }
+}
 
 @Injectable()
 export class DrizzlePdvDatabase implements PdvDatabase {
-  constructor(@Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient) {}
+  constructor(
+    @Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient,
+    @Inject(MRP_PROVIDERS.orderRegistrationDependencies)
+    private readonly orderRegistrationDependenciesFactory: TransactionBoundOrderRegistrationDependenciesFactory,
+  ) {}
 
   run<Result>(operation: (scope: PdvDatabaseScope) => Promise<Result>): Promise<Result> {
     return this.runWithRetry(operation, false)
@@ -20,8 +40,11 @@ export class DrizzlePdvDatabase implements PdvDatabase {
   ): Promise<Result> {
     try {
       return await this.drizzleClient.requireDatabase().transaction(
-        async (transaction) =>
-          operation({
+        async (transaction) => {
+          const transactionBoundDependencies =
+            this.orderRegistrationDependenciesFactory.forExecutor(transaction)
+          return operation({
+            salesCatalogProvider: transactionBoundDependencies.salesCatalogProvider,
             salesChannelsRepository: new DrizzleSalesChannelsRepository(
               this.drizzleClient,
               transaction,
@@ -30,7 +53,17 @@ export class DrizzlePdvDatabase implements PdvDatabase {
               this.drizzleClient,
               transaction,
             ),
-          } as unknown as PdvDatabaseScope),
+            ordersRepository: new DrizzleOrdersRepository(
+              this.drizzleClient,
+              transaction,
+            ),
+            orderSequencesRepository: new DrizzleOrderSequencesRepository(
+              this.drizzleClient,
+              transaction,
+            ),
+            stockConsumer: transactionBoundDependencies.stockConsumer,
+          })
+        },
         { isolationLevel: 'serializable', accessMode: 'read write' },
       )
     } catch (error) {

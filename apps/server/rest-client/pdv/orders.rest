@@ -1,0 +1,369 @@
+@baseUrl = http://127.0.0.1:3336
+@accessToken = {{$processEnv PDV_ACCESS_TOKEN}}
+@productId = 00000000-0000-0000-0000-000000000000
+@sizeId = 00000000-0000-0000-0000-000000000000
+@invalidSizeId = 00000000-0000-4000-8000-000000000099
+@idempotencyKey = 00000000-0000-4000-8000-000000000001
+@previewToken = replace-with-preview-token-response
+
+### List the tenant order catalog (200)
+GET {{baseUrl}}/orders/catalog?page=1&pageSize=20
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+# Response body:
+# {
+#   "items": [{
+#     "productId": "{{productId}}",
+#     "name": "Chocolate",
+#     "kind": "portion",
+#     "sizes": [],
+#     "resaleBrands": []
+#   }],
+#   "page": 1,
+#   "pageSize": 20,
+#   "total": 1,
+#   "totalPages": 1
+# }
+
+### List only Portion catalog entries (200)
+GET {{baseUrl}}/orders/catalog?kind=portion&search=scoop&page=1&pageSize=20
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+# Response body:
+# {
+#   "items": [],
+#   "page": 1,
+#   "pageSize": 20,
+#   "total": 0,
+#   "totalPages": 0
+# }
+
+### List catalog with malformed query (422)
+GET {{baseUrl}}/orders/catalog?page=not-a-number
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+# Response body:
+# {
+#   "statusCode": 422,
+#   "title": "Invalid request",
+#   "message": "Invalid request.",
+#   "timestamp": "2026-01-01T00:00:00.000Z",
+#   "path": "/orders/catalog?page=not-a-number"
+# }
+
+### List catalog without authentication (401)
+GET {{baseUrl}}/orders/catalog?page=1&pageSize=20
+Accept: application/json
+
+# Response body:
+# {"statusCode":401,"title":"Authentication required","message":"Authentication required.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders/catalog?page=1&pageSize=20"}
+
+### List catalog with an unauthorized profile (403)
+GET {{baseUrl}}/orders/catalog?page=1&pageSize=20
+Authorization: Bearer replace-with-viewer-token
+Accept: application/json
+
+# Response body:
+# {"statusCode":403,"title":"Access denied","message":"Access denied.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders/catalog?page=1&pageSize=20"}
+
+### Preview an order and issue a preview token (200)
+POST {{baseUrl}}/orders/preview
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "lines": [
+    {
+      "productId": "{{productId}}",
+      "kind": "portion",
+      "quantity": 1,
+      "sizeId": "{{sizeId}}",
+      "accompanimentIds": []
+    }
+  ]
+}
+
+# Response body:
+# {
+#   "cart": {"lines": [], "subtotal": 10, "totalDiscount": 0, "total": 10},
+#   "previewToken": "{{previewToken}}"
+# }
+
+### Preview with malformed body (422)
+POST {{baseUrl}}/orders/preview
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"lines": []}
+
+# Response body:
+# {
+#   "statusCode": 422,
+#   "title": "Invalid request",
+#   "message": "Invalid request.",
+#   "timestamp": "2026-01-01T00:00:00.000Z",
+#   "path": "/orders/preview"
+# }
+
+### Preview without authentication (401)
+POST {{baseUrl}}/orders/preview
+Content-Type: application/json
+
+{"lines":[]}
+
+# Response body:
+# {"statusCode":401,"title":"Authentication required","message":"Authentication required.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders/preview"}
+
+### Preview with an unauthorized profile (403)
+POST {{baseUrl}}/orders/preview
+Authorization: Bearer replace-with-viewer-token
+Content-Type: application/json
+
+{"lines":[]}
+
+# Response body:
+# {"statusCode":403,"title":"Access denied","message":"Access denied.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders/preview"}
+
+### Preview with invalid order configuration (400)
+POST {{baseUrl}}/orders/preview
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "lines": [{
+    "productId": "{{productId}}",
+    "kind": "portion",
+    "quantity": 1,
+    "sizeId": "{{sizeId}}",
+    "accompanimentIds": []
+  }]
+}
+
+# Response body:
+# {
+#   "statusCode": 400,
+#   "title": "Requisição inválida",
+#   "message": "A configuração do pedido não é válida.",
+#   "timestamp": "2026-01-01T00:00:00.000Z",
+#   "path": "/orders/preview"
+# }
+
+### Register an order (201 registered)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "idempotencyKey": "{{idempotencyKey}}",
+  "previewToken": "{{previewToken}}",
+  "lines": [{
+    "productId": "{{productId}}",
+    "kind": "portion",
+    "quantity": 1,
+    "sizeId": "{{sizeId}}",
+    "accompanimentIds": []
+  }]
+}
+
+# Response body:
+# {
+#   "kind": "registered",
+#   "replayed": false,
+#   "order": {
+#     "id": "00000000-0000-0000-0000-000000000010",
+#     "establishmentId": "00000000-0000-0000-0000-000000000011",
+#     "idempotencyKey": "{{idempotencyKey}}",
+#     "sequenceNumber": 1,
+#     "createdBy": "00000000-0000-0000-0000-000000000012",
+#     "channel": null,
+#     "lines": [],
+#     "discounts": [],
+#     "subtotal": 10,
+#     "totalDiscount": 0,
+#     "total": 10,
+#     "createdAt": "2026-01-01T00:00:00.000Z"
+#   }
+# }
+
+### Replay an order (200 registered replay)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "idempotencyKey": "{{idempotencyKey}}",
+  "previewToken": "{{previewToken}}",
+  "lines": [{
+    "productId": "{{productId}}",
+    "kind": "portion",
+    "quantity": 1,
+    "sizeId": "{{sizeId}}",
+    "accompanimentIds": []
+  }]
+}
+
+# Response body:
+# {"kind":"registered","replayed":true,"order":{"id":"00000000-0000-0000-0000-000000000010","sequenceNumber":1,"lines":[],"discounts":[],"subtotal":10,"totalDiscount":0,"total":10}}
+
+### Reprice before confirmation (200 repriced)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "idempotencyKey": "00000000-0000-4000-8000-000000000002",
+  "previewToken": "{{previewToken}}",
+  "lines": [{
+    "productId": "{{productId}}",
+    "kind": "portion",
+    "quantity": 1,
+    "sizeId": "{{sizeId}}",
+    "accompanimentIds": []
+  }]
+}
+
+# Response body:
+# {"kind":"repriced","recalculatedCart":{"lines":[],"subtotal":12,"totalDiscount":0,"total":12},"previewToken":"{{previewToken}}","changes":[{"kind":"channel","previous":{"label":"Sem canal","amount":10},"current":{"label":"Delivery","amount":12}}]}
+
+### Registration requiring stock review (409 review-required)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "idempotencyKey": "00000000-0000-4000-8000-000000000003",
+  "previewToken": "{{previewToken}}",
+  "lines": [{
+    "productId": "{{productId}}",
+    "kind": "portion",
+    "quantity": 999,
+    "sizeId": "{{sizeId}}",
+    "accompanimentIds": []
+  }]
+}
+
+# Response body:
+# {"kind":"review-required","shortages":[{"productId":"{{productId}}","productName":"Chocolate","unit":"un","requiredQuantity":999,"availableQuantity":0}],"changes":[]}
+
+### Registration requiring correction (409 correction-required)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "idempotencyKey": "00000000-0000-4000-8000-000000000004",
+  "previewToken": "{{previewToken}}",
+  "lines": [{
+    "productId": "{{productId}}",
+    "kind": "portion",
+    "quantity": 1,
+    "sizeId": "{{invalidSizeId}}",
+    "accompanimentIds": []
+  }]
+}
+
+# Response body:
+# {"kind":"correction-required","invalidConfigurations":[{"productId":"{{productId}}","productName":"Chocolate","selectedKind":"portion","selectedId":"{{invalidSizeId}}","reason":"size","correctiveMessage":"O tamanho selecionado não está mais disponível."}],"shortages":[],"changes":[]}
+
+### Conflicting idempotency key (409 standard error)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "idempotencyKey": "{{idempotencyKey}}",
+  "previewToken": "{{previewToken}}",
+  "lines": [{"productId":"{{productId}}","kind":"portion","quantity":2,"sizeId":"{{sizeId}}","accompanimentIds":[]}]
+}
+
+# Response body:
+# {"statusCode":409,"title":"Erro de Conflito","message":"A chave de idempotência já foi usada em outro pedido.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders"}
+
+### Invalid or expired preview token (400 with no cart disclosure)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "idempotencyKey": "00000000-0000-4000-8000-000000000005",
+  "previewToken": "invalid-preview-token",
+  "lines": [{"productId":"{{productId}}","kind":"portion","quantity":1,"sizeId":"{{sizeId}}","accompanimentIds":[]}]
+}
+
+# Response body:
+# {"statusCode":400,"title":"Requisição inválida","message":"A prévia do pedido expirou ou não é válida.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders"}
+
+### Unknown sales channel (404)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "idempotencyKey": "00000000-0000-4000-8000-000000000006",
+  "previewToken": "{{previewToken}}",
+  "channelId": "00000000-0000-4000-8000-000000000099",
+  "lines": [{"productId":"{{productId}}","kind":"portion","quantity":1,"sizeId":"{{sizeId}}","accompanimentIds":[]}]
+}
+
+# Response body:
+# {"statusCode":404,"title":"Erro de Não Encontrado","message":"Canal de venda não encontrado.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders"}
+
+### Malformed registration body (422)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"idempotencyKey":"not-a-uuid","previewToken":"{{previewToken}}","lines":[]}
+
+# Response body:
+# {"statusCode":422,"title":"Invalid request","message":"Invalid request.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders"}
+
+### Register without authentication (401)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{"idempotencyKey":"00000000-0000-4000-8000-000000000020","previewToken":"{{previewToken}}","lines":[]}
+
+# Response body:
+# {"statusCode":401,"title":"Authentication required","message":"Authentication required.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders"}
+
+### Register with an unauthorized profile (403)
+POST {{baseUrl}}/orders
+Authorization: Bearer replace-with-viewer-token
+Content-Type: application/json
+
+{"idempotencyKey":"00000000-0000-4000-8000-000000000021","previewToken":"{{previewToken}}","lines":[]}
+
+# Response body:
+# {"statusCode":403,"title":"Access denied","message":"Access denied.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders"}
+
+### Confirmed transaction rollback after an unavailable dependency (503)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "idempotencyKey": "00000000-0000-4000-8000-000000000007",
+  "previewToken": "{{previewToken}}",
+  "lines": [{"productId":"{{productId}}","kind":"portion","quantity":1,"sizeId":"{{sizeId}}","accompanimentIds":[]}]
+}
+
+# Response body:
+# {"statusCode":503,"title":"Serviço indisponível","message":"A operação foi revertida porque uma dependência está indisponível.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders"}
+
+### Confirmed transaction rollback after an unexpected failure (500)
+POST {{baseUrl}}/orders
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "idempotencyKey": "00000000-0000-4000-8000-000000000008",
+  "previewToken": "{{previewToken}}",
+  "lines": [{"productId":"{{productId}}","kind":"portion","quantity":1,"sizeId":"{{sizeId}}","accompanimentIds":[]}]
+}
+
+# Response body:
+# {"statusCode":500,"title":"Erro Interno da Aplicação","message":"Ocorreu um erro inesperado.","timestamp":"2026-01-01T00:00:00.000Z","path":"/orders"}
