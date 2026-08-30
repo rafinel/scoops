@@ -11,14 +11,16 @@ prompt:
 
 ```text
 implement-spec
-├── no current Plan → Builder Direct in the current context
-└── current Plan    → stable ownership Builders by dependency wave
-                     ↓
-             integrated candidate
-                     ↓
-        one Implementation Reviewer + sensors
-                     ↓
-                conclude-spec
+├── no current Plan → Builder Direct in the current context ───────────┐
+└── current Plan    → stable ownership Builders by dependency wave ───┤
+                                                                       ↓
+                                                            integrated candidate
+                                                                       ↓
+                                     pnpm check:spec-implementation -- <spec>
+                                                                       ↓
+                                  integrated sensors + applicable single Reviewer
+                                                                       ↓
+                                                                conclude-spec
 ```
 
 Run the workflow in the current task. Do not create another user-owned thread.
@@ -61,6 +63,12 @@ stop before editing feature source and report the exact blocker:
   may inspect, coordinate and integrate, but may not replace them with unscoped direct edits. A
   Builder report is not evidence; the Orchestrator must inspect the resulting diff and execute
   the validation exits.
+- After all Builder diffs and Orchestrator-owned integration artifacts form one complete
+  candidate, run `pnpm check:spec-implementation -- <exact-spec-path>` before any integrated
+  sensor or applicable Implementation Reviewer starts. Run it again after every correction that
+  changes, creates, generates or removes a Spec-contracted path. A passing result proves only
+  affected-path and Git-state conformance; it does not replace semantic validation, Evaluation
+  evidence or review.
 - The Spec's exact revision, required file/widget tree, contracts, exclusions and validation
   exits are authoritative. Existing code structure, a screenshot, a passing test or a user
   message cannot silently override them.
@@ -437,6 +445,15 @@ record it in Evaluation, keep affected work `in_progress`, invalidate affected e
 immediately, and rerun conformance plus the affected sensors. Passing tests or screenshots alone
 does not establish readiness until Spec conformance has also passed.
 
+The final integrated-candidate comparison includes
+`pnpm check:spec-implementation -- <exact-spec-path>`. Run it only after all Builder diffs and
+Orchestrator-owned generated/shared artifacts are integrated, and rerun it whenever a later
+correction affects a contracted path. Record the exact command, classification totals and result
+in Evaluation. Treat failure as an in-Contract structural finding, resume the responsible Builder or
+correct the Orchestrator-owned artifact, and rerun the command before downstream validation. The
+command does not evaluate declarations, behavior, tests, architecture, runtime state or design
+fidelity, so the remaining conformance record and sensors stay mandatory.
+
 ### Mandatory conformance record
 
 Every implementation checkpoint and Builder handoff must record all of the following, even when
@@ -530,20 +547,23 @@ ambiguous.
 
 ## Integrated validation and readiness
 
-After implementation work is complete, validate the exact Spec revision and implementation. For
-Plan-backed execution, activate the single Implementation Reviewer on the integrated candidate while
-the Orchestrator runs the applicable sensors:
+After implementation work is complete, validate the exact Spec revision and complete integrated
+candidate. First run `pnpm check:spec-implementation -- <exact-spec-path>`. Only after it passes,
+for Plan-backed execution activate the single Implementation Reviewer while the Orchestrator runs
+the applicable sensors:
 
-1. run integrated technical sensors and the final build Quality Gate;
-2. review generated artifacts and migration bodies;
-3. preflight real services, database/Auth/provider state, accounts and fixtures;
-4. execute every applicable `MV-*` with the Playwright CLI;
-5. verify every affected REST-client file against its controller route group and shared request
+1. record the passing path-implementation command, classification totals and observed result;
+2. run integrated technical sensors and the final build Quality Gate;
+3. review generated artifacts and migration bodies;
+4. preflight real services, database/Auth/provider state, accounts and fixtures;
+5. execute every applicable `MV-*` with the Playwright CLI;
+6. verify every affected REST-client file against its controller route group and shared request
    schemas, then record the parity result;
-6. inspect every CA, manual scenario and supplied/supplemental screenshot with exact
+7. inspect every CA, manual scenario and supplied/supplemental screenshot with exact
    viewport/state, console/network, accessibility, DOM/layout and persistence evidence;
-7. when an Implementation Reviewer applies, verify and classify every finding;
-8. record commands, captures, REST-client parity, results, review findings and resolutions in Evaluation.
+8. when an Implementation Reviewer applies, verify and classify every finding;
+9. record commands, captures, REST-client parity, results, review findings and resolutions in
+   Evaluation.
 
 For Plan-backed execution, keep the integrated phase `in_progress` during this validation and
 complete the Plan only after all affected phases and evidence pass, every affected REST-client file
@@ -551,10 +571,13 @@ is route-complete, the Implementation Reviewer has
 completed on the current candidate and every verified blocking review finding is resolved.
 
 - On failure, record the finding, reopen affected direct/Plan work, resume the responsible
-  Builder when possible and rerun invalidated evidence.
+  Builder when possible and rerun invalidated evidence. After any correction affecting a
+  contracted path, rerun the package check before restarting invalidated sensors or resuming the
+  same Reviewer.
 - When all evidence is current and no blocking finding remains, reconcile Evaluation to the
-  current implementation, complete the Plan when present, set Evaluation to `ready` and immediately
-  invoke `conclude-spec` when publication authority is available. Do not check any PRD
+  current implementation, confirm the latest package-check result covers the final contracted
+  path state, complete the Plan when present, set Evaluation to `ready` and immediately invoke
+  `conclude-spec` when publication authority is available. Do not check any PRD
   requirement: Evaluation `ready` is an implementation-evidence transition, not PRD closure.
 - After three materially identical failures, ask the user only when resolution requires a
   decision unavailable in the repository or environment; otherwise continue safely.

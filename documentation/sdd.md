@@ -168,8 +168,12 @@ flowchart TD
     C -->|Small cohesive delivery| D["implement-spec: direct strategy"]
     C -->|Dependent or risky delivery| E["create-plan"]
     E --> F["implement-spec: Plan-backed strategy"]
-    D --> G["Integrated sensors and Playwright CLI evidence"]
-    F --> R["One Implementation Reviewer and integrated sensors"]
+    D --> IC["Complete integrated candidate"]
+    F --> IC
+    IC --> SIC["check:spec-implementation path gate"]
+    SIC --> RT{"Plan-backed?"}
+    RT -->|No| G["Integrated sensors and Playwright CLI evidence"]
+    RT -->|Yes| R["One Implementation Reviewer and integrated sensors"]
     G --> H{"ready evidence"}
     R --> H
     H -->|No| I["Responsible Builder correction and refreshed evidence"]
@@ -198,6 +202,11 @@ authoritative request or PRD exists, GitHub Issue creation is optional traceabil
 [`create-feat-issue`](./prompts/create-feat-issue.md) turns a product request into a concise
 GitHub Issue containing outcome, scope, acceptance criteria and references. Detailed
 layer contracts belong in the Spec, not the Issue.
+
+[`create-refactor-issue`](./prompts/create-refactor-issue-prompt.md) captures one
+evidence-backed, behavior-preserving structural improvement. It routes defects and product
+changes to their owning issue workflows, records the contracts that must remain stable and
+requires proof of both the structural result and regression safety.
 
 Before writing to GitHub, the workflow presents the exact title, body, labels and milestone.
 It submits only after the user explicitly approves that draft. Issue approval does not
@@ -303,8 +312,10 @@ current Plan references the Spec revision. The common workflow:
    [`evaluation.md` template](./templates/evaluation.md) with `status: in_progress`;
 4. activate bounded direct or stable ownership Builders with RF/CA coverage, allowed paths,
    assigned phases, Rules, Architecture and design references;
-5. inspect and integrate Builder diffs, then run repository-approved integrated sensors; for
-   Plan-backed execution, activate one read-only Implementation Reviewer in parallel;
+5. inspect and integrate all Builder diffs and Orchestrator-owned artifacts, run
+   `pnpm check:spec-implementation -- <exact-spec-path>` on the complete candidate, then run
+   repository-approved integrated sensors; only after the package check passes, for Plan-backed
+   execution activate one read-only Implementation Reviewer in parallel with those sensors;
 6. verify applicable review findings and record exact results, findings and validation-artifact
    freshness in Evaluation;
 7. resume the responsible Builder for corrections when possible and rerun only invalidated
@@ -324,6 +335,13 @@ Builder reports are not official evidence. The Orchestrator must verify the diff
 results. Validation artifacts tied to an earlier affected diff are marked historical or stale
 rather than silently reused; transient screenshots are regenerated under `test-results/` or
 as CI artifacts instead of being committed under feature documentation.
+
+The package check is one Orchestrator-owned structural gate on the complete integrated candidate,
+not a Builder exit or Reviewer. It validates the Spec's `Create`, `Modify`, `Generate` and
+`Remove` paths against disk and Git state. It runs before integrated sensors and the applicable
+Reviewer, and again after any correction affecting a contracted path. Its exact command,
+classification totals and result are recorded in Evaluation, but it is not semantic evidence and
+cannot establish readiness by itself.
 
 During normal delivery, `implement-spec` preserves every PRD Implemented checkbox exactly as
 received; an approved material PRD amendment is the sole case in this workflow that changes an
@@ -346,12 +364,13 @@ and stable evidence IDs. An Evaluation records:
 
 ## 6. Integrated validation
 
-After the integrated implementation is current, Plan-backed execution activates one read-only
-Implementation Reviewer while the Orchestrator runs the required Core, Validation, Server, Web,
-database, coverage, build and Playwright CLI sensors. Every affected Core, Server and Web
-workspace must pass its configured `test:coverage` floor; lowering a floor to make a delivery pass
-is prohibited, and any result below a configured floor is a blocking validation failure. Direct
-execution does not require a separate Reviewer
+After the integrated implementation is current, the Orchestrator first runs
+`pnpm check:spec-implementation -- <exact-spec-path>`. Only after it passes, Plan-backed execution
+activates one read-only Implementation Reviewer while the Orchestrator runs the required Core,
+Validation, Server, Web, database, coverage, build and Playwright CLI sensors. Every affected
+Core, Server and Web workspace must pass its configured `test:coverage` floor; lowering a floor
+to make a delivery pass is prohibited, and any result below a configured floor is a blocking
+validation failure. Direct execution does not require a separate Reviewer
 unless the Spec or another repository authority requires one. The Reviewer covers cross-Builder
 contracts and, when UI is affected, inspects every final visual comparison and independently
 replays high-risk Playwright CLI interactions. The Orchestrator compares every transient
@@ -362,11 +381,12 @@ schemas. REST-client parity is a separate artifact check and does not replace re
 evidence.
 
 On a failed sensor or material discrepancy, findings are recorded, the responsible Builder is
-resumed when possible, affected evidence is invalidated and the sensors are rerun on the updated
-implementation. A scoped Builder Fix is activated only when the responsible Builder cannot be
-resumed or the correction is genuinely independent. Reviewer reports are not evidence; the
-Orchestrator verifies and records accepted findings, and the same Implementation Reviewer rechecks any
-corrected candidate. When all required evidence and applicable review results are current and no
+resumed when possible and affected evidence is invalidated. When a correction affects a
+contracted path, mark the prior package-check row stale and rerun the package check first. Only
+after it passes are affected sensors rerun and the same Implementation Reviewer resumed. A scoped
+Builder Fix is activated only when the responsible Builder cannot be resumed or the correction is
+genuinely independent. Reviewer reports are not evidence; the Orchestrator verifies and records
+accepted findings. When all required evidence and applicable review results are current and no
 verified blocking finding remains, Evaluation becomes `ready`; the Plan route also completes its
 integrated phase and Plan before routing to conclusion.
 
@@ -393,7 +413,8 @@ refreshes validation before returning control to conclusion.
 
 With user authorization to commit, push and publish, conclusion:
 
-1. runs the required local preflight;
+1. runs `pnpm check:spec-implementation -- <exact-spec-path>` on the complete delivery candidate,
+   then runs the remaining required local preflight;
 2. verifies generated artifacts, migrations, design evidence and documentation;
 3. resolves every in-scope PRD requirement through `REQ-*`/`RF-*`/`CA-*` traceability, checks
    only fully delivered requirements as Implemented and leaves partial/deferred requirements
@@ -459,6 +480,7 @@ bug-fix workflow and changed behavior uses a new change Spec.
 | --- | --- |
 | Define an unresolved product outcome | [`create-prd-prompt.md`](./prompts/create-prd-prompt.md) |
 | Create an approved feature Issue | [`create-feat-issue.md`](./prompts/create-feat-issue.md) |
+| Create an approved refactor Issue | [`create-refactor-issue-prompt.md`](./prompts/create-refactor-issue-prompt.md) |
 | Create or amend a Spec | [`create-spec-prompt.md`](./prompts/create-spec-prompt.md) |
 | Create an optional Plan | [`create-plan-prompt.md`](./prompts/create-plan-prompt.md) |
 | Implement directly or through a Plan | [`implement-spec-prompt.md`](./prompts/implement-spec-prompt.md) |
@@ -466,5 +488,5 @@ bug-fix workflow and changed behavior uses a new change Spec.
 | Create or update the delivery PR | [`create-pr-prompt.md`](./prompts/create-pr-prompt.md) |
 | Resolve later PR comments | [`resolve-pr-feedback-prompt.md`](./prompts/resolve-pr-feedback-prompt.md) |
 
-The files under `documentation/prompts/` are canonical. `scripts/sync-commands.sh`
+The files under `documentation/prompts/` are canonical. `scripts/sync-commands.mjs`
 synchronizes their generated command and skill representations.

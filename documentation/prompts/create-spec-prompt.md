@@ -502,7 +502,9 @@ Every affected path appears exactly once with `Create`, `Modify`, `Generate` or 
 Verify that classification against the filesystem. Keep tests and generated artifacts in
 their owning layer. Put root modules, registries, exports and cross-layer dependency wiring
 under **Composition** instead of forcing them into a feature layer. Do not create a
-separate file inventory or separate Domain, Integration or Persistence Contract.
+separate file inventory or separate Domain, Integration or Persistence Contract; the
+conditional expected widget file tree required by the UI contract is a navigational view of
+the same affected-path map, not a second inventory or Contract.
 
 Use repository-relative exact paths. A planned path is contractual only when repository
 conventions establish its location; resolve uncertain placement before setting the Spec to
@@ -818,6 +820,23 @@ The hierarchy table is the canonical parent/child map. Do not repeat that tree i
 the path table. Contract enough child widgets to keep each behavior-owning boundary
 independently understandable and testable; do not hide an internal component inside its
 parent row when repository Rules require it to be its own widget.
+
+After the hierarchy table, add an **Expected widget file tree** whenever one or more widgets
+are created, moved, removed or structurally changed. Use a fenced `text` tree rooted at the
+nearest common widget directory. When affected widgets belong to disjoint module or widget
+roots, use one labeled tree per root instead of lifting the tree to a broad UI ancestor. Show
+every contracted widget directory, its `index.tsx`, required colocated behavior hook and
+colocated component/hook test files. Include internal
+child widgets and explicit loading, empty, error or unavailable widget directories. Omit
+unchanged siblings and non-widget routes, query/action hooks, services and generated files;
+those remain in the affected-path map.
+
+The file tree is a required navigational representation, not a second source of truth. Every
+entry across all trees must map to exactly one affected UI path row with the same path and
+change classification, and every widget-owned path row must appear in one tree. Do not add files that
+are merely conventional guesses, collapse explicitly owned widgets into labels such as
+`loading/error widgets`, annotate duplicate responsibilities, or use the tree instead of the
+hierarchy and affected-path tables.
 
 Then map every affected UI path exactly once:
 

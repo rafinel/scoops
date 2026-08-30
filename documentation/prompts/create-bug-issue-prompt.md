@@ -72,7 +72,7 @@ When an applicable PRD requirement exists:
 - use its Outcome, Actors, Capabilities and Experience to state expected behavior;
 - include its `REQ-*` identifier in Context;
 - use relevant User Journeys only to clarify the reported path; and
-- treat its Implemented checkbox as read-only.
+- treat its Implemented delivery state as read-only.
 
 A defect means delivered behavior differs from the existing contract. Do not amend the PRD from
 this workflow. If the requested expectation changes intended behavior, stop and route it through
@@ -162,4 +162,4 @@ user requests diagnosis.
 - Separate observed behavior from expected behavior.
 - Do not include root-cause hypotheses, affected file lists, correction guidance, acceptance
   criteria, manual validations, implementation tasks or a delivery route.
-- Do not change any PRD Implemented checkbox.
+- Do not change any PRD Implemented delivery state.
