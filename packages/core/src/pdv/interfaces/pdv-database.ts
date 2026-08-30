@@ -4,6 +4,7 @@ import type { OrdersRepository } from '#pdv/interfaces/orders-repository.ts'
 import type { SalesChannelsRepository } from '#pdv/interfaces/sales-channels-repository.ts'
 import type { SalesCatalogProvider } from '#pdv/interfaces/sales-catalog-provider.ts'
 import type { StockConsumer } from '#pdv/interfaces/stock-consumer.ts'
+import type { StockRestorer } from '#pdv/interfaces/stock-restorer.ts'
 
 export type PdvDatabaseScope = {
   salesCatalogProvider: SalesCatalogProvider
@@ -12,6 +13,7 @@ export type PdvDatabaseScope = {
   ordersRepository: OrdersRepository
   orderSequencesRepository: OrderSequencesRepository
   stockConsumer: StockConsumer
+  stockRestorer: StockRestorer
 }
 
 export interface PdvDatabase {

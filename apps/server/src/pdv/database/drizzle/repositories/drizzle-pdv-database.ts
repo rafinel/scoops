@@ -3,6 +3,7 @@ import type {
   PdvDatabaseScope,
   SalesCatalogProvider,
   StockConsumer,
+  StockRestorer,
 } from '@scoops/core/pdv/interfaces'
 import { ConflictError } from '@scoops/core/shared/domain/errors'
 import { Inject, Injectable } from '@nestjs/common'
@@ -19,6 +20,7 @@ type TransactionBoundOrderRegistrationDependenciesFactory = {
   forExecutor(executor: DrizzleExecutor): {
     salesCatalogProvider: SalesCatalogProvider
     stockConsumer: StockConsumer
+    stockRestorer: StockRestorer
   }
 }
 
@@ -62,6 +64,7 @@ export class DrizzlePdvDatabase implements PdvDatabase {
               transaction,
             ),
             stockConsumer: transactionBoundDependencies.stockConsumer,
+            stockRestorer: transactionBoundDependencies.stockRestorer,
           })
         },
         { isolationLevel: 'serializable', accessMode: 'read write' },

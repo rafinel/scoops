@@ -10,6 +10,12 @@ import type {
   StockTransactionsRepository,
 } from '@scoops/core/mrp/interfaces'
 import type { SalesCatalogProvider, StockConsumer } from '@scoops/core/pdv/interfaces'
+import type { StockRestorer } from '@scoops/core/pdv/interfaces'
+import type {
+  OrderStockRestoration,
+  StockRestorationRequest,
+  StockRestorationTarget,
+} from '@scoops/core/pdv/domain/structures'
 import {
   ProductStockControl,
   StockTransactionType,
@@ -43,6 +49,7 @@ type TransactionBoundRepositories = {
 export type TransactionBoundOrderRegistrationDependencies = {
   readonly salesCatalogProvider: SalesCatalogProvider
   readonly stockConsumer: StockConsumer
+  readonly stockRestorer: StockRestorer
 }
 
 @Injectable()
@@ -63,6 +70,12 @@ export class TransactionBoundOrderRegistrationDependenciesFactory {
         repositories.stockBalances,
       ),
       stockConsumer: new TransactionBoundStockConsumer(
+        repositories.products,
+        repositories.brands,
+        repositories.stockBalances,
+        repositories.stockTransactions,
+      ),
+      stockRestorer: new TransactionBoundStockRestorer(
         repositories.products,
         repositories.brands,
         repositories.stockBalances,
@@ -158,5 +171,87 @@ class TransactionBoundStockConsumer implements StockConsumer {
       performedByName: event.payload.actorName,
       occurredAt: event.payload.occurredAt,
     })
+  }
+}
+
+export class TransactionBoundStockRestorer implements StockRestorer {
+  constructor(
+    private readonly productsRepository: ProductsRepository,
+    private readonly brandsRepository: BrandsRepository,
+    private readonly stockBalancesRepository: StockBalancesRepository,
+    private readonly stockTransactionsRepository: StockTransactionsRepository,
+  ) {}
+
+  async restore(
+    request: StockRestorationRequest,
+  ): Promise<readonly OrderStockRestoration[]> {
+    const restorations: OrderStockRestoration[] = []
+    for (const target of request.targets)
+      restorations.push(await this.restoreTarget(request, target))
+    return restorations
+  }
+
+  private async restoreTarget(
+    request: StockRestorationRequest,
+    target: StockRestorationTarget,
+  ): Promise<OrderStockRestoration> {
+    const product = await this.productsRepository.findById(
+      request.establishmentId,
+      target.productId,
+    )
+    if (!product || product.establishmentId !== request.establishmentId)
+      return this.toSkippedRestoration(target)
+
+    const brand = target.brandId
+      ? await this.brandsRepository.findById(
+          request.establishmentId,
+          product.id,
+          target.brandId,
+        )
+      : undefined
+    if (target.brandId && !brand) return this.toSkippedRestoration(target)
+
+    const balance = await this.stockBalancesRepository.add(
+      {
+        productId: product.id,
+        ...(target.brandId ? { brandId: target.brandId } : {}),
+      },
+      target.quantity,
+    )
+    await this.stockTransactionsRepository.add({
+      establishmentId: request.establishmentId,
+      productId: product.id,
+      ...(target.brandId ? { brandId: target.brandId, brandName: target.brandName } : {}),
+      orderId: request.orderId,
+      productName: target.productName,
+      unit: product.unit,
+      type: StockTransactionType.SaleCancellation,
+      quantity: target.quantity,
+      balanceAfter: balance.quantity,
+      performedBy: request.performedBy,
+      performedByName: request.performedByName,
+      occurredAt: request.occurredAt,
+    })
+    return {
+      productId: target.productId,
+      productName: target.productName,
+      ...(target.brandId
+        ? { brandId: target.brandId, brandName: target.brandName as string }
+        : {}),
+      quantity: target.quantity,
+      outcome: 'restored',
+    }
+  }
+
+  private toSkippedRestoration(target: StockRestorationTarget): OrderStockRestoration {
+    return {
+      productId: target.productId,
+      productName: target.productName,
+      ...(target.brandId
+        ? { brandId: target.brandId, brandName: target.brandName as string }
+        : {}),
+      quantity: target.quantity,
+      outcome: 'skipped',
+    }
   }
 }

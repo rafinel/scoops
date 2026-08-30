@@ -1,17 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { ordersSearchSchema, type OrdersSearch } from '@scoops/validation'
 
-import { PlaceholderPage } from '@/ui/shared/widgets/pages/placeholder-page'
+import { OrdersPage } from '@/ui/pdv/widgets/pages/orders-page'
 
 export const Route = createFileRoute('/_authenticated/orders/')({
-  component: OrdersPlaceholderRoute,
+  validateSearch: ordersSearchSchema,
+  component: OrdersRoute,
 })
 
-function OrdersPlaceholderRoute() {
-  return (
-    <PlaceholderPage
-      icon='clipboard-list'
-      title='Pedidos'
-      description='A gestão de pedidos estará disponível aqui em breve.'
-    />
-  )
+function OrdersRoute() {
+  const search = Route.useSearch()
+  const navigate = Route.useNavigate()
+
+  function handleSearchChange(nextSearch: OrdersSearch) {
+    void navigate({ search: () => nextSearch })
+  }
+
+  return <OrdersPage onSearchChange={handleSearchChange} search={search} />
 }

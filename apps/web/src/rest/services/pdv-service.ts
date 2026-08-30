@@ -1,4 +1,4 @@
-import type { Combo, SalesChannel } from '@scoops/core/pdv/domain/entities'
+import type { Combo, Order, SalesChannel } from '@scoops/core/pdv/domain/entities'
 import type {
   ComboDetails,
   ComboListParams,
@@ -14,6 +14,7 @@ import type {
   SalesChannelCreate,
   SalesChannelUpdate,
 } from '@scoops/core/pdv/domain/structures'
+import type { OrderListParams } from '@scoops/core/pdv/domain/structures'
 import type { PdvService as PdvRestService } from '@scoops/core/pdv/interfaces'
 import { PaginationResponse } from '@scoops/core/shared/responses/pagination-response'
 import { RestResponse } from '@scoops/core/shared/responses/rest-response'
@@ -43,8 +44,15 @@ type SalesCatalogPageJson = Omit<PaginationResponse<SalesCatalogProduct>, 'items
 
 type SalesCatalogProductJson = SalesCatalogProduct
 
-type OrderJson = Omit<OrderDetails, 'createdAt'> & {
+type OrderJson = Omit<OrderDetails, 'createdAt' | 'cancellation'> & {
   createdAt: string
+  cancellation?: Omit<NonNullable<OrderDetails['cancellation']>, 'canceledAt'> & {
+    canceledAt: string
+  }
+}
+
+type OrderPageJson = Omit<PaginationResponse<OrderJson>, 'items'> & {
+  items: readonly OrderJson[]
 }
 
 type OrderRegistrationResultJson =
@@ -129,7 +137,47 @@ function mapOrder(order: OrderJson): OrderDetails {
   return {
     ...order,
     createdAt: new Date(order.createdAt),
+    cancellation: order.cancellation
+      ? { ...order.cancellation, canceledAt: new Date(order.cancellation.canceledAt) }
+      : undefined,
   }
+}
+
+function mapOrderPage(response: OrderPageJson): PaginationResponse<Order> {
+  return new PaginationResponse(
+    response.items.map(mapOrder),
+    response.page,
+    response.pageSize,
+    response.total,
+    response.totalPages,
+  )
+}
+
+function mapFailure<ResponseBody>(
+  response: RestResponse<unknown>,
+): RestResponse<ResponseBody> {
+  let errorMessage: string | undefined
+  try {
+    errorMessage = response.errorMessage
+  } catch {
+    errorMessage = undefined
+  }
+
+  return new RestResponse({
+    errorMessage,
+    headers: response.headers,
+    statusCode: response.statusCode,
+  })
+}
+
+function mapOrderResponse(response: RestResponse<OrderJson>): RestResponse<OrderDetails> {
+  if (!response.isSuccessful) return mapFailure<OrderDetails>(response)
+
+  return new RestResponse({
+    body: mapOrder(response.body),
+    headers: response.headers,
+    statusCode: response.statusCode,
+  })
 }
 
 function mapOrderRegistrationResult(
@@ -179,6 +227,37 @@ function mapOrderRegistrationResponse(
 }
 
 export const PdvService = (restClient: RestClient): PdvRestService => ({
+  async listOrders(input: Omit<OrderListParams, 'establishmentId'>) {
+    const params = new URLSearchParams({
+      page: String(input.page),
+      pageSize: String(input.pageSize),
+    })
+    if (input.search) params.set('search', input.search)
+    if (input.createdFrom) params.set('createdFrom', input.createdFrom.toISOString())
+    if (input.createdTo) params.set('createdTo', input.createdTo.toISOString())
+    if (input.channelId !== undefined) params.set('channelId', input.channelId ?? 'none')
+    if (input.status) params.set('status', input.status)
+
+    const response = await restClient.get<OrderPageJson>(`/orders?${params.toString()}`)
+    if (!response.isSuccessful) return mapFailure<PaginationResponse<Order>>(response)
+
+    return new RestResponse({
+      body: mapOrderPage(response.body),
+      headers: response.headers,
+      statusCode: response.statusCode,
+    })
+  },
+
+  async getOrder(orderId: string) {
+    return mapOrderResponse(await restClient.get<OrderJson>(`/orders/${orderId}`))
+  },
+
+  async cancelOrder(orderId: string, input: { readonly reason?: string }) {
+    return mapOrderResponse(
+      await restClient.patch<OrderJson>(`/orders/${orderId}/cancel`, input),
+    )
+  },
+
   async listOrderCatalog(input) {
     const params = new URLSearchParams({
       page: String(input.page),

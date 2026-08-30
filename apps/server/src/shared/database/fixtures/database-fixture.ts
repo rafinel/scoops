@@ -9,8 +9,11 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator'
 import postgres from 'postgres'
 
 export class DatabaseFixture {
+  private static sharedContainer: Promise<StartedPostgreSqlContainer> | undefined
+  private static sharedLeaseCount = 0
+  private static originalDatabaseUrl: string | undefined
+
   private container: StartedPostgreSqlContainer | undefined
-  private readonly originalDatabaseUrl = process.env.DATABASE_URL
 
   static async register() {
     const fixture = new DatabaseFixture()
@@ -48,26 +51,46 @@ export class DatabaseFixture {
   }
 
   async close() {
-    await this.container?.stop()
-    this.container = undefined
+    if (!this.container) return
 
-    if (this.originalDatabaseUrl === undefined) {
-      delete process.env.DATABASE_URL
-    } else {
-      process.env.DATABASE_URL = this.originalDatabaseUrl
+    this.container = undefined
+    DatabaseFixture.sharedLeaseCount -= 1
+
+    if (DatabaseFixture.sharedLeaseCount === 0) {
+      if (DatabaseFixture.originalDatabaseUrl === undefined) {
+        delete process.env.DATABASE_URL
+      } else {
+        process.env.DATABASE_URL = DatabaseFixture.originalDatabaseUrl
+      }
     }
   }
 
   private async start() {
-    this.container = await new PostgreSqlContainer('postgres:16-alpine')
+    if (!DatabaseFixture.sharedContainer) {
+      DatabaseFixture.originalDatabaseUrl = process.env.DATABASE_URL
+      DatabaseFixture.sharedContainer = DatabaseFixture.createSharedContainer()
+    }
+
+    try {
+      this.container = await DatabaseFixture.sharedContainer
+    } catch (error) {
+      DatabaseFixture.sharedContainer = undefined
+      throw error
+    }
+
+    DatabaseFixture.sharedLeaseCount += 1
+
+    process.env.DATABASE_URL = this.getConnectionUri()
+  }
+
+  private static async createSharedContainer() {
+    const container = await new PostgreSqlContainer('postgres:16-alpine')
       .withDatabase('scoops_test')
       .withUsername('postgres')
       .withPassword('postgres')
       .start()
 
-    process.env.DATABASE_URL = this.getConnectionUri()
-
-    const migrationClient = postgres(this.getConnectionUri())
+    const migrationClient = postgres(container.getConnectionUri())
 
     try {
       await migrate(drizzle(migrationClient), {
@@ -76,9 +99,14 @@ export class DatabaseFixture {
           'src/shared/database/drizzle/migrations',
         ),
       })
+    } catch (error) {
+      await container.stop()
+      throw error
     } finally {
       await migrationClient.end()
     }
+
+    return container
   }
 
   private getConnectionUri() {
