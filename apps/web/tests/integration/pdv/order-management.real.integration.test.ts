@@ -129,7 +129,20 @@ test('exercises the real Manager/Operator order history lifecycle', async ({
   expect(cancelResponse.request().postDataJSON()).toEqual({
     reason: 'Teste real do histórico',
   })
-  await expect(page.getByText('Pedido cancelado')).toBeVisible()
+  const informationTrigger = page.getByRole('button', {
+    name: 'Informações do pedido',
+    exact: true,
+  })
+  const informationPanel = page.locator('[data-slot="accordion-panel"]').first()
+  await expect(informationTrigger).toHaveAttribute('aria-expanded', 'true')
+  await expect(informationPanel).toContainText('Cancelado')
+  await expect(informationPanel).toContainText('Cancelado em')
+  await expect(informationPanel).toContainText('Cancelado por')
+  await expect(informationPanel).toContainText('Motivo do cancelamento')
+  await expect(informationPanel).toContainText('Teste real do histórico')
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'Pedido cancelado' }),
+  ).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Cancelar pedido' })).toHaveCount(0)
   await page.screenshot({
     path: 'test-results/pdv-orders-real-canceled-390x844.png',
