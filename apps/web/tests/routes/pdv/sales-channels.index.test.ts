@@ -459,7 +459,7 @@ test.describe('Sales channel management route', () => {
     await page.goto('/sales-channels')
     await expect(page).toHaveURL(/\/access-denied$/)
     await expect(page.getByRole('heading', { name: 'Acesso negado' })).toBeVisible()
-    expect(page.getByRole('link', { name: 'Canais de venda' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Canais de venda' })).toHaveCount(0)
     expect(pdv.requests).toHaveLength(0)
     expect(diagnostics.unexpectedConsoleErrors()).toEqual([])
     expect(diagnostics.failedRequests).toEqual([])
