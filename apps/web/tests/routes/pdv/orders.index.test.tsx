@@ -93,17 +93,36 @@ test.describe('Pedidos list route', () => {
       fullPage: false,
     })
 
+    const expectedOrderPeriod = await page.evaluate(() => {
+      const today = new Date()
+      const from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29)
+      const to = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        23,
+        59,
+        59,
+        999,
+      )
+
+      return {
+        createdFrom: from.toISOString(),
+        createdTo: to.toISOString(),
+      }
+    })
+
     const initialListRequest = ordersMock.requests.find(
       (request) => request.method === 'GET',
     )
     expect(initialListRequest?.url.pathname).toBe('/orders')
     expect(initialListRequest?.url.searchParams.get('page')).toBe('1')
     expect(initialListRequest?.url.searchParams.get('pageSize')).toBe('6')
-    expect(initialListRequest?.url.searchParams.get('createdFrom')).toMatch(
-      /T03:00:00\.000Z$/,
+    expect(initialListRequest?.url.searchParams.get('createdFrom')).toBe(
+      expectedOrderPeriod.createdFrom,
     )
-    expect(initialListRequest?.url.searchParams.get('createdTo')).toMatch(
-      /T02:59:59\.999Z$/,
+    expect(initialListRequest?.url.searchParams.get('createdTo')).toBe(
+      expectedOrderPeriod.createdTo,
     )
 
     const channelFilter = page.getByRole('combobox', { name: 'Filtrar por canal' })
