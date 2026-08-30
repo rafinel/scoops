@@ -10,13 +10,13 @@ updated_at: 2026-08-30
 
 # Execution status
 
-- **Spec:** [`./spec.md`](./spec.md), revision `2`, status `in_progress` while the corrected PR Web CI gate is pending.
+- **Spec:** [`./spec.md`](./spec.md), revision `2`, status `completed`.
 - **Plan rationale:** Plan-backed execution is required because this delivery crosses Core, Validation, PDV/MRP persistence and transaction composition, a generated migration, three REST operations, protected responsive Web UI, concurrent cancellation risk and real server-backed visual/runtime validation.
-- **Current phase:** F8 — Integrated validation correction; the timezone-portable order-list assertion is applied and the corrected PR Web CI gate is pending.
-- **Next action:** Rerun and complete the required PR CI quality gate, then route the ready Spec to final closure.
+- **Current phase:** F8 — Integrated validation and delivery closure complete; the corrected order-list assertion and all applicable PR CI checks pass.
+- **Next action:** None for this Spec. PR #29 is ready for review; merge and deployment remain outside this conclusion.
 - **Active blockers:** None. FND-005 was resolved by the shared serial Server fixture and Vitest worker-isolation fix. Unrelated governance edits remain inherited changes outside this feature and are not owned by a Builder.
-- **Active risks:** Migration backfill/`pg_trgm` ordering, transaction-bound restoration under deletion and concurrency, SSR/local-calendar hydration, and the breadth of required responsive/visual/runtime evidence.
-- **Active Builders:** All Builder phases are complete; Orchestrator owns the ready-to-conclude handoff.
+- **Active risks:** None; migration backfill/`pg_trgm` ordering, transaction-bound restoration under deletion and concurrency, SSR/local-calendar hydration, and responsive/visual/runtime evidence were covered by the completed validation.
+- **Active Builders:** None; all Builder phases and the Orchestrator closure handoff are complete.
 - **Shared/generated ownership:** The Orchestrator owns this Plan and `evaluation.md`, the Drizzle migration plus journal/snapshot, generated `apps/web/src/routeTree.gen.ts`, root/package configuration or lockfile coordination if unexpectedly required, transient Playwright artifacts, integration, the path sensor, final sensors and the single Implementation Reviewer. The Server Builder owns the REST-client artifact during F5; Web consumes it as a read-only parity reference.
 
 # Execution ledger
