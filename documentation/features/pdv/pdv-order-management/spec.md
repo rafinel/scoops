@@ -1,6 +1,6 @@
 ---
 title: PDV order management
-status: in_progress
+status: completed
 revision: 2
 source:
   type: issue

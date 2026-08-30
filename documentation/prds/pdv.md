@@ -599,7 +599,7 @@ REQ-09.
 
 ### REQ-09 — Order Snapshot
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** Authorized users can rely on immutable commercial and operational facts preserved
 at the time an order is registered.
@@ -663,7 +663,7 @@ from the MRP module.
 
 ### REQ-10 — Order History
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** Operators and Managers can consult all orders from the current ice cream shop and
 open their immutable details.
@@ -976,7 +976,7 @@ REQ-08 and REQ-09.
 
 ### REQ-15 — Order Cancellation
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** A Manager can cancel any registered order as a one-way lifecycle transition while
 atomically restoring consumption whose current stock target still exists, recording skipped
