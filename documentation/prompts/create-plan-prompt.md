@@ -207,6 +207,7 @@ Use one coverage table to schedule evidence without repeating the Spec's scenari
 
 | Type | Scenario/surface | Criteria | Reference | Evidence target | Status |
 | --- | --- | --- | --- | --- | --- |
+| Automated | `pnpm check:spec-implementation -- <spec-path>` | Complete affected-path map | Spec Technical Contract | `./evaluation.md` | `pending` |
 | Manual | MV-01 | CA-01 | Spec MV-01 | `./evaluation.md` | `pending` |
 | Visual (optional) | `<state>` | CA-02 | `./design/<reference>.png` | `Playwright test-results path or CI artifact identifier` | `pending` |
 | Runtime | `<integration>` | CA-03 | Integration Contract | `./evaluation.md` | `pending` |
@@ -223,9 +224,16 @@ multiple states/viewports. Recommended supplemental screenshots may be deferred 
 manifest records the decision and no acceptance gap remains. Builders and the Orchestrator use
 saved references and do not depend on Pencil MCP.
 
-Schedule exactly one read-only [`Implementation Reviewer`](../agents/implementation-reviewer-agent.md) after Builder
-diffs are integrated and before readiness. Do not create Reviewers per Builder, phase, application
-or package. The Reviewer checks
+Schedule the root `pnpm check:spec-implementation -- <spec-path>` sensor after all Builder diffs
+and Orchestrator-owned artifacts are integrated. It must pass and be recorded in `evaluation.md`
+before integrated sensors or the Implementation Reviewer starts. After any correction affecting
+a contracted path, mark the superseded path-conformance row `stale`, rerun the sensor on the
+corrected complete candidate and record the fresh result before invalidated sensors or the same
+Reviewer resumes.
+
+Schedule exactly one read-only [`Implementation Reviewer`](../agents/implementation-reviewer-agent.md)
+after the integrated path sensor passes and before readiness. Do not create Reviewers per Builder,
+phase, application or package. The Reviewer checks
 the complete candidate, cross-Builder contracts and all affected surfaces; when UI is affected,
 it also inspects every required final visual comparison and independently replays high-risk
 Playwright CLI interactions. Its report is not evidence: the Orchestrator verifies each finding,
@@ -237,7 +245,9 @@ Define the final handoff condition: all tasks and phases completed, Spec validat
 commands current on the integrated commit, generated artifacts/migrations reviewed,
 services/accounts/fixtures ready, every `MV-*` executable, transient validation-artifact
 identifiers recorded, the final Spec tree/conformance comparison passed, all additional-screenshot
-decisions resolved, every affected REST-client artifact present and route-complete, the Implementation Reviewer completed, every verified review finding resolved and
+decisions resolved, the latest `check:spec-implementation` run passed after the last
+contracted-path correction, every affected REST-client artifact is present and route-complete,
+the Implementation Reviewer completed, every verified review finding is resolved and
 no blocking finding active, and every affected workspace coverage command passed without lowering
 its configured floor. Then
 route directly to `conclude-spec`.

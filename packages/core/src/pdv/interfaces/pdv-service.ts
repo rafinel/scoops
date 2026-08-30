@@ -7,6 +7,9 @@ import type { OrderRegistrationInput } from '#pdv/domain/structures/order-regist
 import type { OrderRegistrationResult } from '#pdv/domain/structures/order-registration-result.ts'
 import type { OrderPreview } from '#pdv/domain/structures/order-preview.ts'
 import type { OrderPreviewInput } from '#pdv/domain/structures/order-preview.ts'
+import type { Order } from '#pdv/domain/entities/order.ts'
+import type { OrderDetails } from '#pdv/domain/structures/order-details.ts'
+import type { OrderListParams } from '#pdv/domain/structures/order-list-params.ts'
 import type { SaleItemKind } from '#pdv/domain/structures/sale-item-kind.ts'
 import type { SalesCatalogProduct } from '#pdv/domain/structures/sales-catalog-product.ts'
 import type { SalesCatalogListParams } from '#pdv/domain/structures/sales-catalog-list-params.ts'
@@ -16,6 +19,14 @@ import type { PaginationResponse } from '#shared/responses/pagination-response.t
 import type { RestResponse } from '#shared/responses/rest-response.ts'
 
 export interface PdvService {
+  listOrders(
+    input: Omit<OrderListParams, 'establishmentId'>,
+  ): Promise<RestResponse<PaginationResponse<Order>>>
+  getOrder(orderId: string): Promise<RestResponse<OrderDetails>>
+  cancelOrder(
+    orderId: string,
+    input: { readonly reason?: string },
+  ): Promise<RestResponse<OrderDetails>>
   listOrderCatalog(
     input: Omit<SalesCatalogListParams, 'establishmentId'> & {
       readonly kind?: SaleItemKind

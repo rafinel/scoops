@@ -3,3 +3,4 @@ export { DrizzleDiscountsRepository } from '@/pdv/database/drizzle/repositories/
 export { DrizzleOrderSequencesRepository } from '@/pdv/database/drizzle/repositories/drizzle-order-sequences-repository'
 export { DrizzleOrdersRepository } from '@/pdv/database/drizzle/repositories/drizzle-orders-repository'
 export { DrizzleSalesChannelsRepository } from '@/pdv/database/drizzle/repositories/drizzle-sales-channels-repository'
+export type { OrdersRepository } from '@scoops/core/pdv/interfaces'

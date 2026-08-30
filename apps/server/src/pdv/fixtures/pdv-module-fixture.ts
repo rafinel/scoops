@@ -1,4 +1,5 @@
 import type { INestApplication, Type } from '@nestjs/common'
+import request from 'supertest'
 import type { User } from '@scoops/core/identity/domain/entities'
 import {
   EstablishmentFaker,
@@ -31,7 +32,11 @@ import type {
   ResaleConfigurationsRepository,
   StockBalancesRepository,
 } from '@scoops/core/mrp/interfaces'
-import type { SalesChannel, SalesChannelCreate } from '@scoops/core/pdv/domain/entities'
+import type {
+  Order,
+  SalesChannel,
+  SalesChannelCreate,
+} from '@scoops/core/pdv/domain/entities'
 import type { Combo } from '@scoops/core/pdv/domain/entities'
 import type { ComboCreate } from '@scoops/core/pdv/domain/structures'
 import type { AppError } from '@scoops/core/shared/domain/errors'
@@ -65,7 +70,18 @@ import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 import { SharedModule } from '@/shared/shared.module'
 import { RestFixture } from '@/shared/rest/tests/rest-fixture'
+import { orderModel } from '@/pdv/database/drizzle/models/order-model'
 import { orderSequenceModel } from '@/pdv/database/drizzle/models/order-sequence-model'
+
+type RegisterPortionOrderInput = {
+  readonly authorization: string
+  readonly establishmentId?: string
+  readonly productName: string
+  readonly idempotencyKey: string
+  readonly channelId?: string
+  readonly quantity?: number
+  readonly stockQuantity?: number
+}
 
 export class PdvModuleFixture {
   static readonly accounts = {
@@ -83,6 +99,7 @@ export class PdvModuleFixture {
     private readonly restFixture: RestFixture,
     private readonly originalPreviewTokenSecret: string | undefined,
     private readonly stockConsumerFailure: { error?: AppError },
+    private readonly stockRestorerFailure: { error?: AppError },
     private readonly databaseFailure: { error?: AppError },
   ) {}
 
@@ -91,6 +108,7 @@ export class PdvModuleFixture {
     process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET ??=
       'pdv-test-preview-token-secret-0123456789'
     const stockConsumerFailure: { error?: AppError } = {}
+    const stockRestorerFailure: { error?: AppError } = {}
     const databaseFailure: { error?: AppError } = {}
     const restFixture = await RestFixture.register(
       {
@@ -124,6 +142,17 @@ export class PdvModuleFixture {
                       return dependencies.stockConsumer.consume(...args)
                     },
                   },
+                  stockRestorer: {
+                    restore: async (
+                      ...args: Parameters<typeof dependencies.stockRestorer.restore>
+                    ) => {
+                      const restorations = await dependencies.stockRestorer.restore(
+                        ...args,
+                      )
+                      if (stockRestorerFailure.error) throw stockRestorerFailure.error
+                      return restorations
+                    },
+                  },
                 }
               },
             }),
@@ -147,6 +176,7 @@ export class PdvModuleFixture {
       restFixture,
       originalPreviewTokenSecret,
       stockConsumerFailure,
+      stockRestorerFailure,
       databaseFailure,
     )
   }
@@ -225,8 +255,20 @@ export class PdvModuleFixture {
     return record?.lastSequenceNumber
   }
 
+  async setOrderCreatedAt(orderId: string, createdAt: Date) {
+    await this.get(DrizzleClient)
+      .requireDatabase()
+      .update(orderModel)
+      .set({ createdAt })
+      .where(eq(orderModel.id, orderId))
+  }
+
   setStockConsumerFailure(error?: AppError) {
     this.stockConsumerFailure.error = error
+  }
+
+  setStockRestorerFailure(error?: AppError) {
+    this.stockRestorerFailure.error = error
   }
 
   setDatabaseFailure(error?: AppError) {
@@ -323,6 +365,60 @@ export class PdvModuleFixture {
     return this.discounts.add(input)
   }
 
+  async registerPortionOrder(
+    input: RegisterPortionOrderInput,
+  ): Promise<{ product: Product; size: ProductSize; order: Order }> {
+    const product = await this.addProduct({
+      establishmentId: input.establishmentId ?? PdvModuleFixture.accounts.establishmentId,
+      name: input.productName,
+      unit: 'un',
+      categories: ['portion'],
+      stockControl: 'single',
+      status: 'active',
+      allowNegativeStock: false,
+      idealStock: 0,
+      currentUnitCost: 2,
+    })
+    const size = await this.addProductSize({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      name: 'Regular',
+      quantity: 1,
+      price: 10,
+      isActive: true,
+    })
+    await this.stockBalances.initialize(product.id)
+    await this.stockBalances.add({ productId: product.id }, input.stockQuantity ?? 100)
+
+    const lines = [
+      {
+        productId: product.id,
+        kind: 'portion' as const,
+        quantity: input.quantity ?? 1,
+        sizeId: size.id,
+        accompanimentIds: [],
+      },
+    ]
+    const preview = await request(this.app.getHttpServer())
+      .post('/orders/preview')
+      .set('Authorization', input.authorization)
+      .send({
+        ...(input.channelId ? { channelId: input.channelId } : {}),
+        lines,
+      })
+    const response = await request(this.app.getHttpServer())
+      .post('/orders')
+      .set('Authorization', input.authorization)
+      .send({
+        idempotencyKey: input.idempotencyKey,
+        previewToken: preview.body.previewToken,
+        ...(input.channelId ? { channelId: input.channelId } : {}),
+        lines,
+      })
+
+    return { product, size, order: response.body.order as Order }
+  }
+
   close() {
     return this.restFixture.close().finally(() => {
       if (this.originalPreviewTokenSecret === undefined) {
@@ -349,6 +445,7 @@ export async function resetPdvFixture(
   await fixture.seedAccounts()
   fixture.broker.events.length = 0
   fixture.setStockConsumerFailure()
+  fixture.setStockRestorerFailure()
   fixture.setDatabaseFailure()
   fixture.authenticate(auth.setUser.bind(auth))
 }

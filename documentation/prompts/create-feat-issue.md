@@ -151,11 +151,11 @@ Use the following structure:
 
 ## Acceptance criteria
 
-- [ ] <Observable success behavior.>
-- [ ] <Validation and error behavior.>
-- [ ] <Authorization and tenant-isolation behavior, if applicable.>
-- [ ] <Responsive and accessible behavior, if applicable.>
-- [ ] <Required automated and manual validation passes.>
+- <Observable success behavior.>
+- <Validation and error behavior.>
+- <Authorization and tenant-isolation behavior, if applicable.>
+- <Responsive and accessible behavior, if applicable.>
+- <Required automated and manual validation passes.>
 
 ## References
 

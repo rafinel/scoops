@@ -12,8 +12,10 @@ adjustments and fixed-price Combos. The system calculates prices and discounts, 
 records the order and stock consumption, and preserves commercial snapshots for later history.
 
 Managers can also cancel any registered order through an explicit, one-way action. Cancellation
-preserves the original commercial history, atomically restores the stock consumed by the sale,
-records the cancellation facts and keeps the order available in history with a `Canceled` status.
+preserves the original commercial history, atomically restores sale consumption whose current
+product and, when applicable, brand stock target still exists, records skipped restoration facts
+for deleted targets, records the cancellation facts and keeps the order available in history with
+a `Canceled` status.
 
 ## 2. Problem and Opportunity
 
@@ -633,8 +635,9 @@ from the MRP module.
 - **Cancellation snapshot:** when canceled, the order preserves status,
   cancellation date and time, canceling Manager and optional cancellation
   reason without changing any original order snapshot.
-- **Restoration facts:** exact product and brand consumptions restored by
-  cancellation remain auditable alongside original sale consumptions.
+- **Restoration facts:** exact product and brand consumptions restored by cancellation, plus any
+  restoration skipped because its current product or brand stock target no longer exists, remain
+  auditable alongside original sale consumptions.
 - **Registration exclusions:** deletion of any registration cannot make the
   invalid order.
 - **Non-retroactive update:** no registration changes modify snapshots.
@@ -675,6 +678,8 @@ REQ-09 and establishment access from the Identity module.
 - **Sort:** most recent orders appear first.
 - **Period filter:** accepts start and end date.
 - **Channel filter:** accepts a specific channel or `No channel`.
+- **Search:** accepts an order sequence number or snapshotted product name and remains scoped to
+  the current ice cream shop.
 - **Combined filters:** period and channel can be used simultaneously.
 - **Scope of the Operator:** the Operator consults orders from the entire ice cream shop, not
   just their own.
@@ -690,7 +695,7 @@ REQ-09 and establishment access from the Identity module.
 
 #### Experience
 
-- **Filters:** period and channel must appear above the listing.
+- **Filters:** search, period and channel must appear above the listing.
 - **Line:** must display number, date, time, operator, channel, number of items
   and total.
 - **Detail:** must present items, configurations, quantities, prices,
@@ -974,8 +979,8 @@ REQ-08 and REQ-09.
 - [ ] **Implemented**
 
 **Outcome:** A Manager can cancel any registered order as a one-way lifecycle transition while
-restoring its consumed stock atomically and preserving the original commercial and operational
-history.
+atomically restoring consumption whose current stock target still exists, recording skipped
+restoration for deleted targets, and preserving the original commercial and operational history.
 
 **Actors:** Manager
 
@@ -994,9 +999,15 @@ operational history.
 - **Mandatory confirmation:** cancellation requires explicit confirmation.
 - **Reason:** cancellation reason is optional; when supplied, it is preserved.
 - **Atomic restoration:** cancellation changes order status and metadata and restores every
-  product and brand stock consumption from the original sale in one atomic transaction.
-- **Failure:** if restoration or cancellation cannot complete, the order remains `Registered`,
-  no partial stock restoration is kept, and retry is allowed.
+  product and brand stock consumption from the original sale whose current product and, when
+  applicable, brand stock target still exists in one atomic transaction.
+- **Deleted stock target:** when an original product no longer exists, or an original brand no
+  longer exists for brand-controlled consumption, that consumption is not restored; the skipped
+  quantity and snapshotted target identity are recorded as cancellation facts and do not prevent
+  the order from being canceled.
+- **Failure:** if an eligible restoration or cancellation cannot complete, the order remains
+  `Registered`, no partial stock restoration or skipped-restoration record is kept, and retry is
+  allowed.
 - **One-way transition:** `Registered` -> `Canceled` only. Canceled orders cannot be edited,
   reactivated, canceled again or deleted.
 - **History preservation:** cancellation does not change original products, configurations,
@@ -1289,7 +1300,8 @@ flowchart LR
 
 1. The user accesses `Orders`.
 2. The system displays the ice cream shop's most recent orders.
-3. The user filters by period and channel, including `No channel`.
+3. The user searches by order number or snapshotted product name and filters by period and
+   channel, including `No channel`.
 4. The system restarts and updates the listing.
 5. The user opens an order.
 6. The system presents complete snapshots of the sale, including Combos,
@@ -1309,8 +1321,9 @@ flowchart LR
    that the order remains in history with status `Canceled`, while products,
    channel and values remain preserved.
 5. The Manager confirms the cancellation.
-6. The system atomically restores all product and brand stock consumptions,
-   records canceled status, timestamp, Manager and optional reason.
+6. The system atomically restores product and brand stock consumptions whose current stock target
+   still exists, records any restoration skipped for a deleted target, and records canceled
+   status, timestamp, Manager and optional reason.
 7. Success: details show `Canceled` and cancellation metadata.
 8. Failure: order remains `Registered`, no partial stock restoration is
    maintained, and the Manager can retry.

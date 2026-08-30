@@ -29,7 +29,16 @@ export type PdvFixture = {
   mockSalesChannels: (
     options?: PdvSalesChannelsMockOptions,
   ) => Promise<PdvSalesChannelsMock>
+  mockOrders: (options?: PdvOrdersMockOptions) => Promise<PdvOrdersMock>
 }
+
+export type PdvOrdersMockOptions = {
+  list?: PdvMockResponse | ((request: PdvRequestRecord) => PdvMockResponse)
+  detail?: PdvMockResponse | ((request: PdvRequestRecord) => PdvMockResponse)
+  cancel?: PdvMockResponse | ((request: PdvRequestRecord) => PdvMockResponse)
+}
+
+export type PdvOrdersMock = { requests: PdvRequestRecord[] }
 
 type SalesChannelJson = {
   id: string
@@ -173,5 +182,50 @@ export const PdvFixture = (page: Page): PdvFixture => ({
     })
 
     return mock
+  },
+
+  async mockOrders(options = {}) {
+    const requests: PdvRequestRecord[] = []
+
+    await page.route('**/orders**', async (route) => {
+      if (!['fetch', 'xhr'].includes(route.request().resourceType())) {
+        await route.continue()
+        return
+      }
+
+      const requestUrl = new URL(route.request().url())
+      if (requestUrl.pathname === '/orders/catalog') {
+        await route.continue()
+        return
+      }
+
+      const request: PdvRequestRecord = {
+        method: route.request().method(),
+        url: requestUrl,
+      }
+      if (route.request().postData()) request.body = route.request().postDataJSON()
+      requests.push(request)
+
+      const responseFactory =
+        request.method === 'GET'
+          ? requestUrl.pathname === '/orders'
+            ? options.list
+            : options.detail
+          : options.cancel
+      const response =
+        typeof responseFactory === 'function'
+          ? responseFactory(request)
+          : (responseFactory ?? {
+              body: { items: [], page: 1, pageSize: 6, total: 0, totalPages: 0 },
+            })
+
+      await route.fulfill({
+        body: JSON.stringify(response.body),
+        contentType: 'application/json',
+        status: response.status ?? 200,
+      })
+    })
+
+    return { requests }
   },
 })

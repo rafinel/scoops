@@ -17,6 +17,7 @@ Sources: Global CSS of the app, reference **Purple Stream** and screens drawn wi
 - **Real-time calculations, immediate visual alerts.** Critical states (production limiter, sub-optimal stock) are communicated by background color and icon, not just by text.
 - **Forms save when losing focus.** Product settings do not have a "Save" button. Each field saves inline. Buttons only exist in destructive or irreversible actions.
 - **Lucide-only icons.** No other libraries or emojis.
+- **Dialog icons always stay beside the title.** Every dialog uses a two-column header with its semantic icon tile to the left of the title and supporting description; never stack the icon above the copy.
 
 ---
 
@@ -490,6 +491,7 @@ Large centered button with explicit CTA (e.g. "Add first brand") when the list i
 - Circular shapes for non-iconic items (avatars, subnav dots are exceptions).
 - Emojis in any context.
 - Icons outside of Lucide.
+- Dialog headers with the semantic icon above, below, or detached from the title/supporting-description block; the icon always remains to its left.
 - Thick borders (> 2px) on any element.
 - Complex gradients (only soft colored shadows on primary and destructive buttons).
 - Saturated background in calculation preview blocks (moved to neutral `$bg-muted`).

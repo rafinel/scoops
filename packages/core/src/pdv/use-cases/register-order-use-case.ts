@@ -346,7 +346,7 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
     cart: Cart,
     products: readonly SalesCatalogProduct[],
     channel: Awaited<ReturnType<RegisterOrderUseCase['findChannel']>>,
-  ): Omit<Order, 'id' | 'sequenceNumber' | 'createdAt'> {
+  ): Omit<Order, 'id' | 'sequenceNumber' | 'status' | 'cancellation' | 'createdAt'> {
     const productsById = new Map(products.map((product) => [product.productId, product]))
     const channelSnapshot: SalesChannelSnapshot | undefined = channel
       ? {
@@ -359,6 +359,7 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
       establishmentId: request.actor.establishmentId,
       idempotencyKey: request.idempotencyKey,
       createdBy: request.actor.id,
+      createdByName: request.actor.name,
       ...(channelSnapshot ? { channel: channelSnapshot } : {}),
       lines: cart.lines.map((line) =>
         this.toOrderLine(

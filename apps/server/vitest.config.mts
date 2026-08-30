@@ -37,6 +37,7 @@ export default defineConfig({
     },
     environment: 'node',
     fileParallelism: false,
+    isolate: false,
     include: ['src/**/*.test.ts'],
     maxWorkers: 1,
     testTimeout: 60_000,

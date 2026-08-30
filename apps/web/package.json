@@ -14,7 +14,7 @@
     "test:integration": "playwright test",
     "test:integration:ui": "playwright test --ui",
     "test:auth:setup": "playwright test --config=playwright.auth.config.ts --workers=1",
-    "check:playwright": "bash scripts/check-playwright-cli.sh",
+    "check:playwright": "node scripts/check-playwright-cli.mjs",
     "check:architecture": "dependency-cruise --config ../../.dependency-cruiser.mjs -- src",
     "format": "biome format --write .",
     "check:code": "biome check src",

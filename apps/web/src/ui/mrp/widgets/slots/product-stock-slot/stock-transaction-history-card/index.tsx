@@ -38,6 +38,7 @@ const TYPE_LABELS: Record<StockTransactionType, string> = {
   'production-consumption': 'Consumo de produção',
   'production-output': 'Produção',
   sale: 'Venda',
+  'sale-cancellation': 'Cancelamento de venda',
 }
 
 export type StockTransactionHistoryCardProps = {
@@ -293,7 +294,7 @@ function TransactionType({ type }: { type: StockTransactionType }) {
   return (
     <Badge
       className={
-        type === 'entry' || type === 'production-output'
+        type === 'entry' || type === 'production-output' || type === 'sale-cancellation'
           ? 'border border-info/30 bg-info-soft text-info'
           : 'border border-danger/30 bg-danger-soft text-danger'
       }
@@ -313,7 +314,8 @@ function SignedQuantity({
   unit: string
 }) {
   const formatQuantity = useFormatQuantity()
-  const isEntry = type === 'entry' || type === 'production-output'
+  const isEntry =
+    type === 'entry' || type === 'production-output' || type === 'sale-cancellation'
   return (
     <span className={cn('font-extrabold', isEntry ? 'text-success' : 'text-danger')}>
       {isEntry ? '+' : '-'}

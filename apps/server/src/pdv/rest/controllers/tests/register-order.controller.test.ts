@@ -79,6 +79,12 @@ describe('Register Order Controller [POST /orders]', () => {
     expect(preview.status).toBe(200)
     expect(first.status).toBe(201)
     expect(first.body).toMatchObject({ kind: 'registered', replayed: false })
+    expect(first.body.order).toMatchObject({
+      createdBy: PdvModuleFixture.accounts.managerId,
+      createdByName: 'Maria Manager',
+      status: 'registered',
+    })
+    expect(first.body.order.createdAt).toMatch(/Z$/)
     expect(replay.status).toBe(200)
     expect(replay.body).toMatchObject({ kind: 'registered', replayed: true })
     expect(replay.body.order).toEqual(first.body.order)

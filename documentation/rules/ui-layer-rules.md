@@ -759,12 +759,13 @@ focus-color or ring-strength overrides for ordinary inputs.
 ## Dialog header structure
 
 Every application dialog, including alert and destructive confirmation dialogs,
-uses the shared vertical header hierarchy: semantic icon tile above the title,
-supporting description immediately below, close action isolated at the top-right,
-and a soft separator between header and body. Preserve the icon and semantic color
-that communicate the dialog's purpose, but do not replace this hierarchy with a
-horizontal icon-and-copy row or omit the header separator. Reserve enough right
-padding that long titles and descriptions cannot collide with the close action.
+uses the shared two-column header hierarchy: the semantic icon tile remains to the
+left of the title and supporting-description block, the supporting description stays
+immediately below the title, the close action remains isolated at the top-right, and
+a soft separator divides the header from the body. Preserve the icon and semantic
+color that communicate the dialog's purpose; do not stack the icon above the copy or
+omit the header separator. Reserve enough right padding that long titles and
+descriptions cannot collide with the close action.
 
 ## Antipatterns to Avoid
 

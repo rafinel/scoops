@@ -36,11 +36,23 @@ Require:
 - no blocking implementation finding remains;
 - source and GitHub Issue traceability is preserved.
 
+Documentation changes are first-class delivery scope. Inspect every changed documentation
+path in `git status`, `git diff` and `git diff --cached`, including Specs, Plans, Evaluations,
+PRDs, architecture, modules, design, tooling, rules, prompts and REST-client examples.
+Classify each path as delivery-owned, required factual alignment or closure ledger, or unrelated
+user-owned scope. Delivery-owned and required factual documentation must be included in the
+normal delivery commit(s), PR traceability and Evaluation; never omit it because it is
+non-code. Preserve unrelated documentation and record its explicit exclusion.
+
 Also require a final implementation conformance record: the exact Spec revision and Builder
 scope match the diff; the required file/widget tree, contracts, exclusions and applicable UI
 states pass; every affected screenshot is fresh and inspected; and Playwright console,
 network, HTTP status, accessibility, keyboard and responsive checks are classified. Passing
 tests without this record is not validation-ready.
+The record must include a current passing
+`pnpm check:spec-implementation -- <exact-spec-path>` result for the implementation returned by
+`implement-spec`. This structural result does not replace contract, runtime, visual, REST-client
+or traceability evidence.
 For every affected HTTP route group, the same record must verify the matching
 `apps/server/rest-client/<module>/<route-group>.rest` file is present, included in the scoped
 diff, and contains one current labeled example for every controller route with the required
@@ -94,32 +106,46 @@ conclusion automatically after it returns evaluation to `ready`.
 
 1. Read the Spec Validation Contract, Rule Pack, current evaluation and
    `documentation/tooling.md`.
-2. Run the applicable local generation, formatting/code, type, unit coverage, integration,
+2. Run `pnpm check:spec-implementation -- <exact-spec-path>` against the complete delivery
+   candidate and record the exact command and result. On failure, classify an
+   implementation correction, mark affected evidence stale, invoke `implement-spec`, and restart
+   conclusion preflight after Evaluation returns to `ready`.
+3. Run the applicable local generation, formatting/code, type, unit coverage, integration,
    Playwright CLI, architecture and build preflight required by the Spec and changed paths. Every
    affected Core, Server or Web workspace must pass its `test:coverage` command without reducing
    the configured floor.
-3. Reconcile generated artifacts, migrations, REST-client examples, saved design evidence and factual
-   documentation against the current diff.
-4. Rerun the final Spec conformance comparison and verify the current validation evidence covers
+4. Reconcile generated artifacts, migrations, REST-client examples, saved design evidence and all
+   changed documentation against the current diff. Verify documentation links, statuses,
+   requirement checkboxes, evidence IDs, changed paths and implementation facts. Include every
+   delivery-owned or required factual documentation change in the candidate scope, and record
+   unrelated user-owned documentation as explicitly excluded.
+5. Rerun the final Spec conformance comparison and verify the current validation evidence covers
    the exact implementation diff. Any later
-   implementation or acceptance-evidence change routes back to the implementation workflow.
-5. Resolve the PRD implementation-checkbox disposition from the completed `REQ-*`/`RF-*`/`CA-*`
+   implementation or acceptance-evidence change routes back to the implementation workflow. If a
+   later correction changes, creates, generates or removes a contracted path, rerun the package
+   check before committing or publishing.
+6. Resolve the PRD implementation-checkbox disposition from the completed `REQ-*`/`RF-*`/`CA-*`
    traceability record. Change only fully delivered requirements to
    `- [x] **Implemented**`; leave partially delivered and deferred requirements as
-   `- [ ] **Implemented**`. Make this PRD update only after steps 1–4 pass and before invoking
+   `- [ ] **Implemented**`. Make this PRD update only after steps 1–5 pass and before invoking
    `commit-code`, `create-pr` or the final PR CI gate. If traceability or evidence is incomplete,
    route the discrepancy through the authority and late-change rules instead of checking the
    requirement.
-6. Invoke `commit-code` to create intentional scoped commits, including any authorized PRD
-   checkbox changes from step 5.
-7. Inspect the existing delivery PR, if any, and compare its base, head SHA, title and body
+7. Before invoking `commit-code`, audit the complete changed-documentation list again. Ensure
+   every delivery-owned or required factual documentation change is intentionally staged in the
+   normal delivery commit(s), represented in the PR traceability and recorded in `evaluation.md`.
+   Only unrelated user-owned documentation or purely operational SDD ledger closure updates may
+   remain outside the delivery commit, and each exclusion must be recorded.
+8. Invoke `commit-code` to create intentional scoped commits, including any authorized PRD
+   checkbox changes from step 6 and all delivery-owned or required factual documentation changes.
+9. Inspect the existing delivery PR, if any, and compare its base, head SHA, title and body
    with the current candidate. If no matching PR exists, the PR points at an earlier SHA, or
    its publication details are stale or incomplete, **invoke `create-pr` immediately and
    mandatorily** to create or update it. Do not bypass `create-pr` with an ad hoc PR edit or
    proceed to the final CI gate before it returns the current PR metadata.
-8. Invoke `create-pr` for the final publication whenever the branch was newly committed or
+10. Invoke `create-pr` for the final publication whenever the branch was newly committed or
    the PR needs any update; reuse the existing delivery PR and never create a duplicate.
-9. Record the branch and PR URL in the delivery record; update
+11. Record the branch and PR URL in the delivery record; update
    `evaluation.md` only when the operational ledger needs the reference.
 
 ## Final PR CI Quality Gate
@@ -196,6 +222,12 @@ After CI passes, verify `evaluation.md` contains:
 - final validation result;
 - applicable PR CI run evidence and final build result.
 
+Verify that every delivery-owned or required factual documentation change from the candidate
+diff is included in the scoped delivery commit(s), PR traceability and final Evaluation. A
+documentation change must not be omitted solely because it does not change runtime code. Record
+the paths and rationale for included changes, and the explicit reason for each preserved
+unrelated or closure-only documentation path.
+
 Check PRD, Architecture, Modules, Design, Tooling and the Rule Pack against delivered facts.
 Apply factual documentation corrections only. Product, Contract, global Rule, module
 ownership or architecture changes require user authority and the late-change route.
@@ -263,6 +295,10 @@ normal delivery commit only when the implementation or required product document
 needs to be committed. Wait for checks on the actual delivery head before declaring delivery
 complete.
 
+Required product documentation and factual documentation corrections belong in the normal
+delivery commit(s) and PR. The closure-only restriction applies only to purely operational SDD
+ledger updates, which must still be recorded in the final delivery state.
+
 Do not wait indefinitely for reviewer comments and do not process them here. Later actionable
 review feedback is handled by `resolve-pr-feedback`; while the PR remains open, that workflow
 may reopen the Spec, route implementation and invoke `conclude-spec` again. After merge, use
@@ -281,6 +317,8 @@ Return:
 - fully delivered, partially delivered and deferred PRD `REQ-*` requirements with their final
   Implemented-checkbox disposition;
 - applicable PR CI workflows and results;
+- documentation paths included in the delivery, with explicitly preserved exclusions and their
+  rationale;
 - documentation alignment and remaining non-blocking limitations;
 - finding-derived PRD, Architecture, Design, Tooling and Rule Pack improvements, including
   justified no-change dispositions;

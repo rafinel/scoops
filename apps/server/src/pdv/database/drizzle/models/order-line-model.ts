@@ -36,6 +36,10 @@ export const orderLineModel = pgTable(
   },
   (table) => [
     index('pdv_order_lines_order_position_idx').on(table.orderId, table.position),
+    index('pdv_order_lines_product_name_search_idx').using(
+      'gin',
+      sql`lower(${table.productName}) gin_trgm_ops`,
+    ),
     uniqueIndex('pdv_order_lines_order_position_unique').on(
       table.orderId,
       table.position,

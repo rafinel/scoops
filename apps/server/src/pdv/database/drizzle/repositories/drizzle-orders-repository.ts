@@ -1,9 +1,26 @@
 import type { Order, OrderCreate } from '@scoops/core/pdv/domain/entities'
-import type { OrderLine, OrderListParams } from '@scoops/core/pdv/domain/structures'
+import { OrderStatus } from '@scoops/core/pdv/domain/structures'
+import type {
+  OrderCancellation,
+  OrderLine,
+  OrderListParams,
+} from '@scoops/core/pdv/domain/structures'
 import type { OrdersRepository } from '@scoops/core/pdv/interfaces'
 import { ConflictError } from '@scoops/core/shared/domain/errors'
 import { PaginationResponse } from '@scoops/core/shared/responses/pagination-response'
-import { and, asc, count, desc, eq, gte, inArray, lte } from 'drizzle-orm'
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  exists,
+  gte,
+  ilike,
+  inArray,
+  isNull,
+  lte,
+} from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
@@ -17,6 +34,7 @@ import { orderLineConsumptionModel } from '@/pdv/database/drizzle/models/order-l
 import { orderLineModel } from '@/pdv/database/drizzle/models/order-line-model'
 import { orderModel } from '@/pdv/database/drizzle/models/order-model'
 import { orderSequenceModel } from '@/pdv/database/drizzle/models/order-sequence-model'
+import { orderStockRestorationModel } from '@/pdv/database/drizzle/models/order-stock-restoration-model'
 
 type AggregateRows = {
   readonly lines: readonly (typeof orderLineModel.$inferSelect)[]
@@ -26,6 +44,7 @@ type AggregateRows = {
   readonly components: readonly (typeof orderDiscountComponentModel.$inferSelect)[]
   readonly componentAccompaniments: readonly (typeof orderDiscountComponentAccompanimentModel.$inferSelect)[]
   readonly discountLines: readonly (typeof orderDiscountLineModel.$inferSelect)[]
+  readonly restorations: readonly (typeof orderStockRestorationModel.$inferSelect)[]
 }
 
 @Injectable()
@@ -46,6 +65,8 @@ export class DrizzleOrdersRepository
           idempotencyKey: input.idempotencyKey,
           sequenceNumber,
           createdBy: input.createdBy,
+          createdByName: input.createdByName,
+          status: OrderStatus.Registered,
           channelId: input.channel?.channelId ?? null,
           channelName: input.channel?.name ?? null,
           channelPercentage:
@@ -179,6 +200,22 @@ export class DrizzleOrdersRepository
     return this.toDomain(record)
   }
 
+  async findByIdForUpdate(
+    establishmentId: string,
+    orderId: string,
+  ): Promise<Order | undefined> {
+    const [record] = await this.database
+      .select()
+      .from(orderModel)
+      .where(
+        and(eq(orderModel.establishmentId, establishmentId), eq(orderModel.id, orderId)),
+      )
+      .for('update')
+      .limit(1)
+    if (!record) return undefined
+    return this.toDomain(record)
+  }
+
   async findByIdempotencyKey(
     establishmentId: string,
     idempotencyKey: string,
@@ -201,7 +238,15 @@ export class DrizzleOrdersRepository
     const filters = [eq(orderModel.establishmentId, input.establishmentId)]
     if (input.createdFrom) filters.push(gte(orderModel.createdAt, input.createdFrom))
     if (input.createdTo) filters.push(lte(orderModel.createdAt, input.createdTo))
-    if (input.channelId) filters.push(eq(orderModel.channelId, input.channelId))
+    if (input.channelId !== undefined) {
+      filters.push(
+        input.channelId === null
+          ? isNull(orderModel.channelId)
+          : eq(orderModel.channelId, input.channelId),
+      )
+    }
+    if (input.status) filters.push(eq(orderModel.status, input.status))
+    if (input.search) filters.push(this.searchFilter(input.search))
     const where = and(...filters)
     const [records, totalRecords] = await Promise.all([
       this.database
@@ -227,6 +272,48 @@ export class DrizzleOrdersRepository
     )
   }
 
+  async cancel(
+    establishmentId: string,
+    orderId: string,
+    cancellation: OrderCancellation,
+  ): Promise<Order> {
+    const [record] = await this.database
+      .update(orderModel)
+      .set({
+        status: OrderStatus.Canceled,
+        canceledAt: cancellation.canceledAt,
+        canceledBy: cancellation.canceledBy,
+        canceledByName: cancellation.canceledByName,
+        cancellationReason: cancellation.reason ?? null,
+      })
+      .where(
+        and(
+          eq(orderModel.establishmentId, establishmentId),
+          eq(orderModel.id, orderId),
+          eq(orderModel.status, OrderStatus.Registered),
+        ),
+      )
+      .returning()
+    if (!record) throw new ConflictError('O pedido já foi cancelado.')
+
+    if (cancellation.restorations.length > 0)
+      await this.database.insert(orderStockRestorationModel).values(
+        cancellation.restorations.map((restoration, position) => ({
+          id: crypto.randomUUID(),
+          orderId,
+          position,
+          productId: restoration.productId,
+          productName: restoration.productName,
+          brandId: restoration.brandId ?? null,
+          brandName: restoration.brandName ?? null,
+          quantity: String(restoration.quantity),
+          outcome: restoration.outcome,
+        })),
+      )
+
+    return this.toDomain(record)
+  }
+
   async removeAll(): Promise<void> {
     await this.database.delete(orderDiscountLineModel)
     await this.database.delete(orderDiscountComponentAccompanimentModel)
@@ -235,6 +322,7 @@ export class DrizzleOrdersRepository
     await this.database.delete(orderDiscountComponentModel)
     await this.database.delete(orderDiscountModel)
     await this.database.delete(orderLineModel)
+    await this.database.delete(orderStockRestorationModel)
     await this.database.delete(orderModel)
   }
 
@@ -364,6 +452,24 @@ export class DrizzleOrdersRepository
       aggregates.components,
       aggregates.componentAccompaniments,
       aggregates.discountLines,
+      aggregates.restorations,
+    )
+  }
+
+  private searchFilter(search: string) {
+    const sequenceSearch = search.match(/^#?(\d+)$/)
+    if (sequenceSearch) return eq(orderModel.sequenceNumber, Number(sequenceSearch[1]))
+
+    return exists(
+      this.database
+        .select({ id: orderLineModel.id })
+        .from(orderLineModel)
+        .where(
+          and(
+            eq(orderLineModel.orderId, orderModel.id),
+            ilike(orderLineModel.productName, `%${search}%`),
+          ),
+        ),
     )
   }
 
@@ -425,6 +531,11 @@ export class DrizzleOrdersRepository
           .from(orderDiscountLineModel)
           .where(inArray(orderDiscountLineModel.componentId, componentIds))
       : []
+    const restorations = await this.database
+      .select()
+      .from(orderStockRestorationModel)
+      .where(inArray(orderStockRestorationModel.orderId, [...orderIds]))
+      .orderBy(asc(orderStockRestorationModel.position))
 
     for (const orderId of orderIds) {
       const orderLineIds = new Set(
@@ -456,6 +567,7 @@ export class DrizzleOrdersRepository
         discountLines: discountLines.filter((row) =>
           orderComponentIds.has(row.componentId),
         ),
+        restorations: restorations.filter((row) => row.orderId === orderId),
       })
     }
     return rowsByOrderId

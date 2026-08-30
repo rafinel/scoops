@@ -22,14 +22,15 @@ platform agent type.
 ## Activation
 
 - Activate exactly one Implementation Reviewer for Plan-backed execution after all
-  Builder diffs have been integrated.
+  Builder diffs have been integrated and the current complete candidate has a passing
+  `check:spec-implementation` Evaluation row.
 - Do not create Reviewers per Builder, phase, application, package, or technical
   specialty.
 - Direct execution has no Implementation Reviewer unless the Spec or another repository
   authority explicitly requires one.
 - The review may run in parallel with the Orchestrator's integrated sensors.
-- After corrections are integrated, resume the same Reviewer to recheck the affected
-  candidate instead of activating a replacement.
+- After corrections are integrated, resume the same Reviewer only after a correction affecting a
+  contracted path has a fresh passing package-check row; never activate a replacement.
 
 ## Required input
 
@@ -37,6 +38,8 @@ platform agent type.
 - current Plan and applicable phase state;
 - Rule Pack, Architecture, and module authorities;
 - integrated diff, changed paths, and required final tree;
+- latest passing `check:spec-implementation` Evaluation row, exact command and confirmation that
+  it covers the current candidate;
 - matching `apps/server/rest-client/<module>/<route-group>.rest` files for affected HTTP groups;
 - affected `RF-*`, `CA-*`, and integration contracts;
 - design manifest and saved references when UI is affected;
@@ -47,8 +50,10 @@ platform agent type.
 ## Execution
 
 1. Read the assigned authorities and confirm the candidate scope and revision.
-2. Inspect the complete integrated diff, final tree, cross-Builder boundaries,
-   generated artifacts, and exclusions.
+2. Confirm the recorded structural path check covers the current candidate, then inspect the
+   complete integrated diff, final tree, cross-Builder boundaries, generated artifacts and
+   exclusions. Report a missing, failed or stale structural result as blocking; do not rerun the
+   Orchestrator-owned sensor as a substitute for its evidence.
 3. For every affected HTTP route group, compare the declared `.rest` file with the controller
    routes and shared request schemas. Check that every route has one labeled request with
    current parameters, headers, representative body and reusable non-secret variables.
@@ -98,7 +103,7 @@ integrates corrections, and owns the readiness verdict.
 
 ### Conformance summary
 
-- **Spec and final tree:** pass | findings above
+- **Spec affected paths and final tree:** pass | findings above
 - **Cross-Builder contracts:** pass | findings above
 - **Validation freshness:** pass | findings above
 - **UI review:** not applicable | pass | findings above

@@ -13,6 +13,7 @@ import type { OrderPreviewTokenService } from '#pdv/interfaces/order-preview-tok
 import type { SalesCatalogProvider } from '#pdv/interfaces/sales-catalog-provider.ts'
 import type { SalesChannelsRepository } from '#pdv/interfaces/sales-channels-repository.ts'
 import type { StockConsumer } from '#pdv/interfaces/stock-consumer.ts'
+import type { StockRestorer } from '#pdv/interfaces/stock-restorer.ts'
 import { BadRequestError, ConflictError } from '#shared/domain/errors/index.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import { RegisterOrderUseCase } from '#pdv/use-cases/register-order-use-case.ts'
@@ -66,6 +67,7 @@ describe('Register Order Use Case', () => {
   let discounts: MockProxy<DiscountsRepository>
   let salesChannels: MockProxy<SalesChannelsRepository>
   let stockConsumer: MockProxy<StockConsumer>
+  let stockRestorer: MockProxy<StockRestorer>
   let useCase: RegisterOrderUseCase
 
   beforeEach(() => {
@@ -77,6 +79,7 @@ describe('Register Order Use Case', () => {
     discounts = mock<DiscountsRepository>()
     salesChannels = mock<SalesChannelsRepository>()
     stockConsumer = mock<StockConsumer>()
+    stockRestorer = mock<StockRestorer>()
     scope = {
       salesCatalogProvider: catalog,
       salesChannelsRepository: salesChannels,
@@ -84,6 +87,7 @@ describe('Register Order Use Case', () => {
       ordersRepository: orders,
       orderSequencesRepository: orderSequences,
       stockConsumer,
+      stockRestorer,
     }
     orders.findByIdempotencyKey.mockResolvedValue(undefined)
     discounts.findActive.mockResolvedValue([])
@@ -121,6 +125,11 @@ describe('Register Order Use Case', () => {
       actorName: 'Operator',
       sequenceNumber: 7,
     })
+    expect(orders.add.mock.calls[0][0]).toMatchObject({
+      createdBy: 'operator-1',
+      createdByName: 'Operator',
+    })
+    expect(orders.add.mock.calls[0][0]).not.toHaveProperty('status')
   })
 
   it('returns a committed order for a replay without reading current facts or dispatching stock', async () => {

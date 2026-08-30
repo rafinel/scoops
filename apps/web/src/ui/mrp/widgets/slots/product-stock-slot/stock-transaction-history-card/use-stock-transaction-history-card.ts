@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import type {
   ProductBrandStock,
-  StockAdjustmentType,
+  StockTransactionType,
 } from '@scoops/core/mrp/domain/structures'
 
 import { useStockTransactionsQuery } from '../../../../hooks/use-stock-transactions-query'
@@ -13,7 +13,7 @@ export function useStockTransactionHistoryCard(
   productId: string,
   brands: readonly ProductBrandStock[],
 ) {
-  const [type, setType] = useState<StockAdjustmentType | ''>('')
+  const [type, setType] = useState<StockTransactionType | ''>('')
   const [brandId, setBrandId] = useState('')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
@@ -36,7 +36,7 @@ export function useStockTransactionHistoryCard(
 
   function handleTypeChange(value: string | null) {
     handleFilterChange(() =>
-      setType(value === 'all' ? '' : (value as StockAdjustmentType)),
+      setType(value === 'all' || value === null ? '' : (value as StockTransactionType)),
     )
   }
 

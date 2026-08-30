@@ -58,11 +58,11 @@ export const stockTransactionModel = pgTable(
     ),
     check(
       'mrp_stock_transactions_type_allowed',
-      sql`${table.type} in ('entry', 'write-off', 'production-consumption', 'production-output', 'sale')`,
+      sql`${table.type} in ('entry', 'write-off', 'production-consumption', 'production-output', 'sale', 'sale-cancellation')`,
     ),
     check(
       'mrp_stock_transactions_correlation',
-      sql`(${table.type} in ('production-consumption', 'production-output') and ${table.productionId} is not null and ${table.orderId} is null) or (${table.type} in ('entry', 'write-off') and ${table.productionId} is null and ${table.orderId} is null) or (${table.type} = 'sale' and ${table.productionId} is null and ${table.orderId} is not null)`,
+      sql`(${table.type} in ('production-consumption', 'production-output') and ${table.productionId} is not null and ${table.orderId} is null) or (${table.type} in ('entry', 'write-off') and ${table.productionId} is null and ${table.orderId} is null) or (${table.type} in ('sale', 'sale-cancellation') and ${table.productionId} is null and ${table.orderId} is not null)`,
     ),
   ],
 )

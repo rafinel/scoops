@@ -5,6 +5,62 @@
 @invalidSizeId = 00000000-0000-4000-8000-000000000099
 @idempotencyKey = 00000000-0000-4000-8000-000000000001
 @previewToken = replace-with-preview-token-response
+@orderId = 00000000-0000-4000-8000-000000000010
+@channelId = 00000000-0000-4000-8000-000000000020
+
+### List orders with combined filters (200)
+GET {{baseUrl}}/orders?search=%2310&createdFrom=2026-01-01T00%3A00%3A00.000Z&createdTo=2026-01-31T23%3A59%3A59.999Z&channelId={{channelId}}&status=registered&page=1&pageSize=6
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+# Response body:
+# {
+#   "items": [],
+#   "page": 1,
+#   "pageSize": 6,
+#   "total": 0,
+#   "totalPages": 0
+# }
+
+### Get an order snapshot (200)
+GET {{baseUrl}}/orders/{{orderId}}
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+
+# Response body:
+# {
+#   "id": "{{orderId}}",
+#   "sequenceNumber": 10,
+#   "createdByName": "Maria Manager",
+#   "status": "registered",
+#   "createdAt": "2026-01-01T12:00:00.000Z",
+#   "lines": [],
+#   "discounts": [],
+#   "subtotal": 10,
+#   "totalDiscount": 0,
+#   "total": 10
+# }
+
+### Cancel a registered order (200)
+PATCH {{baseUrl}}/orders/{{orderId}}/cancel
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "reason": "  Cliente solicitou o cancelamento  "
+}
+
+# Response body:
+# {
+#   "id": "{{orderId}}",
+#   "status": "canceled",
+#   "cancellation": {
+#     "canceledByName": "Maria Manager",
+#     "reason": "Cliente solicitou o cancelamento",
+#     "canceledAt": "2026-01-01T12:05:00.000Z",
+#     "restorations": []
+#   }
+# }
 
 ### List the tenant order catalog (200)
 GET {{baseUrl}}/orders/catalog?page=1&pageSize=20

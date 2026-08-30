@@ -440,18 +440,44 @@ Ports and local credentials can be overridden in the root `.env`.
 The repository provides prompt and agent synchronization helpers:
 
 ```bash
-bash scripts/sync-commands.sh
-bash scripts/sync-agents.sh
+pnpm sync:commands
+pnpm sync:agents
+pnpm gen:supabase-keys
+pnpm test:scripts
 ```
 
-`sync-commands.sh` synchronizes Markdown prompts from `documentation/prompts` into command files
+`sync-commands.mjs` synchronizes Markdown prompts from `documentation/prompts` into command files
 for Cursor, Claude, and OpenCode, and generates matching local agent skills under
 `.agents/skills`. It creates symlinks when supported and copies files as a
 fallback.
 
-`sync-agents.sh` validates the canonical `documentation/agents/*-agent.md` contracts, removes
+`sync-agents.mjs` validates the canonical `documentation/agents/*-agent.md` contracts, removes
 stale managed definitions, and generates matching Codex, Claude Code, and OpenCode agent
 configuration.
+
+`generate-supabase-keys.mjs` reads `JWT_SECRET` from the root `.env` (or a path passed after `--`)
+and prints local Supabase `ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` values. The generated keys
+must not be committed.
+
+`test:scripts` runs the tests under `scripts/tests` with Node's built-in test runner.
+
+### Spec path implementation check
+
+Check every affected path in a feature Spec against the current filesystem and its Git state
+relative to `main`:
+
+```bash
+pnpm check:spec-implementation -- documentation/features/<domain>/<feature>/spec.md
+```
+
+Use `--base <git-ref>` to select another local baseline and `--json` for machine-readable output.
+The command does not fetch. It requires every `Create`, `Modify`, `Generate` and `Remove` path to
+have the corresponding final filesystem and Git-diff state, rejects duplicate or non-exact paths,
+and ignores unrelated changed files. This is structural conformance only; semantic behavior and
+test correctness remain owned by the Spec's validation commands and Evaluation evidence.
+Run it after all affected paths and Orchestrator-owned artifacts are integrated, rerun it after
+every correction affecting a contracted path, and record each run in the colocated Evaluation
+before implementation review or readiness.
 
 ## Commit conventions
 
@@ -460,9 +486,11 @@ Commit message conventions are documented in
 currently configure Husky or commitlint hooks, so these conventions are not
 automatically enforced by local Git hooks.
 
-## CI/CD status
+## GitHub Actions CI status
 
-The repository contains four path-filtered GitHub Actions validation workflows:
+The repository contains four path-filtered GitHub Actions validation workflows. The workflow
+files are authoritative for their exact triggers, path filters and commands; this section provides
+the maintained summary:
 
 - `.github/workflows/core-package-ci.yml` (`Core CI`) runs Core code, architecture and
   type checks plus tests for Core and shared tooling inputs;
@@ -475,11 +503,10 @@ The repository contains four path-filtered GitHub Actions validation workflows:
   for Web, Validation or Core inputs. Real-service browser scenarios are validated
   separately with their required Server/Supabase environment.
 
-The workflows run on matching pushes and pull requests. Their checked-in `paths` filters are
-authoritative for deciding which checks apply to a candidate commit. The repository does not
-currently contain Coolify deployment automation; deployment remains a separate manual or
-externally managed action. New automation must use Scoops-specific workflow names, secrets
-and environment variables.
+The workflows run on matching pushes and pull requests. The repository does not currently contain
+deployment automation, such as Coolify workflows; deployment remains a separate manual or
+externally managed infrastructure concern. New GitHub automation must use Scoops-specific
+workflow names, secrets and environment variables.
 
 ## Recommended local validation
 

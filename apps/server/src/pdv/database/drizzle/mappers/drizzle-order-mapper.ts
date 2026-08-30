@@ -1,4 +1,5 @@
 import type { Order } from '@scoops/core/pdv/domain/entities'
+import { OrderStatus } from '@scoops/core/pdv/domain/structures'
 import type {
   AccompanimentSnapshot,
   BrandSnapshot,
@@ -18,7 +19,9 @@ import type {
   DrizzleOrderLine,
   DrizzleOrderLineAccompaniment,
   DrizzleOrderLineConsumption,
+  DrizzleOrderStockRestoration,
 } from '@/pdv/database/drizzle/types'
+import { ConflictError } from '@scoops/core/shared/domain/errors'
 
 export class DrizzleOrderMapper {
   static toDomain(
@@ -30,7 +33,9 @@ export class DrizzleOrderMapper {
     components: readonly DrizzleOrderDiscountComponent[],
     componentAccompaniments: readonly DrizzleOrderDiscountComponentAccompaniment[],
     discountLines: readonly DrizzleOrderDiscountLine[],
+    restorations: readonly DrizzleOrderStockRestoration[] = [],
   ): Order {
+    const cancellation = DrizzleOrderMapper.toCancellation(record, restorations)
     const lineAccompanimentsByLineId = DrizzleOrderMapper.groupBy(
       lineAccompaniments,
       (accompaniment) => accompaniment.orderLineId,
@@ -59,6 +64,8 @@ export class DrizzleOrderMapper {
       idempotencyKey: record.idempotencyKey,
       sequenceNumber: record.sequenceNumber,
       createdBy: record.createdBy,
+      createdByName: record.createdByName,
+      status: record.status,
       ...(record.channelId
         ? {
             channel: {
@@ -87,7 +94,62 @@ export class DrizzleOrderMapper {
       subtotal: Number(record.subtotal),
       totalDiscount: Number(record.totalDiscount),
       total: Number(record.total),
+      ...(cancellation ? { cancellation } : {}),
       createdAt: record.createdAt,
+    }
+  }
+
+  private static toCancellation(
+    record: DrizzleOrder,
+    restorations: readonly DrizzleOrderStockRestoration[],
+  ): Order['cancellation'] {
+    const hasCancellationFields =
+      record.canceledAt !== null ||
+      record.canceledBy !== null ||
+      record.canceledByName !== null ||
+      record.cancellationReason !== null
+
+    if (record.status === OrderStatus.Registered) {
+      if (hasCancellationFields || restorations.length > 0)
+        throw new ConflictError('Database operation conflicted')
+      return undefined
+    }
+
+    if (
+      record.status !== OrderStatus.Canceled ||
+      record.canceledAt === null ||
+      record.canceledBy === null ||
+      record.canceledByName === null ||
+      record.canceledByName.trim().length === 0
+    )
+      throw new ConflictError('Database operation conflicted')
+
+    return {
+      canceledAt: record.canceledAt,
+      canceledBy: record.canceledBy,
+      canceledByName: record.canceledByName,
+      ...(record.cancellationReason !== null
+        ? { reason: record.cancellationReason }
+        : {}),
+      restorations: DrizzleOrderMapper.sortByPosition(restorations).map((restoration) => {
+        if (
+          (restoration.brandId === null) !== (restoration.brandName === null) ||
+          restoration.brandName?.trim().length === 0
+        )
+          throw new ConflictError('Database operation conflicted')
+        return {
+          productId: restoration.productId,
+          productName: restoration.productName,
+          ...(restoration.brandId
+            ? {
+                brandId: restoration.brandId,
+                brandName: restoration.brandName as string,
+              }
+            : {}),
+          quantity: Number(restoration.quantity),
+          outcome: restoration.outcome,
+        }
+      }),
     }
   }
 
