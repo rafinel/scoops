@@ -12,7 +12,7 @@ updated_at: 2026-08-30
 
 - **Spec:** [`./spec.md`](./spec.md), revision `2`, status `in_progress`.
 - **Plan rationale:** Plan-backed execution is required because this delivery crosses Core, Validation, PDV/MRP persistence and transaction composition, a generated migration, three REST operations, protected responsive Web UI, concurrent cancellation risk and real server-backed visual/runtime validation.
-- **Current phase:** F8 — Integrated validation complete; Plan is `completed` pending the normal `conclude-spec` delivery handoff.
+- **Current phase:** F8 — Integrated validation complete; the corrected real-service assertion and authenticated lifecycle rerun pass.
 - **Next action:** Route the ready Spec to `conclude-spec` for delivery publication and final PR CI.
 - **Active blockers:** None. FND-005 was resolved by the shared serial Server fixture and Vitest worker-isolation fix. Unrelated governance edits remain inherited changes outside this feature and are not owned by a Builder.
 - **Active risks:** Migration backfill/`pg_trgm` ordering, transaction-bound restoration under deletion and concurrency, SSR/local-calendar hydration, and the breadth of required responsive/visual/runtime evidence.
