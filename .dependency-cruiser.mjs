@@ -70,7 +70,6 @@ const workspaceRules = {
         pathNot: [
           '^src/shared/database/drizzle/schema\\.ts$',
           '^src/shared/database/seed\\.ts$',
-          '^src/shared/database/cutover/import-supabase-to-neon\\.ts$',
         ],
       },
       to: { path: '^src/(?:billing|communication|identity|mrp|pdv)/' },
