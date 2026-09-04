@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   managerRequestAuthorization,
@@ -12,7 +12,7 @@ import {
 
 describe('List Active Sales Channels Controller [GET /sales-channels/active]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -40,10 +40,10 @@ describe('List Active Sales Channels Controller [GET /sales-channels/active]', (
 
     const manager = await request(fixture.app.getHttpServer())
       .get('/sales-channels/active')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const operator = await request(fixture.app.getHttpServer())
       .get('/sales-channels/active')
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const anonymous = await request(fixture.app.getHttpServer()).get(
       '/sales-channels/active',
     )

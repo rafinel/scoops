@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Rename Accompaniment Type Controller [PATCH /accompaniment-types/:typeId]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -46,11 +46,11 @@ describe('Rename Accompaniment Type Controller [PATCH /accompaniment-types/:type
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/accompaniment-types/${type.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: '  New Name  ' })
     const linked = await request(fixture.app.getHttpServer())
       .get(`/products/${owner.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({ id: type.id, name: 'New Name' })
@@ -76,19 +76,19 @@ describe('Rename Accompaniment Type Controller [PATCH /accompaniment-types/:type
     })
     const duplicateResponse = await request(fixture.app.getHttpServer())
       .patch(`/accompaniment-types/${type.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: duplicate.name })
     const foreignResponse = await request(fixture.app.getHttpServer())
       .patch(`/accompaniment-types/${foreignType.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: 'Hidden' })
     const malformed = await request(fixture.app.getHttpServer())
       .patch('/accompaniment-types/not-a-uuid')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: 'Hidden' })
     const operator = await request(fixture.app.getHttpServer())
       .patch(`/accompaniment-types/${type.id}`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send({ name: 'Hidden' })
 
     expect(duplicateResponse.status).toBe(409)
@@ -106,7 +106,7 @@ describe('Rename Accompaniment Type Controller [PATCH /accompaniment-types/:type
   it('returns not found uniformly for a missing type', async () => {
     const response = await request(fixture.app.getHttpServer())
       .patch('/accompaniment-types/00000000-0000-4000-8000-000000000099')
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
       .send({ name: 'Hidden' })
 
     expect(response.status).toBe(404)

@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import {
   PdvModuleFixture,
   foreignManagerRequestAuthorization,
@@ -13,7 +13,7 @@ import {
 
 describe('Get Order Controller [GET /orders/:orderId]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -33,10 +33,10 @@ describe('Get Order Controller [GET /orders/:orderId]', () => {
 
     const manager = await request(fixture.app.getHttpServer())
       .get(`/orders/${registered.order.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const operator = await request(fixture.app.getHttpServer())
       .get(`/orders/${registered.order.id}`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
 
     expect(manager.status).toBe(200)
     expect(manager.body).toMatchObject({
@@ -63,13 +63,13 @@ describe('Get Order Controller [GET /orders/:orderId]', () => {
     })
     const unknown = await request(fixture.app.getHttpServer())
       .get('/orders/55000000-0000-4000-8000-000000000299')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const crossTenant = await request(fixture.app.getHttpServer())
       .get(`/orders/${foreign.order.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const malformed = await request(fixture.app.getHttpServer())
       .get('/orders/not-an-order-id')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const anonymous = await request(fixture.app.getHttpServer()).get(
       `/orders/${foreign.id}`,
     )

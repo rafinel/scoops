@@ -7,6 +7,7 @@ import type {
   OnboardingIdentifierProvider,
   OnboardingTokenProvider,
 } from '@scoops/core/identity/interfaces'
+import type { Broker } from '@scoops/core/shared/interfaces'
 
 import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { RegistrationAttemptsController } from '@/identity/decorators'
@@ -16,6 +17,7 @@ import { ZodValidationPipe } from '@/shared/rest/pipes'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 type RequestBody = Omit<
   Parameters<CorrectIceCreamShopOnboardingEmailUseCase['execute']>[0],
@@ -24,6 +26,7 @@ type RequestBody = Omit<
 
 @RegistrationAttemptsController()
 export class CorrectIceCreamShopOnboardingEmailController {
+  // Address correction replaces the pending identity before its new event is published.
   private readonly useCase: CorrectIceCreamShopOnboardingEmailUseCase
   private readonly confirmationRedirectBaseUrl: string
 
@@ -36,6 +39,7 @@ export class CorrectIceCreamShopOnboardingEmailController {
     onboardingIdentifierProvider: OnboardingIdentifierProvider,
     @Inject(IDENTITY_PROVIDERS.onboardingIdentity)
     onboardingIdentityProvider: OnboardingIdentityProvider,
+    @Inject(InngestBroker) broker: Broker,
     @Inject(EnvProvider) envProvider: EnvProvider,
   ) {
     this.useCase = new CorrectIceCreamShopOnboardingEmailUseCase(
@@ -44,6 +48,7 @@ export class CorrectIceCreamShopOnboardingEmailController {
       onboardingTokenProvider,
       onboardingIdentifierProvider,
       onboardingIdentityProvider,
+      broker,
     )
     this.confirmationRedirectBaseUrl = `${envProvider.get('SCOOPS_WEB_APP_URL')}/onboarding/confirm`
   }

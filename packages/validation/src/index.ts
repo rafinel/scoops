@@ -1,4 +1,5 @@
 export { acceptUserInvitationSchema } from './identity/accept-user-invitation-schema.ts'
+export { resetPasswordSchema } from './identity/reset-password-schema.ts'
 export { changeUserProfileSchema } from './identity/change-user-profile-schema.ts'
 export { changeUserStatusSchema } from './identity/change-user-status-schema.ts'
 export { confirmOnboardingSchema } from './identity/confirm-onboarding-schema.ts'
@@ -15,7 +16,12 @@ export { registerIceCreamShopOnboardingSchema } from './identity/register-ice-cr
 export { userIdSchema } from './identity/user-id-schema.ts'
 export { userProfileSchema } from './identity/user-profile-schema.ts'
 export { userStatusSchema } from './identity/user-status-schema.ts'
-export { sendInvitationEmailEventSchema } from './communication/send-invitation-email-event-schema.ts'
+export { onboardingConfirmationPreparedEventSchema } from './communication/onboarding-confirmation-prepared-event-schema.ts'
+export { passwordRecoveryPreparedEventSchema } from './communication/password-recovery-prepared-event-schema.ts'
+export {
+  userInvitationPreparedEventSchema,
+  userInvitationPreparedEventSchema as sendInvitationEmailEventSchema,
+} from './communication/user-invitation-prepared-event-schema.ts'
 export { browserEnvSchema } from './environment/browser-env-schema.ts'
 export { seedEnvSchema } from './environment/seed-env-schema.ts'
 export { serverEnvSchema } from './environment/server-env-schema.ts'

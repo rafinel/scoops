@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   managerRequestAuthorization,
@@ -14,7 +14,7 @@ import { comboCreate } from './combo-controller-test-helpers'
 
 describe('Create Combo Controller [POST /discounts]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -25,7 +25,7 @@ describe('Create Combo Controller [POST /discounts]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .post('/discounts')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send(body)
 
     expect(response.status).toBe(201)
@@ -48,11 +48,11 @@ describe('Create Combo Controller [POST /discounts]', () => {
   it('rejects malformed bodies and non-Manager callers without persistence', async () => {
     const malformed = await request(fixture.app.getHttpServer())
       .post('/discounts')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: '', status: 'inactive', fixedPrice: 1, components: [] })
     const operator = await request(fixture.app.getHttpServer())
       .post('/discounts')
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send(comboCreate())
 
     expect(malformed.status).toBe(422)

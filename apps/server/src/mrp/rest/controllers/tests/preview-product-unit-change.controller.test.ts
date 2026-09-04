@@ -2,7 +2,7 @@ import { ProductStockControl, ProductUnit } from '@scoops/core/mrp/domain/struct
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Preview Product Unit Change Controller [POST /products/:productId/unit-change-preview]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -42,7 +42,7 @@ describe('Preview Product Unit Change Controller [POST /products/:productId/unit
 
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/unit-change-preview`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ targetUnit: ProductUnit.Gram })
 
     expect(response.status).toBe(200)
@@ -62,7 +62,7 @@ describe('Preview Product Unit Change Controller [POST /products/:productId/unit
     const product = await fixture.addProduct(createProduct())
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/unit-change-preview`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ targetUnit: ProductUnit.Unit })
 
     expect(response.status).toBe(200)
@@ -92,11 +92,11 @@ describe('Preview Product Unit Change Controller [POST /products/:productId/unit
       .send(body)
     const operator = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/unit-change-preview`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send(body)
     const foreign = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/unit-change-preview`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
       .send(body)
 
     expect(anonymous.status).toBe(401)

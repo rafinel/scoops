@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -15,7 +15,7 @@ import {
 
 describe('List Accompaniment Types Controller [GET /accompaniment-types]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -55,10 +55,10 @@ describe('List Accompaniment Types Controller [GET /accompaniment-types]', () =>
 
     const firstPage = await request(fixture.app.getHttpServer())
       .get('/accompaniment-types?page=1&pageSize=10')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const secondPage = await request(fixture.app.getHttpServer())
       .get('/accompaniment-types?page=2&pageSize=10')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(firstPage.status).toBe(200)
     expect(firstPage.body).toMatchObject({
@@ -100,7 +100,7 @@ describe('List Accompaniment Types Controller [GET /accompaniment-types]', () =>
 
     const response = await request(fixture.app.getHttpServer())
       .get('/accompaniment-types?search=%20chocolate%20&page=99&pageSize=10')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({ page: 1, total: 1, totalPages: 1 })
@@ -113,10 +113,10 @@ describe('List Accompaniment Types Controller [GET /accompaniment-types]', () =>
     )
     const operator = await request(fixture.app.getHttpServer())
       .get('/accompaniment-types')
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const malformed = await request(fixture.app.getHttpServer())
       .get('/accompaniment-types?page=0')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
     expect(operator.status).toBe(403)

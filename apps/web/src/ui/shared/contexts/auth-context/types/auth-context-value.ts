@@ -28,7 +28,6 @@ export type AuthContextValue = {
   retryLocalAccess(): Promise<void>
   activateOnboardingConfirmation(): Promise<boolean>
   completeOnboardingConfirmation(): Promise<void>
-  setInvitationPassword(password: string): Promise<void>
   clearInvitationAcceptance(): Promise<void>
   activateInvitationAcceptance(): Promise<boolean>
 }

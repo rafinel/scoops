@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 const workspace = path.basename(process.cwd())
-const businessModules = ['billing', 'identity', 'mrp', 'pdv']
+const businessModules = ['billing', 'communication', 'identity', 'mrp', 'pdv']
 
 /** @type {Record<string, import('dependency-cruiser').IForbiddenRuleType[]>} */
 const workspaceRules = {
@@ -70,6 +70,7 @@ const workspaceRules = {
         pathNot: [
           '^src/shared/database/drizzle/schema\\.ts$',
           '^src/shared/database/seed\\.ts$',
+          '^src/shared/database/cutover/import-supabase-to-neon\\.ts$',
         ],
       },
       to: { path: '^src/(?:billing|communication|identity|mrp|pdv)/' },

@@ -6,12 +6,8 @@ const LOGIN_CREDENTIALS = {
 }
 
 const AUTH_SESSION = {
-  access_token: 'browser-manager-token',
-  refresh_token: 'browser-refresh-token',
-  expires_at: 4_000_000_000,
-  expires_in: 3600,
-  token_type: 'bearer',
   user: { id: 'browser-manager-id', email: LOGIN_CREDENTIALS.email },
+  session: { id: 'better-auth-session-id' },
 }
 
 test.describe('Login route', () => {
@@ -42,7 +38,7 @@ test.describe('Login route', () => {
     page,
   }) => {
     let loginRequests = 0
-    await page.route('**/auth/v1/token*', async (route) => {
+    await page.route('**/api/auth/sign-in/email*', async (route) => {
       loginRequests += 1
       await route.continue()
     })
@@ -65,7 +61,7 @@ test.describe('Login route', () => {
   }) => {
     await identityFixture.mockManagerAccount()
     let credentials: { email?: string; password?: string } | undefined
-    await page.route('**/auth/v1/token*', async (route) => {
+    await page.route('**/api/auth/sign-in/email*', async (route) => {
       credentials = route.request().postDataJSON() as {
         email?: string
         password?: string
@@ -73,6 +69,10 @@ test.describe('Login route', () => {
       await route.fulfill({
         contentType: 'application/json',
         status: 200,
+        headers: {
+          'set-cookie':
+            'scoops.session_token=browser-manager-session; Path=/; HttpOnly; SameSite=Lax',
+        },
         body: JSON.stringify(AUTH_SESSION),
       })
     })
@@ -93,14 +93,13 @@ test.describe('Login route', () => {
   test('shows a neutral error when the provider rejects credentials', async ({
     page,
   }) => {
-    await page.route('**/auth/v1/token*', async (route) => {
+    await page.route('**/api/auth/sign-in/email*', async (route) => {
       await route.fulfill({
         contentType: 'application/json',
         status: 400,
         body: JSON.stringify({
-          error: 'invalid_grant',
-          error_code: 'invalid_credentials',
-          msg: 'Invalid login credentials',
+          code: 'invalid_credentials',
+          message: 'Invalid login credentials',
         }),
       })
     })

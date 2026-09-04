@@ -2,7 +2,7 @@ import { ProductStockControl, ProductUnit } from '@scoops/core/mrp/domain/struct
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -17,7 +17,7 @@ import {
 
 describe('Change Product Unit Controller [PATCH /products/:productId/unit]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -44,7 +44,7 @@ describe('Change Product Unit Controller [PATCH /products/:productId/unit]', () 
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/unit`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         targetUnit: ProductUnit.Gram,
         expectedUpdatedAt: expectedUpdatedAt(product),
@@ -75,7 +75,7 @@ describe('Change Product Unit Controller [PATCH /products/:productId/unit]', () 
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/unit`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         targetUnit: ProductUnit.Unit,
         expectedUpdatedAt: expectedUpdatedAt(product),
@@ -123,7 +123,7 @@ describe('Change Product Unit Controller [PATCH /products/:productId/unit]', () 
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/unit`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         targetUnit: ProductUnit.Gram,
         expectedUpdatedAt: expectedUpdatedAt(product),
@@ -174,7 +174,7 @@ describe('Change Product Unit Controller [PATCH /products/:productId/unit]', () 
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/unit`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         targetUnit: ProductUnit.Unit,
         expectedUpdatedAt: expectedUpdatedAt(product),
@@ -204,11 +204,11 @@ describe('Change Product Unit Controller [PATCH /products/:productId/unit]', () 
       .send(body)
     const operator = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/unit`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send(body)
     const foreign = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/unit`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
       .send(body)
 
     expect(anonymous.status).toBe(401)

@@ -31,17 +31,20 @@ export class DatabaseFixture {
     const databaseClient = postgres(this.getConnectionUri())
 
     try {
-      const tables = await databaseClient<{ tableName: string }[]>`
-        SELECT tablename AS "tableName"
+      const tables = await databaseClient<{ schemaName: string; tableName: string }[]>`
+        SELECT schemaname AS "schemaName", tablename AS "tableName"
         FROM pg_tables
-        WHERE schemaname = 'public'
-          AND tablename <> '__drizzle_migrations'
+        WHERE schemaname IN ('public', 'better_auth')
+          AND NOT (schemaname = 'public' AND tablename = '__drizzle_migrations')
       `
 
       if (tables.length === 0) return
 
       const tableNames = tables
-        .map(({ tableName }) => `"public"."${tableName.replaceAll('"', '""')}"`)
+        .map(
+          ({ schemaName, tableName }) =>
+            `"${schemaName.replaceAll('"', '""')}"."${tableName.replaceAll('"', '""')}"`,
+        )
         .join(', ')
 
       await databaseClient.unsafe(`TRUNCATE TABLE ${tableNames} RESTART IDENTITY CASCADE`)

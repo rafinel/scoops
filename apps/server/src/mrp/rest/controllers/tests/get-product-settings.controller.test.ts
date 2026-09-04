@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -15,7 +15,7 @@ import {
 
 describe('Get Product Settings Controller [GET /products/:productId/settings]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -32,7 +32,7 @@ describe('Get Product Settings Controller [GET /products/:productId/settings]', 
 
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/settings`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({
@@ -57,13 +57,13 @@ describe('Get Product Settings Controller [GET /products/:productId/settings]', 
     )
     const operator = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/settings`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/settings`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
     const missing = await request(fixture.app.getHttpServer())
       .get('/products/00000000-0000-4000-8000-000000000099/settings')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
     expect(operator.status).toBe(403)

@@ -6,6 +6,7 @@ import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 import { useActionUtils } from './action-utils'
 
 export const useConfirmIceCreamShopOnboardingAction = () => {
+  // Confirmation returns the server-issued session through the response cookie.
   const { restClient } = useRestContext()
   const identityService = IdentityService(restClient)
   const { ensureSuccessfulResponse, toActionError } = useActionUtils()

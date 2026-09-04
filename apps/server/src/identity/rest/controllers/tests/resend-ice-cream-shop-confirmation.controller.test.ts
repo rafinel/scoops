@@ -2,26 +2,26 @@ import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { OnboardingIdentifierProviderFaker } from '@/identity/fixtures/onboarding-identifier-faker'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
 
 describe('Resend Ice Cream Shop Confirmation Controller [POST /registration-attempts/onboarding/resend]', () => {
   const { continuationToken } = IdentityModuleFixture.onboarding
-  const supabaseAuth = new SupabaseAuthFixture()
+  const betterAuthFixture = new BetterAuthFixture()
   const onboardingIdentifierProvider = OnboardingIdentifierProviderFaker.fake()
   const onboardingTokenProvider = OnboardingTokenProviderFaker.fake()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(supabaseAuth, {
+    fixture = await IdentityModuleFixture.register(betterAuthFixture, {
       onboardingIdentifier: onboardingIdentifierProvider,
       onboardingToken: onboardingTokenProvider,
     })
   })
 
   beforeEach(async () => {
-    await supabaseAuth.clear()
+    await betterAuthFixture.clear()
     await fixture.resetDatabase()
   })
 
@@ -42,8 +42,8 @@ describe('Resend Ice Cream Shop Confirmation Controller [POST /registration-atte
       managerName: 'Ana Manager',
       email: 'ana@example.com',
     })
-    expect(supabaseAuth.getCalls().resendConfirmation).toHaveLength(1)
-    expect(supabaseAuth.getCalls().resendConfirmation[0]?.[0]).toMatchObject({
+    expect(betterAuthFixture.getCalls().resendConfirmation).toHaveLength(1)
+    expect(betterAuthFixture.getCalls().resendConfirmation[0]?.[0]).toMatchObject({
       email: 'ana@example.com',
       confirmationRedirectTo: expect.stringContaining(
         '/onboarding/confirm?confirmationToken=',
@@ -58,6 +58,6 @@ describe('Resend Ice Cream Shop Confirmation Controller [POST /registration-atte
 
     expect(response.status).toBe(422)
     expect(response.body).toMatchObject({ title: 'Invalid request' })
-    expect(supabaseAuth.getCalls().resendConfirmation).toHaveLength(0)
+    expect(betterAuthFixture.getCalls().resendConfirmation).toHaveLength(0)
   })
 })

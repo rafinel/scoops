@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -14,7 +14,7 @@ import {
 
 describe('Save Recipe Yield Controller [PUT /products/:productId/recipe]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -26,11 +26,11 @@ describe('Save Recipe Yield Controller [PUT /products/:productId/recipe]', () =>
     )
     const malformed = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/recipe`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ yieldQuantity: 1.0001 })
     const saved = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/recipe`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ yieldQuantity: 2.5 })
 
     expect(malformed.status).toBe(422)

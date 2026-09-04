@@ -16,21 +16,21 @@ import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
 describe('Correct User Invitation Controller [PATCH /users/:userId/invitation]', () => {
   const { establishmentId, managerId, managerToken, operatorId } =
     IdentityModuleFixture.userManagement
-  const supabaseAuth = new SupabaseAuthFixture()
+  const betterAuthFixture = new BetterAuthFixture()
   const tokens = OnboardingTokenProviderFaker.fake()
   let fixture: IdentityModuleFixture
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(supabaseAuth, {
+    fixture = await IdentityModuleFixture.register(betterAuthFixture, {
       onboardingToken: tokens,
     })
   })
   beforeEach(async () => {
-    await supabaseAuth.clear()
+    await betterAuthFixture.clear()
     await fixture.resetDatabase()
     await fixture.seedUsers(
       [
@@ -65,7 +65,7 @@ describe('Correct User Invitation Controller [PATCH /users/:userId/invitation]',
         }),
       ],
     )
-    supabaseAuth.setUser(managerToken, {
+    betterAuthFixture.setUser(managerToken, {
       id: managerId,
       email: `${managerId}@example.com`,
     })
@@ -76,7 +76,7 @@ describe('Correct User Invitation Controller [PATCH /users/:userId/invitation]',
   it('corrects the pending invitation and persists its new data', async () => {
     const response = await request(fixture.app.getHttpServer())
       .patch(`/users/${operatorId}/invitation`)
-      .set('Authorization', `Bearer ${managerToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
       .send({
         name: 'Corrected Name',
         email: 'corrected@example.com',

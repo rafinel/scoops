@@ -50,6 +50,17 @@ export const intakeStatusModel = pgEnum('intake_status', [
 ])
 ```
 
+Shared infrastructure may own persistence that has no business-module owner. For
+example, the shared transactional outbox may keep its Drizzle models under
+`apps/server/src/shared/database/drizzle/outbox/` because the outbox is a
+transport boundary rather than an Identity, MRP, PDV, Billing or Communication
+aggregate. It must still use `*-model.ts` declarations, persistence-only
+`Drizzle*` types under a `types/entities/` subtree, and barrels at each exported
+directory; the exception does not permit Core or feature modules to import those
+Drizzle declarations. Its provider-neutral `OutboxDatabase` contract is intentionally shared by
+the publisher and reprocessor and therefore belongs in `packages/core/src/shared/interfaces/`;
+the Nest runtime injection token and Drizzle-specific implementation remain in Server infrastructure.
+
 The shared database schema used by Drizzle and migration tooling must re-export
 the models owned by every module. Models remain defined in their module.
 
@@ -64,6 +75,9 @@ Types that represent rows returned by Drizzle belong in:
 ```text
 database/drizzle/types/entities/
 ```
+
+Shared outbox persistence types use the equivalent
+`apps/server/src/shared/database/drizzle/outbox/types/entities/` subtree.
 
 Name them with the `Drizzle` prefix and infer them from the corresponding model:
 
@@ -186,6 +200,26 @@ Business behavior must be covered by core use-case tests with mocked repository
 contracts. Database behavior is validated indirectly through the server integration
 tests for controllers or complete application flows that consume the repository.
 Do not expose a concrete repository through a fixture solely to test it directly.
+
+## Shared transaction context coordinates infrastructure participants
+
+`DatabaseTransactionContext` is shared database infrastructure. It binds the
+current Drizzle transaction to one asynchronous execution chain so independently
+injected repositories and infrastructure participants can reuse the same commit
+boundary without placing those participants in a feature database-scope object.
+The implementation must isolate concurrent requests, support nested access to the
+same transaction, clear context after completion, and never expose Drizzle types
+to Core.
+
+A participant such as `InngestBroker` may use the active transaction when present
+and otherwise perform its own standalone database operation. A use case that
+requires state/event atomicity must call `Broker.publish` inside its owning
+`database.run` callback. Do not use process-global mutable transaction variables,
+pass transaction objects through Core contracts, or add `Broker` to
+`IdentityDatabaseScope` or another feature database scope. Messaging/application
+integration tests must prove shared commit, rollback, concurrent isolation, and
+the standalone behavior; do not create a repository-only test that violates this
+Rule's testing boundary.
 
 ## Repository injection uses module tokens
 

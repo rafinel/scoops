@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { resetPasswordFormSchema } from '@scoops/validation'
 import { useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
-import { useResetPasswordAction } from '@/ui/identity/hooks/use-reset-password-action'
 import { showErrorToast } from '@/ui/shared/notifications'
 import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
@@ -12,27 +11,15 @@ import { useNavigation } from '@/ui/shared/hooks/use-navigation'
 export const MIN_PASSWORD_LENGTH = 8
 type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>
 
-export function useResetPasswordPage() {
-  const { isPasswordRecovery, status } = useAuthContext()
-  const hasRecoveryHash =
-    typeof window !== 'undefined' &&
-    new URLSearchParams(window.location.hash.slice(1)).get('type') === 'recovery'
+export function useResetPasswordPage(token?: string) {
+  const hasRecoveryToken = Boolean(token)
+  const { resetPassword, status: authStatus } = useAuthContext()
   const { navigateTo } = useNavigation()
-  const { error: actionError, isPending, reset } = useResetPasswordAction()
+  const [actionError, setActionError] = useState<Error | null>(null)
+  const [isPending, setIsPending] = useState(false)
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isConfirmationVisible, setIsConfirmationVisible] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
-  const [hasResolvedRecoveryHash, setHasResolvedRecoveryHash] = useState(!hasRecoveryHash)
-
-  useEffect(() => {
-    if (!hasRecoveryHash || status === 'resolving') return
-
-    // Keep the recovery loading state visible for the first client paint. The
-    // route shell is client-only, so a fast anonymous session can otherwise
-    // resolve before the reset page mounts and skip this user-facing state.
-    const timer = setTimeout(() => setHasResolvedRecoveryHash(true), 500)
-    return () => clearTimeout(timer)
-  }, [hasRecoveryHash, status])
   const {
     register,
     setValue,
@@ -64,15 +51,21 @@ export function useResetPasswordPage() {
 
   async function handleSubmit({ password }: ResetPasswordFormValues) {
     try {
-      await reset(password)
+      if (!token) throw new Error('O token de recuperação não foi informado.')
+      setActionError(null)
+      setIsPending(true)
+      await resetPassword(password)
       setIsSuccess(true)
-      void navigateTo('login')
+      await navigateTo('login')
     } catch (caught) {
-      showErrorToast(
+      const error =
         caught instanceof Error
-          ? caught.message
-          : 'Não foi possível atualizar sua senha.',
-      )
+          ? caught
+          : new Error('Não foi possível atualizar sua senha.')
+      setActionError(error)
+      showErrorToast(error.message)
+    } finally {
+      setIsPending(false)
     }
   }
 
@@ -81,8 +74,8 @@ export function useResetPasswordPage() {
 
   return {
     actionError,
-    isPasswordRecovery,
-    isResolving: status === 'resolving' || !hasResolvedRecoveryHash,
+    isPasswordRecovery: hasRecoveryToken && authStatus === 'authenticated',
+    isResolving: hasRecoveryToken && authStatus === 'resolving',
     isPasswordVisible,
     isConfirmationVisible,
     isPending,

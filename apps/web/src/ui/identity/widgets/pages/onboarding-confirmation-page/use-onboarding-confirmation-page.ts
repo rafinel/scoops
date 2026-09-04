@@ -9,9 +9,11 @@ import {
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
 
 export function useOnboardingConfirmationPage(confirmationToken?: string) {
+  const hasValidConfirmationToken =
+    typeof confirmationToken === 'string' && /^[A-Za-z0-9_-]{43}$/.test(confirmationToken)
   const [state, setState] = useState<
     'confirming' | 'success' | 'unavailable' | 'provider-error'
-  >('confirming')
+  >(hasValidConfirmationToken ? 'confirming' : 'unavailable')
   const generationRef = useRef(0)
   const inFlightRef = useRef<{
     token: string
@@ -25,9 +27,8 @@ export function useOnboardingConfirmationPage(confirmationToken?: string) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: callback must run once per confirmation URL
   useEffect(() => {
-    if (!confirmationToken || !/^[A-Za-z0-9_-]{43}$/.test(confirmationToken)) {
+    if (!hasValidConfirmationToken) {
       inFlightRef.current = null
-      setState('unavailable')
       return
     }
     const generation = ++generationRef.current

@@ -1,5 +1,4 @@
 import { expect, test } from '../../playwright'
-import { accountResponse } from '../../fixtures/identity-data-fixtures'
 
 const CONFIRMATION_TOKEN = 'c'.repeat(43)
 
@@ -92,13 +91,6 @@ test.describe('Onboarding confirmation route', () => {
     await page.route('**/registration-attempts/onboarding/confirm*', async (route) => {
       confirmationBody = route.request().postDataJSON() as { confirmationToken?: string }
       await route.fulfill({ status: 204, body: '' })
-    })
-    await page.route('**/auth/session*', async (route) => {
-      await route.fulfill({
-        contentType: 'application/json',
-        status: 200,
-        body: JSON.stringify(accountResponse()),
-      })
     })
 
     await page.goto(

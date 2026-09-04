@@ -25,6 +25,7 @@ import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 @UsersController()
 export class CancelUserInvitationController {
+  // Cancellation removes only the pending identity after the local claim succeeds.
   private readonly useCase: CancelUserInvitationUseCase
 
   constructor(

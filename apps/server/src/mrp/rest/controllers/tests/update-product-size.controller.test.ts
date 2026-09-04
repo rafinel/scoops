@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Update Product Size Controller [PATCH /products/:productId/sizes/:sizeId]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -44,7 +44,7 @@ describe('Update Product Size Controller [PATCH /products/:productId/sizes/:size
     })
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/sizes/${size.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: 'Updated', quantity: 1.125, price: 11.25, isActive: false })
 
     expect(response.status).toBe(200)
@@ -81,7 +81,7 @@ describe('Update Product Size Controller [PATCH /products/:productId/sizes/:size
     })
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/sizes/${size.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: 'Only', quantity: 1, price: 10, isActive: false })
 
     expect(response.status).toBe(409)
@@ -115,19 +115,19 @@ describe('Update Product Size Controller [PATCH /products/:productId/sizes/:size
     })
     const malformed = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/sizes/${size.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: 'Existing', quantity: 1.1234, price: 10, isActive: true })
     const duplicate = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/sizes/${size.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: ' other ', quantity: 1, price: 10, isActive: true })
     const operator = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/sizes/${size.id}`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send({ name: 'Changed', quantity: 1, price: 10, isActive: true })
     const foreign = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/sizes/${size.id}`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
       .send({ name: 'Changed', quantity: 1, price: 10, isActive: true })
 
     expect(malformed.status).toBe(422)

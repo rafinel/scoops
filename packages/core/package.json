@@ -19,6 +19,9 @@
     "./identity/domain/structures": "./src/identity/domain/structures/index.ts",
     "./identity/interfaces": "./src/identity/interfaces/index.ts",
     "./identity/use-cases": "./src/identity/use-cases/index.ts",
+    "./communication/domain/errors": "./src/communication/domain/errors/index.ts",
+    "./communication/domain/structures": "./src/communication/domain/structures/index.ts",
+    "./communication/interfaces": "./src/communication/interfaces/index.ts",
     "./billing/domain/entities": "./src/billing/domain/entities/index.ts",
     "./billing/domain/events": "./src/billing/domain/events/index.ts",
     "./billing/domain/structures": "./src/billing/domain/structures/index.ts",
@@ -46,6 +49,7 @@
   },
   "imports": {
     "#billing/*": "./src/billing/*",
+    "#communication/*": "./src/communication/*",
     "#identity/*": "./src/identity/*",
     "#mrp/*": "./src/mrp/*",
     "#pdv/*": "./src/pdv/*",

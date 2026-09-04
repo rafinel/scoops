@@ -12,7 +12,7 @@ import type {
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
-import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
+import type { OnboardingIdentityProvider } from '#identity/interfaces/onboarding-identity-provider.ts'
 import { ConfirmIceCreamShopOnboardingUseCase } from '#identity/use-cases/confirm-ice-cream-shop-onboarding-use-case.ts'
 
 describe('Confirm Ice Cream Shop Onboarding Use Case', () => {
@@ -20,7 +20,7 @@ describe('Confirm Ice Cream Shop Onboarding Use Case', () => {
   let attempts: MockProxy<RegistrationAttemptsRepository>
   let establishments: MockProxy<EstablishmentsRepository>
   let users: MockProxy<UsersRepository>
-  let tokens: MockProxy<OnboardingTokenProvider>
+  let provider: MockProxy<OnboardingIdentityProvider>
   let scope: IdentityDatabaseScope
   let useCase: ConfirmIceCreamShopOnboardingUseCase
   beforeEach(() => {
@@ -28,14 +28,13 @@ describe('Confirm Ice Cream Shop Onboarding Use Case', () => {
     attempts = mock<RegistrationAttemptsRepository>()
     establishments = mock<EstablishmentsRepository>()
     users = mock<UsersRepository>()
-    tokens = mock<OnboardingTokenProvider>()
+    provider = mock<OnboardingIdentityProvider>()
     scope = {
       registrationAttemptsRepository: attempts,
       establishmentsRepository: establishments,
       usersRepository: users,
     }
     database.run.mockImplementation((operation) => operation(scope))
-    tokens.hash.mockReturnValue('confirmation-hash')
     const user = UserFaker.fake({
       id: 'subject',
       status: 'pending',
@@ -49,6 +48,14 @@ describe('Confirm Ice Cream Shop Onboarding Use Case', () => {
       confirmationTokenHash: 'confirmation-hash',
     })
     users.findByProviderSubject.mockResolvedValue(user)
+    provider.inspectOnboardingConfirmation.mockResolvedValue({
+      id: 'subject',
+      email: 'maria@example.com',
+    })
+    provider.completeOnboardingConfirmation.mockResolvedValue({
+      id: 'subject',
+      email: 'maria@example.com',
+    })
     attempts.findByUserId.mockResolvedValue(attempt)
     establishments.findById.mockResolvedValue(
       EstablishmentFaker.fake({ id: 'establishment-id', status: 'pending' }),
@@ -71,17 +78,15 @@ describe('Confirm Ice Cream Shop Onboarding Use Case', () => {
     useCase = new ConfirmIceCreamShopOnboardingUseCase(
       database,
       { now: () => new Date('2026-01-02T00:00:00.000Z') },
-      tokens,
+      provider,
     )
   })
   it('activates the establishment, Manager and attempt in one database callback', async () => {
     await expect(
       useCase.execute({
-        providerSubject: 'subject',
-        verifiedEmail: 'MARIA@EXAMPLE.COM',
         confirmationToken: 'confirmation',
       }),
-    ).resolves.toBeUndefined()
+    ).resolves.toEqual({ id: 'subject', email: 'maria@example.com' })
     expect(establishments.replace).toHaveBeenCalled()
     expect(users.replace).toHaveBeenCalledWith(
       'establishment-id',
@@ -104,11 +109,9 @@ describe('Confirm Ice Cream Shop Onboarding Use Case', () => {
     )
     await expect(
       useCase.execute({
-        providerSubject: 'subject',
-        verifiedEmail: 'maria@example.com',
         confirmationToken: 'confirmation',
       }),
-    ).resolves.toBeUndefined()
+    ).resolves.toEqual({ id: 'subject', email: 'maria@example.com' })
     expect(establishments.replace).not.toHaveBeenCalled()
   })
 })

@@ -11,6 +11,7 @@ import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 import { useActionUtils } from './action-utils'
 
 export const useRegisterIceCreamShopAction = () => {
+  // IdentityService sends credentials with the cookie-backed REST client.
   const { restClient } = useRestContext()
   const identityService = IdentityService(restClient)
   const { ensureSuccessfulResponse, toActionError } = useActionUtils()

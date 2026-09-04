@@ -53,7 +53,8 @@ import { eq } from 'drizzle-orm'
 
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
-import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { BetterAuthSessionIssuer } from '@/identity/provision/auth'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { IdentityModule } from '@/identity/identity.module'
 import { MRP_PROVIDERS, MRP_REPOSITORIES } from '@/mrp/constants'
 import { MRP_STOCK_TRANSACTIONS_REPOSITORY } from '@/mrp/database/mrp-repositories'
@@ -123,6 +124,10 @@ export class PdvModuleFixture {
       (builder: TestingModuleBuilder) =>
         builder
           .overrideProvider(IDENTITY_PROVIDERS.authIdentity)
+          .useValue(authProvider)
+          .overrideProvider(IDENTITY_PROVIDERS.betterAuthSessionVerifier)
+          .useValue(authProvider)
+          .overrideProvider(BetterAuthSessionIssuer)
           .useValue(authProvider)
           .overrideProvider(InngestBroker)
           .useValue(new InngestMock())
@@ -401,14 +406,14 @@ export class PdvModuleFixture {
     ]
     const preview = await request(this.app.getHttpServer())
       .post('/orders/preview')
-      .set('Authorization', input.authorization)
+      .set('Cookie', input.authorization)
       .send({
         ...(input.channelId ? { channelId: input.channelId } : {}),
         lines,
       })
     const response = await request(this.app.getHttpServer())
       .post('/orders')
-      .set('Authorization', input.authorization)
+      .set('Cookie', input.authorization)
       .send({
         idempotencyKey: input.idempotencyKey,
         previewToken: preview.body.previewToken,
@@ -431,14 +436,14 @@ export class PdvModuleFixture {
 }
 
 export async function preparePdvFixture() {
-  const auth = new SupabaseAuthFixture()
+  const auth = new BetterAuthFixture()
   const fixture = await PdvModuleFixture.register(auth)
   return { auth, fixture }
 }
 
 export async function resetPdvFixture(
   fixture: PdvModuleFixture,
-  auth: SupabaseAuthFixture,
+  auth: BetterAuthFixture,
 ) {
   await auth.clear()
   await fixture.resetDatabase()
@@ -451,15 +456,15 @@ export async function resetPdvFixture(
 }
 
 export function managerRequestAuthorization() {
-  return `Bearer ${PdvModuleFixture.accounts.managerToken}`
+  return `scoops.session_token=${PdvModuleFixture.accounts.managerToken}`
 }
 
 export function operatorRequestAuthorization() {
-  return `Bearer ${PdvModuleFixture.accounts.operatorToken}`
+  return `scoops.session_token=${PdvModuleFixture.accounts.operatorToken}`
 }
 
 export function foreignManagerRequestAuthorization() {
-  return `Bearer ${PdvModuleFixture.accounts.foreignManagerToken}`
+  return `scoops.session_token=${PdvModuleFixture.accounts.foreignManagerToken}`
 }
 
 export function salesChannelCreate(

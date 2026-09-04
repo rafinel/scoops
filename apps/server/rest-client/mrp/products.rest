@@ -1,5 +1,5 @@
-@baseUrl = http://127.0.0.1:3336
-@accessToken = replace-with-manager-token
+@baseUrl = http://localhost:3336
+@sessionCookie = replace-with-scoops-session-cookie
 @productId = 00000000-0000-0000-0000-000000000000
 @brandId = 00000000-0000-0000-0000-000000000000
 @linkId = 00000000-0000-0000-0000-000000000000
@@ -11,17 +11,17 @@
 
 ### List products
 GET {{baseUrl}}/products?page=1&pageSize=10&category=ingredient&category=resale&usedAsAccompanimentId={{productId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Get product settings
 GET {{baseUrl}}/products/{{productId}}/settings
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Update product settings
 PATCH {{baseUrl}}/products/{{productId}}/settings
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -32,12 +32,12 @@ Content-Type: application/json
 
 ### Preview category removal dependencies
 GET {{baseUrl}}/products/{{productId}}/category-removal-impact?category=ingredient
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Change product categories
 PATCH {{baseUrl}}/products/{{productId}}/categories
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -47,7 +47,7 @@ Content-Type: application/json
 
 ### Preview product unit change
 POST {{baseUrl}}/products/{{productId}}/unit-change-preview
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -56,7 +56,7 @@ Content-Type: application/json
 
 ### Change product unit
 PATCH {{baseUrl}}/products/{{productId}}/unit
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -66,16 +66,16 @@ Content-Type: application/json
 
 ### Get product removal impact
 GET {{baseUrl}}/products/{{productId}}/removal-impact
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Remove product
 DELETE {{baseUrl}}/products/{{productId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 
 ### Register a single-stock product
 POST {{baseUrl}}/products
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -88,7 +88,7 @@ Content-Type: application/json
 
 ### Register a by-brand product
 POST {{baseUrl}}/products
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -100,12 +100,12 @@ Content-Type: application/json
 
 ### Get product stock details
 GET {{baseUrl}}/products/{{productId}}/stock
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Register a product brand
 POST {{baseUrl}}/products/{{productId}}/brands
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -117,7 +117,7 @@ Content-Type: application/json
 
 ### Update a product brand
 PATCH {{baseUrl}}/products/{{productId}}/brands/{{brandId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -128,16 +128,16 @@ Content-Type: application/json
 
 ### Set the primary product brand
 PATCH {{baseUrl}}/products/{{productId}}/brands/{{brandId}}/primary
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Remove a product brand
 DELETE {{baseUrl}}/products/{{productId}}/brands/{{brandId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 
 ### Adjust single-product stock
 POST {{baseUrl}}/products/{{productId}}/stock-adjustments
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -147,7 +147,7 @@ Content-Type: application/json
 
 ### Adjust product-brand stock
 POST {{baseUrl}}/products/{{productId}}/stock-adjustments
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -158,17 +158,17 @@ Content-Type: application/json
 
 ### List product stock transactions
 GET {{baseUrl}}/products/{{productId}}/stock-transactions?type=entry&brandId={{brandId}}&from=2026-08-01T00:00:00.000Z&to=2026-08-31T23:59:59.999Z&page=1&limit=20
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Get product accompaniments
 GET {{baseUrl}}/products/{{productId}}/accompaniments
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Link a product accompaniment
 POST {{baseUrl}}/products/{{productId}}/accompaniments
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -179,7 +179,7 @@ Content-Type: application/json
 
 ### Update a product accompaniment
 PATCH {{baseUrl}}/products/{{productId}}/accompaniments/{{linkId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -189,21 +189,21 @@ Content-Type: application/json
 
 ### Remove a product accompaniment
 DELETE {{baseUrl}}/products/{{productId}}/accompaniments/{{linkId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 
 ### Get product pricing
 GET {{baseUrl}}/products/{{productId}}/pricing
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Get product recipe
 GET {{baseUrl}}/products/{{productId}}/recipe
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Save recipe yield
 PUT {{baseUrl}}/products/{{productId}}/recipe
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -212,7 +212,7 @@ Content-Type: application/json
 
 ### Add a recipe ingredient
 POST {{baseUrl}}/products/{{productId}}/recipe/ingredients
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -222,7 +222,7 @@ Content-Type: application/json
 
 ### Update a recipe ingredient
 PATCH {{baseUrl}}/products/{{productId}}/recipe/ingredients/{{recipeIngredientLineId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -231,11 +231,11 @@ Content-Type: application/json
 
 ### Remove a recipe ingredient
 DELETE {{baseUrl}}/products/{{productId}}/recipe/ingredients/{{recipeIngredientLineId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 
 ### Preview production
 POST {{baseUrl}}/products/{{productId}}/production-preview
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -244,7 +244,7 @@ Content-Type: application/json
 
 ### Register production
 POST {{baseUrl}}/products/{{productId}}/productions
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -253,7 +253,7 @@ Content-Type: application/json
 
 ### Register a Portion size
 POST {{baseUrl}}/products/{{productId}}/sizes
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -264,7 +264,7 @@ Content-Type: application/json
 
 ### Update a Portion size
 PATCH {{baseUrl}}/products/{{productId}}/sizes/{{sizeId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -276,11 +276,11 @@ Content-Type: application/json
 
 ### Remove a Portion size
 DELETE {{baseUrl}}/products/{{productId}}/sizes/{{sizeId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 
 ### Save Single resale configuration
 PUT {{baseUrl}}/products/{{productId}}/resale-configuration
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -290,7 +290,7 @@ Content-Type: application/json
 
 ### Save By-brand resale configuration
 PUT {{baseUrl}}/products/{{productId}}/brands/{{brandId}}/resale-configuration
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {

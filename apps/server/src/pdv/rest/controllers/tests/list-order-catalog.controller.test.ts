@@ -7,7 +7,7 @@ import {
   ProductUnit,
 } from '@scoops/core/mrp/domain/structures'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import {
   PdvModuleFixture,
   managerRequestAuthorization,
@@ -18,7 +18,7 @@ import {
 
 describe('List Order Catalog Controller [GET /orders/catalog]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -47,10 +47,10 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
 
     const manager = await request(fixture.app.getHttpServer())
       .get('/orders/catalog?page=1&pageSize=20')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const operator = await request(fixture.app.getHttpServer())
       .get('/orders/catalog?page=1&pageSize=20')
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const anonymous = await request(fixture.app.getHttpServer()).get(
       '/orders/catalog?page=1&pageSize=20',
     )
@@ -67,7 +67,7 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
   it('rejects malformed queries before the use case', async () => {
     const response = await request(fixture.app.getHttpServer())
       .get('/orders/catalog?pageSize=51')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(422)
     expect(response.body).not.toHaveProperty('items')

@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   managerRequestAuthorization,
@@ -13,7 +13,7 @@ import { comboCreate, expectedUpdatedAt } from './combo-controller-test-helpers'
 
 describe('Delete Combo Controller [DELETE /discounts/:discountId]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -25,7 +25,7 @@ describe('Delete Combo Controller [DELETE /discounts/:discountId]', () => {
     const response = await request(fixture.app.getHttpServer())
       .delete(`/discounts/${combo.id}`)
       .query({ expectedUpdatedAt: expectedUpdatedAt(combo) })
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(204)
     expect(response.text).toBe('')
@@ -40,7 +40,7 @@ describe('Delete Combo Controller [DELETE /discounts/:discountId]', () => {
     const response = await request(fixture.app.getHttpServer())
       .delete(`/discounts/${combo.id}`)
       .query({ expectedUpdatedAt: new Date(0).toISOString() })
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(409)
     await expect(

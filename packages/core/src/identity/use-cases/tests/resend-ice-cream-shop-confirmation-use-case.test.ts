@@ -13,6 +13,8 @@ import type { RegistrationAttemptsRepository } from '#identity/interfaces/regist
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { OnboardingIdentityProvider } from '#identity/interfaces/onboarding-identity-provider.ts'
 import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
+import { OnboardingConfirmationPreparedEvent } from '#identity/domain/events/onboarding-confirmation-prepared-event.ts'
 import { ResendIceCreamShopConfirmationUseCase } from '#identity/use-cases/resend-ice-cream-shop-confirmation-use-case.ts'
 
 describe('Resend Ice Cream Shop Confirmation Use Case', () => {
@@ -42,6 +44,7 @@ describe('Resend Ice Cream Shop Confirmation Use Case', () => {
       { now: () => new Date('2026-01-02T00:00:00.000Z') },
       tokenProvider,
       provider,
+      mock<Broker>(),
     )
   })
   it('resends confirmation without changing the snapshot', async () => {
@@ -55,6 +58,17 @@ describe('Resend Ice Cream Shop Confirmation Use Case', () => {
       name: 'Scoops',
     })
     establishments.findById.mockResolvedValue(establishment)
+    provider.prepareOnboardingConfirmation.mockResolvedValue(
+      new OnboardingConfirmationPreparedEvent({
+        userId: attempt.userId,
+        email: attempt.email,
+        name: attempt.name,
+        actionUrl:
+          'http://localhost/onboarding/confirm?confirmationToken=new-confirmation',
+        expiresAt: attempt.expiresAt.toISOString(),
+        occurredAt: '2026-01-02T00:00:00.000Z',
+      }),
+    )
     await expect(
       useCase.execute({
         continuationToken: 'continuation',
@@ -66,8 +80,8 @@ describe('Resend Ice Cream Shop Confirmation Use Case', () => {
       email: attempt.email,
       expiresAt: attempt.expiresAt,
     })
-    expect(provider.resendConfirmation).toHaveBeenCalledWith({
-      email: attempt.email,
+    expect(provider.prepareOnboardingConfirmation).toHaveBeenCalledWith({
+      providerSubject: attempt.userId,
       confirmationRedirectTo:
         'http://localhost/onboarding/confirm?confirmationToken=new-confirmation',
     })

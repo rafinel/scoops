@@ -1,7 +1,7 @@
 import type { StockTransaction } from '@scoops/core/mrp/domain/entities'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import {
   createProduct,
@@ -13,7 +13,7 @@ import {
 
 describe('List Stock Transactions Controller [GET /products/:productId/stock-transactions]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
   afterAll(async () => fixture?.close())
@@ -60,7 +60,7 @@ describe('List Stock Transactions Controller [GET /products/:productId/stock-tra
       .get(
         `/products/${product.id}/stock-transactions?type=entry&from=2026-03-01T00:00:00.000Z&to=2026-03-03T23:59:59.999Z&page=1&limit=1`,
       )
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({
       page: 1,
@@ -100,7 +100,7 @@ describe('List Stock Transactions Controller [GET /products/:productId/stock-tra
     await fixture.brands.remove(product.id, brand.id)
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/stock-transactions?page=1&limit=20`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     expect(response.body.items[0]).toMatchObject({
       brandId: brand.id,
       brandName: 'Captured Brand',
@@ -123,7 +123,7 @@ describe('List Stock Transactions Controller [GET /products/:productId/stock-tra
 
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/stock-transactions?type=sale&page=1&limit=20`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({
@@ -142,12 +142,12 @@ describe('List Stock Transactions Controller [GET /products/:productId/stock-tra
     const product = await fixture.addProduct(createProduct())
     const foreign = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/stock-transactions?page=1&limit=20`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
     const missing = await request(fixture.app.getHttpServer())
       .get(
         '/products/00000000-0000-4000-8000-000000000099/stock-transactions?page=1&limit=20',
       )
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     expect(foreign.status).toBe(404)
     expect(missing.status).toBe(404)
     expect(foreign.body.title).toBe(missing.body.title)

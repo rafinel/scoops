@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Get Product Category Removal Impact Controller [GET /products/:productId/category-removal-impact]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -39,7 +39,7 @@ describe('Get Product Category Removal Impact Controller [GET /products/:product
 
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/category-removal-impact?category=portion`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({
@@ -63,10 +63,10 @@ describe('Get Product Category Removal Impact Controller [GET /products/:product
     )
     const operator = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/category-removal-impact?category=ingredient`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/category-removal-impact?category=ingredient`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
     expect(operator.status).toBe(403)

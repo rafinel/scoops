@@ -74,7 +74,8 @@ skill is available in the current agent environment.
 
 Use Context7 when implementation depends on current documentation for a library,
 framework, SDK, API, CLI, or cloud service. This is especially important for
-TanStack Start and Router, NestJS, Drizzle, Inngest, Supabase, Vite, Nitro, and
+TanStack Start and Router, NestJS, Drizzle, Inngest, Better Auth, Neon, Resend,
+Vite, Nitro, and
 other dependencies whose APIs evolve.
 
 Resolve the library identifier with
@@ -109,9 +110,10 @@ evidence that a real authenticated, server-backed flow works.
 
 1. Identify the services required by the flow. For full-stack behavior, inspect
    `docker compose ps` and verify the relevant health endpoints before running the
-   Playwright CLI flow. Default local endpoints are Supabase at
-   `http://127.0.0.1:54321`, the server at `http://127.0.0.1:3336`, and the web
-   app at `http://127.0.0.1:4000`.
+   Playwright CLI flow. Default local endpoints are PostgreSQL at
+   `postgresql://postgres:postgres@localhost:54322/postgres`, the server at
+   `http://localhost:3336`, the web app at `http://localhost:4000`, and Mailpit
+   at `http://localhost:54324`.
    For flows using persisted authentication, verify that the local Manager and
    Operator seed accounts exist. If they do not, run
    `pnpm --filter server db:seed` explicitly before

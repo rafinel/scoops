@@ -1,18 +1,20 @@
+@baseUrl = http://localhost:3336
+@sessionCookie = replace-with-scoops-session-cookie
 @userId = 00000000-0000-0000-0000-000000000000
 
 ### List users
 GET {{baseUrl}}/users?page=1&pageSize=20
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Get user details
 GET {{baseUrl}}/users/{{userId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Invite a user
 POST {{baseUrl}}/users/invitations
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -23,7 +25,7 @@ Content-Type: application/json
 
 ### Correct a pending invitation
 PATCH {{baseUrl}}/users/{{userId}}/invitation
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -34,15 +36,15 @@ Content-Type: application/json
 
 ### Resend a pending invitation
 POST {{baseUrl}}/users/{{userId}}/invitation/resend
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 
 ### Cancel a pending invitation
 DELETE {{baseUrl}}/users/{{userId}}/invitation
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 
 ### Change a profile
 PATCH {{baseUrl}}/users/{{userId}}/profile
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -51,7 +53,7 @@ Content-Type: application/json
 
 ### Change a status
 PATCH {{baseUrl}}/users/{{userId}}/status
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -60,7 +62,7 @@ Content-Type: application/json
 
 ### Correct a user name
 PATCH {{baseUrl}}/users/{{userId}}/name
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -69,7 +71,7 @@ Content-Type: application/json
 
 ### Change another user's profile
 PATCH {{baseUrl}}/users/{{userId}}/profile
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {

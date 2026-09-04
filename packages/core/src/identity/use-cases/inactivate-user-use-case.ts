@@ -32,7 +32,15 @@ export class InactivateUserUseCase implements UseCase<Request, UserDetails> {
         request.userId,
       )
       if (!target) throw new NotFoundError('User not found')
-      if (target.status === UserStatus.Inactive) return { user: target, changed: false }
+      if (target.status === UserStatus.Inactive) {
+        const auditRecords = scope.userAuditRecordsRepository
+          ? await scope.userAuditRecordsRepository.findManyByUser({
+              establishmentId: target.establishmentId,
+              affectedUserId: target.id,
+            })
+          : []
+        return { user: target, auditRecords }
+      }
       if (
         target.status !== UserStatus.Active ||
         (target.profile === UserProfile.Manager &&
@@ -59,28 +67,26 @@ export class InactivateUserUseCase implements UseCase<Request, UserDetails> {
         newValue: UserStatus.Inactive,
         occurredAt: now,
       })
-      return { user, changed: true }
-    })
-    if (result.changed)
+      await scope.authenticationSessionsRepository?.removeAllByProviderSubject(user.id)
       await this.broker?.publish(
         new UserInactivatedEvent({
-          userId: result.user.id,
-          establishmentId: result.user.establishmentId,
-          email: result.user.email,
+          userId: user.id,
+          establishmentId: user.establishmentId,
+          email: user.email,
           actorUserId: request.actor.id,
           previousStatus: UserStatus.Active,
-          status: result.user.status,
+          status: user.status,
           updatedAt: now,
         }),
       )
-    const records = await this.database.run(async ({ userAuditRecordsRepository }) =>
-      userAuditRecordsRepository
-        ? await userAuditRecordsRepository.findManyByUser({
-            establishmentId: result.user.establishmentId,
-            affectedUserId: result.user.id,
+      const auditRecords = scope.userAuditRecordsRepository
+        ? await scope.userAuditRecordsRepository.findManyByUser({
+            establishmentId: user.establishmentId,
+            affectedUserId: user.id,
           })
-        : [],
-    )
-    return { user: result.user, auditRecords: records }
+        : []
+      return { user, auditRecords }
+    })
+    return result
   }
 }

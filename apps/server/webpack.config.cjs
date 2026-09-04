@@ -1,4 +1,8 @@
-const bundledWorkspacePackages = ['@scoops/core', '@scoops/validation']
+const bundledWorkspacePackages = [
+  '@scoops/core',
+  '@scoops/email',
+  '@scoops/validation',
+]
 
 module.exports = (options) => {
   const [nodeExternals] = options.externals
@@ -8,7 +12,7 @@ module.exports = (options) => {
     resolve: {
       ...options.resolve,
       extensionAlias: {
-        '.js': ['.ts', '.js'],
+        '.js': ['.ts', '.tsx', '.js'],
       },
     },
     externals: [

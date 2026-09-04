@@ -2,7 +2,7 @@ import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import type { MrpModuleFixture as MrpFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
@@ -17,7 +17,7 @@ import {
 
 describe('Get Product Removal Impact Controller [GET /products/:productId/removal-impact]', () => {
   let fixture: MrpFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -100,7 +100,7 @@ describe('Get Product Removal Impact Controller [GET /products/:productId/remova
 
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/removal-impact`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({
@@ -126,10 +126,10 @@ describe('Get Product Removal Impact Controller [GET /products/:productId/remova
     )
     const operator = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/removal-impact`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/removal-impact`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
     expect(operator.status).toBe(403)

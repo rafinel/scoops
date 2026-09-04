@@ -148,12 +148,25 @@ Identity authentication follows the same separation:
 - `AuthCredentials`, `AuthSession`, `AuthStateChange`,
   `AuthStateChangeListener`, and `AuthUser` are shared data structures and belong
   in `packages/core/src/identity/domain/structures`;
-- Supabase implementations belong in an application provision layer, not in the
-  core package.
+- authentication-provider implementations belong in an application provision
+  layer, not in the core package.
 
 Consumers must import auth data structures from the structures barrel and the
 provider contract from the interfaces barrel. Do not place provider-specific
-types or Supabase imports in `packages/core`.
+types or Better Auth imports in `packages/core`.
+
+Transactional email is owned by Communication. Its provider-neutral
+`EmailProvider` contract belongs under
+`packages/core/src/communication/interfaces`; Identity publishes authoritative
+domain events and must not import that interface or a Resend, SMTP, or Mailpit
+implementation.
+
+When an approved atomic-delivery requirement applies, Core use cases call their
+independently injected `Broker` while the owning database transaction is active.
+The `Broker` contract accepts only a typed domain `Event`; it must not expose SQL
+rows, transaction objects, polling, Inngest, or provider types. Do not add the
+broker to a module database-scope object. Shared server infrastructure implements
+transaction-aware outbox persistence and post-commit relay.
 
 ## Only entities have identity
 

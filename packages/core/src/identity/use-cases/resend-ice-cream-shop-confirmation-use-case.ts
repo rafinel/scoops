@@ -6,7 +6,13 @@ import type { OnboardingIdentityProvider } from '#identity/interfaces/onboarding
 import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
 import { NotFoundError } from '#shared/domain/errors/not-found-error.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
 import { confirmationRedirectUrl } from '#identity/use-cases/confirmation-redirect.ts'
+
+type Request = {
+  continuationToken: string
+  confirmationRedirectBaseUrl: string
+}
 
 export class ResendIceCreamShopConfirmationUseCase {
   constructor(
@@ -14,52 +20,41 @@ export class ResendIceCreamShopConfirmationUseCase {
     private readonly datetimeProvider: DatetimeProvider,
     private readonly onboardingTokenProvider: OnboardingTokenProvider,
     private readonly onboardingIdentityProvider: OnboardingIdentityProvider,
+    private readonly broker?: Broker,
   ) {}
 
-  async execute(request: {
-    continuationToken: string
-    confirmationRedirectBaseUrl: string
-  }): Promise<PendingIceCreamShopOnboarding> {
+  async execute(request: Request): Promise<PendingIceCreamShopOnboarding> {
     const now = this.datetimeProvider.now()
     const tokenHash = this.onboardingTokenProvider.hash(request.continuationToken)
-    const pending = await this.database.run(
-      async ({ registrationAttemptsRepository, establishmentsRepository }) => {
-        const attempt =
-          await registrationAttemptsRepository.findPendingByTokenHash(tokenHash)
-        if (!attempt || attempt.status !== RegistrationAttemptStatus.Pending)
-          throw new NotFoundError('Onboarding not found')
-        if (now.getTime() >= attempt.expiresAt.getTime())
-          throw new OnboardingExpiredError()
-        const establishment = await establishmentsRepository.findById(
-          attempt.establishmentId,
-        )
-        if (!establishment) throw new NotFoundError('Onboarding not found')
-        return { attempt, establishment }
-      },
-    )
     const confirmation = this.onboardingTokenProvider.issue()
-    await this.onboardingIdentityProvider.resendConfirmation({
-      email: pending.attempt.email,
-      confirmationRedirectTo: confirmationRedirectUrl(
-        request.confirmationRedirectBaseUrl,
-        confirmation.token,
-      ),
-    })
-    await this.database.run(async ({ registrationAttemptsRepository }) => {
-      const current =
-        await registrationAttemptsRepository.findPendingByTokenHash(tokenHash)
-      if (!current || current.id !== pending.attempt.id)
+    return this.database.run(async (scope) => {
+      const attempt =
+        await scope.registrationAttemptsRepository.findPendingByTokenHash(tokenHash)
+      if (!attempt || attempt.status !== RegistrationAttemptStatus.Pending)
         throw new NotFoundError('Onboarding not found')
-      await registrationAttemptsRepository.replace(current.id, {
+      if (now.getTime() >= attempt.expiresAt.getTime()) throw new OnboardingExpiredError()
+      const establishment = await scope.establishmentsRepository.findById(
+        attempt.establishmentId,
+      )
+      if (!establishment) throw new NotFoundError('Onboarding not found')
+      const event = await this.onboardingIdentityProvider.prepareOnboardingConfirmation({
+        providerSubject: attempt.userId,
+        confirmationRedirectTo: confirmationRedirectUrl(
+          request.confirmationRedirectBaseUrl,
+          confirmation.token,
+        ),
+      })
+      await scope.registrationAttemptsRepository.replace(attempt.id, {
         confirmationTokenHash: confirmation.hash,
         updatedAt: now,
       })
+      await this.broker?.publish(event)
+      return {
+        establishmentName: establishment.name,
+        managerName: attempt.name,
+        email: attempt.email,
+        expiresAt: attempt.expiresAt,
+      }
     })
-    return {
-      establishmentName: pending.establishment.name,
-      managerName: pending.attempt.name,
-      email: pending.attempt.email,
-      expiresAt: pending.attempt.expiresAt,
-    }
   }
 }

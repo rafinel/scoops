@@ -7,8 +7,6 @@ export class HealthServicesDto {
   database!: ServiceState
 
   @ApiProperty({ enum: ['UP', 'DOWN'] })
-  supabase!: ServiceState
-
   @ApiProperty({ enum: ['UP', 'DOWN'] })
   storage!: ServiceState
 }

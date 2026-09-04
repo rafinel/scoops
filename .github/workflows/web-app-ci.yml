@@ -39,6 +39,8 @@ jobs:
     name: Web
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      VITE_SCOOPS_SERVER_APP_URL: http://127.0.0.1:3336
 
     steps:
       - name: Checkout

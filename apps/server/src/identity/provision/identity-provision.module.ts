@@ -1,24 +1,72 @@
 import { Module } from '@nestjs/common'
 
-import { IDENTITY_PROVIDERS } from '@/identity/constants'
-import { SupabaseServerAuthProvider } from '@/identity/provision/supabase/supabase-server-auth-provider'
+import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
+import { IdentityDatabaseModule } from '@/identity/database/identity-database.module'
+import {
+  BetterAuthSecurityControls,
+  BetterAuthSessionVerifier,
+  BetterAuthSessionIssuer,
+  BetterAuthServerAuthProvider,
+  createBetterAuth,
+} from '@/identity/provision/auth'
 import { NodeOnboardingIdentifierProvider } from '@/identity/provision/identifier/node-onboarding-identifier-provider'
 import { NodeOnboardingTokenProvider } from '@/identity/provision/token/node-onboarding-token-provider'
+import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
+import { DatabaseTransactionContext } from '@/shared/database/drizzle/database-transaction-context'
+import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
+import { EnvProvider } from '@/shared/provision/env/env-provider'
 import { ProvisionModule } from '@/shared/provision/provision.module'
 
 @Module({
-  imports: [ProvisionModule],
+  imports: [IdentityDatabaseModule, SharedDatabaseModule, ProvisionModule],
   providers: [
-    SupabaseServerAuthProvider,
+    {
+      provide: IDENTITY_PROVIDERS.betterAuth,
+      inject: [
+        EnvProvider,
+        DrizzleClient,
+        IDENTITY_REPOSITORIES.database,
+        BetterAuthSecurityControls,
+      ],
+      useFactory: (
+        envProvider: EnvProvider,
+        drizzleClient: DrizzleClient,
+        identityDatabase: Parameters<typeof createBetterAuth>[2],
+        securityControls: BetterAuthSecurityControls,
+      ) =>
+        createBetterAuth(
+          envProvider,
+          drizzleClient.requireDatabase(),
+          identityDatabase,
+          securityControls,
+        ),
+    },
+    {
+      provide: BetterAuthSecurityControls,
+      inject: [IDENTITY_REPOSITORIES.database, DrizzleClient, DatabaseTransactionContext],
+      useFactory: (
+        identityDatabase: Parameters<typeof createBetterAuth>[2],
+        drizzleClient: DrizzleClient,
+        transactionContext: DatabaseTransactionContext,
+      ) =>
+        new BetterAuthSecurityControls(
+          identityDatabase,
+          drizzleClient.requireDatabase(),
+          transactionContext,
+        ),
+    },
+    BetterAuthSessionVerifier,
+    BetterAuthSessionIssuer,
+    BetterAuthServerAuthProvider,
     NodeOnboardingTokenProvider,
     NodeOnboardingIdentifierProvider,
     {
       provide: IDENTITY_PROVIDERS.authIdentity,
-      useExisting: SupabaseServerAuthProvider,
+      useExisting: BetterAuthServerAuthProvider,
     },
     {
       provide: IDENTITY_PROVIDERS.onboardingIdentity,
-      useExisting: SupabaseServerAuthProvider,
+      useExisting: BetterAuthServerAuthProvider,
     },
     {
       provide: IDENTITY_PROVIDERS.onboardingToken,
@@ -30,7 +78,11 @@ import { ProvisionModule } from '@/shared/provision/provision.module'
     },
     {
       provide: IDENTITY_PROVIDERS.userAccessIdentity,
-      useExisting: SupabaseServerAuthProvider,
+      useExisting: BetterAuthServerAuthProvider,
+    },
+    {
+      provide: IDENTITY_PROVIDERS.betterAuthSessionVerifier,
+      useExisting: BetterAuthSessionVerifier,
     },
   ],
   exports: [
@@ -39,6 +91,9 @@ import { ProvisionModule } from '@/shared/provision/provision.module'
     IDENTITY_PROVIDERS.onboardingToken,
     IDENTITY_PROVIDERS.onboardingIdentifier,
     IDENTITY_PROVIDERS.userAccessIdentity,
+    IDENTITY_PROVIDERS.betterAuth,
+    IDENTITY_PROVIDERS.betterAuthSessionVerifier,
+    BetterAuthSessionIssuer,
   ],
 })
 export class IdentityProvisionModule {}

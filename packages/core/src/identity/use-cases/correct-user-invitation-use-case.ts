@@ -6,13 +6,16 @@ import { RegistrationAttemptStatus } from '#identity/domain/structures/registrat
 import type { IdentityDatabase } from '#identity/interfaces/identity-database.ts'
 import type { OnboardingIdentifierProvider } from '#identity/interfaces/onboarding-identifier-provider.ts'
 import type { UserAccessIdentityProvider } from '#identity/interfaces/user-access-identity-provider.ts'
+import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
+import { confirmationRedirectUrl } from '#identity/use-cases/confirmation-redirect.ts'
 import { AuthorizationError } from '#shared/domain/errors/authorization-error.ts'
 import { ConflictError } from '#shared/domain/errors/conflict-error.ts'
 import { NotFoundError } from '#shared/domain/errors/not-found-error.ts'
 import { UserInvitationNotAllowedError } from '#identity/domain/errors/user-invitation-not-allowed-error.ts'
 import { InvitationOperation } from '#identity/domain/structures/invitation-operation.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
 
 type Request = {
   actor: Account
@@ -20,6 +23,7 @@ type Request = {
   name: string
   email: string
   profile: UserProfile
+  invitationRedirectBaseUrl: string
 }
 
 export class CorrectUserInvitationUseCase implements UseCase<Request, UserDetails> {
@@ -27,7 +31,9 @@ export class CorrectUserInvitationUseCase implements UseCase<Request, UserDetail
     private readonly database: IdentityDatabase,
     private readonly datetimeProvider: DatetimeProvider,
     private readonly identifierProvider: OnboardingIdentifierProvider,
+    private readonly tokenProvider: OnboardingTokenProvider,
     private readonly provider: UserAccessIdentityProvider,
+    private readonly broker: Broker,
   ) {}
 
   async execute(request: Request): Promise<UserDetails> {
@@ -75,60 +81,69 @@ export class CorrectUserInvitationUseCase implements UseCase<Request, UserDetail
     )
     if (!claimed) throw new ConflictError('Invitation is being changed')
 
-    if (email !== result.user.email) {
-      try {
-        await this.provider.correctPendingIdentityEmail({
-          providerSubject: result.user.id,
-          email,
-        })
-      } catch (error) {
-        await this.database
-          .run(({ registrationAttemptsRepository }) =>
-            registrationAttemptsRepository.clearInvitationOperation({
-              attemptId: result.attempt.id,
-              operationToken,
+    const nextToken = email !== result.user.email ? this.tokenProvider.issue() : undefined
+    try {
+      const updated = await this.database.run(async (scope) => {
+        const event =
+          email !== result.user.email
+            ? await this.provider.correctPendingIdentity({
+                providerSubject: result.user.id,
+                establishmentId: result.user.establishmentId,
+                email,
+                name,
+                invitationRedirectTo: confirmationRedirectUrl(
+                  request.invitationRedirectBaseUrl,
+                  nextToken?.token ?? '',
+                ),
+              })
+            : undefined
+        const attempt =
+          await scope.registrationAttemptsRepository.finalizeInvitationOperation({
+            attemptId: result.attempt.id,
+            operationToken,
+            changes: {
+              email,
+              ...(nextToken ? { tokenHash: nextToken.hash } : {}),
               updatedAt: now,
-            }),
-          )
-          .catch(() => false)
-        throw error
-      }
-    }
-
-    const updated = await this.database.run(async (scope) => {
-      const attempt =
-        await scope.registrationAttemptsRepository.finalizeInvitationOperation({
-          attemptId: result.attempt.id,
-          operationToken,
-          changes: {
-            email,
-            updatedAt: now,
-          },
+            },
+          })
+        if (!attempt) throw new ConflictError('Invitation operation was superseded')
+        const user = await scope.usersRepository.replace(
+          request.actor.establishmentId,
+          request.userId,
+          { name, email, profile: request.profile, updatedAt: now },
+        )
+        await scope.registrationAttemptsRepository.replace(result.attempt.id, {
+          name,
+          email,
+          profile: request.profile,
+          updatedAt: now,
+          revision: (result.attempt.revision ?? 0) + 1,
         })
-      if (!attempt) throw new ConflictError('Invitation operation was superseded')
-      const user = await scope.usersRepository.replace(
-        request.actor.establishmentId,
-        request.userId,
-        { name, email, profile: request.profile, updatedAt: now },
-      )
-      await scope.registrationAttemptsRepository.replace(result.attempt.id, {
-        name,
-        email,
-        profile: request.profile,
-        updatedAt: now,
-        revision: (result.attempt.revision ?? 0) + 1,
+        if (event) await this.broker.publish(event)
+        return user
       })
-      return user
-    })
-    const auditRecords = await this.database.run(
-      async ({ userAuditRecordsRepository }) =>
-        userAuditRecordsRepository
-          ? await userAuditRecordsRepository.findManyByUser({
-              establishmentId: updated.establishmentId,
-              affectedUserId: updated.id,
-            })
-          : [],
-    )
-    return { user: updated, auditRecords }
+      const auditRecords = await this.database.run(
+        async ({ userAuditRecordsRepository }) =>
+          userAuditRecordsRepository
+            ? await userAuditRecordsRepository.findManyByUser({
+                establishmentId: updated.establishmentId,
+                affectedUserId: updated.id,
+              })
+            : [],
+      )
+      return { user: updated, auditRecords }
+    } catch (error) {
+      await this.database
+        .run(({ registrationAttemptsRepository }) =>
+          registrationAttemptsRepository.clearInvitationOperation({
+            attemptId: result.attempt.id,
+            operationToken,
+            updatedAt: now,
+          }),
+        )
+        .catch(() => false)
+      throw error
+    }
   }
 }

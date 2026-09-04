@@ -101,7 +101,7 @@ establishment, invite staff, and control administrative and operational access.
 
 ### REQ-01 — Establishment Onboarding
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** A new customer can create an establishment and activate its first
 Manager through a public, confirmed onboarding flow.
@@ -159,7 +159,7 @@ REQ-02, REQ-10, REQ-13, and REQ-14.
 
 ### REQ-02 — Authentication and Session
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** Active Managers and Operators can enter Scoops with individual
 credentials and remain authenticated only while their session is valid.
@@ -199,7 +199,7 @@ REQ-13.
 
 ### REQ-03 — Password and Access Recovery
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** A user can create or reset their own password without a Manager viewing
 or setting it.
@@ -235,7 +235,7 @@ states consumed by REQ-13.
 
 ### REQ-04 — Profiles and Authorization
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** Every protected area and action applies a predictable, fixed access model
 within the user's own establishment.
@@ -270,7 +270,7 @@ REQ-11, REQ-13, and REQ-14.
 
 ### REQ-05 — User Registration and Invitation
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** A Manager can invite a person to the same establishment with an approved
 profile while the invited person retains control of their password.
@@ -387,7 +387,7 @@ from REQ-05; notification delivery from the Communication module.
 
 ### REQ-08 — Inactivation and Reactivation
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** A Manager can revoke or restore another user's access without deleting
 their identity, profile, reserved email, or history.
@@ -425,7 +425,7 @@ REQ-13, and REQ-14.
 
 ### REQ-09 — Personal Data and My Account
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** A Manager or Operator can inspect their identity, change their own name,
 and end the current session without changing immutable access attributes.
@@ -565,7 +565,7 @@ historical and policy-governed data lifecycles remain outside this product surfa
 
 ### REQ-13 — Navigation, States, and Quality of Experience
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** Managers and Operators can understand and recover from Identity states
 through coherent, authorized, responsive, and accessible navigation and feedback.

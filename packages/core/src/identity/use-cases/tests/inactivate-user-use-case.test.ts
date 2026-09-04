@@ -12,6 +12,7 @@ import type { RegistrationAttemptsRepository } from '#identity/interfaces/regist
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
 
 describe('Inactivate User Use Case', () => {
+  // Session revocation remains inside the provider-neutral transaction boundary.
   it('rejects self-inactivation before reading the target', async () => {
     const database = mock<IdentityDatabase>()
     const actor = AccountFaker.fake({ profile: UserProfile.Manager })

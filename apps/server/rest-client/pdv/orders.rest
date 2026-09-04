@@ -1,5 +1,5 @@
-@baseUrl = http://127.0.0.1:3336
-@accessToken = {{$processEnv PDV_ACCESS_TOKEN}}
+@baseUrl = http://localhost:3336
+@sessionCookie = replace-with-scoops-session-cookie
 @productId = 00000000-0000-0000-0000-000000000000
 @sizeId = 00000000-0000-0000-0000-000000000000
 @invalidSizeId = 00000000-0000-4000-8000-000000000099
@@ -10,7 +10,7 @@
 
 ### List orders with combined filters (200)
 GET {{baseUrl}}/orders?search=%2310&createdFrom=2026-01-01T00%3A00%3A00.000Z&createdTo=2026-01-31T23%3A59%3A59.999Z&channelId={{channelId}}&status=registered&page=1&pageSize=6
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 # Response body:
@@ -24,7 +24,7 @@ Accept: application/json
 
 ### Get an order snapshot (200)
 GET {{baseUrl}}/orders/{{orderId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 # Response body:
@@ -43,7 +43,7 @@ Accept: application/json
 
 ### Cancel a registered order (200)
 PATCH {{baseUrl}}/orders/{{orderId}}/cancel
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -64,7 +64,7 @@ Content-Type: application/json
 
 ### List the tenant order catalog (200)
 GET {{baseUrl}}/orders/catalog?page=1&pageSize=20
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 # Response body:
@@ -84,7 +84,7 @@ Accept: application/json
 
 ### List only Portion catalog entries (200)
 GET {{baseUrl}}/orders/catalog?kind=portion&search=scoop&page=1&pageSize=20
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 # Response body:
@@ -98,7 +98,7 @@ Accept: application/json
 
 ### List catalog with malformed query (422)
 GET {{baseUrl}}/orders/catalog?page=not-a-number
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 # Response body:
@@ -119,7 +119,7 @@ Accept: application/json
 
 ### List catalog with an unauthorized profile (403)
 GET {{baseUrl}}/orders/catalog?page=1&pageSize=20
-Authorization: Bearer replace-with-viewer-token
+Cookie: replace-with-viewer-session-cookie
 Accept: application/json
 
 # Response body:
@@ -127,7 +127,7 @@ Accept: application/json
 
 ### Preview an order and issue a preview token (200)
 POST {{baseUrl}}/orders/preview
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -150,7 +150,7 @@ Content-Type: application/json
 
 ### Preview with malformed body (422)
 POST {{baseUrl}}/orders/preview
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {"lines": []}
@@ -175,7 +175,7 @@ Content-Type: application/json
 
 ### Preview with an unauthorized profile (403)
 POST {{baseUrl}}/orders/preview
-Authorization: Bearer replace-with-viewer-token
+Cookie: replace-with-viewer-session-cookie
 Content-Type: application/json
 
 {"lines":[]}
@@ -185,7 +185,7 @@ Content-Type: application/json
 
 ### Preview with invalid order configuration (400)
 POST {{baseUrl}}/orders/preview
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -209,7 +209,7 @@ Content-Type: application/json
 
 ### Register an order (201 registered)
 POST {{baseUrl}}/orders
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -246,7 +246,7 @@ Content-Type: application/json
 
 ### Replay an order (200 registered replay)
 POST {{baseUrl}}/orders
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -266,7 +266,7 @@ Content-Type: application/json
 
 ### Reprice before confirmation (200 repriced)
 POST {{baseUrl}}/orders
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -286,7 +286,7 @@ Content-Type: application/json
 
 ### Registration requiring stock review (409 review-required)
 POST {{baseUrl}}/orders
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -306,7 +306,7 @@ Content-Type: application/json
 
 ### Registration requiring correction (409 correction-required)
 POST {{baseUrl}}/orders
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -326,7 +326,7 @@ Content-Type: application/json
 
 ### Conflicting idempotency key (409 standard error)
 POST {{baseUrl}}/orders
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -340,7 +340,7 @@ Content-Type: application/json
 
 ### Invalid or expired preview token (400 with no cart disclosure)
 POST {{baseUrl}}/orders
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -354,7 +354,7 @@ Content-Type: application/json
 
 ### Unknown sales channel (404)
 POST {{baseUrl}}/orders
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -369,7 +369,7 @@ Content-Type: application/json
 
 ### Malformed registration body (422)
 POST {{baseUrl}}/orders
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {"idempotencyKey":"not-a-uuid","previewToken":"{{previewToken}}","lines":[]}
@@ -388,7 +388,7 @@ Content-Type: application/json
 
 ### Register with an unauthorized profile (403)
 POST {{baseUrl}}/orders
-Authorization: Bearer replace-with-viewer-token
+Cookie: replace-with-viewer-session-cookie
 Content-Type: application/json
 
 {"idempotencyKey":"00000000-0000-4000-8000-000000000021","previewToken":"{{previewToken}}","lines":[]}
@@ -398,7 +398,7 @@ Content-Type: application/json
 
 ### Confirmed transaction rollback after an unavailable dependency (503)
 POST {{baseUrl}}/orders
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -412,7 +412,7 @@ Content-Type: application/json
 
 ### Confirmed transaction rollback after an unexpected failure (500)
 POST {{baseUrl}}/orders
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {

@@ -5,6 +5,7 @@ import type { AuthCredentials } from '@scoops/core/identity/domain/structures'
 import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 export const useLoginAction = () => {
+  // Authentication is transported by the server-issued HttpOnly session cookie.
   const { signIn } = useAuthContext()
   const [error, setError] = useState<Error | null>(null)
   const [isPending, setIsPending] = useState(false)

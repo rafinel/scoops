@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Register Product Size Controller [POST /products/:productId/sizes]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -28,7 +28,7 @@ describe('Register Product Size Controller [POST /products/:productId/sizes]', (
     )
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/sizes`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: '  Medium  ', quantity: 0.75, price: 10.5 })
 
     expect(response.status).toBe(201)
@@ -61,11 +61,11 @@ describe('Register Product Size Controller [POST /products/:productId/sizes]', (
     })
     const malformed = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/sizes`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: '', quantity: 0, price: -1 })
     const duplicate = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/sizes`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: ' existing ', quantity: 1.25, price: 11 })
 
     expect(malformed.status).toBe(422)
@@ -87,15 +87,15 @@ describe('Register Product Size Controller [POST /products/:productId/sizes]', (
     )
     const operator = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/sizes`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send({ name: 'Size', quantity: 1, price: 2 })
     const foreign = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/sizes`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
       .send({ name: 'Size', quantity: 1, price: 2 })
     const wrongCategory = await request(fixture.app.getHttpServer())
       .post(`/products/${ingredient.id}/sizes`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: 'Size', quantity: 1, price: 2 })
 
     expect(anonymous.status).toBe(401)

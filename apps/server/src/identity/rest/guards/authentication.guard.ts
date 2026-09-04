@@ -7,12 +7,13 @@ import {
   type ExecutionContext,
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import type { AuthIdentityProvider } from '@scoops/core/identity/interfaces'
 import type { IdentityDatabase } from '@scoops/core/identity/interfaces'
 import { AuthenticationProviderUnavailableError } from '@scoops/core/identity/domain/errors'
+import { AuthenticationSessionExpiredError } from '@scoops/core/identity/domain/errors'
 import { ResolveAuthenticatedUserUseCase } from '@scoops/core/identity/use-cases'
 
 import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
+import { BetterAuthSessionVerifier } from '@/identity/provision/auth'
 import type { AuthenticatedRequest } from '@/identity/rest/types/authenticated-request'
 import { PUBLIC_ROUTE_METADATA } from '@/shared/rest/decorators/public-route'
 
@@ -22,8 +23,8 @@ export class AuthenticationGuard implements CanActivate {
 
   constructor(
     @Inject(Reflector) private readonly reflector: Reflector,
-    @Inject(IDENTITY_PROVIDERS.authIdentity)
-    private readonly authIdentityProvider: AuthIdentityProvider,
+    @Inject(IDENTITY_PROVIDERS.betterAuthSessionVerifier)
+    private readonly sessionVerifier: BetterAuthSessionVerifier,
     @Inject(IDENTITY_REPOSITORIES.database)
     identityDatabase: IdentityDatabase,
   ) {
@@ -41,22 +42,18 @@ export class AuthenticationGuard implements CanActivate {
     if (isPublic) return true
 
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>()
-    const accessToken = this.getAccessToken(request)
-
-    if (!accessToken) throw this.createUnauthorizedException()
 
     try {
-      const authUser = await this.authIdentityProvider.verifyAccessToken(accessToken)
-
-      if (!authUser) throw this.createUnauthorizedException()
+      const verified = await this.sessionVerifier.verify(request.headers, request.res)
 
       const account = await this.resolveAuthenticatedUserUseCase.execute({
-        providerSubject: authUser.id,
+        providerSubject: verified.session.user.id,
       })
 
       if (!account) throw this.createUnauthorizedException()
 
       request.account = account
+      request.authSession = verified.session
       return true
     } catch (error) {
       if (error instanceof AuthenticationProviderUnavailableError) {
@@ -66,18 +63,12 @@ export class AuthenticationGuard implements CanActivate {
         })
       }
 
+      if (error instanceof AuthenticationSessionExpiredError) {
+        throw this.createUnauthorizedException()
+      }
+
       throw error
     }
-  }
-
-  private getAccessToken(request: AuthenticatedRequest): string | undefined {
-    const authorization = request.headers.authorization
-
-    if (typeof authorization !== 'string') return undefined
-
-    const match = /^Bearer ([^\s]+)$/.exec(authorization)
-
-    return match?.[1]
   }
 
   private createUnauthorizedException() {

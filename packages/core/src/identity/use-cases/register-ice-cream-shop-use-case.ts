@@ -14,6 +14,7 @@ import type { OnboardingIdentifierProvider } from '#identity/interfaces/onboardi
 import type { OnboardingIdentityProvider } from '#identity/interfaces/onboarding-identity-provider.ts'
 import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
 import { confirmationRedirectUrl } from '#identity/use-cases/confirmation-redirect.ts'
 
 type Request = IceCreamShopOnboardingInput & { confirmationRedirectBaseUrl: string }
@@ -27,6 +28,7 @@ export class RegisterIceCreamShopUseCase {
     private readonly onboardingTokenProvider: OnboardingTokenProvider,
     private readonly onboardingIdentifierProvider: OnboardingIdentifierProvider,
     private readonly onboardingIdentityProvider: OnboardingIdentityProvider,
+    private readonly broker?: Broker,
   ) {}
 
   async execute(request: Request): Promise<IceCreamShopOnboardingRegistration> {
@@ -36,7 +38,6 @@ export class RegisterIceCreamShopUseCase {
     const email = request.email.trim().toLowerCase()
     const expiresAt = new Date(now.getTime() + ONBOARDING_DURATION_MS)
     const continuation = this.onboardingTokenProvider.issue()
-    const confirmation = this.onboardingTokenProvider.issue()
     const establishmentId = this.onboardingIdentifierProvider.generate()
     const attemptId = this.onboardingIdentifierProvider.generate()
 
@@ -49,23 +50,25 @@ export class RegisterIceCreamShopUseCase {
       },
     )
 
-    const providerIdentity =
-      await this.onboardingIdentityProvider.registerPendingIdentity({
-        email,
-        password: request.password,
-        confirmationRedirectTo: confirmationRedirectUrl(
-          request.confirmationRedirectBaseUrl,
-          confirmation.token,
-        ),
-      })
-    if (!providerIdentity) throw new OnboardingEmailUnavailableError()
-
+    let providerSubject: string | undefined
     try {
       const onboarding = await this.database.run(async (scope) => {
         const existingUser = await scope.usersRepository.findByEmail(email)
         const existingAttempt =
           await scope.registrationAttemptsRepository.findActiveByEmail(email)
         if (existingUser || existingAttempt) throw new OnboardingEmailUnavailableError()
+
+        const providerIdentity =
+          await this.onboardingIdentityProvider.registerPendingIdentity({
+            email,
+            password: request.password,
+            name: managerName,
+            confirmationRedirectTo: confirmationRedirectUrl(
+              request.confirmationRedirectBaseUrl,
+              continuation.token,
+            ),
+          })
+        providerSubject = providerIdentity.authUser.id
 
         const establishment: Establishment = await scope.establishmentsRepository.add({
           id: establishmentId,
@@ -75,7 +78,7 @@ export class RegisterIceCreamShopUseCase {
           updatedAt: now,
         })
         const user: User = await scope.usersRepository.add({
-          id: providerIdentity.providerSubject,
+          id: providerIdentity.authUser.id,
           establishmentId,
           name: managerName,
           email,
@@ -95,12 +98,12 @@ export class RegisterIceCreamShopUseCase {
             type: RegistrationAttemptType.EstablishmentOnboarding,
             status: RegistrationAttemptStatus.Pending,
             tokenHash: continuation.hash,
-            confirmationTokenHash: confirmation.hash,
             expiresAt,
             createdAt: now,
             updatedAt: now,
             revision: 0,
           })
+        await this.broker?.publish(providerIdentity.event)
         return {
           continuationToken: continuation.token,
           onboarding: {
@@ -113,9 +116,9 @@ export class RegisterIceCreamShopUseCase {
       })
       return onboarding
     } catch (error) {
-      await this.onboardingIdentityProvider.removeIdentity(
-        providerIdentity.providerSubject,
-      )
+      if (providerSubject) {
+        await this.onboardingIdentityProvider.removeIdentity(providerSubject)
+      }
       throw error
     }
   }

@@ -33,6 +33,8 @@ export interface IdentityService {
   confirmIceCreamShopOnboarding(request: {
     confirmationToken: string
   }): Promise<RestResponse<void>>
+  requestPasswordRecovery(input: { email: string }): Promise<RestResponse<void>>
+  resetPassword(input: { token: string; password: string }): Promise<RestResponse<void>>
   listUsers(
     input: Omit<UsersListParams, 'establishmentId' | 'excludeUserId'>,
   ): Promise<RestResponse<UsersPage<UserSummary>>>
@@ -48,7 +50,10 @@ export interface IdentityService {
   ): Promise<RestResponse<UserDetails>>
   resendUserInvitation(userId: string): Promise<RestResponse<UserDetails>>
   cancelUserInvitation(userId: string): Promise<RestResponse<void>>
-  acceptUserInvitation(input: { confirmationToken: string }): Promise<RestResponse<void>>
+  acceptUserInvitation(input: {
+    confirmationToken: string
+    password: string
+  }): Promise<RestResponse<void>>
   changeUserProfile(
     userId: string,
     profile: UserProfile,

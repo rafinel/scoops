@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import {
   PdvModuleFixture,
   foreignManagerRequestAuthorization,
@@ -13,7 +13,7 @@ import {
 
 describe('List Orders Controller [GET /orders]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -48,16 +48,16 @@ describe('List Orders Controller [GET /orders]', () => {
       .get(
         '/orders?search=Chocolate&createdFrom=2026-01-01T00:00:00.000Z&createdTo=2027-01-01T00:00:00.000Z&status=registered&page=1&pageSize=6',
       )
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const channelFilter = await request(fixture.app.getHttpServer())
       .get(`/orders?channelId=${channel.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const noChannelFilter = await request(fixture.app.getHttpServer())
       .get('/orders?channelId=none')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const operator = await request(fixture.app.getHttpServer())
       .get('/orders')
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
 
     expect(search.status).toBe(200)
     expect(search.body).toMatchObject({ page: 1, pageSize: 6, total: 1, totalPages: 1 })
@@ -79,11 +79,11 @@ describe('List Orders Controller [GET /orders]', () => {
   it('rejects malformed queries and unauthenticated requests', async () => {
     const malformed = await request(fixture.app.getHttpServer())
       .get('/orders?createdFrom=2026-01-01T00:00:00.000Z')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const anonymous = await request(fixture.app.getHttpServer()).get('/orders')
     const foreign = await request(fixture.app.getHttpServer())
       .get('/orders')
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
 
     expect(malformed.status).toBe(422)
     expect(malformed.body).not.toHaveProperty('items')

@@ -13,7 +13,6 @@ export interface RestClient {
   delete<ResponseBody>(url: string, body?: unknown): Promise<RestResponse<ResponseBody>>
   setBaseUrl(url: string): void
   setHeader(key: string, value: string): void
-  setAuthorization(token: string): void
   setQueryParam(key: string, value: string | string[]): void
   clearQueryParams(): void
 }

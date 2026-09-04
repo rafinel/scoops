@@ -1,23 +1,26 @@
 import { useState } from 'react'
 
-import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
+import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
+import { useActionUtils } from './action-utils'
+
+export type ResetPasswordInput = { token: string; password: string }
 
 export const useResetPasswordAction = () => {
-  const { resetPassword } = useAuthContext()
+  const { identityService } = useRestContext()
+  const { ensureSuccessfulResponse, toActionError } = useActionUtils()
   const [error, setError] = useState<Error | null>(null)
   const [isPending, setIsPending] = useState(false)
 
-  async function reset(password: string) {
+  async function reset(input: ResetPasswordInput) {
     setError(null)
     setIsPending(true)
 
     try {
-      await resetPassword(password)
+      ensureSuccessfulResponse(await identityService.resetPassword(input))
     } catch (nextError) {
-      setError(
-        nextError instanceof Error ? nextError : new Error('Password reset failed'),
-      )
-      throw nextError
+      const actionError = toActionError(nextError, 'Password reset failed')
+      setError(actionError)
+      throw actionError
     } finally {
       setIsPending(false)
     }

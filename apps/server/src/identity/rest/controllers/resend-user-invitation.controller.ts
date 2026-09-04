@@ -21,6 +21,7 @@ import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 @UsersController()
 export class ResendUserInvitationController {
+  // Resends invalidate the prior operation before preparing the replacement event.
   private readonly useCase: ResendUserInvitationUseCase
   private readonly invitationRedirectBaseUrl: string
 

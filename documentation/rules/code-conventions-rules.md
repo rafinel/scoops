@@ -93,7 +93,7 @@ The suffix is not required for nouns that are inherently numeric, such as
 Module-level constants use uppercase [snake_case](https://www.theserverside.com/definition/Snake-case):
 
 ```ts
-const SUPABASE_URL = 'https://example.supabase.co'
+const BETTER_AUTH_URL = 'https://api.example.com'
 const HEADER_HEIGHT = 64
 const EVENT_KEY = 'intake.created'
 ```

@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -15,7 +15,7 @@ import {
 
 describe('Update Product Settings Controller [PATCH /products/:productId/settings]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -27,7 +27,7 @@ describe('Update Product Settings Controller [PATCH /products/:productId/setting
     )
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/settings`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         name: '  Updated Chocolate  ',
         idealStock: null,
@@ -54,17 +54,17 @@ describe('Update Product Settings Controller [PATCH /products/:productId/setting
     const product = await fixture.addProduct(createProduct())
     const changed = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/settings`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: 'First update', expectedUpdatedAt: expectedUpdatedAt(product) })
     expect(changed.status).toBe(200)
 
     const stale = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/settings`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: 'Stale update', expectedUpdatedAt: expectedUpdatedAt(product) })
     const unknownField = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/settings`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ unit: 'g', expectedUpdatedAt: changed.body.product.updatedAt })
 
     expect(stale.status).toBe(409)
@@ -95,11 +95,11 @@ describe('Update Product Settings Controller [PATCH /products/:productId/setting
       .send(body)
     const operator = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/settings`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send(body)
     const foreign = await request(fixture.app.getHttpServer())
       .patch(`/products/${foreignProduct.id}/settings`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         name: 'Leaked update',
         expectedUpdatedAt: expectedUpdatedAt(foreignProduct),

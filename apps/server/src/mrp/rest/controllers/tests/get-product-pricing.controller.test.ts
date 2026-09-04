@@ -2,7 +2,7 @@ import { ProductCategory, ProductStockControl } from '@scoops/core/mrp/domain/st
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Get Product Pricing Controller [GET /products/:productId/pricing]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -41,7 +41,7 @@ describe('Get Product Pricing Controller [GET /products/:productId/pricing]', ()
 
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/pricing`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({
@@ -69,7 +69,7 @@ describe('Get Product Pricing Controller [GET /products/:productId/pricing]', ()
     })
     const singleResponse = await request(fixture.app.getHttpServer())
       .get(`/products/${single.id}/pricing`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(singleResponse.status).toBe(200)
     expect(singleResponse.body).toMatchObject({
@@ -100,7 +100,7 @@ describe('Get Product Pricing Controller [GET /products/:productId/pricing]', ()
     })
     const byBrandResponse = await request(fixture.app.getHttpServer())
       .get(`/products/${byBrand.id}/pricing`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(byBrandResponse.status).toBe(200)
     expect(byBrandResponse.body).toMatchObject({
@@ -125,13 +125,13 @@ describe('Get Product Pricing Controller [GET /products/:productId/pricing]', ()
     )
     const operator = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/pricing`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/pricing`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
     const malformed = await request(fixture.app.getHttpServer())
       .get('/products/not-a-uuid/pricing')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
     expect(operator.status).toBe(403)

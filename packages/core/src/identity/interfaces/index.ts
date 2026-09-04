@@ -1,5 +1,5 @@
-export * from '#identity/interfaces/auth-identity-provider.ts'
 export * from '#identity/interfaces/auth-provider.ts'
+export * from '#identity/interfaces/authentication-sessions-repository.ts'
 export * from '#identity/interfaces/server-auth-provider.ts'
 export * from '#identity/interfaces/establishments-repository.ts'
 export * from '#identity/interfaces/identity-database.ts'

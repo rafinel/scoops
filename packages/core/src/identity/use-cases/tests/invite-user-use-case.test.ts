@@ -23,6 +23,7 @@ import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
 import type { UserAuditRecordsRepository } from '#identity/interfaces/user-audit-records-repository.ts'
+import { UserInvitationPreparedEvent } from '#identity/domain/events/user-invitation-prepared-event.ts'
 
 describe('Invite User Use Case', () => {
   it('rejects non-manager actors before provider work', async () => {
@@ -48,7 +49,7 @@ describe('Invite User Use Case', () => {
     expect(provider.inviteIdentity).not.toHaveBeenCalled()
   })
 
-  it('does not compensate the provider after a committed invitation broker failure', async () => {
+  it('compensates the provider when invitation initiation fails', async () => {
     const database = mock<IdentityDatabase>()
     const usersRepository = mock<UsersRepository>()
     const registrationAttemptsRepository = mock<RegistrationAttemptsRepository>()
@@ -86,7 +87,19 @@ describe('Invite User Use Case', () => {
     userAuditRecordsRepository.add.mockResolvedValue(UserAuditRecordFaker.fake())
     userAuditRecordsRepository.findManyByUser.mockResolvedValue([])
     const provider = mock<UserAccessIdentityProvider>()
-    provider.inviteIdentity.mockResolvedValue({ providerSubject: user.id })
+    provider.inviteIdentity.mockResolvedValue({
+      authUser: { id: user.id, email: user.email },
+      event: new UserInvitationPreparedEvent({
+        userId: user.id,
+        establishmentId: user.establishmentId,
+        email: user.email,
+        name: user.name,
+        actionUrl: 'https://example.com/invitation?confirmationToken=token',
+        expiresAt: '2026-01-08T00:00:00.000Z',
+        occurredAt: now.toISOString(),
+        operation: 'initial',
+      }),
+    })
     const broker = mock<Broker>()
     broker.publish.mockRejectedValue(new Error('broker unavailable'))
     const tokenProvider = mock<OnboardingTokenProvider>()
@@ -113,7 +126,7 @@ describe('Invite User Use Case', () => {
         invitationRedirectBaseUrl: 'https://example.com/invitation',
       }),
     ).rejects.toThrow('broker unavailable')
-    expect(provider.removeIdentity).not.toHaveBeenCalled()
+    expect(provider.removeIdentity).toHaveBeenCalledWith(user.id)
     expect(usersRepository.add).toHaveBeenCalledWith(
       expect.objectContaining({ id: user.id, status: 'pending' }),
     )

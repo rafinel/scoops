@@ -8,12 +8,16 @@ export const comboDetails: ComboDetails = {
     components: [
       {
         kind: 'portion',
-        productId: 'portion-1',
+        productId: '11111111-1111-4111-8111-111111111111',
         quantity: 1,
-        sizeId: 'size-1',
+        sizeId: '11111111-1111-4111-8111-111111111112',
         accompanimentIds: [],
       },
-      { kind: 'resale', productId: 'resale-1', quantity: 1 },
+      {
+        kind: 'resale',
+        productId: '11111111-1111-4111-8111-111111111113',
+        quantity: 1,
+      },
     ],
     createdAt: new Date('2026-08-01T12:00:00.000Z'),
     establishmentId: 'establishment-1',
@@ -29,9 +33,9 @@ export const comboDetails: ComboDetails = {
       accompanimentNames: [],
       component: {
         kind: 'portion',
-        productId: 'portion-1',
+        productId: '11111111-1111-4111-8111-111111111111',
         quantity: 1,
-        sizeId: 'size-1',
+        sizeId: '11111111-1111-4111-8111-111111111112',
         accompanimentIds: [],
       },
       configurationName: '500 ml',
@@ -42,7 +46,11 @@ export const comboDetails: ComboDetails = {
     },
     {
       accompanimentNames: [],
-      component: { kind: 'resale', productId: 'resale-1', quantity: 1 },
+      component: {
+        kind: 'resale',
+        productId: '11111111-1111-4111-8111-111111111113',
+        quantity: 1,
+      },
       configurationName: 'Preço padrão',
       productName: 'Brownie',
       subtotal: 10,

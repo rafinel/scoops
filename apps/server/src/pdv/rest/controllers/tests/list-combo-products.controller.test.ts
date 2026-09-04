@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   managerRequestAuthorization,
@@ -14,7 +14,7 @@ import { productCreate } from './combo-controller-test-helpers'
 
 describe('List Combo Products Controller [GET /discounts/catalog]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -46,7 +46,7 @@ describe('List Combo Products Controller [GET /discounts/catalog]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .get('/discounts/catalog?kind=resale&page=1&pageSize=10')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.headers['content-type']).toMatch(/json/)
@@ -73,7 +73,7 @@ describe('List Combo Products Controller [GET /discounts/catalog]', () => {
   it('rejects malformed catalog pagination at the HTTP boundary', async () => {
     const response = await request(fixture.app.getHttpServer())
       .get('/discounts/catalog?pageSize=51')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(422)
   })

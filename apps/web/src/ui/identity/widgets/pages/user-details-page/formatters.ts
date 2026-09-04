@@ -103,6 +103,7 @@ export function actionLabel(record: Pick<UserAuditRecord, 'action' | 'newValue'>
     [UserAuditAction.UserInactivated]: 'Acesso desativado',
     [UserAuditAction.UserReactivated]: 'Acesso reativado',
     [UserAuditAction.UserNameChanged]: 'Nome corrigido',
+    [UserAuditAction.PasswordRecoveryInitiated]: 'Recuperação de senha iniciada',
   }
   return labels[record.action] ?? record.action
 }
@@ -132,6 +133,8 @@ export function actionDescription(record: ActionDescriptionRecord) {
       return 'O acesso desta conta foi restaurado.'
     case UserAuditAction.UserNameChanged:
       return 'O nome exibido da conta foi atualizado.'
+    case UserAuditAction.PasswordRecoveryInitiated:
+      return 'Uma recuperação de senha foi iniciada.'
   }
 }
 
@@ -153,6 +156,8 @@ export function actionIcon(action: UserAuditAction): IconName {
       return 'user-check'
     case UserAuditAction.UserNameChanged:
       return 'pencil'
+    case UserAuditAction.PasswordRecoveryInitiated:
+      return 'key'
   }
 }
 

@@ -12,8 +12,8 @@ monorepo. For application architecture and runtime technology choices, see
 
 - **Node.js** `>= 20.0.0`, as declared by the root `package.json` and required by Vitest 4.
 - **pnpm** `9.0.0`, pinned through the root `packageManager` field.
-- **Docker Engine with Docker Compose** for the local PostgreSQL, Supabase,
-  Mailpit, MinIO, and Inngest services.
+- **Docker Engine with Docker Compose** for the local PostgreSQL, Mailpit,
+  MinIO, and Inngest services.
 
 Enable Corepack so the repository's pnpm version is selected automatically:
 
@@ -33,7 +33,8 @@ apps/
 
 packages/
 ├── core/         Shared domain entities, events, contracts, and use cases
-└── validation/   Shared Zod schemas for application boundaries
+├── validation/   Shared Zod schemas for application boundaries
+└── email/        Communication-owned React Email templates and renderers
 ```
 
 Run a command in one workspace with `--filter`:
@@ -89,12 +90,14 @@ cp apps/web/.env.example apps/web/.env
 ```
 
 The root `.env` configures Docker Compose. The server `.env` configures NestJS,
-PostgreSQL, local service URLs, and Inngest. The web `.env` contains browser-safe
-Vite variables; only variables prefixed with `VITE_` are exposed to browser code.
+PostgreSQL, Better Auth, trusted origins, cookie scope, email delivery, local
+service URLs, and Inngest. The web `.env` contains browser-safe Vite variables;
+only variables prefixed with `VITE_` are exposed to browser code.
 
-Local Supabase `ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` values must be JWTs
-signed with the same `JWT_SECRET` configured in the root `.env`. Real keys and
-production credentials must never be committed.
+Local email uses SMTP through Mailpit. Staging and production use Resend through
+server-only `RESEND_API_KEY` and sender configuration. Better Auth secrets,
+Resend keys, SMTP credentials, database URLs, and real production credentials
+must never be committed or exposed through `VITE_` variables.
 
 ## Task orchestration with Turborepo
 
@@ -125,6 +128,8 @@ Each workspace owns its TypeScript configuration and version:
   internal aliases such as `#identity/*`, `#billing/*`, and `#shared/*`.
 - `packages/validation` uses bundler resolution, no emit, a root package export,
   and source-backed ESM imports with explicit `.ts` extensions internally.
+- `packages/email` uses NodeNext resolution, JSX, strict no-emit checks, and
+  the public `@scoops/email/templates` export.
 
 Run type checks independently:
 
@@ -133,6 +138,7 @@ pnpm --filter web check:types
 pnpm --filter server check:types
 pnpm --filter @scoops/core check:types
 pnpm --filter @scoops/validation check:types
+pnpm --filter @scoops/email check:types
 ```
 
 ## Linting and formatting with Biome
@@ -178,6 +184,22 @@ Run every architecture check from the repository root:
 pnpm check:architecture
 ```
 
+The repository also enforces test ownership through an explicit allowlist in
+`test-integrity.config.mjs`. Only sources classified as `required` or `allowed`
+may own direct tests. Sources classified as `indirect`—for example the Inngest
+broker, repositories, database adapters, REST services, and query/action hooks—
+must be tested through their consumers and cannot have corresponding test files.
+Web UI direct tests are limited to widget folders under `apps/web/src/ui/**/widgets`;
+context, storage, query/action-hook, and provider tests are not direct-test
+boundaries. Browser tests outside widget source folders are limited to the
+explicit route and health smoke-test patterns in the same policy.
+
+Run the check from the repository root:
+
+```bash
+pnpm check:test-integrity
+```
+
 Run one boundary independently:
 
 ```bash
@@ -202,9 +224,12 @@ pnpm --filter web test
 
 Playwright runs browser integration tests from `apps/web/tests`. Route suites
 under `apps/web/tests/routes` use mocked transport and the shared fixture factory;
-real-service scenarios under `apps/web/tests/integration` require their documented
-Server/Supabase prerequisites. Its web-server configuration starts the application
-on `http://127.0.0.1:4000` and reuses an existing local server outside CI.
+the repository does not permit committed suites under `apps/web/tests/integration`;
+real-service scenarios are manual Playwright CLI evidence and require their
+documented Server/PostgreSQL prerequisites. The committed route suite starts an isolated
+Vite server on `http://127.0.0.1:4001` with the SSR-auth fixture enabled; override the
+port with `PLAYWRIGHT_PORT` when needed. The real-service auth setup continues to use the
+developer server on port `4000`.
 
 Use the Playwright CLI for all repository browser interaction, inspection and
 validation, including manual or exploratory flows. Do not use `browser-use`, CDP
@@ -222,8 +247,8 @@ pnpm --filter web exec playwright test tests/routes --workers=1
 ```
 
 Run a real-service scenario explicitly only after starting the required Server,
-Supabase and database services; mocked route coverage is not persistence or
-authorization evidence.
+database, and Mailpit services; mocked route coverage is not persistence,
+authorization, or external-email evidence.
 
 To create reusable authenticated browser sessions for real-service scenarios,
 run the opt-in setup command after seeding the local development accounts:
@@ -254,13 +279,8 @@ pnpm --filter web exec playwright install chromium
 
 The server uses Vitest with a Node environment. Tests are discovered from
 `apps/server/src/**/*.test.ts`; Testcontainers PostgreSQL is available for
-database-backed fixtures. Identity controller tests that exercise Supabase Auth
-use the local Compose Supabase gateway and the production Auth provider, so
-start that service before running them:
-
-```bash
-docker compose up -d supabase-gateway
-```
+database-backed fixtures. Better Auth controller fixtures use the same standard
+PostgreSQL contract and do not require an external authentication gateway.
 
 ```bash
 pnpm --filter server test
@@ -356,11 +376,11 @@ The server uses NestJS and its CLI:
 | `pnpm --filter server build` | Compile the server into `apps/server/dist`. |
 | `pnpm --filter server prod` | Run the compiled `dist/main` entrypoint. |
 
-The server imports `@scoops/core` through package subpath exports. Its Nest build
-uses `apps/server/webpack.config.cjs` to bundle that workspace package into the
-server artifact while leaving normal Node dependencies external. This prevents
-the production Node process from trying to execute the core package's TypeScript
-source exports directly.
+The server imports `@scoops/core`, `@scoops/email`, and `@scoops/validation` through
+package subpath exports. Its Nest build uses `apps/server/webpack.config.cjs` to
+bundle those workspace packages into the server artifact while leaving normal Node
+dependencies external. This prevents the production Node process from trying to
+execute workspace TypeScript source exports directly.
 
 ### Database tooling
 
@@ -397,11 +417,9 @@ Messaging implementation rules are documented in
 
 `docker-compose.yaml` and `volumes/` provide:
 
-- PostgreSQL with Supabase roles and JWT configuration;
-- Supabase Auth, PostgREST, Postgres Meta, Studio, and Kong gateway;
+- standard PostgreSQL for business and Better Auth schemas;
 - Mailpit for local email capture;
 - MinIO plus an initialization container for S3-compatible storage;
-- static authentication email templates;
 - the Inngest development server.
 
 Start and inspect the stack from the repository root:
@@ -422,16 +440,14 @@ Default local endpoints are:
 
 | Service | URL |
 | --- | --- |
-| Web application | `http://127.0.0.1:4000` |
-| Server application | `http://127.0.0.1:3336` |
-| Supabase gateway | `http://127.0.0.1:54321` |
-| PostgreSQL | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
-| Supabase Studio | `http://127.0.0.1:54323` |
-| Mailpit UI | `http://127.0.0.1:54324` |
-| Mailpit SMTP | `127.0.0.1:54325` |
-| MinIO API | `http://127.0.0.1:9000` |
-| MinIO Console | `http://127.0.0.1:9001` |
-| Inngest UI/API | `http://127.0.0.1:8298` |
+| Web application | `http://localhost:4000` |
+| Server application | `http://localhost:3336` |
+| PostgreSQL | `postgresql://postgres:postgres@localhost:54322/postgres` |
+| Mailpit UI | `http://localhost:54324` |
+| Mailpit SMTP | `localhost:54325` |
+| MinIO API | `http://localhost:9000` |
+| MinIO Console | `http://localhost:9001` |
+| Inngest UI/API | `http://localhost:8298` |
 
 Ports and local credentials can be overridden in the root `.env`.
 
@@ -442,7 +458,6 @@ The repository provides prompt and agent synchronization helpers:
 ```bash
 pnpm sync:commands
 pnpm sync:agents
-pnpm gen:supabase-keys
 pnpm test:scripts
 ```
 
@@ -454,10 +469,6 @@ fallback.
 `sync-agents.mjs` validates the canonical `documentation/agents/*-agent.md` contracts, removes
 stale managed definitions, and generates matching Codex, Claude Code, and OpenCode agent
 configuration.
-
-`generate-supabase-keys.mjs` reads `JWT_SECRET` from the root `.env` (or a path passed after `--`)
-and prints local Supabase `ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` values. The generated keys
-must not be committed.
 
 `test:scripts` runs the tests under `scripts/tests` with Node's built-in test runner.
 
@@ -501,7 +512,7 @@ the maintained summary:
 - `.github/workflows/web-app-ci.yml` (`Web CI`) generates routes and runs Web code,
   architecture and type checks, unit tests, the mocked Playwright route suite and build
   for Web, Validation or Core inputs. Real-service browser scenarios are validated
-  separately with their required Server/Supabase environment.
+  separately with their required Server/PostgreSQL environment.
 
 The workflows run on matching pushes and pull requests. The repository does not currently contain
 deployment automation, such as Coolify workflows; deployment remains a separate manual or

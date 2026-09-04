@@ -28,6 +28,7 @@ type RequestBody = Omit<
 
 @UsersController()
 export class InviteUserController {
+  // Identity publishes facts; Communication owns email delivery and provider adapters.
   private readonly useCase: InviteUserUseCase
   private readonly invitationRedirectBaseUrl: string
 

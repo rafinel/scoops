@@ -1,9 +1,11 @@
 import { useState } from 'react'
 
-import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
+import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
+import { useActionUtils } from './action-utils'
 
 export const useRequestPasswordRecoveryAction = () => {
-  const { requestPasswordReset } = useAuthContext()
+  const { identityService } = useRestContext()
+  const { ensureSuccessfulResponse, toActionError } = useActionUtils()
   const [error, setError] = useState<Error | null>(null)
   const [isPending, setIsPending] = useState(false)
 
@@ -12,14 +14,11 @@ export const useRequestPasswordRecoveryAction = () => {
     setIsPending(true)
 
     try {
-      await requestPasswordReset(email)
+      ensureSuccessfulResponse(await identityService.requestPasswordRecovery({ email }))
     } catch (nextError) {
-      setError(
-        nextError instanceof Error
-          ? nextError
-          : new Error('Password recovery request failed'),
-      )
-      throw nextError
+      const actionError = toActionError(nextError, 'Password recovery request failed')
+      setError(actionError)
+      throw actionError
     } finally {
       setIsPending(false)
     }

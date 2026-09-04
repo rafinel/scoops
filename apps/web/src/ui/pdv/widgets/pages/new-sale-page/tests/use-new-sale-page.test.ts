@@ -324,4 +324,249 @@ describe('useNewSalePage', () => {
     expect(registerOrder).toHaveBeenCalledTimes(2)
     expect(registerOrder.mock.calls[1]?.[0]).toEqual(firstRequest)
   })
+
+  it('surfaces preview failures and refreshes the request when the user retries', async () => {
+    const previewOrder = vi
+      .fn()
+      .mockResolvedValueOnce({
+        response: { isFailure: true, errorMessage: 'Preço indisponível' },
+      })
+      .mockResolvedValueOnce({
+        response: {
+          body: {
+            cart: {
+              establishmentId: 'establishment-1',
+              lines: [],
+              discounts: [],
+              subtotal: 10,
+              totalDiscount: 0,
+              total: 10,
+            },
+            previewToken: 'refreshed-preview',
+          },
+          isFailure: false,
+          statusCode: 200,
+        },
+      })
+    useActiveSalesChannelsQueryMock.mockReturnValue({
+      activeSalesChannels: [],
+      isActiveSalesChannelsError: false,
+      isLoadingActiveSalesChannels: false,
+    } as never)
+    usePreviewOrderActionMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      previewOrder,
+    } as never)
+    useRegisterOrderActionMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      registerOrder: vi.fn(),
+    } as never)
+
+    const { result } = renderHook(() => useNewSalePage())
+    act(() =>
+      result.current.handleSaveLine({
+        accompanimentIds: [],
+        kind: 'resale',
+        productId: product.productId,
+        quantity: 1,
+      }),
+    )
+    await waitFor(() => expect(result.current.previewError).toBe('Preço indisponível'))
+
+    act(() => result.current.handleRefreshPreview())
+    await waitFor(() => expect(result.current.previewToken).toBe('refreshed-preview'))
+    expect(previewOrder).toHaveBeenCalledTimes(2)
+    expect(result.current.previewError).toBeUndefined()
+  })
+
+  it('keeps the cart safe when quantities are outside the supported bounds', async () => {
+    useActiveSalesChannelsQueryMock.mockReturnValue({
+      activeSalesChannels: [],
+      isActiveSalesChannelsError: false,
+      isLoadingActiveSalesChannels: false,
+    } as never)
+    usePreviewOrderActionMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      previewOrder: vi.fn(),
+    } as never)
+    useRegisterOrderActionMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      registerOrder: vi.fn(),
+    } as never)
+    const { result } = renderHook(() => useNewSalePage())
+    const line = {
+      accompanimentIds: [],
+      kind: 'resale' as const,
+      productId: product.productId,
+      quantity: 1,
+    }
+
+    act(() => result.current.handleSaveLine(line))
+    act(() => result.current.handleQuantityChange(product.productId, 0))
+    act(() => result.current.handleQuantityChange(product.productId, 1000))
+    expect(result.current.lineInputs).toEqual([line])
+
+    act(() => result.current.handleEditLine(line, undefined))
+    expect(result.current.selectedProduct).toBeUndefined()
+    act(() => result.current.handleDialogOpenChange(false))
+    expect(result.current.editingLine).toBeUndefined()
+  })
+
+  it('maps a transient registration response to a verification retry and then a registered order', async () => {
+    const previewOrder = vi.fn().mockResolvedValue({
+      response: {
+        body: {
+          cart: {
+            establishmentId: 'establishment-1',
+            lines: [],
+            discounts: [],
+            subtotal: 10,
+            totalDiscount: 0,
+            total: 10,
+          },
+          previewToken: 'preview-token',
+        },
+        isFailure: false,
+        statusCode: 200,
+      },
+    })
+    const registerOrder = vi
+      .fn()
+      .mockResolvedValueOnce({ response: { statusCode: 0, isFailure: true } })
+      .mockResolvedValueOnce({
+        response: {
+          body: { kind: 'registered', order: { id: 'order-1' }, replayed: false },
+          isFailure: false,
+          statusCode: 201,
+        },
+      })
+    useActiveSalesChannelsQueryMock.mockReturnValue({
+      activeSalesChannels: [],
+      isActiveSalesChannelsError: false,
+      isLoadingActiveSalesChannels: false,
+    } as never)
+    usePreviewOrderActionMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      previewOrder,
+    } as never)
+    useRegisterOrderActionMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      registerOrder,
+    } as never)
+
+    const { result } = renderHook(() => useNewSalePage())
+    act(() =>
+      result.current.handleSaveLine({
+        accompanimentIds: [],
+        kind: 'resale',
+        productId: product.productId,
+        quantity: 1,
+      }),
+    )
+    await waitFor(() => expect(result.current.previewToken).toBe('preview-token'))
+    act(() => result.current.handleRegister())
+    await act(async () => result.current.handleConfirmRegistration())
+
+    await waitFor(() => expect(result.current.registeredOrder).toEqual({ id: 'order-1' }))
+    expect(registerOrder).toHaveBeenCalledTimes(2)
+    expect(result.current.isVerification).toBe(false)
+    expect(result.current.lineInputs).toEqual([])
+  })
+
+  it('keeps the preview usable for a repriced conflict and reopens confirmation on review', async () => {
+    const previewOrder = vi.fn().mockResolvedValue({
+      response: {
+        body: {
+          cart: {
+            establishmentId: 'establishment-1',
+            lines: [],
+            discounts: [],
+            subtotal: 10,
+            totalDiscount: 0,
+            total: 10,
+          },
+          previewToken: 'preview-token',
+        },
+        isFailure: false,
+        statusCode: 200,
+      },
+    })
+    const recalculatedCart = {
+      establishmentId: 'establishment-1',
+      lines: [
+        {
+          accompanimentIds: [],
+          kind: 'resale' as const,
+          productId: product.productId,
+          quantity: 2,
+        },
+      ],
+      discounts: [],
+      subtotal: 20,
+      totalDiscount: 0,
+      total: 20,
+    }
+    const registerOrder = vi
+      .fn()
+      .mockResolvedValueOnce({
+        response: {
+          body: {
+            kind: 'repriced',
+            recalculatedCart,
+            previewToken: 'new-preview',
+            changes: [],
+          },
+          isFailure: true,
+          statusCode: 409,
+        },
+      })
+      .mockResolvedValueOnce({
+        response: {
+          body: { kind: 'review-required', shortages: [], changes: [] },
+          isFailure: false,
+          statusCode: 201,
+        },
+      })
+    useActiveSalesChannelsQueryMock.mockReturnValue({
+      activeSalesChannels: [],
+      isActiveSalesChannelsError: false,
+      isLoadingActiveSalesChannels: false,
+    } as never)
+    usePreviewOrderActionMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      previewOrder,
+    } as never)
+    useRegisterOrderActionMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      registerOrder,
+    } as never)
+
+    const { result } = renderHook(() => useNewSalePage())
+    act(() =>
+      result.current.handleSaveLine({
+        accompanimentIds: [],
+        kind: 'resale',
+        productId: product.productId,
+        quantity: 1,
+      }),
+    )
+    await waitFor(() => expect(result.current.previewToken).toBe('preview-token'))
+    act(() => result.current.handleRegister())
+    await act(async () => result.current.handleConfirmRegistration())
+
+    expect(result.current.registrationResult?.kind).toBe('repriced')
+    expect(result.current.lineInputs[0]?.quantity).toBe(2)
+    act(() => result.current.handleFeedbackAction())
+    expect(result.current.isRegistrationOpen).toBe(true)
+    await act(async () => result.current.handleConfirmRegistration())
+    expect(result.current.registrationResult?.kind).toBe('review-required')
+  })
 })

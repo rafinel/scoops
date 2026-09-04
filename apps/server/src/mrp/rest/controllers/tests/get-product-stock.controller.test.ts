@@ -2,7 +2,7 @@ import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Get Product Stock Controller [GET /products/:productId/stock]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -50,7 +50,7 @@ describe('Get Product Stock Controller [GET /products/:productId/stock]', () => 
 
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/stock`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({
@@ -70,7 +70,7 @@ describe('Get Product Stock Controller [GET /products/:productId/stock]', () => 
     await fixture.balances.initialize(product.id)
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/stock`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     expect(response.body).toMatchObject({ stockQuantity: 0, stockSituation: 'low' })
   })
 
@@ -78,13 +78,13 @@ describe('Get Product Stock Controller [GET /products/:productId/stock]', () => 
     const product = await fixture.addProduct(createProduct())
     const operator = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/stock`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/stock`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
     const missing = await request(fixture.app.getHttpServer())
       .get('/products/00000000-0000-4000-8000-000000000099/stock')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     expect(operator.status).toBe(403)
     expect(foreign.status).toBe(404)
     expect(missing.status).toBe(404)

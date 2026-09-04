@@ -11,17 +11,16 @@ import { InvalidCredentialsError } from '@scoops/core/identity/domain/errors'
 import type { IdentityService } from '@scoops/core/identity/interfaces'
 import { HTTP_STATUS_CODE } from '@scoops/core/shared/constants'
 
-import {
-  clearInvitationAcceptanceRedirect,
-  clearOnboardingConfirmationRedirect,
-} from '@/provision/auth/supabase/supabase-client'
 import { showWarningToast } from '@/ui/shared/notifications'
 
 import type { AuthContextValue, AuthStatus } from './types'
 
 export function useAuthContextProvider(
   authProvider: AuthProvider,
-  identityService: Pick<IdentityService, 'getAccount'>,
+  identityService: Pick<
+    IdentityService,
+    'getAccount' | 'requestPasswordRecovery' | 'resetPassword'
+  >,
   resolveInitialRedirect:
     | (() =>
         | 'none'
@@ -99,7 +98,7 @@ export function useAuthContextProvider(
       commitState('denied', null, null, recovery)
 
       try {
-        await authProvider.signOut('local')
+        await authProvider.signOut()
       } catch {
         showWarningToast(
           'Sua sessão local foi encerrada, mas a limpeza do provedor não foi confirmada.',
@@ -220,7 +219,6 @@ export function useAuthContextProvider(
 
         authGenerationRef.current += 1
         isInvitationAcceptanceRef.current = false
-        clearInvitationAcceptanceRedirect()
         commitState('anonymous', null, null, false, false, false)
         return
       }
@@ -240,11 +238,11 @@ export function useAuthContextProvider(
       }
 
       const generation = ++authGenerationRef.current
-      const recovery = event === 'PASSWORD_RECOVERY' || isPasswordRecoveryRef.current
+      const recovery = isPasswordRecoveryRef.current
 
       if (!nextSession) {
         commitState(
-          event === 'TOKEN_REFRESHED' ? 'expired' : 'anonymous',
+          event === 'SESSION_EXPIRED' ? 'expired' : 'anonymous',
           null,
           null,
           false,
@@ -343,35 +341,38 @@ export function useAuthContextProvider(
     async function signOut() {
       ++authGenerationRef.current
       isInvitationAcceptanceRef.current = false
-      clearInvitationAcceptanceRedirect()
       commitState('anonymous', null, null, false, false, false)
-      await authProvider.signOut('local')
+      await authProvider.signOut()
     },
     [authProvider, commitState],
   )
 
   const requestPasswordReset = useCallback(
     function requestPasswordReset(email: string) {
-      const redirectTo =
-        typeof window === 'undefined'
-          ? '/reset-password'
-          : new URL('/reset-password', window.location.origin).toString()
-
-      return authProvider.requestPasswordReset(email, redirectTo)
+      return identityService.requestPasswordRecovery({ email }).then((response) => {
+        if (!response.isSuccessful) response.throwError()
+      })
     },
-    [authProvider],
+    [identityService],
   )
 
   const resetPassword = useCallback(
     async function resetPassword(password: string) {
       ++authGenerationRef.current
-      await authProvider.updatePassword(password)
+      const token =
+        typeof window === 'undefined'
+          ? ''
+          : (new URLSearchParams(window.location.search).get('token') ?? '')
+      if (!token) throw new Error('O token de recuperação não foi informado.')
+
+      const response = await identityService.resetPassword({ token, password })
+      if (!response.isSuccessful) response.throwError()
 
       ++authGenerationRef.current
       commitState('anonymous', null, null, false)
-      await authProvider.signOut('global')
+      await authProvider.signOut()
     },
-    [authProvider, commitState],
+    [authProvider, commitState, identityService],
   )
 
   const retryLocalAccess = useCallback(
@@ -392,11 +393,9 @@ export function useAuthContextProvider(
 
   const activateOnboardingConfirmation = useCallback(
     async function activateOnboardingConfirmation(): Promise<boolean> {
-      const generation = ++authGenerationRef.current
       isOnboardingConfirmationRef.current = false
-      clearOnboardingConfirmationRedirect()
-
       const candidateSession = sessionRef.current ?? (await authProvider.getSession())
+      const generation = ++authGenerationRef.current
 
       if (!canCommit(generation)) return false
 
@@ -415,31 +414,8 @@ export function useAuthContextProvider(
     async function completeOnboardingConfirmation() {
       authGenerationRef.current += 1
       isOnboardingConfirmationRef.current = false
-      clearOnboardingConfirmationRedirect()
       commitState('anonymous', null, null, false, false)
-      await authProvider.signOut('local')
-    },
-    [authProvider, commitState],
-  )
-
-  const setInvitationPassword = useCallback(
-    async function setInvitationPassword(password: string) {
-      try {
-        await authProvider.updatePassword(password)
-      } catch (error) {
-        authGenerationRef.current += 1
-        isInvitationAcceptanceRef.current = false
-        clearInvitationAcceptanceRedirect()
-        commitState('anonymous', null, null, false, false, false)
-        try {
-          await authProvider.signOut('global')
-        } catch {
-          showWarningToast(
-            'A conta foi protegida localmente, mas o encerramento remoto não foi confirmado.',
-          )
-        }
-        throw error
-      }
+      await authProvider.signOut()
     },
     [authProvider, commitState],
   )
@@ -448,10 +424,9 @@ export function useAuthContextProvider(
     async function clearInvitationAcceptance() {
       authGenerationRef.current += 1
       isInvitationAcceptanceRef.current = false
-      clearInvitationAcceptanceRedirect()
       commitState('anonymous', null, null, false, false, false)
       try {
-        await authProvider.signOut('global')
+        await authProvider.signOut()
       } catch {
         showWarningToast(
           'A sessão local foi encerrada, mas o encerramento remoto não foi confirmado.',
@@ -463,11 +438,9 @@ export function useAuthContextProvider(
 
   const activateInvitationAcceptance = useCallback(
     async function activateInvitationAcceptance(): Promise<boolean> {
-      const generation = ++authGenerationRef.current
       isInvitationAcceptanceRef.current = false
-      clearInvitationAcceptanceRedirect()
-
       const candidateSession = sessionRef.current ?? (await authProvider.getSession())
+      const generation = ++authGenerationRef.current
 
       if (!canCommit(generation)) return false
 
@@ -481,7 +454,7 @@ export function useAuthContextProvider(
 
       if (!isAuthenticated && canCommit(generation)) {
         try {
-          await authProvider.signOut('global')
+          await authProvider.signOut()
         } catch {
           showWarningToast(
             'A sessão não pôde ser confirmada completamente e foi encerrada localmente.',
@@ -511,7 +484,6 @@ export function useAuthContextProvider(
     retryLocalAccess,
     activateOnboardingConfirmation,
     completeOnboardingConfirmation,
-    setInvitationPassword,
     clearInvitationAcceptance,
     activateInvitationAcceptance,
   }

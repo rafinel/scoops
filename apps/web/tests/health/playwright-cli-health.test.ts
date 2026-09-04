@@ -6,10 +6,25 @@ test.describe('Playwright CLI health check', () => {
   }) => {
     const consoleErrors: string[] = []
     const failedRequests: string[] = []
+    let anonymousSessionProbePending = false
 
     page.on('console', (message) => {
       if (message.type() === 'error') {
+        if (
+          anonymousSessionProbePending &&
+          message.text() ===
+            'Failed to load resource: the server responded with a status of 401 (Unauthorized)'
+        ) {
+          anonymousSessionProbePending = false
+          return
+        }
         consoleErrors.push(message.text())
+      }
+    })
+    page.on('response', (response) => {
+      const responseUrl = new URL(response.url())
+      if (responseUrl.pathname === '/auth/session' && response.status() === 401) {
+        anonymousSessionProbePending = true
       }
     })
     page.on('requestfailed', (request) => {

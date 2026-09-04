@@ -2,7 +2,7 @@ import { ProductCategory, ProductStockControl } from '@scoops/core/mrp/domain/st
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Save Brand Resale Configuration Controller [PUT /products/:productId/brands/:brandId/resale-configuration]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -39,18 +39,18 @@ describe('Save Brand Resale Configuration Controller [PUT /products/:productId/b
     })
     const first = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/brands/${brand.id}/resale-configuration`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ price: 18.5, isActive: true })
     const configurationId = first.body.resale.find(
       (row: { brand?: { id: string } }) => row.brand?.id === brand.id,
     ).configuration.id
     const second = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/brands/${brand.id}/resale-configuration`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ price: 19.25, isActive: false })
     const read = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/pricing`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(first.status).toBe(200)
     expect(first.body.resale).toContainEqual(
@@ -106,22 +106,22 @@ describe('Save Brand Resale Configuration Controller [PUT /products/:productId/b
       .put(
         `/products/${product.id}/brands/00000000-0000-4000-8000-000000000099/resale-configuration`,
       )
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ price: 10, isActive: true })
     const foreignBrand = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/brands/${brand.id}/resale-configuration`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ price: 10, isActive: true })
     const malformed = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/brands/${brand.id}/resale-configuration`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ price: 10.123, isActive: true })
     const single = await fixture.addProduct(
       createProduct({ name: 'Single Wrong Mode', categories: [ProductCategory.Resale] }),
     )
     const wrongMode = await request(fixture.app.getHttpServer())
       .put(`/products/${single.id}/brands/${brand.id}/resale-configuration`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ price: 10, isActive: true })
 
     expect(missing.status).toBe(404)
@@ -156,11 +156,11 @@ describe('Save Brand Resale Configuration Controller [PUT /products/:productId/b
     )
     const operator = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/brands/${brand.id}/resale-configuration`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send({ price: 5, isActive: true })
     const foreign = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/brands/${brand.id}/resale-configuration`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
       .send({ price: 5, isActive: true })
 
     expect(anonymous.status).toBe(401)

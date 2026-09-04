@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   foreignManagerRequestAuthorization,
@@ -15,7 +15,7 @@ import { comboCreate } from './combo-controller-test-helpers'
 
 describe('List Combos Controller [GET /discounts]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -33,7 +33,7 @@ describe('List Combos Controller [GET /discounts]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .get('/discounts?status=inactive&page=1&pageSize=10')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.headers['content-type']).toMatch(/json/)
@@ -58,13 +58,13 @@ describe('List Combos Controller [GET /discounts]', () => {
     const anonymous = await request(fixture.app.getHttpServer()).get('/discounts')
     const operator = await request(fixture.app.getHttpServer())
       .get('/discounts')
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .get('/discounts')
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
     const invalid = await request(fixture.app.getHttpServer())
       .get('/discounts?page=0')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
     expect(operator.status).toBe(403)

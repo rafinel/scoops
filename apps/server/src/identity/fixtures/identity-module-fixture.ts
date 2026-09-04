@@ -18,6 +18,7 @@ import {
 import type { TestingModuleBuilder } from '@nestjs/testing'
 
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { IdentityModule } from '@/identity/identity.module'
 import { SharedModule } from '@/shared/shared.module'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
@@ -25,6 +26,7 @@ import { InngestModule } from '@/shared/messaging/inngest/inngest.module'
 import { RestFixture } from '@/shared/rest/tests/rest-fixture'
 import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
+import { BetterAuthSessionIssuer } from '@/identity/provision/auth'
 
 export class IdentityModuleFixture {
   static readonly onboarding = {
@@ -59,6 +61,7 @@ export class IdentityModuleFixture {
   private constructor(
     private readonly restFixture: RestFixture,
     private readonly authProvider: ServerAuthProvider,
+    private readonly originalWebAppUrl: string | undefined,
   ) {}
 
   static async register(
@@ -68,6 +71,8 @@ export class IdentityModuleFixture {
       onboardingToken: OnboardingTokenProvider
     }> = {},
   ) {
+    const originalWebAppUrl = process.env.SCOOPS_WEB_APP_URL
+    process.env.SCOOPS_WEB_APP_URL ??= 'http://localhost:4000'
     const restFixture = await RestFixture.register(
       {
         imports: [SharedModule, IdentityModule, InngestModule.forRoot({ functions: [] })],
@@ -82,6 +87,14 @@ export class IdentityModuleFixture {
           .useValue(authProvider)
           .overrideProvider(InngestBroker)
           .useValue(new InngestMock())
+        if (authProvider instanceof BetterAuthFixture) {
+          // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
+          builder
+            .overrideProvider(IDENTITY_PROVIDERS.betterAuthSessionVerifier)
+            .useValue(authProvider)
+            .overrideProvider(BetterAuthSessionIssuer)
+            .useValue(authProvider)
+        }
 
         if (overrides.onboardingIdentifier) {
           // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
@@ -99,7 +112,7 @@ export class IdentityModuleFixture {
       },
     )
 
-    return new IdentityModuleFixture(restFixture, authProvider)
+    return new IdentityModuleFixture(restFixture, authProvider, originalWebAppUrl)
   }
 
   get app(): INestApplication {
@@ -119,11 +132,11 @@ export class IdentityModuleFixture {
   }
 
   async seedUsers(users: User[], registrationAttempts: UserRegistrationAttempt[] = []) {
-    const { establishmentId } = IdentityModuleFixture.userManagement
+    const establishmentIds = [...new Set(users.map((user) => user.establishmentId))]
     await this.seeder.run({
-      establishments: [
+      establishments: establishmentIds.map((establishmentId) =>
         EstablishmentFaker.fake({ id: establishmentId, name: 'Users Establishment' }),
-      ],
+      ),
       users,
       registrationAttempts,
     })
@@ -171,6 +184,16 @@ export class IdentityModuleFixture {
       registrationAttempts: [registrationAttempt],
     })
 
+    if (this.authProvider instanceof BetterAuthFixture) {
+      await this.authProvider.createUnconfirmedUser({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        password: 'password123',
+      })
+      this.authProvider.registerOnboardingConfirmation(confirmationToken, user.id)
+    }
+
     return { establishment, user, registrationAttempt }
   }
 
@@ -178,6 +201,8 @@ export class IdentityModuleFixture {
     try {
       await this.restFixture.close()
     } finally {
+      if (this.originalWebAppUrl === undefined) delete process.env.SCOOPS_WEB_APP_URL
+      else process.env.SCOOPS_WEB_APP_URL = this.originalWebAppUrl
       const close = this.authProvider as ServerAuthProvider & {
         close?: () => Promise<void>
       }

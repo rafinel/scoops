@@ -8,6 +8,7 @@ import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 import { useActionUtils } from './action-utils'
 
 export const useResendIceCreamShopConfirmationAction = () => {
+  // Resend remains a cookie-backed Identity action with no browser token state.
   const { restClient } = useRestContext()
   const identityService = IdentityService(restClient)
   const { ensureSuccessfulResponse, toActionError } = useActionUtils()

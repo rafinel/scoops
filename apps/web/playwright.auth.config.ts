@@ -5,7 +5,7 @@ export default defineConfig({
   testMatch: '**/auth.setup.ts',
   reporter: 'line',
   use: {
-    baseURL: 'http://127.0.0.1:4000',
+    baseURL: 'http://localhost:4000',
   },
   projects: [
     {
@@ -14,8 +14,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm exec vite dev --host 127.0.0.1 --port 4000',
-    url: 'http://127.0.0.1:4000',
+    command: 'pnpm exec vite dev --host localhost --port 4000',
+    url: 'http://localhost:4000',
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,
   },

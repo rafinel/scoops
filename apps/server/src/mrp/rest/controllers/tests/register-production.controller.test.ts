@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -14,7 +14,7 @@ import {
 
 describe('Register Production Controller [POST /products/:productId/productions]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -32,16 +32,16 @@ describe('Register Production Controller [POST /products/:productId/productions]
     await fixture.balances.add({ productId: ingredient.id }, 5)
     await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/recipe`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ yieldQuantity: 2 })
     await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/recipe/ingredients`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ ingredientProductId: ingredient.id, quantity: 1 })
 
     const registered = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/productions`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ quantity: 4 })
 
     expect(registered.status).toBe(201)

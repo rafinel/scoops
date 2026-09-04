@@ -180,9 +180,9 @@ above. A consumer hook test should verify its complete state and action matrix,
 not only one happy-path mutation. Cover every branch that selects a mutation,
 maps an error, changes pending state, resets state, or emits a success effect.
 
-For realtime hooks, the hook that owns a Supabase subscription must cover event
+For realtime hooks, the hook that owns a provider subscription must cover event
 mapping and cleanup. A higher-level hook consuming it mocks that application hook
-instead of mocking Supabase directly.
+instead of mocking the provider directly.
 
 ## Hook mock names mirror the hook
 
@@ -237,7 +237,7 @@ The same rule applies to other established boundaries:
 - mock `Icon` rather than Lucide when icon rendering is irrelevant;
 - mock `useUrlPathname` rather than `useLocation`;
 - mock a domain query hook rather than a generic `useQuery` result;
-- mock a domain realtime hook rather than the Supabase client.
+- mock a domain realtime hook rather than the provider client.
 
 Mock the library directly only when the unit under test is the application wrapper
 itself.

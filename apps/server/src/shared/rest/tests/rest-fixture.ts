@@ -25,6 +25,10 @@ export class RestFixture {
       const builder = Test.createTestingModule(metadata)
       const moduleRef = await (configure?.(builder) ?? builder).compile()
       app = moduleRef.createNestApplication()
+      app.use((request: { headers: { origin?: string } }, _response, next) => {
+        request.headers.origin ??= 'http://localhost:4000'
+        next()
+      })
       // biome-ignore lint/correctness/useHookAtTopLevel: Nest global filter registration is not a React hook.
       app.useGlobalFilters(new GlobalErrorHandler(app.get(HttpAdapterHost)))
       await app.init()
