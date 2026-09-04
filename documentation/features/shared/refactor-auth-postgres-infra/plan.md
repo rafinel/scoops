@@ -10,12 +10,12 @@ updated_at: 2026-09-04
 
 # Execution status
 
-- **Spec:** [`./spec.md`](./spec.md), revision `14`, status `in_progress` after narrowing validation to reproducible local runtime evidence.
+- **Spec:** [`./spec.md`](./spec.md), revision `14`, status `completed` after final local and PR CI validation.
 - **Plan rationale:** Plan-backed execution is required because this delivery crosses Core, Validation, Server, Communication, Web, PostgreSQL/Neon migration, messaging, security, CI and real-service validation with hard ordering and rollback boundaries.
-- **Current phase:** F7 — integrated validation, review and handoff — **completed** after coverage-floor, Test Integrity and uninterrupted route-suite corrections.
-- **Next action:** Route to `conclude-spec`. No production cutover or external resource mutation has been performed; publication remains separate and has not been started.
+- **Current phase:** F7 — integrated validation, review and handoff — **completed** after coverage-floor, Test Integrity, uninterrupted route-suite and PR CI corrections.
+- **Next action:** PR #32 is open for review. No production cutover, merge or external resource mutation has been performed.
 - **Active blockers:** None. Core, Validation, Server, Web, coverage, REST parity, local MV-01–MV-06/MV-08, static sensors and the exact uninterrupted route suite are current and passing. MV-07 is not part of the revision-14 manual matrix; its automated migration rehearsal remains recorded historically.
-- **Active Builders:** `builder_core`, `builder_server`, `builder_web` and the Web coverage-fix Builder completed their bounded scopes. The Orchestrator completed integrated correction validation; no publication was performed.
+- **Active Builders:** None. `builder_core`, `builder_server`, `builder_web` and the Web coverage-fix Builder completed their bounded scopes. The Orchestrator completed integrated correction validation and published PR #32.
 - **Shared/generated ownership:** The Orchestrator owns this Plan and `evaluation.md`, root configuration and package installation/lockfile coordination, generated Drizzle migration metadata, generated `apps/web/src/routeTree.gen.ts`, Compose/CI/environment/documentation/removal coordination, integrated validation and the single Implementation Reviewer. Builder Server owns server source and all ten REST-client artifacts; Builder Web owns Web source/tests and consumes REST artifacts as a read-only parity reference. Existing unrelated governance edits remain user-owned and outside this candidate.
 
 # Execution ledger
@@ -219,7 +219,7 @@ updated_at: 2026-09-04
 
 #### F7-T2 — Run integrated sensors, real scenarios and the single Implementation Reviewer
 
-- **Status/owner:** `blocked` — Orchestrator; the current path sensor and focused local runtime are green, but the uninterrupted route suite and remaining integrated evidence are incomplete and stop implementation
+- **Status/owner:** `completed` — Orchestrator; local evidence, the uninterrupted route suite and final PR CI are green.
 - **Depends/parallel:** Depends on F7-T1 passing. The affected workspace sensors and one read-only Reviewer run against the same integrated candidate; any contracted-path correction invalidates affected evidence, reruns the path sensor and resumes the same Reviewer after correction.
 - **Paths:** Complete revision-14 candidate; `./evaluation.md`; transient Playwright `test-results/`; generated migration/route artifacts; all affected REST-client artifacts; [`../../../agents/implementation-reviewer-agent.md`](../../../agents/implementation-reviewer-agent.md).
 - **Contract:** All `RF-01`–`RF-09`, `CA-01`–`CA-12`, `CA-16`–`CA-18` and `MV-01`–`MV-06`, `MV-08`; Spec Validation Contract and empty-environment migration boundary.

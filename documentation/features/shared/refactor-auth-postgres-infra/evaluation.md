@@ -3,7 +3,7 @@ feature: "shared/refactor-auth-postgres-infra"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 14
-status: ready
+status: completed
 updated_at: 2026-09-04
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-09-04
 
 Evaluation of Spec revision `14` against the current implementation.
 
-Current result: Revision 14 narrows validation to reproducible local runtime evidence; it does not change authentication, quota, expiry, revocation, rollback or deployment behavior. The provider-neutral `OutboxDatabase` contract is in Core shared interfaces while the Server retains the Nest token and Drizzle adapter. Static checks, REST parity, current sensors, local MV-01–MV-06/MV-08 evidence, all workspace coverage floors and the exact uninterrupted route suite pass. The candidate is ready for conclusion; publication and SDD closure remain pending the delivery workflow.
+Current result: Revision 14 was delivered in PR #32 at head `96d68d1ea5af8754672e07a6c3a08c50f574688f`. It does not change authentication, quota, expiry, revocation, rollback or deployment behavior. The provider-neutral `OutboxDatabase` contract is in Core shared interfaces while the Server retains the Nest token and Drizzle adapter. Static checks, REST parity, current sensors, local MV-01–MV-06/MV-08 evidence, all workspace coverage floors, the exact uninterrupted route suite and the final PR CI quality gate pass. The Spec is complete; PR #32 remains open for review with no merge or deployment performed.
 
 ## Acceptance matrix
 
@@ -229,6 +229,12 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| `CI-CORE-96D68D1` | Core CI | `96d68d1ea5af8754672e07a6c3a08c50f574688f` | passed | [PR run](https://github.com/rafinel/scoops/actions/runs/33871123774/job/101017093630) |
+| `CI-VALIDATION-96D68D1` | Validation CI | `96d68d1ea5af8754672e07a6c3a08c50f574688f` | passed | [PR run](https://github.com/rafinel/scoops/actions/runs/33871123822/job/101017093278) |
+| `CI-SERVER-96D68D1` | Server CI | `96d68d1ea5af8754672e07a6c3a08c50f574688f` | passed | [PR run](https://github.com/rafinel/scoops/actions/runs/33871123773/job/101017093254) |
+| `CI-WEB-96D68D1` | Web CI | `96d68d1ea5af8754672e07a6c3a08c50f574688f` | passed | [PR run](https://github.com/rafinel/scoops/actions/runs/33871123713/job/101017162899) |
+| `CI-VERCEL-SERVER-96D68D1` | Vercel server preview | `96d68d1ea5af8754672e07a6c3a08c50f574688f` | passed | [preview](https://vercel.com/johnpetros-projects/scoops-server/A8PZUye7VpaCGSPtH6ior1UuwAxy) |
+| `CI-VERCEL-WEB-96D68D1` | Vercel web preview | `96d68d1ea5af8754672e07a6c3a08c50f574688f` | passed | [preview](https://vercel.com/johnpetros-projects/scoops-web/6Lcq7g3hmyjQNRGK94VyybkiyNL9) |
 
 ## Lessons learned
 

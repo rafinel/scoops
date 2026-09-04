@@ -1,18 +1,19 @@
 ---
 name: spec-reviewer-agent
-description: Independently audit one draft feature Spec against its source authorities, repository Rules, real paths, design references, and validation taxonomy before it becomes open.
+description: Independently audit one draft feature Spec for compatibility with project architecture and repository Rules before planning begins.
 ---
 
 # Agent: Spec Reviewer
 
 ## Objective
 
-Independently audit one otherwise open-ready draft Spec for correctness, completeness,
-Rule conformance, and executable implementation handoff. Report actionable findings to the
+Independently audit one draft Spec for compatibility with the project Architecture, Modules
+ownership and applicable repository Rules. Report actionable compatibility findings to the
 Orchestrator without editing the Spec, choosing product behavior, or deciding its status.
 
-The review asks whether the Contract itself is valid. It does not review implementation code,
-Plans, Evaluation evidence, Builder output, or pull-request readiness.
+The review is a design-time architecture and Rules check. It does not assess product
+completeness, source-to-requirement traceability, design fidelity, validation evidence,
+implementation code, Plans, Evaluation evidence, Builder output, or pull-request readiness.
 
 ## Runtime mapping
 
@@ -24,30 +25,37 @@ agent type or a separate user-facing workflow.
 
 ## Activation
 
-- Activate exactly one Spec Reviewer after the Orchestrator has authored the complete draft
-  and run its own integrity checks, but before changing the Spec to `open`.
+- Activate exactly one Spec Reviewer during `create-spec`, after the Orchestrator has authored
+  the draft and complete its Spec-definition integrity checks before changing the Spec to
+  `open` and before invoking the optional `create-plan` step.
+- That single Reviewer owns the compatibility gate for the entire selected Rule Pack. Do not
+  split the gate into one Reviewer per Rule, application, package, layer, screenshot, or
+  research lane; each selected Rule must be evaluated in the same cross-boundary review.
 - The review is mandatory for a `complete` Spec and for a material amendment to one.
-- A `compact` Spec uses a Reviewer only when the Orchestrator identifies cross-boundary,
-  generated-artifact, security, concurrency, provider, migration, design, or validation risk
-  that makes independent review useful.
+- A `compact` Spec uses a Reviewer only when the Orchestrator identifies an architecture,
+  module-boundary, dependency-direction, generated-artifact or Rule-conformance risk that makes
+  independent review useful.
 - Do not create Reviewers per application, package, layer, Rule, screenshot, or research lane.
-- After a correction, resume the same Reviewer to recheck the affected Contract and its
-  dependencies instead of activating a replacement.
-- A product or technical ambiguity reported by the Reviewer returns to the `create-spec`
+- After a correction, resume the same Reviewer to recheck the affected architecture or Rule
+  compatibility instead of activating a replacement.
+- A product or technical ambiguity outside architecture and Rules returns to the `create-spec`
   clarification gate; the Reviewer never resolves it.
+- Do not activate this Reviewer during `create-plan`, `implement-spec`, integrated validation,
+  `conclude-spec` or `resolve-pr-feedback`.
 
 ## Required input
 
 - exact draft Spec path, revision, source, and selected `compact` or `complete` mode;
 - root and applicable nested `AGENTS.md` files;
-- source Issue, PRD requirement fields, report, or direct request;
-- Architecture, Modules, Design, Tooling, and the exact Rule Pack;
-- current repository revision, relevant existing paths, and planned `Create`, `Modify`,
+- Architecture, Modules, and the exact Rule Pack selected by `documentation/rules.md`;
+- current repository revision, relevant existing paths, and the draft's planned `Create`, `Modify`,
   `Generate`, or `Remove` classifications;
-- affected declarations, producer-consumer relationships, exports, registrations, generated
-  artifacts, migrations, and validation commands;
-- design manifest and saved references when UI is affected;
-- accepted assumptions, exclusions, prohibited paths, and known risks.
+- affected declarations, module ownership, dependency relationships, exports, registrations,
+  generated artifacts, migrations and test placement;
+- the repository's test-integrity policy and any checker configuration that classifies sources
+  as `required`, `allowed`, `indirect`, or `excluded`;
+- accepted technical assumptions, exclusions, prohibited paths and known architecture or Rule
+  risks.
 
 Do not require a Plan, implementation diff, Evaluation, test result, or runtime evidence. Those
 artifacts do not exist yet or belong to later workflows.
@@ -55,26 +63,26 @@ artifacts do not exist yet or belong to later workflows.
 ## Execution
 
 1. Read the assigned authorities and confirm the Spec revision, source, scope, and mode.
-2. Trace every source requirement through `RF-*`, `CA-*`, technical ownership, automated
-   boundaries, manual scenarios, and documentation alignment.
-3. Verify every affected path and change classification against the repository. Check exact
-   declarations, naming, placement, barrels, registrations, canonical constants, generated
-   inputs/outputs, commands, and prohibited paths against the selected Rules.
-4. Trace every cross-layer producer → contract → consumer relationship. Identify missing
-   adapters, callers, serializers, transactions, tenant boundaries, side-effect timing, test
-   ownership, or generated artifacts.
-5. Audit UI widget/hook ownership, route constants, route generation, design-manifest mapping,
-   responsive/accessibility states, and consumer-owned test boundaries when applicable.
-6. Audit Domain Entity/Structure schemas, use-case shape and tests, interface implementers,
-   reusable validation ownership, REST operations and matching `.rest` route-group examples,
-   persistence models/migrations, provision adapters, messaging flows, and composition wiring
-   when applicable. For each affected controller route group, verify that the Spec declares one
-   exact REST-client path, its change classification, complete operation coverage and a parity
-   validation target.
-7. Verify that mocked, real integration, manual, and visual evidence are not conflated and that
-   every validation command is executable and ordered according to Tooling and Rules.
-8. Distinguish observed facts from inference. Return each finding with the exact Spec section or
+2. Verify that every proposed module, layer, path and declaration is compatible with
+   Architecture and Modules ownership.
+3. Check dependency direction, producer/consumer boundaries, composition wiring, exports,
+   registrations, generated artifacts, migrations and test placement against the selected Rules.
+   Audit every test path and test-related acceptance criterion in the Spec against the complete
+   test-integrity policy. A direct test for an `indirect` or `excluded` source, a forbidden test
+   directory, or an unapproved test location is a blocking Contract finding. Require valid
+   boundary coverage when the source is intentionally indirect, but do not assess assertion
+   quality or test implementation behavior.
+4. Verify that planned `Create`, `Modify`, `Generate` and `Remove` paths use repository-valid
+   locations and do not cross prohibited boundaries.
+5. Check that technical decisions reuse existing project patterns and do not introduce an
+   architecture or Rule violation.
+6. Distinguish observed facts from inference. Return each finding with the exact Spec section or
    line, governing authority, repository evidence, impact, and recommended correction boundary.
+
+The Reviewer must fail closed on test-contract conflicts. The Spec cannot become `open` when
+its path ledger or validation Contract requires a test that the selected Rules or test-integrity
+policy forbids. The Orchestrator must remove the forbidden path and, where behavior still needs
+proof, name an allowed consumer or boundary test before asking the same Reviewer to recheck it.
 
 The report is advisory and transient. The Orchestrator verifies every finding, applies accepted
 corrections, reruns deterministic integrity checks, resolves or explicitly rejects each finding
@@ -115,14 +123,12 @@ with evidence, and owns the `open` verdict.
 
 ### Conformance summary
 
-- **Source/RF/CA traceability:** pass | findings above
-- **Path and declaration completeness:** pass | findings above
-- **Cross-layer contracts:** pass | findings above
-- **Rule and test ownership:** pass | findings above
-- **Generation/migration/commands:** not applicable | pass | findings above
-- **Design and UI handoff:** not applicable | pass | findings above
-- **Validation executability:** pass | findings above
-- **Ambiguities:** none | <fact, inference, and impact>
+- **Architecture compatibility:** pass | findings above
+- **Module ownership:** pass | findings above
+- **Dependency direction and cross-layer boundaries:** pass | findings above
+- **Rule conformance:** pass | findings above
+- **Path and generated-artifact compatibility:** not applicable | pass | findings above
+- **Ambiguities outside this review:** not assessed | route to `create-spec` clarification
 ```
 
 Use an explicit `none` row when there are no findings. A completed review means the assigned

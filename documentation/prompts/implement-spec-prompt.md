@@ -43,6 +43,27 @@ A completed Plan remains current when conclusion or PR feedback reopens an in-Co
 correction; reopen only its affected phases/tasks. Never route from this workflow to
 another implementation prompt.
 
+## Spec Reviewer boundary
+
+The [`Spec Reviewer`](../agents/spec-reviewer-agent.md) belongs exclusively to the
+`create-spec` workflow and runs only before an optional `create-plan` step. It assesses only
+whether the current Spec is compatible with the repository’s Architecture, Modules ownership
+and applicable Rule Pack. It does not assess product completeness, design fidelity, validation
+evidence, implementation code, Plan execution or Builder work; it does not edit files, resolve
+ambiguity, create subagents or decide Spec status.
+
+`implement-spec` must never activate, resume or require a Spec Reviewer after planning or during
+implementation. Post-plan quality is established by the contracted path sensor, deterministic
+workspace/runtime/manual evidence and, for Plan-backed delivery, the single read-only
+`Implementation Reviewer` described below. A material Spec amendment returns to `create-spec`
+for the same pre-plan compatibility review before implementation resumes.
+
+If implementation or validation discovers a test path that conflicts with the Spec, selected
+Rules or test-integrity policy, stop the implementation before editing that test or weakening the
+checker. Record the conflict as a blocker, return the Spec to `create-spec` for a material
+amendment, remove or replace the invalid test contract, and rerun the single Spec Reviewer over
+the complete selected Rule Pack before resuming implementation.
+
 The PRD Product Dependency Graph is product authority, not an execution plan. Do not derive
 Builder order, technical prerequisites, Plan phases, waves or parallelism from it. Derive those
 only from the current Spec's Technical Contract, affected paths, runtime dependencies and
@@ -86,6 +107,14 @@ stop before editing feature source and report the exact blocker:
   continue the responsible Builder or activate a scoped Builder Fix only when it cannot be
   resumed or the correction is genuinely independent, fix it immediately, and rerun the
   affected checks. Never pause for permission to resolve an in-Contract discrepancy.
+- Required manual, runtime, staging or server-backed evidence is fail-closed. If any required
+  `MV-*` scenario is unavailable, inaccessible, non-repeatable, times out, or fails, treat it as
+  a blocking validation finding—not as optional partial evidence. Record the exact blocker,
+  invalidate affected evidence, stop feature implementation at the affected Plan phase, mark
+  that phase blocked, and do not route to `conclude-spec` or continue unrelated implementation
+  work. Resume only after the environment, access or implementation state changes and every
+  invalidated scenario is rerun successfully. Browser/unit mocks never substitute for required
+  real-service, persistence, authorization or manual evidence.
 - A UI change is not validated by a passing test alone. It requires the required behavioral
   assertions plus a fresh Playwright CLI screenshot at each affected reference/state and an
   inspected comparison recorded in Evaluation.
@@ -275,10 +304,12 @@ revision checked by CI and is not current-implementation metadata.
 
 ## Persistence and user questions
 
-Continue until Evaluation is `ready`. Ask the user only when an unresolved product,
-technical-authority, environment or safety decision is genuinely required. Do not pause for
-routine implementation, validation or a choice safely established by the Spec, Rules,
-repository or evidence. After an answer, resume the active strategy automatically.
+Continue until Evaluation is `ready` or a required validation blocker is reached. Ask the user
+only when an unresolved product, technical-authority, environment or safety decision is genuinely
+required. When a required manual/runtime/staging scenario is unavailable or fails, stop the active
+implementation phase and report the blocker; do not continue implementation merely because other
+sensors pass. After the blocker changes or the user supplies the required decision/access, resume
+the active strategy automatically and rerun invalidated evidence.
 
 Whenever an implementation, sensor, browser, build or validation error occurs, immediately
 fix it when the correction is within the current Contract and repository authority. Record
@@ -387,6 +418,9 @@ For Plan-backed execution, activate exactly one read-only
 implementation Builder diffs are integrated. Never create a Reviewer per Builder, phase,
 application or package, and do not add specialist Reviewers. Direct execution does not require a
 separate Reviewer unless the Spec or another repository authority explicitly requires one.
+
+Do not substitute or reactivate the Spec Reviewer here: the Spec Reviewer is a pre-plan
+Architecture/Rules compatibility gate only.
 
 Give the Reviewer the exact Spec revision, Plan, Rule Pack, integrated diff, design references and
 current evidence index. It reviews the complete candidate for Spec conformance, cross-Builder
@@ -574,6 +608,12 @@ completed on the current candidate and every verified blocking review finding is
   Builder when possible and rerun invalidated evidence. After any correction affecting a
   contracted path, rerun the package check before restarting invalidated sensors or resuming the
   same Reviewer.
+- A required manual/runtime/staging failure or unavailable dependency is different from a normal
+  correctable implementation discrepancy: keep the affected Plan phase blocked, keep Evaluation
+  non-ready, stop feature edits and report the exact dependency or environment blocker. Do not
+  downgrade it to `partial`, treat a prior smoke as current proof, or proceed to unrelated
+  implementation tasks. Only resume after the blocker is resolved and the affected evidence is
+  freshly rerun.
 - When all evidence is current and no blocking finding remains, reconcile Evaluation to the
   current implementation, confirm the latest package-check result covers the final contracted
   path state, complete the Plan when present, set Evaluation to `ready` and immediately invoke
