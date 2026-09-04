@@ -1,11 +1,14 @@
+@baseUrl = http://localhost:3336
+@sessionCookie = replace-with-scoops-session-cookie
+
 ### Get current establishment settings
 GET {{baseUrl}}/establishments/current
-Authorization: Bearer {{signIn.response.body.$.access_token}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Change current establishment name
 PATCH {{baseUrl}}/establishments/current/name
-Authorization: Bearer {{signIn.response.body.$.access_token}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {

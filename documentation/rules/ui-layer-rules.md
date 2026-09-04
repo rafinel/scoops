@@ -443,7 +443,7 @@ apps/web/src/middlewares/require-auth-middleware.ts
 ```
 
 Attach it through `beforeLoad: requireAuthMiddleware`. Do not create a separate
-`requireAuth` helper for individual routes or duplicate Supabase session checks
+`requireAuth` helper for individual routes or duplicate provider session checks
 inside route files. The middleware must consult the provisioned auth provider,
 redirect unauthenticated users to `ROUTES.login`, and return the authenticated
 session in the before-load result.
@@ -534,7 +534,7 @@ repeating aliases such as `data: legalAreas` or `error: legalAreasError`. A quer
 that depends on a selected identifier must expose the dependency in its query
 key and disable the request until that identifier is available.
 
-The same rule applies to realtime APIs. A Supabase realtime subscription may be
+The same rule applies to realtime APIs. A provider-backed realtime subscription may be
 encapsulated by a domain-specific hook that owns subscribe, unsubscribe, event
 mapping, and cleanup. It does not need to be forced through TanStack Query when
 the concern is a live subscription rather than request caching.
@@ -603,10 +603,10 @@ apps/web/src/ui/shared/contexts/auth-context/
 Keep its provider hook, consumer hook, and value type colocated there. Identity
 widgets consume `useAuthContext`; they do not own or recreate the context.
 
-The auth context must delegate authentication operations to the concrete provider
-from `apps/web/src/provision/auth/supabase/`. It may own React state,
+The auth context must delegate authentication operations to the concrete
+cookie-session provider under `apps/web/src/provision/auth/`. It may own React state,
 subscription lifecycle, and the value exposed to consumers, but it must not call
-`createClient` or access `supabaseClient.auth` directly.
+Better Auth directly, read the `HttpOnly` cookie, or persist session tokens.
 
 There is one application sidebar:
 

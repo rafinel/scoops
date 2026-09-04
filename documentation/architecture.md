@@ -47,7 +47,7 @@ The following constraints apply across every module and feature:
    alone is insufficient when the operation also requires establishment
    ownership.
 3. **Domain code has no framework dependency.** Core entities, events, contracts,
-   and use cases do not import React, NestJS, Drizzle, Supabase, Inngest, or an
+   and use cases do not import React, NestJS, Drizzle, Better Auth, Inngest, or an
    external provider SDK.
 4. **Modules own their data and behavior.** One module cannot import another
    module's database models, repositories, or internal implementation.
@@ -68,8 +68,8 @@ flowchart LR
   user["Manager or Operator"]
   web["Scoops Web Application"]
   api["Scoops Server API"]
-  auth["Supabase Auth"]
-  db[("PostgreSQL")]
+  auth["Better Auth in Scoops Server"]
+  db[("PostgreSQL\nNeon when deployed")]
   jobs["Inngest"]
   storage["S3-compatible Storage"]
   billing["Billing Provider"]
@@ -77,8 +77,9 @@ flowchart LR
 
   user --> web
   web -->|"REST over HTTPS"| api
-  web -->|"Authentication flow"| auth
-  api -->|"Validate identity"| auth
+  web -->|"Cookie authentication flow"| api
+  api -->|"Issue and validate sessions"| auth
+  auth -->|"Auth schema through Drizzle"| db
   api -->|"Queries and transactions"| db
   api -->|"Publish events and serve jobs"| jobs
   api -->|"Files and health checks"| storage
@@ -94,7 +95,7 @@ provide identity, persistence, durable execution, storage, billing, and communic
 
 ## 4. Runtime and deployment units
 
-Scoops has two independently deployable applications and two shared source
+Scoops has two independently deployable applications and three shared source
 packages:
 
 | Unit | Runtime | Responsibility |
@@ -103,11 +104,14 @@ packages:
 | `apps/server` | Node.js/NestJS | REST API, authorization, use-case orchestration, persistence, messaging endpoint, and provider integrations. |
 | `packages/core` | Imported TypeScript package | Domain entities, structures, errors, events, contracts, and use cases shared by the applications. |
 | `packages/validation` | Imported TypeScript package | Zod schemas for browser forms, REST input, route search, environment configuration, and event payloads. |
+| `packages/email` | Imported TypeScript package | Communication-owned React Email templates and HTML renderers, independent of NestJS and delivery providers. |
 
-Neither `packages/core` nor `packages/validation` has a network boundary.
-PostgreSQL, Supabase, MinIO, Mailpit, and Inngest run as local supporting
-containers; production may use managed equivalents without changing application
-boundaries.
+Neither `packages/core`, `packages/validation`, nor `packages/email` has a
+network boundary.
+Standard PostgreSQL, MinIO, Mailpit, and Inngest run as local supporting
+containers. Staging and production use Neon through the same `DATABASE_URL`
+contract, Resend for transactional email, and managed equivalents for the other
+services without changing application boundaries.
 
 ## 5. Technology decisions
 
@@ -125,11 +129,11 @@ boundaries.
 | Domain | `@scoops/core` | Current | Framework-independent business model and contracts. |
 | Runtime validation | `@scoops/validation` and Zod | Current | Shared syntactic schemas for forms, transport inputs, route search, environment and event boundaries. |
 | Persistence | PostgreSQL and Drizzle ORM | Current | Transactional data, repositories, and schema evolution. |
-| Identity | Supabase Auth | Foundation current | External identity and session lifecycle. |
+| Identity | Better Auth hosted by NestJS | Approved target | Credential, verification, and cookie-session lifecycle in the Scoops server. |
 | Messaging | Inngest | Current foundation | Event-triggered jobs, retries, steps, and observability. |
 | Object storage | S3-compatible storage/MinIO | Current foundation | File storage behind server-owned adapters. |
 | Billing | Asaas | Planned | Subscription customers, charges, and billing webhooks. |
-| Email | Resend and React Email | Planned | Transactional delivery and message composition. |
+| Email | Resend, SMTP/Mailpit, and React Email | Approved target | Communication-owned transactional delivery and message composition, with Resend in staging/production and Mailpit locally. |
 | Quality | TypeScript, Biome, Vitest, Playwright | Current | Static checks and automated validation at several boundaries. |
 
 ## 6. Repository and dependency architecture
@@ -140,6 +144,7 @@ flowchart TB
   server["apps/server"]
   core["packages/core"]
   validation["packages/validation"]
+  email["packages/email"]
   webShared["web shared UI and REST transport"]
   serverShared["server shared infrastructure"]
   webFeature["web feature modules"]
@@ -152,6 +157,7 @@ flowchart TB
   server --> serverFeature
   webFeature --> coreFeature
   serverFeature --> coreFeature
+  serverFeature --> email
   web --> validation
   server --> validation
   validation --> core
@@ -174,6 +180,7 @@ registrations. Ownership is defined in [`modules.md`](modules.md).
 | Server application | NestJS controllers and feature modules | HTTP translation, dependency wiring, use-case invocation, and application composition. | Duplicated domain decisions. |
 | Domain/application core | `packages/core/src` | Entities, structures, errors, events, contracts, and business use cases. | Framework, database, HTTP, environment, or SDK concerns. |
 | Runtime validation | `packages/validation/src` | Reusable Zod schemas, schema composition, syntactic refinement and inferred boundary types. | Authorization, tenant ownership, persistence checks or business decisions. |
+| Email composition | `packages/email/templates` | React Email views and HTML renderers for Communication-owned transactional messages. | NestJS composition, provider SDKs, persistence, or business authorization. |
 | Persistence | `apps/server/src/<module>/database` | Drizzle models, mappers, repositories, and transactional persistence. | Product policy beyond persistence semantics. |
 | Shared infrastructure | `apps/server/src/shared` | Database client, environment, time, REST errors, messaging transport, and other reusable adapters. | Feature-specific behavior. |
 | External adapters | Owning server module or shared provision boundary | SDK calls and translation to core contracts. | Provider types leaking into core or unrelated modules. |
@@ -309,13 +316,16 @@ need an explicit migration or versioning strategy.
 
 ## 12. Identity, tenancy, and authorization
 
-Supabase Auth owns external identity and session issuance. Scoops owns local user
-status, profile, establishment membership, and business authorization.
+Better Auth, hosted inside the NestJS server, owns credentials, verification
+tokens, provider identities, and cookie-session issuance in a dedicated
+`better_auth` PostgreSQL schema. Scoops Identity owns local user status, profile,
+establishment membership, business authorization, access audit, and the rule
+that the last active Manager cannot be removed.
 
 Authentication and authorization are separate checks:
 
-1. **Authentication:** verify that the request carries a valid provider-issued
-   identity.
+1. **Authentication:** verify the Better Auth session carried by an `HttpOnly`
+   server cookie.
 2. **Local access:** load the corresponding Scoops user and reject inactive,
    pending, or otherwise unavailable access.
 3. **Authorization:** verify that the user's profile can perform the requested
@@ -331,13 +341,26 @@ Row-Level Security for business tables is not part of the initial architecture.
 Consequently, repository methods and queries must receive enough context to
 prevent a resource from being accessed by ID outside its establishment.
 
-Service-role keys, database credentials, signing keys, and provider secrets are
-server-only. CORS limits browser origins but is not an authorization mechanism.
+Browser JavaScript never reads or persists session tokens. The web transport
+uses credentialed requests, while the server enforces exact trusted origins and
+validates the `Origin` header for unsafe cookie-authenticated methods. Deployed
+Web and API hosts share a registrable domain, and the authentication cookie is
+scoped only to their shared application parent domain so browser and SSR
+requests can carry it. Cookies are `Secure`, `HttpOnly`, and `SameSite=Lax`.
+Localhost and `127.0.0.1` use the corresponding non-secure development cookie
+settings.
+
+Database credentials, Better Auth secrets, email-provider keys, signing keys,
+and other provider secrets are server-only. CORS limits browser origins but is
+not an authorization mechanism.
 
 ## 13. Persistence and consistency
 
-PostgreSQL is the system of record for Scoops business data. The server accesses
-it through Drizzle ORM; the web application never connects directly.
+PostgreSQL is the system of record for Scoops business and authentication data.
+Deployed environments use Neon and local/integration environments use standard
+PostgreSQL through the same `DATABASE_URL` contract. The server accesses both
+the public business schema and the dedicated Better Auth schema through Drizzle
+ORM; the web application never connects directly.
 
 Persistence is organized by module:
 
@@ -373,13 +396,18 @@ not duplicate event names as infrastructure string literals.
 ```mermaid
 sequenceDiagram
   participant Core as Originating use case
-  participant Broker as Event publisher
+  participant Broker as InngestBroker
+  participant DB as PostgreSQL outbox
+  participant Publisher as PublishEventJob
   participant Inngest as Inngest
   participant Job as Module-owned job
   participant Provider as External provider
 
   Core->>Broker: Publish completed domain event
-  Broker->>Inngest: Send serialized event
+  Broker->>DB: Insert pending event in active transaction
+  DB-->>Publisher: LISTEN/NOTIFY after commit
+  Publisher->>DB: Reserve pending row
+  Publisher->>Inngest: Send serialized event with stable row ID
   Inngest->>Job: Invoke matching function
   Job->>Job: Validate runtime schema
   Job->>Provider: Execute named durable step
@@ -406,6 +434,26 @@ a transactional publication strategy, such as an outbox processed after commit.
 Publishing directly after a database commit does not by itself guarantee delivery
 if the process fails between those operations.
 
+Communication `REQ-08` makes that strategy mandatory for authentication messages:
+Identity calls its independently injected `Broker` while the state-change
+transaction is active; `InngestBroker.publish` persists a pending row in the shared
+`events` table
+through the shared `DatabaseTransactionContext` and performs no network request.
+Shared messaging's non-Inngest `PublishEventJob` listens for committed PostgreSQL
+notifications, drains pending rows and publishes them directly through
+`InngestClient` with the stable event-row ID. Startup/reconnect draining and the
+periodic local/test `ReprocessEventsJob` cover missed notifications. Communication
+alone composes and delivers the resulting email. The broker must not be placed
+inside an Identity database-scope object.
+Shared outbox infrastructure owns no message template, recipient policy, or
+email-provider contract and does not track consumer-delivery state.
+`SharedDatabaseModule` provides the singleton transaction context;
+`SharedMessagingModule` imports it and owns the Broker, Inngest client, database-
+triggered publisher, and recovery/cleanup jobs without a reverse module dependency.
+The reprocessor is disabled in staging/production. Publication
+failures use bounded backoff and a finite automatic-attempt cap; terminal failures
+remain visible for operator action.
+
 ## 15. External integrations and files
 
 Every provider is wrapped by an adapter owned by the module that uses it, unless
@@ -413,9 +461,9 @@ the technical capability is intentionally shared by several modules.
 
 | Integration | Owning boundary | Core-facing capability |
 | --- | --- | --- |
-| Supabase Auth | Identity | Authentication and identity operations. |
+| Better Auth | Identity | Credentials, verification, provider identity, and cookie sessions hosted by the server. |
 | Asaas | Billing | Customer, subscription, charge, and webhook operations. |
-| Resend/React Email | Communication | Transactional message delivery and composition. |
+| Resend, SMTP/Mailpit, and React Email | Communication | Transactional message delivery and composition behind a Communication-owned email-provider interface. |
 | MinIO/S3 | Shared provision or owning module | Object storage without provider-specific types. |
 | Inngest | Shared messaging plus feature jobs | Event publication and durable function execution. |
 
@@ -441,8 +489,10 @@ Operational visibility is required at each boundary:
 - business-critical transitions need auditable domain records where required by
   the owning PRD.
 
-The server health endpoint checks PostgreSQL, Supabase, and S3-compatible storage;
-Swagger exposes the HTTP surface.
+The server health endpoint checks PostgreSQL and S3-compatible storage. Better
+Auth exposes a deployment smoke endpoint through the server HTTP surface rather
+than an external dependency health check; Swagger exposes the application REST
+surface.
 
 Structured logs, correlation IDs, metrics, tracing, alerting, and dashboards are
 evolution requirements. Never hide their absence by discarding errors. Telemetry
@@ -486,8 +536,10 @@ replicas. In particular:
 
 ## 19. Environment and delivery architecture
 
-Local development uses Docker Compose for PostgreSQL, Supabase services, Mailpit,
-MinIO, and Inngest. The web and server normally run as local pnpm processes.
+Local development uses Docker Compose for standard PostgreSQL, Mailpit, MinIO,
+and Inngest. The web and server normally run as local pnpm processes. Staging
+and production use Neon through `DATABASE_URL` and Resend through server-only
+credentials.
 
 Environment configuration is separated by boundary:
 

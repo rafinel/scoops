@@ -1,11 +1,24 @@
 import { Module } from '@nestjs/common'
 
-import { SendInvitationEmailJob } from '@/communication/messaging/inngest/jobs/send-invitation-email-job'
+import {
+  SendInvitationEmailJob,
+  SendOnboardingConfirmationEmailJob,
+  SendPasswordRecoveryEmailJob,
+} from '@/communication/messaging/inngest/jobs'
+import { CommunicationProvisionModule } from '@/communication/provision/communication-provision.module'
 import { SharedMessagingModule } from '@/shared/messaging/shared-messaging.module'
 
 @Module({
-  imports: [SharedMessagingModule],
-  providers: [SendInvitationEmailJob],
-  exports: [SendInvitationEmailJob],
+  imports: [CommunicationProvisionModule, SharedMessagingModule],
+  providers: [
+    SendInvitationEmailJob,
+    SendOnboardingConfirmationEmailJob,
+    SendPasswordRecoveryEmailJob,
+  ],
+  exports: [
+    SendInvitationEmailJob,
+    SendOnboardingConfirmationEmailJob,
+    SendPasswordRecoveryEmailJob,
+  ],
 })
 export class CommunicationMessagingModule {}

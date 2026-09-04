@@ -90,8 +90,8 @@ factory that receives an optional client dependency, defaulting to that singleto
 and returns the application or core contract implemented by the integration:
 
 ```ts
-export const SupabaseAuthProvider = (
-  client: SupabaseClient = supabaseClient,
+export const CookieAuthProvider = (
+  client: AuthClient = authClient,
 ): AuthProvider => {
   return {
     // adapter operations
@@ -100,9 +100,16 @@ export const SupabaseAuthProvider = (
 ```
 
 This keeps the provider replaceable in tests and keeps third-party calls out of
-contexts, widgets, route middleware, and services. A web Supabase auth provider
-may use only browser-safe public configuration; service-role credentials belong
-to server infrastructure and must never be bundled into the web app.
+contexts, widgets, route middleware, and services. Web authentication uses
+credentialed requests and an `HttpOnly` cookie issued by the server; browser
+code must not read, persist, or synthesize session tokens. Better Auth secrets
+and email-provider credentials belong to server infrastructure and must never be
+bundled into the web app.
+
+Transactional email adapters belong to Communication provision. A
+Communication-owned `EmailProvider` contract may have a Resend implementation
+for staging/production and an SMTP implementation for local Mailpit. Identity
+publishes its facts through domain events and must not depend on either adapter.
 
 The provider should map third-party responses to core structures and preserve the
 core provider contract. The shared auth context consumes the factory result and

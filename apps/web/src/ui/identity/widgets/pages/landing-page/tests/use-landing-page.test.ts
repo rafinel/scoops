@@ -1,59 +1,37 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, renderHook, waitFor } from '@testing-library/react'
+import { afterEach, describe, expect, it } from 'vitest'
+import { cleanup, renderHook } from '@testing-library/react'
 
 import { useLandingPage } from '../use-landing-page'
-
-const { navigateMock, hasRecoveryErrorMock, hasRecoveryMock } = vi.hoisted(() => ({
-  navigateMock: vi.fn(),
-  hasRecoveryErrorMock: vi.fn(),
-  hasRecoveryMock: vi.fn(),
-}))
-
-vi.mock('@tanstack/react-router', () => ({
-  useNavigate: () => navigateMock,
-}))
-
-vi.mock('@/provision/auth/supabase/supabase-client', () => ({
-  hasPasswordRecoveryErrorRedirect: hasRecoveryErrorMock,
-  hasPasswordRecoveryRedirect: hasRecoveryMock,
-}))
 
 describe('useLandingPage', () => {
   afterEach(() => {
     cleanup()
-    vi.clearAllMocks()
-    hasRecoveryErrorMock.mockReturnValue(false)
-    hasRecoveryMock.mockReturnValue(false)
+    window.history.replaceState(null, '', '/')
   })
 
-  it('does not navigate for a normal landing visit', async () => {
-    renderHook(() => useLandingPage())
-
-    await waitFor(() => expect(navigateMock).not.toHaveBeenCalled())
-  })
-
-  it('redirects provider error recovery links to reset password', async () => {
-    hasRecoveryErrorMock.mockReturnValue(true)
+  it('does not perform provider hash navigation for a normal landing visit', () => {
+    const initialUrl = window.location.href
 
     renderHook(() => useLandingPage())
 
-    await waitFor(() =>
-      expect(navigateMock).toHaveBeenCalledWith({ to: '/reset-password' }),
-    )
-    expect(hasRecoveryMock).not.toHaveBeenCalled()
+    expect(window.location.href).toBe(initialUrl)
   })
 
-  it('preserves the recovery hash when redirecting a valid recovery link', async () => {
-    window.history.replaceState(null, '', '/#type=recovery&access_token=token')
-    hasRecoveryMock.mockReturnValue(true)
+  it('leaves query-token password recovery routing to its owning route', () => {
+    window.history.replaceState(null, '', '/reset-password?token=reset-token')
 
     renderHook(() => useLandingPage())
 
-    await waitFor(() =>
-      expect(navigateMock).toHaveBeenCalledWith({
-        to: '/reset-password',
-        hash: '#type=recovery&access_token=token',
-      }),
-    )
+    expect(window.location.pathname).toBe('/reset-password')
+    expect(window.location.search).toBe('?token=reset-token')
+  })
+
+  it('does not consume a recovery hash because Better Auth uses cookie sessions', () => {
+    window.history.replaceState(null, '', '/#error=access_denied')
+
+    const initialHash = window.location.hash
+    renderHook(() => useLandingPage())
+
+    expect(window.location.hash).toBe(initialHash)
   })
 })

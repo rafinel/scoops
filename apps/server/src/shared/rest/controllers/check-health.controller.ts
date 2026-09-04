@@ -36,21 +36,19 @@ export class CheckHealthController {
     type: HealthErrorResponseDto,
   })
   async handle(): Promise<HealthResponseDto> {
-    const [database, supabase, storage] = await Promise.all([
+    const [database, storage] = await Promise.all([
       this.drizzleClient.isHealthy(),
-      this.checkHttpService(this.envProvider.get('SUPABASE_URL'), '/auth/v1/health'),
       this.checkHttpService(this.envProvider.get('S3_ENDPOINT'), '/minio/health/live'),
     ])
 
     const services = {
       database: this.toServiceState(database),
-      supabase: this.toServiceState(supabase),
       storage: this.toServiceState(storage),
     }
     const timestamp = new Date().toISOString()
     const mode = this.envProvider.get('SCOOPS_SERVER_APP_MODE')
 
-    if (!database || !supabase || !storage) {
+    if (!database || !storage) {
       throw new ServiceUnavailableException({
         statusCode: HttpStatus.SERVICE_UNAVAILABLE,
         status: 'not_ready',

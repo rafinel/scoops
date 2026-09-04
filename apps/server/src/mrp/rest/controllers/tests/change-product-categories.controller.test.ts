@@ -2,7 +2,7 @@ import { ProductCategory, ProductStockControl } from '@scoops/core/mrp/domain/st
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -17,7 +17,7 @@ import {
 
 describe('Change Product Categories Controller [PATCH /products/:productId/categories]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -27,7 +27,7 @@ describe('Change Product Categories Controller [PATCH /products/:productId/categ
     const product = await fixture.addProduct(createProduct())
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/categories`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         categories: [ProductCategory.Ingredient, ProductCategory.Accompaniment],
         expectedUpdatedAt: expectedUpdatedAt(product),
@@ -57,7 +57,7 @@ describe('Change Product Categories Controller [PATCH /products/:productId/categ
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/categories`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         categories: [ProductCategory.Ingredient],
         expectedUpdatedAt: expectedUpdatedAt(product),
@@ -77,7 +77,7 @@ describe('Change Product Categories Controller [PATCH /products/:productId/categ
     )
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/categories`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         categories: [ProductCategory.Ingredient, ProductCategory.Manufacturable],
         expectedUpdatedAt: expectedUpdatedAt(product),
@@ -105,18 +105,18 @@ describe('Change Product Categories Controller [PATCH /products/:productId/categ
       .send(body)
     const operator = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/categories`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send(body)
     const foreign = await request(fixture.app.getHttpServer())
       .patch(`/products/${foreignProduct.id}/categories`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         categories: [ProductCategory.Ingredient, ProductCategory.Accompaniment],
         expectedUpdatedAt: expectedUpdatedAt(foreignProduct),
       })
     const foreignManager = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/categories`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
       .send(body)
 
     expect(anonymous.status).toBe(401)

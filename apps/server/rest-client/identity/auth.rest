@@ -1,8 +1,8 @@
-@supabaseAnonKey = {{$processEnv SUPABASE_ANON_KEY}}
+@baseUrl = http://localhost:3336
+@sessionCookie = replace-with-scoops-session-cookie
 
 ### Sign in with the seeded Manager account
-POST {{supabaseUrl}}/auth/v1/token?grant_type=password
-apikey: {{supabaseAnonKey}}
+POST {{baseUrl}}/api/auth/sign-in/email
 Content-Type: application/json
 
 {
@@ -12,14 +12,35 @@ Content-Type: application/json
 
 ### Get the authenticated local account
 GET {{baseUrl}}/auth/session
-Authorization: Bearer {{signIn.response.body.$.access_token}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Change the authenticated user's own name
 PATCH {{baseUrl}}/auth/session/name
-Authorization: Bearer {{signIn.response.body.$.access_token}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
   "name": "Scoops Manager"
+}
+
+### Sign out the current device
+POST {{baseUrl}}/api/auth/sign-out
+Cookie: {{sessionCookie}}
+
+### Request password recovery (non-enumerating)
+POST {{baseUrl}}/registration-attempts/password-recovery
+Content-Type: application/json
+
+{
+  "email": "manager@example.com"
+}
+
+### Reset password with the one-time recovery token
+POST {{baseUrl}}/registration-attempts/password-reset
+Content-Type: application/json
+
+{
+  "token": "replace-with-the-43-character-recovery-token",
+  "password": "NewPassword123!"
 }

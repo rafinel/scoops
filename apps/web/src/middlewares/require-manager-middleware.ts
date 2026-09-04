@@ -3,7 +3,7 @@ import { isRedirect, redirect } from '@tanstack/react-router'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 
 import { ROUTES } from '@/constants/routes'
-import { AUTH_IDENTITY_SERVICE, AUTH_PROVIDER } from '@/provision/auth/auth-composition'
+import { resolveAuthSession } from '@/server/auth/resolve-auth-session'
 
 import { AuthRouteUnavailableError } from './auth-route-unavailable-error'
 import { sanitizeReturnTo } from './sanitize-return-to'
@@ -15,12 +15,12 @@ export async function requireManagerMiddleware({
 }) {
   const returnTo = sanitizeReturnTo(`${location.pathname}${location.searchStr}`)
   try {
-    const session = await AUTH_PROVIDER.getSession()
-    if (!session) throw redirect({ to: ROUTES.login, search: { returnTo } })
-    const response = await AUTH_IDENTITY_SERVICE.getAccount()
-    if (response.isFailure || !response.body) throw new AuthRouteUnavailableError()
-    if (response.body.profile !== UserProfile.Manager) {
-      throw redirect({ to: ROUTES.accessDenied })
+    const resolution = await resolveAuthSession()
+    if (!resolution.session || !resolution.account) {
+      throw redirect({ hash: '', to: ROUTES.login, search: { returnTo } })
+    }
+    if (resolution.account.profile !== UserProfile.Manager) {
+      throw redirect({ hash: '', to: ROUTES.accessDenied })
     }
   } catch (error) {
     if (isRedirect(error) || error instanceof AuthRouteUnavailableError) throw error

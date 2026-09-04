@@ -128,8 +128,9 @@ unit cost for REQ-02, REQ-03, REQ-04, REQ-05, REQ-06, REQ-07, REQ-08, REQ-09, RE
 
 #### Experience
 
-- The registration modal contains Name, Unit, Categories, and Stock Control; for a Single-stock
-  Ingredient, it may also capture current unit cost.
+- The registration page contains Name, Unit, Categories, and Stock Control; for a Single-stock
+  Ingredient, it may also capture current unit cost. The page is used instead of a modal so the
+  manager can review the complete product setup without constrained scrolling.
 - Categories appear as selectable cards with checkboxes and dependency guidance. Selecting
   Portion disables Resale with an explanation, and selecting Resale disables Portion.
 - When Manufacturable requires Single stock under the current operating model, selecting it locks
@@ -167,9 +168,10 @@ for REQ-03, REQ-06, REQ-07, REQ-08, REQ-09, and REQ-10.
   supported.
 - Managers may enter stock by package or directly by base unit. Unit price equals package value
   divided by package quantity.
-- While brands exist, the product has one main brand for automatic write-offs without explicit
-  selection. The first brand becomes main automatically, and changing the main brand affects only
-  future operations.
+- While brands exist, the product has exactly one main brand for automatic write-offs without
+  explicit selection. The first brand becomes main automatically. Selecting another brand as main
+  atomically unsets the previous main brand, so at most one brand can be main at any time; changing
+  the main brand affects only future operations.
 - A main brand cannot be deleted while another brand exists until a replacement is selected. The
   final brand may be deleted after warning, leaving the product unavailable until a new main brand
   is added.
@@ -181,8 +183,9 @@ for REQ-03, REQ-06, REQ-07, REQ-08, REQ-09, and REQ-10.
 #### Experience
 
 - The brand table displays Brand, Packaging, Value per package, Unit price, Stock, and Movements.
-- The main brand has a `Main` chip. Each row provides a main-brand switch and actions to edit,
-  select as main, or delete.
+- The main brand has a `Main` chip. Each row provides a mutually exclusive main-brand selector and
+  actions to edit, select as main, or delete. The UI must never display more than one main-brand
+  control as selected for the same product.
 - Deletion identifies the brand and known impacts. An empty state offers `Add first brand`.
 - The stock-entry modal switches between Packaging and Base Unit and previews package input as
   the converted total in grams for the approved weight experience.
@@ -213,6 +216,8 @@ history for REQ-04, REQ-06, REQ-07, and PDV.
 - Entry adds a positive quantity and Write-off removes a positive quantity from the selected
   product or brand. Every manual adjustment is classified as one of those operations.
 - Quantity is mandatory, greater than zero, and expressed in the product base unit.
+- A Manager may provide an optional textual justification for a manual Entry or Write-off. When
+  provided, the justification is stored with that stock transaction and shown in its history.
 - A positive entry for a Single-stock Ingredient may define the current unit cost from that
   operation onward. A cost change recalculates dependent recipe COGS without rewriting history.
 - A write-off cannot produce a negative balance unless `Allow negative stock` is enabled for the
@@ -228,8 +233,9 @@ history for REQ-04, REQ-06, REQ-07, and PDV.
 - Positive initial stock registered with a product or brand creates an Entry; zero creates no
   transaction.
 - A transaction retains product, optional brand, unit, quantity, resulting balance,
-  responsible-user identity, captured display labels, and occurrence time. Product, brand, and
-  author labels are snapshots and are not rewritten by later changes or deletion.
+  optional justification, responsible-user identity, captured display labels, and occurrence time.
+  Product, brand, and author labels are snapshots and are not rewritten by later changes or
+  deletion.
 - Stock-transaction persistence is local and does not require a domain event, broker message, or
   outbox entry.
 - Transactions are isolated by establishment and require the same authorization as their product.
@@ -240,7 +246,8 @@ history for REQ-04, REQ-06, REQ-07, and PDV.
   balance is at least ideal stock, Low when below it, and Normal without target comparison when no
   ideal stock exists. Zero is shown as a valid balance.
 - Entry and Write-off actions remain near the relevant balance. A Single-stock Ingredient entry
-  may capture current unit cost with its base-unit suffix.
+  may capture current unit cost with its base-unit suffix. Both manual actions expose an optional
+  `Justification` field without making submission dependent on it.
 - A write-off above the permitted balance blocks confirmation and reports available and requested
   quantities.
 - History is newest first, paginated, and filterable by type, brand, and date period. Each row

@@ -15,6 +15,8 @@ import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { OnboardingIdentityProvider } from '#identity/interfaces/onboarding-identity-provider.ts'
 import type { OnboardingIdentifierProvider } from '#identity/interfaces/onboarding-identifier-provider.ts'
 import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
+import { OnboardingConfirmationPreparedEvent } from '#identity/domain/events/onboarding-confirmation-prepared-event.ts'
 import { CorrectIceCreamShopOnboardingEmailUseCase } from '#identity/use-cases/correct-ice-cream-shop-onboarding-email-use-case.ts'
 
 describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
@@ -44,9 +46,17 @@ describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
     tokens.hash.mockReturnValue('hash')
     tokens.issue.mockReturnValue({ token: 'new-confirmation', hash: 'new-hash' })
     identifiers.generate.mockReturnValue('claim')
-    provider.verifyPendingPassword.mockResolvedValue(true)
-    provider.registerReplacementIdentity.mockResolvedValue({
-      providerSubject: 'new-subject',
+    provider.replacePendingIdentity.mockResolvedValue({
+      authUser: { id: 'new-subject', email: 'new@example.com' },
+      event: new OnboardingConfirmationPreparedEvent({
+        userId: 'new-subject',
+        email: 'new@example.com',
+        name: 'Maria',
+        actionUrl:
+          'http://localhost/onboarding/confirm?confirmationToken=new-confirmation',
+        expiresAt: '2026-01-08T00:00:00.000Z',
+        occurredAt: '2026-01-02T00:00:00.000Z',
+      }),
     })
     const attempt = UserRegistrationAttemptFaker.fake({
       tokenHash: 'hash',
@@ -57,7 +67,11 @@ describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
     attempts.findActiveByEmail.mockResolvedValue(undefined)
     users.findByEmail.mockResolvedValue(undefined)
     users.findById.mockResolvedValue(
-      UserFaker.fake({ id: 'old-subject', establishmentId: 'establishment-id' }),
+      UserFaker.fake({
+        id: 'old-subject',
+        establishmentId: 'establishment-id',
+        name: 'User',
+      }),
     )
     users.add.mockImplementation(async (input) => ({ ...input }))
     attempts.replace.mockImplementation(async (id, changes) => ({
@@ -74,6 +88,7 @@ describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
       tokens,
       identifiers,
       provider,
+      mock<Broker>(),
     )
   })
   it('replaces the pending subject and preserves the original deadline', async () => {
@@ -85,18 +100,19 @@ describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
         confirmationRedirectBaseUrl: 'http://localhost/onboarding/confirm',
       }),
     ).resolves.toMatchObject({ establishmentName: 'Scoops', email: 'new@example.com' })
-    expect(provider.registerReplacementIdentity).toHaveBeenCalledWith({
-      currentEmail: expect.any(String),
+    expect(provider.replacePendingIdentity).toHaveBeenCalledWith({
+      providerSubject: 'old-subject',
       email: 'new@example.com',
       password: 'password123',
+      name: 'User',
       confirmationRedirectTo:
         'http://localhost/onboarding/confirm?confirmationToken=new-confirmation',
     })
     expect(users.remove).toHaveBeenCalledWith('establishment-id', 'old-subject')
     expect(provider.removeIdentity).toHaveBeenCalledWith('old-subject')
   })
-  it('rejects incorrect credentials before replacement signup', async () => {
-    provider.verifyPendingPassword.mockResolvedValue(false)
+  it('does not mutate local onboarding when provider replacement fails', async () => {
+    provider.replacePendingIdentity.mockRejectedValue(new Error('credentials'))
     await expect(
       useCase.execute({
         continuationToken: 'continuation',
@@ -105,6 +121,7 @@ describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
         confirmationRedirectBaseUrl: 'http://localhost/onboarding/confirm',
       }),
     ).rejects.toThrow('credentials')
-    expect(provider.registerReplacementIdentity).not.toHaveBeenCalled()
+    expect(provider.replacePendingIdentity).toHaveBeenCalled()
+    expect(users.add).not.toHaveBeenCalled()
   })
 })

@@ -10,7 +10,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 
 const establishmentId = '20000000-0000-0000-0000-000000000001'
 const otherEstablishmentId = '20000000-0000-0000-0000-000000000002'
@@ -22,15 +22,15 @@ const managerToken = 'manager-token'
 const operatorToken = 'operator-token'
 
 describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => {
-  const supabaseAuth = new SupabaseAuthFixture()
+  const betterAuthFixture = new BetterAuthFixture()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(supabaseAuth)
+    fixture = await IdentityModuleFixture.register(betterAuthFixture)
   })
 
   beforeEach(async () => {
-    await supabaseAuth.clear()
+    await betterAuthFixture.clear()
     await fixture.resetDatabase()
   })
 
@@ -50,7 +50,7 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
   }
 
   function authenticateManager() {
-    supabaseAuth.setUser(managerToken, {
+    betterAuthFixture.setUser(managerToken, {
       id: managerId,
       email: 'manager@example.com',
     })
@@ -72,14 +72,14 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
       profile: UserProfile.Manager,
     })
     await seedUsers([operator, target])
-    supabaseAuth.setUser(operatorToken, {
+    betterAuthFixture.setUser(operatorToken, {
       id: operator.id,
       email: operator.email,
     })
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/users/${target.id}/profile`)
-      .set('Authorization', `Bearer ${operatorToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
       .send({ profile: UserProfile.Operator })
 
     expect(response.status).toBe(403)
@@ -113,11 +113,11 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
     const [unknownField, invalidProfile] = await Promise.all([
       request(fixture.app.getHttpServer())
         .patch(`/users/${target.id}/profile`)
-        .set('Authorization', `Bearer ${managerToken}`)
+        .set('Cookie', betterAuthFixture.cookieFor())
         .send({ profile: UserProfile.Manager, actor: manager.id }),
       request(fixture.app.getHttpServer())
         .patch(`/users/${target.id}/profile`)
-        .set('Authorization', `Bearer ${managerToken}`)
+        .set('Cookie', betterAuthFixture.cookieFor())
         .send({ profile: 'administrator' }),
     ])
 
@@ -149,7 +149,7 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/users/${target.id}/profile`)
-      .set('Authorization', `Bearer ${managerToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
       .send({ profile: UserProfile.Manager })
 
     expect(response.status).toBe(404)
@@ -183,11 +183,11 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
     const [selfChange, lastManager] = await Promise.all([
       request(fixture.app.getHttpServer())
         .patch(`/users/${manager.id}/profile`)
-        .set('Authorization', `Bearer ${managerToken}`)
+        .set('Cookie', betterAuthFixture.cookieFor())
         .send({ profile: UserProfile.Operator }),
       request(fixture.app.getHttpServer())
         .patch(`/users/${target.id}/profile`)
-        .set('Authorization', `Bearer ${managerToken}`)
+        .set('Cookie', betterAuthFixture.cookieFor())
         .send({ profile: UserProfile.Manager }),
     ])
 
@@ -196,7 +196,7 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
 
     const demotion = await request(fixture.app.getHttpServer())
       .patch(`/users/${target.id}/profile`)
-      .set('Authorization', `Bearer ${managerToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
       .send({ profile: UserProfile.Operator })
 
     expect(demotion.status).toBe(200)
@@ -222,7 +222,7 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/users/${target.id}/profile`)
-      .set('Authorization', `Bearer ${managerToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
       .send({ profile: UserProfile.Manager })
 
     expect(response.status).toBe(200)
@@ -254,7 +254,7 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
     })
     await seedUsers([firstManager, secondManager])
     authenticateManager()
-    supabaseAuth.setUser('second-manager-token', {
+    betterAuthFixture.setUser('second-manager-token', {
       id: secondManager.id,
       email: secondManager.email,
     })
@@ -262,11 +262,11 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
     const [firstResponse, secondResponse] = await Promise.all([
       request(fixture.app.getHttpServer())
         .patch(`/users/${secondManager.id}/profile`)
-        .set('Authorization', `Bearer ${managerToken}`)
+        .set('Cookie', betterAuthFixture.cookieFor())
         .send({ profile: UserProfile.Operator }),
       request(fixture.app.getHttpServer())
         .patch(`/users/${firstManager.id}/profile`)
-        .set('Authorization', 'Bearer second-manager-token')
+        .set('Cookie', betterAuthFixture.cookieFor('second-manager-token'))
         .send({ profile: UserProfile.Operator }),
     ])
 

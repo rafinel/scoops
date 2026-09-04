@@ -15,7 +15,6 @@ import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 import { AuthorizationError } from '#shared/domain/errors/authorization-error.ts'
 import { UserInvitationEmailUnavailableError } from '#identity/domain/errors/user-invitation-email-unavailable-error.ts'
-import { UserInvitedEvent } from '#identity/domain/events/user-invited-event.ts'
 import { confirmationRedirectUrl } from '#identity/use-cases/confirmation-redirect.ts'
 
 type Request = {
@@ -34,7 +33,7 @@ export class InviteUserUseCase implements UseCase<Request, UserDetails> {
     private readonly tokenProvider: OnboardingTokenProvider,
     private readonly identifierProvider: OnboardingIdentifierProvider,
     private readonly provider: UserAccessIdentityProvider,
-    private readonly broker?: Broker,
+    private readonly broker: Broker,
   ) {}
 
   async execute(request: Request): Promise<UserDetails> {
@@ -53,22 +52,25 @@ export class InviteUserUseCase implements UseCase<Request, UserDetails> {
     )
     if (existing.user || existing.attempt || !name)
       throw new UserInvitationEmailUnavailableError()
-    const identity = await this.provider.inviteIdentity({
-      email,
-      invitationRedirectTo: confirmationRedirectUrl(
-        request.invitationRedirectBaseUrl,
-        attemptToken.token,
-      ),
-    })
-    if (!identity) throw new UserInvitationEmailUnavailableError()
+    let providerSubject: string | undefined
     const commitInvitation = async () =>
       this.database.run(async (scope) => {
         const duplicate = await scope.usersRepository.findByEmail(email)
         const duplicateAttempt =
           await scope.registrationAttemptsRepository.findActiveByEmail(email)
         if (duplicate || duplicateAttempt) throw new UserInvitationEmailUnavailableError()
+        const identity = await this.provider.inviteIdentity({
+          establishmentId: request.actor.establishmentId,
+          email,
+          name,
+          invitationRedirectTo: confirmationRedirectUrl(
+            request.invitationRedirectBaseUrl,
+            attemptToken.token,
+          ),
+        })
+        providerSubject = identity.authUser.id
         const user = await scope.usersRepository.add({
-          id: identity.providerSubject,
+          id: identity.authUser.id,
           establishmentId: request.actor.establishmentId,
           name,
           email,
@@ -104,26 +106,16 @@ export class InviteUserUseCase implements UseCase<Request, UserDetails> {
           newValue: user.profile,
           occurredAt: now,
         })
+        await this.broker.publish(identity.event)
         return { user, attempt }
       })
     let result: Awaited<ReturnType<typeof commitInvitation>>
     try {
       result = await commitInvitation()
     } catch (error) {
-      await this.provider.removeIdentity(identity.providerSubject)
+      if (providerSubject) await this.provider.removeIdentity(providerSubject)
       throw error
     }
-
-    await this.broker?.publish(
-      new UserInvitedEvent({
-        userId: result.user.id,
-        establishmentId: result.user.establishmentId,
-        email: result.user.email,
-        profile: result.user.profile,
-        actorUserId: request.actor.id,
-        occurredAt: now,
-      }),
-    )
     const auditRecords = await this.database.run(
       async ({ userAuditRecordsRepository }) =>
         userAuditRecordsRepository

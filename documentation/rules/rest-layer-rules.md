@@ -216,16 +216,27 @@ The service method names and signatures must remain aligned with the core
 interface. Changes to a controller route or payload require updating the core
 contract and its application adapter together.
 
-## Web REST transport owns session headers
+## Web REST transport owns cookie transport
 
 `apps/web/src/rest/axios/axios-rest-client.ts` is the web transport boundary. It
-may receive a session accessor from the shared REST context and inject the current
-Bearer token into requests. Web module services must not import Supabase, read the
-auth context, or assemble authorization headers themselves.
+sends credentialed requests so the browser can attach the server-issued
+`HttpOnly` session cookie. It must not read a token, inject a Bearer header, or
+persist authentication material. Web module services must not import Better
+Auth, read the auth context, or assemble authentication headers themselves.
+
+When the web server performs an authenticated SSR request, its transport must
+forward the incoming session cookie explicitly. The browser and SSR paths must
+resolve the same `/auth/session` contract without exposing the cookie to client
+JavaScript.
 
 The REST context belongs under `apps/web/src/ui/shared/contexts/rest-context/` and
-may depend on the shared auth context to provide the session accessor. Keep auth
-state and Supabase operations in the auth provider/context boundary.
+may depend on the shared auth context for authenticated application state. Keep
+Better Auth operations in the auth provider/context boundary and keep cookie
+transport behavior in the REST client.
+
+Cookie-authenticated unsafe methods require exact trusted-origin CORS and server
+`Origin` validation. `SameSite` cookies are a defense in depth control, not a
+replacement for origin validation or application authorization.
 
 When a service factory is added or changed, verify its HTTP mapping at the
 appropriate REST boundary with the existing workspace validation commands.

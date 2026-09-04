@@ -11,6 +11,7 @@ import type { IdentityDatabase } from '#identity/interfaces/identity-database.ts
 import type { DatetimeProvider } from '#shared/interfaces/index.ts'
 import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
 import type { OnboardingIdentifierProvider } from '#identity/interfaces/onboarding-identifier-provider.ts'
+import type { UserAccessIdentityProvider } from '#identity/interfaces/user-access-identity-provider.ts'
 import type { IdentityDatabaseScope } from '#identity/interfaces/identity-database.ts'
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
@@ -27,6 +28,8 @@ describe('Accept User Invitation Use Case', () => {
     }
     database.run.mockImplementation((operation) => operation(scope))
     const tokens = mock<OnboardingTokenProvider>()
+    const provider = mock<UserAccessIdentityProvider>()
+    const broker = mock<Broker>()
     tokens.hash.mockReturnValue('hash')
     registrationAttemptsRepository.findPendingByTokenHash.mockResolvedValue(undefined)
     const useCase = new AcceptUserInvitationUseCase(
@@ -34,11 +37,13 @@ describe('Accept User Invitation Use Case', () => {
       mock<DatetimeProvider>(),
       tokens,
       mock<OnboardingIdentifierProvider>(),
+      provider,
+      broker,
     )
     await expect(
       useCase.execute({
-        authUser: { id: 'auth', email: 'a@example.com' },
         confirmationToken: 'token',
+        password: 'password123',
       }),
     ).rejects.toBeInstanceOf(NotFoundError)
   })
@@ -65,9 +70,16 @@ describe('Accept User Invitation Use Case', () => {
     }
     database.run.mockImplementation((operation) => operation(scope))
     registrationAttemptsRepository.findPendingByTokenHash.mockResolvedValue(attempt)
+    registrationAttemptsRepository.claimInvitationOperation.mockResolvedValue(attempt)
     usersRepository.findById.mockResolvedValue(user)
     const tokens = mock<OnboardingTokenProvider>()
     tokens.hash.mockReturnValue('hash')
+    const provider = mock<UserAccessIdentityProvider>()
+    provider.setInvitationPassword.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      email: user.email,
+    })
+    const broker = mock<Broker>()
     const datetimeProvider = mock<DatetimeProvider>()
     datetimeProvider.now.mockReturnValue(new Date('2026-01-01T00:00:00.000Z'))
     const useCase = new AcceptUserInvitationUseCase(
@@ -75,41 +87,30 @@ describe('Accept User Invitation Use Case', () => {
       datetimeProvider,
       tokens,
       mock<OnboardingIdentifierProvider>(),
+      provider,
+      broker,
     )
 
     await expect(
       useCase.execute({
-        authUser: { id: '00000000-0000-0000-0000-000000000002', email: user.email },
         confirmationToken: 'token',
+        password: 'password123',
       }),
     ).rejects.toBeInstanceOf(NotFoundError)
     expect(usersRepository.replace).not.toHaveBeenCalled()
   })
 
-  it('treats a used invitation link as idempotent for the same active subject', async () => {
+  it('does not reactivate a used invitation link', async () => {
     const database = mock<IdentityDatabase>()
     const registrationAttemptsRepository = mock<RegistrationAttemptsRepository>()
     const usersRepository = mock<UsersRepository>()
-    const user = UserFaker.fake({
-      id: '00000000-0000-0000-0000-000000000001',
-      email: 'invitee@example.com',
-      status: UserStatus.Active,
-    })
-    const attempt = UserRegistrationAttemptFaker.fake({
-      userId: user.id,
-      type: RegistrationAttemptType.UserInvitation,
-      email: user.email,
-      status: RegistrationAttemptStatus.Confirmed,
-      expiresAt: new Date('2025-01-01T00:00:00.000Z'),
-    })
     const scope: IdentityDatabaseScope = {
       usersRepository,
       registrationAttemptsRepository,
       establishmentsRepository: mock<EstablishmentsRepository>(),
     }
     database.run.mockImplementation((operation) => operation(scope))
-    registrationAttemptsRepository.findPendingByTokenHash.mockResolvedValue(attempt)
-    usersRepository.findById.mockResolvedValue(user)
+    registrationAttemptsRepository.findPendingByTokenHash.mockResolvedValue(undefined)
     const tokens = mock<OnboardingTokenProvider>()
     tokens.hash.mockReturnValue('hash')
     const datetimeProvider = mock<DatetimeProvider>()
@@ -120,15 +121,16 @@ describe('Accept User Invitation Use Case', () => {
       datetimeProvider,
       tokens,
       mock<OnboardingIdentifierProvider>(),
+      mock<UserAccessIdentityProvider>(),
       broker,
     )
 
     await expect(
       useCase.execute({
-        authUser: { id: user.id, email: user.email },
         confirmationToken: 'token',
+        password: 'password123',
       }),
-    ).resolves.toBeUndefined()
+    ).rejects.toBeInstanceOf(NotFoundError)
     expect(usersRepository.replace).not.toHaveBeenCalled()
     expect(broker.publish).not.toHaveBeenCalled()
   })

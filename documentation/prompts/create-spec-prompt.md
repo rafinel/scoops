@@ -1005,33 +1005,42 @@ put implementation attempts, test results or verdicts in revision history.
 
 ## Independent Spec review
 
-After the Orchestrator has authored an otherwise open-ready draft and completed its own
-deterministic integrity checks, activate exactly one read-only
-[`Spec Reviewer`](../agents/spec-reviewer-agent.md) before changing the Spec to `open`:
+After the Orchestrator has authored the draft and completed its Spec-definition integrity checks, activate
+exactly one read-only [`Spec Reviewer`](../agents/spec-reviewer-agent.md) before changing the
+Spec to `open` and before invoking any optional `create-plan` step:
 
 - the review is mandatory for every `complete` Spec and every material amendment to one;
-- for a `compact` Spec, activate the Reviewer only when cross-boundary, generated-artifact,
-  security, concurrency, provider, migration, design or validation risk makes independent review
-  useful;
-- give the Reviewer the exact draft revision, source/mode, governing documents, Rule Pack,
-  relevant repository paths and declarations, planned change classifications, design manifest,
-  accepted assumptions, exclusions, validation commands and known risks;
-- do not give it a Plan, implementation diff or Evaluation as substitutes for authoring
-  authority; those artifacts belong to later workflows;
+- for a `compact` Spec, activate the Reviewer only when the Orchestrator identifies an
+  architecture, module-boundary, dependency-direction, generated-artifact or Rule-conformance
+  risk that makes independent review useful;
+- give the Reviewer the exact draft revision, Architecture, Modules, selected Rule Pack,
+  relevant repository paths and declarations, planned change classifications, accepted technical
+  assumptions, exclusions and known architecture or Rule risks;
+- give that one Reviewer the complete test-integrity policy and checker classifications for every
+  affected source. The Reviewer must audit all test paths and test-related acceptance criteria
+  together with the rest of the Rule Pack; a direct test for an `indirect` or `excluded` source,
+  forbidden directory, or unapproved location is a blocking Contract finding;
+- do not give it product-completeness, design-fidelity or validation-evidence questions; those
+  concerns belong to the Orchestrator's `create-spec` integrity checks and later workflows;
 - do not create Reviewers per application, package, layer, Rule or design frame.
+- one Reviewer is the only pre-plan compatibility gate for the whole Spec; do not route different
+  Rules to separate Reviewers or treat a clean review of one Rule as approval of the Spec.
 
-The Reviewer checks the Contract itself for source/RF/CA traceability, path and declaration
-completeness, ownership and naming, exports and registration, producer-consumer wiring,
-generated artifacts, test ownership, command ordering, design handoff and validation
-executability. It never edits files, resolves ambiguity, asks the user questions directly or
-decides the Spec status.
+The Reviewer checks only Architecture, Modules ownership, dependency direction, cross-layer
+boundaries, path placement, generated-artifact treatment and applicable Rule conformance. This
+includes the test-contract boundary: every Spec test path must be permitted by the selected Rules
+and test-integrity policy, and forbidden direct tests are blocking findings. It does not assess
+assertion quality or test behavior. It never edits files, resolves ambiguity, asks the user
+questions directly or decides the Spec status.
 
-The report is advisory and transient. Verify every finding against repository authority. Apply
+The report is advisory and transient, but verified compatibility findings are fail-closed
+blockers for opening the Spec. Verify every finding against repository authority. Apply
 accepted corrections to the draft, rerun affected integrity checks and resume the same Reviewer
-to recheck the affected Contract. If a finding exposes a material product or technical ambiguity,
-return to the clarification gate before further authoring. The Spec may become `open` only when
-the applicable review is current and every verified Contract finding is resolved. This is part of
-the `create-spec` integrity gate, not a separate user-facing review or approval stage.
+to recheck the affected Architecture or Rule compatibility. If a finding exposes a material
+product or technical ambiguity, return to the clarification gate before further authoring. The
+Spec may become `open` only when the applicable Architecture/Rule review is current and every
+verified compatibility finding is resolved. This is part of the `create-spec` integrity gate,
+before any `create-plan` step, not a separate user-facing review or approval stage.
 
 ## Integrity gate and handoff
 
@@ -1062,8 +1071,9 @@ Spec review remains. Before changing it to `open`, verify:
 - valid documentation and Rule Pack paths;
 - every affected HTTP route group has a matching `.rest` path with complete route/example parity;
 - valid Markdown tables, links, Mermaid and artifact structure.
-- the applicable Spec Reviewer inspected the current draft revision, every verified finding was
-  resolved and the same Reviewer rechecked affected corrections.
+- the applicable Spec Reviewer inspected the current draft revision for Architecture and Rule
+  compatibility before any `create-plan` step, every verified finding was resolved and the same
+  Reviewer rechecked affected corrections.
 
 For every implementation-facing Spec, also verify that the handoff is executable rather than
 interpretive:
@@ -1112,7 +1122,8 @@ For a material amendment before conclusion:
 3. repeat clarification and authority alignment;
 4. refresh affected Contracts, design references and validation coverage;
 5. mark superseded evidence as historical;
-6. rerun the integrity gate and the applicable Spec Reviewer against the amended draft;
+6. rerun the integrity gate and the applicable Spec Reviewer against the amended draft before any
+   new `create-plan` step;
 7. return the Spec directly to `open` after verified findings are resolved;
 8. re-evaluate direct versus Plan-backed `implement-spec` execution.
 

@@ -1,20 +1,20 @@
-@baseUrl = http://127.0.0.1:3336
-@accessToken = replace-with-manager-token
+@baseUrl = http://localhost:3336
+@sessionCookie = replace-with-scoops-session-cookie
 @salesChannelId = 00000000-0000-0000-0000-000000000000
 
 ### List sales channels (Manager)
 GET {{baseUrl}}/sales-channels
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### List active sales channels (Manager or Operator)
 GET {{baseUrl}}/sales-channels/active
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Create sales channel
 POST {{baseUrl}}/sales-channels
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -25,7 +25,7 @@ Content-Type: application/json
 
 ### Update sales channel
 PATCH {{baseUrl}}/sales-channels/{{salesChannelId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -35,15 +35,15 @@ Content-Type: application/json
 
 ### Inactivate sales channel
 PATCH {{baseUrl}}/sales-channels/{{salesChannelId}}/inactivate
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Reactivate sales channel
 PATCH {{baseUrl}}/sales-channels/{{salesChannelId}}/reactivate
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Delete sales channel
 DELETE {{baseUrl}}/sales-channels/{{salesChannelId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json

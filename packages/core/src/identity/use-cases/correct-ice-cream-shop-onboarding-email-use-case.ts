@@ -1,5 +1,4 @@
 import type { UserRegistrationAttempt } from '#identity/domain/entities/user-registration-attempt.ts'
-import { InvalidOnboardingCredentialsError } from '#identity/domain/errors/invalid-onboarding-credentials-error.ts'
 import { OnboardingEmailUnavailableError } from '#identity/domain/errors/onboarding-email-unavailable-error.ts'
 import { OnboardingExpiredError } from '#identity/domain/errors/onboarding-expired-error.ts'
 import { RegistrationAttemptStatus } from '#identity/domain/structures/registration-attempt-status.ts'
@@ -12,6 +11,7 @@ import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-to
 import { ConflictError } from '#shared/domain/errors/conflict-error.ts'
 import { NotFoundError } from '#shared/domain/errors/not-found-error.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
 import { confirmationRedirectUrl } from '#identity/use-cases/confirmation-redirect.ts'
 
 export class CorrectIceCreamShopOnboardingEmailUseCase {
@@ -21,6 +21,7 @@ export class CorrectIceCreamShopOnboardingEmailUseCase {
     private readonly onboardingTokenProvider: OnboardingTokenProvider,
     private readonly onboardingIdentifierProvider: OnboardingIdentifierProvider,
     private readonly onboardingIdentityProvider: OnboardingIdentityProvider,
+    private readonly broker?: Broker,
   ) {}
 
   async execute(request: {
@@ -49,11 +50,6 @@ export class CorrectIceCreamShopOnboardingEmailUseCase {
         return { attempt, establishment }
       },
     )
-    const validPassword = await this.onboardingIdentityProvider.verifyPendingPassword({
-      email: pending.attempt.email,
-      password: request.password,
-    })
-    if (!validPassword) throw new InvalidOnboardingCredentialsError()
     const existing = await this.database.run(
       async ({ usersRepository, registrationAttemptsRepository }) => {
         const user = await usersRepository.findByEmail(email)
@@ -65,18 +61,7 @@ export class CorrectIceCreamShopOnboardingEmailUseCase {
 
     const confirmation = this.onboardingTokenProvider.issue()
     const cleanupClaimToken = this.onboardingIdentifierProvider.generate()
-    const replacement = await this.onboardingIdentityProvider.registerReplacementIdentity(
-      {
-        currentEmail: pending.attempt.email,
-        email,
-        password: request.password,
-        confirmationRedirectTo: confirmationRedirectUrl(
-          request.confirmationRedirectBaseUrl,
-          confirmation.token,
-        ),
-      },
-    )
-    if (!replacement) throw new OnboardingEmailUnavailableError()
+    let replacementSubject: string | undefined
     try {
       const result = await this.database.run(async (scope) => {
         const attempt =
@@ -89,8 +74,19 @@ export class CorrectIceCreamShopOnboardingEmailUseCase {
           throw new OnboardingExpiredError()
         const oldUser = await scope.usersRepository.findById(attempt.userId)
         if (!oldUser) throw new NotFoundError('Onboarding not found')
+        const replacement = await this.onboardingIdentityProvider.replacePendingIdentity({
+          providerSubject: oldUser.id,
+          email,
+          password: request.password,
+          name: oldUser.name,
+          confirmationRedirectTo: confirmationRedirectUrl(
+            request.confirmationRedirectBaseUrl,
+            confirmation.token,
+          ),
+        })
+        replacementSubject = replacement.authUser.id
         const newUser = await scope.usersRepository.add({
-          id: replacement.providerSubject,
+          id: replacement.authUser.id,
           establishmentId: oldUser.establishmentId,
           name: oldUser.name,
           email,
@@ -114,6 +110,7 @@ export class CorrectIceCreamShopOnboardingEmailUseCase {
           updated.establishmentId,
         )
         if (!establishment) throw new NotFoundError('Onboarding not found')
+        await this.broker?.publish(replacement.event)
         return {
           establishmentName: establishment.name,
           managerName: updated.name,
@@ -136,7 +133,9 @@ export class CorrectIceCreamShopOnboardingEmailUseCase {
       }
       return result
     } catch (error) {
-      await this.onboardingIdentityProvider.removeIdentity(replacement.providerSubject)
+      if (replacementSubject) {
+        await this.onboardingIdentityProvider.removeIdentity(replacementSubject)
+      }
       throw error
     }
   }

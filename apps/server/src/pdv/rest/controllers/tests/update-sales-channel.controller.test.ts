@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   foreignManagerRequestAuthorization,
@@ -14,7 +14,7 @@ import {
 
 describe('Update Sales Channel Controller [PATCH /sales-channels/:salesChannelId]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -30,23 +30,23 @@ describe('Update Sales Channel Controller [PATCH /sales-channels/:salesChannelId
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/sales-channels/${channel.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: '  New name  ', percentage: -5.25 })
     const conflict = await request(fixture.app.getHttpServer())
       .patch(`/sales-channels/${duplicate.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: 'New name', percentage: 1 })
     const invalid = await request(fixture.app.getHttpServer())
       .patch(`/sales-channels/${channel.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: 'x', percentage: 1.001 })
     const operator = await request(fixture.app.getHttpServer())
       .patch(`/sales-channels/${channel.id}`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send({ name: 'Operator', percentage: 1 })
     const foreign = await request(fixture.app.getHttpServer())
       .patch(`/sales-channels/${channel.id}`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
       .send({ name: 'Foreign', percentage: 1 })
 
     expect(response.status).toBe(200)

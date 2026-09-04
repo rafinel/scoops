@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Remove Product Size Controller [DELETE /products/:productId/sizes/:sizeId]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -41,7 +41,7 @@ describe('Remove Product Size Controller [DELETE /products/:productId/sizes/:siz
     )
     const response = await request(fixture.app.getHttpServer())
       .delete(`/products/${product.id}/sizes/${size.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(204)
     await expect(
@@ -76,16 +76,16 @@ describe('Remove Product Size Controller [DELETE /products/:productId/sizes/:siz
     )
     const operator = await request(fixture.app.getHttpServer())
       .delete(`/products/${product.id}/sizes/${size.id}`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .delete(`/products/${product.id}/sizes/${size.id}`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
     const wrongCategory = await request(fixture.app.getHttpServer())
       .delete(`/products/${ingredient.id}/sizes/${size.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const malformed = await request(fixture.app.getHttpServer())
       .delete(`/products/${product.id}/sizes/not-a-uuid`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
     expect(operator.status).toBe(403)

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 export const useLogoutAction = () => {
+  // Sign-out revokes the current server session; browser code never reads its value.
   const { signOut } = useAuthContext()
   const [error, setError] = useState<Error | null>(null)
   const [isPending, setIsPending] = useState(false)

@@ -13,6 +13,7 @@ const useAcceptUserInvitationPageMock = vi.mocked(useAcceptUserInvitationPage)
 const handleGoToAppMock = vi.fn()
 
 describe('AcceptUserInvitationPage', () => {
+  // Acceptance receives its session through the server response cookie.
   beforeEach(() => {
     vi.clearAllMocks()
     useAcceptUserInvitationPageMock.mockReturnValue(fakeAcceptUserInvitationPage())

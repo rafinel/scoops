@@ -6,9 +6,13 @@ import { Label } from '@/ui/shadcn/label'
 
 export const INVITATION_PASSWORD_MAX_LENGTH = 64
 
-export const AcceptUserInvitationPage = () => {
+export const AcceptUserInvitationPage = ({
+  confirmationToken,
+}: {
+  confirmationToken?: string
+}) => {
   const { acceptanceError, error, handleGoToApp, password, register, state, submit } =
-    useAcceptUserInvitationPage()
+    useAcceptUserInvitationPage(confirmationToken)
 
   return (
     <main className='grid min-h-screen place-items-center bg-background px-4 py-8'>

@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   foreignManagerRequestAuthorization,
@@ -14,7 +14,7 @@ import {
 
 describe('Delete Sales Channel Controller [DELETE /sales-channels/:salesChannelId]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -24,13 +24,13 @@ describe('Delete Sales Channel Controller [DELETE /sales-channels/:salesChannelI
     const channel = await fixture.addSalesChannel(salesChannelCreate())
     const response = await request(fixture.app.getHttpServer())
       .delete(`/sales-channels/${channel.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const operator = await request(fixture.app.getHttpServer())
       .delete(`/sales-channels/${channel.id}`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .delete(`/sales-channels/${channel.id}`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
     const anonymous = await request(fixture.app.getHttpServer()).delete(
       `/sales-channels/${channel.id}`,
     )

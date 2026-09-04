@@ -2,6 +2,7 @@ import type { AuthUser } from '#identity/domain/structures/auth-user.ts'
 import type { IdentityDatabase } from '#identity/interfaces/identity-database.ts'
 import type { OnboardingIdentifierProvider } from '#identity/interfaces/onboarding-identifier-provider.ts'
 import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
+import type { UserAccessIdentityProvider } from '#identity/interfaces/user-access-identity-provider.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
@@ -15,44 +16,32 @@ import { UserAuditActorType } from '#identity/domain/structures/user-audit-actor
 import { UserInvitationAcceptedEvent } from '#identity/domain/events/user-invitation-accepted-event.ts'
 import { InvitationOperation } from '#identity/domain/structures/invitation-operation.ts'
 
-type Request = { authUser: AuthUser; confirmationToken: string }
+type Request = { confirmationToken: string; password: string }
 
-export class AcceptUserInvitationUseCase implements UseCase<Request, void> {
+export class AcceptUserInvitationUseCase implements UseCase<Request, AuthUser> {
   constructor(
     private readonly database: IdentityDatabase,
     private readonly datetimeProvider: DatetimeProvider,
     private readonly tokenProvider: OnboardingTokenProvider,
     private readonly identifierProvider: OnboardingIdentifierProvider,
-    private readonly broker?: Broker,
+    private readonly provider: UserAccessIdentityProvider,
+    private readonly broker: Broker,
   ) {}
 
-  async execute(request: Request): Promise<void> {
+  async execute(request: Request): Promise<AuthUser> {
     const now = this.datetimeProvider.now()
     const hash = this.tokenProvider.hash(request.confirmationToken)
-    const result = await this.database.run(async (scope) => {
+    return this.database.run(async (scope) => {
       const attempt =
         await scope.registrationAttemptsRepository.findPendingByTokenHash(hash)
       if (attempt?.type !== 'user-invitation')
         throw new NotFoundError('Invitation not found')
       const user = await scope.usersRepository.findById(attempt.userId)
       if (!user) throw new NotFoundError('Invitation not found')
-
-      const authEmail = request.authUser.email.trim().toLowerCase()
-      if (
-        attempt.status === RegistrationAttemptStatus.Confirmed &&
-        user.status === UserStatus.Active &&
-        user.id === request.authUser.id &&
-        user.email === authEmail
-      ) {
-        return { user, activated: false }
-      }
-
       if (now.getTime() >= attempt.expiresAt.getTime())
         throw new UserInvitationExpiredError()
       if (
         attempt.status !== RegistrationAttemptStatus.Pending ||
-        attempt.userId !== request.authUser.id ||
-        attempt.email !== authEmail ||
         user.status !== UserStatus.Pending
       )
         throw new NotFoundError('Invitation not found')
@@ -68,6 +57,13 @@ export class AcceptUserInvitationUseCase implements UseCase<Request, void> {
         },
       )
       if (!claimed) throw new ConflictError('Invitation is being changed')
+      const authUser = await this.provider.setInvitationPassword({
+        providerSubject: user.id,
+        password: request.password,
+      })
+      if (authUser.id !== user.id || authUser.email !== user.email) {
+        throw new NotFoundError('Invitation not found')
+      }
       const updated = await scope.usersRepository.replace(user.establishmentId, user.id, {
         status: UserStatus.Active,
         updatedAt: now,
@@ -95,17 +91,16 @@ export class AcceptUserInvitationUseCase implements UseCase<Request, void> {
         newValue: UserStatus.Active,
         occurredAt: now,
       })
-      return { user: updated, activated: true }
+      await this.broker.publish(
+        new UserInvitationAcceptedEvent({
+          userId: updated.id,
+          establishmentId: updated.establishmentId,
+          email: updated.email,
+          profile: updated.profile,
+          occurredAt: now,
+        }),
+      )
+      return authUser
     })
-    if (!result.activated) return
-    await this.broker?.publish(
-      new UserInvitationAcceptedEvent({
-        userId: result.user.id,
-        establishmentId: result.user.establishmentId,
-        email: result.user.email,
-        profile: result.user.profile,
-        occurredAt: now,
-      }),
-    )
   }
 }

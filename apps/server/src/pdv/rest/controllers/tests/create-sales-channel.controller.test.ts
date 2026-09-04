@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   foreignManagerRequestAuthorization,
@@ -13,7 +13,7 @@ import {
 
 describe('Create Sales Channel Controller [POST /sales-channels]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -22,7 +22,7 @@ describe('Create Sales Channel Controller [POST /sales-channels]', () => {
   it('creates a channel, validates constraints, and enforces tenant/profile access', async () => {
     const response = await request(fixture.app.getHttpServer())
       .post('/sales-channels')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: '  Delivery próprio  ', percentage: 12.5, status: 'active' })
 
     expect(response.status).toBe(201)
@@ -45,15 +45,15 @@ describe('Create Sales Channel Controller [POST /sales-channels]', () => {
       })
     const operator = await request(fixture.app.getHttpServer())
       .post('/sales-channels')
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send({ name: 'Operator', percentage: 1, status: 'active' })
     const invalid = await request(fixture.app.getHttpServer())
       .post('/sales-channels')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: 'x', percentage: 1.001, status: 'active' })
     const foreign = await request(fixture.app.getHttpServer())
       .post('/sales-channels')
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
       .send({ name: 'Foreign', percentage: 1, status: 'active' })
 
     expect(anonymous.status).toBe(401)
@@ -67,7 +67,7 @@ describe('Create Sales Channel Controller [POST /sales-channels]', () => {
       [1, 2].map((index) =>
         request(fixture.app.getHttpServer())
           .post('/sales-channels')
-          .set('Authorization', managerRequestAuthorization())
+          .set('Cookie', managerRequestAuthorization())
           .send({
             name: `  Marketplace ${index === 1 ? 'A' : 'A'}  `,
             percentage: 2.5,
@@ -80,7 +80,7 @@ describe('Create Sales Channel Controller [POST /sales-channels]', () => {
 
     const foreign = await request(fixture.app.getHttpServer())
       .post('/sales-channels')
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
       .send({ name: 'Marketplace A', percentage: 2.5, status: 'active' })
     expect(foreign.status).toBe(201)
   })

@@ -1,6 +1,7 @@
 import { expect, test } from '../../playwright'
 import { establishmentSettingsJson } from '../../fixtures/identity-data-fixtures'
 
+test.describe.configure({ mode: 'serial' })
 test.describe('Shop settings route', () => {
   test('renders and submits the Manager settings flow', async ({
     page,

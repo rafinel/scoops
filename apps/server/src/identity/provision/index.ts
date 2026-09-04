@@ -1,5 +1,5 @@
 export * from '@/identity/provision/identity-provision.module'
 export { IdentityProvisionModule } from '@/identity/provision/identity-provision.module'
 export * from '@/identity/provision/identifier'
-export * from '@/identity/provision/supabase/supabase-server-auth-provider'
 export * from '@/identity/provision/token'
+export * from '@/identity/provision/auth'

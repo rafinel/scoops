@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   foreignManagerRequestAuthorization,
@@ -14,7 +14,7 @@ import {
 
 describe('Reactivate Sales Channel Controller [PATCH /sales-channels/:salesChannelId/reactivate]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -26,13 +26,13 @@ describe('Reactivate Sales Channel Controller [PATCH /sales-channels/:salesChann
     )
     const response = await request(fixture.app.getHttpServer())
       .patch(`/sales-channels/${channel.id}/reactivate`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const operator = await request(fixture.app.getHttpServer())
       .patch(`/sales-channels/${channel.id}/reactivate`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .patch(`/sales-channels/${channel.id}/reactivate`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({ id: channel.id, status: 'active' })

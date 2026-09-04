@@ -16,21 +16,21 @@ import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
 describe('Cancel User Invitation Controller [DELETE /users/:userId/invitation]', () => {
   const { establishmentId, managerId, managerToken, operatorId } =
     IdentityModuleFixture.userManagement
-  const supabaseAuth = new SupabaseAuthFixture()
+  const betterAuthFixture = new BetterAuthFixture()
   const tokens = OnboardingTokenProviderFaker.fake()
   let fixture: IdentityModuleFixture
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(supabaseAuth, {
+    fixture = await IdentityModuleFixture.register(betterAuthFixture, {
       onboardingToken: tokens,
     })
   })
   beforeEach(async () => {
-    await supabaseAuth.clear()
+    await betterAuthFixture.clear()
     await fixture.resetDatabase()
     await fixture.seedUsers(
       [
@@ -65,7 +65,7 @@ describe('Cancel User Invitation Controller [DELETE /users/:userId/invitation]',
         }),
       ],
     )
-    supabaseAuth.setUser(managerToken, {
+    betterAuthFixture.setUser(managerToken, {
       id: managerId,
       email: `${managerId}@example.com`,
     })
@@ -76,7 +76,7 @@ describe('Cancel User Invitation Controller [DELETE /users/:userId/invitation]',
   it('cancels the invitation, removes the user, and preserves audit history', async () => {
     const response = await request(fixture.app.getHttpServer())
       .delete(`/users/${operatorId}/invitation`)
-      .set('Authorization', `Bearer ${managerToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
     expect(response.status).toBe(204)
     await expect(
       fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users).findById(operatorId),
@@ -100,10 +100,10 @@ describe('Cancel User Invitation Controller [DELETE /users/:userId/invitation]',
     const [cancel, resend] = await Promise.all([
       request(fixture.app.getHttpServer())
         .delete(`/users/${operatorId}/invitation`)
-        .set('Authorization', `Bearer ${managerToken}`),
+        .set('Cookie', betterAuthFixture.cookieFor()),
       request(fixture.app.getHttpServer())
         .post(`/users/${operatorId}/invitation/resend`)
-        .set('Authorization', `Bearer ${managerToken}`),
+        .set('Cookie', betterAuthFixture.cookieFor()),
     ])
 
     expect(

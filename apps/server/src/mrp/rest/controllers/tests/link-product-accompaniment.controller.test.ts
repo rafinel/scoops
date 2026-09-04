@@ -2,7 +2,7 @@ import { ProductCategory, ProductStockControl } from '@scoops/core/mrp/domain/st
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -15,7 +15,7 @@ import {
 
 describe('Link Product Accompaniment Controller [POST /products/:productId/accompaniments]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -47,7 +47,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
 
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${owner.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         accompanimentProductId: target.id,
         accompanimentTypeId: type.id,
@@ -109,24 +109,24 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
     }
     await request(fixture.app.getHttpServer())
       .post(`/products/${owner.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send(body)
 
     const duplicate = await request(fixture.app.getHttpServer())
       .post(`/products/${owner.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send(body)
     const malformed = await request(fixture.app.getHttpServer())
       .post(`/products/${owner.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ ...body, quantityPerPortion: 0 })
     const inactive = await request(fixture.app.getHttpServer())
       .post(`/products/${owner.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ ...body, accompanimentProductId: inactiveTarget.id })
     const operator = await request(fixture.app.getHttpServer())
       .post(`/products/${owner.id}/accompaniments`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send({ ...body, accompanimentProductId: inactiveTarget.id })
     const foreignOwner = await fixture.addProduct(
       createProduct({
@@ -137,7 +137,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
     )
     const foreign = await request(fixture.app.getHttpServer())
       .post(`/products/${foreignOwner.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ ...body, accompanimentProductId: inactiveTarget.id })
 
     expect(duplicate.status).toBe(409)
@@ -170,7 +170,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
 
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${owner.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         accompanimentProductId: target.id,
         accompanimentTypeId: foreignType.id,
@@ -178,7 +178,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
       })
     const malformedPath = await request(fixture.app.getHttpServer())
       .post('/products/not-a-uuid/accompaniments')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         accompanimentProductId: target.id,
         accompanimentTypeId: foreignType.id,
@@ -209,7 +209,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
     })
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${owner.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         accompanimentProductId: target.id,
         accompanimentTypeId: type.id,

@@ -47,6 +47,7 @@ vi.mock('@/ui/identity/storage/onboarding-session-storage', () => ({
 }))
 
 describe('useOnboardingConfirmationPage', () => {
+  // Confirmation is one-time and never retains a browser-readable auth token.
   afterEach(() => {
     cleanup()
     vi.clearAllMocks()

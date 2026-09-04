@@ -1,3 +1,4 @@
+// Authentication structures are provider-neutral; adapters stay outside Core.
 export * from '#identity/domain/structures/auth-credentials.ts'
 export * from '#identity/domain/structures/auth-session.ts'
 export * from '#identity/domain/structures/auth-state-change-listener.ts'

@@ -1,4 +1,5 @@
 import type { Account } from '#identity/domain/entities/account.ts'
+import type { User } from '#identity/domain/entities/user.ts'
 import type { UserDetails } from '#identity/domain/structures/user-details.ts'
 import { UserAuditAction } from '#identity/domain/structures/user-audit-action.ts'
 import { UserAuditActorType } from '#identity/domain/structures/user-audit-actor-type.ts'
@@ -16,7 +17,6 @@ import { AuthorizationError } from '#shared/domain/errors/authorization-error.ts
 import { ConflictError } from '#shared/domain/errors/conflict-error.ts'
 import { NotFoundError } from '#shared/domain/errors/not-found-error.ts'
 import { UserInvitationExpiredError } from '#identity/domain/errors/user-invitation-expired-error.ts'
-import { UserInvitationResentEvent } from '#identity/domain/events/user-invitation-resent-event.ts'
 import { InvitationOperation } from '#identity/domain/structures/invitation-operation.ts'
 import { confirmationRedirectUrl } from '#identity/use-cases/confirmation-redirect.ts'
 
@@ -30,7 +30,7 @@ export class ResendUserInvitationUseCase implements UseCase<Request, UserDetails
     private readonly tokenProvider: OnboardingTokenProvider,
     private readonly identifierProvider: OnboardingIdentifierProvider,
     private readonly provider: UserAccessIdentityProvider,
-    private readonly broker?: Broker,
+    private readonly broker: Broker,
   ) {}
 
   async execute(request: Request): Promise<UserDetails> {
@@ -73,13 +73,48 @@ export class ResendUserInvitationUseCase implements UseCase<Request, UserDetails
     )
     if (!claimed) throw new ConflictError('Invitation is being changed')
 
+    let result: User
     try {
-      await this.provider.resendInvitation({
-        email: pending.user.email,
-        invitationRedirectTo: confirmationRedirectUrl(
-          request.invitationRedirectBaseUrl,
-          next.token,
-        ),
+      result = await this.database.run(async (scope) => {
+        const event = await this.provider.prepareInvitationResend({
+          providerSubject: pending.user.id,
+          establishmentId: pending.user.establishmentId,
+          invitationRedirectTo: confirmationRedirectUrl(
+            request.invitationRedirectBaseUrl,
+            next.token,
+          ),
+        })
+        const attempt =
+          await scope.registrationAttemptsRepository.finalizeInvitationOperation({
+            attemptId: pending.attempt.id,
+            operationToken,
+            changes: {
+              tokenHash: claimed.pendingTokenHash,
+              expiresAt: claimed.pendingExpiresAt,
+              updatedAt: now,
+            },
+          })
+        if (!attempt) throw new ConflictError('Invitation operation was superseded')
+        const user = await scope.usersRepository.replace(
+          pending.user.establishmentId,
+          pending.user.id,
+          { updatedAt: now },
+        )
+        await scope.userAuditRecordsRepository?.add({
+          id: `${attempt.id}:${attempt.revision}:resent`,
+          establishmentId: pending.user.establishmentId,
+          affectedUserId: pending.user.id,
+          affectedUserName: pending.user.name,
+          actorType: UserAuditActorType.User,
+          actorUserId: request.actor.id,
+          actorName: request.actor.name,
+          action: UserAuditAction.InvitationResent,
+          previousValue: pending.attempt.expiresAt.toISOString(),
+          newValue: expiresAt.toISOString(),
+          occurredAt: now,
+        })
+        await this.broker.publish(event)
+        return user
       })
     } catch (error) {
       await this.database
@@ -93,48 +128,6 @@ export class ResendUserInvitationUseCase implements UseCase<Request, UserDetails
         .catch(() => false)
       throw error
     }
-
-    const result = await this.database.run(async (scope) => {
-      const attempt =
-        await scope.registrationAttemptsRepository.finalizeInvitationOperation({
-          attemptId: pending.attempt.id,
-          operationToken,
-          changes: {
-            tokenHash: claimed.pendingTokenHash,
-            expiresAt: claimed.pendingExpiresAt,
-            updatedAt: now,
-          },
-        })
-      if (!attempt) throw new ConflictError('Invitation operation was superseded')
-      const user = await scope.usersRepository.replace(
-        pending.user.establishmentId,
-        pending.user.id,
-        { updatedAt: now },
-      )
-      await scope.userAuditRecordsRepository?.add({
-        id: `${attempt.id}:${attempt.revision}:resent`,
-        establishmentId: pending.user.establishmentId,
-        affectedUserId: pending.user.id,
-        affectedUserName: pending.user.name,
-        actorType: UserAuditActorType.User,
-        actorUserId: request.actor.id,
-        actorName: request.actor.name,
-        action: UserAuditAction.InvitationResent,
-        previousValue: pending.attempt.expiresAt.toISOString(),
-        newValue: expiresAt.toISOString(),
-        occurredAt: now,
-      })
-      return user
-    })
-    await this.broker?.publish(
-      new UserInvitationResentEvent({
-        userId: result.id,
-        establishmentId: result.establishmentId,
-        email: result.email,
-        actorUserId: request.actor.id,
-        occurredAt: now,
-      }),
-    )
     const auditRecords = await this.database.run(
       async ({ userAuditRecordsRepository }) =>
         userAuditRecordsRepository

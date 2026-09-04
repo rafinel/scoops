@@ -39,7 +39,12 @@ export interface Broker {
 ```
 
 Core use cases depend on `Broker`, never on `InngestClient`. `InngestBroker` is
-the shared server implementation.
+the shared server implementation. `InngestBroker.publish` means durable enqueue:
+it inserts one pending row in the shared `events` table and performs no network
+request. When an active
+`DatabaseTransactionContext` exists, it must use that transaction so the event and
+originating state commit or roll back together. The broker is injected directly
+into use cases; it must not be placed inside a module database-scope object.
 
 ## The originating module builds authoritative event data
 
@@ -77,11 +82,17 @@ shared REST layer. A feature must not create its own Inngest controller or reuse
 another feature's controller. Adding a job must not alter the behavior or route
 of existing jobs such as WhatsApp processing.
 
-The application composition registers every exported job function in the single
-Inngest endpoint. A feature messaging module owns and exports its jobs; the
-feature root module imports that messaging module.
+The application composition registers every exported Inngest job function in the
+single Inngest endpoint. A feature messaging module owns and exports its jobs; the
+feature root module imports that messaging module. Database-triggered workers are
+Nest providers, not Inngest functions: they do not expose `this.function` and are
+not added to the Inngest function registry. An environment-gated recovery function
+may be provided by the application root when its owning shared module must remain
+free of that provider in environments where recovery is disabled; the root must
+use the validated environment mode for both provider construction and function
+registration so the two sets cannot diverge.
 
-## Jobs expose `this.function`
+## Inngest jobs expose `this.function`
 
 Every Inngest job is an injectable class that extends `InngestJob` and assigns a
 typed function in its constructor:
@@ -145,3 +156,44 @@ changes the delivery guarantee. Revisit an outbox when database mutation and
 event publication must become atomic or when observed event loss justifies the
 additional operational complexity.
 
+When an approved requirement does require atomic mutation and publication, call
+the injected `Broker.publish` while the originating module's database transaction
+is active. `InngestBroker` persists the complete event through that transaction.
+Shared database owns the `events` outbox model and persistence types under
+`apps/server/src/shared/database/drizzle/outbox/`, and the Drizzle adapter at
+`apps/server/src/shared/database/drizzle/drizzle-outbox-database.ts`, while the
+provider-neutral `OutboxDatabase` contract belongs in
+`packages/core/src/shared/interfaces/`; shared messaging owns `PublishEventJob`.
+The Server composition layer owns the Nest worker that listens to a PostgreSQL
+`LISTEN/NOTIFY` channel emitted after an outbox
+insert commits, reads and reserves pending rows through a database interface,
+publishes each row directly through `InngestClient` with the event row ID as the
+external event ID, then marks the row published only after acknowledgement. It
+must not call `Broker.publish`, which would enqueue a second row. Notifications
+are a latency optimization and are not the durability boundary: startup and
+reconnect drain pending rows, while `ReprocessEventsJob` remains the periodic
+recovery path. Inngest owns consumer retries; the outbox does not track
+per-consumer delivery.
+The consuming feature still owns its jobs and business side effects, and the
+outbox does not move Communication email ownership into Identity or shared
+infrastructure.
+
+Shared database infrastructure provides the singleton `DatabaseTransactionContext`.
+Shared messaging imports that database module and owns `InngestBroker`,
+`InngestClient`, and publish/reprocessing/cleanup jobs in one acyclic module; do not
+create an outbox module that imports its parent messaging module. `PublishEventJob` claims
+only pending rows. Failed publication uses bounded backoff and a finite automatic
+attempt cap; a separate reprocessing job returns only eligible failed or
+expired-reservation rows to pending, while terminal failures remain visible for operator
+action.
+
+`ReprocessEventsJob` is registered and scheduled only in local and test environments.
+Staging and production rely on startup/reconnect draining and the guarded operator
+requeue path; environment composition must not instantiate or register the reprocessor
+in `stg` or `prod`.
+
+Call the expiring worker ownership a `reservation`, not a lease or database lock.
+Reservation columns use `reserved_by` and `reservation_expires_at`; guarded completion
+updates must match the current reservation owner. Feature Specs fix batch size,
+reservation duration, ownership format, operational signals, and any manual recovery
+contract when those details affect concurrency or recovery evidence.

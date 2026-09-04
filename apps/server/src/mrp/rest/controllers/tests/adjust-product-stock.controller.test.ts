@@ -1,6 +1,6 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import {
   createProduct,
@@ -11,7 +11,7 @@ import {
 
 describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjustments]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
   afterAll(async () => fixture?.close())
@@ -21,7 +21,7 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
     await fixture.balances.initialize(product.id)
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/stock-adjustments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ type: 'entry', quantity: 3.125 })
     expect(response.status).toBe(201)
     expect(response.body).toMatchObject({ productId: product.id, quantity: 3.125 })
@@ -45,7 +45,7 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
     await fixture.balances.add({ productId: product.id }, 2)
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/stock-adjustments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ type: 'write-off', quantity: 3 })
     expect(response.status).toBe(409)
     await expect(fixture.balances.findByProductId(product.id)).resolves.toMatchObject({
@@ -66,7 +66,7 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
     await fixture.balances.initialize(product.id)
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/stock-adjustments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ type: 'write-off', quantity: 1 })
     expect(response.status).toBe(201)
     expect(response.body.quantity).toBe(-1)
@@ -79,7 +79,7 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
     const sendWriteOff = () =>
       request(fixture.app.getHttpServer())
         .post(`/products/${product.id}/stock-adjustments`)
-        .set('Authorization', managerRequestAuthorization())
+        .set('Cookie', managerRequestAuthorization())
         .send({ type: 'write-off', quantity: 4 })
     const responses = await Promise.all([sendWriteOff(), sendWriteOff()])
     expect(responses.map((response) => response.status).sort()).toEqual([201, 409])

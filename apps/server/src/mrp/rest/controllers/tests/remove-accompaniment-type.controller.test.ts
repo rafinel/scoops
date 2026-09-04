@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Remove Accompaniment Type Controller [DELETE /accompaniment-types/:typeId]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -30,7 +30,7 @@ describe('Remove Accompaniment Type Controller [DELETE /accompaniment-types/:typ
 
     const response = await request(fixture.app.getHttpServer())
       .delete(`/accompaniment-types/${type.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(204)
     await expect(
@@ -65,7 +65,7 @@ describe('Remove Accompaniment Type Controller [DELETE /accompaniment-types/:typ
 
     const response = await request(fixture.app.getHttpServer())
       .delete(`/accompaniment-types/${type.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(409)
     await expect(
@@ -98,7 +98,7 @@ describe('Remove Accompaniment Type Controller [DELETE /accompaniment-types/:typ
       }),
       request(fixture.app.getHttpServer())
         .delete(`/accompaniment-types/${type.id}`)
-        .set('Authorization', managerRequestAuthorization()),
+        .set('Cookie', managerRequestAuthorization()),
     ])
     const persistedType = await fixture.accompanimentTypes.findById(
       owner.establishmentId,
@@ -132,16 +132,16 @@ describe('Remove Accompaniment Type Controller [DELETE /accompaniment-types/:typ
     })
     const operator = await request(fixture.app.getHttpServer())
       .delete(`/accompaniment-types/${type.id}`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .delete(`/accompaniment-types/${foreignType.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const missing = await request(fixture.app.getHttpServer())
       .delete('/accompaniment-types/00000000-0000-4000-8000-000000000099')
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
     const malformed = await request(fixture.app.getHttpServer())
       .delete('/accompaniment-types/not-a-uuid')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(operator.status).toBe(403)
     expect(foreign.status).toBe(404)

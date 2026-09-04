@@ -1,6 +1,6 @@
 import { expect, test } from '../../playwright'
 
-const INVITATION_TOKEN = 'invitation-token'
+const INVITATION_TOKEN = 'i'.repeat(43)
 
 test.describe('Invitation acceptance route', () => {
   test('shows a safe idle state when the token is missing', async ({ page }) => {
@@ -14,10 +14,20 @@ test.describe('Invitation acceptance route', () => {
     await expect(page.getByRole('button', { name: 'Ativar acesso' })).toHaveCount(0)
   })
 
+  test('shows a safe idle state when the token is malformed', async ({ page }) => {
+    await page.goto('/invitation/accept?confirmationToken=not-a-token')
+
+    await expect(page.getByRole('heading', { name: 'Ative seu acesso' })).toBeVisible()
+    await expect(
+      page.getByText('Este convite não é válido ou já foi utilizado.'),
+    ).toBeVisible()
+    await expect(page.getByRole('textbox', { name: 'Crie uma senha' })).toHaveCount(0)
+  })
+
   test('keeps the submit action disabled until the password meets the minimum length', async ({
     page,
   }) => {
-    await page.goto(`/invitation/accept?token=${INVITATION_TOKEN}`)
+    await page.goto(`/invitation/accept?confirmationToken=${INVITATION_TOKEN}`)
     await page.waitForLoadState('networkidle')
 
     await expect(page.getByRole('heading', { name: 'Ative seu acesso' })).toBeVisible()
@@ -45,19 +55,12 @@ test.describe('Invitation acceptance route', () => {
     await identityFixture.mockManagerSession()
     await identityFixture.mockManagerAccount()
 
-    let acceptanceBody: { confirmationToken?: string } | undefined
-    await page.route('**/auth/v1/user', async (route) => {
-      await route.fulfill({
-        contentType: 'application/json',
-        status: 200,
-        body: JSON.stringify({
-          data: { user: { id: 'browser-manager-id' } },
-          error: null,
-        }),
-      })
-    })
+    let acceptanceBody: { confirmationToken?: string; password?: string } | undefined
     await page.route('**/registration-attempts/invitation/accept', async (route) => {
-      acceptanceBody = route.request().postDataJSON() as { confirmationToken?: string }
+      acceptanceBody = route.request().postDataJSON() as {
+        confirmationToken?: string
+        password?: string
+      }
       await route.fulfill({ status: 204, body: '' })
     })
 
@@ -71,6 +74,7 @@ test.describe('Invitation acceptance route', () => {
     await expect(page.getByRole('heading', { name: 'Convite aceito' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Ir para o Scoops' })).toBeVisible()
     expect(acceptanceBody?.confirmationToken).toBe(INVITATION_TOKEN)
+    expect(acceptanceBody?.password).toBe('12345678')
   })
 
   test('surfaces an API failure and leaves the form available for correction', async ({
@@ -80,16 +84,6 @@ test.describe('Invitation acceptance route', () => {
     await identityFixture.mockManagerSession()
     await identityFixture.mockManagerAccount()
 
-    await page.route('**/auth/v1/user', async (route) => {
-      await route.fulfill({
-        contentType: 'application/json',
-        status: 200,
-        body: JSON.stringify({
-          data: { user: { id: 'browser-manager-id' } },
-          error: null,
-        }),
-      })
-    })
     await page.route('**/registration-attempts/invitation/accept', async (route) => {
       await route.fulfill({
         contentType: 'application/json',
@@ -98,7 +92,7 @@ test.describe('Invitation acceptance route', () => {
       })
     })
 
-    await page.goto(`/invitation/accept?token=${INVITATION_TOKEN}`)
+    await page.goto(`/invitation/accept?confirmationToken=${INVITATION_TOKEN}`)
     await page.waitForLoadState('networkidle')
     const password = page.getByRole('textbox', { name: 'Crie uma senha' })
     await password.click()

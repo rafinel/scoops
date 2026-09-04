@@ -5,7 +5,6 @@ import { AuthRouteUnavailableState } from '@/ui/identity/widgets/states/auth-rou
 import { AuthenticatedRoute } from '@/ui/identity/widgets/layouts/authenticated-route'
 
 export const Route = createFileRoute('/')({
-  ssr: false,
   beforeLoad: requireAuthMiddleware,
   component: AuthenticatedRoute,
   errorComponent: AuthRouteUnavailableState,

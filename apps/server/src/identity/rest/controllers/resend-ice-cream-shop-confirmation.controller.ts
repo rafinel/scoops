@@ -6,6 +6,7 @@ import type {
   OnboardingIdentityProvider,
   OnboardingTokenProvider,
 } from '@scoops/core/identity/interfaces'
+import type { Broker } from '@scoops/core/shared/interfaces'
 
 import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { RegistrationAttemptsController } from '@/identity/decorators'
@@ -15,11 +16,13 @@ import { ZodValidationPipe } from '@/shared/rest/pipes'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 type RequestBody = Parameters<ResendIceCreamShopConfirmationUseCase['execute']>[0]
 
 @RegistrationAttemptsController()
 export class ResendIceCreamShopConfirmationController {
+  // Shared message quota is checked before a replacement event is prepared.
   private readonly useCase: ResendIceCreamShopConfirmationUseCase
   private readonly confirmationRedirectBaseUrl: string
 
@@ -30,6 +33,7 @@ export class ResendIceCreamShopConfirmationController {
     onboardingTokenProvider: OnboardingTokenProvider,
     @Inject(IDENTITY_PROVIDERS.onboardingIdentity)
     onboardingIdentityProvider: OnboardingIdentityProvider,
+    @Inject(InngestBroker) broker: Broker,
     @Inject(EnvProvider) envProvider: EnvProvider,
   ) {
     this.useCase = new ResendIceCreamShopConfirmationUseCase(
@@ -37,6 +41,7 @@ export class ResendIceCreamShopConfirmationController {
       datetimeProvider,
       onboardingTokenProvider,
       onboardingIdentityProvider,
+      broker,
     )
     this.confirmationRedirectBaseUrl = `${envProvider.get('SCOOPS_WEB_APP_URL')}/onboarding/confirm`
   }

@@ -9,7 +9,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 
 const establishmentId = '21000000-0000-0000-0000-000000000001'
 const managerId = '21000000-0000-0000-0000-000000000002'
@@ -21,15 +21,15 @@ const foreignOperatorId = '22000000-0000-0000-0000-000000000002'
 const managerToken = 'list-manager-token'
 
 describe('List Users Controller [GET /users]', () => {
-  const supabaseAuth = new SupabaseAuthFixture()
+  const betterAuthFixture = new BetterAuthFixture()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(supabaseAuth)
+    fixture = await IdentityModuleFixture.register(betterAuthFixture)
   })
 
   beforeEach(async () => {
-    await supabaseAuth.clear()
+    await betterAuthFixture.clear()
     await fixture.resetDatabase()
     await fixture.seeder.run({
       establishments: [
@@ -75,7 +75,7 @@ describe('List Users Controller [GET /users]', () => {
       ],
       registrationAttempts: [],
     })
-    supabaseAuth.setUser(managerToken, {
+    betterAuthFixture.setUser(managerToken, {
       id: managerId,
       email: 'manager.one@example.com',
     })
@@ -88,7 +88,7 @@ describe('List Users Controller [GET /users]', () => {
   it('returns tenant-scoped, filtered user summaries', async () => {
     const response = await request(fixture.app.getHttpServer())
       .get('/users?search=Operator%20One&profile=operator&page=1&pageSize=20')
-      .set('Authorization', `Bearer ${managerToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({
@@ -114,7 +114,7 @@ describe('List Users Controller [GET /users]', () => {
   it('does not include the authenticated Manager in the management list', async () => {
     const response = await request(fixture.app.getHttpServer())
       .get('/users?page=1&pageSize=20')
-      .set('Authorization', `Bearer ${managerToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({

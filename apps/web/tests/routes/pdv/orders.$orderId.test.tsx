@@ -396,6 +396,7 @@ test.describe('Pedido detail route', () => {
   test('keeps cancellation Manager-only and exposes canceled history read-only', async ({
     page,
     browser,
+    baseURL,
     identityFixture,
     pdvFixture,
   }) => {
@@ -406,7 +407,7 @@ test.describe('Pedido detail route', () => {
     await expect(page.getByRole('heading', { name: 'Pedido #00124' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Cancelar pedido' })).toHaveCount(0)
 
-    const managerContext = await browser.newContext({ baseURL: 'http://127.0.0.1:4000' })
+    const managerContext = await browser.newContext({ baseURL })
     const managerPage = await managerContext.newPage()
     try {
       const managerIdentity = await import('../../fixtures/identity-module-fixture').then(

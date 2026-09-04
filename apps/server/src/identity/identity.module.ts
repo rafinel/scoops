@@ -9,6 +9,7 @@ import { GetEstablishmentSettingsController } from '@/identity/rest/controllers/
 import { GetAuthSessionController } from '@/identity/rest/controllers/get-auth-session.controller'
 import { AuthenticationGuard } from '@/identity/rest/guards/authentication.guard'
 import { ProfilesGuard } from '@/identity/rest/guards/profiles.guard'
+import { OriginGuard } from '@/identity/rest/guards/origin.guard'
 import { IdentityProvisionModule } from '@/identity/provision/identity-provision.module'
 import { IdentityMessagingModule } from '@/identity/messaging/identity-messaging.module'
 import {
@@ -26,6 +27,8 @@ import {
   InviteUserController,
   ListUsersController,
   ResendUserInvitationController,
+  RequestPasswordRecoveryController,
+  ResetPasswordController,
 } from '@/identity/rest/controllers'
 import { ProvisionModule } from '@/shared/provision/provision.module'
 
@@ -56,11 +59,17 @@ import { ProvisionModule } from '@/shared/provision/provision.module'
     ChangeOwnUserNameController,
     GetEstablishmentSettingsController,
     ChangeEstablishmentNameController,
+    RequestPasswordRecoveryController,
+    ResetPasswordController,
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: OriginGuard,
     },
     {
       provide: APP_GUARD,

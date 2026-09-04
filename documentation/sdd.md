@@ -86,7 +86,7 @@ not additional agents.
 | --- | --- | --- |
 | Orchestrator | The main agent selects workflows, owns artifact state, creates subagents, integrates Builder diffs, runs deterministic sensors, records evidence, publishes the PR and routes failures or changes. | Does not delegate integration or the official evidence verdict, skip required sensors or claim evidence that was not executed. |
 | [Builder](./agents/builder-agent.md) | Implements one bounded direct, phase, task or fix scope against the current Spec revision and Rules. | Does not edit Spec, Plan, Evaluation, PRD or Rules; does not review its own work or publish delivery artifacts. |
-| [Spec Reviewer](./agents/spec-reviewer-agent.md) | Independently audits one otherwise open-ready draft Spec against its source authorities, Rule Pack, real repository paths, design references and validation taxonomy. | Does not edit files, resolve product or technical ambiguity, create subagents or decide the Spec status. |
+| [Spec Reviewer](./agents/spec-reviewer-agent.md) | During `create-spec`, independently audits a draft Spec for compatibility with Architecture, Modules ownership and the applicable Rule Pack before any `create-plan` step. | Does not assess product completeness, design fidelity, validation evidence, implementation code or plan execution; does not edit files, resolve ambiguity, create subagents or decide Spec status. |
 | [Implementation Reviewer](./agents/implementation-reviewer-agent.md) | Independently reviews one integrated Plan-backed implementation candidate against the Spec, Rules, design references and current evidence. | Does not edit files, implement fixes, create subagents or decide the official evidence verdict. |
 
 Builders and Reviewers are scoped subagents created by the Orchestrator in the current task.
@@ -253,9 +253,10 @@ is not implementation-complete while its REST-client file is missing, stale or u
 
 The Spec remains `draft` until its metadata, RF/CA traceability, technical map, design
 bundle, manual scenarios, commands, links and Rule Pack pass Orchestrator integrity checks and
-the applicable independent [`Spec Reviewer`](./agents/spec-reviewer-agent.md) findings are
-verified and resolved. This review is part of `create-spec`, not a separate user-facing stage or
-approval verdict. A valid Spec then moves directly to `open` and its author summary recommends:
+the applicable independent [`Spec Reviewer`](./agents/spec-reviewer-agent.md) finds no unresolved
+Architecture or Rule compatibility issue. This review runs inside `create-spec`, before any
+`create-plan` step; it is not a separate user-facing stage or approval verdict. A valid Spec then
+moves directly to `open` and its author summary recommends:
 
 - direct `implement-spec` for a small cohesive change with stable dependencies;
 - `create-plan` followed by Plan-backed `implement-spec` for dependent phases, shared
@@ -484,6 +485,7 @@ bug-fix workflow and changed behavior uses a new change Spec.
 | Create or amend a Spec | [`create-spec-prompt.md`](./prompts/create-spec-prompt.md) |
 | Create an optional Plan | [`create-plan-prompt.md`](./prompts/create-plan-prompt.md) |
 | Implement directly or through a Plan | [`implement-spec-prompt.md`](./prompts/implement-spec-prompt.md) |
+| Increase test coverage in existing behavior | [`increase-test-coverage-prompt.md`](./prompts/increase-test-coverage-prompt.md) |
 | Publish, run PR CI and close | [`conclude-spec-prompt.md`](./prompts/conclude-spec-prompt.md) |
 | Create or update the delivery PR | [`create-pr-prompt.md`](./prompts/create-pr-prompt.md) |
 | Resolve later PR comments | [`resolve-pr-feedback-prompt.md`](./prompts/resolve-pr-feedback-prompt.md) |

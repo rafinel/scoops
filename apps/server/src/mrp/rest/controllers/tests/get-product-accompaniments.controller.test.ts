@@ -6,7 +6,7 @@ import {
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -20,7 +20,7 @@ import {
 
 describe('Get Product Accompaniments Controller [GET /products/:productId/accompaniments]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -89,7 +89,7 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
 
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${owner.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.body.product).toMatchObject({ id: owner.id, name: owner.name })
@@ -126,13 +126,13 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
 
     const empty = await request(fixture.app.getHttpServer())
       .get(`/products/${portion.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const invalidOwner = await request(fixture.app.getHttpServer())
       .get(`/products/${ingredient.id}/accompaniments`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const missing = await request(fixture.app.getHttpServer())
       .get('/products/00000000-0000-4000-8000-000000000099/accompaniments')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(empty.status).toBe(200)
     expect(empty.body.accompaniments).toEqual([])
@@ -156,13 +156,13 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
     )
     const operator = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/accompaniments`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .get(`/products/${foreignProduct.id}/accompaniments`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
     const missing = await request(fixture.app.getHttpServer())
       .get('/products/00000000-0000-4000-8000-000000000099/accompaniments')
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
     expect(operator.status).toBe(403)

@@ -199,6 +199,11 @@ function addClassificationFindings({
     return
   }
 
+  // A Spec amendment can explicitly retire an artifact that only existed as an
+  // untracked candidate in the working tree. There is no baseline Git deletion
+  // to report in that case; the exact Remove row plus the pre-edit inventory is
+  // the structural evidence. Tracked baseline removals still require a D diff.
+  if (!existedAtBase && !currentPath.exists && !diffStatus) return
   if (!existedAtBase) {
     errors.push(`${contractedPath}: Remove path does not exist at the baseline`)
   }

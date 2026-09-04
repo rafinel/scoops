@@ -34,6 +34,7 @@ test.describe('Root route', () => {
     identityFixture,
   }) => {
     await identityFixture.mockManagerSession()
+    await identityFixture.mockSessionUnavailable()
     let accountRequests = 0
     await page.route('**/auth/session*', async (route) => {
       accountRequests += 1

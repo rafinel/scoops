@@ -16,21 +16,21 @@ import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
 describe('Accept User Invitation Controller [POST /registration-attempts/invitation/accept]', () => {
   const { establishmentId, invitationToken, managerId, managerToken, operatorId } =
     IdentityModuleFixture.userManagement
-  const supabaseAuth = new SupabaseAuthFixture()
+  const betterAuthFixture = new BetterAuthFixture()
   const tokens = OnboardingTokenProviderFaker.fake()
   let fixture: IdentityModuleFixture
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(supabaseAuth, {
+    fixture = await IdentityModuleFixture.register(betterAuthFixture, {
       onboardingToken: tokens,
     })
   })
   beforeEach(async () => {
-    await supabaseAuth.clear()
+    await betterAuthFixture.clear()
     await fixture.resetDatabase()
     await fixture.seedUsers(
       [
@@ -65,7 +65,7 @@ describe('Accept User Invitation Controller [POST /registration-attempts/invitat
         }),
       ],
     )
-    supabaseAuth.setUser('invite-session', {
+    betterAuthFixture.setUser('invite-session', {
       id: operatorId,
       email: 'pending@example.com',
     })
@@ -76,9 +76,12 @@ describe('Accept User Invitation Controller [POST /registration-attempts/invitat
   it('activates the invited user after a valid pending session', async () => {
     const response = await request(fixture.app.getHttpServer())
       .post('/registration-attempts/invitation/accept')
-      .set('Authorization', 'Bearer invite-session')
-      .send({ confirmationToken: invitationToken })
+      .set('Cookie', betterAuthFixture.cookieFor('invite-session'))
+      .send({ confirmationToken: invitationToken, password: 'password123' })
     expect(response.status).toBe(204)
+    expect(response.headers['set-cookie']).toEqual([
+      expect.stringContaining(`scoops.session_token=fixture-session-${operatorId}`),
+    ])
     await expect(
       fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users).findById(operatorId),
     ).resolves.toMatchObject({ status: UserStatus.Active })
@@ -90,18 +93,18 @@ describe('Accept User Invitation Controller [POST /registration-attempts/invitat
   })
 
   it('serializes an accept-vs-cancel race so only one transition wins', async () => {
-    supabaseAuth.setUser(managerToken, {
+    betterAuthFixture.setUser(managerToken, {
       id: managerId,
       email: `${managerId}@example.com`,
     })
     const [accept, cancel] = await Promise.all([
       request(fixture.app.getHttpServer())
         .post('/registration-attempts/invitation/accept')
-        .set('Authorization', 'Bearer invite-session')
-        .send({ confirmationToken: invitationToken }),
+        .set('Cookie', betterAuthFixture.cookieFor('invite-session'))
+        .send({ confirmationToken: invitationToken, password: 'password123' }),
       request(fixture.app.getHttpServer())
         .delete(`/users/${operatorId}/invitation`)
-        .set('Authorization', `Bearer ${managerToken}`),
+        .set('Cookie', betterAuthFixture.cookieFor()),
     ])
 
     expect([accept.status, cancel.status]).toContain(204)

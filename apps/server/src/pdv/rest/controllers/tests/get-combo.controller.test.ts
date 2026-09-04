@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   foreignManagerRequestAuthorization,
@@ -14,7 +14,7 @@ import { comboCreate } from './combo-controller-test-helpers'
 
 describe('Get Combo Controller [GET /discounts/:discountId]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -25,7 +25,7 @@ describe('Get Combo Controller [GET /discounts/:discountId]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .get(`/discounts/${combo.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.headers['content-type']).toMatch(/json/)
@@ -51,10 +51,10 @@ describe('Get Combo Controller [GET /discounts/:discountId]', () => {
     )
     const foreign = await request(fixture.app.getHttpServer())
       .get(`/discounts/${foreignCombo.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     const malformed = await request(fixture.app.getHttpServer())
       .get('/discounts/not-a-uuid')
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
 
     expect(foreign.status).toBe(404)
     expect(malformed.status).toBe(400)

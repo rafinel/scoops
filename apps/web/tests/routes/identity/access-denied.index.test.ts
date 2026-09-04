@@ -1,5 +1,6 @@
 import { expect, test } from '../../playwright'
 
+test.describe.configure({ mode: 'serial' })
 test.describe('Access-denied route', () => {
   test('renders the access-denied state', async ({ page }) => {
     await page.goto('/access-denied')

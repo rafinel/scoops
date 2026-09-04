@@ -16,7 +16,7 @@ test.describe('Forgot-password route', () => {
 
   test('shows client-side validation and lets the user start over', async ({ page }) => {
     let recoveryRequests = 0
-    await page.route('**/auth/v1/recover*', async (route) => {
+    await page.route('**/registration-attempts/password-recovery*', async (route) => {
       recoveryRequests += 1
       await route.fulfill({ status: 200, body: '{}' })
     })
@@ -55,7 +55,7 @@ test.describe('Forgot-password route', () => {
     page,
   }) => {
     let requestBody: { email?: string } | undefined
-    await page.route('**/auth/v1/recover*', async (route) => {
+    await page.route('**/registration-attempts/password-recovery*', async (route) => {
       requestBody = route.request().postDataJSON() as { email?: string }
       await route.fulfill({
         contentType: 'application/json',
@@ -81,7 +81,7 @@ test.describe('Forgot-password route', () => {
     const recoveryReady = new Promise<void>((resolve) => {
       releaseRecovery = resolve
     })
-    await page.route('**/auth/v1/recover*', async (route) => {
+    await page.route('**/registration-attempts/password-recovery*', async (route) => {
       await recoveryReady
       await route.fulfill({ status: 200, body: '{}' })
     })

@@ -27,7 +27,16 @@ import {
   type UserDetailsJson,
 } from '@/rest/mappers/identity'
 
-export const IdentityService = (restClient: RestClient): IdentityRestService => {
+export type AcceptUserInvitationInput = {
+  confirmationToken: string
+  password: string
+}
+
+type WebIdentityService = Omit<IdentityRestService, 'acceptUserInvitation'> & {
+  acceptUserInvitation(input: AcceptUserInvitationInput): Promise<RestResponse<void>>
+}
+
+export const IdentityService = (restClient: RestClient): WebIdentityService => {
   return {
     getAccount() {
       return restClient.get<Account>('/auth/session')
@@ -116,6 +125,14 @@ export const IdentityService = (restClient: RestClient): IdentityRestService => 
       })
     },
 
+    async requestPasswordRecovery(input: { email: string }) {
+      return restClient.post<void>('/registration-attempts/password-recovery', input)
+    },
+
+    async resetPassword(input: { token: string; password: string }) {
+      return restClient.post<void>('/registration-attempts/password-reset', input)
+    },
+
     async listUsers(input: Omit<UsersListParams, 'establishmentId'>) {
       const params = new URLSearchParams()
       if (input.search) params.set('search', input.search)
@@ -173,7 +190,7 @@ export const IdentityService = (restClient: RestClient): IdentityRestService => 
       return restClient.delete<void>(`/users/${userId}/invitation`)
     },
 
-    async acceptUserInvitation(input: { confirmationToken: string }) {
+    async acceptUserInvitation(input: AcceptUserInvitationInput) {
       return restClient.post<void>('/registration-attempts/invitation/accept', input)
     },
 

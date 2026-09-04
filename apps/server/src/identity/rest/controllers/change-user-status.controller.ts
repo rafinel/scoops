@@ -22,6 +22,7 @@ type RequestBody = { status: Extract<UserStatus, 'active' | 'inactive'> }
 
 @UsersController()
 export class ChangeUserStatusController {
+  // Status changes and session revocation commit through one Identity transaction.
   private readonly inactivateUser: InactivateUserUseCase
   private readonly reactivateUser: ReactivateUserUseCase
 

@@ -12,7 +12,7 @@ import {
   vi,
 } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { DrizzleProductsRepository } from '@/mrp/database/drizzle/repositories/drizzle-products-repository'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import type { MrpModuleFixture as MrpFixture } from '@/mrp/fixtures/mrp-module-fixture'
@@ -28,7 +28,7 @@ import {
 
 describe('Remove Product Controller [DELETE /products/:productId]', () => {
   let fixture: MrpFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -186,7 +186,7 @@ describe('Remove Product Controller [DELETE /products/:productId]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .delete(`/products/${product.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(204)
     await expect(
@@ -333,7 +333,7 @@ describe('Remove Product Controller [DELETE /products/:productId]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .delete(`/products/${product.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(409)
     await expect(
@@ -364,10 +364,10 @@ describe('Remove Product Controller [DELETE /products/:productId]', () => {
     )
     const operator = await request(fixture.app.getHttpServer())
       .delete(`/products/${product.id}`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .delete(`/products/${product.id}`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
     expect(operator.status).toBe(403)

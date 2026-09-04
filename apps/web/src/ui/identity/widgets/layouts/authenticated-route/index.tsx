@@ -22,6 +22,7 @@ export const AuthenticatedRoute = () => {
     }
 
     void navigate({
+      hash: '',
       replace: true,
       search: {
         returnTo: sanitizeReturnTo(`${location.pathname}${location.searchStr}`),

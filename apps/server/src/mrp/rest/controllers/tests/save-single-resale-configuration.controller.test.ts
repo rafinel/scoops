@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Save Single Resale Configuration Controller [PUT /products/:productId/resale-configuration]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -28,16 +28,16 @@ describe('Save Single Resale Configuration Controller [PUT /products/:productId/
     )
     const first = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/resale-configuration`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ price: 12.5, isActive: true })
     const firstConfigurationId = first.body.resale[0].configuration.id
     const second = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/resale-configuration`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ price: 14.75, isActive: false })
     const read = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/pricing`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(first.status).toBe(200)
     expect(first.body).toMatchObject({
@@ -82,11 +82,11 @@ describe('Save Single Resale Configuration Controller [PUT /products/:productId/
     )
     const malformed = await request(fixture.app.getHttpServer())
       .put(`/products/${resale.id}/resale-configuration`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ price: -1, isActive: true })
     const wrongCategory = await request(fixture.app.getHttpServer())
       .put(`/products/${portion.id}/resale-configuration`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ price: 10, isActive: true })
 
     expect(malformed.status).toBe(422)
@@ -105,11 +105,11 @@ describe('Save Single Resale Configuration Controller [PUT /products/:productId/
     )
     const operator = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/resale-configuration`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send({ price: 10, isActive: true })
     const foreign = await request(fixture.app.getHttpServer())
       .put(`/products/${product.id}/resale-configuration`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
       .send({ price: 10, isActive: true })
 
     expect(anonymous.status).toBe(401)

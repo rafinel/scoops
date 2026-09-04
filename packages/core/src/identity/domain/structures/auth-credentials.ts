@@ -1,4 +1,4 @@
 export type AuthCredentials = {
-  identifier: string
+  email: string
   password: string
 }

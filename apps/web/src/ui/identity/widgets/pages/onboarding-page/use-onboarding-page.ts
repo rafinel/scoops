@@ -224,7 +224,9 @@ export function useOnboardingPage() {
     error:
       error ??
       registerAction.error?.message ??
-      statusAction.error?.message ??
+      (state === 'restoring' || state === 'expired'
+        ? statusAction.error?.message
+        : null) ??
       resendAction.error?.message ??
       correctAction.error?.message ??
       null,

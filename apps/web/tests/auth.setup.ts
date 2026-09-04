@@ -3,7 +3,7 @@ import { mkdir } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 import type { Browser, Page } from '@playwright/test'
 
-import { PLAYWRIGHT_AUTH_STATE_PATHS } from './auth-state'
+import { PLAYWRIGHT_AUTH_STATE_PATHS, SCOOPS_SESSION_COOKIE_NAME } from './auth-state'
 
 const AUTH_STATE_DIRECTORY = 'playwright/.auth'
 const DEFAULT_SEED_PASSWORD = '12345678'
@@ -42,6 +42,11 @@ async function fakeStorageState(
   try {
     const page = await context.newPage()
     await signIn(page, account.email, account.password)
+    const state = await context.storageState()
+    expect(
+      state.cookies.some((cookie) => cookie.name === SCOOPS_SESSION_COOKIE_NAME),
+    ).toBe(true)
+    expect(state.origins).toEqual([])
     await context.storageState({ path: account.storageStatePath })
   } finally {
     await context.close()

@@ -2,26 +2,26 @@ import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { OnboardingIdentifierProviderFaker } from '@/identity/fixtures/onboarding-identifier-faker'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
 
 describe('Correct Ice Cream Shop Onboarding Email Controller [PATCH /registration-attempts/onboarding/email]', () => {
   const { continuationToken } = IdentityModuleFixture.onboarding
-  const supabaseAuth = new SupabaseAuthFixture()
+  const betterAuthFixture = new BetterAuthFixture()
   const onboardingIdentifierProvider = OnboardingIdentifierProviderFaker.fake()
   const onboardingTokenProvider = OnboardingTokenProviderFaker.fake()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(supabaseAuth, {
+    fixture = await IdentityModuleFixture.register(betterAuthFixture, {
       onboardingIdentifier: onboardingIdentifierProvider,
       onboardingToken: onboardingTokenProvider,
     })
   })
 
   beforeEach(async () => {
-    await supabaseAuth.clear()
+    await betterAuthFixture.clear()
     await fixture.resetDatabase()
   })
 
@@ -31,7 +31,7 @@ describe('Correct Ice Cream Shop Onboarding Email Controller [PATCH /registratio
 
   it('replaces the pending email and returns the updated safe snapshot', async () => {
     await fixture.seedPendingOnboarding(onboardingTokenProvider)
-    await supabaseAuth.createUnconfirmedUser({
+    await betterAuthFixture.createUnconfirmedUser({
       email: 'ana@example.com',
       password: 'password123',
     })
@@ -50,8 +50,10 @@ describe('Correct Ice Cream Shop Onboarding Email Controller [PATCH /registratio
       managerName: 'Ana Manager',
       email: 'manager.new@example.com',
     })
-    expect(supabaseAuth.getCalls().registerReplacementIdentity).toHaveLength(1)
-    expect(supabaseAuth.getCalls().registerReplacementIdentity[0]?.[0]).toMatchObject({
+    expect(betterAuthFixture.getCalls().registerReplacementIdentity).toHaveLength(1)
+    expect(
+      betterAuthFixture.getCalls().registerReplacementIdentity[0]?.[0],
+    ).toMatchObject({
       currentEmail: 'ana@example.com',
       email: 'manager.new@example.com',
       password: 'password123',
@@ -68,6 +70,6 @@ describe('Correct Ice Cream Shop Onboarding Email Controller [PATCH /registratio
 
     expect(response.status).toBe(422)
     expect(response.body).toMatchObject({ title: 'Invalid request' })
-    expect(supabaseAuth.getCalls().registerReplacementIdentity).toHaveLength(0)
+    expect(betterAuthFixture.getCalls().registerReplacementIdentity).toHaveLength(0)
   })
 })

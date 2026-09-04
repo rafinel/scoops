@@ -1,8 +1,57 @@
+@baseUrl = http://localhost:3336
 @confirmationToken = replace-with-the-43-character-confirmation-token
+@password = NewPassword123!
+@email = manager@example.com
+@continuationToken = replace-with-the-continuation-token
+
+### Start an ice-cream shop onboarding
+POST {{baseUrl}}/registration-attempts/onboarding
+Content-Type: application/json
+
+{
+  "establishmentName": "Scoops Example",
+  "managerName": "Maria Manager",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### Get pending onboarding status
+POST {{baseUrl}}/registration-attempts/onboarding/status
+Content-Type: application/json
+
+{
+  "continuationToken": "{{continuationToken}}"
+}
+
+### Resend onboarding confirmation
+POST {{baseUrl}}/registration-attempts/onboarding/resend
+Content-Type: application/json
+
+{
+  "continuationToken": "{{continuationToken}}"
+}
+
+### Correct pending onboarding email
+PATCH {{baseUrl}}/registration-attempts/onboarding/email
+Content-Type: application/json
+
+{
+  "continuationToken": "{{continuationToken}}",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
 
 ### Accept a user invitation
 POST {{baseUrl}}/registration-attempts/invitation/accept
-Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "confirmationToken": "{{confirmationToken}}",
+  "password": "{{password}}"
+}
+
+### Confirm onboarding
+POST {{baseUrl}}/registration-attempts/onboarding/confirm
 Content-Type: application/json
 
 {

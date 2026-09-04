@@ -1,5 +1,5 @@
-@baseUrl = http://127.0.0.1:3336
-@accessToken = replace-with-manager-token
+@baseUrl = http://localhost:3336
+@sessionCookie = replace-with-scoops-session-cookie
 @comboId = 00000000-0000-0000-0000-000000000000
 @portionProductId = 00000000-0000-0000-0000-000000000000
 @portionSizeId = 00000000-0000-0000-0000-000000000000
@@ -10,32 +10,32 @@
 
 ### List Combos
 GET {{baseUrl}}/discounts?page=1&pageSize=10&type=combo&status=active
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Search and filter Combos by current product
 GET {{baseUrl}}/discounts?search=chocolate&type=combo&status=inactive&page=1&pageSize=10
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### List Portion products available for a Combo
 GET {{baseUrl}}/discounts/catalog?kind=portion&page=1&pageSize=10
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### List Resale products available for a Combo
 GET {{baseUrl}}/discounts/catalog?kind=resale&search=chocolate&page=1&pageSize=10
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Get Combo details
 GET {{baseUrl}}/discounts/{{comboId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json
 
 ### Create an active Combo with Portion and Resale components
 POST {{baseUrl}}/discounts
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -61,7 +61,7 @@ Content-Type: application/json
 
 ### Update a Combo
 PATCH {{baseUrl}}/discounts/{{comboId}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -87,7 +87,7 @@ Content-Type: application/json
 
 ### Inactivate a Combo
 PATCH {{baseUrl}}/discounts/{{comboId}}/inactivate
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -96,7 +96,7 @@ Content-Type: application/json
 
 ### Reactivate a Combo
 PATCH {{baseUrl}}/discounts/{{comboId}}/reactivate
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
@@ -105,5 +105,5 @@ Content-Type: application/json
 
 ### Delete a Combo
 DELETE {{baseUrl}}/discounts/{{comboId}}?expectedUpdatedAt={{expectedUpdatedAt}}
-Authorization: Bearer {{accessToken}}
+Cookie: {{sessionCookie}}
 Accept: application/json

@@ -20,6 +20,7 @@ async function fillRegistrationForm(page: Page) {
     .fill(ONBOARDING_PASSWORD)
 }
 
+test.describe.configure({ mode: 'serial' })
 test.describe('Ice cream shop onboarding route', () => {
   test('renders the registration form and credential controls', async ({ page }) => {
     await page.goto('/onboarding')

@@ -3,7 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { StockTransactionType } from '@scoops/core/mrp/domain/structures'
 import { AppError } from '@scoops/core/shared/domain/errors'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import {
   PdvModuleFixture,
   managerRequestAuthorization,
@@ -14,7 +14,7 @@ import {
 
 describe('Cancel Order Controller [PATCH /orders/:orderId/cancel]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -34,7 +34,7 @@ describe('Cancel Order Controller [PATCH /orders/:orderId/cancel]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/orders/${registered.order.id}/cancel`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ reason: '  Cliente mudou de ideia  ' })
     const after = await fixture.stockBalances.findByProductId(
       PdvModuleFixture.accounts.establishmentId,
@@ -86,19 +86,19 @@ describe('Cancel Order Controller [PATCH /orders/:orderId/cancel]', () => {
     })
     const forbidden = await request(fixture.app.getHttpServer())
       .patch(`/orders/${registered.order.id}/cancel`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send({})
     const malformed = await request(fixture.app.getHttpServer())
       .patch(`/orders/${registered.order.id}/cancel`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ reason: 'x'.repeat(501) })
     const canceled = await request(fixture.app.getHttpServer())
       .patch(`/orders/${registered.order.id}/cancel`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({})
     const replay = await request(fixture.app.getHttpServer())
       .patch(`/orders/${registered.order.id}/cancel`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({})
 
     expect(forbidden.status).toBe(403)
@@ -118,7 +118,7 @@ describe('Cancel Order Controller [PATCH /orders/:orderId/cancel]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/orders/${registered.order.id}/cancel`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ reason: 'Rollback me' })
     const order = await fixture.orders.findById(
       PdvModuleFixture.accounts.establishmentId,
@@ -154,7 +154,7 @@ describe('Cancel Order Controller [PATCH /orders/:orderId/cancel]', () => {
       [1, 2].map((attempt) =>
         request(fixture.app.getHttpServer())
           .patch(`/orders/${registered.order.id}/cancel`)
-          .set('Authorization', managerRequestAuthorization())
+          .set('Cookie', managerRequestAuthorization())
           .send({ reason: `Attempt ${attempt}` }),
       ),
     )

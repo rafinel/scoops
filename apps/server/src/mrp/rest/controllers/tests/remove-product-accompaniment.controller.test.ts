@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Remove Product Accompaniment Controller [DELETE /products/:productId/accompaniments/:linkId]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -66,7 +66,7 @@ describe('Remove Product Accompaniment Controller [DELETE /products/:productId/a
 
     const response = await request(fixture.app.getHttpServer())
       .delete(`/products/${owner.id}/accompaniments/${link.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(204)
     await expect(
@@ -120,15 +120,15 @@ describe('Remove Product Accompaniment Controller [DELETE /products/:productId/a
     )
     const operator = await request(fixture.app.getHttpServer())
       .delete(`/products/${owner.id}/accompaniments/${link.id}`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .delete(`/products/${foreignOwner.id}/accompaniments/${link.id}`)
-      .set('Authorization', foreignManagerRequestAuthorization())
+      .set('Cookie', foreignManagerRequestAuthorization())
     const missing = await request(fixture.app.getHttpServer())
       .delete(
         '/products/00000000-0000-4000-8000-000000000099/accompaniments/00000000-0000-4000-8000-000000000099',
       )
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
     expect(operator.status).toBe(403)
@@ -140,7 +140,7 @@ describe('Remove Product Accompaniment Controller [DELETE /products/:productId/a
   it('rejects malformed identifiers before executing the use case', async () => {
     const response = await request(fixture.app.getHttpServer())
       .delete('/products/not-a-uuid/accompaniments/not-a-uuid')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(400)
   })

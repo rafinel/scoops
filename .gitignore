@@ -72,6 +72,7 @@ AGENTS.local.md
 
 # MCP's
 .playwright-mcp
+apps/web/.playwright-cli
 
 # env files
 .env

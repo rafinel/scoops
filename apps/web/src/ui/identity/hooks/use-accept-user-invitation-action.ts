@@ -4,7 +4,7 @@ import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 
 import { useActionUtils } from './action-utils'
 
-export type AcceptUserInvitationInput = { confirmationToken: string }
+export type AcceptUserInvitationInput = { confirmationToken: string; password: string }
 
 export const useAcceptUserInvitationAction = () => {
   const { identityService } = useRestContext()

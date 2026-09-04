@@ -7,6 +7,7 @@ const ACTIVE_USER_DETAILS = userDetailsJson({
   },
 })
 
+test.describe.configure({ mode: 'serial' })
 test.describe('User detail route', () => {
   test('protects the route and preserves its return path', async ({ page }) => {
     await page.goto('/users/user-operator')

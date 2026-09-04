@@ -8,6 +8,7 @@ import { ErrorResponseDto } from '@/shared/rest/dtos'
 
 @AuthController()
 export class GetAuthSessionController {
+  // Only the sanitized local account projection crosses this cookie-backed boundary.
   @Get('session')
   @ApiResponse({
     status: HttpStatus.OK,

@@ -1,13 +1,30 @@
+import type { AuthUser } from '#identity/domain/structures/auth-user.ts'
+import type { UserInvitationPreparedEvent } from '#identity/domain/events/user-invitation-prepared-event.ts'
+
 export interface UserAccessIdentityProvider {
   inviteIdentity(input: {
+    establishmentId: string
     email: string
+    name: string
     invitationRedirectTo: string
-  }): Promise<{ providerSubject: string } | undefined>
-  correctPendingIdentityEmail(input: {
+  }): Promise<{ authUser: AuthUser; event: UserInvitationPreparedEvent }>
+  correctPendingIdentity(input: {
     providerSubject: string
+    establishmentId: string
     email: string
-  }): Promise<void>
-  resendInvitation(input: { email: string; invitationRedirectTo: string }): Promise<void>
+    name: string
+    invitationRedirectTo: string
+  }): Promise<UserInvitationPreparedEvent>
+  prepareInvitationResend(input: {
+    providerSubject: string
+    establishmentId: string
+    invitationRedirectTo: string
+  }): Promise<UserInvitationPreparedEvent>
+  setInvitationPassword(input: {
+    providerSubject: string
+    password: string
+  }): Promise<AuthUser>
   getIdentityEmail(providerSubject: string): Promise<string | undefined>
+  revokeSessions(providerSubject: string): Promise<void>
   removeIdentity(providerSubject: string): Promise<void>
 }

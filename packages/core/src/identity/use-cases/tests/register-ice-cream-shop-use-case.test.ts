@@ -12,6 +12,8 @@ import type { OnboardingIdentityProvider } from '#identity/interfaces/onboarding
 import type { OnboardingIdentifierProvider } from '#identity/interfaces/onboarding-identifier-provider.ts'
 import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
+import { OnboardingConfirmationPreparedEvent } from '#identity/domain/events/onboarding-confirmation-prepared-event.ts'
 import { RegisterIceCreamShopUseCase } from '#identity/use-cases/register-ice-cream-shop-use-case.ts'
 
 describe('Register Ice Cream Shop Use Case', () => {
@@ -25,6 +27,7 @@ describe('Register Ice Cream Shop Use Case', () => {
   let datetimeProvider: MockProxy<DatetimeProvider>
   let scope: IdentityDatabaseScope
   let useCase: RegisterIceCreamShopUseCase
+  let broker: MockProxy<Broker>
 
   beforeEach(() => {
     database = mock<IdentityDatabase>()
@@ -35,17 +38,30 @@ describe('Register Ice Cream Shop Use Case', () => {
     tokenProvider = mock<OnboardingTokenProvider>()
     identifierProvider = mock<OnboardingIdentifierProvider>()
     datetimeProvider = mock<DatetimeProvider>()
+    broker = mock<Broker>()
     scope = { usersRepository, registrationAttemptsRepository, establishmentsRepository }
     database.run.mockImplementation((operation) => operation(scope))
     datetimeProvider.now.mockReturnValue(new Date('2026-01-01T00:00:00.000Z'))
-    tokenProvider.issue
-      .mockReturnValueOnce({ token: 'continuation', hash: 'continuation-hash' })
-      .mockReturnValueOnce({ token: 'confirmation', hash: 'confirmation-hash' })
+    tokenProvider.issue.mockReturnValue({
+      token: 'continuation',
+      hash: 'continuation-hash',
+    })
     identifierProvider.generate
       .mockReturnValueOnce('establishment-id')
       .mockReturnValueOnce('attempt-id')
     provider.registerPendingIdentity.mockResolvedValue({
-      providerSubject: 'provider-subject',
+      authUser: {
+        id: '00000000-0000-0000-0000-000000000003',
+        email: 'maria@example.com',
+      },
+      event: new OnboardingConfirmationPreparedEvent({
+        userId: '00000000-0000-0000-0000-000000000003',
+        email: 'maria@example.com',
+        name: 'Maria',
+        actionUrl: 'http://localhost/onboarding/confirm?confirmationToken=continuation',
+        expiresAt: '2026-01-08T00:00:00.000Z',
+        occurredAt: '2026-01-01T00:00:00.000Z',
+      }),
     })
     usersRepository.findByEmail.mockResolvedValue(undefined)
     registrationAttemptsRepository.findActiveByEmail.mockResolvedValue(undefined)
@@ -58,6 +74,7 @@ describe('Register Ice Cream Shop Use Case', () => {
       tokenProvider,
       identifierProvider,
       provider,
+      broker,
     )
   })
 
@@ -82,14 +99,14 @@ describe('Register Ice Cream Shop Use Case', () => {
     expect(provider.registerPendingIdentity).toHaveBeenCalledWith({
       email: 'maria@example.com',
       password: 'password123',
+      name: 'Maria',
       confirmationRedirectTo:
-        'http://localhost/onboarding/confirm?confirmationToken=confirmation',
+        'http://localhost/onboarding/confirm?confirmationToken=continuation',
     })
     expect(registrationAttemptsRepository.add).toHaveBeenCalledWith(
       expect.objectContaining({
-        userId: 'provider-subject',
+        userId: '00000000-0000-0000-0000-000000000003',
         tokenHash: 'continuation-hash',
-        confirmationTokenHash: 'confirmation-hash',
       }),
     )
   })

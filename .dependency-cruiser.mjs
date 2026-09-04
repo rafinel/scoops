@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 const workspace = path.basename(process.cwd())
-const businessModules = ['billing', 'identity', 'mrp', 'pdv']
+const businessModules = ['billing', 'communication', 'identity', 'mrp', 'pdv']
 
 /** @type {Record<string, import('dependency-cruiser').IForbiddenRuleType[]>} */
 const workspaceRules = {

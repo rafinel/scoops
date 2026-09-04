@@ -1,2 +1,6 @@
+@baseUrl = http://localhost:3336
 ### Check application health
 GET {{baseUrl}}/health
+
+### Check Better Auth handler health
+GET {{baseUrl}}/api/auth/ok

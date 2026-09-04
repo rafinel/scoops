@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-import { createClient } from '@supabase/supabase-js'
+import { randomUUID } from 'node:crypto'
 import { NestFactory } from '@nestjs/core'
 import type { INestApplicationContext } from '@nestjs/common'
 import { AppError } from '@scoops/core/shared/domain/errors'
@@ -23,11 +23,12 @@ import type {
 import type { ComboCreate } from '@scoops/core/pdv/domain/structures'
 
 import { AppModule } from '@/app.module'
+import { IDENTITY_PROVIDERS } from '@/identity/constants'
+import type { BetterAuthInstance } from '@/identity/provision/auth'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MrpSeeder } from '@/mrp/database/mrp-seeder'
 import { PdvSeeder } from '@/pdv/database/pdv-seeder'
-import { EnvProvider } from '@/shared/provision/env/env-provider'
 import { parseSeedEnv } from '@/shared/database/seed-env'
 
 const SEED_ESTABLISHMENT_ID = '00000000-0000-4000-8000-000000000001'
@@ -442,13 +443,12 @@ async function seedDatabase() {
       logger: ['error', 'warn'],
     })
     parseSeedEnv()
-    const envProvider = app.get(EnvProvider)
+    const auth = app.get<BetterAuthInstance>(IDENTITY_PROVIDERS.betterAuth)
     const identitySeeder = app.get(IdentitySeeder)
     const mrpSeeder = app.get(MrpSeeder)
     const pdvSeeder = app.get(PdvSeeder)
 
-    await resetSeedUsers(envProvider)
-    await verifySeedUsers(envProvider)
+    await resetSeedUsers(auth)
     await identitySeeder.clear()
     await mrpSeeder.clear()
     await pdvSeeder.clear()
@@ -486,6 +486,7 @@ async function seedDatabase() {
       ],
       registrationAttempts: [],
     })
+    await verifySeedUsers(auth)
     await mrpSeeder.run({
       accompanimentTypes: [...SEED_ACCOMPANIMENT_TYPES],
       products: [...SEED_PRODUCTS],
@@ -580,87 +581,41 @@ async function seedDatabase() {
   }
 }
 
-async function verifySeedUsers(envProvider: EnvProvider) {
-  const client = createClient(
-    envProvider.get('SUPABASE_URL'),
-    envProvider.get('SUPABASE_ANON_KEY'),
-    {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false,
-      },
-    },
-  )
-
+async function verifySeedUsers(auth: BetterAuthInstance) {
   for (const seedUser of Object.values(SEED_USERS)) {
-    const { data, error } = await client.auth.signInWithPassword({
-      email: seedUser.email,
-      password: SEED_PASSWORD,
+    const result = await auth.api.signInEmail({
+      body: { email: seedUser.email, password: SEED_PASSWORD },
     })
 
-    if (error || data.user?.id !== seedUser.id) {
+    if (result.user?.id !== seedUser.id) {
       throw new AppError(
-        `O usuário Supabase Auth ${seedUser.email} não corresponde ao UUID seed configurado.`,
+        `O usuário Better Auth ${seedUser.email} não corresponde ao UUID seed configurado.`,
         'Usuário seed inválido',
       )
     }
   }
-
-  await client.auth.signOut({ scope: 'local' })
 }
 
-async function resetSeedUsers(envProvider: EnvProvider): Promise<void> {
-  const client = createClient(
-    envProvider.get('SUPABASE_URL'),
-    envProvider.get('SUPABASE_SERVICE_ROLE_KEY'),
-    {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false,
-      },
-    },
-  )
+async function resetSeedUsers(auth: BetterAuthInstance): Promise<void> {
+  const context = await auth.$context
+  const users = await context.internalAdapter.listUsers()
 
-  const users: Array<{ id: string }> = []
-  let page = 1
-
-  while (true) {
-    const { data, error: listError } = await client.auth.admin.listUsers({
-      page,
-      perPage: 1000,
-    })
-
-    if (listError) throw listError
-
-    users.push(...data.users)
-    if (data.users.length < 1000) break
-    page += 1
-  }
-
-  for (const user of users) {
-    const { error } = await client.auth.admin.deleteUser(user.id)
-
-    if (error) {
-      throw error
-    }
-  }
+  for (const user of users) await context.internalAdapter.deleteUser(user.id)
 
   for (const seedUser of Object.values(SEED_USERS)) {
-    const { error } = await client.auth.admin.createUser({
+    const user = await context.internalAdapter.createUser({
       id: seedUser.id,
       email: seedUser.email,
-      password: SEED_PASSWORD,
-      email_confirm: true,
-      user_metadata: {
-        name: seedUser.name,
-      },
+      name: seedUser.name,
+      emailVerified: true,
     })
-
-    if (error) {
-      throw error
-    }
+    await context.internalAdapter.createAccount({
+      id: randomUUID(),
+      accountId: user.id,
+      providerId: 'credential',
+      userId: user.id,
+      password: await context.password.hash(SEED_PASSWORD),
+    })
   }
 }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginFormSchema } from '@scoops/validation'
 import { useForm } from 'react-hook-form'
@@ -22,6 +22,16 @@ const LOGIN_DEFAULT_VALUES: LoginFormValues = import.meta.env.DEV
     }
 
 export function useLoginPage(returnTo?: string) {
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.location.hash) return
+
+    window.history.replaceState(
+      null,
+      '',
+      `${window.location.pathname}${window.location.search}`,
+    )
+  }, [])
+
   const { navigateToPath } = useNavigation()
   const { error, isPending, login } = useLoginAction()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
@@ -36,7 +46,7 @@ export function useLoginPage(returnTo?: string) {
 
   async function handleSubmit(values: LoginFormValues) {
     try {
-      await login({ identifier: values.identifier.trim(), password: values.password })
+      await login({ email: values.identifier.trim(), password: values.password })
       await navigateToPath(returnTo ?? ROUTES.app)
     } catch (caught) {
       showErrorToast(

@@ -7,7 +7,7 @@ import {
   ProductUnit,
 } from '@scoops/core/mrp/domain/structures'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import {
   PdvModuleFixture,
   managerRequestAuthorization,
@@ -17,7 +17,7 @@ import {
 
 describe('Preview Order Controller [POST /orders/preview]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -46,7 +46,7 @@ describe('Preview Order Controller [POST /orders/preview]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .post('/orders/preview')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         lines: [
           {
@@ -76,7 +76,7 @@ describe('Preview Order Controller [POST /orders/preview]', () => {
   it('does not disclose a cart for an invalid registration token', async () => {
     const response = await request(fixture.app.getHttpServer())
       .post('/orders')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         idempotencyKey: '55000000-0000-4000-8000-000000000001',
         previewToken: 'invalid-token',

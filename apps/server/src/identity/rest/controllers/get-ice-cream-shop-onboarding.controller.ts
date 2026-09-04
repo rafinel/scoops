@@ -18,6 +18,7 @@ type RequestBody = Parameters<GetIceCreamShopOnboardingUseCase['execute']>[0]
 
 @RegistrationAttemptsController()
 export class GetIceCreamShopOnboardingController {
+  // Pending onboarding uses a one-time Scoops token, never a provider access token.
   private readonly useCase: GetIceCreamShopOnboardingUseCase
 
   constructor(

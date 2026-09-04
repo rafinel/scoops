@@ -120,6 +120,20 @@
       "when": 1787929983553,
       "tag": "0016_pdv-order-management",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1788384080895,
+      "tag": "0017_better_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1788478923353,
+      "tag": "0018_outbox_notify",
+      "breakpoints": true
     }
   ]
 }

@@ -3,6 +3,7 @@ import type { RegistrationAttemptsRepository } from '#identity/interfaces/regist
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { UserAuditRecordsRepository } from '#identity/interfaces/user-audit-records-repository.ts'
 import type { EstablishmentAuditRecordsRepository } from '#identity/interfaces/establishment-audit-records-repository.ts'
+import type { AuthenticationSessionsRepository } from '#identity/interfaces/authentication-sessions-repository.ts'
 
 export type IdentityDatabaseScope = {
   establishmentsRepository: EstablishmentsRepository
@@ -10,6 +11,7 @@ export type IdentityDatabaseScope = {
   usersRepository: UsersRepository
   userAuditRecordsRepository?: UserAuditRecordsRepository
   establishmentAuditRecordsRepository?: EstablishmentAuditRecordsRepository
+  authenticationSessionsRepository?: AuthenticationSessionsRepository
 }
 
 export interface IdentityDatabase {

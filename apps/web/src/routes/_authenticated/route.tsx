@@ -5,7 +5,6 @@ import { AuthenticatedRoute } from '@/ui/identity/widgets/layouts/authenticated-
 import { requireAuthMiddleware } from '@/middlewares/require-auth-middleware'
 
 export const Route = createFileRoute('/_authenticated')({
-  ssr: false,
   beforeLoad: requireAuthMiddleware,
   component: AuthenticatedRoute,
   errorComponent: AuthRouteUnavailableState,

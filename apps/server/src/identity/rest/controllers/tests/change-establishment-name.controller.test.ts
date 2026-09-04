@@ -8,7 +8,7 @@ import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 
 describe('Change Establishment Name Controller [PATCH /establishments/current/name]', () => {
   const {
@@ -21,15 +21,15 @@ describe('Change Establishment Name Controller [PATCH /establishments/current/na
     secondManagerId,
     secondManagerToken,
   } = IdentityModuleFixture.profileSettings
-  const supabaseAuth = new SupabaseAuthFixture()
+  const betterAuthFixture = new BetterAuthFixture()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(supabaseAuth)
+    fixture = await IdentityModuleFixture.register(betterAuthFixture)
   })
 
   beforeEach(async () => {
-    await supabaseAuth.clear()
+    await betterAuthFixture.clear()
     await fixture.resetDatabase()
     await fixture.seeder.run({
       establishments: [
@@ -60,14 +60,14 @@ describe('Change Establishment Name Controller [PATCH /establishments/current/na
   })
 
   it('changes the name, persists it, and records an audit row', async () => {
-    supabaseAuth.setUser(managerToken, {
+    betterAuthFixture.setUser(managerToken, {
       id: managerId,
       email: `${managerId}@example.com`,
     })
 
     const response = await request(fixture.app.getHttpServer())
       .patch('/establishments/current/name')
-      .set('Authorization', `Bearer ${managerToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
       .send({ name: '  Scoops Jardins  ' })
 
     expect(response.status).toBe(200)
@@ -75,7 +75,7 @@ describe('Change Establishment Name Controller [PATCH /establishments/current/na
 
     const settings = await request(fixture.app.getHttpServer())
       .get('/establishments/current')
-      .set('Authorization', `Bearer ${managerToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
     expect(settings.body.establishment.name).toBe('Scoops Jardins')
 
     const records = await fixture
@@ -95,23 +95,23 @@ describe('Change Establishment Name Controller [PATCH /establishments/current/na
   })
 
   it('rejects an Operator and invalid request bodies', async () => {
-    supabaseAuth.setUser(operatorToken, {
+    betterAuthFixture.setUser(operatorToken, {
       id: operatorId,
       email: `${operatorId}@example.com`,
     })
     const forbidden = await request(fixture.app.getHttpServer())
       .patch('/establishments/current/name')
-      .set('Authorization', `Bearer ${operatorToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
       .send({ name: 'Nope' })
     expect(forbidden.status).toBe(403)
 
-    supabaseAuth.setUser(managerToken, {
+    betterAuthFixture.setUser(managerToken, {
       id: managerId,
       email: `${managerId}@example.com`,
     })
     const invalid = await request(fixture.app.getHttpServer())
       .patch('/establishments/current/name')
-      .set('Authorization', `Bearer ${managerToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
       .send({ name: '' })
     expect(invalid.status).toBe(422)
   })
@@ -136,31 +136,31 @@ describe('Change Establishment Name Controller [PATCH /establishments/current/na
       registrationAttempts: [],
     })
 
-    supabaseAuth.setUser(managerToken, {
+    betterAuthFixture.setUser(managerToken, {
       id: managerId,
       email: `${managerId}@example.com`,
     })
     const [first, second] = await Promise.all([
       request(fixture.app.getHttpServer())
         .patch('/establishments/current/name')
-        .set('Authorization', `Bearer ${managerToken}`)
+        .set('Cookie', betterAuthFixture.cookieFor())
         .send({ name: 'Concurrent A' }),
       request(fixture.app.getHttpServer())
         .patch('/establishments/current/name')
-        .set('Authorization', `Bearer ${managerToken}`)
+        .set('Cookie', betterAuthFixture.cookieFor())
         .send({ name: 'Concurrent B' }),
     ])
 
     expect(first.status).toBe(200)
     expect(second.status).toBe(200)
 
-    supabaseAuth.setUser(secondManagerToken, {
+    betterAuthFixture.setUser(secondManagerToken, {
       id: secondManagerId,
       email: `${secondManagerId}@example.com`,
     })
     const isolated = await request(fixture.app.getHttpServer())
       .get('/establishments/current')
-      .set('Authorization', `Bearer ${secondManagerToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
     expect(isolated.status).toBe(200)
     expect(isolated.body.establishment.name).toBe('Outra Sorveteria')
 

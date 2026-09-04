@@ -1,7 +1,7 @@
 import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import {
   createProduct,
@@ -12,7 +12,7 @@ import {
 
 describe('Set Primary Product Brand Controller [PATCH /products/:productId/brands/:brandId/primary]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
   afterAll(async () => fixture?.close())
@@ -38,7 +38,7 @@ describe('Set Primary Product Brand Controller [PATCH /products/:productId/brand
     await fixture.balances.initialize(product.id, second.id)
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/brands/${second.id}/primary`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({ brand: { id: second.id, isPrimary: true } })
     const brands = await fixture.brands.findManyByProductId(product.id)
@@ -61,7 +61,7 @@ describe('Set Primary Product Brand Controller [PATCH /products/:productId/brand
     })
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${product.id}/brands/${brand.id}/primary`)
-      .set('Authorization', `Bearer ${MrpModuleFixture.accounts.foreignManagerToken}`)
+      .set('Cookie', auth.cookieFor())
     expect(response.status).toBe(404)
     await expect(fixture.brands.findById(product.id, brand.id)).resolves.toMatchObject({
       isPrimary: true,

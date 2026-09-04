@@ -9,7 +9,7 @@ import {
 } from '@scoops/core/mrp/domain/structures'
 import { AppError, ServiceUnavailableError } from '@scoops/core/shared/domain/errors'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import {
   PdvModuleFixture,
   managerRequestAuthorization,
@@ -19,7 +19,7 @@ import {
 
 describe('Register Order Controller [POST /orders]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -59,7 +59,7 @@ describe('Register Order Controller [POST /orders]', () => {
     ]
     const preview = await request(fixture.app.getHttpServer())
       .post('/orders/preview')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ lines })
     const body = {
       idempotencyKey: '55000000-0000-4000-8000-000000000002',
@@ -69,11 +69,11 @@ describe('Register Order Controller [POST /orders]', () => {
 
     const first = await request(fixture.app.getHttpServer())
       .post('/orders')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send(body)
     const replay = await request(fixture.app.getHttpServer())
       .post('/orders')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send(body)
 
     expect(preview.status).toBe(200)
@@ -104,12 +104,12 @@ describe('Register Order Controller [POST /orders]', () => {
     const conflictingLines = [{ ...firstLines[0], quantity: 2 }]
     const preview = await request(fixture.app.getHttpServer())
       .post('/orders/preview')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ lines: firstLines })
 
     const first = await request(fixture.app.getHttpServer())
       .post('/orders')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         idempotencyKey: '55000000-0000-4000-8000-000000000007',
         previewToken: preview.body.previewToken,
@@ -117,7 +117,7 @@ describe('Register Order Controller [POST /orders]', () => {
       })
     const conflict = await request(fixture.app.getHttpServer())
       .post('/orders')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         idempotencyKey: '55000000-0000-4000-8000-000000000007',
         previewToken: preview.body.previewToken,
@@ -165,13 +165,13 @@ describe('Register Order Controller [POST /orders]', () => {
       ]
       const preview = await request(fixture.app.getHttpServer())
         .post('/orders/preview')
-        .set('Authorization', managerRequestAuthorization())
+        .set('Cookie', managerRequestAuthorization())
         .send({ lines })
       fixture.setStockConsumerFailure(error)
 
       const response = await request(fixture.app.getHttpServer())
         .post('/orders')
-        .set('Authorization', managerRequestAuthorization())
+        .set('Cookie', managerRequestAuthorization())
         .send({ idempotencyKey, previewToken: preview.body.previewToken, lines })
 
       expect(response.status).toBe(expectedStatus)
@@ -214,13 +214,13 @@ describe('Register Order Controller [POST /orders]', () => {
     ]
     const preview = await request(fixture.app.getHttpServer())
       .post('/orders/preview')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ lines })
     fixture.setDatabaseFailure(new AppError('Injected database failure.'))
 
     const response = await request(fixture.app.getHttpServer())
       .post('/orders')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         idempotencyKey: '55000000-0000-4000-8000-00000000000c',
         previewToken: preview.body.previewToken,
@@ -253,7 +253,7 @@ describe('Register Order Controller [POST /orders]', () => {
   it('rejects a malformed registration without exposing a rebuilt cart', async () => {
     const response = await request(fixture.app.getHttpServer())
       .post('/orders')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         idempotencyKey: '55000000-0000-4000-8000-000000000003',
         previewToken: 'not-a-preview',
@@ -298,7 +298,7 @@ describe('Register Order Controller [POST /orders]', () => {
     ]
     const preview = await request(fixture.app.getHttpServer())
       .post('/orders/preview')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ channelId: channel.id, lines })
     await fixture.salesChannels.replace(
       PdvModuleFixture.accounts.establishmentId,
@@ -308,7 +308,7 @@ describe('Register Order Controller [POST /orders]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .post('/orders')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         idempotencyKey: '55000000-0000-4000-8000-000000000004',
         previewToken: preview.body.previewToken,
@@ -341,7 +341,7 @@ describe('Register Order Controller [POST /orders]', () => {
     ]
     const preview = await request(fixture.app.getHttpServer())
       .post('/orders/preview')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ lines })
     await fixture.stockBalances.replaceQuantity(
       PdvModuleFixture.accounts.establishmentId,
@@ -352,7 +352,7 @@ describe('Register Order Controller [POST /orders]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .post('/orders')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         idempotencyKey: '55000000-0000-4000-8000-000000000005',
         previewToken: preview.body.previewToken,
@@ -385,7 +385,7 @@ describe('Register Order Controller [POST /orders]', () => {
     ]
     const preview = await request(fixture.app.getHttpServer())
       .post('/orders/preview')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ lines })
     await fixture.productSizes.replace(
       PdvModuleFixture.accounts.establishmentId,
@@ -396,7 +396,7 @@ describe('Register Order Controller [POST /orders]', () => {
 
     const response = await request(fixture.app.getHttpServer())
       .post('/orders')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         idempotencyKey: '55000000-0000-4000-8000-000000000006',
         previewToken: preview.body.previewToken,
@@ -436,14 +436,14 @@ describe('Register Order Controller [POST /orders]', () => {
     ]
     const preview = await request(fixture.app.getHttpServer())
       .post('/orders/preview')
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ lines })
 
     const responses = await Promise.all(
       ['000000000008', '000000000009'].map((suffix) =>
         request(fixture.app.getHttpServer())
           .post('/orders')
-          .set('Authorization', managerRequestAuthorization())
+          .set('Cookie', managerRequestAuthorization())
           .send({
             idempotencyKey: `55000000-0000-4000-8000-${suffix}`,
             previewToken: preview.body.previewToken,

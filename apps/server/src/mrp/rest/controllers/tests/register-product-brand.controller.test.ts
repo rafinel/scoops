@@ -2,7 +2,7 @@ import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -14,7 +14,7 @@ import {
 
 describe('Register Product Brand Controller [POST /products/:productId/brands]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
   afterAll(async () => fixture?.close())
@@ -25,7 +25,7 @@ describe('Register Product Brand Controller [POST /products/:productId/brands]',
     )
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/brands`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         name: '  Callebaut  ',
         packageQuantity: 2,
@@ -68,13 +68,13 @@ describe('Register Product Brand Controller [POST /products/:productId/brands]',
       (
         await request(fixture.app.getHttpServer())
           .post(`/products/${product.id}/brands`)
-          .set('Authorization', managerRequestAuthorization())
+          .set('Cookie', managerRequestAuthorization())
           .send(body)
       ).status,
     ).toBe(201)
     const duplicate = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/brands`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ ...body, name: ' Sicao ' })
     expect(duplicate.status).toBe(409)
     expect(await fixture.brands.findManyByProductId(product.id)).toHaveLength(1)
@@ -94,7 +94,7 @@ describe('Register Product Brand Controller [POST /products/:productId/brands]',
     )
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/brands`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ name: '', packageQuantity: 0, packageValue: -1, initialQuantity: -1 })
     expect(response.status).toBe(422)
     expect(await fixture.brands.findManyByProductId(product.id)).toHaveLength(0)

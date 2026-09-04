@@ -1,7 +1,7 @@
 import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import {
   createProduct,
@@ -12,7 +12,7 @@ import {
 
 describe('Remove Product Brand Controller [DELETE /products/:productId/brands/:brandId]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
   afterAll(async () => fixture?.close())
@@ -37,7 +37,7 @@ describe('Remove Product Brand Controller [DELETE /products/:productId/brands/:b
     })
     const response = await request(fixture.app.getHttpServer())
       .delete(`/products/${product.id}/brands/${primary.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     expect(response.status).toBe(409)
     await expect(fixture.brands.findById(product.id, primary.id)).resolves.toBeDefined()
   })
@@ -70,7 +70,7 @@ describe('Remove Product Brand Controller [DELETE /products/:productId/brands/:b
     })
     const response = await request(fixture.app.getHttpServer())
       .delete(`/products/${product.id}/brands/${brand.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
     expect(response.status).toBe(204)
     await expect(fixture.brands.findById(product.id, brand.id)).resolves.toBeUndefined()
     const page = await fixture.transactions.findPage(

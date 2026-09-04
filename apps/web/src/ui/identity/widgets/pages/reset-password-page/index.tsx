@@ -7,7 +7,7 @@ import { Label } from '@/ui/shadcn/label'
 
 import { MIN_PASSWORD_LENGTH, useResetPasswordPage } from './use-reset-password-page'
 
-export const ResetPasswordPage = () => {
+export const ResetPasswordPage = ({ token }: { token?: string }) => {
   const {
     actionError,
     isPasswordRecovery,
@@ -22,7 +22,7 @@ export const ResetPasswordPage = () => {
     handleToggleConfirmationVisibility,
     passwordField,
     confirmationField,
-  } = useResetPasswordPage()
+  } = useResetPasswordPage(token)
 
   return (
     <AuthLayout

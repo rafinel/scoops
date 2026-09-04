@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   managerRequestAuthorization,
@@ -13,7 +13,7 @@ import { comboCreate, expectedUpdatedAt } from './combo-controller-test-helpers'
 
 describe('Inactivate Combo Controller [PATCH /discounts/:discountId/inactivate]', () => {
   let fixture: PdvModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await preparePdvFixture()))
   beforeEach(async () => resetPdvFixture(fixture, auth))
@@ -24,7 +24,7 @@ describe('Inactivate Combo Controller [PATCH /discounts/:discountId/inactivate]'
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/discounts/${combo.id}/inactivate`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ expectedUpdatedAt: expectedUpdatedAt(combo) })
 
     expect(response.status).toBe(200)
@@ -39,7 +39,7 @@ describe('Inactivate Combo Controller [PATCH /discounts/:discountId/inactivate]'
     const combo = await fixture.addCombo(comboCreate())
     const response = await request(fixture.app.getHttpServer())
       .patch(`/discounts/${combo.id}/inactivate`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ expectedUpdatedAt: expectedUpdatedAt(combo) })
 
     expect(response.status).toBe(200)

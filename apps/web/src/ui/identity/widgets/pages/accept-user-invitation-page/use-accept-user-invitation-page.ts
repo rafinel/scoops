@@ -1,24 +1,17 @@
 import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { invitationAcceptanceFormSchema } from '@scoops/validation'
-import { useSearch } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
 import { useAcceptUserInvitationAction } from '@/ui/identity/hooks/use-accept-user-invitation-action'
-import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
 
 type State = 'idle' | 'editing' | 'submitting' | 'accepted' | 'error'
 type InvitationAcceptanceFormValues = z.infer<typeof invitationAcceptanceFormSchema>
 
-export function useAcceptUserInvitationPage() {
-  const search = useSearch({ strict: false }) as {
-    token?: string
-    confirmationToken?: string
-  }
-  const token = search.confirmationToken ?? search.token ?? ''
-  const auth = useAuthContext()
+export function useAcceptUserInvitationPage(confirmationToken?: string) {
+  const token = confirmationToken ?? ''
   const acceptance = useAcceptUserInvitationAction()
   const { navigateTo } = useNavigation()
   const [state, setState] = useState<State>(token ? 'editing' : 'idle')
@@ -44,13 +37,9 @@ export function useAcceptUserInvitationPage() {
     setError(null)
     setState('submitting')
     try {
-      await auth.setInvitationPassword(password)
-      await acceptance.acceptUserInvitation({ confirmationToken: token })
-      const available = await auth.activateInvitationAcceptance()
-      if (!available) throw new Error('A conta não está disponível.')
+      await acceptance.acceptUserInvitation({ confirmationToken: token, password })
       setState('accepted')
     } catch (caught) {
-      await auth.clearInvitationAcceptance().catch(() => undefined)
       setState('error')
       setError(
         caught instanceof Error ? caught.message : 'Não foi possível ativar o convite.',

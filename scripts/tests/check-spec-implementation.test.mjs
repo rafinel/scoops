@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
-import { mkdtemp, mkdir, rm, unlink, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, rm, unlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
@@ -113,6 +113,46 @@ test('reports every missing or unchanged contracted path', async () => {
         assert.match(messages, /src\/removed\.ts: Remove path still exists/)
         return true
       },
+    )
+  } finally {
+    await rm(repositoryRoot, { force: true, recursive: true })
+  }
+})
+
+test('allows an explicit removal of a candidate-only untracked path', async () => {
+  const repositoryRoot = await createRepositoryFixture()
+
+  try {
+    const candidateOnlyPath = path.join(repositoryRoot, 'src/candidate-only.ts')
+    await writeFile(candidateOnlyPath, 'candidate only\n')
+    const specPath = path.join(repositoryRoot, SPEC_PATH)
+    const spec = await readFile(specPath, 'utf8')
+    await writeFile(
+      specPath,
+      spec.replace(
+        '| `src/removed.ts` | Remove | removed |',
+        '| `src/removed.ts` | Remove | removed |\n| `src/candidate-only.ts` | Remove | candidate-only |',
+      ),
+    )
+    await writeFile(
+      path.join(repositoryRoot, 'src/created.ts'),
+      'export const created = true\n',
+    )
+    await writeFile(
+      path.join(repositoryRoot, 'src/modified.ts'),
+      'export const value = 2\n',
+    )
+    await writeFile(path.join(repositoryRoot, 'src/generated.ts'), 'generated: 2\n')
+    await unlink(path.join(repositoryRoot, 'src/removed.ts'))
+    await unlink(candidateOnlyPath)
+
+    const result = await runChecker(repositoryRoot)
+
+    assert.equal(
+      result.errors.includes(
+        'src/candidate-only.ts: Remove path does not exist at the baseline',
+      ),
+      false,
     )
   } finally {
     await rm(repositoryRoot, { force: true, recursive: true })

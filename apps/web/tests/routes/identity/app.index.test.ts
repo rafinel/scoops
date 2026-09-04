@@ -1,5 +1,6 @@
 import { expect, test } from '../../playwright'
 
+test.describe.configure({ mode: 'serial' })
 test.describe('Authenticated app route', () => {
   test('redirects anonymous users with a sanitized return path', async ({ page }) => {
     await page.goto('/')

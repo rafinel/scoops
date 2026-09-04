@@ -6,7 +6,7 @@ import {
   ProductUnit,
 } from '@scoops/core/mrp/domain/structures'
 
-import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 export function createProduct(overrides: Partial<ProductCreate> = {}): ProductCreate {
@@ -27,14 +27,14 @@ export function expectedUpdatedAt(product: Pick<Product, 'updatedAt'>): string {
 }
 
 export async function prepareMrpFixture() {
-  const auth = new SupabaseAuthFixture()
+  const auth = new BetterAuthFixture()
   const fixture = await MrpModuleFixture.register(auth)
   return { auth, fixture }
 }
 
 export async function resetMrpFixture(
   fixture: MrpModuleFixture,
-  auth: SupabaseAuthFixture,
+  auth: BetterAuthFixture,
 ) {
   await auth.clear()
   await fixture.resetDatabase()
@@ -43,13 +43,13 @@ export async function resetMrpFixture(
 }
 
 export function managerRequestAuthorization() {
-  return `Bearer ${MrpModuleFixture.accounts.managerToken}`
+  return `scoops.session_token=${MrpModuleFixture.accounts.managerToken}`
 }
 
 export function operatorRequestAuthorization() {
-  return `Bearer ${MrpModuleFixture.accounts.operatorToken}`
+  return `scoops.session_token=${MrpModuleFixture.accounts.operatorToken}`
 }
 
 export function foreignManagerRequestAuthorization() {
-  return `Bearer ${MrpModuleFixture.accounts.foreignManagerToken}`
+  return `scoops.session_token=${MrpModuleFixture.accounts.foreignManagerToken}`
 }

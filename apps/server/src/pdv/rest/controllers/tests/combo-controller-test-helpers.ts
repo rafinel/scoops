@@ -11,6 +11,7 @@ import { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 
 const firstProductId = '51000000-0000-4000-8000-000000000001'
 const secondProductId = '51000000-0000-4000-8000-000000000002'
+export const SCOOPS_SESSION_COOKIE_NAME = 'scoops.session_token'
 
 export function comboCreate(overrides: Partial<ComboCreate> = {}): ComboCreate {
   return {

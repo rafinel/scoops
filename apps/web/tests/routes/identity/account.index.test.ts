@@ -1,6 +1,7 @@
 import { expect, test } from '../../playwright'
 import { accountResponse } from '../../fixtures/identity-data-fixtures'
 
+test.describe.configure({ mode: 'serial' })
 test.describe('Account route', () => {
   test('protects the route and edits the current user name', async ({
     page,

@@ -46,6 +46,7 @@ import type { TestingModuleBuilder } from '@nestjs/testing'
 
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
+import { BetterAuthSessionIssuer } from '@/identity/provision/auth'
 import { IdentityModule } from '@/identity/identity.module'
 import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MrpSeeder } from '@/mrp/database/mrp-seeder'
@@ -84,6 +85,10 @@ export class MrpModuleFixture {
       (builder: TestingModuleBuilder) =>
         builder
           .overrideProvider(IDENTITY_PROVIDERS.authIdentity)
+          .useValue(authProvider)
+          .overrideProvider(IDENTITY_PROVIDERS.betterAuthSessionVerifier)
+          .useValue(authProvider)
+          .overrideProvider(BetterAuthSessionIssuer)
           .useValue(authProvider)
           .overrideProvider(InngestBroker)
           .useValue(new InngestMock()),

@@ -2,6 +2,7 @@ import { expect, test } from '../../playwright'
 import { userDetailsJson, usersPageJson } from '../../fixtures/identity-data-fixtures'
 
 const USERS_RESPONSE = usersPageJson()
+test.describe.configure({ mode: 'serial' })
 test.describe('Users route', () => {
   test('protects the route and preserves the requested filter URL', async ({ page }) => {
     await page.goto('/users?page=3&profile=operator&status=active&search=Ana')

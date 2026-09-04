@@ -235,7 +235,6 @@ test.describe('Product settings route with mocked transport', () => {
     await page.goto(
       `/products/${PRODUCT_ID}/settings?retryCategory=ingredient&retryDependency=consuming-recipe&retryProductId=${FOREIGN_PRODUCT_ID}`,
     )
-
     await expect(page.getByRole('heading', { name: PRODUCT.name })).toBeVisible()
     await expect(page).toHaveURL(`/products/${PRODUCT_ID}/settings`)
   })

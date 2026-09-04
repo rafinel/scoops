@@ -1,3 +1,5 @@
 export * from '@/identity/database/drizzle/models'
 export * from '@/mrp/database/drizzle/models'
 export * from '@/pdv/database/drizzle/models'
+export * from '@/shared/database/drizzle/models/event-model'
+export * from '@/shared/database/drizzle/models/event-status-model'

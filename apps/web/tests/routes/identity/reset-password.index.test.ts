@@ -16,6 +16,13 @@ test.describe('Reset-password route', () => {
     )
   })
 
+  test('renders the invalid recovery state for a malformed token', async ({ page }) => {
+    await page.goto('/reset-password?token=not-a-token')
+
+    await expect(page.getByRole('alert')).toContainText('expirou ou não é válido')
+    await expect(page.getByRole('textbox', { name: 'Nova senha' })).toHaveCount(0)
+  })
+
   test('shows recovery-link validation before displaying an invalid-link state', async ({
     page,
   }) => {
@@ -24,7 +31,7 @@ test.describe('Reset-password route', () => {
       releaseSession = resolve
     })
 
-    await page.route('**/auth/v1/session*', async (route) => {
+    await page.route('**/auth/session*', async (route) => {
       await sessionReady
       await route.fulfill({
         contentType: 'application/json',
@@ -33,7 +40,7 @@ test.describe('Reset-password route', () => {
       })
     })
 
-    const navigation = page.goto('/reset-password#type=recovery')
+    const navigation = page.goto(`/reset-password?token=${'r'.repeat(43)}`)
 
     await expect(page.getByRole('status')).toContainText(
       'Validando seu link de recuperação',
@@ -53,12 +60,12 @@ test.describe('Reset-password route', () => {
     await identityFixture.mockManagerSession()
     await identityFixture.mockManagerAccount()
     let updateRequests = 0
-    await page.route('**/auth/v1/user*', async (route) => {
+    await page.route('**/registration-attempts/password-reset*', async (route) => {
       updateRequests += 1
       await route.continue()
     })
 
-    await page.goto('/reset-password#type=recovery')
+    await page.goto(`/reset-password?token=${'r'.repeat(43)}`)
     await page.waitForLoadState('networkidle')
     await page.getByRole('textbox', { name: 'Nova senha', exact: true }).fill('short')
     await page.getByRole('textbox', { name: 'Confirmar nova senha' }).fill('short')
@@ -75,12 +82,12 @@ test.describe('Reset-password route', () => {
     await identityFixture.mockManagerSession()
     await identityFixture.mockManagerAccount()
     let updateRequests = 0
-    await page.route('**/auth/v1/user*', async (route) => {
+    await page.route('**/registration-attempts/password-reset*', async (route) => {
       updateRequests += 1
       await route.continue()
     })
 
-    await page.goto('/reset-password#type=recovery')
+    await page.goto(`/reset-password?token=${'r'.repeat(43)}`)
     await page.waitForLoadState('networkidle')
     await page
       .getByRole('textbox', { name: 'Nova senha', exact: true })
@@ -100,7 +107,7 @@ test.describe('Reset-password route', () => {
     await identityFixture.mockManagerAccount()
     let updateBody: { password?: string } | undefined
     let logoutRequests = 0
-    await page.route('**/auth/v1/user*', async (route) => {
+    await page.route('**/registration-attempts/password-reset*', async (route) => {
       updateBody = route.request().postDataJSON() as { password?: string }
       await route.fulfill({
         contentType: 'application/json',
@@ -108,12 +115,12 @@ test.describe('Reset-password route', () => {
         body: JSON.stringify({ user: { id: 'browser-manager-id' } }),
       })
     })
-    await page.route('**/auth/v1/logout*', async (route) => {
+    await page.route('**/api/auth/sign-out*', async (route) => {
       logoutRequests += 1
       await route.fulfill({ status: 204, body: '' })
     })
 
-    await page.goto('/reset-password#type=recovery')
+    await page.goto(`/reset-password?token=${'r'.repeat(43)}`)
     await page.waitForLoadState('networkidle')
     await page
       .getByRole('textbox', { name: 'Nova senha', exact: true })
@@ -132,7 +139,7 @@ test.describe('Reset-password route', () => {
   }) => {
     await identityFixture.mockManagerSession()
     await identityFixture.mockManagerAccount()
-    await page.route('**/auth/v1/user*', async (route) => {
+    await page.route('**/registration-attempts/password-reset*', async (route) => {
       await route.fulfill({
         contentType: 'application/json',
         status: 500,
@@ -140,7 +147,7 @@ test.describe('Reset-password route', () => {
       })
     })
 
-    await page.goto('/reset-password#type=recovery')
+    await page.goto(`/reset-password?token=${'r'.repeat(43)}`)
     await page.waitForLoadState('networkidle')
     await page
       .getByRole('textbox', { name: 'Nova senha', exact: true })
@@ -159,7 +166,7 @@ test.describe('Reset-password route', () => {
   test('toggles both password visibility controls', async ({ page, identityFixture }) => {
     await identityFixture.mockManagerSession()
     await identityFixture.mockManagerAccount()
-    await page.goto('/reset-password#type=recovery')
+    await page.goto(`/reset-password?token=${'r'.repeat(43)}`)
     await page.waitForLoadState('networkidle')
     const password = page.getByRole('textbox', { name: 'Nova senha', exact: true })
     const confirmation = page.getByRole('textbox', { name: 'Confirmar nova senha' })

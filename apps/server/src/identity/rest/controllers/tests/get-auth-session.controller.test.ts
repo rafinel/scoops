@@ -13,7 +13,7 @@ import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
-import { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 
 const managerId = '00000000-0000-0000-0000-000000000001'
 const establishmentId = '10000000-0000-0000-0000-000000000001'
@@ -48,15 +48,15 @@ function createActiveManager(overrides: Partial<User> = {}) {
 }
 
 describe('Get Auth Session Controller [GET /auth/session]', () => {
-  const supabaseAuth = new SupabaseAuthFixture()
+  const betterAuthFixture = new BetterAuthFixture()
   let fixture: IdentityModuleFixture
 
   beforeAll(async () => {
-    fixture = await IdentityModuleFixture.register(supabaseAuth)
+    fixture = await IdentityModuleFixture.register(betterAuthFixture)
   })
 
   beforeEach(async () => {
-    await supabaseAuth.clear()
+    await betterAuthFixture.clear()
     await fixture.resetDatabase()
   })
 
@@ -91,11 +91,11 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
     )
     const usersRepository = fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users)
 
-    supabaseAuth.setUser(activeToken, { id: user.id, email: user.email })
+    betterAuthFixture.setUser(activeToken, { id: user.id, email: user.email })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/auth/session')
-      .set('Authorization', `Bearer ${activeToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
 
     expect(response.status).toBe(401)
     expect(response.body).toMatchObject({
@@ -117,11 +117,11 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
       users: [user],
       registrationAttempts: [],
     })
-    supabaseAuth.setUser(activeToken, { id: user.id, email: user.email })
+    betterAuthFixture.setUser(activeToken, { id: user.id, email: user.email })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/auth/session')
-      .set('Authorization', `Bearer ${activeToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
 
     expect(response.status).toBe(200)
     expect(response.body).toEqual({
@@ -143,11 +143,11 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
       users: [user],
       registrationAttempts: [],
     })
-    supabaseAuth.setUser(activeToken, { id: user.id, email: user.email })
+    betterAuthFixture.setUser(activeToken, { id: user.id, email: user.email })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/auth/session')
-      .set('Authorization', `Bearer ${activeToken}`)
+      .set('Cookie', betterAuthFixture.cookieFor())
 
     expect(response.status).toBe(401)
     expect(response.body).toMatchObject({ title: 'Authentication required' })

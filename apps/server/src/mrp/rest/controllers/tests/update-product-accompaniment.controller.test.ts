@@ -2,7 +2,7 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { SupabaseAuthFixture } from '@/identity/fixtures/supabase-auth-fixture'
+import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
@@ -15,7 +15,7 @@ import {
 
 describe('Update Product Accompaniment Controller [PATCH /products/:productId/accompaniments/:linkId]', () => {
   let fixture: MrpModuleFixture
-  let auth: SupabaseAuthFixture
+  let auth: BetterAuthFixture
 
   beforeAll(async () => ({ fixture, auth } = await prepareMrpFixture()))
   beforeEach(async () => resetMrpFixture(fixture, auth))
@@ -49,7 +49,7 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${owner.id}/accompaniments/${link.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ accompanimentTypeId: replacementType.id, quantityPerPortion: 2.125 })
 
     expect(response.status).toBe(200)
@@ -100,19 +100,19 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
 
     const malformed = await request(fixture.app.getHttpServer())
       .patch(`/products/${owner.id}/accompaniments/${link.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ accompanimentTypeId: type.id, quantityPerPortion: 1.1234 })
     const operator = await request(fixture.app.getHttpServer())
       .patch(`/products/${owner.id}/accompaniments/${link.id}`)
-      .set('Authorization', operatorRequestAuthorization())
+      .set('Cookie', operatorRequestAuthorization())
       .send({ accompanimentTypeId: type.id, quantityPerPortion: 2 })
     const foreign = await request(fixture.app.getHttpServer())
       .patch(`/products/${foreignOwner.id}/accompaniments/${link.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ accompanimentTypeId: type.id, quantityPerPortion: 2 })
     const missing = await request(fixture.app.getHttpServer())
       .patch(`/products/${owner.id}/accompaniments/00000000-0000-4000-8000-000000000099`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({ accompanimentTypeId: type.id, quantityPerPortion: 2 })
 
     expect(malformed.status).toBe(422)
@@ -151,7 +151,7 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/products/${owner.id}/accompaniments/${link.id}`)
-      .set('Authorization', managerRequestAuthorization())
+      .set('Cookie', managerRequestAuthorization())
       .send({
         accompanimentTypeId: '00000000-0000-4000-8000-000000000099',
         quantityPerPortion: 2,
