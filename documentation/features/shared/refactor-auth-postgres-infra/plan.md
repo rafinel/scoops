@@ -1,6 +1,6 @@
 ---
 title: Refactor authentication and PostgreSQL infrastructure — implementation plan
-status: completed
+status: in_progress
 spec: ./spec.md
 spec_revision: 14
 evaluation: ./evaluation.md
@@ -10,12 +10,12 @@ updated_at: 2026-09-04
 
 # Execution status
 
-- **Spec:** [`./spec.md`](./spec.md), revision `14`, status `completed` after final local and PR CI validation.
+- **Spec:** [`./spec.md`](./spec.md), revision `14`, status `open` for review-cycle implementation corrections.
 - **Plan rationale:** Plan-backed execution is required because this delivery crosses Core, Validation, Server, Communication, Web, PostgreSQL/Neon migration, messaging, security, CI and real-service validation with hard ordering and rollback boundaries.
-- **Current phase:** F7 — integrated validation, review and handoff — **completed** after coverage-floor, Test Integrity, uninterrupted route-suite and PR CI corrections.
-- **Next action:** PR #32 is open for review. No production cutover, merge or external resource mutation has been performed.
-- **Active blockers:** None. Core, Validation, Server, Web, coverage, REST parity, local MV-01–MV-06/MV-08, static sensors and the exact uninterrupted route suite are current and passing. MV-07 is not part of the revision-14 manual matrix; its automated migration rehearsal remains recorded historically.
-- **Active Builders:** None. `builder_core`, `builder_server`, `builder_web` and the Web coverage-fix Builder completed their bounded scopes. The Orchestrator completed integrated correction validation and published PR #32.
+- **Current phase:** F7 correction validation — provider error mapping and auth-route retry handling are implemented and locally revalidated.
+- **Next action:** Run the conclusion preflight and final PR CI gate for the existing PR. No production cutover, merge or external resource mutation has been performed.
+- **Active blockers:** None in the implementation correction cycle; Identity `REQ-13` remains unchecked until `conclude-spec` performs its closure preflight.
+- **Active Builders:** `builder_server` owns the two Communication provider corrections; `builder_web` owns the auth-route retry correction. The Orchestrator owns SDD state and review coordination.
 - **Shared/generated ownership:** The Orchestrator owns this Plan and `evaluation.md`, root configuration and package installation/lockfile coordination, generated Drizzle migration metadata, generated `apps/web/src/routeTree.gen.ts`, Compose/CI/environment/documentation/removal coordination, integrated validation and the single Implementation Reviewer. Builder Server owns server source and all ten REST-client artifacts; Builder Web owns Web source/tests and consumes REST artifacts as a read-only parity reference. Existing unrelated governance edits remain user-owned and outside this candidate.
 
 # Execution ledger
@@ -31,7 +31,7 @@ updated_at: 2026-09-04
 | 3 | `Builder Web` | F5 | Web cookie/SSR authentication and Identity UI | F1, F2-T3 and F2-T4 | Builder Server F3 | `completed` | Web auth/REST/SSR composition, routes, widgets, mocked route suites and auth-state tests pass without readable token state. |
 | 6 | `Builder Server` | F6 | Remove obsolete cutover tooling and place the shared outbox contract in Core | F2, F3 and F4 | Orchestrator F6 configuration work after server handoff | `completed` | All legacy cutover source/test/export files are absent; the provider-neutral outbox contract is exported by Core, while Server retains the Drizzle models, adapter, persistence types and injection token; imports, barrels and tests use the new paths. |
 | 6 | `Orchestrator` | F6 | Supabase removal and release configuration cleanup | F3, F4, F5 and Builder Server F6-T1 | — | `completed` | Runtime/configuration removal, Compose/CI/scripts/examples alignment and obsolete cutover runbook deletion are integrated without modifying historical SDD truth. |
-| 7 | `Orchestrator` | F7 | Integrated validation, review and handoff | F6 | — | `completed` | Path conformance, all workspace sensors, real services, applicable MV-01–MV-06 and local MV-08, REST parity, evidence freshness, coverage floors, and the uninterrupted 190-test route suite passed; the candidate is ready for `conclude-spec`. |
+| 7 | `Orchestrator` | F7 | Integrated validation, review and handoff | F6 | — | `in_progress` | Review-cycle implementation corrections, refreshed affected evidence and the conclusion preflight must complete before the existing PR is closed. |
 
 ### F1 — Core and Validation contracts/use cases
 
@@ -133,7 +133,7 @@ updated_at: 2026-09-04
 
 #### F4-T1 — Implement Communication-owned providers, templates and durable email jobs
 
-- **Status/owner:** `completed` — Builder Server (`builder_server`), validated by `EV-F4-01`
+- **Status/owner:** `completed` — Builder Server (`builder_server`), review-cycle correction validated by `EV-REVIEW-SERVER-01`
 - **Depends/parallel:** Depends on F1 event schemas and F2 outbox publication; follows F3 prepared-event orchestration; sequential within Builder Server.
 - **Paths:** `apps/server/src/communication/constants/**`; `apps/server/src/communication/provision/email/**`; `apps/server/src/communication/messaging/inngest/jobs/**`; `packages/email/**`; the exact Communication test paths listed in Spec §3.
 - **Contract:** `RF-05`, `RF-09`; `CA-08`–`CA-11A`.
@@ -165,7 +165,7 @@ updated_at: 2026-09-04
 
 #### F5-T2 — Migrate Identity actions, pages, route search and protected navigation
 
-- **Status/owner:** `completed` — Builder Web (`builder_web`), validated by `EV-F5-08`
+- **Status/owner:** `completed` — Builder Web (`builder_web`), review-cycle correction validated by `EV-REVIEW-WEB-01`
 - **Depends/parallel:** Depends on F5-T1; route files remain thin and use the shared middleware/search schemas.
 - **Paths:** `apps/web/src/ui/identity/hooks/**`; `apps/web/src/ui/identity/widgets/pages/accept-user-invitation-page/**`; `apps/web/src/ui/identity/widgets/pages/onboarding-confirmation-page/**`; `apps/web/src/ui/identity/widgets/pages/reset-password-page/**`; `apps/web/src/ui/identity/widgets/pages/landing-page/**`; `apps/web/src/routes/invitation/accept.tsx`; `apps/web/src/routes/onboarding/confirm.tsx`; `apps/web/src/routes/reset-password/index.tsx`.
 - **Contract:** `RF-02`, `RF-04`, `RF-09`; `CA-03`, `CA-04`, `CA-06`–`CA-09`, `CA-18`.
@@ -209,7 +209,7 @@ updated_at: 2026-09-04
 
 #### F7-T1 — Generate route metadata and run the complete Spec path sensor
 
-- **Status/owner:** `completed` — Orchestrator; route generation and the current Spec path sensor pass (`EV-F7-SENSOR-REV13-01`)
+- **Status/owner:** `completed` — Orchestrator; review-cycle conformance and integrity rerun pass (`EV-REVIEW-SENSOR-01`)
 - **Depends/parallel:** Depends on all Builder diffs, generated migration review and F6 configuration integration; no integrated sensor or Reviewer starts before the path sensor passes.
 - **Paths:** `apps/web/src/routeTree.gen.ts`; complete integrated candidate path map; `./plan.md`; `./evaluation.md`.
 - **Contract:** All `RF-01`–`RF-09`; all `CA-01`–`CA-18` as structural coverage.
@@ -219,7 +219,7 @@ updated_at: 2026-09-04
 
 #### F7-T2 — Run integrated sensors, real scenarios and the single Implementation Reviewer
 
-- **Status/owner:** `completed` — Orchestrator; local evidence, the uninterrupted route suite and final PR CI are green.
+- **Status/owner:** `in_progress` — Orchestrator; review-cycle evidence is green and the final PR CI gate remains.
 - **Depends/parallel:** Depends on F7-T1 passing. The affected workspace sensors and one read-only Reviewer run against the same integrated candidate; any contracted-path correction invalidates affected evidence, reruns the path sensor and resumes the same Reviewer after correction.
 - **Paths:** Complete revision-14 candidate; `./evaluation.md`; transient Playwright `test-results/`; generated migration/route artifacts; all affected REST-client artifacts; [`../../../agents/implementation-reviewer-agent.md`](../../../agents/implementation-reviewer-agent.md).
 - **Contract:** All `RF-01`–`RF-09`, `CA-01`–`CA-12`, `CA-16`–`CA-18` and `MV-01`–`MV-06`, `MV-08`; Spec Validation Contract and empty-environment migration boundary.

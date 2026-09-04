@@ -7,7 +7,9 @@ export function useAuthRouteUnavailableState() {
   const { retryLocalAccess } = useAuthContext()
 
   function handleRetry() {
-    void retryLocalAccess().then(() => router.invalidate())
+    void retryLocalAccess()
+      .finally(() => router.invalidate())
+      .catch(() => undefined)
   }
 
   return { handleRetry }

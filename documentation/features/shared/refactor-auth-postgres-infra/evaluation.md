@@ -3,7 +3,7 @@ feature: "shared/refactor-auth-postgres-infra"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 14
-status: completed
+status: ready
 updated_at: 2026-09-04
 ---
 
@@ -11,7 +11,25 @@ updated_at: 2026-09-04
 
 Evaluation of Spec revision `14` against the current implementation.
 
-Current result: Revision 14 was delivered in PR #32 at head `96d68d1ea5af8754672e07a6c3a08c50f574688f`. It does not change authentication, quota, expiry, revocation, rollback or deployment behavior. The provider-neutral `OutboxDatabase` contract is in Core shared interfaces while the Server retains the Nest token and Drizzle adapter. Static checks, REST parity, current sensors, local MV-01–MV-06/MV-08 evidence, all workspace coverage floors, the exact uninterrupted route suite and the final PR CI quality gate pass. The Spec is complete; PR #32 remains open for review with no merge or deployment performed.
+Current result: Revision 14 was delivered in PR #32 at head `96d68d1ea5af8754672e07a6c3a08c50f574688f`, then reopened for review-cycle implementation corrections. The Contract is unchanged. The affected provider, retry, static, focused-test and coverage evidence has now been refreshed locally; PR #32 remains open with no merge or deployment performed.
+
+## Review cycle 1 — implementation correction
+
+| Finding | Review conversation | Mapping | Classification | Status |
+| --- | --- | --- | --- | --- |
+| `FND-050` | [Resend adapter](https://github.com/rafinel/scoops/pull/32#discussion_r3933976723) | `RF-05`, `CA-10` | Implementation correction | `resolved` |
+| `FND-051` | [SMTP adapter](https://github.com/rafinel/scoops/pull/32#discussion_r3933976774) | `RF-05`, `CA-10` | Implementation correction | `resolved` |
+| `FND-052` | [Auth-route retry](https://github.com/rafinel/scoops/pull/32#discussion_r3933976802) | Identity `REQ-13`, `RF-04`, `CA-18` | Implementation correction | `resolved` |
+
+Identity `REQ-13` is returned to unchecked pending corrected retry behavior and refreshed evidence.
+Communication requirements were already unchecked because this Spec delivers only the Identity
+message subset; their checkbox state is preserved.
+
+Review-cycle assignments: `Hegel` (`01a06c71-fb38-7e53-9807-b81c799957a8`) owns the Server
+Communication adapter correction and approved job-boundary tests; `Nash`
+(`01a06c72-03d5-75e1-8186-e7872663438a`) owns the Web auth-route retry correction and approved
+widget-boundary tests. Both are prohibited from editing SDD artifacts, PR metadata, Rules or
+unrelated paths.
 
 ## Acceptance matrix
 
@@ -27,13 +45,13 @@ Current result: Revision 14 was delivered in PR #32 at head `96d68d1ea5af8754672
 | `CA-07` | `EV-F1-03`, `EV-F3-08`, `EV-F4-01`, `EV-F7-ROUTES-REV14-01`, `EV-F7-MV03-01` | `passed` |
 | `CA-08` | `EV-F1-03`, `EV-F3-08`, `EV-F4-01`, `EV-F7-ROUTES-REV14-01`, `EV-F7-MV04-01` | `passed` |
 | `CA-09` | `EV-F1-03`, `EV-F3-08`, `EV-F4-01`, `EV-F7-ROUTES-REV14-01`, `EV-F7-MV05-01` | `passed` |
-| `CA-10` | `EV-F4-01`, `EV-F7-MV03-01`, `EV-F7-MV04-01`, `EV-F7-MV05-01` | `passed` |
+| `CA-10` | `EV-F4-01`, `EV-F7-MV03-01`, `EV-F7-MV04-01`, `EV-F7-MV05-01`, `EV-REVIEW-SERVER-01` | `passed` |
 | `CA-11` | `EV-F4-01`, `EV-F7-STATIC-01` | `passed` |
 | `CA-11A` | `EV-F2-03`, `EV-F4-01`, `EV-F7-STATIC-01` | `passed` |
 | `CA-12` | `EV-F2-03`, `EV-F6-02`, `EV-RUNTIME-01` | `passed` |
 | `CA-16` | `EV-F6-02`, `EV-F7-SENSOR-REV14-01` | `passed` |
 | `CA-17` | `EV-F3-08`, `EV-F7-ROUTES-REV14-01`, `EV-F7-STATIC-REV14-01` | `passed` |
-| `CA-18` | `EV-F7-ROUTES-REV14-01`, `EV-RUNTIME-01`, `EV-F7-MV01-01`, `EV-F7-MV02-01`, `EV-F7-MV03-01`, `EV-F7-MV04-01`, `EV-F7-MV05-01`, `EV-F7-MV06-01` | `passed` |
+| `CA-18` | `EV-F7-ROUTES-REV14-01`, `EV-RUNTIME-01`, `EV-F7-MV01-01`, `EV-F7-MV02-01`, `EV-F7-MV03-01`, `EV-F7-MV04-01`, `EV-F7-MV05-01`, `EV-F7-MV06-01`, `EV-REVIEW-WEB-01` | `passed` |
 
 ## PRD implementation traceability
 
@@ -113,6 +131,9 @@ Current result: Revision 14 was delivered in PR #32 at head `96d68d1ea5af8754672
 | `EV-F5-09` | UI/REST | `pnpm --filter web exec playwright test tests/routes --workers=1` plus isolated reruns | Historical revision-13 route evidence: the long-lived Vite run passed 185/190 and required focused retries. It is superseded by the deterministic revision-14 rerun below. | `stale` |
 | `EV-F7-ROUTES-REV14-01` | UI/REST | `pnpm --filter web exec playwright test tests/routes --workers=1`; focused access-denied and PDV order reruns | A clean isolated Vite server on the configured Playwright port ran the exact committed route command: 190/190 passed in 15.8 minutes. The access-denied focused check passed 2/2 and the corrected order route file passed 5/5. Console errors were limited to expected mocked unavailable/validation states; no unexpected failed requests were reported. | `passed` |
 | `EV-F7-STATIC-REV14-01` | Cross-layer | `pnpm --filter web check:playwright`; `pnpm check:test-integrity`; `pnpm check:spec-implementation -- documentation/features/shared/refactor-auth-postgres-infra/spec.md`; `git diff --check` | Playwright health passed 1/1; Test Integrity passed with 362 tracked and 112 changed test files; Spec path implementation passed with 376 contracted paths (88 Create, 229 Modify, 4 Generate, 55 Remove) and 144 unrelated paths ignored; diff check passed. | `passed` |
+| `EV-REVIEW-SERVER-01` | Communication/Server | Focused Communication job tests; Server code, types, architecture and build; Test Integrity | The focused Communication job boundary passed 6/6 tests, including Resend and SMTP mapping to Core `EmailDeliveryUnavailableError` with safe messages and retry attempts. Server code passed for 504 files, architecture passed for 542 modules/2,921 dependencies, and the Server build passed. Full Server coverage passed 85 files/211 tests with statements 72.36%, branches 52.80%, functions 71.75% and lines 75.66%; all configured floors passed. | `passed` |
+| `EV-REVIEW-WEB-01` | Web/UI | Focused auth-route unavailable-state tests; Web code, types, architecture and build; full Web coverage | The focused retry boundary passed 2/2 tests, including router invalidation after both successful and rejected local-access retry. Web static/type/architecture/build gates passed; full Web coverage passed 165 files/376 tests with statements 55.55%, branches 53.95%, functions 51.60% and lines 57.09%; all configured floors passed. The hook-only correction has no rendered visual delta, so no new screenshot was required. | `passed` |
+| `EV-REVIEW-SENSOR-01` | Cross-layer | `pnpm check:spec-implementation -- documentation/features/shared/refactor-auth-postgres-infra/spec.md --json`; `pnpm check:test-integrity`; `git diff --check` | Revision-14 conformance passed with 376 contracted paths (88 Create, 229 Modify, 4 Generate, 55 Remove) and no errors; Test Integrity passed with 363 tracked test files and 131 changed test files; diff check passed. | `passed` |
 | `EV-CONCLUDE-PREFLIGHT-01` | Cross-layer | `pnpm install --frozen-lockfile`; `pnpm check:test-integrity`; `pnpm test:scripts`; `docker compose config`; `pnpm --filter web generate-routes`; `pnpm --filter server db:migration:apply`; scoped active-removal scan; `git diff --check`; `pnpm check:spec-implementation -- documentation/features/shared/refactor-auth-postgres-infra/spec.md` | Frozen install, test-integrity, 13 script tests, Compose resolution, route generation, local migration application, scoped Supabase/Bearer residue scan, diff check and current revision-14 conformance all passed. The scan intentionally excludes deleted `volumes/` paths and Better Auth's provider-owned `refresh_token` schema columns. The latest conformance run reports 144 unrelated changed paths because fully delivered Identity PRD checkboxes and approved correction tests are outside the Spec path ledger. | `passed` |
 | `EV-CONCLUDE-PR-CI-01` | Web CI | PR #32 Web CI runs `33869318164` and `33869356454` | Both Web jobs reached the configured 15-minute timeout while the required 190-test route suite was still running; logs showed no assertion failure. Increased the in-scope Web CI timeout to 30 minutes so the route suite can reach a terminal result. | `resolved` |
 | `EV-CONCLUDE-SERVER-COVERAGE-01` | Server | `pnpm --filter server test:coverage` | Historical pre-correction result: 85 files and 200 tests passed, but configured coverage floors failed. Superseded by `EV-F7-COVERAGE-REV14-01`. | `stale` |
@@ -161,7 +182,7 @@ Current result: Revision 14 was delivered in PR #32 at head `96d68d1ea5af8754672
 | Authority | Reference | Result | Notes |
 | --- | --- | --- | --- |
 | Execution assignments | `plan.md` F1–F7 and `implement-spec` Builder activation gate | `passed` | `builder_core`, `builder_server` and `builder_web` completed their bounded implementation scopes; Orchestrator-owned Plan/Evaluation/generated/configuration integration is recorded above. Builders did not edit SDD artifacts, Rules, PRDs or one another’s paths. |
-| Spec and Plan | `spec.md` revision 14; `plan.md` revision 14 | `passed` | Revision 14 narrows validation to reproducible local scenarios without changing product or deployment behavior. F6 cleanup, REST parity, the isolated 190-test route suite, current sensors and applicable local runtime evidence are complete; F7 is ready for conclusion. Earlier cutover and outbox-location evidence is historical. |
+| Spec and Plan | `spec.md` revision 14; `plan.md` revision 14 | `passed` | Revision 14 narrows validation to reproducible local scenarios without changing product or deployment behavior. The review-cycle provider and retry corrections, refreshed focused/full package gates, coverage floors, conformance and Test Integrity are complete; F7 is ready for conclusion. Earlier cutover and outbox-location evidence is historical. |
 | `documentation/rules.md` | Dynamic Rule router | `passed` | Required selected Rule Pack was read before kickoff; the Email Package Rule Pack is now routed for `packages/email/**` and `@scoops/email/templates`, alongside the existing Core, Validation, Server, REST, Database, Messaging, Provision, UI, routing, controllers and widget rules. |
 | Architecture and Modules | `documentation/architecture.md`; `documentation/modules.md` | `passed` | Mandatory SDD authorities read; Identity, Communication, shared infrastructure and Web ownership are preserved in the Plan. |
 | Tooling | `documentation/tooling.md` | `passed` | Required pnpm, Drizzle, Compose, Playwright and validation commands are sourced from repository guidance. |
@@ -221,6 +242,9 @@ Current result: Revision 14 was delivered in PR #32 at head `96d68d1ea5af8754672
 | `FND-047` | implementation | Current Server coverage gate and resumed Builder Server correction | `EV-CONCLUDE-SERVER-COVERAGE-01`, `EV-FIX-SERVER-COVERAGE-01`; all Server acceptance criteria | `resolved` | Server correction validation completed with 85 files/210 tests and all four configured floors passing in `EV-F7-COVERAGE-REV14-01`; no threshold or exclusion was changed. |
 | `FND-048` | implementation | Current Web coverage gate and resumed Builder Web correction | `EV-CONCLUDE-WEB-COVERAGE-01`, `EV-FIX-WEB-COVERAGE-01`; all Web acceptance criteria | `resolved` | Web correction validation completed with 164 files/374 tests and all four configured floors passing in `EV-F7-COVERAGE-REV14-01`; the three direct tests were relocated to approved widget boundaries and no threshold or exclusion was changed. |
 | `FND-049` | test-integrity | Web coverage correction test placement | `EV-F7-STATIC-REV14-01`, `EV-F7-COVERAGE-REV14-01`; Test Integrity ownership policy | `resolved` | Relocated the provider, auth-context and onboarding-storage tests from indirect/unlisted source folders into allowed widget `tests/` boundaries. Focused coverage remained 21/21 and Test Integrity passed with 362 tracked tests. |
+| `FND-050` | implementation correction | Copilot review: Resend adapter mapped provider failure to generic `Error` | `CA-10`, `EV-REVIEW-SERVER-01` | `resolved` | Accepted and routed through the review-cycle Server Builder. Resend now throws Core `EmailDeliveryUnavailableError`; the approved Communication job test verifies the safe message and retryable failure. |
+| `FND-051` | implementation correction | Copilot review: SMTP adapter mapped provider failure to generic `Error` | `CA-10`, `EV-REVIEW-SERVER-01` | `resolved` | Accepted and routed through the review-cycle Server Builder. SMTP now throws Core `EmailDeliveryUnavailableError`; the approved Communication job test verifies the safe message and retryable failure. |
+| `FND-052` | implementation correction | Copilot review: rejected auth retry prevented router invalidation | Identity `REQ-13`, `CA-18`, `EV-REVIEW-WEB-01` | `resolved` | Accepted and routed through the review-cycle Web Builder. The retry handler invalidates the router in `finally` and consumes the rejection; the approved widget test covers success and failure paths. |
 
 ## PR CI quality gate
 
@@ -243,6 +267,8 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 - Better Auth cookie serialization must come from the installed `better-call` package in this version; importing the symbol from `better-auth` compiled but failed only when the confirmation/invitation action issued a session cookie. (`FND-040` runtime correction)
 - Committed Playwright route suites must start their own SSR-fixture server and derive every secondary browser context from Playwright's configured `baseURL`; reusing a developer port or hardcoding a second port makes full-suite evidence non-repeatable. (`FND-042`, `FND-043`; `documentation/tooling.md` updated)
 - Removal scans must distinguish deleted infrastructure paths and provider-owned persistence columns from forbidden runtime contracts; keep the scan executable against the final tree and narrow its patterns to the prohibited contract. (`FND-046`; Spec-local command corrected, no global tooling update warranted because this is feature-specific.)
+- Provider adapters must translate SDK failures at the owning Communication boundary into the existing Core delivery error so durable jobs can retry without exposing provider details. (`FND-050`, `FND-051`; no Rule, PRD or Architecture amendment required because the existing contract already states this boundary.)
+- Recovery UI handlers must refresh route state in a cleanup path even when the recovery request rejects, and must test both settled outcomes. (`FND-052`; no Rule or PRD amendment required because the existing UI recovery contract already requires retryable unavailable behavior.)
 
 ## History
 
@@ -265,4 +291,5 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-09-04` | Revision 14 narrowed the validation contract to reproducible local scenarios, removing mandatory staging Neon/Resend smoke, controlled-time browser rotation, manual rollback injection and extended quota/recovery repetitions while retaining automated coverage for those product rules. The revision-14 path sensor and Test Integrity pass; local MV-01–MV-08 evidence is complete for the revised scope. F7 remains blocked by the non-repeatable uninterrupted route suite and remaining REST parity/integrated evidence. |
 | `2026-09-04` | REST parity reached 84/84 current server routes with no extras. Playwright was isolated to a configurable port with SSR fixture control, the PDV secondary context stopped hardcoding port 4000, and the exact route suite passed 190/190. Current path, integrity, Playwright-health and diff sensors passed; F7 and Evaluation are ready for `conclude-spec`. |
 | `2026-09-04` | Conclusion preflight found Server and Web coverage-floor failures. Resumed the stable Server and Web Builders; scoped correction tests passed and structural sensors remain green, but both full coverage gates remain below configured floors. Evaluation is left `in_progress`; no commit, PR or CI publication was performed. |
+| `2026-09-04` | PR #32 review-cycle corrections completed through the existing Plan: Resend and SMTP now map provider failures to Core `EmailDeliveryUnavailableError`; auth-route retry always invalidates the router and consumes rejection. Focused tests (6/6 Server, 2/2 Web), Server/Web static and build gates, full Server (85 files/211 tests) and Web (165 files/376 tests) coverage floors, conformance, Test Integrity and diff checks passed. Evaluation is ready for `conclude-spec`. |
 | `2026-09-04` | Coverage correction completed: Core 84/200, Server 85/210 and Web 164/374 coverage suites passed all configured floors without threshold/exclusion changes. Web coverage tests were relocated to approved widget boundaries; Test Integrity, conformance, type/architecture/code checks, Playwright health and diff check passed. The exact Playwright route suite completed uninterrupted at 190/190, so F7 and Evaluation are ready for `conclude-spec`; no commit, push or PR was performed. |

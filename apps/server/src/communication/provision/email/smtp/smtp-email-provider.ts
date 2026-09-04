@@ -3,6 +3,7 @@ import type {
   EmailDelivery,
   EmailMessage,
 } from '@scoops/core/communication/domain/structures'
+import { EmailDeliveryUnavailableError } from '@scoops/core/communication/domain/errors'
 import type { EmailProvider } from '@scoops/core/communication/interfaces'
 import nodemailer from 'nodemailer'
 
@@ -43,7 +44,7 @@ export class SmtpEmailProvider implements EmailProvider {
 
       return { providerMessageId: result.messageId ?? messageId }
     } catch {
-      throw new Error('Email delivery is unavailable')
+      throw new EmailDeliveryUnavailableError()
     }
   }
 }

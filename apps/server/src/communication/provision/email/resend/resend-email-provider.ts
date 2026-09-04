@@ -3,6 +3,7 @@ import type {
   EmailMessage,
   EmailDelivery,
 } from '@scoops/core/communication/domain/structures'
+import { EmailDeliveryUnavailableError } from '@scoops/core/communication/domain/errors'
 import type { EmailProvider } from '@scoops/core/communication/interfaces'
 import { Resend } from 'resend'
 
@@ -44,7 +45,7 @@ export class ResendEmailProvider implements EmailProvider {
 
       return { providerMessageId: data.id }
     } catch {
-      throw new Error('Email delivery is unavailable')
+      throw new EmailDeliveryUnavailableError()
     }
   }
 }

@@ -310,7 +310,7 @@ REQ-06, REQ-07, REQ-08, REQ-10, REQ-13, and REQ-14.
 
 ### REQ-06 — User Listing and Consultation
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** A Manager can locate manageable users and understand each user's profile,
 status, recent activity, available actions, and administrative history.

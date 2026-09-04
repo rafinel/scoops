@@ -1,3 +1,4 @@
+import { EmailDeliveryUnavailableError } from '@scoops/core/communication/domain/errors'
 import type { EmailProvider } from '@scoops/core/communication/interfaces'
 import { describe, expect, it, vi } from 'vitest'
 import type { InngestFunction } from 'inngest'
@@ -148,6 +149,36 @@ describe('Communication identity email jobs', () => {
     )
   })
 
+  it('maps SMTP provider failures to the safe retryable delivery error', async () => {
+    const sendMail = vi.fn().mockRejectedValue(new Error('smtp credentials leaked'))
+    const provider = new SmtpEmailProvider(
+      {
+        get: (key: string) => (key === 'EMAIL_FROM' ? 'sender@scoops.local' : 'mailpit'),
+      } as never,
+      { sendMail },
+    )
+    const captured = captureJobWithProvider(SendInvitationEmailJob, provider)
+    const stepRun = vi.fn(async (_name: string, operation: () => Promise<unknown>) =>
+      operation(),
+    )
+
+    await expect(
+      captured.handlers[0]({
+        event: { id: 'smtp-failure-event-1', data: events.invitation },
+        step: { run: stepRun },
+      }),
+    ).rejects.toBeInstanceOf(EmailDeliveryUnavailableError)
+    await expect(
+      captured.handlers[0]({
+        event: { id: 'smtp-failure-event-2', data: events.invitation },
+        step: { run: stepRun },
+      }),
+    ).rejects.toMatchObject({ message: 'Email delivery is unavailable' })
+
+    expect(sendMail).toHaveBeenCalledTimes(2)
+    expect(stepRun).toHaveBeenCalledTimes(2)
+  })
+
   it('runs the Communication job through the Resend adapter and maps provider failures safely', async () => {
     const resendSend = vi
       .fn()
@@ -176,13 +207,21 @@ describe('Communication identity email jobs', () => {
         event: { id: 'resend-event-2', data: events.recovery },
         step: { run: stepRun },
       }),
-    ).rejects.toThrow('Email delivery is unavailable')
+    ).rejects.toBeInstanceOf(EmailDeliveryUnavailableError)
+    await expect(
+      captured.handlers[0]({
+        event: { id: 'resend-event-3', data: events.recovery },
+        step: { run: stepRun },
+      }),
+    ).rejects.toMatchObject({ message: 'Email delivery is unavailable' })
 
     expect(resendSend).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({ to: ['user@example.com'] }),
       { idempotencyKey: 'resend-event-1' },
     )
+    expect(resendSend).toHaveBeenCalledTimes(3)
+    expect(stepRun).toHaveBeenCalledTimes(3)
   })
 
   it('rejects missing event ids and malformed payloads at every email consumer boundary', async () => {
