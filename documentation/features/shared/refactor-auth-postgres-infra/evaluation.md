@@ -3,7 +3,7 @@ feature: "shared/refactor-auth-postgres-infra"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 14
-status: ready
+status: completed
 updated_at: 2026-09-04
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-09-04
 
 Evaluation of Spec revision `14` against the current implementation.
 
-Current result: Revision 14 was delivered in PR #32 at head `96d68d1ea5af8754672e07a6c3a08c50f574688f`, then reopened for review-cycle implementation corrections. The Contract is unchanged. The affected provider, retry, static, focused-test and coverage evidence has now been refreshed locally; PR #32 remains open with no merge or deployment performed.
+Current result: Revision 14 was delivered in PR #32 at head `96d68d1ea5af8754672e07a6c3a08c50f574688f`, then reopened and corrected through review cycle 1. The Contract is unchanged. The corrected implementation passed local and final PR CI validation at head `98b74936ff5b0a3e802dbdbda60d131a408daaab`; PR #32 remains open with no merge or deployment performed.
 
 ## Review cycle 1 — implementation correction
 
@@ -259,6 +259,12 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `CI-WEB-96D68D1` | Web CI | `96d68d1ea5af8754672e07a6c3a08c50f574688f` | passed | [PR run](https://github.com/rafinel/scoops/actions/runs/33871123713/job/101017162899) |
 | `CI-VERCEL-SERVER-96D68D1` | Vercel server preview | `96d68d1ea5af8754672e07a6c3a08c50f574688f` | passed | [preview](https://vercel.com/johnpetros-projects/scoops-server/A8PZUye7VpaCGSPtH6ior1UuwAxy) |
 | `CI-VERCEL-WEB-96D68D1` | Vercel web preview | `96d68d1ea5af8754672e07a6c3a08c50f574688f` | passed | [preview](https://vercel.com/johnpetros-projects/scoops-web/6Lcq7g3hmyjQNRGK94VyybkiyNL9) |
+| `CI-CORE-98B7493` | Core CI | `98b74936ff5b0a3e802dbdbda60d131a408daaab` | passed | [PR run](https://github.com/rafinel/scoops/actions/runs/33876993429/job/101036230488) |
+| `CI-VALIDATION-98B7493` | Validation CI | `98b74936ff5b0a3e802dbdbda60d131a408daaab` | passed | [PR run](https://github.com/rafinel/scoops/actions/runs/33876993462/job/101036230951) |
+| `CI-SERVER-98B7493` | Server CI | `98b74936ff5b0a3e802dbdbda60d131a408daaab` | passed | [PR run](https://github.com/rafinel/scoops/actions/runs/33876993444/job/101036230663) |
+| `CI-WEB-98B7493` | Web CI | `98b74936ff5b0a3e802dbdbda60d131a408daaab` | passed | [PR run](https://github.com/rafinel/scoops/actions/runs/33876993421/job/101036230754) |
+| `CI-VERCEL-SERVER-98B7493` | Vercel server preview | `98b74936ff5b0a3e802dbdbda60d131a408daaab` | passed | [preview](https://vercel.com/johnpetros-projects/scoops-server/BZq8JHry6eMgQvMaZMm8zBExud1u) |
+| `CI-VERCEL-WEB-98B7493` | Vercel web preview | `98b74936ff5b0a3e802dbdbda60d131a408daaab` | passed | [preview](https://vercel.com/johnpetros-projects/scoops-web/9vqVAkQQg72qYrtH4XYYVi5vgpzX) |
 
 ## Lessons learned
 
@@ -293,3 +299,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-09-04` | Conclusion preflight found Server and Web coverage-floor failures. Resumed the stable Server and Web Builders; scoped correction tests passed and structural sensors remain green, but both full coverage gates remain below configured floors. Evaluation is left `in_progress`; no commit, PR or CI publication was performed. |
 | `2026-09-04` | PR #32 review-cycle corrections completed through the existing Plan: Resend and SMTP now map provider failures to Core `EmailDeliveryUnavailableError`; auth-route retry always invalidates the router and consumes rejection. Focused tests (6/6 Server, 2/2 Web), Server/Web static and build gates, full Server (85 files/211 tests) and Web (165 files/376 tests) coverage floors, conformance, Test Integrity and diff checks passed. Evaluation is ready for `conclude-spec`. |
 | `2026-09-04` | Coverage correction completed: Core 84/200, Server 85/210 and Web 164/374 coverage suites passed all configured floors without threshold/exclusion changes. Web coverage tests were relocated to approved widget boundaries; Test Integrity, conformance, type/architecture/code checks, Playwright health and diff check passed. The exact Playwright route suite completed uninterrupted at 190/190, so F7 and Evaluation are ready for `conclude-spec`; no commit, push or PR was performed. |
+| `2026-09-04` | Final PR CI gate passed for head `98b74936ff5b0a3e802dbdbda60d131a408daaab`: Core, Validation, both Server checks, both Web checks and both Vercel previews completed successfully. Review cycle 1 is closed; Spec, Plan and Evaluation are completed. |

@@ -1,6 +1,6 @@
 ---
 title: Refactor authentication and PostgreSQL infrastructure — implementation plan
-status: in_progress
+status: completed
 spec: ./spec.md
 spec_revision: 14
 evaluation: ./evaluation.md
@@ -10,11 +10,11 @@ updated_at: 2026-09-04
 
 # Execution status
 
-- **Spec:** [`./spec.md`](./spec.md), revision `14`, status `open` for review-cycle implementation corrections.
+- **Spec:** [`./spec.md`](./spec.md), revision `14`, status `completed`.
 - **Plan rationale:** Plan-backed execution is required because this delivery crosses Core, Validation, Server, Communication, Web, PostgreSQL/Neon migration, messaging, security, CI and real-service validation with hard ordering and rollback boundaries.
-- **Current phase:** F7 correction validation — provider error mapping and auth-route retry handling are implemented and locally revalidated.
-- **Next action:** Run the conclusion preflight and final PR CI gate for the existing PR. No production cutover, merge or external resource mutation has been performed.
-- **Active blockers:** None in the implementation correction cycle; Identity `REQ-13` remains unchecked until `conclude-spec` performs its closure preflight.
+- **Current phase:** F7 handoff completed after the review-cycle correction and final PR CI gate.
+- **Next action:** None. No production cutover, merge or external resource mutation has been performed.
+- **Active blockers:** None.
 - **Active Builders:** `builder_server` owns the two Communication provider corrections; `builder_web` owns the auth-route retry correction. The Orchestrator owns SDD state and review coordination.
 - **Shared/generated ownership:** The Orchestrator owns this Plan and `evaluation.md`, root configuration and package installation/lockfile coordination, generated Drizzle migration metadata, generated `apps/web/src/routeTree.gen.ts`, Compose/CI/environment/documentation/removal coordination, integrated validation and the single Implementation Reviewer. Builder Server owns server source and all ten REST-client artifacts; Builder Web owns Web source/tests and consumes REST artifacts as a read-only parity reference. Existing unrelated governance edits remain user-owned and outside this candidate.
 
@@ -219,7 +219,7 @@ updated_at: 2026-09-04
 
 #### F7-T2 — Run integrated sensors, real scenarios and the single Implementation Reviewer
 
-- **Status/owner:** `in_progress` — Orchestrator; review-cycle evidence is green and the final PR CI gate remains.
+- **Status/owner:** `completed` — Orchestrator; review-cycle evidence and final PR CI gate are green.
 - **Depends/parallel:** Depends on F7-T1 passing. The affected workspace sensors and one read-only Reviewer run against the same integrated candidate; any contracted-path correction invalidates affected evidence, reruns the path sensor and resumes the same Reviewer after correction.
 - **Paths:** Complete revision-14 candidate; `./evaluation.md`; transient Playwright `test-results/`; generated migration/route artifacts; all affected REST-client artifacts; [`../../../agents/implementation-reviewer-agent.md`](../../../agents/implementation-reviewer-agent.md).
 - **Contract:** All `RF-01`–`RF-09`, `CA-01`–`CA-12`, `CA-16`–`CA-18` and `MV-01`–`MV-06`, `MV-08`; Spec Validation Contract and empty-environment migration boundary.

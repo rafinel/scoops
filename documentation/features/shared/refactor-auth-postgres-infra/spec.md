@@ -1,6 +1,6 @@
 ---
 title: Refactor authentication and PostgreSQL infrastructure
-status: in_progress
+status: completed
 revision: 14
 source:
   type: issue
