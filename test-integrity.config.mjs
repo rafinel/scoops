@@ -14,6 +14,7 @@ export default {
       'apps/server/src/**/rest/controllers/*.controller.ts',
     ],
     allowed: [
+      'apps/web/src/constants/browser-env.ts',
       'apps/server/src/**/messaging/**/jobs/*.ts',
       'apps/server/src/**/messaging/outbox/*.ts',
       'apps/server/src/**/database/cutover/**/*.ts',
@@ -72,6 +73,16 @@ export default {
     'apps/web/src/middlewares/tests/*.test.ts',
     'apps/web/src/server/**/tests/*.test.ts',
     'apps/web/src/rest/axios/**/tests/*.test.ts',
+  ],
+  testPathRules: [
+    {
+      pattern: 'apps/web/src/ui/**/widgets/**/*.test.ts',
+      requiredDirectory: 'tests',
+    },
+    {
+      pattern: 'apps/web/src/ui/**/widgets/**/*.test.tsx',
+      requiredDirectory: 'tests',
+    },
   ],
   forbiddenTestPatterns: [
     'apps/server/src/shared/messaging/inngest/inngest-broker.test.ts',

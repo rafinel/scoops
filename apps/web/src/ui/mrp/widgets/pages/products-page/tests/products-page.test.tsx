@@ -22,9 +22,6 @@ vi.mock('../products-list-card', () => ({
   ProductsListCard: () => <div>product-list</div>,
 }))
 vi.mock('../product-filters-dialog', () => ({ ProductFiltersDialog: () => null }))
-vi.mock('../product-registration-dialog', () => ({
-  ProductRegistrationDialog: () => null,
-}))
 vi.mock('../products-empty-state', () => ({ ProductsEmptyState: () => null }))
 vi.mock('../use-products-page', () => ({ useProductsPage: vi.fn() }))
 
@@ -42,7 +39,7 @@ const createPageState = (canManageTypes: boolean) => ({
   hasFilters: false,
   isFilterOpen: false,
   isLoadingProducts: false,
-  isRegisterOpen: false,
+  canManageProducts: canManageTypes,
   isPendingProducts: false,
   productsPage: undefined,
   handleEmptyStateClear: vi.fn(),

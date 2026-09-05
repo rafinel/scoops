@@ -134,6 +134,20 @@
       "when": 1788478923353,
       "tag": "0018_outbox_notify",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1788554703348,
+      "tag": "0019_product-stock-justification",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1788574897289,
+      "tag": "0020_recipe-ingredient-brand",
+      "breakpoints": true
     }
   ]
 }

@@ -81,14 +81,14 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
           })
         }
       } else {
-        for (const [index, brand] of (request.brands ?? []).entries()) {
+        for (const brand of request.brands ?? []) {
           const createdBrand = await scope.brandsRepository.add({
             productId: createdProduct.id,
             name: brand.name.trim(),
             unit: brand.unit ?? createdProduct.unit,
             packageQuantity: brand.packageQuantity,
             packagePrice: brand.packageValue,
-            isPrimary: index === 0,
+            isPrimary: brand.isPrimary,
           })
           await scope.stockBalancesRepository.initialize(
             createdProduct.id,
@@ -205,6 +205,13 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
       if (input.initialStock !== undefined && input.initialStock !== initialStock) {
         throw new BadRequestError(
           'O estoque inicial deve corresponder à soma dos estoques das marcas.',
+        )
+      }
+
+      const primaryBrandsCount = input.brands.filter((brand) => brand.isPrimary).length
+      if (primaryBrandsCount !== 1) {
+        throw new BadRequestError(
+          'Produtos por marca devem possuir exatamente uma marca principal.',
         )
       }
     }

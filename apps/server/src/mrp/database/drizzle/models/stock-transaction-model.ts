@@ -28,6 +28,7 @@ export const stockTransactionModel = pgTable(
     type: text('type').notNull(),
     quantity: numeric('quantity', { precision: 18, scale: 3 }).notNull(),
     balanceAfter: numeric('balance_after', { precision: 18, scale: 3 }).notNull(),
+    justification: text('justification'),
     performedBy: uuid('performed_by').notNull(),
     performedByName: text('performed_by_name').notNull(),
     occurredAt: timestamp('occurred_at', { withTimezone: true, mode: 'date' }).notNull(),

@@ -12,6 +12,14 @@ export const adjustProductStockSchema = z
       .nonnegative()
       .refine(hasAtMostSixDecimalPlaces)
       .optional(),
+    justification: z
+      .string()
+      .transform((value) => {
+        const trimmedValue = value.trim()
+
+        return trimmedValue === '' ? undefined : trimmedValue
+      })
+      .optional(),
   })
   .strict()
 

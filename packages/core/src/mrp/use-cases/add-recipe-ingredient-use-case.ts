@@ -1,5 +1,6 @@
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
+import type { Brand } from '#mrp/domain/entities/brand.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import { ProductStatus } from '#mrp/domain/structures/product-status.ts'
@@ -56,7 +57,11 @@ export class AddRecipeIngredientUseCase
         request.input.ingredientProductId,
       )
       this.validateIngredient(ingredientProduct)
-      await this.validateSource(scope, ingredientProduct)
+      const sourceBrand = await this.resolveSourceBrand(
+        scope,
+        ingredientProduct,
+        request.input.ingredientBrandId,
+      )
       const existing = await scope.recipeIngredientsRepository.findByRecipeAndProduct(
         request.actor.establishmentId,
         recipe.id,
@@ -68,6 +73,7 @@ export class AddRecipeIngredientUseCase
         establishmentId: request.actor.establishmentId,
         recipeId: recipe.id,
         ingredientProductId: ingredientProduct.id,
+        ...(sourceBrand ? { ingredientBrandId: sourceBrand.id } : {}),
         quantity: request.input.quantity,
       })
 
@@ -107,17 +113,30 @@ export class AddRecipeIngredientUseCase
     }
   }
 
-  private async validateSource(scope: MrpDatabaseScope, product: Product): Promise<void> {
+  private async resolveSourceBrand(
+    scope: MrpDatabaseScope,
+    product: Product,
+    requestedBrandId: string | undefined,
+  ): Promise<Brand | undefined> {
     if (product.stockControl === ProductStockControl.Single) {
       if (product.currentUnitCost === undefined) {
         throw new BadRequestError('O ingrediente não possui custo unitário atual.')
       }
-      return
+      if (requestedBrandId) {
+        throw new BadRequestError('Ingrediente com estoque único não possui marca.')
+      }
+      return undefined
     }
     const brands = await scope.brandsRepository.findManyByProductId(product.id)
-    if (!brands.some((brand) => brand.isPrimary)) {
+    const brand = requestedBrandId
+      ? brands.find((candidate) => candidate.id === requestedBrandId)
+      : brands.find((candidate) => candidate.isPrimary)
+    if (!brand) {
+      if (requestedBrandId)
+        throw new NotFoundError('Marca do ingrediente não encontrada.')
       throw new BadRequestError('O ingrediente não possui marca principal.')
     }
+    return brand
   }
 
   private hasAtMostThreeDecimalPlaces(value: number): boolean {

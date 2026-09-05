@@ -1,7 +1,8 @@
+import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import { z } from 'zod'
 
-import { productBrandSchema } from './product-brand-schema.ts'
 import { productCategorySchema } from './product-category-schema.ts'
+import { productRegistrationBrandSchema } from './product-registration-brand-schema.ts'
 import { productStockControlSchema } from './product-stock-control-schema.ts'
 import { productUnitSchema } from './product-unit-schema.ts'
 
@@ -20,7 +21,7 @@ export const registerProductSchema = z
       .refine(hasAtMostSixDecimalPlaces)
       .optional(),
     initialStock: z.number().finite().optional(),
-    brands: z.array(productBrandSchema).optional(),
+    brands: z.array(productRegistrationBrandSchema).optional(),
   })
   .superRefine((input, context) => {
     if (
@@ -44,6 +45,30 @@ export const registerProductSchema = z
             message: 'Initial stock cannot be negative unless negative stock is enabled.',
           })
         }
+      }
+    }
+
+    if (input.stockControl === ProductStockControl.Single && input.brands !== undefined) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['brands'],
+        message: 'Produtos com estoque único não podem possuir marcas.',
+      })
+    }
+
+    if (input.stockControl === ProductStockControl.ByBrand) {
+      if (!input.brands?.length) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['brands'],
+          message: 'Produtos por marca devem possuir pelo menos uma marca.',
+        })
+      } else if (input.brands.filter((brand) => brand.isPrimary).length !== 1) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['brands'],
+          message: 'Produtos por marca devem possuir exatamente uma marca principal.',
+        })
       }
     }
   })

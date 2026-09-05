@@ -1,3 +1,4 @@
+import { useState, type ReactNode } from 'react'
 import type {
   ProductBrandStock,
   StockTransactionType,
@@ -5,8 +6,18 @@ import type {
 
 import { Badge } from '@/ui/shadcn/badge'
 import { Button } from '@/ui/shadcn/button'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/ui/shadcn/dialog'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
+import { Textarea } from '@/ui/shadcn/textarea'
 import {
   Table,
   TableBody,
@@ -50,6 +61,7 @@ export const StockTransactionHistoryCard = ({
   brands,
   productId,
 }: StockTransactionHistoryCardProps) => {
+  const [selectedJustification, setSelectedJustification] = useState<string | null>(null)
   const formatDate = useFormatDate()
   const {
     brandId,
@@ -211,6 +223,18 @@ export const StockTransactionHistoryCard = ({
                     label='Marca'
                     value={transaction.brandName ?? 'Produto'}
                   />
+                  {transaction.justification ? (
+                    <HistoryDetail
+                      label='Justificativa'
+                      value={
+                        <JustificationButton
+                          onClick={() =>
+                            setSelectedJustification(transaction.justification ?? '')
+                          }
+                        />
+                      }
+                    />
+                  ) : null}
                 </dl>
                 <div className='mt-3 flex items-center gap-2 border-t border-border-soft pt-3'>
                   <Avatar
@@ -236,6 +260,7 @@ export const StockTransactionHistoryCard = ({
                   <TableHead className='px-4 py-3 font-semibold'>Marca</TableHead>
                   <TableHead className='px-4 py-3 font-semibold'>Quantidade</TableHead>
                   <TableHead className='px-4 py-3 font-semibold'>Responsável</TableHead>
+                  <TableHead className='px-4 py-3 font-semibold'>Justificativa</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -272,6 +297,17 @@ export const StockTransactionHistoryCard = ({
                         <span>{transaction.performedByName}</span>
                       </div>
                     </TableCell>
+                    <TableCell className='max-w-64 px-4 py-4'>
+                      {transaction.justification ? (
+                        <JustificationButton
+                          onClick={() =>
+                            setSelectedJustification(transaction.justification ?? '')
+                          }
+                        />
+                      ) : (
+                        '—'
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -286,6 +322,45 @@ export const StockTransactionHistoryCard = ({
           />
         </>
       ) : null}
+      <Dialog
+        open={selectedJustification !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedJustification(null)
+        }}
+      >
+        <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
+          <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft p-5 pr-14 sm:p-6 sm:pr-14'>
+            <span className='grid size-10 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground'>
+              <Icon name='clipboard-list' />
+            </span>
+            <div className='min-w-0'>
+              <DialogTitle>Justificativa</DialogTitle>
+              <DialogDescription className='mt-1'>
+                Detalhes informados nesta movimentação.
+              </DialogDescription>
+            </div>
+          </DialogHeader>
+          <div className='p-5 sm:p-6'>
+            <Label
+              className='grid gap-2 text-sm font-bold'
+              htmlFor='transaction-justification'
+            >
+              Justificativa
+              <Textarea
+                className='min-h-32 resize-y bg-muted/30 font-medium'
+                id='transaction-justification'
+                readOnly
+                value={selectedJustification ?? ''}
+              />
+            </Label>
+          </div>
+          <DialogFooter>
+            <DialogClose render={<Button type='button' variant='outline' />}>
+              Fechar
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }
@@ -324,7 +399,23 @@ function SignedQuantity({
   )
 }
 
-function HistoryDetail({ label, value }: { label: string; value: string }) {
+function JustificationButton({ onClick }: { onClick: () => void }) {
+  return (
+    <Button
+      aria-haspopup='dialog'
+      className='max-w-full justify-start px-2 font-semibold text-primary hover:bg-transparent hover:text-primary hover:underline'
+      onClick={onClick}
+      size='sm'
+      type='button'
+      variant='ghost'
+    >
+      <Icon name='eye' className='size-3.5' />
+      Ver justificativa
+    </Button>
+  )
+}
+
+function HistoryDetail({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className='flex justify-between gap-3'>
       <dt className='text-muted-foreground'>{label}</dt>

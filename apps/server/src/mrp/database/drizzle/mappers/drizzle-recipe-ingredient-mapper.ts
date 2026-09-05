@@ -9,6 +9,7 @@ export class DrizzleRecipeIngredientMapper {
       establishmentId: record.establishmentId,
       recipeId: record.recipeId,
       ingredientProductId: record.ingredientProductId,
+      ingredientBrandId: record.ingredientBrandId ?? undefined,
       quantity: Number(record.quantity),
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,

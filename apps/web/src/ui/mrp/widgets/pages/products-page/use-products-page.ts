@@ -19,7 +19,6 @@ export function useProductsPage({ search, onSearchChange }: ProductsPageHookProp
     refetch: refetchProducts,
   } = useProductsQuery(search)
   const [isFilterOpen, setFilterOpen] = useState(false)
-  const [isRegisterOpen, setRegisterOpen] = useState(false)
   const hasFilters = Boolean(
     search.search ||
       search.categories.length ||
@@ -48,23 +47,18 @@ export function useProductsPage({ search, onSearchChange }: ProductsPageHookProp
     setFilterOpen(open)
   }
 
-  function handleRegisterOpenChange(open: boolean) {
-    setRegisterOpen(open)
-  }
-
   return {
+    canManageProducts: account?.profile === UserProfile.Manager,
     canManageTypes: account?.profile === UserProfile.Manager,
     hasProductsError,
     hasFilters,
     isFilterOpen,
     isLoadingProducts,
-    isRegisterOpen,
     isPendingProducts,
     productsPage,
     handleEmptyStateClear,
     handleFilterOpenChange,
     handleOpenFilter,
-    handleRegisterOpenChange,
     refetchProducts,
   }
 }

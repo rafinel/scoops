@@ -44,7 +44,7 @@ export function useStockAdjustmentDialog({
     defaultValues: {
       inputMode: 'baseUnit',
       quantity: '',
-      currentUnitCost: '',
+      justification: '',
       packageQuantity: brand?.brand.packageQuantity,
     },
     resolver: zodResolver(stockAdjustmentFormSchema),
@@ -63,14 +63,13 @@ export function useStockAdjustmentDialog({
     type === 'write-off' && !allowNegativeStock && prospectiveBalance < 0
 
   useEffect(() => {
-    if (!isOpen) return
     reset({
       inputMode: 'baseUnit',
       quantity: '',
-      currentUnitCost: '',
+      justification: '',
       packageQuantity: brand?.brand.packageQuantity,
     })
-    setFormError(null)
+    if (isOpen) setFormError(null)
   }, [brand?.brand.packageQuantity, isOpen, reset])
 
   function handleInputModeChange(value: FormValues['inputMode']) {
@@ -79,6 +78,10 @@ export function useStockAdjustmentDialog({
   }
 
   function handleQuantityChange() {
+    setFormError(null)
+  }
+
+  function handleJustificationChange() {
     setFormError(null)
   }
 
@@ -96,10 +99,13 @@ export function useStockAdjustmentDialog({
         brandId: brand?.brand.id,
         quantity: submittedQuantity,
         type,
-        currentUnitCost:
-          type === 'entry' && values.currentUnitCost.trim() !== ''
-            ? Number(values.currentUnitCost)
-            : undefined,
+        justification: values.justification?.trim() || undefined,
+      })
+      reset({
+        inputMode: 'baseUnit',
+        quantity: '',
+        justification: '',
+        packageQuantity: brand?.brand.packageQuantity,
       })
       onOpenChange(false)
       onSuccess()
@@ -119,10 +125,11 @@ export function useStockAdjustmentDialog({
     inputMode,
     isInsufficient,
     isPending: adjustment.isPending,
+    justification: watch('justification'),
     prospectiveBalance,
     quantity,
-    currentUnitCost: watch('currentUnitCost'),
     handleInputModeChange,
+    handleJustificationChange,
     handleQuantityChange,
     handleSubmit: submitForm(handleSubmit),
     register,

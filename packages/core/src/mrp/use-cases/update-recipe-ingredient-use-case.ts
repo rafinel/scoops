@@ -1,9 +1,12 @@
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
+import type { Product } from '#mrp/domain/entities/product.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
+import { ProductStatus } from '#mrp/domain/structures/product-status.ts'
+import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
 import type { ProductRecipeDetails } from '#mrp/domain/structures/product-recipe-details.ts'
 import type { UpdateRecipeIngredientInput } from '#mrp/domain/structures/update-recipe-ingredient-input.ts'
-import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
+import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
 import { GetProductRecipeUseCase } from '#mrp/use-cases/get-product-recipe-use-case.ts'
 import {
   AuthorizationError,
@@ -49,11 +52,35 @@ export class UpdateRecipeIngredientUseCase
       )
       if (!line) throw new NotFoundError('Ingrediente da receita não encontrado.')
 
+      const ingredientProduct = await scope.productsRepository.findById(
+        request.actor.establishmentId,
+        line.ingredientProductId,
+      )
+      if (!ingredientProduct)
+        throw new NotFoundError('Ingrediente da receita não encontrado.')
+      if (ingredientProduct.status !== ProductStatus.Active) {
+        throw new BadRequestError('O ingrediente deve estar ativo.')
+      }
+      if (!ingredientProduct.categories.includes(ProductCategory.Ingredient)) {
+        throw new BadRequestError('O produto selecionado não é um ingrediente.')
+      }
+
+      const selectedBrandId = await this.resolveBrandId(
+        scope,
+        ingredientProduct,
+        request.input.ingredientBrandId ?? line.ingredientBrandId,
+      )
+
       await scope.recipeIngredientsRepository.replace(
         request.actor.establishmentId,
         recipe.id,
         line.id,
-        { quantity: request.input.quantity },
+        {
+          quantity: request.input.quantity,
+          ...(request.input.ingredientBrandId !== undefined && selectedBrandId
+            ? { ingredientBrandId: selectedBrandId }
+            : {}),
+        },
       )
 
       return GetProductRecipeUseCase.buildDetails(
@@ -80,6 +107,32 @@ export class UpdateRecipeIngredientUseCase
         'A quantidade deve ser positiva e ter até três casas decimais.',
       )
     }
+  }
+
+  private async resolveBrandId(
+    scope: MrpDatabaseScope,
+    product: Product | undefined,
+    requestedBrandId: string | undefined,
+  ): Promise<string | undefined> {
+    if (!product || product.stockControl === ProductStockControl.Single) {
+      if (requestedBrandId) {
+        throw new BadRequestError('Ingrediente com estoque único não possui marca.')
+      }
+      return undefined
+    }
+
+    const brands = await scope.brandsRepository.findManyByProductId(product.id)
+    const selectedBrand = requestedBrandId
+      ? brands.find((brand) => brand.id === requestedBrandId)
+      : brands.find((brand) => brand.isPrimary)
+    if (!selectedBrand) {
+      throw new NotFoundError(
+        requestedBrandId
+          ? 'Marca do ingrediente não encontrada.'
+          : 'O ingrediente não possui marca principal.',
+      )
+    }
+    return selectedBrand.id
   }
 
   private hasAtMostThreeDecimalPlaces(value: number): boolean {

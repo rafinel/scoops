@@ -70,6 +70,7 @@ export class GetProductRecipeUseCase implements UseCase<Request, ProductRecipeDe
         const source = await GetProductRecipeUseCase.resolveSource(
           scope,
           ingredientProduct,
+          ingredient.ingredientBrandId,
         )
         const lineCost = ingredient.quantity * source.unitCost
         const capacity = Math.max(
@@ -119,7 +120,11 @@ export class GetProductRecipeUseCase implements UseCase<Request, ProductRecipeDe
     }
   }
 
-  private static async resolveSource(scope: MrpDatabaseScope, product: Product) {
+  private static async resolveSource(
+    scope: MrpDatabaseScope,
+    product: Product,
+    selectedBrandId?: string,
+  ) {
     if (product.status !== ProductStatus.Active) {
       throw new BadRequestError('Um ingrediente da receita está inativo.')
     }
@@ -138,7 +143,10 @@ export class GetProductRecipeUseCase implements UseCase<Request, ProductRecipeDe
     }
 
     const brands = await scope.brandsRepository.findManyByProductId(product.id)
-    const brand = brands.find((item) => item.isPrimary)
+    const brand =
+      (selectedBrandId
+        ? brands.find((item) => item.id === selectedBrandId)
+        : undefined) ?? brands.find((item) => item.isPrimary)
     if (!brand) throw new BadRequestError('Um ingrediente não possui marca principal.')
     const balance = await scope.stockBalancesRepository.findByProductAndBrand(
       product.id,

@@ -11,6 +11,7 @@ export const ROUTES = {
   userDetails: '/users/$userId',
   invitationAccept: '/invitation/accept',
   products: '/products',
+  newProduct: '/products/new',
   productDetails: '/products/$productId',
   productDetailsStock: '/products/$productId/stock',
   productDetailsRecipe: '/products/$productId/recipe',
@@ -32,6 +33,10 @@ export const ROUTES = {
 
 export function productRecipeRoute(productId: string): string {
   return ROUTES.productDetailsRecipe.replace('$productId', productId)
+}
+
+export function productDetailsRoute(productId: string): string {
+  return ROUTES.productDetails.replace('$productId', productId)
 }
 
 export function productAccompanimentsRoute(productId: string): string {

@@ -19,6 +19,7 @@ export class DrizzleStockTransactionMapper {
       type: DrizzleStockTransactionMapper.toType(record.type),
       quantity: Number(record.quantity),
       balanceAfter: Number(record.balanceAfter),
+      justification: record.justification ?? undefined,
       performedBy: record.performedBy,
       performedByName: record.performedByName,
       occurredAt: record.occurredAt,

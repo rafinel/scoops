@@ -144,6 +144,14 @@ function sourceCandidatesForTest(testPath, sourcePaths) {
   return sourcePaths.filter((sourcePath) => candidatePaths.includes(sourcePath))
 }
 
+function testPathLocationError(testPath, testIntegrityPolicy) {
+  const rule = (testIntegrityPolicy.testPathRules ?? []).find(({ pattern }) =>
+    matchesPattern(testPath, pattern),
+  )
+  if (!rule || testPath.includes(`/${rule.requiredDirectory}/`)) return null
+  return `${testPath}: test must be placed inside a ${rule.requiredDirectory}/ directory`
+}
+
 function countMatches(content, pattern) {
   return [...content.matchAll(pattern)].length
 }
@@ -206,6 +214,12 @@ function checkTestOwnership(testPaths, sourcePaths, testIntegrityPolicy) {
   const unownedTestPaths = []
 
   for (const testPath of testPaths) {
+    const locationError = testPathLocationError(testPath, testIntegrityPolicy)
+    if (locationError) {
+      errors.push(locationError)
+      continue
+    }
+
     if (matchesAnyPattern(testPath, testIntegrityPolicy.forbiddenTestPatterns)) {
       errors.push(`${testPath}: direct test path is forbidden by policy`)
       continue

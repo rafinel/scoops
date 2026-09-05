@@ -60,14 +60,13 @@ describe('ProductsListCard', () => {
 
   it('renders the table and delegates search, filter and registration actions', () => {
     const onFilterOpen = vi.fn()
-    const onRegisterOpen = vi.fn()
     render(
       <ProductsListCard
         emptyState={<p>empty</p>}
         isError={false}
         isPending={false}
         onFilterOpen={onFilterOpen}
-        onRegisterOpen={onRegisterOpen}
+        canManageProducts
         onRefetch={vi.fn()}
         onSearchChange={vi.fn()}
         page={page}
@@ -79,12 +78,14 @@ describe('ProductsListCard', () => {
       target: { value: 'polpa' },
     })
     fireEvent.click(screen.getByRole('button', { name: /Filtros/ }))
-    fireEvent.click(screen.getByRole('button', { name: /Novo produto/ }))
+    fireEvent.click(screen.getByRole('link', { name: /Novo produto/ }))
     expect(
       useProductsListCardMock.mock.results[0].value.handleSearch,
     ).toHaveBeenCalledWith('polpa')
     expect(onFilterOpen).toHaveBeenCalledTimes(1)
-    expect(onRegisterOpen).toHaveBeenCalledTimes(1)
+    expect(screen.getByRole('link', { name: /Novo produto/ }).getAttribute('href')).toBe(
+      ROUTES.newProduct,
+    )
   })
 
   it('renders pending, error recovery and empty states', () => {
@@ -95,7 +96,7 @@ describe('ProductsListCard', () => {
         isError={false}
         isPending
         onFilterOpen={vi.fn()}
-        onRegisterOpen={vi.fn()}
+        canManageProducts
         onRefetch={onRefetch}
         onSearchChange={vi.fn()}
         search={search}
@@ -108,7 +109,7 @@ describe('ProductsListCard', () => {
         isError
         isPending={false}
         onFilterOpen={vi.fn()}
-        onRegisterOpen={vi.fn()}
+        canManageProducts
         onRefetch={onRefetch}
         onSearchChange={vi.fn()}
         search={search}
@@ -122,7 +123,7 @@ describe('ProductsListCard', () => {
         isError={false}
         isPending={false}
         onFilterOpen={vi.fn()}
-        onRegisterOpen={vi.fn()}
+        canManageProducts
         onRefetch={onRefetch}
         onSearchChange={vi.fn()}
         page={{ ...page, items: [] }}

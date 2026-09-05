@@ -4,7 +4,9 @@ import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import {
   createProduct,
+  foreignManagerRequestAuthorization,
   managerRequestAuthorization,
+  operatorRequestAuthorization,
   prepareMrpFixture,
   resetMrpFixture,
 } from './mrp-controller-test-helpers'
@@ -37,6 +39,49 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
       balanceAfter: 3.125,
       performedByName: 'Maria Manager',
     })
+  })
+
+  it('trims and serializes an optional justification in stock history', async () => {
+    const product = await fixture.addProduct(createProduct())
+    await fixture.balances.initialize(product.id)
+
+    const response = await request(fixture.app.getHttpServer())
+      .post(`/products/${product.id}/stock-adjustments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        type: 'entry',
+        quantity: 2,
+        justification: '  Conferência de inventário  ',
+      })
+
+    expect(response.status).toBe(201)
+    const history = await request(fixture.app.getHttpServer())
+      .get(`/products/${product.id}/stock-transactions?page=1&limit=20`)
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(history.status).toBe(200)
+    expect(history.body.items[0]).toMatchObject({
+      quantity: 2,
+      justification: 'Conferência de inventário',
+    })
+  })
+
+  it('omits a whitespace-only justification from the serialized history', async () => {
+    const product = await fixture.addProduct(createProduct())
+    await fixture.balances.initialize(product.id)
+
+    const response = await request(fixture.app.getHttpServer())
+      .post(`/products/${product.id}/stock-adjustments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ type: 'entry', quantity: 1, justification: '   ' })
+
+    expect(response.status).toBe(201)
+    const history = await request(fixture.app.getHttpServer())
+      .get(`/products/${product.id}/stock-transactions?page=1&limit=20`)
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(history.status).toBe(200)
+    expect(history.body.items[0]).not.toHaveProperty('justification')
   })
 
   it('rolls back both balance and ledger when a write-off is insufficient', async () => {
@@ -94,5 +139,37 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
         })
       ).items,
     ).toHaveLength(1)
+  })
+
+  it('enforces authentication, Manager authorization, and establishment isolation', async () => {
+    const product = await fixture.addProduct(createProduct())
+    await fixture.balances.initialize(product.id)
+
+    const anonymous = await request(fixture.app.getHttpServer())
+      .post(`/products/${product.id}/stock-adjustments`)
+      .send({ type: 'entry', quantity: 1 })
+    const operator = await request(fixture.app.getHttpServer())
+      .post(`/products/${product.id}/stock-adjustments`)
+      .set('Cookie', operatorRequestAuthorization())
+      .send({ type: 'entry', quantity: 1 })
+    const foreignManager = await request(fixture.app.getHttpServer())
+      .post(`/products/${product.id}/stock-adjustments`)
+      .set('Cookie', foreignManagerRequestAuthorization())
+      .send({ type: 'entry', quantity: 1 })
+
+    expect(anonymous.status).toBe(401)
+    expect(operator.status).toBe(403)
+    expect(foreignManager.status).toBe(404)
+    await expect(fixture.balances.findByProductId(product.id)).resolves.toMatchObject({
+      quantity: 0,
+    })
+    expect(
+      (
+        await fixture.transactions.findPage(product.establishmentId, product.id, {
+          page: 1,
+          limit: 20,
+        })
+      ).items,
+    ).toHaveLength(0)
   })
 })

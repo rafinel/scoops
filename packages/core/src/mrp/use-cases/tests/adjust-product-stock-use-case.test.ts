@@ -13,7 +13,11 @@ import {
 } from '#mrp/domain/structures/index.ts'
 import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
-import { BadRequestError, NotFoundError } from '#shared/domain/errors/index.ts'
+import {
+  AuthorizationError,
+  BadRequestError,
+  NotFoundError,
+} from '#shared/domain/errors/index.ts'
 import { AdjustProductStockUseCase } from '#mrp/use-cases/adjust-product-stock-use-case.ts'
 
 const actor = {
@@ -44,6 +48,7 @@ const brand: Brand = {
   createdAt: new Date(),
   updatedAt: new Date(),
 }
+const occurredAt = new Date('2026-01-01T00:00:00.000Z')
 
 describe('Adjust Product Stock Use Case', () => {
   let database: MockProxy<MrpDatabase>
@@ -82,6 +87,9 @@ describe('Adjust Product Stock Use Case', () => {
         balanceAfter: 8,
         performedByName: 'Manager',
       }),
+    )
+    expect(scope.stockTransactionsRepository.add.mock.calls[0][0]).not.toHaveProperty(
+      'justification',
     )
     await useCase.execute({
       actor,
@@ -139,6 +147,17 @@ describe('Adjust Product Stock Use Case', () => {
       undefined,
     )
   })
+  it('rejects non-manager adjustments without starting a transaction', async () => {
+    await expect(
+      useCase.execute({
+        actor: { ...actor, profile: UserProfile.Operator },
+        productId: 'p1',
+        input: { type: StockAdjustmentType.Entry, quantity: 1 },
+      }),
+    ).rejects.toBeInstanceOf(AuthorizationError)
+
+    expect(database.run).not.toHaveBeenCalled()
+  })
   it('persists a supplied cost only for a single-stock ingredient entry', async () => {
     await useCase.execute({
       actor,
@@ -165,5 +184,24 @@ describe('Adjust Product Stock Use Case', () => {
         },
       }),
     ).rejects.toBeInstanceOf(BadRequestError)
+  })
+
+  it.each([
+    { input: '   ', expected: undefined },
+    { input: '  Counted during inventory  ', expected: 'Counted during inventory' },
+  ])('normalizes adjustment justification', async ({ input, expected }) => {
+    await useCase.execute({
+      actor,
+      productId: 'p1',
+      input: { type: StockAdjustmentType.Entry, quantity: 3, justification: input },
+    })
+
+    const transaction = scope.stockTransactionsRepository.add.mock.calls[0][0]
+    expect(transaction).toHaveProperty('occurredAt', occurredAt)
+    if (expected === undefined) {
+      expect(transaction).not.toHaveProperty('justification')
+    } else {
+      expect(transaction).toHaveProperty('justification', expected)
+    }
   })
 })

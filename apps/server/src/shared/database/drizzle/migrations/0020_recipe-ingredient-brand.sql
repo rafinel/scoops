@@ -1,0 +1,2 @@
+ALTER TABLE "mrp_recipe_ingredients" ADD COLUMN "ingredient_brand_id" uuid;--> statement-breakpoint
+ALTER TABLE "mrp_recipe_ingredients" ADD CONSTRAINT "mrp_recipe_ingredients_ingredient_brand_id_mrp_product_brands_id_fk" FOREIGN KEY ("ingredient_brand_id") REFERENCES "public"."mrp_product_brands"("id") ON DELETE set null ON UPDATE no action;

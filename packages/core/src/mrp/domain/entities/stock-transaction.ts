@@ -14,6 +14,7 @@ export type StockTransaction = Entity & {
   readonly type: StockTransactionType
   readonly quantity: number
   readonly balanceAfter: number
+  readonly justification?: string
   readonly performedBy: string
   readonly performedByName: string
   readonly occurredAt: Date

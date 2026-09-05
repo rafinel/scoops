@@ -29,6 +29,7 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
   async execute(request: Request): Promise<StockBalance> {
     this.validateActor(request.actor)
     this.validateInput(request.input)
+    const justification = this.normalizeJustification(request.input.justification)
     return this.database.run(async (scope) => {
       const product = await scope.productsRepository.findById(
         request.actor.establishmentId,
@@ -88,6 +89,7 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
         performedBy: request.actor.id,
         performedByName: request.actor.name,
         occurredAt: this.datetimeProvider.now(),
+        ...(justification === undefined ? {} : { justification }),
       })
       return balance
     })
@@ -111,6 +113,11 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
     ) {
       throw new BadRequestError('O custo unitário atual é inválido.')
     }
+  }
+
+  private normalizeJustification(justification?: string): string | undefined {
+    const normalizedJustification = justification?.trim()
+    return normalizedJustification || undefined
   }
 
   private hasAtMostSixDecimalPlaces(value: number): boolean {

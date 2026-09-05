@@ -17,7 +17,11 @@ import type { StockBalancesRepository } from '#mrp/interfaces/stock-balances-rep
 import type { StockTransactionsRepository } from '#mrp/interfaces/stock-transactions-repository.ts'
 import type { Broker } from '#shared/interfaces/broker.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
-import { BadRequestError, ConflictError } from '#shared/domain/errors/index.ts'
+import {
+  AuthorizationError,
+  BadRequestError,
+  ConflictError,
+} from '#shared/domain/errors/index.ts'
 import { RegisterProductUseCase } from '#mrp/use-cases/register-product-use-case.ts'
 
 const product: Product = {
@@ -150,7 +154,7 @@ describe('Register Product Use Case', () => {
     )
   })
 
-  it('derives the first main brand and records only positive initial stock', async () => {
+  it('persists the selected main brand and records only positive initial stock', async () => {
     productsRepository.add.mockResolvedValue({
       ...product,
       stockControl: ProductStockControl.ByBrand,
@@ -197,18 +201,30 @@ describe('Register Product Use Case', () => {
       idealStock: 3,
       initialStock: 3,
       brands: [
-        { name: 'A', packageQuantity: 2, packageValue: 10, initialQuantity: 3 },
-        { name: 'B', packageQuantity: 1, packageValue: 4, initialQuantity: 0 },
+        {
+          name: 'A',
+          packageQuantity: 2,
+          packageValue: 10,
+          initialQuantity: 3,
+          isPrimary: false,
+        },
+        {
+          name: 'B',
+          packageQuantity: 1,
+          packageValue: 4,
+          initialQuantity: 0,
+          isPrimary: true,
+        },
       ],
     })
 
     expect(brandsRepository.add).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ isPrimary: true }),
+      expect.objectContaining({ isPrimary: false }),
     )
     expect(brandsRepository.add).toHaveBeenNthCalledWith(
       2,
-      expect.objectContaining({ isPrimary: false }),
+      expect.objectContaining({ isPrimary: true }),
     )
     expect(stockBalancesRepository.add).toHaveBeenCalledTimes(1)
     expect(stockTransactionsRepository.add).toHaveBeenCalledTimes(1)
@@ -259,7 +275,15 @@ describe('Register Product Use Case', () => {
       allowNegativeStock: true,
       idealStock: 0,
       initialStock: -3,
-      brands: [{ name: 'A', packageQuantity: 2, packageValue: 10, initialQuantity: -3 }],
+      brands: [
+        {
+          name: 'A',
+          packageQuantity: 2,
+          packageValue: 10,
+          initialQuantity: -3,
+          isPrimary: true,
+        },
+      ],
     })
 
     expect(stockBalancesRepository.add).toHaveBeenCalledWith(
@@ -315,6 +339,27 @@ describe('Register Product Use Case', () => {
     expect(broker.publish).not.toHaveBeenCalled()
   })
 
+  it('rejects non-manager registration without starting a transaction', async () => {
+    await expect(
+      useCase.execute({
+        actor: {
+          id: 'operator-1',
+          name: 'Operator',
+          establishmentId: 'establishment-1',
+          profile: UserProfile.Operator,
+        },
+        name: 'Milk',
+        unit: ProductUnit.Liter,
+        categories: [ProductCategory.Ingredient],
+        stockControl: ProductStockControl.Single,
+        idealStock: 0,
+      }),
+    ).rejects.toBeInstanceOf(AuthorizationError)
+
+    expect(database.run).not.toHaveBeenCalled()
+    expect(broker.publish).not.toHaveBeenCalled()
+  })
+
   it('rejects invalid current unit costs without persistence', async () => {
     await expect(
       useCase.execute({
@@ -334,5 +379,60 @@ describe('Register Product Use Case', () => {
     ).rejects.toBeInstanceOf(BadRequestError)
 
     expect(productsRepository.add).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    {
+      description: 'no selected brand',
+      brands: [
+        {
+          name: 'A',
+          packageQuantity: 2,
+          packageValue: 10,
+          initialQuantity: 0,
+          isPrimary: false,
+        },
+      ],
+    },
+    {
+      description: 'multiple selected brands',
+      brands: [
+        {
+          name: 'A',
+          packageQuantity: 2,
+          packageValue: 10,
+          initialQuantity: 0,
+          isPrimary: true,
+        },
+        {
+          name: 'B',
+          packageQuantity: 1,
+          packageValue: 4,
+          initialQuantity: 0,
+          isPrimary: true,
+        },
+      ],
+    },
+  ])('rejects $description before starting registration', async ({ brands }) => {
+    await expect(
+      useCase.execute({
+        actor: {
+          id: 'manager-1',
+          name: 'Manager',
+          establishmentId: 'establishment-1',
+          profile: UserProfile.Manager,
+        },
+        name: 'Milk',
+        unit: ProductUnit.Liter,
+        categories: [ProductCategory.Ingredient],
+        stockControl: ProductStockControl.ByBrand,
+        idealStock: 0,
+        brands,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError)
+
+    expect(database.run).not.toHaveBeenCalled()
+    expect(productsRepository.add).not.toHaveBeenCalled()
+    expect(broker.publish).not.toHaveBeenCalled()
   })
 })

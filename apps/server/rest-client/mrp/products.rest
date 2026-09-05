@@ -6,7 +6,7 @@
 @accompanimentTypeId = 00000000-0000-0000-0000-000000000000
 @accompanimentProductId = 00000000-0000-0000-0000-000000000000
 @sizeId = 00000000-0000-0000-0000-000000000000
-@recipeIngredientLineId = 00000000-0000-0000-0000-000000000000
+@lineId = 00000000-0000-0000-0000-000000000000
 @expectedUpdatedAt = 2026-08-24T12:00:00.000Z
 
 ### List products
@@ -73,7 +73,7 @@ Accept: application/json
 DELETE {{baseUrl}}/products/{{productId}}
 Cookie: {{sessionCookie}}
 
-### Register a single-stock product
+### Register a Single-stock product without brands
 POST {{baseUrl}}/products
 Cookie: {{sessionCookie}}
 Content-Type: application/json
@@ -83,10 +83,12 @@ Content-Type: application/json
   "unit": "l",
   "categories": ["ingredient"],
   "stockControl": "single",
-  "idealStock": 10
+  "initialStock": 10,
+  "idealStock": 20,
+  "currentUnitCost": 4.5
 }
 
-### Register a by-brand product
+### Register a By-brand product with explicit primary brand selection
 POST {{baseUrl}}/products
 Cookie: {{sessionCookie}}
 Content-Type: application/json
@@ -95,7 +97,18 @@ Content-Type: application/json
   "name": "Cobertura de chocolate",
   "unit": "kg",
   "categories": ["ingredient"],
-  "stockControl": "by-brand"
+  "stockControl": "by-brand",
+  "idealStock": 10,
+  "initialStock": 5,
+  "brands": [
+    {
+      "name": "Callebaut",
+      "packageQuantity": 2,
+      "packageValue": 30,
+      "initialQuantity": 5,
+      "isPrimary": true
+    }
+  ]
 }
 
 ### Get product stock details
@@ -135,25 +148,28 @@ Accept: application/json
 DELETE {{baseUrl}}/products/{{productId}}/brands/{{brandId}}
 Cookie: {{sessionCookie}}
 
-### Adjust single-product stock
+### Adjust a Single-stock product without a brand
 POST {{baseUrl}}/products/{{productId}}/stock-adjustments
 Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
   "type": "entry",
-  "quantity": 2.5
+  "quantity": 2.5,
+  "currentUnitCost": 4.75,
+  "justification": "Conferência de inventário"
 }
 
-### Adjust product-brand stock
+### Adjust a By-brand product with a brand
 POST {{baseUrl}}/products/{{productId}}/stock-adjustments
 Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
   "brandId": "{{brandId}}",
-  "type": "write-off",
-  "quantity": 1
+  "type": "entry",
+  "quantity": 2.5,
+  "justification": "Conferência de inventário"
 }
 
 ### List product stock transactions
@@ -217,20 +233,22 @@ Content-Type: application/json
 
 {
   "ingredientProductId": "{{productId}}",
+  "ingredientBrandId": "{{brandId}}",
   "quantity": 1.5
 }
 
 ### Update a recipe ingredient
-PATCH {{baseUrl}}/products/{{productId}}/recipe/ingredients/{{recipeIngredientLineId}}
+PATCH {{baseUrl}}/products/{{productId}}/recipe/ingredients/{{lineId}}
 Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
+  "ingredientBrandId": "{{brandId}}",
   "quantity": 2
 }
 
 ### Remove a recipe ingredient
-DELETE {{baseUrl}}/products/{{productId}}/recipe/ingredients/{{recipeIngredientLineId}}
+DELETE {{baseUrl}}/products/{{productId}}/recipe/ingredients/{{lineId}}
 Cookie: {{sessionCookie}}
 
 ### Preview production

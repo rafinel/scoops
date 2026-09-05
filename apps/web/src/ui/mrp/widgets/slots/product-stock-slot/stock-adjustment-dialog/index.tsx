@@ -42,8 +42,8 @@ export const StockAdjustmentDialog = (props: StockAdjustmentDialogProps) => {
     isPending,
     prospectiveBalance,
     quantity,
-    currentUnitCost,
     handleInputModeChange,
+    handleJustificationChange,
     handleQuantityChange,
     handleSubmit,
     register,
@@ -129,38 +129,6 @@ export const StockAdjustmentDialog = (props: StockAdjustmentDialogProps) => {
               ) : null}
             </Label>
 
-            {isEntry && !brand ? (
-              <Label
-                className='grid gap-2 font-bold'
-                htmlFor='stock-adjustment-current-unit-cost'
-              >
-                Custo unitário atual{' '}
-                <span className='font-normal text-muted-foreground'>(opcional)</span>
-                <div className='flex overflow-hidden rounded-xl border bg-card focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
-                  <span className='grid shrink-0 place-items-center border-r bg-muted px-3 text-sm font-bold text-muted-foreground'>
-                    R$
-                  </span>
-                  <Input
-                    {...register('currentUnitCost')}
-                    aria-invalid={Boolean(errors.currentUnitCost)}
-                    className='h-11 rounded-none border-0 shadow-none focus-visible:ring-0'
-                    data-focus-ring='delegated'
-                    id='stock-adjustment-current-unit-cost'
-                    inputMode='decimal'
-                    min='0'
-                    step='any'
-                    type='number'
-                    value={currentUnitCost}
-                  />
-                </div>
-                {errors.currentUnitCost ? (
-                  <span className='text-sm text-destructive' role='alert'>
-                    {errors.currentUnitCost.message}
-                  </span>
-                ) : null}
-              </Label>
-            ) : null}
-
             {inputMode === 'package' && brand ? (
               <div className='rounded-xl bg-primary-soft p-4 text-sm'>
                 <p className='font-bold text-primary'>Conversão da embalagem</p>
@@ -173,6 +141,25 @@ export const StockAdjustmentDialog = (props: StockAdjustmentDialogProps) => {
                 </p>
               </div>
             ) : null}
+
+            <Label
+              className='grid gap-2 font-bold'
+              htmlFor='stock-adjustment-justification'
+            >
+              Justificativa{' '}
+              <span className='font-normal text-muted-foreground'>(opcional)</span>
+              <textarea
+                {...register('justification', { onChange: handleJustificationChange })}
+                className='min-h-24 w-full resize-y rounded-xl border bg-card px-3 py-3 text-sm font-medium outline-none focus:border-ring focus:ring-2 focus:ring-ring/20'
+                id='stock-adjustment-justification'
+                placeholder='Explique o motivo desta movimentação (opcional)'
+              />
+              {errors.justification ? (
+                <span className='text-sm text-destructive' role='alert'>
+                  {errors.justification.message}
+                </span>
+              ) : null}
+            </Label>
 
             <div
               className={cn(
