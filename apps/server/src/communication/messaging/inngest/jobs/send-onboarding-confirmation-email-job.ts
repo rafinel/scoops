@@ -16,6 +16,7 @@ export const sendOnboardingConfirmationEmailEvent = eventType(
 
 @Injectable()
 export class SendOnboardingConfirmationEmailJob extends InngestJob {
+  static readonly ID = 'communication/send-onboarding-confirmation-email'
   readonly function: InngestFunction.Like
 
   constructor(
@@ -26,7 +27,7 @@ export class SendOnboardingConfirmationEmailJob extends InngestJob {
 
     this.function = this.inngest.createFunction(
       {
-        id: 'communication/send-onboarding-confirmation-email',
+        id: SendOnboardingConfirmationEmailJob.ID,
         retries: 5,
         triggers: [sendOnboardingConfirmationEmailEvent],
       },
