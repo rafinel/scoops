@@ -207,8 +207,9 @@ single-stock cost from REQ-01; brand balances and main-brand facts from REQ-02; 
 identity and establishment authorization from Identity; production stock changes from REQ-07;
 sales-consumption facts from PDV.
 
-**Provides:** Current product and brand balances, stock status, and immutable stock-transaction
-history for REQ-04, REQ-06, REQ-07, and PDV.
+**Provides:** Current product and brand balances, stock status, immutable stock-transaction history
+for REQ-04, REQ-06, REQ-07, and PDV, and authoritative product-total stock-threshold facts for
+Communication.
 
 #### Capabilities
 
@@ -227,6 +228,19 @@ history for REQ-04, REQ-06, REQ-07, and PDV.
 - Production and other automatic write-offs without explicit brand selection use the main brand.
 - Entries and write-offs recalculate total stock, stock status, recipe cost, production status,
   and capacity where applicable.
+- After product or brand registration and every committed stock mutation, MRP must classify the
+  product-total balance as zero when it is non-positive, below ideal when it is positive and lower
+  than a configured ideal-stock target, or normal otherwise. A By-brand product uses the sum of all
+  brand balances.
+- MRP must publish an authoritative zero-stock or stock-below-ideal fact when product registration
+  first establishes either alert state, and whenever a later manual adjustment, brand registration,
+  production change, or PDV consumption moves the committed product total into that state. Remaining
+  in the same state produces no repeated fact; recovery to another state permits a later threshold
+  crossing to publish again.
+- Each stock-threshold fact must identify the establishment and product, retain the product name and
+  unit at occurrence time, include the resulting available quantity, include the ideal quantity when
+  applicable, and distinguish zero stock from stock below ideal. Communication owns recipient and
+  message-channel policy and must not recalculate the stock state.
 - Every committed manual stock change creates an immutable stock-transaction record in the same
   database transaction as the balance change. This version records manual `Entry` and manual
   `Write-off`; production and PDV own their respective transaction records when implemented.
@@ -236,8 +250,9 @@ history for REQ-04, REQ-06, REQ-07, and PDV.
   optional justification, responsible-user identity, captured display labels, and occurrence time.
   Product, brand, and author labels are snapshots and are not rewritten by later changes or
   deletion.
-- Stock-transaction persistence is local and does not require a domain event, broker message, or
-  outbox entry.
+- Stock-transaction persistence remains local. A committed change that establishes a required stock
+  alert state must also initiate its authoritative stock-threshold fact through the transactional
+  outbox; the stock transaction itself is not published as a communication event.
 - Transactions are isolated by establishment and require the same authorization as their product.
 
 #### Experience

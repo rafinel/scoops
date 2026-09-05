@@ -93,6 +93,17 @@ REQ-03, REQ-04, REQ-06, and REQ-08.
 - The module must support sending email and displaying in-product notifications.
 - Each message type must use email, in-product notification, or both according to its definition.
 - Each message type must identify recipients according to the context of the originating fact.
+- Stock-below-ideal and zero-stock in-product notifications must reach every active Manager and
+  Operator in the affected establishment.
+- A user-added in-product notification must be created only after invitation acceptance activates
+  the user, and must reach every active Manager in the establishment except that newly activated
+  user.
+- Promotion, demotion, inactivation, and reactivation in-product notifications must reach the
+  affected user and every active Manager in the establishment, without duplicate delivery when the
+  affected user is also a Manager.
+- Recipient selection must be retained with each in-product notification. A notification addressed
+  to a user who is later inactive remains part of that user's permanent history and becomes
+  accessible again after reactivation.
 - The MVP must not use SMS, WhatsApp, or push notifications.
 
 #### Experience
@@ -174,8 +185,8 @@ REQ-09 when the defined channel includes an in-product notification.
 
 - [ ] **Implemented**
 
-**Outcome:** invited users, access-affected users, and Managers receive email confirmation or
-instructions for relevant identity and establishment-access events.
+**Outcome:** invited users, access-affected users, and Managers receive the defined email or
+in-product communication for relevant identity and establishment-access events.
 
 **Actors:** System.
 
@@ -187,15 +198,19 @@ channel-appropriate content from REQ-05; mandatory initiation behavior from REQ-
 
 - The module must send email for onboarding confirmation and confirmation after an email change.
 - The module must send email for a user invitation, invitation resend, and password recovery.
-- The module must send email for user promotion or demotion and user inactivation or reactivation.
+- The module must display an in-product notification after an invited user accepts the invitation
+  and becomes active; invitation creation, correction, resend, expiry, and cancellation remain
+  email-only or produce no in-product notification according to their existing definitions.
+- The module must send email and display an in-product notification for user promotion or demotion
+  and user inactivation or reactivation.
 - The module must send establishment-exclusion email to Managers.
 - Identity remains authoritative for access, profile, status, invitation, and establishment facts;
   Communication must not reproduce Identity rules.
 
 #### Experience
 
-- The recipient must receive an email appropriate to the specific identity event and their role in
-  it.
+- The recipient must receive content through the channel defined for the specific identity event
+  and their role in it.
 - Invitation and password-recovery messages must provide the information needed for the recipient to
   continue the applicable identity journey.
 

@@ -28,6 +28,6 @@ function getBrowserPathname(): string | null {
   return typeof window === 'undefined' ? null : window.location.pathname
 }
 
-const AUTH_REST_CLIENT = AxiosRestClient(BROWSER_ENV.scoopsServerAppUrl)
+const AUTH_REST_CLIENT = AxiosRestClient(BROWSER_ENV.scoopsServerRestUrl)
 
 export const AUTH_IDENTITY_SERVICE = IdentityService(AUTH_REST_CLIENT)

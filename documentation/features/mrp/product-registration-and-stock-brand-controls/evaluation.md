@@ -3,7 +3,7 @@ feature: "mrp/product-registration-and-stock-brand-controls"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 4
-status: ready
+status: completed
 updated_at: 2026-09-05
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-09-05
 
 Evaluation of Spec revision `4` against the current implementation.
 
-Current result: Spec revision 4 is ready for conclusion pending publication. Every `MV-01` through `MV-05` scenario is executed through the Playwright CLI; mocked route tests are recorded separately and do not replace authenticated server-backed browser evidence. By-brand recipe ingredients now default to the persisted/current primary brand, allow selecting another active product-owned brand, persist that choice through reload, and use it for recipe and production projections. Core, Validation, Server, Web, migration, architecture, Spec-path, test-integrity, mocked browser, and Docker-backed Playwright CLI checks pass; fresh dialog and production-preview evidence were captured. The same revision-4 Implementation Reviewer was resumed after the pagination correction and reported no remaining blocking implementation findings. REQ-06 is fully delivered and its PRD Implemented checkbox is now checked after local conclusion preflight. Local closure is complete; `conclude-spec` remains for PR publication and CI.
+Current result: Spec revision 4 is completed through ready-for-review PR #33. Every `MV-01` through `MV-05` scenario is executed through the Playwright CLI; mocked route tests are recorded separately and do not replace authenticated server-backed browser evidence. By-brand recipe ingredients now default to the persisted/current primary brand, allow selecting another active product-owned brand, persist that choice through reload, and use it for recipe and production projections. Core, Validation, Server, Web, migration, architecture, Spec-path, test-integrity, mocked browser, Docker-backed Playwright CLI, and final PR CI checks pass; fresh dialog and production-preview evidence were captured. The same revision-4 Implementation Reviewer was resumed after the pagination correction and reported no remaining blocking implementation findings. REQ-06 is fully delivered and its PRD Implemented checkbox is checked; REQ-01, REQ-02 and REQ-03 remain partial and unchecked. Delivery PR: [#33](https://github.com/rafinel/scoops/pull/33).
 
 ## Acceptance matrix
 
@@ -140,7 +140,20 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
-| `CI-01` | Populated during `conclude-spec` | — | `pending` | — |
+| `CI-01` | Core CI — pull_request | `5787ea4b2eb38e85610d82282d58052d2c42632d` | `passed` | [run 33979973461](https://github.com/rafinel/scoops/actions/runs/33979973461/job/101343341359) |
+| `CI-02` | Server CI — pull_request | `5787ea4b2eb38e85610d82282d58052d2c42632d` | `passed` | [run 33979973434](https://github.com/rafinel/scoops/actions/runs/33979973434/job/101343341183) |
+| `CI-03` | Web CI — pull_request | `5787ea4b2eb38e85610d82282d58052d2c42632d` | `passed` | [run 33979973438](https://github.com/rafinel/scoops/actions/runs/33979973438/job/101343341055) |
+| `CI-04` | Validation CI — pull_request | `5787ea4b2eb38e85610d82282d58052d2c42632d` | `passed` | [run 33979973431](https://github.com/rafinel/scoops/actions/runs/33979973431/job/101343341288) |
+| `CI-05` | Core CI — push duplicate | `5787ea4b2eb38e85610d82282d58052d2c42632d` | `passed` | [run 33979942699](https://github.com/rafinel/scoops/actions/runs/33979942699/job/101343258481) |
+| `CI-06` | Server CI — push duplicate | `5787ea4b2eb38e85610d82282d58052d2c42632d` | `passed` | [run 33979942720](https://github.com/rafinel/scoops/actions/runs/33979942720/job/101343258893) |
+| `CI-07` | Web CI — push duplicate | `5787ea4b2eb38e85610d82282d58052d2c42632d` | `passed` | [run 33979942702](https://github.com/rafinel/scoops/actions/runs/33979942702/job/101343258617) |
+| `CI-08` | Validation CI — push duplicate | `5787ea4b2eb38e85610d82282d58052d2c42632d` | `passed` | [run 33979942698](https://github.com/rafinel/scoops/actions/runs/33979942698/job/101343258299) |
+
+All checked-in workflows applicable by path filters passed. The duplicate push
+runs and pull-request runs were both monitored to terminal success for the same
+head SHA. Vercel Preview Comments, Vercel – scoops-server, and Vercel – scoops-web
+also passed; these are external deployment contexts, not checked-in CI workflow
+evidence.
 
 ## History
 
@@ -173,3 +186,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-09-05 12:42` | Improved `products.index.test.tsx` with seven Playwright route scenarios covering list request mapping, accessible Manager navigation, search/filter/sort/pagination synchronization, loading, retry recovery, empty-state distinction, responsive keyboard behavior and Operator visibility. The focused suite passed 7/7. |
 | `2026-09-05 13:02` | Conclusion preflight passed after the config correction: affected Products route suites passed 17/17 and recipe/settings suites passed 22/22; Web code/types, Spec-path, test-integrity, Biome and diff checks passed. REQ-06 was marked fully delivered in the MRP PRD. |
 | `2026-09-05 14:04` | Final local conclusion preflight passed: affected package coverage, code/types, Server/Web builds, architecture, test-integrity, script regression, clean Playwright health, Products index/new 17/17 and recipe/settings 22/22 all passed. The first concurrent health invocation was superseded by the isolated clean 1/1 rerun. |
+| `2026-09-05 14:18` | Delivery PR #33 was published ready for review at head `5787ea4b2eb38e85610d82282d58052d2c42632d`; all applicable pull-request and duplicate push CI runs passed, including Core, Server, Web and Validation, and both Vercel contexts passed. Evaluation, Plan and Spec closure is complete. |

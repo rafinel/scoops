@@ -29,7 +29,7 @@ export const resolveAuthSession = createServerFn({ method: 'GET' }).handler(
 
     const requestOptions = { headers: { Cookie: cookie } }
     const [accountResponse, providerResponse] = await Promise.all([
-      fetch(`${BROWSER_ENV.scoopsServerAppUrl}/auth/session`, requestOptions),
+      fetch(`${BROWSER_ENV.scoopsServerRestUrl}/auth/session`, requestOptions),
       fetch(`${BROWSER_ENV.scoopsServerAppUrl}/api/auth/get-session`, requestOptions),
     ])
 
@@ -159,11 +159,14 @@ export function isAllowedSessionCookie(
     return domain === undefined && !isSecure
   }
 
-  if (!isSecure || typeof domain !== 'string' || !context.requestHost) return false
+  if (!isSecure || !context.requestHost) return false
 
   const requestHostname = getHostname(context.requestHost)
   if (!requestHostname) return false
 
+  if (domain === undefined) return requestHostname === apiUrl.hostname
+
+  if (typeof domain !== 'string') return false
   return isSharedParentDomain(domain, [apiUrl.hostname, requestHostname])
 }
 

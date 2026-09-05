@@ -4,6 +4,7 @@ const BROWSER_ENV_INPUT = {
   scoopsServerAppUrl: alignLoopbackServerAppUrl(
     import.meta.env.VITE_SCOOPS_SERVER_APP_URL ?? getDefaultServerAppUrl(),
   ),
+  scoopsServerApiPrefix: import.meta.env.VITE_SCOOPS_SERVER_API_PREFIX ?? '',
 }
 
 function getDefaultServerAppUrl(): string {
@@ -53,7 +54,10 @@ export function parseBrowserEnv(input: unknown) {
     )
   }
 
-  return { scoopsServerAppUrl: url.origin }
+  return {
+    scoopsServerAppUrl: url.origin,
+    scoopsServerRestUrl: `${url.origin}${environment.scoopsServerApiPrefix}`,
+  }
 }
 
 export const BROWSER_ENV = parseBrowserEnv(BROWSER_ENV_INPUT)

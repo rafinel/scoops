@@ -135,6 +135,7 @@ export class BetterAuthSessionVerifier {
     const configuredDomainIsValid =
       typeof configuredDomain === 'string' &&
       isSharedParentDomain(configuredDomain, hostname)
+    const isHostOnlyCookie = configuredDomain === undefined
     if (
       attributes.path !== '/' ||
       attributes.httpOnly !== true ||
@@ -142,11 +143,13 @@ export class BetterAuthSessionVerifier {
       attributes.secure !== !isLoopback ||
       (isLoopback
         ? attributes.domain !== undefined
-        : typeof configuredDomain !== 'string' ||
-          !configuredDomainIsValid ||
-          typeof attributes.domain !== 'string' ||
-          attributes.domain.replace(/^\./, '').toLowerCase() !==
-            configuredDomain.replace(/^\./, '').toLowerCase())
+        : isHostOnlyCookie
+          ? attributes.domain !== undefined
+          : typeof configuredDomain !== 'string' ||
+            !configuredDomainIsValid ||
+            typeof attributes.domain !== 'string' ||
+            attributes.domain.replace(/^\./, '').toLowerCase() !==
+              configuredDomain.replace(/^\./, '').toLowerCase())
     ) {
       throw new AuthenticationProviderUnavailableError()
     }

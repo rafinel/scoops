@@ -7,7 +7,7 @@ import { PdvService } from '@/rest/services/pdv-service'
 import type { RestContextValue } from './types'
 
 export function useRestContextProvider(): RestContextValue {
-  const restClient = AxiosRestClient(BROWSER_ENV.scoopsServerAppUrl)
+  const restClient = AxiosRestClient(BROWSER_ENV.scoopsServerRestUrl)
 
   return {
     restClient,

@@ -1,4 +1,14 @@
 {
   "installCommand": "corepack pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm run build:vercel"
+  "buildCommand": "pnpm run build:vercel",
+  "rewrites": [
+    {
+      "source": "/api/auth/:path*",
+      "destination": "https://scoops-server.vercel.app/api/auth/:path*"
+    },
+    {
+      "source": "/api/server/:path*",
+      "destination": "https://scoops-server.vercel.app/:path*"
+    }
+  ]
 }
