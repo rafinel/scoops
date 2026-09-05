@@ -1,7 +1,7 @@
 import type { ProductCategory } from '#mrp/domain/structures/product-category.ts'
+import type { ProductRegistrationBrandInput } from '#mrp/domain/structures/product-registration-brand-input.ts'
 import type { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
 import type { ProductUnit } from '#mrp/domain/structures/product-unit.ts'
-import type { RegisterProductBrandInput } from '#mrp/domain/structures/register-product-brand-input.ts'
 
 export type RegisterProductInput = {
   readonly name: string
@@ -12,5 +12,5 @@ export type RegisterProductInput = {
   readonly idealStock: number
   readonly currentUnitCost?: number
   readonly initialStock?: number
-  readonly brands?: readonly RegisterProductBrandInput[]
+  readonly brands?: readonly ProductRegistrationBrandInput[]
 }

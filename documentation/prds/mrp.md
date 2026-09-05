@@ -345,7 +345,7 @@ REQ-09, and REQ-10.
 
 ### REQ-06 — Manufacturable Product Recipes
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** Managers can define one recipe for a Manufacturable product and see its current cost,
 stock constraints, and maximum producible quantity before recording production.
@@ -367,10 +367,14 @@ and maximum producible quantity for REQ-04, REQ-07, and REQ-10.
 - Ingredients cannot be added until the yield is saved. Removing the last ingredient retains the
   recipe and yield.
 - Only Ingredient products are eligible recipe lines; an Accompaniment is not a recipe ingredient.
-- Each line stores ingredient product, positive quantity, and the ingredient's inherited unit.
-  Duplicate ingredient combinations are not allowed.
-- A By-brand ingredient uses the main brand in force at production time, and the recipe identifies
-  that brand. Production is blocked when no main brand exists.
+- Each line stores ingredient product, an optional selected brand for By-brand ingredients,
+  positive quantity, and the ingredient's inherited unit. Duplicate ingredient combinations are
+  not allowed.
+- A By-brand ingredient defaults to its current main brand when the line is created or when a
+  legacy line has no selected brand. Managers may select another active product-owned brand in
+  the recipe editor; the selected brand supplies the line's current cost, capacity, and future
+  production consumption. Production is blocked when the selected brand, or the fallback main
+  brand, is unavailable.
 - Ingredient cost uses current unit price. A Single-stock Ingredient uses its current product unit
   cost and cannot be added while that cost is undefined.
 - Total COGS is the sum of line costs for the reference yield. Manufacturable unit cost is
@@ -384,8 +388,10 @@ and maximum producible quantity for REQ-04, REQ-07, and REQ-10.
 - The header keeps the editable positive reference yield and Produce action visible.
 - The table displays Ingredient, Source/Brand, Quantity, Cost, percentage of COGS, Stock, and
   Movements. Weight quantities and projections use grams in the approved experience.
-- A By-brand source shows the main-brand chip. Sufficient stock shows balance and estimated
-  capacity; the limiting ingredient is highlighted with an alert icon and background.
+- A By-brand source shows the selected brand and identifies the main brand when it is the default.
+  The recipe editor exposes active product-owned brands when more than one is available and
+  defaults to the main brand. Sufficient stock shows balance and estimated capacity; the
+  limiting ingredient is highlighted with an alert icon and background.
 - An insufficient line reports needed, available, and missing quantities inline.
 - `Add ingredient` opens or inserts line configuration. Deletion requires confirmation and
   explains that COGS and capacity will be recalculated.
@@ -718,7 +724,8 @@ flowchart LR
 2. The Manager explicitly saves a positive reference yield, creating an empty persisted recipe;
    opening the tab alone writes nothing.
 3. After save succeeds, the Manager adds an eligible Ingredient and positive quantity.
-4. The system inherits the unit and shows the current main brand when applicable.
+4. The system inherits the unit, defaults a By-brand ingredient to its current main brand, and
+   allows the Manager to choose another active brand when available.
 5. The system calculates line cost, COGS share, balance, limiting ingredient, and capacity.
 6. Saving the line updates total COGS and maximum producible quantity.
 
@@ -809,6 +816,7 @@ flowchart LR
 - **Portion without sizes:** rejected because every salable Portion requires at least one active
   size.
 - **Mandatory accompaniment:** rejected because a Portion may be sold without an accompaniment.
-- **Permanent recipe brand:** replaced by the current main brand for automatic By-brand write-off.
+- **Unscoped recipe brand:** replaced by an optional recipe-line brand selection for By-brand
+  ingredients, with the current main brand retained as the default and legacy fallback.
 - **Global accompaniment price:** replaced by price per product + size + accompaniment.
 - **Mixed visual weight units:** replaced by grams throughout the current approved experience.

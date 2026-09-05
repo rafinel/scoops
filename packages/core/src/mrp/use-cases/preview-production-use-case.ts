@@ -79,7 +79,11 @@ export class PreviewProductionUseCase implements UseCase<Request, ProductionPrev
               allowsNegativeStock: false,
             }
           }
-          const source = await this.resolveSource(scope, ingredientProduct)
+          const source = await this.resolveSource(
+            scope,
+            ingredientProduct,
+            ingredient.ingredientBrandId,
+          )
           if (source.blockReason) blockReasons.push(source.blockReason)
           const quantity =
             ingredient.quantity * (request.input.quantity / recipe.yieldQuantity)
@@ -133,6 +137,7 @@ export class PreviewProductionUseCase implements UseCase<Request, ProductionPrev
   private async resolveSource(
     scope: MrpDatabaseScope,
     product: Product,
+    selectedBrandId?: string,
   ): Promise<Source> {
     if (product.status !== ProductStatus.Active) {
       return { balance: 0, unitCost: 0, blockReason: `${product.name} está inativo.` }
@@ -163,7 +168,10 @@ export class PreviewProductionUseCase implements UseCase<Request, ProductionPrev
       return { balance: balance.quantity, unitCost: product.currentUnitCost }
     }
     const brands = await scope.brandsRepository.findManyByProductId(product.id)
-    const brand = brands.find((item) => item.isPrimary)
+    const brand =
+      (selectedBrandId
+        ? brands.find((item) => item.id === selectedBrandId)
+        : undefined) ?? brands.find((item) => item.isPrimary)
     if (!brand) {
       return {
         balance: 0,

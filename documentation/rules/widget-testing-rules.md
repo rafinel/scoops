@@ -87,16 +87,51 @@ invited record may expose resend/cancel, an active record may expose deactivate,
 and a disabled record may expose reactivate while forbidding removal. Testing one
 row and one action does not cover the table.
 
+## Page suites cover the complete widget ownership tree
+
+A page test suite is complete only when every public page behavior and every
+owned nested widget boundary has focused coverage. A parent-page test does not
+replace the tests for a form, card, editor, or other nested widget with its own
+public controls. Keep each test in the `tests/` directory of the boundary it
+owns, and cover the real composition at the parent boundary.
+
+For a stateful registration page, the suite should include, when those
+boundaries exist:
+
+- the page component and its owning hook, including every returned value and
+  callable handler;
+- the registration form, including field, unit, category, validation, and
+  submit behavior;
+- the stock-control card, including each stock mode, stock fields, pending or
+  disabled controls, and error state;
+- nested brand editors, including every editable field, primary-brand choice,
+  removal availability, and field errors.
+
+Apply the same rule to every page: enumerate the page hook's public contract and
+the nested widgets' public actions before declaring the suite covered. A passing
+parent test or a high file-level coverage percentage is insufficient when one of
+those boundaries or returned behaviors is untested.
+
 ## File names, locations and test text follow one convention
 
-Place each widget test inside a `tests/` directory under the corresponding
-widget directory:
+Place every widget test inside a `tests/` directory under the corresponding
+widget directory. This is a mandatory placement rule for both component tests
+and behavior-hook tests, not merely a naming preference:
 
 ```text
 widgets/layouts/app-layout/tests/app-layout.test.tsx
 widgets/layouts/app-layout/tests/use-app-layout.test.ts
 widgets/pages/products-page/product-filters/tests/product-filters.test.tsx
 ```
+
+For example, a test for
+`widgets/slots/product-stock-slot/stock-transaction-history-card/use-stock-transaction-history-card.ts`
+must be located at
+`widgets/slots/product-stock-slot/stock-transaction-history-card/tests/use-stock-transaction-history-card.test.ts`.
+Do not colocate `.test.ts` or `.test.tsx` files beside the widget entrypoint or
+hook implementation. Passing the test-integrity ownership check does not waive
+this directory-placement rule; ownership and test placement are separate
+requirements.
 
 Do not place widget tests in a parent page's `tests/` directory, a feature-level
 `tests/` directory, or a generic shared test folder. If a nested widget warrants
@@ -177,8 +212,19 @@ separately and do not reconstruct or test React Query itself.
 
 Component tests always replace the owning hook with the typed mock described
 above. A consumer hook test should verify its complete state and action matrix,
-not only one happy-path mutation. Cover every branch that selects a mutation,
-maps an error, changes pending state, resets state, or emits a success effect.
+not only one happy-path mutation. The complete contract includes every public
+returned data, state, derived value, and callable handler or integration
+function. Each returned item must be exercised through an observable assertion
+or an explicit state-transition assertion. Cover every branch that selects a
+mutation, maps an error, changes pending state, resets state, or emits a success
+effect.
+
+For example,
+`stock-transaction-history-card/tests/use-stock-transaction-history-card.test.ts`
+must cover all of the hook's returned filters, query/status values, selected
+brand information, transaction-page data, pagination handler, filter handlers,
+clear action, and refetch function. A test that only checks one filter handler
+is incomplete even when the hook's file-level coverage threshold passes.
 
 For realtime hooks, the hook that owns a provider subscription must cover event
 mapping and cleanup. A higher-level hook consuming it mocks that application hook

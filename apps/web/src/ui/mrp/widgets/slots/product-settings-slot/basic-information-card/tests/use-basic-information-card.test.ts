@@ -80,12 +80,120 @@ describe('useBasicInformationCard', () => {
     expect(result.current.errors.name).toBeUndefined()
   })
 
-  it('does not open a unit change for the product current unit', () => {
+  it('shows validation errors without saving invalid name and ideal stock values', () => {
+    const updateProductSettings = vi.fn()
+    useUpdateProductSettingsActionMock.mockReturnValue({
+      isUpdatingProductSettings: false,
+      updatingProductSettingsField: undefined,
+      updateProductSettings,
+    } as never)
+    const { result } = renderHook(() => useBasicInformationCard(product, vi.fn()))
+
+    act(() => result.current.handleNameChange(' '))
+    act(() => result.current.handleNameBlur())
+    act(() => result.current.handleIdealStockChange('-1'))
+    act(() => result.current.handleIdealStockBlur())
+
+    expect(result.current.errors.name).toBe('Informe o nome do produto.')
+    expect(result.current.errors.idealStock).toBe(
+      'Informe um estoque ideal válido, com até três casas decimais.',
+    )
+    expect(updateProductSettings).not.toHaveBeenCalled()
+  })
+
+  it('serializes status saves and carries the returned version to the next save', async () => {
+    const firstUpdatedAt = new Date('2026-02-02T00:00:00.000Z')
+    const secondUpdatedAt = new Date('2026-02-03T00:00:00.000Z')
+    const updateProductSettings = vi
+      .fn()
+      .mockResolvedValueOnce({ product: { updatedAt: firstUpdatedAt } })
+      .mockResolvedValueOnce({ product: { updatedAt: secondUpdatedAt } })
+    useUpdateProductSettingsActionMock.mockReturnValue({
+      isUpdatingProductSettings: false,
+      updatingProductSettingsField: undefined,
+      updateProductSettings,
+    } as never)
+    const { result } = renderHook(() => useBasicInformationCard(product, vi.fn()))
+
+    act(() => result.current.handleStatusChange('inactive'))
+    await waitFor(() => expect(updateProductSettings).toHaveBeenCalledTimes(1))
+    act(() => result.current.handleStatusChange('active'))
+    await waitFor(() => expect(updateProductSettings).toHaveBeenCalledTimes(2))
+
+    expect(result.current.status).toBe('active')
+    expect(updateProductSettings).toHaveBeenNthCalledWith(1, {
+      field: 'status',
+      input: { status: 'inactive', expectedUpdatedAt: product.updatedAt },
+    })
+    expect(updateProductSettings).toHaveBeenNthCalledWith(2, {
+      field: 'status',
+      input: { status: 'active', expectedUpdatedAt: firstUpdatedAt },
+    })
+  })
+
+  it('retries a failed ideal stock save and clears its error after success', async () => {
+    const updateProductSettings = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('Falha ao salvar'))
+      .mockResolvedValueOnce({ product: { updatedAt: product.updatedAt } })
+    useUpdateProductSettingsActionMock.mockReturnValue({
+      isUpdatingProductSettings: false,
+      updatingProductSettingsField: undefined,
+      updateProductSettings,
+    } as never)
+    const { result } = renderHook(() => useBasicInformationCard(product, vi.fn()))
+
+    act(() => result.current.handleIdealStockChange('24'))
+    act(() => result.current.handleIdealStockBlur())
+    await waitFor(() => expect(result.current.errors.idealStock).toBe('Falha ao salvar'))
+
+    act(() => result.current.handleRetry('idealStock'))
+    await waitFor(() => expect(updateProductSettings).toHaveBeenCalledTimes(2))
+    expect(result.current.errors.idealStock).toBeUndefined()
+  })
+
+  it('retries and can revert a failed status save', async () => {
+    const updateProductSettings = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('Falha ao salvar'))
+      .mockResolvedValueOnce({ product: { updatedAt: product.updatedAt } })
+    useUpdateProductSettingsActionMock.mockReturnValue({
+      isUpdatingProductSettings: false,
+      updatingProductSettingsField: undefined,
+      updateProductSettings,
+    } as never)
+    const { result } = renderHook(() => useBasicInformationCard(product, vi.fn()))
+
+    act(() => result.current.handleStatusChange('inactive'))
+    await waitFor(() => expect(result.current.errors.status).toBe('Falha ao salvar'))
+
+    act(() => result.current.handleRetry('status'))
+    await waitFor(() => expect(updateProductSettings).toHaveBeenCalledTimes(2))
+    expect(result.current.errors.status).toBeUndefined()
+    expect(result.current.status).toBe('inactive')
+
+    act(() => result.current.handleRevert('status'))
+    expect(result.current.status).toBe(product.status)
+  })
+
+  it('delegates a changed unit with the trigger element', () => {
     const onUnitChange = vi.fn()
     const { result } = renderHook(() =>
       useBasicInformationCard(sameUnitProduct, onUnitChange),
     )
-    result.current.unitTriggerRef.current = document.createElement('button')
+    const trigger = document.createElement('button')
+    result.current.unitTriggerRef.current = trigger
+
+    act(() => result.current.handleUnitChange('kg'))
+
+    expect(onUnitChange).toHaveBeenCalledWith('kg', trigger)
+  })
+
+  it('does not delegate a unit selection that matches the current unit', () => {
+    const onUnitChange = vi.fn()
+    const { result } = renderHook(() =>
+      useBasicInformationCard(sameUnitProduct, onUnitChange),
+    )
 
     act(() => result.current.handleUnitChange('g'))
 

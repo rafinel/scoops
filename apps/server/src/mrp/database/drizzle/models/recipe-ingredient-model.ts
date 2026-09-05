@@ -10,6 +10,7 @@ import {
 } from 'drizzle-orm/pg-core'
 
 import { productModel } from './product-model'
+import { productBrandModel } from './product-brand-model'
 import { recipeModel } from './recipe-model'
 
 export const recipeIngredientModel = pgTable(
@@ -23,6 +24,12 @@ export const recipeIngredientModel = pgTable(
     ingredientProductId: uuid('ingredient_product_id')
       .notNull()
       .references(() => productModel.id, { onDelete: 'restrict' }),
+    ingredientBrandId: uuid('ingredient_brand_id').references(
+      () => productBrandModel.id,
+      {
+        onDelete: 'set null',
+      },
+    ),
     quantity: numeric('quantity', { precision: 18, scale: 3 }).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull(),

@@ -49,12 +49,15 @@ export const RecipeIngredientDialog = ({
   const formatQuantity = useFormatQuantity()
   const {
     actionError,
+    availableBrands,
     candidates,
     errors,
+    handleBrandChange,
     handleIngredientProductChange,
     handleQuantityChange,
     handleSubmit,
     ingredientProductId,
+    ingredientBrandId,
     isPending,
     previewCogsPercentage,
     previewLineCost,
@@ -70,6 +73,15 @@ export const RecipeIngredientDialog = ({
     recipeTotalCost,
   })
   const isEdit = Boolean(ingredient)
+  const displayedUnitCost = selectedSource?.unitCost ?? ingredient?.unitCost ?? 0
+  const displayedLineCost = selectedSource
+    ? previewLineCost
+    : (ingredient?.lineCost ?? previewLineCost)
+  const displayedCogsPercentage = selectedSource
+    ? previewCogsPercentage
+    : (ingredient?.cogsPercentage ?? previewCogsPercentage)
+  const displayedCurrentBalance =
+    selectedSource?.currentBalance ?? ingredient?.currentBalance
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
@@ -129,6 +141,27 @@ export const RecipeIngredientDialog = ({
                 )}
               </Label>
             )}
+            {availableBrands.length > 1 ? (
+              <Label className='grid gap-2 font-bold'>
+                Marca
+                <Select value={ingredientBrandId ?? ''} onValueChange={handleBrandChange}>
+                  <SelectTrigger aria-label='Marca' className='w-full'>
+                    <SelectValue placeholder='Selecione uma marca'>
+                      {availableBrands.find(({ brand }) => brand.id === ingredientBrandId)
+                        ?.brand.name ?? 'Selecione uma marca'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableBrands.map(({ brand }) => (
+                      <SelectItem key={brand.id} value={brand.id}>
+                        {brand.name}
+                        {brand.isPrimary ? ' · Principal' : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Label>
+            ) : null}
             <Label className='grid gap-2 font-bold'>
               Quantidade
               <div className='flex overflow-hidden rounded-xl border focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
@@ -155,28 +188,24 @@ export const RecipeIngredientDialog = ({
               <div className='grid grid-cols-2 gap-3 rounded-xl bg-muted p-4 text-sm sm:grid-cols-4'>
                 <p>
                   <span className='block text-xs text-muted-foreground'>FONTE</span>
-                  {ingredient?.ingredientBrandName ?? selectedSource?.name}
+                  {selectedSource?.name ?? ingredient?.ingredientBrandName}
                 </p>
                 <p>
                   <span className='block text-xs text-muted-foreground'>CUSTO ATUAL</span>
-                  {formatCurrency(ingredient?.unitCost ?? selectedSource?.unitCost ?? 0)}
+                  {formatCurrency(displayedUnitCost)}
                 </p>
                 <p>
                   <span className='block text-xs text-muted-foreground'>LINHA / CMV</span>
-                  {ingredient
-                    ? `${formatCurrency(ingredient.lineCost)} · ${formatDecimal(ingredient.cogsPercentage)}%`
-                    : `${formatCurrency(previewLineCost)} · ${formatDecimal(previewCogsPercentage)}%`}
+                  {`${formatCurrency(displayedLineCost)} · ${formatDecimal(displayedCogsPercentage)}%`}
                 </p>
                 <p>
                   <span className='block text-xs text-muted-foreground'>ESTOQUE</span>
-                  {ingredient
-                    ? formatQuantity(ingredient.currentBalance, ingredient.unit)
-                    : selectedSource
-                      ? formatQuantity(
-                          selectedSource.currentBalance,
-                          selectedProduct?.product.unit ?? unit,
-                        )
-                      : null}
+                  {displayedCurrentBalance !== undefined
+                    ? formatQuantity(
+                        displayedCurrentBalance,
+                        ingredient?.unit ?? selectedProduct?.product.unit ?? unit,
+                      )
+                    : null}
                 </p>
               </div>
             ) : null}

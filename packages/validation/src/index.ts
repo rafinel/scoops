@@ -58,6 +58,7 @@ export {
   previewProductUnitChangeSchema,
 } from './mrp/product-unit-change-schema.ts'
 export { productBrandSchema } from './mrp/product-brand-schema.ts'
+export { productRegistrationBrandSchema } from './mrp/product-registration-brand-schema.ts'
 export { productCategorySchema } from './mrp/product-category-schema.ts'
 export { productStockControlSchema } from './mrp/product-stock-control-schema.ts'
 export { productUnitSchema } from './mrp/product-unit-schema.ts'

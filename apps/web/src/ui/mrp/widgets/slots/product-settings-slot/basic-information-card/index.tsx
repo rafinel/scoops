@@ -123,7 +123,7 @@ export const BasicInformationCard = ({
             errorId='basic-information-ideal-stock-error'
             label='Estoque ideal'
           >
-            <div className='flex overflow-hidden rounded-lg border bg-background focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
+            <div className='flex overflow-hidden rounded-lg border focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
               <Input
                 aria-describedby={
                   errors.idealStock ? 'basic-information-ideal-stock-error' : undefined

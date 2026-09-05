@@ -7,16 +7,20 @@ import type { z } from 'zod'
 
 import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import type {
+  ProductBrandStock,
   ProductCatalogRow,
   ProductStockDetails,
   RecipeIngredientDetails,
 } from '@scoops/core/mrp/domain/structures'
 import { useAddRecipeIngredientAction } from '@/ui/mrp/hooks/use-add-recipe-ingredient-action'
 import { useUpdateRecipeIngredientAction } from '@/ui/mrp/hooks/use-update-recipe-ingredient-action'
+import { useProductStockQuery } from '@/ui/mrp/hooks/use-product-stock-query'
 import { useProductsQuery } from '@/ui/mrp/hooks/use-products-query'
 import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 
 type IngredientSource = {
+  brandId?: string
+  brands: readonly ProductBrandStock[]
   currentBalance: number
   name: string
   unitCost: number
@@ -58,9 +62,16 @@ export function useRecipeIngredientDialog({
     sortDirection: 'asc',
     page: 1,
   })
+  const existingStock = useProductStockQuery(
+    open && ingredient ? ingredient.ingredientProductId : '',
+  )
   const ingredientProductId = useWatch({
     control: form.control,
     name: 'ingredientProductId',
+  })
+  const ingredientBrandId = useWatch({
+    control: form.control,
+    name: 'ingredientBrandId',
   })
   const quantity = useWatch({ control: form.control, name: 'quantity' })
   const [actionError, setActionError] = useState<string | null>(null)
@@ -82,16 +93,18 @@ export function useRecipeIngredientDialog({
     [catalog.data?.items, existingProductIds, productId],
   )
   const candidateStocks = useQueries({
-    queries: baseCandidates.map(({ product }) => ({
-      queryKey: ['mrp', 'products', product.id, 'ingredient-source'],
-      queryFn: async () => {
-        const response = await mrpService.getProductStock(product.id)
-        if (response.isFailure) response.throwError()
-        return response.body
-      },
-      enabled: open && !ingredient,
-      retry: false,
-    })),
+    queries: ingredient
+      ? []
+      : baseCandidates.map(({ product }) => ({
+          queryKey: ['mrp', 'products', product.id, 'ingredient-source'],
+          queryFn: async () => {
+            const response = await mrpService.getProductStock(product.id)
+            if (response.isFailure) response.throwError()
+            return response.body
+          },
+          enabled: open,
+          retry: false,
+        })),
   })
   const candidates = useMemo<readonly IngredientCandidate[]>(
     () =>
@@ -101,25 +114,81 @@ export function useRecipeIngredientDialog({
           candidateStocks[index]?.data,
           candidateStocks[index]?.isError ?? false,
           candidateStocks[index]?.isPending ?? false,
+          ingredientBrandId,
         ),
       ),
-    [baseCandidates, candidateStocks],
+    [baseCandidates, candidateStocks, ingredientBrandId],
   )
-  const selectedProduct = candidates.find(
-    ({ product }) => product.id === ingredientProductId,
-  )
+  const selectedProduct = useMemo(() => {
+    if (ingredient) {
+      const stock = existingStock.data
+      if (!stock) return undefined
+      return buildCandidate(
+        toCatalogRow(stock),
+        stock,
+        existingStock.isError,
+        existingStock.isPending,
+        ingredientBrandId,
+      )
+    }
+    return candidates.find(({ product }) => product.id === ingredientProductId)
+  }, [
+    candidates,
+    ingredient,
+    ingredientBrandId,
+    ingredientProductId,
+    existingStock.data,
+    existingStock.isError,
+    existingStock.isPending,
+  ])
   const selectedSource = selectedProduct?.source
+  const availableBrands = selectedSource?.brands ?? []
+  useEffect(() => {
+    if (
+      !selectedProduct ||
+      selectedProduct.product.stockControl !== ProductStockControl.ByBrand
+    ) {
+      if (ingredientBrandId !== undefined) form.setValue('ingredientBrandId', undefined)
+      return
+    }
+    if (
+      ingredientBrandId &&
+      availableBrands.some(({ brand }) => brand.id === ingredientBrandId)
+    ) {
+      return
+    }
+    const defaultBrandId =
+      ingredient?.ingredientBrandId ??
+      availableBrands.find((item) => item.brand.isPrimary)?.brand.id
+    if (defaultBrandId && ingredientBrandId !== defaultBrandId) {
+      form.setValue('ingredientBrandId', defaultBrandId, {
+        shouldDirty: false,
+        shouldValidate: true,
+      })
+    }
+  }, [availableBrands, form, ingredient, ingredientBrandId, selectedProduct])
   const numericQuantity = quantity ?? 0
   const previewLineCost =
     selectedSource && Number.isFinite(numericQuantity) && numericQuantity > 0
       ? selectedSource.unitCost * numericQuantity
       : 0
+  const recipeBaseCost = Math.max(0, recipeTotalCost - (ingredient?.lineCost ?? 0))
   const previewCogsPercentage =
-    recipeTotalCost + previewLineCost === 0
+    recipeBaseCost + previewLineCost === 0
       ? 0
-      : (previewLineCost / (recipeTotalCost + previewLineCost)) * 100
+      : (previewLineCost / (recipeBaseCost + previewLineCost)) * 100
   function handleIngredientProductChange(value: string | null) {
     form.setValue('ingredientProductId', value ?? '', {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    form.setValue('ingredientBrandId', undefined, { shouldDirty: true })
+    setActionError(null)
+  }
+
+  function handleBrandChange(value: string | null) {
+    if (!value) return
+    form.setValue('ingredientBrandId', value, {
       shouldDirty: true,
       shouldValidate: true,
     })
@@ -135,11 +204,19 @@ export function useRecipeIngredientDialog({
       if (ingredient) {
         await updateAction.updateRecipeIngredient({
           lineId: ingredient.id,
-          input: { quantity: values.quantity },
+          input: {
+            quantity: values.quantity,
+            ...(values.ingredientBrandId
+              ? { ingredientBrandId: values.ingredientBrandId }
+              : {}),
+          },
         })
       } else {
         await addAction.addRecipeIngredient({
           ingredientProductId: values.ingredientProductId,
+          ...(values.ingredientBrandId
+            ? { ingredientBrandId: values.ingredientBrandId }
+            : {}),
           quantity: values.quantity,
         })
       }
@@ -153,10 +230,13 @@ export function useRecipeIngredientDialog({
     actionError,
     candidates,
     errors: form.formState.errors,
+    availableBrands,
+    handleBrandChange,
     handleIngredientProductChange,
     handleQuantityChange,
     handleSubmit: form.handleSubmit(handleValidSubmit),
     ingredientProductId,
+    ingredientBrandId,
     isPending: addAction.isPending || updateAction.isPending,
     quantity,
     selectedProduct,
@@ -173,6 +253,7 @@ function getDefaultValues(
   return ingredient
     ? {
         ingredientProductId: ingredient.ingredientProductId,
+        ingredientBrandId: ingredient.ingredientBrandId,
         quantity: ingredient.quantity,
       }
     : { ingredientProductId: '' }
@@ -183,6 +264,7 @@ function buildCandidate(
   stock: ProductStockDetails | undefined,
   isStockError: boolean,
   isStockPending: boolean,
+  selectedBrandId?: string,
 ): IngredientCandidate {
   if (isStockPending) {
     return { ...candidate, unavailableReason: 'Consultando fonte atual…' }
@@ -202,6 +284,7 @@ function buildCandidate(
     return {
       ...candidate,
       source: {
+        brands: [],
         currentBalance: stock.stockQuantity,
         name: 'Estoque único',
         unitCost: candidate.product.currentUnitCost,
@@ -209,17 +292,32 @@ function buildCandidate(
     }
   }
 
-  const primaryBrand = stock.brands.find(({ brand }) => brand.isPrimary)
-  if (!primaryBrand) {
+  const brand =
+    (selectedBrandId
+      ? stock.brands.find(({ brand }) => brand.id === selectedBrandId)
+      : undefined) ?? stock.brands.find(({ brand }) => brand.isPrimary)
+  if (!brand) {
     return { ...candidate, unavailableReason: 'Sem marca principal atual.' }
   }
 
   return {
     ...candidate,
     source: {
-      currentBalance: primaryBrand.stockQuantity,
-      name: primaryBrand.brand.name,
-      unitCost: primaryBrand.unitPrice,
+      brandId: brand.brand.id,
+      brands: stock.brands,
+      currentBalance: brand.stockQuantity,
+      name: brand.brand.name,
+      unitCost: brand.unitPrice,
     },
+  }
+}
+
+function toCatalogRow(stock: ProductStockDetails): ProductCatalogRow {
+  return {
+    product: stock.product,
+    brandCount: stock.brands.length,
+    idealStock: stock.idealStock,
+    stockQuantity: stock.stockQuantity,
+    stockSituation: stock.stockSituation,
   }
 }

@@ -19,6 +19,7 @@ async function createRepositoryFixture({
   testPath,
   sourcePolicy,
   boundaryTestPatterns = [],
+  testPathRules = [],
 }) {
   const repositoryRoot = await mkdtemp(path.join(tmpdir(), 'scoops-test-integrity-'))
   await runGit(['init', '--initial-branch=main'], repositoryRoot)
@@ -42,6 +43,7 @@ async function createRepositoryFixture({
         excluded: [],
       },
       boundaryTestPatterns,
+      testPathRules,
       forbiddenTestPatterns: [],
     })}\n`,
   )
@@ -85,6 +87,33 @@ test('fails when an indirect source receives a direct test', async () => {
         const result = JSON.parse(error.stdout)
         assert.equal(result.status, 'failed')
         assert.match(result.errors.join('\n'), /broker\.test\.ts.*indirect/)
+        return true
+      },
+    )
+  } finally {
+    await rm(repositoryRoot, { force: true, recursive: true })
+  }
+})
+
+test('fails when a widget test is outside its required tests directory', async () => {
+  const repositoryRoot = await createRepositoryFixture({
+    sourcePath: 'apps/example/src/value.ts',
+    sourcePolicy: 'export const value = 1\n',
+    testPath: 'apps/example/src/value.test.ts',
+    testPathRules: [
+      {
+        pattern: 'apps/example/src/**/*.test.ts',
+        requiredDirectory: 'tests',
+      },
+    ],
+  })
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [SCRIPT_PATH, '--json'], { cwd: repositoryRoot }),
+      (error) => {
+        const result = JSON.parse(error.stdout)
+        assert.equal(result.status, 'failed')
+        assert.match(result.errors.join('\n'), /value\.test\.ts.*tests\//)
         return true
       },
     )
@@ -161,7 +190,10 @@ test('rejects real-service browser integration tests', async () => {
       (error) => {
         const result = JSON.parse(error.stdout)
         assert.equal(result.status, 'failed')
-        assert.match(result.errors.join('\n'), /test subject is not an allowed source file/)
+        assert.match(
+          result.errors.join('\n'),
+          /test subject is not an allowed source file/,
+        )
         return true
       },
     )
@@ -182,7 +214,10 @@ test('rejects generic browser tests under the integration directory', async () =
       (error) => {
         const result = JSON.parse(error.stdout)
         assert.equal(result.status, 'failed')
-        assert.match(result.errors.join('\n'), /test subject is not an allowed source file/)
+        assert.match(
+          result.errors.join('\n'),
+          /test subject is not an allowed source file/,
+        )
         return true
       },
     )

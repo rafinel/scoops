@@ -47,9 +47,8 @@ describe('useProductsPage', () => {
       page: 1,
     })
     act(() => result.current.handleOpenFilter())
-    act(() => result.current.handleRegisterOpenChange(true))
     expect(result.current.isFilterOpen).toBe(true)
-    expect(result.current.isRegisterOpen).toBe(true)
+    expect(result.current.canManageProducts).toBe(true)
     expect(refetchProducts).not.toHaveBeenCalled()
   })
 

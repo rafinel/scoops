@@ -106,8 +106,32 @@ test.describe('Product recipe nested route', () => {
     await expect(editDialog.getByRole('spinbutton', { name: 'Quantidade' })).toHaveValue(
       '2',
     )
+    const brandSelect = editDialog.getByRole('combobox', { name: 'Marca' })
+    await expect(brandSelect).toBeVisible()
+    await expect(brandSelect).toContainText('Marca principal')
     await captureCleanRecipeState(page, client, 'products-recipe-edit-676x684.png')
-    await editDialog.getByRole('button', { name: 'Cancelar' }).click()
+    await brandSelect.click()
+    await page.getByRole('option', { name: 'Marca alternativa' }).click()
+    await expect(brandSelect).toContainText('Marca alternativa')
+    await expect(editDialog.getByText('FONTE').locator('..')).toContainText(
+      'Marca alternativa',
+    )
+    await expect(editDialog.getByText('CUSTO ATUAL').locator('..')).toContainText('5,00')
+    await expect(editDialog.getByText('ESTOQUE').locator('..')).toContainText('6 kg')
+    const saveButton = editDialog.getByRole('button', { name: 'Salvar alterações' })
+    await saveButton.click()
+    await expect
+      .poll(
+        () =>
+          requests.find(
+            ({ method, url }) =>
+              method === 'PATCH' && url.pathname.endsWith('/recipe/ingredients/line-1'),
+          )?.body,
+      )
+      .toEqual({
+        ingredientBrandId: '00000000-0000-4000-8000-000000000102',
+        quantity: 2,
+      })
 
     await page.setViewportSize({ width: 596, height: 335 })
     await page.getByRole('button', { name: 'Remover Polpa' }).click()
@@ -494,6 +518,14 @@ const RECIPE_PRODUCT = ProductFaker.fake({
   stockControl: 'single',
 })
 
+const RECIPE_INGREDIENT_PRODUCT = ProductFaker.fake({
+  ...PRODUCT,
+  id: '00000000-0000-4000-8000-000000000011',
+  name: 'Polpa',
+  categories: ['ingredient'],
+  stockControl: 'by-brand',
+})
+
 const INGREDIENT_PRODUCT = ProductFaker.fake({
   ...PRODUCT,
   id: 'ingredient-2',
@@ -517,8 +549,49 @@ const NO_PRIMARY_BRAND_INGREDIENT_PRODUCT = ProductFaker.fake({
   stockControl: 'by-brand',
 })
 
+const RECIPE_INGREDIENT_PRIMARY_BRAND = {
+  brand: {
+    id: '00000000-0000-4000-8000-000000000101',
+    establishmentId: 'establishment-1',
+    productId: RECIPE_INGREDIENT_PRODUCT.id,
+    name: 'Marca principal',
+    unit: 'kg',
+    packageQuantity: 1,
+    packagePrice: 4,
+    isPrimary: true,
+    createdAt: '2026-08-18T12:00:00.000Z',
+    updatedAt: '2026-08-18T12:00:00.000Z',
+  },
+  stockQuantity: 10,
+  unitPrice: 4,
+}
+
+const RECIPE_INGREDIENT_ALTERNATE_BRAND = {
+  brand: {
+    id: '00000000-0000-4000-8000-000000000102',
+    establishmentId: 'establishment-1',
+    productId: RECIPE_INGREDIENT_PRODUCT.id,
+    name: 'Marca alternativa',
+    unit: 'kg',
+    packageQuantity: 1,
+    packagePrice: 5,
+    isPrimary: false,
+    createdAt: '2026-08-18T12:00:00.000Z',
+    updatedAt: '2026-08-18T12:00:00.000Z',
+  },
+  stockQuantity: 6,
+  unitPrice: 5,
+}
+
 const RECIPE_CATALOG_RESPONSE = {
   items: [
+    {
+      product: RECIPE_INGREDIENT_PRODUCT,
+      brandCount: 2,
+      stockQuantity: 10,
+      idealStock: 5,
+      stockSituation: 'normal',
+    },
     {
       product: INGREDIENT_PRODUCT,
       brandCount: 0,
@@ -552,8 +625,10 @@ function fakeRecipeResponse({
   ingredients = [
     {
       id: 'line-1',
-      ingredientProductId: 'ingredient-1',
+      ingredientProductId: '00000000-0000-4000-8000-000000000011',
       ingredientProductName: 'Polpa',
+      ingredientBrandId: '00000000-0000-4000-8000-000000000101',
+      ingredientBrandName: 'Marca principal',
       unit: 'kg',
       quantity: 2,
       unitCost: 4.5,
@@ -569,6 +644,8 @@ function fakeRecipeResponse({
     id: string
     ingredientProductId: string
     ingredientProductName: string
+    ingredientBrandId?: string
+    ingredientBrandName?: string
     unit: string
     quantity: number
     unitCost: number
@@ -611,7 +688,7 @@ function fakeProductionPreview({ shortage = false }: { shortage?: boolean } = {}
     batches: 1,
     consumptions: [
       {
-        ingredientProductId: 'ingredient-1',
+        ingredientProductId: '00000000-0000-4000-8000-000000000011',
         ingredientProductName: 'Polpa',
         unit: 'kg',
         quantity: 2,
@@ -702,6 +779,17 @@ async function mockRecipeIngredientSources(mrpFixture: MrpFixture) {
             idealStock: 5,
             stockSituation: 'normal',
             brands: [],
+          },
+        }
+      }
+      if (productId === RECIPE_INGREDIENT_PRODUCT.id) {
+        return {
+          body: {
+            product: RECIPE_INGREDIENT_PRODUCT,
+            stockQuantity: 16,
+            idealStock: 5,
+            stockSituation: 'normal',
+            brands: [RECIPE_INGREDIENT_PRIMARY_BRAND, RECIPE_INGREDIENT_ALTERNATE_BRAND],
           },
         }
       }
