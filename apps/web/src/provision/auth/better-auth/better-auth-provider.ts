@@ -41,7 +41,7 @@ type SessionResolver = () => Promise<AuthSessionResolution>
 async function resolveBrowserAuthSession(): Promise<AuthSessionResolution> {
   const requestInit = { credentials: 'include' as const }
   const [accountResponse, providerResponse] = await Promise.all([
-    fetch(`${BROWSER_ENV.scoopsServerAppUrl}/auth/session`, requestInit),
+    fetch(`${BROWSER_ENV.scoopsServerRestUrl}/auth/session`, requestInit),
     fetch(`${BROWSER_ENV.scoopsServerAppUrl}/api/auth/get-session`, requestInit),
   ])
   if (accountResponse.status === 401 || providerResponse.status === 401) {

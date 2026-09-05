@@ -51,7 +51,9 @@ export const serverEnvSchema = z
     if (
       (environment.SCOOPS_SERVER_APP_MODE === 'stg' ||
         environment.SCOOPS_SERVER_APP_MODE === 'prod') &&
-      !environment.BETTER_AUTH_COOKIE_DOMAIN
+      !environment.BETTER_AUTH_COOKIE_DOMAIN &&
+      new URL(environment.SCOOPS_SERVER_APP_URL).origin !==
+        new URL(environment.SCOOPS_WEB_APP_URL).origin
     ) {
       context.addIssue({
         code: 'custom',

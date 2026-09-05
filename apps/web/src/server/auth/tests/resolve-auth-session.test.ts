@@ -43,6 +43,18 @@ describe('SSR session cookie validation', () => {
     ).toBe(true)
   })
 
+  it('accepts a secure host-only cookie for a same-origin deployment', () => {
+    expect(
+      isAllowedSessionCookie(
+        'scoops.session_token=session; Path=/; HttpOnly; SameSite=Lax; Secure',
+        {
+          apiOrigin: 'https://scoops-web-blond.vercel.app',
+          requestHost: 'scoops-web-blond.vercel.app',
+        },
+      ),
+    ).toBe(true)
+  })
+
   it.each([
     'scoops.session_token=session; Path=/; SameSite=Lax',
     'scoops.session_token=session; Path=/; HttpOnly; SameSite=None',
