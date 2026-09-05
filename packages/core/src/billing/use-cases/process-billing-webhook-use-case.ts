@@ -10,22 +10,17 @@ import { ChargeStatus } from '#billing/domain/structures/charge-status.ts'
 import { SubscriptionStatus } from '#billing/domain/structures/subscription-status.ts'
 import type {
   BillingDatabase,
-  BillingDatabaseScope,
+  BillingDatabaseRepositories,
 } from '#billing/interfaces/billing-database.ts'
 import type { BillingProvider } from '#billing/interfaces/billing-provider.ts'
 import { NotFoundError } from '#shared/domain/errors/index.ts'
 import type { Event } from '#shared/domain/events/event.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
 export type ProcessBillingWebhookRequest = {
   readonly headers: Readonly<Record<string, string>>
   readonly body: unknown
-}
-
-type WebhookResult = {
-  readonly event: Event | undefined
 }
 
 export class ProcessBillingWebhookUseCase
@@ -35,7 +30,6 @@ export class ProcessBillingWebhookUseCase
     private readonly database: BillingDatabase,
     private readonly billingProvider: BillingProvider,
     private readonly datetimeProvider: DatetimeProvider,
-    private readonly broker: Broker,
   ) {}
 
   async execute(request: ProcessBillingWebhookRequest): Promise<void> {
@@ -44,27 +38,42 @@ export class ProcessBillingWebhookUseCase
       request.body,
     )
 
-    const result = await this.database.run(async (scope): Promise<WebhookResult> => {
-      if (
-        await scope.billingProviderEventsRepository.hasProcessed(providerEvent.eventId)
-      ) {
-        return { event: undefined }
-      }
+    await this.database.run(
+      async ({
+        billingProfilesRepository,
+        subscriptionsRepository,
+        chargesRepository,
+        fiscalDocumentsRepository,
+        billingAcceptancesRepository,
+        trialEligibilitiesRepository,
+        billingProviderEventsRepository,
+        eventsRepository,
+      }: BillingDatabaseRepositories) => {
+        const scope = {
+          billingProfilesRepository,
+          subscriptionsRepository,
+          chargesRepository,
+          fiscalDocumentsRepository,
+          billingAcceptancesRepository,
+          trialEligibilitiesRepository,
+          billingProviderEventsRepository,
+          eventsRepository,
+        }
+        if (await billingProviderEventsRepository.hasProcessed(providerEvent.eventId))
+          return
 
-      const event = await this.handleEvent(scope, providerEvent)
-      await scope.billingProviderEventsRepository.markProcessed(
-        providerEvent.eventId,
-        providerEvent.occurredAt,
-      )
-
-      return { event }
-    })
-
-    if (result.event) await this.broker.publish(result.event)
+        const event = await this.handleEvent(scope, providerEvent)
+        if (event) await eventsRepository.add(event)
+        await billingProviderEventsRepository.markProcessed(
+          providerEvent.eventId,
+          providerEvent.occurredAt,
+        )
+      },
+    )
   }
 
   private async handleEvent(
-    scope: BillingDatabaseScope,
+    scope: BillingDatabaseRepositories,
     providerEvent: BillingProviderEvent,
   ): Promise<Event | undefined> {
     switch (providerEvent.type) {
@@ -86,7 +95,7 @@ export class ProcessBillingWebhookUseCase
   }
 
   private async handleSubscriptionActivated(
-    scope: BillingDatabaseScope,
+    scope: BillingDatabaseRepositories,
     providerEvent: BillingProviderEvent,
   ): Promise<Event> {
     const subscription = await this.findSubscription(scope, providerEvent)
@@ -113,7 +122,7 @@ export class ProcessBillingWebhookUseCase
   }
 
   private async handleChargePaid(
-    scope: BillingDatabaseScope,
+    scope: BillingDatabaseRepositories,
     providerEvent: BillingProviderEvent,
   ): Promise<Event> {
     const charge = await this.findCharge(scope, providerEvent)
@@ -162,7 +171,7 @@ export class ProcessBillingWebhookUseCase
   }
 
   private async handleChargeStatus(
-    scope: BillingDatabaseScope,
+    scope: BillingDatabaseRepositories,
     providerEvent: BillingProviderEvent,
     status: typeof ChargeStatus.Failed | typeof ChargeStatus.Overdue,
   ): Promise<Event> {
@@ -191,7 +200,7 @@ export class ProcessBillingWebhookUseCase
   }
 
   private async handleChargeRefunded(
-    scope: BillingDatabaseScope,
+    scope: BillingDatabaseRepositories,
     providerEvent: BillingProviderEvent,
   ): Promise<Event> {
     const charge = await this.findCharge(scope, providerEvent)
@@ -223,7 +232,7 @@ export class ProcessBillingWebhookUseCase
   }
 
   private async handleChargeChargeback(
-    scope: BillingDatabaseScope,
+    scope: BillingDatabaseRepositories,
     providerEvent: BillingProviderEvent,
   ): Promise<Event> {
     const charge = await this.findCharge(scope, providerEvent)
@@ -253,7 +262,7 @@ export class ProcessBillingWebhookUseCase
   }
 
   private async findSubscription(
-    scope: BillingDatabaseScope,
+    scope: BillingDatabaseRepositories,
     providerEvent: BillingProviderEvent,
   ): Promise<Subscription> {
     if (!providerEvent.providerSubscriptionId) {
@@ -269,7 +278,7 @@ export class ProcessBillingWebhookUseCase
   }
 
   private async findCharge(
-    scope: BillingDatabaseScope,
+    scope: BillingDatabaseRepositories,
     providerEvent: BillingProviderEvent,
   ): Promise<Charge> {
     if (!providerEvent.providerChargeId) {

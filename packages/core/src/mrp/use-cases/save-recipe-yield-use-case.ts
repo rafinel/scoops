@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
@@ -25,38 +26,69 @@ export class SaveRecipeYieldUseCase implements UseCase<Request, ProductRecipeDet
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    return this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      if (!product) throw new NotFoundError('Produto não encontrado.')
-      if (!product.categories.includes(ProductCategory.Manufacturable)) {
-        throw new BadRequestError('O produto não é fabricável.')
-      }
+    return this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const product = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        )
+        if (!product) throw new NotFoundError('Produto não encontrado.')
+        if (!product.categories.includes(ProductCategory.Manufacturable)) {
+          throw new BadRequestError('O produto não é fabricável.')
+        }
 
-      const recipe = await scope.recipesRepository.findByProductId(
-        request.actor.establishmentId,
-        product.id,
-      )
-      if (recipe) {
-        await scope.recipesRepository.replace(request.actor.establishmentId, recipe.id, {
-          yieldQuantity: request.input.yieldQuantity,
-        })
-      } else {
-        await scope.recipesRepository.add({
-          establishmentId: request.actor.establishmentId,
-          productId: product.id,
-          yieldQuantity: request.input.yieldQuantity,
-        })
-      }
+        const recipe = await recipesRepository.findByProductId(
+          request.actor.establishmentId,
+          product.id,
+        )
+        if (recipe) {
+          await recipesRepository.replace(request.actor.establishmentId, recipe.id, {
+            yieldQuantity: request.input.yieldQuantity,
+          })
+        } else {
+          await recipesRepository.add({
+            establishmentId: request.actor.establishmentId,
+            productId: product.id,
+            yieldQuantity: request.input.yieldQuantity,
+          })
+        }
 
-      return GetProductRecipeUseCase.buildDetails(
-        scope,
-        request.actor.establishmentId,
-        product,
-      )
-    })
+        return GetProductRecipeUseCase.buildDetails(
+          scope,
+          request.actor.establishmentId,
+          product,
+        )
+      },
+    )
   }
 
   private validateActor(actor: ProductActor): void {

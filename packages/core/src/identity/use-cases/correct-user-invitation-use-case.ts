@@ -1,3 +1,4 @@
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { Account } from '#identity/domain/entities/account.ts'
 import type { UserDetails } from '#identity/domain/structures/user-details.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
@@ -15,7 +16,6 @@ import { ConflictError } from '#shared/domain/errors/conflict-error.ts'
 import { NotFoundError } from '#shared/domain/errors/not-found-error.ts'
 import { UserInvitationNotAllowedError } from '#identity/domain/errors/user-invitation-not-allowed-error.ts'
 import { InvitationOperation } from '#identity/domain/structures/invitation-operation.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 
 type Request = {
   actor: Account
@@ -33,7 +33,6 @@ export class CorrectUserInvitationUseCase implements UseCase<Request, UserDetail
     private readonly identifierProvider: OnboardingIdentifierProvider,
     private readonly tokenProvider: OnboardingTokenProvider,
     private readonly provider: UserAccessIdentityProvider,
-    private readonly broker: Broker,
   ) {}
 
   async execute(request: Request): Promise<UserDetails> {
@@ -42,89 +41,101 @@ export class CorrectUserInvitationUseCase implements UseCase<Request, UserDetail
     const now = this.datetimeProvider.now()
     const name = request.name.trim()
     const email = request.email.trim().toLowerCase()
-    const result = await this.database.run(async (scope) => {
-      const user = await scope.usersRepository.findByIdInEstablishment(
-        request.actor.establishmentId,
-        request.userId,
-      )
-      const attempt = user
-        ? await scope.registrationAttemptsRepository.findByUserId(user.id)
-        : undefined
-      if (
-        !user ||
-        !attempt ||
-        user.status !== UserStatus.Pending ||
-        attempt.status !== RegistrationAttemptStatus.Pending ||
-        now >= attempt.expiresAt ||
-        !name
-      )
-        throw new NotFoundError('Invitation not found')
-      if (
-        email !== user.email &&
-        ((await scope.usersRepository.findByEmail(email)) ||
-          (await scope.registrationAttemptsRepository.findActiveByEmail(email)))
-      )
-        throw new UserInvitationNotAllowedError()
-      return { user, attempt }
-    })
+    const result = await this.database.run(
+      async ({
+        registrationAttemptsRepository,
+        usersRepository,
+      }: IdentityDatabaseRepositories) => {
+        const user = await usersRepository.findByIdInEstablishment(
+          request.actor.establishmentId,
+          request.userId,
+        )
+        const attempt = user
+          ? await registrationAttemptsRepository.findByUserId(user.id)
+          : undefined
+        if (
+          !user ||
+          !attempt ||
+          user.status !== UserStatus.Pending ||
+          attempt.status !== RegistrationAttemptStatus.Pending ||
+          now >= attempt.expiresAt ||
+          !name
+        )
+          throw new NotFoundError('Invitation not found')
+        if (
+          email !== user.email &&
+          ((await usersRepository.findByEmail(email)) ||
+            (await registrationAttemptsRepository.findActiveByEmail(email)))
+        )
+          throw new UserInvitationNotAllowedError()
+        return { user, attempt }
+      },
+    )
     const operationToken = this.identifierProvider.generate()
-    const claimed = await this.database.run(({ registrationAttemptsRepository }) =>
-      registrationAttemptsRepository.claimInvitationOperation({
-        attemptId: result.attempt.id,
-        expectedRevision: result.attempt.revision,
-        operation: InvitationOperation.CorrectEmail,
-        operationToken,
-        claimedAt: now,
-        staleBefore: new Date(now.getTime() - 15 * 60 * 1000),
-        pendingEmail: email,
-      }),
+    const claimed = await this.database.run(
+      ({ registrationAttemptsRepository }: IdentityDatabaseRepositories) =>
+        registrationAttemptsRepository.claimInvitationOperation({
+          attemptId: result.attempt.id,
+          expectedRevision: result.attempt.revision,
+          operation: InvitationOperation.CorrectEmail,
+          operationToken,
+          claimedAt: now,
+          staleBefore: new Date(now.getTime() - 15 * 60 * 1000),
+          pendingEmail: email,
+        }),
     )
     if (!claimed) throw new ConflictError('Invitation is being changed')
 
     const nextToken = email !== result.user.email ? this.tokenProvider.issue() : undefined
     try {
-      const updated = await this.database.run(async (scope) => {
-        const event =
-          email !== result.user.email
-            ? await this.provider.correctPendingIdentity({
-                providerSubject: result.user.id,
-                establishmentId: result.user.establishmentId,
+      const updated = await this.database.run(
+        async ({
+          registrationAttemptsRepository,
+          usersRepository,
+          eventsRepository,
+        }: IdentityDatabaseRepositories) => {
+          const event =
+            email !== result.user.email
+              ? await this.provider.correctPendingIdentity({
+                  providerSubject: result.user.id,
+                  establishmentId: result.user.establishmentId,
+                  email,
+                  name,
+                  invitationRedirectTo: confirmationRedirectUrl(
+                    request.invitationRedirectBaseUrl,
+                    nextToken?.token ?? '',
+                  ),
+                })
+              : undefined
+          const attempt =
+            await registrationAttemptsRepository.finalizeInvitationOperation({
+              attemptId: result.attempt.id,
+              operationToken,
+              changes: {
                 email,
-                name,
-                invitationRedirectTo: confirmationRedirectUrl(
-                  request.invitationRedirectBaseUrl,
-                  nextToken?.token ?? '',
-                ),
-              })
-            : undefined
-        const attempt =
-          await scope.registrationAttemptsRepository.finalizeInvitationOperation({
-            attemptId: result.attempt.id,
-            operationToken,
-            changes: {
-              email,
-              ...(nextToken ? { tokenHash: nextToken.hash } : {}),
-              updatedAt: now,
-            },
+                ...(nextToken ? { tokenHash: nextToken.hash } : {}),
+                updatedAt: now,
+              },
+            })
+          if (!attempt) throw new ConflictError('Invitation operation was superseded')
+          const user = await usersRepository.replace(
+            request.actor.establishmentId,
+            request.userId,
+            { name, email, profile: request.profile, updatedAt: now },
+          )
+          await registrationAttemptsRepository.replace(result.attempt.id, {
+            name,
+            email,
+            profile: request.profile,
+            updatedAt: now,
+            revision: (result.attempt.revision ?? 0) + 1,
           })
-        if (!attempt) throw new ConflictError('Invitation operation was superseded')
-        const user = await scope.usersRepository.replace(
-          request.actor.establishmentId,
-          request.userId,
-          { name, email, profile: request.profile, updatedAt: now },
-        )
-        await scope.registrationAttemptsRepository.replace(result.attempt.id, {
-          name,
-          email,
-          profile: request.profile,
-          updatedAt: now,
-          revision: (result.attempt.revision ?? 0) + 1,
-        })
-        if (event) await this.broker.publish(event)
-        return user
-      })
+          if (event) await eventsRepository.add(event)
+          return user
+        },
+      )
       const auditRecords = await this.database.run(
-        async ({ userAuditRecordsRepository }) =>
+        async ({ userAuditRecordsRepository }: IdentityDatabaseRepositories) =>
           userAuditRecordsRepository
             ? await userAuditRecordsRepository.findManyByUser({
                 establishmentId: updated.establishmentId,
@@ -135,7 +146,7 @@ export class CorrectUserInvitationUseCase implements UseCase<Request, UserDetail
       return { user: updated, auditRecords }
     } catch (error) {
       await this.database
-        .run(({ registrationAttemptsRepository }) =>
+        .run(({ registrationAttemptsRepository }: IdentityDatabaseRepositories) =>
           registrationAttemptsRepository.clearInvitationOperation({
             attemptId: result.attempt.id,
             operationToken,

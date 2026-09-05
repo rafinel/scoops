@@ -21,6 +21,8 @@ type AvailableEventData = Extract<EventData, { state: 'available' }>
 
 @Injectable()
 export class RevalidateCombosForProductJob extends InngestJob {
+  static readonly ID = 'pdv/revalidate-combos-for-product'
+
   readonly function: InngestFunction.Like
 
   private readonly useCase: RevalidateCombosForProductUseCase
@@ -33,7 +35,7 @@ export class RevalidateCombosForProductJob extends InngestJob {
     this.useCase = new RevalidateCombosForProductUseCase(database)
     this.function = this.inngest.createFunction(
       {
-        id: 'pdv/revalidate-combos-for-product',
+        id: RevalidateCombosForProductJob.ID,
         concurrency: {
           limit: 1,
           key: 'event.data.establishmentId + ":" + event.data.productId',

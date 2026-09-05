@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import type { ProductAccompanimentDetails } from '#mrp/domain/structures/product-accompaniment-details.ts'
@@ -9,7 +10,6 @@ import {
   GetAffectedProductSalesConfigurationsUseCase,
   publishAffectedProductSalesConfigurations,
 } from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import { GetProductAccompanimentsUseCase } from '#mrp/use-cases/get-product-accompaniments-use-case.ts'
 import { validateQuantity } from '#mrp/use-cases/link-product-accompaniment-use-case.ts'
 import {
@@ -29,68 +29,96 @@ type Request = {
 export class UpdateProductAccompanimentUseCase
   implements UseCase<Request, ProductAccompanimentDetails>
 {
-  constructor(
-    private readonly database: MrpDatabase,
-    private readonly broker?: Broker,
-  ) {}
+  constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<ProductAccompanimentDetails> {
     this.validateActor(request.actor)
     validateQuantity(request.input.quantityPerPortion)
 
-    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
-      []
-    const result = await this.database.run(async (scope) => {
-      const owner = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      validateOwner(owner, request.actor.establishmentId)
-      const link = await scope.productAccompanimentsRepository.findById(
-        request.actor.establishmentId,
-        owner.id,
-        request.linkId,
-      )
-      if (
-        !link ||
-        link.establishmentId !== request.actor.establishmentId ||
-        link.productId !== owner.id
-      ) {
-        throw new NotFoundError('Acompanhamento não encontrado.')
-      }
-      const type = await scope.accompanimentTypesRepository.findById(
-        request.actor.establishmentId,
-        request.input.accompanimentTypeId,
-      )
-      if (!type || type.establishmentId !== request.actor.establishmentId) {
-        throw new NotFoundError('Tipo de acompanhamento não encontrado.')
-      }
-      const updated = await scope.productAccompanimentsRepository.replace(
-        request.actor.establishmentId,
-        owner.id,
-        link.id,
-        {
-          accompanimentTypeId: type.id,
-          quantityPerPortion: request.input.quantityPerPortion,
-        },
-      )
-      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
-        scope,
-        establishmentId: request.actor.establishmentId,
-        productId: request.productId,
-      })
-      return GetProductAccompanimentsUseCase.buildDetails(
-        scope,
-        request.actor.establishmentId,
-        updated,
-      )
-    })
-    await publishAffectedProductSalesConfigurations({
-      broker: this.broker,
-      establishmentId: request.actor.establishmentId,
-      productId: request.productId,
-      configurations,
-    })
+    const result = await this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const owner = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        )
+        validateOwner(owner, request.actor.establishmentId)
+        const link = await productAccompanimentsRepository.findById(
+          request.actor.establishmentId,
+          owner.id,
+          request.linkId,
+        )
+        if (
+          !link ||
+          link.establishmentId !== request.actor.establishmentId ||
+          link.productId !== owner.id
+        ) {
+          throw new NotFoundError('Acompanhamento não encontrado.')
+        }
+        const type = await accompanimentTypesRepository.findById(
+          request.actor.establishmentId,
+          request.input.accompanimentTypeId,
+        )
+        if (!type || type.establishmentId !== request.actor.establishmentId) {
+          throw new NotFoundError('Tipo de acompanhamento não encontrado.')
+        }
+        const updated = await productAccompanimentsRepository.replace(
+          request.actor.establishmentId,
+          owner.id,
+          link.id,
+          {
+            accompanimentTypeId: type.id,
+            quantityPerPortion: request.input.quantityPerPortion,
+          },
+        )
+        const configurations =
+          await new GetAffectedProductSalesConfigurationsUseCase().execute({
+            scope,
+            establishmentId: request.actor.establishmentId,
+            productId: request.productId,
+          })
+        const result = GetProductAccompanimentsUseCase.buildDetails(
+          scope,
+          request.actor.establishmentId,
+          updated,
+        )
+        await publishAffectedProductSalesConfigurations({
+          scope,
+          establishmentId: request.actor.establishmentId,
+          productId: request.productId,
+          configurations,
+        })
+        return result
+      },
+    )
     return result
   }
 

@@ -24,8 +24,6 @@ import { SharedModule } from '@/shared/shared.module'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { InngestModule } from '@/shared/messaging/inngest/inngest.module'
 import { RestFixture } from '@/shared/rest/tests/rest-fixture'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
-import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
 import { BetterAuthSessionIssuer } from '@/identity/provision/auth'
 
 export class IdentityModuleFixture {
@@ -85,8 +83,6 @@ export class IdentityModuleFixture {
           .useValue(authProvider)
           .overrideProvider(IDENTITY_PROVIDERS.userAccessIdentity)
           .useValue(authProvider)
-          .overrideProvider(InngestBroker)
-          .useValue(new InngestMock())
         if (authProvider instanceof BetterAuthFixture) {
           // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
           builder

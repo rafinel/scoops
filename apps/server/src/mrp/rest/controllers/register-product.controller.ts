@@ -1,7 +1,6 @@
 import { Body, HttpStatus, Inject, Post } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
 import { RegisterProductUseCase } from '@scoops/core/mrp/use-cases'
-import type { Broker } from '@scoops/core/shared/interfaces'
 import type { MrpDatabase } from '@scoops/core/mrp/interfaces'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { Account } from '@scoops/core/identity/domain/entities'
@@ -10,7 +9,6 @@ import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MrpController } from '@/mrp/decorators'
 import { ProductResponseDto } from '@/mrp/rest/dtos'
 import { CurrentAccount, RequiredProfiles } from '@/identity/decorators'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
@@ -25,10 +23,9 @@ export class RegisterProductController {
 
   constructor(
     @Inject(MRP_REPOSITORIES.database) database: MrpDatabase,
-    @Inject(InngestBroker) broker: Broker,
     @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
   ) {
-    this.useCase = new RegisterProductUseCase(database, broker, datetimeProvider)
+    this.useCase = new RegisterProductUseCase(database, datetimeProvider)
   }
 
   @Post()

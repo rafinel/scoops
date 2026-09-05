@@ -1,7 +1,6 @@
 import { Body, HttpCode, HttpStatus, Inject, Post, Res } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
 import { AcceptUserInvitationUseCase } from '@scoops/core/identity/use-cases'
-import type { Broker } from '@scoops/core/shared/interfaces'
 import type {
   IdentityDatabase,
   OnboardingIdentifierProvider,
@@ -15,7 +14,6 @@ import { acceptUserInvitationSchema } from '@/identity/rest/schemas/user-managem
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { PublicRoute } from '@/shared/rest/decorators/public-route'
 import { BetterAuthSessionIssuer } from '@/identity/provision/auth'
 import type { Response } from 'express'
@@ -33,7 +31,6 @@ export class AcceptUserInvitationController {
     @Inject(IDENTITY_PROVIDERS.onboardingToken) tokenProvider: OnboardingTokenProvider,
     @Inject(IDENTITY_PROVIDERS.onboardingIdentifier)
     identifierProvider: OnboardingIdentifierProvider,
-    @Inject(InngestBroker) broker: Broker,
     @Inject(IDENTITY_PROVIDERS.userAccessIdentity)
     provider: UserAccessIdentityProvider,
     private readonly sessionIssuer: BetterAuthSessionIssuer,
@@ -44,7 +41,6 @@ export class AcceptUserInvitationController {
       tokenProvider,
       identifierProvider,
       provider,
-      broker,
     )
   }
 

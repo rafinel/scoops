@@ -3,7 +3,7 @@ import { mock } from 'vitest-mock-extended'
 import { ResetPasswordUseCase } from '#identity/use-cases/reset-password-use-case.ts'
 import type {
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
 } from '#identity/interfaces/identity-database.ts'
 import type { PasswordRecoveryIdentityProvider } from '#identity/interfaces/password-recovery-identity-provider.ts'
 import type { AuthenticationSessionsRepository } from '#identity/interfaces/authentication-sessions-repository.ts'
@@ -16,11 +16,12 @@ describe('Reset password use case', () => {
     const database = mock<IdentityDatabase>()
     const provider = mock<PasswordRecoveryIdentityProvider>()
     const sessions = mock<AuthenticationSessionsRepository>()
-    const scope: IdentityDatabaseScope = {
+    const scope: IdentityDatabaseRepositories = {
       usersRepository: mock<UsersRepository>(),
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
       establishmentsRepository: mock<EstablishmentsRepository>(),
       authenticationSessionsRepository: sessions,
+      eventsRepository: mock(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     provider.resetPassword.mockResolvedValue({
@@ -45,11 +46,12 @@ describe('Reset password use case', () => {
     const database = mock<IdentityDatabase>()
     const provider = mock<PasswordRecoveryIdentityProvider>()
     const sessions = mock<AuthenticationSessionsRepository>()
-    const scope: IdentityDatabaseScope = {
+    const scope: IdentityDatabaseRepositories = {
       usersRepository: mock<UsersRepository>(),
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
       establishmentsRepository: mock<EstablishmentsRepository>(),
       authenticationSessionsRepository: sessions,
+      eventsRepository: mock(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     provider.resetPassword.mockRejectedValue(new Error('invalid recovery token'))
@@ -65,11 +67,12 @@ describe('Reset password use case', () => {
     const database = mock<IdentityDatabase>()
     const provider = mock<PasswordRecoveryIdentityProvider>()
     const sessions = mock<AuthenticationSessionsRepository>()
-    const scope: IdentityDatabaseScope = {
+    const scope: IdentityDatabaseRepositories = {
       usersRepository: mock<UsersRepository>(),
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
       establishmentsRepository: mock<EstablishmentsRepository>(),
       authenticationSessionsRepository: sessions,
+      eventsRepository: mock(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     provider.resetPassword.mockResolvedValue({

@@ -279,8 +279,10 @@ pnpm --filter web exec playwright install chromium
 
 The server uses Vitest with a Node environment. Tests are discovered from
 `apps/server/src/**/*.test.ts`; Testcontainers PostgreSQL is available for
-database-backed fixtures. Better Auth controller fixtures use the same standard
-PostgreSQL contract and do not require an external authentication gateway.
+database-backed fixtures, and `shared/messaging/inngest/inngest-fixture.ts`
+provides a Docker-backed Inngest development server for job integration tests.
+Better Auth controller fixtures use the same standard PostgreSQL contract and do
+not require an external authentication gateway.
 
 ```bash
 pnpm --filter server test

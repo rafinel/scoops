@@ -12,9 +12,7 @@ import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import type { Account } from '@scoops/core/identity/domain/entities'
 import type { IdentityDatabase } from '@scoops/core/identity/interfaces'
-import type { Broker } from '@scoops/core/shared/interfaces'
 import { changeUserProfileSchema } from '@/identity/rest/schemas/change-user-profile-schema'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 type RequestBody = Omit<
   Parameters<ChangeUserProfileUseCase['execute']>[0],
@@ -29,13 +27,8 @@ export class ChangeUserProfileController {
     @Inject(IDENTITY_REPOSITORIES.database)
     identityDatabase: IdentityDatabase,
     @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
-    @Inject(InngestBroker) broker: Broker,
   ) {
-    this.useCase = new ChangeUserProfileUseCase(
-      identityDatabase,
-      datetimeProvider,
-      broker,
-    )
+    this.useCase = new ChangeUserProfileUseCase(identityDatabase, datetimeProvider)
   }
 
   @Patch(':userId/profile')

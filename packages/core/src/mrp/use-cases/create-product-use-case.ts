@@ -1,41 +1,44 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import { ProductCategory, ProductStockControl } from '#mrp/domain/structures/index.ts'
 import type { ProductCreate } from '#mrp/domain/structures/product-create.ts'
 import { ProductCreatedEvent } from '#mrp/domain/events/product-created-event.ts'
-import type { ProductsRepository } from '#mrp/interfaces/products-repository.ts'
+import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
 import { ConflictError, BadRequestError } from '#shared/domain/errors/index.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
 export class CreateProductUseCase implements UseCase<ProductCreate, Product> {
-  constructor(
-    private readonly productsRepository: ProductsRepository,
-    private readonly broker: Broker,
-  ) {}
+  constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: ProductCreate): Promise<Product> {
     this.validate(request)
 
-    const existingProduct = await this.productsRepository.findByName(
-      request.establishmentId,
-      request.name,
+    return this.database.run(
+      async ({ productsRepository, eventsRepository }: MrpDatabaseRepositories) => {
+        const existingProduct = await productsRepository.findByName(
+          request.establishmentId,
+          request.name,
+        )
+
+        if (existingProduct) {
+          throw new ConflictError(
+            'Já existe um produto com esse nome neste estabelecimento.',
+          )
+        }
+
+        const product = await productsRepository.add(request)
+
+        await eventsRepository.add(
+          new ProductCreatedEvent({
+            productId: product.id,
+            establishmentId: product.establishmentId,
+            createdAt: product.createdAt,
+          }),
+        )
+
+        return product
+      },
     )
-
-    if (existingProduct) {
-      throw new ConflictError('Já existe um produto com esse nome neste estabelecimento.')
-    }
-
-    const product = await this.productsRepository.add(request)
-
-    await this.broker.publish(
-      new ProductCreatedEvent({
-        productId: product.id,
-        establishmentId: product.establishmentId,
-        createdAt: product.createdAt,
-      }),
-    )
-
-    return product
   }
 
   private validate(request: ProductCreate): void {

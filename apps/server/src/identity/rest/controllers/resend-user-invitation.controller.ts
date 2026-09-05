@@ -8,7 +8,6 @@ import type {
   OnboardingTokenProvider,
   UserAccessIdentityProvider,
 } from '@scoops/core/identity/interfaces'
-import type { Broker } from '@scoops/core/shared/interfaces'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 
 import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
@@ -17,7 +16,6 @@ import { UserDetailsResponseDto } from '@/identity/rest/dtos'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 @UsersController()
 export class ResendUserInvitationController {
@@ -32,7 +30,6 @@ export class ResendUserInvitationController {
     @Inject(IDENTITY_PROVIDERS.onboardingIdentifier)
     identifierProvider: OnboardingIdentifierProvider,
     @Inject(IDENTITY_PROVIDERS.userAccessIdentity) provider: UserAccessIdentityProvider,
-    @Inject(InngestBroker) broker: Broker,
     @Inject(EnvProvider) envProvider: EnvProvider,
   ) {
     this.useCase = new ResendUserInvitationUseCase(
@@ -41,7 +38,6 @@ export class ResendUserInvitationController {
       tokenProvider,
       identifierProvider,
       provider,
-      broker,
     )
     this.invitationRedirectBaseUrl = `${envProvider.get('SCOOPS_WEB_APP_URL')}/invitation/accept`
   }

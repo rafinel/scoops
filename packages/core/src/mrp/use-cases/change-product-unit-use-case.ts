@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import { ProductUnit } from '#mrp/domain/structures/product-unit.ts'
@@ -15,7 +16,6 @@ import {
   GetAffectedProductSalesConfigurationsUseCase,
   publishAffectedProductSalesConfigurations,
 } from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
 type Request = {
@@ -25,59 +25,84 @@ type Request = {
 }
 
 export class ChangeProductUnitUseCase implements UseCase<Request, Product> {
-  constructor(
-    private readonly database: MrpDatabase,
-    private readonly broker: Broker,
-  ) {}
+  constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<Product> {
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
-      []
-    const product = await this.database.run(async (scope) => {
-      const currentProduct = await scope.productsRepository.findByIdForUpdate(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      if (
-        !currentProduct ||
-        currentProduct.establishmentId !== request.actor.establishmentId
-      ) {
-        throw new NotFoundError('Produto não encontrado.')
-      }
-      this.validateVersion(currentProduct, request.input.expectedUpdatedAt)
-      if (currentProduct.unit === request.input.targetUnit) {
-        throw new BadRequestError('A unidade de destino deve ser diferente da atual.')
-      }
+    const product = await this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const currentProduct = await productsRepository.findByIdForUpdate(
+          request.actor.establishmentId,
+          request.productId,
+        )
+        if (
+          !currentProduct ||
+          currentProduct.establishmentId !== request.actor.establishmentId
+        ) {
+          throw new NotFoundError('Produto não encontrado.')
+        }
+        this.validateVersion(currentProduct, request.input.expectedUpdatedAt)
+        if (currentProduct.unit === request.input.targetUnit) {
+          throw new BadRequestError('A unidade de destino deve ser diferente da atual.')
+        }
 
-      const savedProduct = await scope.productsRepository.replace(
-        request.actor.establishmentId,
-        currentProduct.id,
-        { unit: request.input.targetUnit },
-      )
-      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
-        scope,
-        establishmentId: request.actor.establishmentId,
-        productId: request.productId,
-      })
-      return savedProduct
-    })
-
-    await publishAffectedProductSalesConfigurations({
-      broker: this.broker,
-      establishmentId: request.actor.establishmentId,
-      productId: request.productId,
-      configurations,
-    })
-
-    await this.broker.publish(
-      new ProductUpdatedEvent({
-        productId: product.id,
-        establishmentId: product.establishmentId,
-        updatedAt: product.updatedAt,
-      }),
+        const savedProduct = await productsRepository.replace(
+          request.actor.establishmentId,
+          currentProduct.id,
+          { unit: request.input.targetUnit },
+        )
+        const configurations =
+          await new GetAffectedProductSalesConfigurationsUseCase().execute({
+            scope,
+            establishmentId: request.actor.establishmentId,
+            productId: request.productId,
+          })
+        await publishAffectedProductSalesConfigurations({
+          scope,
+          establishmentId: request.actor.establishmentId,
+          productId: request.productId,
+          configurations,
+        })
+        await eventsRepository.add(
+          new ProductUpdatedEvent({
+            productId: savedProduct.id,
+            establishmentId: savedProduct.establishmentId,
+            updatedAt: savedProduct.updatedAt,
+          }),
+        )
+        return savedProduct
+      },
     )
 
     return product

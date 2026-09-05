@@ -1,3 +1,4 @@
+import type { PdvDatabaseRepositories } from '#pdv/interfaces/pdv-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ComboActor } from '#pdv/domain/structures/combo-actor.ts'
 import type { ComboUpdate } from '#pdv/domain/structures/combo-update.ts'
@@ -12,7 +13,6 @@ import {
   NotFoundError,
   ServiceUnavailableError,
 } from '#shared/domain/errors/index.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 import type { ComboDetails } from '#pdv/domain/structures/combo-details.ts'
 import { ListCombosUseCase } from '#pdv/use-cases/list-combos-use-case.ts'
@@ -25,7 +25,6 @@ export class ReviseComboUseCase implements UseCase<Request, ComboDetails> {
   constructor(
     private readonly database: PdvDatabase,
     private readonly catalog: SalesCatalogProvider,
-    private readonly broker: Broker,
   ) {}
   async execute(request: Request): Promise<ComboDetails> {
     if (request.actor.profile !== UserProfile.Manager)
@@ -39,36 +38,44 @@ export class ReviseComboUseCase implements UseCase<Request, ComboDetails> {
       request.actor.establishmentId,
       request.input.components,
     )
-    const combo = await this.database.run(async (scope) => {
-      const current = await scope.discountsRepository.findById(
-        request.actor.establishmentId,
-        request.comboId,
-      )
-      if (!current || current.establishmentId !== request.actor.establishmentId)
-        throw new NotFoundError('Combo não encontrado.')
-      if (current.updatedAt.getTime() !== request.input.expectedUpdatedAt.getTime())
-        throw new ConflictError('O combo foi alterado por outra operação.')
-      const existing = await scope.discountsRepository.findByNormalizedName(
-        request.actor.establishmentId,
-        name.toLowerCase(),
-      )
-      if (existing && existing.id !== current.id)
-        throw new ConflictError('Já existe um combo com esse nome neste estabelecimento.')
-      if (current.status === 'active')
-        this.validateActive(request.input.components, request.input.fixedPrice, products)
-      return scope.discountsRepository.replace(
-        request.actor.establishmentId,
-        current.id,
-        { ...request.input, name },
-      )
-    })
-    await this.broker.publish(
-      new DiscountUpdatedEvent({
-        discountId: combo.id,
-        establishmentId: combo.establishmentId,
-        type: combo.type,
-        updatedAt: combo.updatedAt,
-      }),
+    const combo = await this.database.run(
+      async ({ discountsRepository, eventsRepository }: PdvDatabaseRepositories) => {
+        const current = await discountsRepository.findById(
+          request.actor.establishmentId,
+          request.comboId,
+        )
+        if (!current || current.establishmentId !== request.actor.establishmentId)
+          throw new NotFoundError('Combo não encontrado.')
+        if (current.updatedAt.getTime() !== request.input.expectedUpdatedAt.getTime())
+          throw new ConflictError('O combo foi alterado por outra operação.')
+        const existing = await discountsRepository.findByNormalizedName(
+          request.actor.establishmentId,
+          name.toLowerCase(),
+        )
+        if (existing && existing.id !== current.id)
+          throw new ConflictError(
+            'Já existe um combo com esse nome neste estabelecimento.',
+          )
+        if (current.status === 'active')
+          this.validateActive(
+            request.input.components,
+            request.input.fixedPrice,
+            products,
+          )
+        const combo = await discountsRepository.replace(
+          request.actor.establishmentId,
+          current.id,
+          { ...request.input, name },
+        )
+        const event = new DiscountUpdatedEvent({
+          discountId: combo.id,
+          establishmentId: combo.establishmentId,
+          type: combo.type,
+          updatedAt: combo.updatedAt,
+        })
+        await eventsRepository.add(event)
+        return combo
+      },
     )
     return ListCombosUseCase.details(
       combo,

@@ -10,8 +10,9 @@ import type { RecipesRepository } from '#mrp/interfaces/recipes-repository.ts'
 import type { ResaleConfigurationsRepository } from '#mrp/interfaces/resale-configurations-repository.ts'
 import type { StockBalancesRepository } from '#mrp/interfaces/stock-balances-repository.ts'
 import type { StockTransactionsRepository } from '#mrp/interfaces/stock-transactions-repository.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 
-export type MrpDatabaseScope = {
+export type MrpDatabaseRepositories = {
   productsRepository: ProductsRepository
   brandsRepository: BrandsRepository
   recipesRepository: RecipesRepository
@@ -24,8 +25,11 @@ export type MrpDatabaseScope = {
   accompanimentTypesRepository: AccompanimentTypesRepository
   productAccompanimentsRepository: ProductAccompanimentsRepository
   resaleConfigurationsRepository: ResaleConfigurationsRepository
+  eventsRepository: Pick<EventsRepository, 'add'>
 }
 
 export interface MrpDatabase {
-  run<Result>(operation: (scope: MrpDatabaseScope) => Promise<Result>): Promise<Result>
+  run<Result>(
+    operation: (scope: MrpDatabaseRepositories) => Promise<Result>,
+  ): Promise<Result>
 }

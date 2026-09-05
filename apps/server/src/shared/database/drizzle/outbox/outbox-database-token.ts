@@ -1,1 +1,0 @@
-export const OUTBOX_DATABASE = Symbol('OUTBOX_DATABASE')

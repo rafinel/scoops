@@ -9,7 +9,7 @@ import { UserFaker } from '#identity/domain/entities/fakers/user-faker.ts'
 import { UserAuditRecordFaker } from '#identity/domain/entities/fakers/user-audit-record-faker.ts'
 import type {
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
 } from '#identity/interfaces/identity-database.ts'
 import type { PasswordRecoveryIdentityProvider } from '#identity/interfaces/password-recovery-identity-provider.ts'
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
@@ -17,7 +17,7 @@ import type { UserAuditRecordsRepository } from '#identity/interfaces/user-audit
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 
 describe('Request password recovery use case', () => {
   it('prepares, audits and publishes recovery for a known user', async () => {
@@ -25,7 +25,7 @@ describe('Request password recovery use case', () => {
     const users = mock<UsersRepository>()
     const audits = mock<UserAuditRecordsRepository>()
     const provider = mock<PasswordRecoveryIdentityProvider>()
-    const broker = mock<Broker>()
+    const eventsRepository = mock<EventsRepository>()
     const now = new Date('2026-01-02T00:00:00.000Z')
     const user = UserFaker.fake({
       id: '00000000-0000-0000-0000-000000000001',
@@ -41,11 +41,12 @@ describe('Request password recovery use case', () => {
       expiresAt: '2026-01-02T01:00:00.000Z',
       occurredAt: now.toISOString(),
     })
-    const scope: IdentityDatabaseScope = {
+    const scope: IdentityDatabaseRepositories = {
       usersRepository: users,
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
       establishmentsRepository: mock<EstablishmentsRepository>(),
       userAuditRecordsRepository: audits,
+      eventsRepository,
     }
     database.run.mockImplementation((operation) => operation(scope))
     users.findByEmail.mockResolvedValue(user)
@@ -55,7 +56,6 @@ describe('Request password recovery use case', () => {
       database,
       { now: () => now } satisfies DatetimeProvider,
       provider,
-      broker,
     )
 
     await expect(
@@ -78,20 +78,21 @@ describe('Request password recovery use case', () => {
       action: UserAuditAction.PasswordRecoveryInitiated,
       occurredAt: now,
     })
-    expect(broker.publish).toHaveBeenCalledWith(event)
+    expect(eventsRepository.add).toHaveBeenCalledWith(event)
   })
 
   it('does not enumerate an unknown email', async () => {
     const database = mock<IdentityDatabase>()
     const users = mock<UsersRepository>()
     const provider = mock<PasswordRecoveryIdentityProvider>()
-    const broker = mock<Broker>()
+    const eventsRepository = mock<EventsRepository>()
     const audits = mock<UserAuditRecordsRepository>()
-    const scope: IdentityDatabaseScope = {
+    const scope: IdentityDatabaseRepositories = {
       usersRepository: users,
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
       establishmentsRepository: mock<EstablishmentsRepository>(),
       userAuditRecordsRepository: audits,
+      eventsRepository,
     }
     database.run.mockImplementation((operation) => operation(scope))
     users.findByEmail.mockResolvedValue(undefined)
@@ -99,7 +100,6 @@ describe('Request password recovery use case', () => {
       database,
       { now: () => new Date('2026-01-02T00:00:00.000Z') },
       provider,
-      broker,
     )
 
     await expect(
@@ -110,7 +110,7 @@ describe('Request password recovery use case', () => {
     ).resolves.toBeUndefined()
     expect(provider.preparePasswordRecovery).not.toHaveBeenCalled()
     expect(audits.add).not.toHaveBeenCalled()
-    expect(broker.publish).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
   })
 
   it('propagates the provider quota error without writing an audit', async () => {
@@ -118,16 +118,17 @@ describe('Request password recovery use case', () => {
     const users = mock<UsersRepository>()
     const audits = mock<UserAuditRecordsRepository>()
     const provider = mock<PasswordRecoveryIdentityProvider>()
-    const broker = mock<Broker>()
+    const eventsRepository = mock<EventsRepository>()
     const user = UserFaker.fake({
       id: '00000000-0000-0000-0000-000000000003',
       email: 'maria@example.com',
     })
-    const scope: IdentityDatabaseScope = {
+    const scope: IdentityDatabaseRepositories = {
       usersRepository: users,
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
       establishmentsRepository: mock<EstablishmentsRepository>(),
       userAuditRecordsRepository: audits,
+      eventsRepository,
     }
     database.run.mockImplementation((operation) => operation(scope))
     users.findByEmail.mockResolvedValue(user)
@@ -138,7 +139,6 @@ describe('Request password recovery use case', () => {
       database,
       { now: () => new Date('2026-01-02T00:00:00.000Z') },
       provider,
-      broker,
     )
 
     await expect(
@@ -148,15 +148,15 @@ describe('Request password recovery use case', () => {
       }),
     ).rejects.toBeInstanceOf(AuthenticationMessageRateLimitedError)
     expect(audits.add).not.toHaveBeenCalled()
-    expect(broker.publish).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
   })
 
-  it('propagates broker failure so the recovery transaction can roll back', async () => {
+  it('propagates events repository failure so the recovery transaction can roll back', async () => {
     const database = mock<IdentityDatabase>()
     const users = mock<UsersRepository>()
     const audits = mock<UserAuditRecordsRepository>()
     const provider = mock<PasswordRecoveryIdentityProvider>()
-    const broker = mock<Broker>()
+    const eventsRepository = mock<EventsRepository>()
     const user = UserFaker.fake({
       id: '00000000-0000-0000-0000-000000000004',
       email: 'maria@example.com',
@@ -169,22 +169,22 @@ describe('Request password recovery use case', () => {
       expiresAt: '2026-01-02T01:00:00.000Z',
       occurredAt: '2026-01-02T00:00:00.000Z',
     })
-    const scope: IdentityDatabaseScope = {
+    const scope: IdentityDatabaseRepositories = {
       usersRepository: users,
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
       establishmentsRepository: mock<EstablishmentsRepository>(),
       userAuditRecordsRepository: audits,
+      eventsRepository,
     }
     database.run.mockImplementation((operation) => operation(scope))
     users.findByEmail.mockResolvedValue(user)
     provider.preparePasswordRecovery.mockResolvedValue(event)
     audits.add.mockResolvedValue(UserAuditRecordFaker.fake())
-    broker.publish.mockRejectedValue(new Error('outbox unavailable'))
+    eventsRepository.add.mockRejectedValue(new Error('outbox unavailable'))
     const useCase = new RequestPasswordRecoveryUseCase(
       database,
       { now: () => new Date('2026-01-02T00:00:00.000Z') },
       provider,
-      broker,
     )
 
     await expect(
@@ -194,6 +194,6 @@ describe('Request password recovery use case', () => {
       }),
     ).rejects.toThrow('outbox unavailable')
     expect(audits.add).toHaveBeenCalled()
-    expect(broker.publish).toHaveBeenCalledWith(event)
+    expect(eventsRepository.add).toHaveBeenCalledWith(event)
   })
 })

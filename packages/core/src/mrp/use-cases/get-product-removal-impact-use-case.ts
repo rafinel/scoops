@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { ProductRemovalImpact } from '#mrp/domain/structures/product-removal-impact.ts'
@@ -18,72 +19,28 @@ export class GetProductRemovalImpactUseCase
   async execute(request: Request): Promise<ProductRemovalImpact> {
     this.validateActor(request.actor)
 
-    return this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      if (!product || product.establishmentId !== request.actor.establishmentId) {
-        throw new NotFoundError('Produto não encontrado.')
-      }
+    return this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+      }: MrpDatabaseRepositories) => {
+        const product = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        )
+        if (!product || product.establishmentId !== request.actor.establishmentId) {
+          throw new NotFoundError('Produto não encontrado.')
+        }
 
-      const [
-        brands,
-        balances,
-        ownedRecipe,
-        sizes,
-        resaleConfigurations,
-        ownedAccompanimentLinks,
-        consumingRecipeLinks,
-        inverseAccompanimentLinks,
-        stockTransactions,
-        productions,
-      ] = await Promise.all([
-        scope.brandsRepository.countByProductId(
-          request.actor.establishmentId,
-          product.id,
-        ),
-        scope.stockBalancesRepository.countByProductId(
-          request.actor.establishmentId,
-          product.id,
-        ),
-        scope.recipesRepository.countByProductId(
-          request.actor.establishmentId,
-          product.id,
-        ),
-        scope.productSizesRepository.countByProductId(
-          request.actor.establishmentId,
-          product.id,
-        ),
-        scope.resaleConfigurationsRepository.countByProductId(
-          request.actor.establishmentId,
-          product.id,
-        ),
-        scope.productAccompanimentsRepository.countByProductId(
-          request.actor.establishmentId,
-          product.id,
-        ),
-        scope.recipeIngredientsRepository.countByIngredientProductId(
-          request.actor.establishmentId,
-          product.id,
-        ),
-        scope.productAccompanimentsRepository.countByAccompanimentProductId(
-          request.actor.establishmentId,
-          product.id,
-        ),
-        scope.stockTransactionsRepository.countByProductId(
-          request.actor.establishmentId,
-          product.id,
-        ),
-        scope.productionsRepository.countByProductId(
-          request.actor.establishmentId,
-          product.id,
-        ),
-      ])
-
-      return {
-        productName: product.name,
-        removable: {
+        const [
           brands,
           balances,
           ownedRecipe,
@@ -92,14 +49,65 @@ export class GetProductRemovalImpactUseCase
           ownedAccompanimentLinks,
           consumingRecipeLinks,
           inverseAccompanimentLinks,
-        },
-        retainedHistory: {
           stockTransactions,
           productions,
-          orders: 0,
-        },
-      }
-    })
+        ] = await Promise.all([
+          brandsRepository.countByProductId(request.actor.establishmentId, product.id),
+          stockBalancesRepository.countByProductId(
+            request.actor.establishmentId,
+            product.id,
+          ),
+          recipesRepository.countByProductId(request.actor.establishmentId, product.id),
+          productSizesRepository.countByProductId(
+            request.actor.establishmentId,
+            product.id,
+          ),
+          resaleConfigurationsRepository.countByProductId(
+            request.actor.establishmentId,
+            product.id,
+          ),
+          productAccompanimentsRepository.countByProductId(
+            request.actor.establishmentId,
+            product.id,
+          ),
+          recipeIngredientsRepository.countByIngredientProductId(
+            request.actor.establishmentId,
+            product.id,
+          ),
+          productAccompanimentsRepository.countByAccompanimentProductId(
+            request.actor.establishmentId,
+            product.id,
+          ),
+          stockTransactionsRepository.countByProductId(
+            request.actor.establishmentId,
+            product.id,
+          ),
+          productionsRepository.countByProductId(
+            request.actor.establishmentId,
+            product.id,
+          ),
+        ])
+
+        return {
+          productName: product.name,
+          removable: {
+            brands,
+            balances,
+            ownedRecipe,
+            sizes,
+            resaleConfigurations,
+            ownedAccompanimentLinks,
+            consumingRecipeLinks,
+            inverseAccompanimentLinks,
+          },
+          retainedHistory: {
+            stockTransactions,
+            productions,
+            orders: 0,
+          },
+        }
+      },
+    )
   }
 
   private validateActor(actor: ProductActor): void {

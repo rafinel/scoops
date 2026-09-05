@@ -14,14 +14,12 @@ import type {
   OnboardingIdentifierProvider,
   UserAccessIdentityProvider,
 } from '@scoops/core/identity/interfaces'
-import type { Broker } from '@scoops/core/shared/interfaces'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 
 import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { CurrentAccount, RequiredProfiles, UsersController } from '@/identity/decorators'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 @UsersController()
 export class CancelUserInvitationController {
@@ -34,14 +32,12 @@ export class CancelUserInvitationController {
     @Inject(IDENTITY_PROVIDERS.onboardingIdentifier)
     identifierProvider: OnboardingIdentifierProvider,
     @Inject(IDENTITY_PROVIDERS.userAccessIdentity) provider: UserAccessIdentityProvider,
-    @Inject(InngestBroker) broker: Broker,
   ) {
     this.useCase = new CancelUserInvitationUseCase(
       database,
       datetimeProvider,
       identifierProvider,
       provider,
-      broker,
     )
   }
 

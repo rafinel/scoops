@@ -3,7 +3,10 @@ import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-
 
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { ProductFaker } from '#mrp/domain/entities/fakers/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import { AuthorizationError, NotFoundError } from '#shared/domain/errors/index.ts'
 import { GetProductRemovalImpactUseCase } from '#mrp/use-cases/get-product-removal-impact-use-case.ts'
 
@@ -12,12 +15,12 @@ const manager = { id: 'u1', establishmentId: 'e1', profile: UserProfile.Manager 
 
 describe('Get Product Removal Impact Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let useCase: GetProductRemovalImpactUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
+    scope = mockDeep<MrpDatabaseRepositories>()
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.productsRepository.findById.mockResolvedValue(product)
     scope.brandsRepository.countByProductId.mockResolvedValue(2)

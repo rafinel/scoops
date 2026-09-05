@@ -13,7 +13,10 @@ import {
   ProductStockControl,
   StockSituation,
 } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import { RegisterProductionUseCase } from '#mrp/use-cases/register-production-use-case.ts'
 
@@ -34,13 +37,13 @@ const ingredient = ProductFaker.fake({
 })
 
 describe('Register Production Use Case', () => {
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let useCase: RegisterProductionUseCase
 
   beforeEach(() => {
     const database = mock<MrpDatabase>()
     const datetime = mock<DatetimeProvider>()
-    scope = mockDeep<MrpDatabaseScope>()
+    scope = mockDeep<MrpDatabaseRepositories>()
     datetime.now.mockReturnValue(new Date('2026-01-01T00:00:00.000Z'))
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.productsRepository.findById.mockImplementation(async (_, id) =>

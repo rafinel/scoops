@@ -1,3 +1,4 @@
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { Account } from '#identity/domain/entities/account.ts'
 import { AuthorizationError } from '#shared/domain/errors/authorization-error.ts'
 import type { UserDetails } from '#identity/domain/structures/user-details.ts'
@@ -14,25 +15,30 @@ export class GetUserDetailsUseCase implements UseCase<Request, UserDetails> {
     if (request.actor.profile !== 'manager')
       throw new AuthorizationError('Manager access required')
     if (request.actor.id === request.userId) throw new NotFoundError('User not found')
-    return this.database.run(async (scope) => {
-      const user = await scope.usersRepository.findByIdInEstablishment(
-        request.actor.establishmentId,
-        request.userId,
-      )
-      if (!user || user.establishmentId !== request.actor.establishmentId)
-        throw new NotFoundError('User not found')
-      const auditRecords = scope.userAuditRecordsRepository
-        ? await scope.userAuditRecordsRepository.findManyByUser({
-            establishmentId: request.actor.establishmentId,
-            affectedUserId: user.id,
-          })
-        : []
-      return {
-        user,
-        auditRecords: [...auditRecords].sort(
-          (a, b) => b.occurredAt.getTime() - a.occurredAt.getTime(),
-        ),
-      }
-    })
+    return this.database.run(
+      async ({
+        usersRepository,
+        userAuditRecordsRepository,
+      }: IdentityDatabaseRepositories) => {
+        const user = await usersRepository.findByIdInEstablishment(
+          request.actor.establishmentId,
+          request.userId,
+        )
+        if (!user || user.establishmentId !== request.actor.establishmentId)
+          throw new NotFoundError('User not found')
+        const auditRecords = userAuditRecordsRepository
+          ? await userAuditRecordsRepository.findManyByUser({
+              establishmentId: request.actor.establishmentId,
+              affectedUserId: user.id,
+            })
+          : []
+        return {
+          user,
+          auditRecords: [...auditRecords].sort(
+            (a, b) => b.occurredAt.getTime() - a.occurredAt.getTime(),
+          ),
+        }
+      },
+    )
   }
 }

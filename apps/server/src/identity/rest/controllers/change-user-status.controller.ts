@@ -6,7 +6,6 @@ import {
 } from '@scoops/core/identity/use-cases'
 import type { Account } from '@scoops/core/identity/domain/entities'
 import type { IdentityDatabase } from '@scoops/core/identity/interfaces'
-import type { Broker } from '@scoops/core/shared/interfaces'
 import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
 
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
@@ -16,7 +15,6 @@ import { changeUserStatusSchema } from '@/identity/rest/schemas/user-management-
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 type RequestBody = { status: Extract<UserStatus, 'active' | 'inactive'> }
 
@@ -29,10 +27,9 @@ export class ChangeUserStatusController {
   constructor(
     @Inject(IDENTITY_REPOSITORIES.database) database: IdentityDatabase,
     @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
-    @Inject(InngestBroker) broker: Broker,
   ) {
-    this.inactivateUser = new InactivateUserUseCase(database, datetimeProvider, broker)
-    this.reactivateUser = new ReactivateUserUseCase(database, datetimeProvider, broker)
+    this.inactivateUser = new InactivateUserUseCase(database, datetimeProvider)
+    this.reactivateUser = new ReactivateUserUseCase(database, datetimeProvider)
   }
 
   @Patch(':userId/status')

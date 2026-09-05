@@ -6,7 +6,10 @@ import type { ProductAccompanimentsDetails } from '#mrp/domain/structures/produc
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -27,46 +30,77 @@ export class GetProductAccompanimentsUseCase
   async execute(request: Request): Promise<ProductAccompanimentsDetails> {
     this.validateActor(request.actor)
 
-    return this.database.run(async (scope) => {
-      const owner = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      this.validateOwner(owner, request.actor.establishmentId)
-
-      const links = await scope.productAccompanimentsRepository.findManyByProductId(
-        request.actor.establishmentId,
-        owner.id,
-      )
-      const accompaniments = await Promise.all(
-        links.map((link) =>
-          link.establishmentId !== request.actor.establishmentId ||
-          link.productId !== owner.id
-            ? Promise.reject(new NotFoundError('Acompanhamento não encontrado.'))
-            : GetProductAccompanimentsUseCase.buildDetails(
-                scope,
-                request.actor.establishmentId,
-                link,
-              ),
-        ),
-      )
-
-      accompaniments.sort((left, right) => {
-        const nameComparison = normalizeForSort(
-          left.accompanimentProductName,
-        ).localeCompare(normalizeForSort(right.accompanimentProductName))
-        return (
-          nameComparison ||
-          left.accompanimentProductId.localeCompare(right.accompanimentProductId)
+    return this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const owner = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
         )
-      })
+        this.validateOwner(owner, request.actor.establishmentId)
 
-      return { product: owner, accompaniments }
-    })
+        const links = await productAccompanimentsRepository.findManyByProductId(
+          request.actor.establishmentId,
+          owner.id,
+        )
+        const accompaniments = await Promise.all(
+          links.map((link) =>
+            link.establishmentId !== request.actor.establishmentId ||
+            link.productId !== owner.id
+              ? Promise.reject(new NotFoundError('Acompanhamento não encontrado.'))
+              : GetProductAccompanimentsUseCase.buildDetails(
+                  scope,
+                  request.actor.establishmentId,
+                  link,
+                ),
+          ),
+        )
+
+        accompaniments.sort((left, right) => {
+          const nameComparison = normalizeForSort(
+            left.accompanimentProductName,
+          ).localeCompare(normalizeForSort(right.accompanimentProductName))
+          return (
+            nameComparison ||
+            left.accompanimentProductId.localeCompare(right.accompanimentProductId)
+          )
+        })
+
+        return { product: owner, accompaniments }
+      },
+    )
   }
 
   static async buildDetails(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     link: ProductAccompaniment,
   ): Promise<ProductAccompanimentDetails> {
@@ -111,7 +145,7 @@ export class GetProductAccompanimentsUseCase
   }
 
   private static async resolveCurrentSource(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     product: Product,
   ): Promise<{ brandId?: string; brandName?: string; unitCost?: number } | undefined> {
     if (

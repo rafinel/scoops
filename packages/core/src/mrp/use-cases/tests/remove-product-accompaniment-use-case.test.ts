@@ -7,7 +7,10 @@ import {
   ProductFaker,
 } from '#mrp/domain/entities/fakers/index.ts'
 import { ProductCategory } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -29,12 +32,12 @@ const link = ProductAccompanimentFaker.fake({
 
 describe('Remove Product Accompaniment Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let useCase: RemoveProductAccompanimentUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
+    scope = mockDeep<MrpDatabaseRepositories>()
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.productsRepository.findById.mockResolvedValue(owner)
     scope.productAccompanimentsRepository.findById.mockResolvedValue(link)

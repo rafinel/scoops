@@ -8,7 +8,10 @@ import {
 } from '#mrp/domain/entities/fakers/index.ts'
 import type { ResaleConfiguration } from '#mrp/domain/entities/resale-configuration.ts'
 import { ProductCategory, ProductStockControl } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -45,14 +48,14 @@ const brand = {
 
 describe('Save Product Resale Configuration Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let useCase: SaveProductResaleConfigurationUseCase
   let singleConfiguration: ResaleConfiguration | undefined
   let brandConfiguration: ResaleConfiguration | undefined
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
+    scope = mockDeep<MrpDatabaseRepositories>()
     database.run.mockImplementation(async (operation) => operation(scope))
     singleConfiguration = undefined
     brandConfiguration = undefined

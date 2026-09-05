@@ -7,7 +7,7 @@ import {
 } from '#identity/domain/entities/fakers/index.ts'
 import type {
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
 } from '#identity/interfaces/identity-database.ts'
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
@@ -21,7 +21,7 @@ describe('Confirm Ice Cream Shop Onboarding Use Case', () => {
   let establishments: MockProxy<EstablishmentsRepository>
   let users: MockProxy<UsersRepository>
   let provider: MockProxy<OnboardingIdentityProvider>
-  let scope: IdentityDatabaseScope
+  let scope: IdentityDatabaseRepositories
   let useCase: ConfirmIceCreamShopOnboardingUseCase
   beforeEach(() => {
     database = mock<IdentityDatabase>()
@@ -33,6 +33,7 @@ describe('Confirm Ice Cream Shop Onboarding Use Case', () => {
       registrationAttemptsRepository: attempts,
       establishmentsRepository: establishments,
       usersRepository: users,
+      eventsRepository: mock(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     const user = UserFaker.fake({

@@ -10,10 +10,8 @@ import { CurrentAccount, RequiredProfiles } from '@/identity/decorators'
 import { PDV_PROVIDERS, PDV_REPOSITORIES } from '@/pdv/constants'
 import { DiscountsController } from '@/pdv/decorators'
 import { ComboResponseDto } from '@/pdv/rest/dtos'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
-import type { Broker } from '@scoops/core/shared/interfaces'
 
 type RequestBody = Omit<
   Parameters<ReactivateComboUseCase['execute']>[0],
@@ -27,9 +25,8 @@ export class ReactivateComboController {
   constructor(
     @Inject(PDV_REPOSITORIES.database) database: PdvDatabase,
     @Inject(PDV_PROVIDERS.salesCatalog) catalog: SalesCatalogProvider,
-    @Inject(InngestBroker) broker: Broker,
   ) {
-    this.useCase = new ReactivateComboUseCase(database, catalog, broker)
+    this.useCase = new ReactivateComboUseCase(database, catalog)
   }
 
   @Patch(':discountId/reactivate')

@@ -7,12 +7,14 @@ import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import { ProductStatus } from '#mrp/domain/structures/product-status.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
 import { GetProductAccompanimentsUseCase } from '#mrp/use-cases/get-product-accompaniments-use-case.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   GetAffectedProductSalesConfigurationsUseCase,
   publishAffectedProductSalesConfigurations,
 } from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -30,71 +32,99 @@ type Request = {
 export class LinkProductAccompanimentUseCase
   implements UseCase<Request, ProductAccompanimentDetails>
 {
-  constructor(
-    private readonly database: MrpDatabase,
-    private readonly broker?: Broker,
-  ) {}
+  constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<ProductAccompanimentDetails> {
     this.validateActor(request.actor)
     validateQuantity(request.input.quantityPerPortion)
 
-    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
-      []
-    const result = await this.database.run(async (scope) => {
-      const owner = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      validateOwner(owner, request.actor.establishmentId)
-      const target = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.input.accompanimentProductId,
-      )
-      validateTarget(target, owner.id, request.actor.establishmentId)
-      const type = await scope.accompanimentTypesRepository.findById(
-        request.actor.establishmentId,
-        request.input.accompanimentTypeId,
-      )
-      if (!type || type.establishmentId !== request.actor.establishmentId) {
-        throw new NotFoundError('Tipo de acompanhamento não encontrado.')
-      }
-      if (target.stockControl === ProductStockControl.ByBrand) {
-        await requireMainBrand(scope, target)
-      }
-      const existing =
-        await scope.productAccompanimentsRepository.findByProductAndAccompaniment(
+    const result = await this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const owner = await productsRepository.findById(
           request.actor.establishmentId,
-          owner.id,
-          target.id,
+          request.productId,
         )
-      if (existing)
-        throw new ConflictError('O acompanhamento já está vinculado a esta porção.')
+        validateOwner(owner, request.actor.establishmentId)
+        const target = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.input.accompanimentProductId,
+        )
+        validateTarget(target, owner.id, request.actor.establishmentId)
+        const type = await accompanimentTypesRepository.findById(
+          request.actor.establishmentId,
+          request.input.accompanimentTypeId,
+        )
+        if (!type || type.establishmentId !== request.actor.establishmentId) {
+          throw new NotFoundError('Tipo de acompanhamento não encontrado.')
+        }
+        if (target.stockControl === ProductStockControl.ByBrand) {
+          await requireMainBrand(scope, target)
+        }
+        const existing =
+          await productAccompanimentsRepository.findByProductAndAccompaniment(
+            request.actor.establishmentId,
+            owner.id,
+            target.id,
+          )
+        if (existing)
+          throw new ConflictError('O acompanhamento já está vinculado a esta porção.')
 
-      const link = await scope.productAccompanimentsRepository.add({
-        establishmentId: request.actor.establishmentId,
-        productId: owner.id,
-        accompanimentProductId: target.id,
-        accompanimentTypeId: type.id,
-        quantityPerPortion: request.input.quantityPerPortion,
-      })
-      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
-        scope,
-        establishmentId: request.actor.establishmentId,
-        productId: request.productId,
-      })
-      return GetProductAccompanimentsUseCase.buildDetails(
-        scope,
-        request.actor.establishmentId,
-        link,
-      )
-    })
-    await publishAffectedProductSalesConfigurations({
-      broker: this.broker,
-      establishmentId: request.actor.establishmentId,
-      productId: request.productId,
-      configurations,
-    })
+        const link = await productAccompanimentsRepository.add({
+          establishmentId: request.actor.establishmentId,
+          productId: owner.id,
+          accompanimentProductId: target.id,
+          accompanimentTypeId: type.id,
+          quantityPerPortion: request.input.quantityPerPortion,
+        })
+        const configurations =
+          await new GetAffectedProductSalesConfigurationsUseCase().execute({
+            scope,
+            establishmentId: request.actor.establishmentId,
+            productId: request.productId,
+          })
+        const result = GetProductAccompanimentsUseCase.buildDetails(
+          scope,
+          request.actor.establishmentId,
+          link,
+        )
+        await publishAffectedProductSalesConfigurations({
+          scope,
+          establishmentId: request.actor.establishmentId,
+          productId: request.productId,
+          configurations,
+        })
+        return result
+      },
+    )
     return result
   }
 
@@ -137,7 +167,7 @@ function validateTarget(
 }
 
 async function requireMainBrand(
-  scope: MrpDatabaseScope,
+  scope: MrpDatabaseRepositories,
   product: Product,
 ): Promise<void> {
   const brands = await scope.brandsRepository.findManyByProductId(product.id)

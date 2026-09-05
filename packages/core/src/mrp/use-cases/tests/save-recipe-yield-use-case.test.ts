@@ -4,7 +4,10 @@ import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { ProductFaker, RecipeFaker } from '#mrp/domain/entities/fakers/index.ts'
 import { ProductCategory, ProductStockControl } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import { BadRequestError } from '#shared/domain/errors/index.ts'
 import { SaveRecipeYieldUseCase } from '#mrp/use-cases/save-recipe-yield-use-case.ts'
 
@@ -18,12 +21,12 @@ const product = ProductFaker.fake({
 
 describe('Save Recipe Yield Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let useCase: SaveRecipeYieldUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
+    scope = mockDeep<MrpDatabaseRepositories>()
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.productsRepository.findById.mockResolvedValue(product)
     scope.recipesRepository.findByProductId

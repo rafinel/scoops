@@ -1,3 +1,4 @@
+import type { BillingDatabaseRepositories } from '#billing/interfaces/billing-database.ts'
 import type { BillingCheckoutRequest } from '#billing/domain/structures/billing-checkout-request.ts'
 import type { BillingProviderCustomer } from '#billing/domain/structures/billing-provider-customer.ts'
 import type { CheckoutSession } from '#billing/domain/structures/checkout-session.ts'
@@ -16,29 +17,34 @@ export class CreateBillingCheckoutUseCase
   ) {}
 
   async execute(request: BillingCheckoutRequest): Promise<CheckoutSession> {
-    const context = await this.database.run(async (scope) => {
-      const profile = await scope.billingProfilesRepository.findByEstablishmentId(
-        request.establishmentId,
-      )
-      const subscription = await scope.subscriptionsRepository.findByEstablishmentId(
-        request.establishmentId,
-      )
+    const context = await this.database.run(
+      async ({
+        billingProfilesRepository,
+        subscriptionsRepository,
+      }: BillingDatabaseRepositories) => {
+        const profile = await billingProfilesRepository.findByEstablishmentId(
+          request.establishmentId,
+        )
+        const subscription = await subscriptionsRepository.findByEstablishmentId(
+          request.establishmentId,
+        )
 
-      if (!profile) throw new NotFoundError('Perfil de faturamento não encontrado.')
-      if (!subscription) throw new NotFoundError('Assinatura não encontrada.')
+        if (!profile) throw new NotFoundError('Perfil de faturamento não encontrado.')
+        if (!subscription) throw new NotFoundError('Assinatura não encontrada.')
 
-      if (
-        subscription.status !== SubscriptionStatus.Trial &&
-        subscription.status !== SubscriptionStatus.InitialPaymentPending
-      ) {
-        throw new ConflictError('A assinatura não pode iniciar uma nova contratação.')
-      }
+        if (
+          subscription.status !== SubscriptionStatus.Trial &&
+          subscription.status !== SubscriptionStatus.InitialPaymentPending
+        ) {
+          throw new ConflictError('A assinatura não pode iniciar uma nova contratação.')
+        }
 
-      return {
-        subscription,
-        customer: this.toProviderCustomer(profile),
-      }
-    })
+        return {
+          subscription,
+          customer: this.toProviderCustomer(profile),
+        }
+      },
+    )
 
     const checkout = await this.billingProvider.createCheckout({
       ...request,
@@ -46,8 +52,8 @@ export class CreateBillingCheckoutUseCase
       customer: context.customer,
     })
 
-    await this.database.run((scope) =>
-      scope.subscriptionsRepository.replace(context.subscription.establishmentId, {
+    await this.database.run(({ subscriptionsRepository }: BillingDatabaseRepositories) =>
+      subscriptionsRepository.replace(context.subscription.establishmentId, {
         status: SubscriptionStatus.InitialPaymentPending,
       }),
     )

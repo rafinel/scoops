@@ -5,8 +5,11 @@ import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { ProductFaker } from '#mrp/domain/entities/fakers/index.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -25,14 +28,15 @@ const manager = { id: 'u1', establishmentId: 'e1', profile: UserProfile.Manager 
 
 describe('Change Product Categories Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
-  let broker: MockProxy<Broker>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
+  let eventsRepository: MockProxy<EventsRepository>
   let useCase: ChangeProductCategoriesUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
-    broker = mock<Broker>()
+    scope = mockDeep<MrpDatabaseRepositories>()
+    eventsRepository = mock<EventsRepository>()
+    scope.eventsRepository = eventsRepository
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.productsRepository.findById.mockResolvedValue(product)
     scope.productsRepository.replace.mockResolvedValue({
@@ -42,10 +46,10 @@ describe('Change Product Categories Use Case', () => {
     scope.recipeIngredientsRepository.findManyByIngredientProductId.mockResolvedValue([])
     scope.productSizesRepository.countByProductId.mockResolvedValue(0)
     scope.productAccompanimentsRepository.countByProductId.mockResolvedValue(0)
-    useCase = new ChangeProductCategoriesUseCase(database, broker)
+    useCase = new ChangeProductCategoriesUseCase(database)
   })
 
-  it('rechecks removed dependencies in the transaction and publishes after a successful change', async () => {
+  it('rechecks removed dependencies and records events in the transaction', async () => {
     const result = await useCase.execute({
       actor: manager,
       productId: product.id,
@@ -59,7 +63,7 @@ describe('Change Product Categories Use Case', () => {
       categories: [ProductCategory.Portion, ProductCategory.Accompaniment],
     })
     expect(database.run).toHaveBeenCalledTimes(1)
-    expect(broker.publish).toHaveBeenCalledTimes(2)
+    expect(eventsRepository.add).toHaveBeenCalledTimes(2)
     expect(result.product.categories).toEqual([
       ProductCategory.Portion,
       ProductCategory.Accompaniment,

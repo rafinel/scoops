@@ -8,13 +8,13 @@ import type {
   EstablishmentsRepository,
   EstablishmentAuditRecordsRepository as EstablishmentAuditRepository,
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
   UserAuditRecordsRepository,
   UsersRepository,
 } from '#identity/interfaces/index.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import { ChangeEstablishmentNameUseCase } from '#identity/use-cases/change-establishment-name-use-case.ts'
 
 describe('Change Establishment Name Use Case', () => {
@@ -22,8 +22,8 @@ describe('Change Establishment Name Use Case', () => {
   let establishmentsRepository: MockProxy<EstablishmentsRepository>
   let establishmentAuditRecordsRepository: MockProxy<EstablishmentAuditRepository>
   let datetimeProvider: MockProxy<DatetimeProvider>
-  let broker: MockProxy<Broker>
-  let scope: IdentityDatabaseScope
+  let eventsRepository: MockProxy<EventsRepository>
+  let scope: IdentityDatabaseRepositories
   let useCase: ChangeEstablishmentNameUseCase
 
   beforeEach(() => {
@@ -31,17 +31,18 @@ describe('Change Establishment Name Use Case', () => {
     establishmentsRepository = mock<EstablishmentsRepository>()
     establishmentAuditRecordsRepository = mock<EstablishmentAuditRecordsRepository>()
     datetimeProvider = mock<DatetimeProvider>()
-    broker = mock<Broker>()
+    eventsRepository = mock<EventsRepository>()
     scope = {
       establishmentsRepository,
       usersRepository: mock<UsersRepository>(),
       registrationAttemptsRepository: mock(),
       userAuditRecordsRepository: mock<UserAuditRecordsRepository>(),
       establishmentAuditRecordsRepository,
+      eventsRepository,
     }
     database.run.mockImplementation((operation) => operation(scope))
     datetimeProvider.now.mockReturnValue(new Date('2026-08-16T14:00:00.000Z'))
-    useCase = new ChangeEstablishmentNameUseCase(database, datetimeProvider, broker)
+    useCase = new ChangeEstablishmentNameUseCase(database, datetimeProvider)
   })
 
   it('trims a manager rename, accepts duplicates, and writes an establishment audit', async () => {
@@ -77,7 +78,7 @@ describe('Change Establishment Name Use Case', () => {
         actorUserId: actor.id,
       }),
     )
-    expect(broker.publish).toHaveBeenCalledTimes(1)
+    expect(eventsRepository.add).toHaveBeenCalledTimes(1)
   })
 
   it('rejects operators and empty names without writing', async () => {
@@ -113,7 +114,7 @@ describe('Change Establishment Name Use Case', () => {
     )
     expect(establishmentsRepository.replace).not.toHaveBeenCalled()
     expect(establishmentAuditRecordsRepository.add).not.toHaveBeenCalled()
-    expect(broker.publish).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
   })
 
   it('does not publish an event when the audit transaction fails', async () => {
@@ -135,6 +136,6 @@ describe('Change Establishment Name Use Case', () => {
     await expect(useCase.execute({ actor, name: 'New Shop' })).rejects.toThrow(
       'audit failed',
     )
-    expect(broker.publish).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
   })
 })

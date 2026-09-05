@@ -396,20 +396,19 @@ not duplicate event names as infrastructure string literals.
 ```mermaid
 sequenceDiagram
   participant Core as Originating use case
-  participant Broker as InngestBroker
+  participant Events as EventsRepository
   participant DB as PostgreSQL outbox
-  participant Publisher as PublishEventJob
+  participant Publisher as InngestBroker
   participant Inngest as Inngest
   participant Job as Module-owned job
   participant Provider as External provider
 
-  Core->>Broker: Publish completed domain event
-  Broker->>DB: Insert pending event in active transaction
+  Core->>Events: Add completed domain event
+  Events->>DB: Insert pending event in active transaction
   DB-->>Publisher: LISTEN/NOTIFY after commit
   Publisher->>DB: Reserve pending row
   Publisher->>Inngest: Send serialized event with stable row ID
   Inngest->>Job: Invoke matching function
-  Job->>Job: Validate runtime schema
   Job->>Provider: Execute named durable step
   Provider-->>Job: Serializable result
   Job-->>Inngest: Complete or throw for retry
@@ -435,20 +434,20 @@ Publishing directly after a database commit does not by itself guarantee deliver
 if the process fails between those operations.
 
 Communication `REQ-08` makes that strategy mandatory for authentication messages:
-Identity calls its independently injected `Broker` while the state-change
-transaction is active; `InngestBroker.publish` persists a pending row in the shared
-`events` table
-through the shared `DatabaseTransactionContext` and performs no network request.
-Shared messaging's non-Inngest `PublishEventJob` listens for committed PostgreSQL
+Identity calls `scope.eventsRepository.add(event)` while the state-change
+transaction is active; the module-scoped repository persists a pending row in the
+shared `events` table through that transaction. Shared messaging's
+`InngestBroker` listens for committed PostgreSQL
 notifications, drains pending rows and publishes them directly through
 `InngestClient` with the stable event-row ID. Startup/reconnect draining and the
 periodic local/test `ReprocessEventsJob` cover missed notifications. Communication
-alone composes and delivers the resulting email. The broker must not be placed
-inside an Identity database-scope object.
+alone composes and delivers the resulting email. The application broker is not
+injected into the use case because the EventsRepository is already in the
+Identity database scope.
 Shared outbox infrastructure owns no message template, recipient policy, or
 email-provider contract and does not track consumer-delivery state.
 `SharedDatabaseModule` provides the singleton transaction context;
-`SharedMessagingModule` imports it and owns the Broker, Inngest client, database-
+`SharedMessagingModule` imports it and owns the InngestBroker, Inngest client, database-
 triggered publisher, and recovery/cleanup jobs without a reverse module dependency.
 The reprocessor is disabled in staging/production. Publication
 failures use bounded backoff and a finite automatic-attempt cap; terminal failures

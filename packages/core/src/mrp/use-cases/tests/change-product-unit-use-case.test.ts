@@ -15,8 +15,11 @@ import {
   ProductUnit,
   StockSituation,
 } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import {
   AuthorizationError,
   ConflictError,
@@ -50,14 +53,15 @@ const manager = { id: 'u1', establishmentId: 'e1', profile: UserProfile.Manager 
 
 describe('Change Product Unit Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
-  let broker: MockProxy<Broker>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
+  let eventsRepository: MockProxy<EventsRepository>
   let useCase: ChangeProductUnitUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
-    broker = mock<Broker>()
+    scope = mockDeep<MrpDatabaseRepositories>()
+    eventsRepository = mock<EventsRepository>()
+    scope.eventsRepository = eventsRepository
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.productsRepository.findByIdForUpdate.mockResolvedValue(product)
     scope.productsRepository.replace.mockResolvedValue({
@@ -102,7 +106,7 @@ describe('Change Product Unit Use Case', () => {
         }),
       ],
     )
-    useCase = new ChangeProductUnitUseCase(database, broker)
+    useCase = new ChangeProductUnitUseCase(database)
   })
 
   it('updates only the product unit and preserves dependent numeric values', async () => {
@@ -124,7 +128,7 @@ describe('Change Product Unit Use Case', () => {
     expect(scope.productsRepository.replace).toHaveBeenCalledWith('e1', 'p1', {
       unit: ProductUnit.Kilogram,
     })
-    expect(broker.publish).toHaveBeenCalledTimes(1)
+    expect(eventsRepository.add).toHaveBeenCalledTimes(1)
     expect(result.unit).toBe(ProductUnit.Kilogram)
   })
 
@@ -145,10 +149,10 @@ describe('Change Product Unit Use Case', () => {
       unit: ProductUnit.Liter,
     })
     expect(scope.stockBalancesRepository.replaceQuantity).not.toHaveBeenCalled()
-    expect(broker.publish).toHaveBeenCalledTimes(1)
+    expect(eventsRepository.add).toHaveBeenCalledTimes(1)
   })
 
-  it('rejects stale, foreign, operator, and dependency failures without publishing success', async () => {
+  it('rejects stale, foreign, operator, and dependency failures without recording success', async () => {
     scope.productsRepository.findByIdForUpdate.mockResolvedValue({
       ...product,
       updatedAt: new Date('2026-01-02T00:00:00.000Z'),
@@ -179,7 +183,7 @@ describe('Change Product Unit Use Case', () => {
         input: { targetUnit: ProductUnit.Kilogram, expectedUpdatedAt: updatedAt },
       }),
     ).rejects.toThrow('rollback')
-    expect(broker.publish).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
 
     await expect(
       useCase.execute({

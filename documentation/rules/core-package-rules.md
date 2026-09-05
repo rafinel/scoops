@@ -161,12 +161,12 @@ Transactional email is owned by Communication. Its provider-neutral
 domain events and must not import that interface or a Resend, SMTP, or Mailpit
 implementation.
 
-When an approved atomic-delivery requirement applies, Core use cases call their
-independently injected `Broker` while the owning database transaction is active.
-The `Broker` contract accepts only a typed domain `Event`; it must not expose SQL
-rows, transaction objects, polling, Inngest, or provider types. Do not add the
-broker to a module database-scope object. Shared server infrastructure implements
-transaction-aware outbox persistence and post-commit relay.
+When an approved atomic-delivery requirement applies, Core use cases call
+`scope.eventsRepository.add(event)` while the owning database transaction is
+active. The `EventsRepository` contract accepts only a typed domain `Event`; it
+must not expose SQL rows, transaction objects, polling, Inngest, or provider
+types. Shared server infrastructure implements transaction-aware event
+persistence and the post-commit `InngestBroker` relay.
 
 ## Only entities have identity
 

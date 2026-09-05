@@ -1,4 +1,4 @@
-import type { MrpDatabase, MrpDatabaseScope } from '@scoops/core/mrp/interfaces'
+import type { MrpDatabase, MrpDatabaseRepositories } from '@scoops/core/mrp/interfaces'
 import { ConflictError } from '@scoops/core/shared/domain/errors'
 import { Inject, Injectable } from '@nestjs/common'
 
@@ -16,17 +16,20 @@ import { DrizzleRecipesRepository } from './drizzle-recipes-repository'
 import { DrizzleResaleConfigurationsRepository } from './drizzle-resale-configurations-repository'
 import { DrizzleStockBalancesRepository } from './drizzle-stock-balances-repository'
 import { DrizzleStockTransactionsRepository } from './drizzle-stock-transactions-repository'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
 
 @Injectable()
 export class DrizzleMrpDatabase implements MrpDatabase {
   constructor(@Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient) {}
 
-  run<Result>(operation: (scope: MrpDatabaseScope) => Promise<Result>): Promise<Result> {
+  run<Result>(
+    operation: (scope: MrpDatabaseRepositories) => Promise<Result>,
+  ): Promise<Result> {
     return this.runWithRetry(operation, false)
   }
 
   private async runWithRetry<Result>(
-    operation: (scope: MrpDatabaseScope) => Promise<Result>,
+    operation: (scope: MrpDatabaseRepositories) => Promise<Result>,
     hasRetried: boolean,
   ): Promise<Result> {
     try {
@@ -78,6 +81,10 @@ export class DrizzleMrpDatabase implements MrpDatabase {
               transaction,
             ),
             resaleConfigurationsRepository: new DrizzleResaleConfigurationsRepository(
+              this.drizzleClient,
+              transaction,
+            ),
+            eventsRepository: new DrizzleEventsRepository(
               this.drizzleClient,
               transaction,
             ),

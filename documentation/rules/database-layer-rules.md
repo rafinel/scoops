@@ -211,15 +211,14 @@ The implementation must isolate concurrent requests, support nested access to th
 same transaction, clear context after completion, and never expose Drizzle types
 to Core.
 
-A participant such as `InngestBroker` may use the active transaction when present
-and otherwise perform its own standalone database operation. A use case that
-requires state/event atomicity must call `Broker.publish` inside its owning
-`database.run` callback. Do not use process-global mutable transaction variables,
-pass transaction objects through Core contracts, or add `Broker` to
-`IdentityDatabaseScope` or another feature database scope. Messaging/application
-integration tests must prove shared commit, rollback, concurrent isolation, and
-the standalone behavior; do not create a repository-only test that violates this
-Rule's testing boundary.
+A use case that requires state/event atomicity must call
+`scope.eventsRepository.add(event)` inside its owning `database.run` callback.
+The provider-neutral `EventsRepository` is part of every module database scope;
+its Server implementation writes through the active transaction. Do not use
+process-global mutable transaction variables or pass transaction objects through
+Core contracts. Messaging/application integration tests must prove shared commit,
+rollback, concurrent isolation, and the standalone behavior; do not create a
+repository-only test that violates this Rule's testing boundary.
 
 ## Repository injection uses module tokens
 

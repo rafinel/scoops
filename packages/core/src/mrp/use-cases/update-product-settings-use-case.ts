@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { ProductStatus } from '#mrp/domain/structures/product-status.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
@@ -15,7 +16,6 @@ import {
   GetAffectedProductSalesConfigurationsUseCase,
   publishAffectedProductSalesConfigurations,
 } from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
 type Request = {
@@ -27,70 +27,95 @@ type Request = {
 export class UpdateProductSettingsUseCase
   implements UseCase<Request, ProductSettingsDetails>
 {
-  constructor(
-    private readonly database: MrpDatabase,
-    private readonly broker: Broker,
-  ) {}
+  constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<ProductSettingsDetails> {
     this.validateActor(request.actor)
     const input = this.normalizeInput(request.input)
 
-    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
-      []
-    const product = await this.database.run(async (scope) => {
-      const currentProduct = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      if (
-        !currentProduct ||
-        currentProduct.establishmentId !== request.actor.establishmentId
-      ) {
-        throw new NotFoundError('Produto não encontrado.')
-      }
-
-      this.validateVersion(currentProduct.updatedAt, input.expectedUpdatedAt)
-
-      if (input.name !== undefined && input.name !== currentProduct.name) {
-        const existingProduct = await scope.productsRepository.findByName(
-          request.actor.establishmentId,
-          input.name,
-        )
-        if (existingProduct && existingProduct.id !== currentProduct.id) {
-          throw new ConflictError(
-            'Já existe um produto com esse nome neste estabelecimento.',
-          )
+    const product = await this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
         }
-      }
+        const currentProduct = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        )
+        if (
+          !currentProduct ||
+          currentProduct.establishmentId !== request.actor.establishmentId
+        ) {
+          throw new NotFoundError('Produto não encontrado.')
+        }
 
-      const { expectedUpdatedAt: _expectedUpdatedAt, ...changes } = input
-      const savedProduct = await scope.productsRepository.replace(
-        request.actor.establishmentId,
-        currentProduct.id,
-        changes,
-      )
-      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
-        scope,
-        establishmentId: request.actor.establishmentId,
-        productId: request.productId,
-      })
-      return savedProduct
-    })
+        this.validateVersion(currentProduct.updatedAt, input.expectedUpdatedAt)
 
-    await publishAffectedProductSalesConfigurations({
-      broker: this.broker,
-      establishmentId: request.actor.establishmentId,
-      productId: request.productId,
-      configurations,
-    })
+        if (input.name !== undefined && input.name !== currentProduct.name) {
+          const existingProduct = await productsRepository.findByName(
+            request.actor.establishmentId,
+            input.name,
+          )
+          if (existingProduct && existingProduct.id !== currentProduct.id) {
+            throw new ConflictError(
+              'Já existe um produto com esse nome neste estabelecimento.',
+            )
+          }
+        }
 
-    await this.broker.publish(
-      new ProductUpdatedEvent({
-        productId: product.id,
-        establishmentId: product.establishmentId,
-        updatedAt: product.updatedAt,
-      }),
+        const { expectedUpdatedAt: _expectedUpdatedAt, ...changes } = input
+        const savedProduct = await productsRepository.replace(
+          request.actor.establishmentId,
+          currentProduct.id,
+          changes,
+        )
+        const configurations =
+          await new GetAffectedProductSalesConfigurationsUseCase().execute({
+            scope,
+            establishmentId: request.actor.establishmentId,
+            productId: request.productId,
+          })
+        await publishAffectedProductSalesConfigurations({
+          scope,
+          establishmentId: request.actor.establishmentId,
+          productId: request.productId,
+          configurations,
+        })
+        await eventsRepository.add(
+          new ProductUpdatedEvent({
+            productId: savedProduct.id,
+            establishmentId: savedProduct.establishmentId,
+            updatedAt: savedProduct.updatedAt,
+          }),
+        )
+        return savedProduct
+      },
     )
 
     return { product }

@@ -8,17 +8,13 @@ import {
   type OnModuleInit,
 } from '@nestjs/common'
 import type {
-  OutboxDatabase,
-  OutboxDatabaseListener,
+  EventsRepository,
+  EventsRepositoryListener,
   OutboxEvent,
 } from '@scoops/core/shared/interfaces'
 
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
-import { OUTBOX_DATABASE } from '@/shared/database/drizzle/outbox/outbox-database-token'
-import {
-  OutboxEventValidationError,
-  validateOutboxEvent,
-} from '@/shared/messaging/outbox/event-validation'
+import { EVENTS_REPOSITORY } from '@/shared/database/drizzle/events/events-repository-token'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 
 const RESERVATION_BATCH_SIZE = 100
@@ -26,23 +22,23 @@ const BACKOFF_MINUTES = [1, 5, 15, 60] as const
 const BACKLOG_WARNING_MINUTES = 5
 
 @Injectable()
-export class PublishEventJob implements OnModuleInit, OnModuleDestroy {
+export class InngestBroker implements OnModuleInit, OnModuleDestroy {
   private readonly instanceId = randomUUID()
-  private readonly logger = new Logger(PublishEventJob.name)
-  private listener: OutboxDatabaseListener | undefined
+  private readonly logger = new Logger(InngestBroker.name)
+  private listener: EventsRepositoryListener | undefined
   private drainPromise: Promise<void> | undefined
   private drainRequested = false
   private isShuttingDown = false
 
   constructor(
     @Inject(InngestClient) private readonly inngest: InngestClient,
-    @Inject(OUTBOX_DATABASE) private readonly outboxDatabase: OutboxDatabase,
+    @Inject(EVENTS_REPOSITORY) private readonly eventsRepository: EventsRepository,
     @Inject(DatetimeProvider) private readonly datetimeProvider: DatetimeProvider,
   ) {}
 
   async onModuleInit(): Promise<void> {
     let didConnect = false
-    this.listener = await this.outboxDatabase.listen(
+    this.listener = await this.eventsRepository.subscribe(
       () => this.requestDrain(),
       () => {
         didConnect = true
@@ -80,10 +76,10 @@ export class PublishEventJob implements OnModuleInit, OnModuleDestroy {
     const now = this.datetimeProvider.now()
     const owner = `${this.instanceId}:${randomUUID()}`
 
-    await this.outboxDatabase.reclaimExpiredReservations(now, owner)
-    const oldestPending = await this.outboxDatabase.oldestPending(now)
+    await this.eventsRepository.releaseExpired(now, owner)
+    const oldestPending = await this.eventsRepository.findOldestAvailable(now)
     this.emitBacklogSignal(oldestPending, now)
-    const events = await this.outboxDatabase.reservePending(
+    const events = await this.eventsRepository.reserveAvailable(
       now,
       owner,
       RESERVATION_BATCH_SIZE,
@@ -98,27 +94,26 @@ export class PublishEventJob implements OnModuleInit, OnModuleDestroy {
     now: Date,
   ): Promise<void> {
     try {
-      validateOutboxEvent(event.eventName, event.payload)
       await this.inngest.send({
         id: event.id,
         name: event.eventName,
         data: event.payload,
       })
-      await this.outboxDatabase.markPublished(
+      await this.eventsRepository.markPublished(
         event.id,
         owner,
         this.datetimeProvider.now(),
       )
-    } catch (error) {
+    } catch {
       const attempts = event.attempts + 1
       const backoffMinutes =
         BACKOFF_MINUTES[Math.min(attempts - 1, BACKOFF_MINUTES.length - 1)]
-      const updated = await this.outboxDatabase.markFailed({
+      const updated = await this.eventsRepository.markDeliveryFailed({
         eventId: event.id,
         owner,
         attempts,
         availableAt: new Date(now.getTime() + backoffMinutes * 60 * 1000),
-        errorCode: this.getSafeErrorCode(error),
+        errorCode: 'publish_failed',
         updatedAt: now,
       })
 
@@ -145,12 +140,6 @@ export class PublishEventJob implements OnModuleInit, OnModuleDestroy {
         ageMinutes: Math.floor(ageMinutes),
       }),
     )
-  }
-
-  private getSafeErrorCode(error: unknown): string {
-    return error instanceof OutboxEventValidationError
-      ? 'invalid_event'
-      : 'publish_failed'
   }
 
   private logInfrastructureError(error: unknown): void {

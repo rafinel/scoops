@@ -3,8 +3,8 @@ import { UserStatus } from '#identity/domain/structures/user-status.ts'
 import { UserAuditAction } from '#identity/domain/structures/user-audit-action.ts'
 import { UserAuditActorType } from '#identity/domain/structures/user-audit-actor-type.ts'
 import type { IdentityDatabase } from '#identity/interfaces/identity-database.ts'
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 import { UserNameChangeNotAllowedError } from '#identity/domain/errors/user-name-change-not-allowed-error.ts'
 import { UserUpdatedEvent } from '#identity/domain/events/user-updated-event.ts'
@@ -17,7 +17,6 @@ export class ChangeOwnUserNameUseCase implements UseCase<Request, Account> {
   constructor(
     private readonly database: IdentityDatabase,
     private readonly datetimeProvider: DatetimeProvider,
-    private readonly broker?: Broker,
   ) {}
 
   async execute(request: Request): Promise<Account> {
@@ -25,86 +24,93 @@ export class ChangeOwnUserNameUseCase implements UseCase<Request, Account> {
     if (!name) throw new UserNameChangeNotAllowedError()
 
     const updatedAt = this.datetimeProvider.now()
-    const result = await this.database.run(async (scope) => {
-      const user = await scope.usersRepository.findByIdInEstablishment(
-        request.actor.establishmentId,
-        request.actor.id,
-      )
-      const establishment = await scope.establishmentsRepository.findById(
-        request.actor.establishmentId,
-      )
+    const result = await this.database.run(
+      async ({
+        usersRepository,
+        establishmentsRepository,
+        userAuditRecordsRepository,
+        eventsRepository,
+      }: IdentityDatabaseRepositories) => {
+        const user = await usersRepository.findByIdInEstablishment(
+          request.actor.establishmentId,
+          request.actor.id,
+        )
+        const establishment = await establishmentsRepository.findById(
+          request.actor.establishmentId,
+        )
 
-      if (
-        !user ||
-        user.status !== UserStatus.Active ||
-        !establishment ||
-        establishment.id !== request.actor.establishmentId
-      ) {
-        throw new NotFoundError('Authenticated account not found')
-      }
+        if (
+          !user ||
+          user.status !== UserStatus.Active ||
+          !establishment ||
+          establishment.id !== request.actor.establishmentId
+        ) {
+          throw new NotFoundError('Authenticated account not found')
+        }
 
-      if (user.name === name) {
+        if (user.name === name) {
+          return {
+            account: this.toAccount(
+              user.id,
+              user.establishmentId,
+              user.name,
+              user.email,
+              user.profile,
+              establishment.name,
+            ),
+            changed: false,
+            previousName: user.name,
+          }
+        }
+
+        const updatedUser = await usersRepository.replace(
+          request.actor.establishmentId,
+          request.actor.id,
+          { name, updatedAt },
+        )
+        const auditRepository = userAuditRecordsRepository
+        if (!auditRepository)
+          throw new AppError('User audit repository is not configured')
+
+        await auditRepository.add({
+          id: `${updatedUser.id}:${updatedAt.toISOString()}:self-name`,
+          establishmentId: updatedUser.establishmentId,
+          affectedUserId: updatedUser.id,
+          affectedUserName: updatedUser.name,
+          actorType: UserAuditActorType.User,
+          actorUserId: request.actor.id,
+          actorName: request.actor.name,
+          action: UserAuditAction.UserNameChanged,
+          previousValue: user.name,
+          newValue: updatedUser.name,
+          occurredAt: updatedAt,
+        })
+
+        await eventsRepository.add(
+          new UserUpdatedEvent({
+            userId: updatedUser.id,
+            establishmentId: updatedUser.establishmentId,
+            actorUserId: request.actor.id,
+            previousName: user.name,
+            name: updatedUser.name,
+            updatedAt,
+          }),
+        )
+
         return {
           account: this.toAccount(
-            user.id,
-            user.establishmentId,
-            user.name,
-            user.email,
-            user.profile,
+            updatedUser.id,
+            updatedUser.establishmentId,
+            updatedUser.name,
+            updatedUser.email,
+            updatedUser.profile,
             establishment.name,
           ),
-          changed: false,
+          changed: true,
           previousName: user.name,
         }
-      }
-
-      const updatedUser = await scope.usersRepository.replace(
-        request.actor.establishmentId,
-        request.actor.id,
-        { name, updatedAt },
-      )
-      const auditRepository = scope.userAuditRecordsRepository
-      if (!auditRepository) throw new AppError('User audit repository is not configured')
-
-      await auditRepository.add({
-        id: `${updatedUser.id}:${updatedAt.toISOString()}:self-name`,
-        establishmentId: updatedUser.establishmentId,
-        affectedUserId: updatedUser.id,
-        affectedUserName: updatedUser.name,
-        actorType: UserAuditActorType.User,
-        actorUserId: request.actor.id,
-        actorName: request.actor.name,
-        action: UserAuditAction.UserNameChanged,
-        previousValue: user.name,
-        newValue: updatedUser.name,
-        occurredAt: updatedAt,
-      })
-
-      return {
-        account: this.toAccount(
-          updatedUser.id,
-          updatedUser.establishmentId,
-          updatedUser.name,
-          updatedUser.email,
-          updatedUser.profile,
-          establishment.name,
-        ),
-        changed: true,
-        previousName: user.name,
-      }
-    })
-
-    if (result.changed)
-      await this.broker?.publish(
-        new UserUpdatedEvent({
-          userId: result.account.id,
-          establishmentId: result.account.establishmentId,
-          actorUserId: request.actor.id,
-          previousName: result.previousName,
-          name: result.account.name,
-          updatedAt,
-        }),
-      )
+      },
+    )
 
     return result.account
   }

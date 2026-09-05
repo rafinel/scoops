@@ -40,15 +40,18 @@ import type {
 import type { Combo } from '@scoops/core/pdv/domain/entities'
 import type { ComboCreate } from '@scoops/core/pdv/domain/structures'
 import type { AppError } from '@scoops/core/shared/domain/errors'
+import type { Event } from '@scoops/core/shared/domain/events'
+import type { EventsRepository } from '@scoops/core/shared/interfaces'
 import type { StockTransactionsRepository } from '@scoops/core/mrp/interfaces'
 import type {
   DiscountsRepository,
   OrdersRepository,
   PdvDatabase,
-  PdvDatabaseScope,
+  PdvDatabaseRepositories,
   SalesChannelsRepository,
 } from '@scoops/core/pdv/interfaces'
 import type { TestingModuleBuilder } from '@nestjs/testing'
+import type { EventPayload, InngestFunction } from 'inngest'
 import { eq } from 'drizzle-orm'
 
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
@@ -65,9 +68,10 @@ import { PDV_REPOSITORIES } from '@/pdv/constants'
 import { PdvSeeder } from '@/pdv/database/pdv-seeder'
 import { DrizzlePdvDatabase } from '@/pdv/database/drizzle/repositories/drizzle-pdv-database'
 import { PdvModule } from '@/pdv/pdv.module'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
+import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
+import { InngestFixture } from '@/shared/messaging/inngest/inngest-fixture'
+import type { InngestJob } from '@/shared/messaging/inngest/inngest-job'
 import { InngestModule } from '@/shared/messaging/inngest/inngest.module'
-import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 import { SharedModule } from '@/shared/shared.module'
 import { RestFixture } from '@/shared/rest/tests/rest-fixture'
@@ -82,6 +86,21 @@ type RegisterPortionOrderInput = {
   readonly channelId?: string
   readonly quantity?: number
   readonly stockQuantity?: number
+}
+
+type ConfigureFixture = (builder: TestingModuleBuilder) => TestingModuleBuilder
+
+type InngestJobType<T extends InngestJob> = Type<T> & {
+  readonly ID: string
+}
+
+type PdvModuleFixtureOptions<T extends InngestJob> = {
+  readonly configure?: ConfigureFixture
+  readonly inngestJob?: InngestJobType<T>
+}
+
+type CapturedEventsRepository = Pick<EventsRepository, 'add'> & {
+  readonly events: Event[]
 }
 
 export class PdvModuleFixture {
@@ -102,15 +121,51 @@ export class PdvModuleFixture {
     private readonly stockConsumerFailure: { error?: AppError },
     private readonly stockRestorerFailure: { error?: AppError },
     private readonly databaseFailure: { error?: AppError },
+    private readonly inngestFixture: InngestFixture | undefined,
+    private readonly eventsRepository: CapturedEventsRepository,
   ) {}
 
-  static async register(authProvider: ServerAuthProvider) {
+  static async register<T extends InngestJob = InngestJob>(
+    authProvider: ServerAuthProvider,
+    target?: ConfigureFixture | PdvModuleFixtureOptions<T>,
+  ) {
+    const options: PdvModuleFixtureOptions<T> =
+      typeof target === 'function' ? { configure: target } : (target ?? {})
+
+    if (options.inngestJob) {
+      return PdvModuleFixture.registerWithInngest(
+        authProvider,
+        options,
+        options.inngestJob,
+      )
+    }
+
+    const context = await PdvModuleFixture.registerRestContext(
+      authProvider,
+      options.configure,
+    )
+    return PdvModuleFixture.fromRestContext(context)
+  }
+
+  private static async registerRestContext(
+    authProvider: ServerAuthProvider,
+    configure?: ConfigureFixture,
+    inngestClient?: InngestClient,
+  ) {
     const originalPreviewTokenSecret = process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET
     process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET ??=
       'pdv-test-preview-token-secret-0123456789'
     const stockConsumerFailure: { error?: AppError } = {}
     const stockRestorerFailure: { error?: AppError } = {}
     const databaseFailure: { error?: AppError } = {}
+    const events: Event[] = []
+    const eventsRepository: CapturedEventsRepository = {
+      events,
+      add(event) {
+        events.push(event)
+        return Promise.resolve()
+      },
+    }
     const restFixture = await RestFixture.register(
       {
         imports: [
@@ -121,16 +176,23 @@ export class PdvModuleFixture {
           InngestModule.forRoot({ functions: [] }),
         ],
       },
-      (builder: TestingModuleBuilder) =>
-        builder
+      (builder: TestingModuleBuilder) => {
+        let configuredBuilder = configure?.(builder) ?? builder
+
+        if (inngestClient) {
+          // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
+          configuredBuilder = configuredBuilder
+            .overrideProvider(InngestClient)
+            .useValue(inngestClient)
+        }
+
+        return configuredBuilder
           .overrideProvider(IDENTITY_PROVIDERS.authIdentity)
           .useValue(authProvider)
           .overrideProvider(IDENTITY_PROVIDERS.betterAuthSessionVerifier)
           .useValue(authProvider)
           .overrideProvider(BetterAuthSessionIssuer)
           .useValue(authProvider)
-          .overrideProvider(InngestBroker)
-          .useValue(new InngestMock())
           .overrideProvider(MRP_PROVIDERS.orderRegistrationDependencies)
           .useFactory({
             inject: [TransactionBoundOrderRegistrationDependenciesFactory],
@@ -166,24 +228,85 @@ export class PdvModuleFixture {
           .useFactory({
             inject: [DrizzlePdvDatabase],
             factory: (database: DrizzlePdvDatabase): PdvDatabase => ({
-              run<Result>(operation: (scope: PdvDatabaseScope) => Promise<Result>) {
+              run<Result>(
+                operation: (scope: PdvDatabaseRepositories) => Promise<Result>,
+              ) {
                 return database.run(async (scope) => {
-                  const result = await operation(scope)
+                  const result = await operation({ ...scope, eventsRepository })
                   if (databaseFailure.error) throw databaseFailure.error
                   return result
                 })
               },
             }),
-          }),
+          })
+      },
     )
 
-    return new PdvModuleFixture(
-      restFixture,
+    return {
+      databaseFailure,
       originalPreviewTokenSecret,
+      restFixture,
       stockConsumerFailure,
       stockRestorerFailure,
-      databaseFailure,
+      eventsRepository,
+    }
+  }
+
+  private static fromRestContext(
+    context: Awaited<ReturnType<typeof PdvModuleFixture.registerRestContext>>,
+    inngestFixture?: InngestFixture,
+  ) {
+    return new PdvModuleFixture(
+      context.restFixture,
+      context.originalPreviewTokenSecret,
+      context.stockConsumerFailure,
+      context.stockRestorerFailure,
+      context.databaseFailure,
+      inngestFixture,
+      context.eventsRepository,
     )
+  }
+
+  private static async registerWithInngest<T extends InngestJob>(
+    authProvider: ServerAuthProvider,
+    options: PdvModuleFixtureOptions<T>,
+    jobType: InngestJobType<T>,
+  ) {
+    let context:
+      | Awaited<ReturnType<typeof PdvModuleFixture.registerRestContext>>
+      | undefined
+    const inngestFixture = new InngestFixture({
+      functionId: jobType.ID,
+      createJob: async (client) => {
+        context = await PdvModuleFixture.registerRestContext(
+          authProvider,
+          options.configure,
+          client,
+        )
+        return context.restFixture.get(jobType)
+      },
+    })
+
+    try {
+      await inngestFixture.setup()
+    } catch (error) {
+      try {
+        await context?.restFixture.close()
+      } catch (closeError) {
+        throw new AggregateError(
+          [error, closeError],
+          'Failed to register the PDV fixture.',
+        )
+      }
+      throw error
+    }
+
+    if (!context) {
+      await inngestFixture.teardown()
+      throw new Error('The PDV fixture was not registered for Inngest.')
+    }
+
+    return PdvModuleFixture.fromRestContext(context, inngestFixture)
   }
 
   get app(): INestApplication {
@@ -202,8 +325,32 @@ export class PdvModuleFixture {
     return this.get(PdvSeeder)
   }
 
-  get broker(): InngestMock {
-    return this.get(InngestBroker) as unknown as InngestMock
+  get broker(): CapturedEventsRepository {
+    return this.eventsRepository
+  }
+
+  get inngestFunctionOptions(): InngestFunction.Options {
+    if (!this.inngestFixture) {
+      throw new Error('The PDV fixture was not registered for Inngest.')
+    }
+
+    return this.inngestFixture.functionOptions
+  }
+
+  runInngest(event: EventPayload) {
+    if (!this.inngestFixture) {
+      throw new Error('The PDV fixture was not registered for Inngest.')
+    }
+
+    return this.inngestFixture.run(event)
+  }
+
+  invokeInngest(data?: Record<string, unknown>) {
+    if (!this.inngestFixture) {
+      throw new Error('The PDV fixture was not registered for Inngest.')
+    }
+
+    return this.inngestFixture.invoke(data)
   }
 
   get mrpSeeder(): MrpSeeder {
@@ -424,14 +571,30 @@ export class PdvModuleFixture {
     return { product, size, order: response.body.order as Order }
   }
 
-  close() {
-    return this.restFixture.close().finally(() => {
+  async close() {
+    const errors: unknown[] = []
+
+    try {
+      await this.inngestFixture?.teardown()
+    } catch (error) {
+      errors.push(error)
+    }
+
+    try {
+      await this.restFixture.close()
+    } catch (error) {
+      errors.push(error)
+    } finally {
       if (this.originalPreviewTokenSecret === undefined) {
         delete process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET
       } else {
         process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET = this.originalPreviewTokenSecret
       }
-    })
+    }
+
+    if (errors.length > 0) {
+      throw new AggregateError(errors, 'Failed to close the PDV fixture.')
+    }
   }
 }
 

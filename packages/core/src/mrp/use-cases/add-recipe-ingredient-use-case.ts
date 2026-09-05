@@ -8,7 +8,10 @@ import { ProductStockControl } from '#mrp/domain/structures/product-stock-contro
 import type { AddRecipeIngredientInput } from '#mrp/domain/structures/add-recipe-ingredient-input.ts'
 import type { ProductRecipeDetails } from '#mrp/domain/structures/product-recipe-details.ts'
 import { GetProductRecipeUseCase } from '#mrp/use-cases/get-product-recipe-use-case.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -32,57 +35,88 @@ export class AddRecipeIngredientUseCase
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    return this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      if (!product) throw new NotFoundError('Produto não encontrado.')
-      if (!product.categories.includes(ProductCategory.Manufacturable)) {
-        throw new BadRequestError('O produto não é fabricável.')
-      }
-      const recipe = await scope.recipesRepository.findByProductId(
-        request.actor.establishmentId,
-        product.id,
-      )
-      if (!recipe)
-        throw new BadRequestError('Salve o rendimento antes de adicionar ingredientes.')
-      if (request.input.ingredientProductId === product.id) {
-        throw new BadRequestError(
-          'Um produto não pode ser ingrediente de sua própria receita.',
+    return this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const product = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
         )
-      }
-      const ingredientProduct = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.input.ingredientProductId,
-      )
-      this.validateIngredient(ingredientProduct)
-      const sourceBrand = await this.resolveSourceBrand(
-        scope,
-        ingredientProduct,
-        request.input.ingredientBrandId,
-      )
-      const existing = await scope.recipeIngredientsRepository.findByRecipeAndProduct(
-        request.actor.establishmentId,
-        recipe.id,
-        ingredientProduct.id,
-      )
-      if (existing) throw new ConflictError('O ingrediente já está na receita.')
+        if (!product) throw new NotFoundError('Produto não encontrado.')
+        if (!product.categories.includes(ProductCategory.Manufacturable)) {
+          throw new BadRequestError('O produto não é fabricável.')
+        }
+        const recipe = await recipesRepository.findByProductId(
+          request.actor.establishmentId,
+          product.id,
+        )
+        if (!recipe)
+          throw new BadRequestError('Salve o rendimento antes de adicionar ingredientes.')
+        if (request.input.ingredientProductId === product.id) {
+          throw new BadRequestError(
+            'Um produto não pode ser ingrediente de sua própria receita.',
+          )
+        }
+        const ingredientProduct = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.input.ingredientProductId,
+        )
+        this.validateIngredient(ingredientProduct)
+        const sourceBrand = await this.resolveSourceBrand(
+          scope,
+          ingredientProduct,
+          request.input.ingredientBrandId,
+        )
+        const existing = await recipeIngredientsRepository.findByRecipeAndProduct(
+          request.actor.establishmentId,
+          recipe.id,
+          ingredientProduct.id,
+        )
+        if (existing) throw new ConflictError('O ingrediente já está na receita.')
 
-      await scope.recipeIngredientsRepository.add({
-        establishmentId: request.actor.establishmentId,
-        recipeId: recipe.id,
-        ingredientProductId: ingredientProduct.id,
-        ...(sourceBrand ? { ingredientBrandId: sourceBrand.id } : {}),
-        quantity: request.input.quantity,
-      })
+        await recipeIngredientsRepository.add({
+          establishmentId: request.actor.establishmentId,
+          recipeId: recipe.id,
+          ingredientProductId: ingredientProduct.id,
+          ...(sourceBrand ? { ingredientBrandId: sourceBrand.id } : {}),
+          quantity: request.input.quantity,
+        })
 
-      return GetProductRecipeUseCase.buildDetails(
-        scope,
-        request.actor.establishmentId,
-        product,
-      )
-    })
+        return GetProductRecipeUseCase.buildDetails(
+          scope,
+          request.actor.establishmentId,
+          product,
+        )
+      },
+    )
   }
 
   private validateActor(actor: ProductActor): void {
@@ -114,7 +148,7 @@ export class AddRecipeIngredientUseCase
   }
 
   private async resolveSourceBrand(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     product: Product,
     requestedBrandId: string | undefined,
   ): Promise<Brand | undefined> {

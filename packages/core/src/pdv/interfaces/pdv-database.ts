@@ -5,8 +5,9 @@ import type { SalesChannelsRepository } from '#pdv/interfaces/sales-channels-rep
 import type { SalesCatalogProvider } from '#pdv/interfaces/sales-catalog-provider.ts'
 import type { StockConsumer } from '#pdv/interfaces/stock-consumer.ts'
 import type { StockRestorer } from '#pdv/interfaces/stock-restorer.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 
-export type PdvDatabaseScope = {
+export type PdvDatabaseRepositories = {
   salesCatalogProvider: SalesCatalogProvider
   salesChannelsRepository: SalesChannelsRepository
   discountsRepository: DiscountsRepository
@@ -14,8 +15,11 @@ export type PdvDatabaseScope = {
   orderSequencesRepository: OrderSequencesRepository
   stockConsumer: StockConsumer
   stockRestorer: StockRestorer
+  eventsRepository: Pick<EventsRepository, 'add'>
 }
 
 export interface PdvDatabase {
-  run<Result>(operation: (scope: PdvDatabaseScope) => Promise<Result>): Promise<Result>
+  run<Result>(
+    operation: (scope: PdvDatabaseRepositories) => Promise<Result>,
+  ): Promise<Result>
 }

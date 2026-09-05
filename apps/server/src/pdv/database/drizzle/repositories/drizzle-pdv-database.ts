@@ -1,6 +1,6 @@
 import type {
   PdvDatabase,
-  PdvDatabaseScope,
+  PdvDatabaseRepositories,
   SalesCatalogProvider,
   StockConsumer,
   StockRestorer,
@@ -15,6 +15,7 @@ import { DrizzleOrderSequencesRepository } from '@/pdv/database/drizzle/reposito
 import { DrizzleOrdersRepository } from '@/pdv/database/drizzle/repositories/drizzle-orders-repository'
 import { DrizzleSalesChannelsRepository } from '@/pdv/database/drizzle/repositories/drizzle-sales-channels-repository'
 import type { DrizzleExecutor } from '@/shared/database/drizzle/drizzle-repository'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
 
 type TransactionBoundOrderRegistrationDependenciesFactory = {
   forExecutor(executor: DrizzleExecutor): {
@@ -32,12 +33,14 @@ export class DrizzlePdvDatabase implements PdvDatabase {
     private readonly orderRegistrationDependenciesFactory: TransactionBoundOrderRegistrationDependenciesFactory,
   ) {}
 
-  run<Result>(operation: (scope: PdvDatabaseScope) => Promise<Result>): Promise<Result> {
+  run<Result>(
+    operation: (scope: PdvDatabaseRepositories) => Promise<Result>,
+  ): Promise<Result> {
     return this.runWithRetry(operation, false)
   }
 
   private async runWithRetry<Result>(
-    operation: (scope: PdvDatabaseScope) => Promise<Result>,
+    operation: (scope: PdvDatabaseRepositories) => Promise<Result>,
     hasRetried: boolean,
   ): Promise<Result> {
     try {
@@ -65,6 +68,10 @@ export class DrizzlePdvDatabase implements PdvDatabase {
             ),
             stockConsumer: transactionBoundDependencies.stockConsumer,
             stockRestorer: transactionBoundDependencies.stockRestorer,
+            eventsRepository: new DrizzleEventsRepository(
+              this.drizzleClient,
+              transaction,
+            ),
           })
         },
         { isolationLevel: 'serializable', accessMode: 'read write' },

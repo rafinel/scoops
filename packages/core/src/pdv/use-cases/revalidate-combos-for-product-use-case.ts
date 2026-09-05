@@ -1,3 +1,4 @@
+import type { PdvDatabaseRepositories } from '#pdv/interfaces/pdv-database.ts'
 import { DiscountStatus } from '#pdv/domain/structures/discount-status.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import type { DiscountComponent } from '#pdv/domain/structures/discount-component.ts'
@@ -16,8 +17,8 @@ export class RevalidateCombosForProductUseCase
 {
   constructor(private readonly database: PdvDatabase) {}
   async execute(request: Request): Promise<readonly string[]> {
-    return this.database.run(async (scope) => {
-      const combos = await scope.discountsRepository.findManyByProductId(
+    return this.database.run(async ({ discountsRepository }: PdvDatabaseRepositories) => {
+      const combos = await discountsRepository.findManyByProductId(
         request.establishmentId,
         request.productId,
       )
@@ -39,7 +40,7 @@ export class RevalidateCombosForProductUseCase
               !this.valid(component, request.configuration),
           )
         ) {
-          await scope.discountsRepository.setStatus(
+          await discountsRepository.setStatus(
             request.establishmentId,
             combo.id,
             DiscountStatus.Inactive,

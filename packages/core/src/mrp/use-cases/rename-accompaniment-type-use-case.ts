@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { AccompanimentType } from '#mrp/domain/entities/accompaniment-type.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
@@ -24,30 +25,34 @@ export class RenameAccompanimentTypeUseCase
   async execute(request: Request): Promise<AccompanimentType> {
     this.validateActor(request.actor)
     const name = normalizeName(request.name)
-    return this.database.run(async (scope) => {
-      const type = await scope.accompanimentTypesRepository.findById(
-        request.actor.establishmentId,
-        request.typeId,
-      )
-      if (!type || type.establishmentId !== request.actor.establishmentId) {
-        throw new NotFoundError('Tipo de acompanhamento não encontrado.')
-      }
-      if (normalizeName(type.name).toLocaleLowerCase() === name.toLocaleLowerCase()) {
-        return type
-      }
-      const existing = await scope.accompanimentTypesRepository.findByName(
-        request.actor.establishmentId,
-        name,
-      )
-      if (existing && existing.id !== type.id) {
-        throw new ConflictError('Já existe um tipo com esse nome neste estabelecimento.')
-      }
-      return scope.accompanimentTypesRepository.replace(
-        request.actor.establishmentId,
-        type.id,
-        { name },
-      )
-    })
+    return this.database.run(
+      async ({ accompanimentTypesRepository }: MrpDatabaseRepositories) => {
+        const type = await accompanimentTypesRepository.findById(
+          request.actor.establishmentId,
+          request.typeId,
+        )
+        if (!type || type.establishmentId !== request.actor.establishmentId) {
+          throw new NotFoundError('Tipo de acompanhamento não encontrado.')
+        }
+        if (normalizeName(type.name).toLocaleLowerCase() === name.toLocaleLowerCase()) {
+          return type
+        }
+        const existing = await accompanimentTypesRepository.findByName(
+          request.actor.establishmentId,
+          name,
+        )
+        if (existing && existing.id !== type.id) {
+          throw new ConflictError(
+            'Já existe um tipo com esse nome neste estabelecimento.',
+          )
+        }
+        return accompanimentTypesRepository.replace(
+          request.actor.establishmentId,
+          type.id,
+          { name },
+        )
+      },
+    )
   }
 
   private validateActor(actor: ProductActor): void {

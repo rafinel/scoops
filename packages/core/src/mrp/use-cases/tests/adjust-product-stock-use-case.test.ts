@@ -11,7 +11,10 @@ import {
   StockAdjustmentType,
   StockSituation,
 } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import {
   AuthorizationError,
@@ -52,7 +55,7 @@ const occurredAt = new Date('2026-01-01T00:00:00.000Z')
 
 describe('Adjust Product Stock Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let datetime: MockProxy<DatetimeProvider>
   let useCase: AdjustProductStockUseCase
   beforeEach(() => {

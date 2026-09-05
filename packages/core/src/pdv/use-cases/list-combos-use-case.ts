@@ -1,3 +1,4 @@
+import type { PdvDatabaseRepositories } from '#pdv/interfaces/pdv-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Combo } from '#pdv/domain/entities/combo.ts'
 import type { ComboActor } from '#pdv/domain/structures/combo-actor.ts'
@@ -54,18 +55,19 @@ export class ListCombosUseCase
           this.catalog.findProductIdsByName(request.actor.establishmentId, search),
         )
       : undefined
-    const result = await this.database.run((scope) =>
-      scope.discountsRepository.findPage(
-        {
-          establishmentId: request.actor.establishmentId,
-          search,
-          type: request.type,
-          status: request.status,
-          page,
-          pageSize,
-        },
-        matchingIds,
-      ),
+    const result = await this.database.run(
+      ({ discountsRepository }: PdvDatabaseRepositories) =>
+        discountsRepository.findPage(
+          {
+            establishmentId: request.actor.establishmentId,
+            search,
+            type: request.type,
+            status: request.status,
+            page,
+            pageSize,
+          },
+          matchingIds,
+        ),
     )
     const products = await this.loadProducts(request.actor.establishmentId, result.items)
     return new PaginationResponse(

@@ -1,3 +1,4 @@
+import type { PdvDatabaseRepositories } from '#pdv/interfaces/pdv-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ComboActor } from '#pdv/domain/structures/combo-actor.ts'
 import type { ComboCreate } from '#pdv/domain/structures/combo-create.ts'
@@ -13,7 +14,6 @@ import {
   ConflictError,
   ServiceUnavailableError,
 } from '#shared/domain/errors/index.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 import type { ComboDetails } from '#pdv/domain/structures/combo-details.ts'
 import { ListCombosUseCase } from '#pdv/use-cases/list-combos-use-case.ts'
@@ -22,7 +22,6 @@ export class RegisterComboUseCase implements UseCase<Request, ComboDetails> {
   constructor(
     private readonly database: PdvDatabase,
     private readonly catalog: SalesCatalogProvider,
-    private readonly broker: Broker,
   ) {}
   async execute(request: Request): Promise<ComboDetails> {
     this.guard(request.actor)
@@ -38,28 +37,32 @@ export class RegisterComboUseCase implements UseCase<Request, ComboDetails> {
       request.components,
     )
     this.validateAvailability(request.components, products, request.status)
-    const combo = await this.database.run(async (scope) => {
-      const existing = await scope.discountsRepository.findByNormalizedName(
-        request.actor.establishmentId,
-        name.toLowerCase(),
-      )
-      if (existing)
-        throw new ConflictError('Já existe um combo com esse nome neste estabelecimento.')
-      return scope.discountsRepository.add({
-        establishmentId: request.actor.establishmentId,
-        name,
-        status: request.status,
-        fixedPrice: request.fixedPrice,
-        components: request.components,
-      })
-    })
-    await this.broker.publish(
-      new DiscountCreatedEvent({
-        discountId: combo.id,
-        establishmentId: combo.establishmentId,
-        type: combo.type,
-        createdAt: combo.createdAt,
-      }),
+    const combo = await this.database.run(
+      async ({ discountsRepository, eventsRepository }: PdvDatabaseRepositories) => {
+        const existing = await discountsRepository.findByNormalizedName(
+          request.actor.establishmentId,
+          name.toLowerCase(),
+        )
+        if (existing)
+          throw new ConflictError(
+            'Já existe um combo com esse nome neste estabelecimento.',
+          )
+        const combo = await discountsRepository.add({
+          establishmentId: request.actor.establishmentId,
+          name,
+          status: request.status,
+          fixedPrice: request.fixedPrice,
+          components: request.components,
+        })
+        const event = new DiscountCreatedEvent({
+          discountId: combo.id,
+          establishmentId: combo.establishmentId,
+          type: combo.type,
+          createdAt: combo.createdAt,
+        })
+        await eventsRepository.add(event)
+        return combo
+      },
     )
     return ListCombosUseCase.details(
       combo,

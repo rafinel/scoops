@@ -7,7 +7,10 @@ import {
   ProductSizeFaker,
   RecipeFaker,
 } from '#mrp/domain/entities/fakers/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import { AuthorizationError, NotFoundError } from '#shared/domain/errors/index.ts'
 import { RemoveProductUseCase } from '#mrp/use-cases/remove-product-use-case.ts'
 
@@ -17,12 +20,12 @@ const manager = { id: 'u1', establishmentId: 'e1', profile: UserProfile.Manager 
 
 describe('Remove Product Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let useCase: RemoveProductUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
+    scope = mockDeep<MrpDatabaseRepositories>()
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.productsRepository.findByIdForUpdate.mockResolvedValue(product)
     scope.brandsRepository.countByProductId.mockResolvedValue(1)

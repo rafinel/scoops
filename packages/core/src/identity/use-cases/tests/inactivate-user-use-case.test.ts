@@ -6,7 +6,7 @@ import { UserStatusChangeNotAllowedError } from '#identity/domain/errors/user-st
 import { mock } from 'vitest-mock-extended'
 import type { IdentityDatabase } from '#identity/interfaces/identity-database.ts'
 import type { DatetimeProvider } from '#shared/interfaces/index.ts'
-import type { IdentityDatabaseScope } from '#identity/interfaces/identity-database.ts'
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
@@ -16,10 +16,11 @@ describe('Inactivate User Use Case', () => {
   it('rejects self-inactivation before reading the target', async () => {
     const database = mock<IdentityDatabase>()
     const actor = AccountFaker.fake({ profile: UserProfile.Manager })
-    const scope: IdentityDatabaseScope = {
+    const scope: IdentityDatabaseRepositories = {
       usersRepository: mock<UsersRepository>(),
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
       establishmentsRepository: mock<EstablishmentsRepository>(),
+      eventsRepository: mock(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     const useCase = new InactivateUserUseCase(database, mock<DatetimeProvider>())

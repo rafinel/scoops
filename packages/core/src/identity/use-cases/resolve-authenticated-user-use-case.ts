@@ -1,3 +1,4 @@
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { Account } from '#identity/domain/entities/account.ts'
 import { EstablishmentStatus } from '#identity/domain/structures/establishment-status.ts'
 import { UserStatus } from '#identity/domain/structures/user-status.ts'
@@ -14,29 +15,32 @@ export class ResolveAuthenticatedUserUseCase
   constructor(private readonly database: IdentityDatabase) {}
 
   async execute(request: Request): Promise<Account | undefined> {
-    return this.database.run(async (scope) => {
-      const user = await scope.usersRepository.findByProviderSubject(
-        request.providerSubject,
-      )
+    return this.database.run(
+      async ({
+        establishmentsRepository,
+        usersRepository,
+      }: IdentityDatabaseRepositories) => {
+        const user = await usersRepository.findByProviderSubject(request.providerSubject)
 
-      if (!user || user.status !== UserStatus.Active) return undefined
+        if (!user || user.status !== UserStatus.Active) return undefined
 
-      const establishment = await scope.establishmentsRepository.findById(
-        user.establishmentId,
-      )
+        const establishment = await establishmentsRepository.findById(
+          user.establishmentId,
+        )
 
-      if (!establishment || establishment.status !== EstablishmentStatus.Active) {
-        return undefined
-      }
+        if (!establishment || establishment.status !== EstablishmentStatus.Active) {
+          return undefined
+        }
 
-      return {
-        id: user.id,
-        establishmentId: user.establishmentId,
-        establishmentName: establishment.name,
-        name: user.name,
-        email: user.email,
-        profile: user.profile,
-      }
-    })
+        return {
+          id: user.id,
+          establishmentId: user.establishmentId,
+          establishmentName: establishment.name,
+          name: user.name,
+          email: user.email,
+          profile: user.profile,
+        }
+      },
+    )
   }
 }

@@ -3,8 +3,11 @@ import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-
 
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { ProductFaker } from '#mrp/domain/entities/fakers/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -23,22 +26,23 @@ const manager = { id: 'u1', establishmentId: 'e1', profile: UserProfile.Manager 
 
 describe('Update Product Settings Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
-  let broker: MockProxy<Broker>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
+  let eventsRepository: MockProxy<EventsRepository>
   let useCase: UpdateProductSettingsUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
-    broker = mock<Broker>()
+    scope = mockDeep<MrpDatabaseRepositories>()
+    eventsRepository = mock<EventsRepository>()
+    scope.eventsRepository = eventsRepository
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.productsRepository.findById.mockResolvedValue(product)
     scope.productsRepository.replace.mockResolvedValue({ ...product, updatedAt })
     scope.productsRepository.findByName.mockResolvedValue(undefined)
-    useCase = new UpdateProductSettingsUseCase(database, broker)
+    useCase = new UpdateProductSettingsUseCase(database)
   })
 
-  it('persists simple changes and explicit null clears, then publishes after commit', async () => {
+  it('persists simple changes and explicit null clears, then records events in the transaction', async () => {
     const result = await useCase.execute({
       actor: manager,
       productId: product.id,
@@ -56,7 +60,7 @@ describe('Update Product Settings Use Case', () => {
       internalNotes: null,
     })
     expect(database.run).toHaveBeenCalledTimes(1)
-    expect(broker.publish).toHaveBeenCalledTimes(2)
+    expect(eventsRepository.add).toHaveBeenCalledTimes(2)
     expect(result.product.id).toBe('p1')
   })
 
@@ -69,7 +73,7 @@ describe('Update Product Settings Use Case', () => {
       }),
     ).rejects.toBeInstanceOf(BadRequestError)
     expect(scope.productsRepository.replace).not.toHaveBeenCalled()
-    expect(broker.publish).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
 
     scope.productsRepository.findByName.mockResolvedValue({ ...product, id: 'other' })
     await expect(

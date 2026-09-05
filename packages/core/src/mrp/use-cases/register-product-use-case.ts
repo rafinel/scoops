@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import { ProductCreatedEvent } from '#mrp/domain/events/product-created-event.ts'
 import {
@@ -15,7 +16,6 @@ import {
   BadRequestError,
   ConflictError,
 } from '#shared/domain/errors/index.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
@@ -26,7 +26,6 @@ type Request = RegisterProductInput & {
 export class RegisterProductUseCase implements UseCase<Request, Product> {
   constructor(
     private readonly database: MrpDatabase,
-    private readonly broker: Broker,
     private readonly datetimeProvider: DatetimeProvider,
   ) {}
 
@@ -34,101 +33,103 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
     this.validateActor(request.actor)
     this.validateInput(request)
 
-    const product = await this.database.run(async (scope) => {
-      const existingProduct = await scope.productsRepository.findByName(
-        request.actor.establishmentId,
-        request.name.trim(),
-      )
-
-      if (existingProduct) {
-        throw new ConflictError(
-          'Já existe um produto com esse nome neste estabelecimento.',
+    return this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const existingProduct = await productsRepository.findByName(
+          request.actor.establishmentId,
+          request.name.trim(),
         )
-      }
 
-      const createdProduct = await scope.productsRepository.add({
-        establishmentId: request.actor.establishmentId,
-        name: request.name.trim(),
-        unit: request.unit,
-        categories: [...new Set(request.categories)],
-        stockControl: request.stockControl,
-        status: ProductStatus.Active,
-        allowNegativeStock: request.allowNegativeStock ?? false,
-        idealStock: request.idealStock,
-        ...(request.currentUnitCost === undefined
-          ? {}
-          : { currentUnitCost: request.currentUnitCost }),
-      })
-
-      if (request.stockControl === ProductStockControl.Single) {
-        await scope.stockBalancesRepository.initialize(createdProduct.id)
-        if (request.initialStock !== undefined && request.initialStock !== 0) {
-          const balance = await scope.stockBalancesRepository.add(
-            { productId: createdProduct.id },
-            request.initialStock,
+        if (existingProduct) {
+          throw new ConflictError(
+            'Já existe um produto com esse nome neste estabelecimento.',
           )
-          await scope.stockTransactionsRepository.add({
-            establishmentId: request.actor.establishmentId,
-            productId: createdProduct.id,
-            productName: createdProduct.name,
-            unit: createdProduct.unit,
-            type: request.initialStock > 0 ? 'entry' : 'write-off',
-            quantity: Math.abs(request.initialStock),
-            balanceAfter: balance.quantity,
-            performedBy: request.actor.id,
-            performedByName: request.actor.name,
-            occurredAt: this.datetimeProvider.now(),
-          })
         }
-      } else {
-        for (const brand of request.brands ?? []) {
-          const createdBrand = await scope.brandsRepository.add({
-            productId: createdProduct.id,
-            name: brand.name.trim(),
-            unit: brand.unit ?? createdProduct.unit,
-            packageQuantity: brand.packageQuantity,
-            packagePrice: brand.packageValue,
-            isPrimary: brand.isPrimary,
-          })
-          await scope.stockBalancesRepository.initialize(
-            createdProduct.id,
-            createdBrand.id,
-          )
-          if (brand.initialQuantity !== 0) {
-            const balance = await scope.stockBalancesRepository.add(
-              { productId: createdProduct.id, brandId: createdBrand.id },
-              brand.initialQuantity,
+
+        const createdProduct = await productsRepository.add({
+          establishmentId: request.actor.establishmentId,
+          name: request.name.trim(),
+          unit: request.unit,
+          categories: [...new Set(request.categories)],
+          stockControl: request.stockControl,
+          status: ProductStatus.Active,
+          allowNegativeStock: request.allowNegativeStock ?? false,
+          idealStock: request.idealStock,
+          ...(request.currentUnitCost === undefined
+            ? {}
+            : { currentUnitCost: request.currentUnitCost }),
+        })
+
+        if (request.stockControl === ProductStockControl.Single) {
+          await stockBalancesRepository.initialize(createdProduct.id)
+          if (request.initialStock !== undefined && request.initialStock !== 0) {
+            const balance = await stockBalancesRepository.add(
+              { productId: createdProduct.id },
+              request.initialStock,
             )
-            await scope.stockTransactionsRepository.add({
+            await stockTransactionsRepository.add({
               establishmentId: request.actor.establishmentId,
               productId: createdProduct.id,
-              brandId: createdBrand.id,
               productName: createdProduct.name,
-              brandName: createdBrand.name,
               unit: createdProduct.unit,
-              type: brand.initialQuantity > 0 ? 'entry' : 'write-off',
-              quantity: Math.abs(brand.initialQuantity),
+              type: request.initialStock > 0 ? 'entry' : 'write-off',
+              quantity: Math.abs(request.initialStock),
               balanceAfter: balance.quantity,
               performedBy: request.actor.id,
               performedByName: request.actor.name,
               occurredAt: this.datetimeProvider.now(),
             })
           }
+        } else {
+          for (const brand of request.brands ?? []) {
+            const createdBrand = await brandsRepository.add({
+              productId: createdProduct.id,
+              name: brand.name.trim(),
+              unit: brand.unit ?? createdProduct.unit,
+              packageQuantity: brand.packageQuantity,
+              packagePrice: brand.packageValue,
+              isPrimary: brand.isPrimary,
+            })
+            await stockBalancesRepository.initialize(createdProduct.id, createdBrand.id)
+            if (brand.initialQuantity !== 0) {
+              const balance = await stockBalancesRepository.add(
+                { productId: createdProduct.id, brandId: createdBrand.id },
+                brand.initialQuantity,
+              )
+              await stockTransactionsRepository.add({
+                establishmentId: request.actor.establishmentId,
+                productId: createdProduct.id,
+                brandId: createdBrand.id,
+                productName: createdProduct.name,
+                brandName: createdBrand.name,
+                unit: createdProduct.unit,
+                type: brand.initialQuantity > 0 ? 'entry' : 'write-off',
+                quantity: Math.abs(brand.initialQuantity),
+                balanceAfter: balance.quantity,
+                performedBy: request.actor.id,
+                performedByName: request.actor.name,
+                occurredAt: this.datetimeProvider.now(),
+              })
+            }
+          }
         }
-      }
 
-      return createdProduct
-    })
-
-    await this.broker.publish(
-      new ProductCreatedEvent({
-        productId: product.id,
-        establishmentId: product.establishmentId,
-        createdAt: product.createdAt,
-      }),
+        await eventsRepository.add(
+          new ProductCreatedEvent({
+            productId: createdProduct.id,
+            establishmentId: createdProduct.establishmentId,
+            createdAt: createdProduct.createdAt,
+          }),
+        )
+        return createdProduct
+      },
     )
-
-    return product
   }
 
   private validateActor(actor: ProductActor): void {

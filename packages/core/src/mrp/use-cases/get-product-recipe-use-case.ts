@@ -6,7 +6,10 @@ import { ProductStatus } from '#mrp/domain/structures/product-status.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
 import type { ProductRecipeDetails } from '#mrp/domain/structures/product-recipe-details.ts'
 import type { RecipeIngredientDetails } from '#mrp/domain/structures/recipe-ingredient-details.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -25,24 +28,55 @@ export class GetProductRecipeUseCase implements UseCase<Request, ProductRecipeDe
   async execute(request: Request): Promise<ProductRecipeDetails> {
     this.validateActor(request.actor)
 
-    return this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
+    return this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const product = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        )
 
-      this.validateManufacturableProduct(product)
+        this.validateManufacturableProduct(product)
 
-      return GetProductRecipeUseCase.buildDetails(
-        scope,
-        request.actor.establishmentId,
-        product,
-      )
-    })
+        return GetProductRecipeUseCase.buildDetails(
+          scope,
+          request.actor.establishmentId,
+          product,
+        )
+      },
+    )
   }
 
   static async buildDetails(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     product: Product,
   ): Promise<ProductRecipeDetails> {
@@ -121,7 +155,7 @@ export class GetProductRecipeUseCase implements UseCase<Request, ProductRecipeDe
   }
 
   private static async resolveSource(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     product: Product,
     selectedBrandId?: string,
   ) {

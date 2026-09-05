@@ -21,7 +21,7 @@ import type { ProductSnapshot } from '#pdv/domain/structures/product-snapshot.ts
 import type { SalesChannelSnapshot } from '#pdv/domain/structures/sales-channel-snapshot.ts'
 import type { SalesCatalogProduct } from '#pdv/domain/structures/sales-catalog-product.ts'
 import type { PdvDatabase } from '#pdv/interfaces/pdv-database.ts'
-import type { PdvDatabaseScope } from '#pdv/interfaces/pdv-database.ts'
+import type { PdvDatabaseRepositories } from '#pdv/interfaces/pdv-database.ts'
 import type { OrderPreviewTokenService } from '#pdv/interfaces/order-preview-token-service.ts'
 import { SalesChannelStatus } from '#pdv/domain/structures/sales-channel-status.ts'
 import {
@@ -57,100 +57,121 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
   async execute(request: Request): Promise<OrderRegistrationResult> {
     this.validateActor(request.actor.profile)
     validateOrderRegistrationInput(request)
-    return this.database.run(async (scope) => {
-      const replay = await scope.ordersRepository.findByIdempotencyKey(
-        request.actor.establishmentId,
-        request.idempotencyKey,
-      )
-      if (replay && replay.establishmentId !== request.actor.establishmentId)
-        throw new NotFoundError('Pedido não encontrado.')
-      if (replay)
-        if (!this.matchesReplay(replay, request))
-          throw new ConflictError('A chave de idempotência já foi usada em outro pedido.')
-      if (replay)
+    return this.database.run(
+      async ({
+        salesCatalogProvider,
+        salesChannelsRepository,
+        discountsRepository,
+        ordersRepository,
+        orderSequencesRepository,
+        stockConsumer,
+        stockRestorer,
+        eventsRepository,
+      }: PdvDatabaseRepositories) => {
+        const scope = {
+          salesCatalogProvider,
+          salesChannelsRepository,
+          discountsRepository,
+          ordersRepository,
+          orderSequencesRepository,
+          stockConsumer,
+          stockRestorer,
+          eventsRepository,
+        }
+        const replay = await ordersRepository.findByIdempotencyKey(
+          request.actor.establishmentId,
+          request.idempotencyKey,
+        )
+        if (replay && replay.establishmentId !== request.actor.establishmentId)
+          throw new NotFoundError('Pedido não encontrado.')
+        if (replay)
+          if (!this.matchesReplay(replay, request))
+            throw new ConflictError(
+              'A chave de idempotência já foi usada em outro pedido.',
+            )
+        if (replay)
+          return {
+            kind: 'registered',
+            order: this.toOrderDetails(replay),
+            replayed: true,
+          }
+
+        const products = await salesCatalogProvider.findByProductIds(
+          request.actor.establishmentId,
+          request.lines.map((line) => line.productId),
+        )
+        const channel = await this.findChannel(scope, request)
+        const combos = await discountsRepository.findActive(request.actor.establishmentId)
+        const rebuilt = rebuildCartWithIssues(
+          request,
+          products,
+          channel,
+          combos,
+          request.actor.establishmentId,
+        )
+        const previewInput = this.toPreviewInput(request)
+        const facts = this.toFacts(rebuilt.cart, channel)
+        const verification = this.tokenService.verify(
+          request.previewToken,
+          previewInput,
+          request.actor.establishmentId,
+          facts,
+        )
+        if (verification === 'invalid')
+          throw new BadRequestError('A prévia do pedido expirou ou não é válida.')
+
+        const previousFacts =
+          verification === 'stale'
+            ? this.tokenService.getFacts(request.previewToken)
+            : undefined
+        if (verification === 'stale' && !previousFacts)
+          throw new BadRequestError('A prévia do pedido não pode ser atualizada.')
+        const changes = previousFacts
+          ? this.staleChanges(previousFacts, facts)
+          : ([] as const)
+        const outcome = this.resolveIssues(rebuilt, changes)
+        if (outcome) return outcome
+        if (verification === 'stale')
+          return {
+            kind: 'repriced',
+            recalculatedCart: rebuilt.cart,
+            previewToken: this.tokenService.issue(
+              previewInput,
+              request.actor.establishmentId,
+              facts,
+            ),
+            changes,
+          }
+
+        const sequenceNumber = await orderSequencesRepository.next(
+          request.actor.establishmentId,
+        )
+        const order = await ordersRepository.add(
+          this.toOrderCreate(request, rebuilt.cart, products, channel),
+        )
+        const occurredAt = this.datetimeProvider.now()
+        const event = new OrderRegisteredEvent({
+          orderId: order.id,
+          establishmentId: order.establishmentId,
+          sequenceNumber,
+          createdAt: order.createdAt,
+          actorId: request.actor.id,
+          actorName: request.actor.name,
+          occurredAt,
+          consumptions: consolidateConsumptions(rebuilt.cart),
+        })
+        await stockConsumer.consume(event)
+
         return {
           kind: 'registered',
-          order: this.toOrderDetails(replay),
-          replayed: true,
+          order: this.toOrderDetails(order),
+          replayed: false,
         }
-
-      const products = await scope.salesCatalogProvider.findByProductIds(
-        request.actor.establishmentId,
-        request.lines.map((line) => line.productId),
-      )
-      const channel = await this.findChannel(scope, request)
-      const combos = await scope.discountsRepository.findActive(
-        request.actor.establishmentId,
-      )
-      const rebuilt = rebuildCartWithIssues(
-        request,
-        products,
-        channel,
-        combos,
-        request.actor.establishmentId,
-      )
-      const previewInput = this.toPreviewInput(request)
-      const facts = this.toFacts(rebuilt.cart, channel)
-      const verification = this.tokenService.verify(
-        request.previewToken,
-        previewInput,
-        request.actor.establishmentId,
-        facts,
-      )
-      if (verification === 'invalid')
-        throw new BadRequestError('A prévia do pedido expirou ou não é válida.')
-
-      const previousFacts =
-        verification === 'stale'
-          ? this.tokenService.getFacts(request.previewToken)
-          : undefined
-      if (verification === 'stale' && !previousFacts)
-        throw new BadRequestError('A prévia do pedido não pode ser atualizada.')
-      const changes = previousFacts
-        ? this.staleChanges(previousFacts, facts)
-        : ([] as const)
-      const outcome = this.resolveIssues(rebuilt, changes)
-      if (outcome) return outcome
-      if (verification === 'stale')
-        return {
-          kind: 'repriced',
-          recalculatedCart: rebuilt.cart,
-          previewToken: this.tokenService.issue(
-            previewInput,
-            request.actor.establishmentId,
-            facts,
-          ),
-          changes,
-        }
-
-      const sequenceNumber = await scope.orderSequencesRepository.next(
-        request.actor.establishmentId,
-      )
-      const order = await scope.ordersRepository.add(
-        this.toOrderCreate(request, rebuilt.cart, products, channel),
-      )
-      const occurredAt = this.datetimeProvider.now()
-      const event = new OrderRegisteredEvent({
-        orderId: order.id,
-        establishmentId: order.establishmentId,
-        sequenceNumber,
-        createdAt: order.createdAt,
-        actorId: request.actor.id,
-        actorName: request.actor.name,
-        occurredAt,
-        consumptions: consolidateConsumptions(rebuilt.cart),
-      })
-      await scope.stockConsumer.consume(event)
-
-      return {
-        kind: 'registered',
-        order: this.toOrderDetails(order),
-        replayed: false,
-      }
-    })
+      },
+    )
   }
 
-  private async findChannel(scope: PdvDatabaseScope, request: Request) {
+  private async findChannel(scope: PdvDatabaseRepositories, request: Request) {
     if (!request.channelId) return undefined
     const channel = await scope.salesChannelsRepository.findById(
       request.actor.establishmentId,

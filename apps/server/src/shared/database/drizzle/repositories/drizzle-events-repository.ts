@@ -1,28 +1,52 @@
-import { and, asc, eq, inArray, lte } from 'drizzle-orm'
+import { randomUUID } from 'node:crypto'
+
+import { and, asc, eq, inArray, lte, lt } from 'drizzle-orm'
+import type { Event } from '@scoops/core/shared/domain/events'
 import type {
-  OutboxDatabase,
-  OutboxDatabaseListener,
+  EventsRepository,
+  EventsRepositoryListener,
   OutboxEvent,
 } from '@scoops/core/shared/interfaces'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, Optional } from '@nestjs/common'
 
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 import { eventModel } from '@/shared/database/drizzle/models/event-model'
+import type { DrizzleExecutor } from '@/shared/database/drizzle/drizzle-repository'
 
 const EVENTS_CHANNEL = 'scoops_events'
 const MAX_RESERVATION_BATCH_SIZE = 100
+const MAX_ATTEMPTS = 10
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 @Injectable()
-export class DrizzleOutboxDatabase implements OutboxDatabase {
-  constructor(@Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient) {}
+export class DrizzleEventsRepository implements EventsRepository {
+  constructor(
+    @Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient,
+    @Optional()
+    private readonly transaction?: DrizzleExecutor,
+  ) {}
 
-  async listen(
+  async add(event: Event): Promise<void> {
+    const occurredAt = new Date()
+    const database = this.transaction ?? this.drizzleClient.requireDatabase()
+
+    await database.insert(eventModel).values({
+      id: randomUUID(),
+      eventName: event.name,
+      payload: event.payload as Record<string, unknown>,
+      occurredAt,
+      availableAt: occurredAt,
+      createdAt: occurredAt,
+      updatedAt: occurredAt,
+    })
+  }
+
+  async subscribe(
     onEvent: (eventId: string) => void,
     onReady: () => void,
     onError: (error: unknown) => void,
-  ): Promise<OutboxDatabaseListener> {
+  ): Promise<EventsRepositoryListener> {
     const listener = await this.drizzleClient.listen(
       EVENTS_CHANNEL,
       (payload) => {
@@ -37,7 +61,7 @@ export class DrizzleOutboxDatabase implements OutboxDatabase {
     }
   }
 
-  async reservePending(now: Date, owner: string, _limit: 100): Promise<OutboxEvent[]> {
+  async reserveAvailable(now: Date, owner: string, _limit: 100): Promise<OutboxEvent[]> {
     const reservationExpiresAt = new Date(now.getTime() + 5 * 60 * 1000)
     const database = this.drizzleClient.requireDatabase()
 
@@ -85,7 +109,7 @@ export class DrizzleOutboxDatabase implements OutboxDatabase {
     })
   }
 
-  async reclaimExpiredReservations(now: Date, _owner: string): Promise<string[]> {
+  async releaseExpired(now: Date, _owner: string): Promise<string[]> {
     const reclaimed = await this.drizzleClient
       .requireDatabase()
       .update(eventModel)
@@ -135,7 +159,7 @@ export class DrizzleOutboxDatabase implements OutboxDatabase {
     return updated.length === 1
   }
 
-  async markFailed(input: {
+  async markDeliveryFailed(input: {
     eventId: string
     owner: string
     attempts: number
@@ -167,7 +191,73 @@ export class DrizzleOutboxDatabase implements OutboxDatabase {
     return updated.length === 1
   }
 
-  async oldestPending(now: Date): Promise<Date | null> {
+  async recover(now: Date): Promise<{
+    failed: number
+    expiredPublishing: number
+    recoveredIds: string[]
+  }> {
+    const database = this.drizzleClient.requireDatabase()
+    const result = await database.transaction(async (transaction) => {
+      const failed = await transaction
+        .update(eventModel)
+        .set({
+          status: 'pending',
+          availableAt: now,
+          reservedBy: null,
+          reservationExpiresAt: null,
+          lastErrorCode: null,
+          updatedAt: now,
+        })
+        .where(
+          and(
+            eq(eventModel.status, 'failed'),
+            lte(eventModel.availableAt, now),
+            lt(eventModel.attempts, MAX_ATTEMPTS),
+          ),
+        )
+        .returning({ id: eventModel.id })
+
+      const expiredPublishing = await transaction
+        .update(eventModel)
+        .set({
+          status: 'pending',
+          availableAt: now,
+          reservedBy: null,
+          reservationExpiresAt: null,
+          updatedAt: now,
+        })
+        .where(
+          and(
+            eq(eventModel.status, 'publishing'),
+            lte(eventModel.reservationExpiresAt, now),
+          ),
+        )
+        .returning({ id: eventModel.id })
+
+      return { failed, expiredPublishing }
+    })
+
+    return {
+      failed: result.failed.length,
+      expiredPublishing: result.expiredPublishing.length,
+      recoveredIds: [
+        ...result.failed.map((event) => event.id),
+        ...result.expiredPublishing.map((event) => event.id),
+      ],
+    }
+  }
+
+  async deleteDeliveredBefore(cutoff: Date): Promise<number> {
+    const deleted = await this.drizzleClient
+      .requireDatabase()
+      .delete(eventModel)
+      .where(and(eq(eventModel.status, 'published'), lt(eventModel.publishedAt, cutoff)))
+      .returning({ id: eventModel.id })
+
+    return deleted.length
+  }
+
+  async findOldestAvailable(now: Date): Promise<Date | null> {
     const [event] = await this.drizzleClient
       .requireDatabase()
       .select({ createdAt: eventModel.createdAt })
@@ -179,7 +269,7 @@ export class DrizzleOutboxDatabase implements OutboxDatabase {
     return event?.createdAt ?? null
   }
 
-  async wake(eventIds: readonly string[]): Promise<void> {
+  async notify(eventIds: readonly string[]): Promise<void> {
     await Promise.all(
       eventIds
         .filter((eventId) => UUID_PATTERN.test(eventId))
