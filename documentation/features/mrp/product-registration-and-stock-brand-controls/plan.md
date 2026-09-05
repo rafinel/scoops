@@ -1,6 +1,6 @@
 ---
 title: Product registration and stock brand controls — implementation plan
-status: in_progress
+status: completed
 spec: ./spec.md
 spec_revision: 4
 evaluation: ./evaluation.md
@@ -12,11 +12,11 @@ updated_at: 2026-09-05
 
 ## Execution status
 
-- **Spec:** [`./spec.md`](./spec.md), revision `4`, status `in_progress`.
+- **Spec:** [`./spec.md`](./spec.md), revision `4`, status `completed`.
 - **Plan rationale:** Plan-backed execution is required because the Contract spans Core, shared Validation, transactional Drizzle migration, REST and tenant/auth integration, a generated route tree, a design-backed Web migration, and real full-stack Playwright CLI evidence.
-- **Current phase:** F6 — Integrated conformance and handoff.
-- **Next action:** Route directly to `conclude-spec` after the final publication preflight.
-- **Active blockers:** None. Every `MV-*` scenario is required to run through the Playwright CLI; the committed Web route suite supplies mocked browser coverage, while authenticated server-backed Playwright scenarios supply runtime/persistence evidence. The full Web integration invocation was interrupted by the runner during unrelated Identity tests; the affected MRP route boundaries passed 35/35. No database seed reset is required for the recipe-line migration/tests.
+- **Current phase:** Completed through PR #33 and the final PR CI quality gate.
+- **Next action:** None for this Spec; later reviewer feedback routes through `resolve-pr-feedback`.
+- **Active blockers:** None. Every `MV-*` scenario ran through the Playwright CLI; the committed Web route suite supplied mocked browser coverage, while authenticated server-backed Playwright scenarios supplied runtime/persistence evidence. All applicable PR CI checks passed on the delivery head.
 - **Active Builders:** None. All Builder and Builder Fix scopes are complete; the Orchestrator finalized integrated evidence.
 
 ## Execution ledger
