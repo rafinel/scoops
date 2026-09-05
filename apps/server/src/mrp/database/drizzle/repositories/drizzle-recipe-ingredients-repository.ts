@@ -27,6 +27,7 @@ export class DrizzleRecipeIngredientsRepository
         establishmentId: input.establishmentId,
         recipeId: input.recipeId,
         ingredientProductId: input.ingredientProductId,
+        ingredientBrandId: input.ingredientBrandId ?? null,
         quantity: String(input.quantity),
         createdAt: now,
         updatedAt: now,
@@ -165,6 +166,8 @@ export class DrizzleRecipeIngredientsRepository
     const [record] = await this.database
       .update(recipeIngredientModel)
       .set({
+        ingredientBrandId:
+          changes.ingredientBrandId === undefined ? undefined : changes.ingredientBrandId,
         quantity: changes.quantity === undefined ? undefined : String(changes.quantity),
         updatedAt: new Date(),
       })

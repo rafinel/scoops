@@ -14,6 +14,7 @@ export class StockTransactionResponseDto {
   type!: StockTransactionType
   @ApiProperty() quantity!: number
   @ApiProperty() balanceAfter!: number
+  @ApiPropertyOptional() justification?: string
   @ApiProperty({ format: 'uuid' }) performedBy!: string
   @ApiProperty() performedByName!: string
   @ApiProperty({ format: 'date-time' }) occurredAt!: Date

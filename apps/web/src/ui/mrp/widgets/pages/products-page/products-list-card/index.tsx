@@ -2,23 +2,26 @@ import type { ReactNode } from 'react'
 
 import type { ProductCatalogPage } from '@scoops/core/mrp/domain/structures'
 
+import { buttonVariants } from '@/ui/shadcn/button'
 import { Button } from '@/ui/shadcn/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/shadcn/card'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
+import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { Pagination } from '@/ui/shared/widgets/components/pagination'
+import { cn } from '@/ui/shared/lib/utils'
 
 import type { ProductsSearch } from '@/ui/mrp/hooks/use-products-query'
 import { ProductTable } from './product-table'
 import { useProductsListCard } from './use-products-list-card'
 
 export type ProductsListCardProps = {
+  canManageProducts: boolean
   isError: boolean
   isPending: boolean
   emptyState: ReactNode
   onFilterOpen: () => void
-  onRegisterOpen: () => void
   onRefetch: () => void
   onSearchChange: (search: ProductsSearch) => void
   page?: ProductCatalogPage
@@ -26,11 +29,11 @@ export type ProductsListCardProps = {
 }
 
 export const ProductsListCard = ({
+  canManageProducts,
   isError,
   isPending,
   emptyState,
   onFilterOpen,
-  onRegisterOpen,
   onRefetch,
   onSearchChange,
   page,
@@ -46,12 +49,17 @@ export const ProductsListCard = ({
     <Card className='min-w-0 overflow-hidden'>
       <CardHeader className='flex flex-col border-b border-border-soft p-5 sm:flex-row sm:items-center sm:justify-between'>
         <CardTitle className='text-lg font-extrabold'>Lista de produtos</CardTitle>
-        <Button
-          className='h-9 rounded-lg px-4 font-bold shadow-primary'
-          onClick={onRegisterOpen}
-        >
-          <Icon name='plus' className='size-4' /> Novo produto
-        </Button>
+        {canManageProducts ? (
+          <Anchor
+            className={cn(
+              buttonVariants({ variant: 'default' }),
+              'h-9 rounded-lg px-4 font-bold shadow-primary',
+            )}
+            route='newProduct'
+          >
+            <Icon name='plus' className='size-4' /> Novo produto
+          </Anchor>
+        ) : null}
       </CardHeader>
       <CardContent className='space-y-0 p-0'>
         <div className='flex flex-col gap-3 border-b border-border-soft p-4 sm:flex-row'>

@@ -28,8 +28,10 @@ describe('RecipeIngredientDialog', () => {
     const handleSubmit = vi.fn((event) => event.preventDefault())
     mockedDialog.mockReturnValue({
       actionError: null,
+      availableBrands: [],
       candidates: [],
       errors: {},
+      handleBrandChange: vi.fn(),
       handleIngredientProductChange,
       handleQuantityChange,
       handleSubmit,
@@ -65,8 +67,10 @@ describe('RecipeIngredientDialog', () => {
 
     mockedDialog.mockReturnValue({
       actionError: 'Falha ao salvar',
+      availableBrands: [],
       candidates: [],
       errors: {},
+      handleBrandChange: vi.fn(),
       handleIngredientProductChange,
       handleQuantityChange,
       handleSubmit,
@@ -104,5 +108,68 @@ describe('RecipeIngredientDialog', () => {
         ?.querySelector('form') as HTMLFormElement,
     )
     expect(handleSubmit).toHaveBeenCalled()
+  })
+
+  it('renders the available brand selector with the selected source', () => {
+    const handleBrandChange = vi.fn()
+    mockedDialog.mockReturnValue({
+      actionError: null,
+      availableBrands: [
+        {
+          brand: { id: 'brand-primary', name: 'Marca principal', isPrimary: true },
+          stockQuantity: 10,
+          unitPrice: 4,
+        },
+        {
+          brand: { id: 'brand-alt', name: 'Marca alternativa', isPrimary: false },
+          stockQuantity: 6,
+          unitPrice: 5,
+        },
+      ],
+      candidates: [],
+      errors: {},
+      handleBrandChange,
+      handleIngredientProductChange: vi.fn(),
+      handleQuantityChange: vi.fn(),
+      handleSubmit: vi.fn((event) => event.preventDefault()),
+      ingredientBrandId: 'brand-primary',
+      ingredientProductId: 'ingredient-1',
+      isPending: false,
+      quantity: 2,
+      selectedProduct: undefined,
+      selectedSource: {
+        brandId: 'brand-primary',
+        brands: [],
+        currentBalance: 10,
+        name: 'Marca principal',
+        unitCost: 4,
+      },
+      previewCogsPercentage: 40,
+      previewLineCost: 8,
+      register: vi.fn(() => ({ name: 'quantity', ref: vi.fn() })),
+    } as never)
+
+    render(
+      <RecipeIngredientDialog
+        existingProductIds={[]}
+        ingredient={ingredient}
+        onOpenChange={vi.fn()}
+        onSuccess={vi.fn()}
+        open
+        productId='product-1'
+        recipeTotalCost={9}
+        unit='l'
+      />,
+    )
+
+    expect(screen.getByRole('combobox', { name: 'Marca' })).toBeTruthy()
+    expect(screen.getByRole('combobox', { name: 'Marca' }).textContent).toContain(
+      'Marca principal',
+    )
+    expect(screen.getAllByText('FONTE')[1]?.parentElement?.textContent).toContain(
+      'Marca principal',
+    )
+    fireEvent.click(screen.getByRole('combobox', { name: 'Marca' }))
+    expect(screen.getByRole('option', { name: /Marca alternativa/ })).toBeTruthy()
   })
 })

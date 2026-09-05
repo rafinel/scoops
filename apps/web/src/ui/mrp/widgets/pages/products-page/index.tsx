@@ -5,7 +5,6 @@ import { ProductFiltersDialog } from './product-filters-dialog'
 import { ProductsEmptyState } from './products-empty-state'
 import { ProductsKpiCards } from './products-kpi-cards'
 import { ProductsListCard } from './products-list-card'
-import { ProductRegistrationDialog } from './product-registration-dialog'
 import { useProductsPage } from './use-products-page'
 
 export type ProductsPageProps = {
@@ -15,18 +14,17 @@ export type ProductsPageProps = {
 
 export const ProductsPage = ({ search, onSearchChange }: ProductsPageProps) => {
   const {
+    canManageProducts,
     canManageTypes,
     hasProductsError,
     hasFilters,
     isFilterOpen,
     isLoadingProducts,
-    isRegisterOpen,
     isPendingProducts,
     productsPage,
     handleEmptyStateClear,
     handleFilterOpenChange,
     handleOpenFilter,
-    handleRegisterOpenChange,
     refetchProducts,
   } = useProductsPage({ onSearchChange, search })
 
@@ -56,9 +54,9 @@ export const ProductsPage = ({ search, onSearchChange }: ProductsPageProps) => {
         }
         isError={hasProductsError}
         isPending={isPendingProducts}
+        canManageProducts={canManageProducts}
         onFilterOpen={handleOpenFilter}
         onRefetch={() => refetchProducts()}
-        onRegisterOpen={() => handleRegisterOpenChange(true)}
         onSearchChange={onSearchChange}
         page={productsPage}
         search={search}
@@ -68,11 +66,6 @@ export const ProductsPage = ({ search, onSearchChange }: ProductsPageProps) => {
         onOpenChange={handleFilterOpenChange}
         onSearchChange={onSearchChange}
         search={search}
-      />
-      <ProductRegistrationDialog
-        isOpen={isRegisterOpen}
-        onOpenChange={handleRegisterOpenChange}
-        onSuccess={() => handleRegisterOpenChange(false)}
       />
     </section>
   )

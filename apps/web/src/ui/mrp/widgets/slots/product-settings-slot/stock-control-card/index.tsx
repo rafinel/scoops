@@ -35,17 +35,17 @@ export const StockControlCard = ({ product }: StockControlCardProps) => {
           </p>
         </div>
       </div>
-      <div className='mt-5 grid gap-3 sm:grid-cols-2'>
-        <div className='rounded-xl border border-border-soft bg-muted/30 p-4'>
+      <div className='mt-5 grid gap-3'>
+        <div className='flex flex-col justify-center rounded-xl border border-border-soft bg-muted/30 p-3'>
           <p className='text-xs font-bold uppercase tracking-wide text-muted-foreground'>
             Modo atual
           </p>
-          <p className='mt-1 font-extrabold'>{stockControlLabel}</p>
+          <p className='mt-1 text-base font-extrabold'>{stockControlLabel}</p>
           <p className='mt-1 text-sm text-muted-foreground'>
             Configurado no cadastro de marcas.
           </p>
         </div>
-        <label className='flex cursor-pointer items-center gap-3 rounded-xl border border-border-soft p-4 text-sm font-bold'>
+        <label className='flex cursor-pointer items-center gap-3 rounded-xl border border-border-soft p-3 text-sm font-bold'>
           <input
             aria-label='Permitir estoque negativo'
             checked={allowNegativeStock}

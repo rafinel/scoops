@@ -5,12 +5,14 @@ const quantitySchema = z.number().finite().positive().refine(hasAtMostThreeDecim
 export const addRecipeIngredientSchema = z
   .object({
     ingredientProductId: z.uuid(),
+    ingredientBrandId: z.uuid().optional(),
     quantity: quantitySchema,
   })
   .strict()
 
 export const updateRecipeIngredientSchema = z
   .object({
+    ingredientBrandId: z.uuid().optional(),
     quantity: quantitySchema,
   })
   .strict()

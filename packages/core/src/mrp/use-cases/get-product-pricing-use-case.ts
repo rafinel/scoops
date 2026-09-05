@@ -255,6 +255,7 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
         scope,
         ingredientProduct,
         establishmentId,
+        ingredient.ingredientBrandId,
       )
       if (ingredientUnitCost === undefined) return undefined
       totalCost += ingredient.quantity * ingredientUnitCost
@@ -267,6 +268,7 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
     scope: MrpDatabaseScope,
     product: Product | undefined,
     establishmentId: string,
+    selectedBrandId?: string,
   ): Promise<number | undefined> {
     if (
       !product ||
@@ -288,10 +290,13 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
     if (product.stockControl !== ProductStockControl.ByBrand) return undefined
 
     const brands = await scope.brandsRepository.findManyByProductId(product.id)
-    const primaryBrand = brands.find((brand) => brand.isPrimary)
-    if (!primaryBrand || primaryBrand.packageQuantity <= 0) return undefined
+    const brand =
+      (selectedBrandId
+        ? brands.find((candidate) => candidate.id === selectedBrandId)
+        : undefined) ?? brands.find((candidate) => candidate.isPrimary)
+    if (!brand || brand.packageQuantity <= 0) return undefined
 
-    const unitCost = primaryBrand.packagePrice / primaryBrand.packageQuantity
+    const unitCost = brand.packagePrice / brand.packageQuantity
     return Number.isFinite(unitCost) && unitCost >= 0 ? unitCost : undefined
   }
 

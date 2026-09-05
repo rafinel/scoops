@@ -3739,10 +3739,10 @@
               ],
               "children": [
                 {
-                  "id": "sLLD9",
+                  "id": "BlC7d",
                   "type": "ref",
-                  "ref": "xylQM",
-                  "name": "Breadcrumb"
+                  "ref": "by3zh",
+                  "name": "BackLink — Produtos"
                 },
                 {
                   "id": "G8EAM",
@@ -5460,10 +5460,10 @@
               ],
               "children": [
                 {
-                  "id": "yxerk",
+                  "id": "T9sPF",
                   "type": "ref",
-                  "ref": "xylQM",
-                  "name": "Breadcrumb"
+                  "ref": "by3zh",
+                  "name": "BackLink — Produtos"
                 },
                 {
                   "id": "e63JD",
@@ -7923,12 +7923,10 @@
               "layout": "none",
               "children": [
                 {
-                  "id": "ru7ya",
+                  "id": "m5XsH1",
                   "type": "ref",
-                  "ref": "xylQM",
-                  "name": "Breadcrumb",
-                  "x": 32,
-                  "y": 8
+                  "ref": "by3zh",
+                  "name": "BackLink — Produtos"
                 },
                 {
                   "id": "ZlJMn",
@@ -10309,10 +10307,10 @@
               ],
               "children": [
                 {
-                  "id": "gKzPT",
+                  "id": "ETtmK",
                   "type": "ref",
-                  "ref": "xylQM",
-                  "name": "Breadcrumb Instance"
+                  "ref": "by3zh",
+                  "name": "BackLink — Produtos"
                 },
                 {
                   "id": "oB7Qw",
@@ -17981,7 +17979,7 @@
       "name": "Estoque / Produtos / Produto | Aba de Estoque Único",
       "clip": true,
       "width": 1560,
-      "height": 1320,
+      "height": 1071,
       "fill": "$bg-card",
       "children": [
         {
@@ -18023,10 +18021,10 @@
               ],
               "children": [
                 {
-                  "id": "M1LIK",
+                  "id": "HjI6F",
                   "type": "ref",
-                  "ref": "xylQM",
-                  "name": "Breadcrumb Instance"
+                  "ref": "by3zh",
+                  "name": "BackLink — Produtos"
                 },
                 {
                   "id": "YnNhb",
@@ -23546,6 +23544,12 @@
               ],
               "children": [
                 {
+                  "id": "qLsTF",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Canais de venda"
+                },
+                {
                   "type": "frame",
                   "id": "lPMlB",
                   "name": "Cabeçalho da página",
@@ -25182,6 +25186,12 @@
                 32
               ],
               "children": [
+                {
+                  "id": "K3ZP6",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Nova venda"
+                },
                 {
                   "type": "frame",
                   "id": "Gf4Lr",
@@ -40667,6 +40677,12 @@
               ],
               "children": [
                 {
+                  "id": "zrfNl",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Usuários"
+                },
+                {
                   "type": "frame",
                   "id": "o452Ad",
                   "name": "Cabeçalho da página",
@@ -42434,6 +42450,12 @@
               ],
               "children": [
                 {
+                  "id": "vCWMV",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Pedidos"
+                },
+                {
                   "type": "frame",
                   "id": "aBTA0",
                   "name": "Cabeçalho Pedidos",
@@ -42824,12 +42846,25 @@
                         },
                         {
                           "type": "frame",
-                          "id": "q3gejG",
+                          "id": "BxZf5",
                           "name": "Cabeçalho Ações",
                           "width": 100,
                           "height": "fill_container",
-                          "justifyContent": "end",
-                          "alignItems": "center"
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "RaRAW",
+                              "name": "Rótulo Ação",
+                              "fill": "$text-secondary",
+                              "content": "AÇÃO",
+                              "textAlign": "center",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "800"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -43017,31 +43052,38 @@
                           "name": "Célula Ação #00124",
                           "width": 100,
                           "height": "fill_container",
-                          "justifyContent": "end",
+                          "justifyContent": "center",
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "frame",
-                              "id": "TMoey",
-                              "name": "Ver pedido #00124",
-                              "width": 32,
+                              "id": "BDKkY",
+                              "name": "Link Detalhes #00124",
+                              "width": 76,
                               "height": 32,
-                              "fill": "$bg-card",
-                              "cornerRadius": 8,
-                              "stroke": "$border",
-                              "strokeWidth": 1,
+                              "gap": 5,
                               "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
+                                  "type": "text",
+                                  "id": "uYKDl",
+                                  "name": "Texto Detalhes #00124",
+                                  "fill": "$primary",
+                                  "content": "Detalhes",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "800"
+                                },
+                                {
                                   "type": "icon",
-                                  "id": "Jvapk",
-                                  "name": "Ícone Ver #00124",
-                                  "width": 15,
-                                  "height": 15,
-                                  "icon": "eye",
+                                  "id": "hDUrs",
+                                  "name": "Seta Detalhes #00124",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "arrow-right",
                                   "library": "lucide",
-                                  "fill": "$text-secondary"
+                                  "fill": "$primary"
                                 }
                               ]
                             }
@@ -43233,31 +43275,38 @@
                           "name": "Célula Ação #00123",
                           "width": 100,
                           "height": "fill_container",
-                          "justifyContent": "end",
+                          "justifyContent": "center",
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "frame",
-                              "id": "dwEjA",
-                              "name": "Ver pedido #00123",
-                              "width": 32,
+                              "id": "mY6Nj",
+                              "name": "Link Detalhes #00123",
+                              "width": 76,
                               "height": 32,
-                              "fill": "$bg-card",
-                              "cornerRadius": 8,
-                              "stroke": "$border",
-                              "strokeWidth": 1,
+                              "gap": 5,
                               "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
+                                  "type": "text",
+                                  "id": "ro8OS",
+                                  "name": "Texto Detalhes #00123",
+                                  "fill": "$primary",
+                                  "content": "Detalhes",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "800"
+                                },
+                                {
                                   "type": "icon",
-                                  "id": "Ozfbf",
-                                  "name": "Ícone Ver #00123",
-                                  "width": 15,
-                                  "height": 15,
-                                  "icon": "eye",
+                                  "id": "ankzg",
+                                  "name": "Seta Detalhes #00123",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "arrow-right",
                                   "library": "lucide",
-                                  "fill": "$text-secondary"
+                                  "fill": "$primary"
                                 }
                               ]
                             }
@@ -43449,31 +43498,38 @@
                           "name": "Célula Ação #00122",
                           "width": 100,
                           "height": "fill_container",
-                          "justifyContent": "end",
+                          "justifyContent": "center",
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "frame",
-                              "id": "vxUO4",
-                              "name": "Ver pedido #00122",
-                              "width": 32,
+                              "id": "P45mo",
+                              "name": "Link Detalhes #00122",
+                              "width": 76,
                               "height": 32,
-                              "fill": "$bg-card",
-                              "cornerRadius": 8,
-                              "stroke": "$border",
-                              "strokeWidth": 1,
+                              "gap": 5,
                               "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
+                                  "type": "text",
+                                  "id": "xdhcn",
+                                  "name": "Texto Detalhes #00122",
+                                  "fill": "$primary",
+                                  "content": "Detalhes",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "800"
+                                },
+                                {
                                   "type": "icon",
-                                  "id": "xyQCb",
-                                  "name": "Ícone Ver #00122",
-                                  "width": 15,
-                                  "height": 15,
-                                  "icon": "eye",
+                                  "id": "q25xM",
+                                  "name": "Seta Detalhes #00122",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "arrow-right",
                                   "library": "lucide",
-                                  "fill": "$text-secondary"
+                                  "fill": "$primary"
                                 }
                               ]
                             }
@@ -43665,31 +43721,38 @@
                           "name": "Célula Ação #00121",
                           "width": 100,
                           "height": "fill_container",
-                          "justifyContent": "end",
+                          "justifyContent": "center",
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "frame",
-                              "id": "wMHJ4",
-                              "name": "Ver pedido #00121",
-                              "width": 32,
+                              "id": "YIBD4",
+                              "name": "Link Detalhes #00121",
+                              "width": 76,
                               "height": 32,
-                              "fill": "$bg-card",
-                              "cornerRadius": 8,
-                              "stroke": "$border",
-                              "strokeWidth": 1,
+                              "gap": 5,
                               "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
+                                  "type": "text",
+                                  "id": "u04Ta",
+                                  "name": "Texto Detalhes #00121",
+                                  "fill": "$primary",
+                                  "content": "Detalhes",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "800"
+                                },
+                                {
                                   "type": "icon",
-                                  "id": "ThGBZ",
-                                  "name": "Ícone Ver #00121",
-                                  "width": 15,
-                                  "height": 15,
-                                  "icon": "eye",
+                                  "id": "xAmRI",
+                                  "name": "Seta Detalhes #00121",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "arrow-right",
                                   "library": "lucide",
-                                  "fill": "$text-secondary"
+                                  "fill": "$primary"
                                 }
                               ]
                             }
@@ -43881,31 +43944,38 @@
                           "name": "Célula Ação #00120",
                           "width": 100,
                           "height": "fill_container",
-                          "justifyContent": "end",
+                          "justifyContent": "center",
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "frame",
-                              "id": "dn75v",
-                              "name": "Ver pedido #00120",
-                              "width": 32,
+                              "id": "E5pUV",
+                              "name": "Link Detalhes #00120",
+                              "width": 76,
                               "height": 32,
-                              "fill": "$bg-card",
-                              "cornerRadius": 8,
-                              "stroke": "$border",
-                              "strokeWidth": 1,
+                              "gap": 5,
                               "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
+                                  "type": "text",
+                                  "id": "QVQts",
+                                  "name": "Texto Detalhes #00120",
+                                  "fill": "$primary",
+                                  "content": "Detalhes",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "800"
+                                },
+                                {
                                   "type": "icon",
-                                  "id": "pDCR5",
-                                  "name": "Ícone Ver #00120",
-                                  "width": 15,
-                                  "height": 15,
-                                  "icon": "eye",
+                                  "id": "lcsus",
+                                  "name": "Seta Detalhes #00120",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "arrow-right",
                                   "library": "lucide",
-                                  "fill": "$text-secondary"
+                                  "fill": "$primary"
                                 }
                               ]
                             }
@@ -44097,31 +44167,38 @@
                           "name": "Célula Ação #00119",
                           "width": 100,
                           "height": "fill_container",
-                          "justifyContent": "end",
+                          "justifyContent": "center",
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "frame",
-                              "id": "HQSWF",
-                              "name": "Ver pedido #00119",
-                              "width": 32,
+                              "id": "AOPxV",
+                              "name": "Link Detalhes #00119",
+                              "width": 76,
                               "height": 32,
-                              "fill": "$bg-card",
-                              "cornerRadius": 8,
-                              "stroke": "$border",
-                              "strokeWidth": 1,
+                              "gap": 5,
                               "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
+                                  "type": "text",
+                                  "id": "hICSe",
+                                  "name": "Texto Detalhes #00119",
+                                  "fill": "$primary",
+                                  "content": "Detalhes",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "800"
+                                },
+                                {
                                   "type": "icon",
-                                  "id": "N66U12",
-                                  "name": "Ícone Ver #00119",
-                                  "width": 15,
-                                  "height": 15,
-                                  "icon": "eye",
+                                  "id": "C9wSXC",
+                                  "name": "Seta Detalhes #00119",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "arrow-right",
                                   "library": "lucide",
-                                  "fill": "$text-secondary"
+                                  "fill": "$primary"
                                 }
                               ]
                             }
@@ -45180,33 +45257,10 @@
                       "gap": 7,
                       "children": [
                         {
-                          "type": "frame",
-                          "id": "lpXXe",
-                          "name": "Voltar para pedidos",
-                          "gap": 7,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "icon",
-                              "id": "OxlOo",
-                              "name": "Ícone Voltar",
-                              "width": 15,
-                              "height": 15,
-                              "icon": "arrow-left",
-                              "library": "lucide",
-                              "fill": "$text-secondary"
-                            },
-                            {
-                              "type": "text",
-                              "id": "oM9ko",
-                              "name": "Texto Voltar",
-                              "fill": "$text-secondary",
-                              "content": "Voltar para pedidos",
-                              "fontFamily": "$font-body",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            }
-                          ]
+                          "id": "mJh7i",
+                          "type": "ref",
+                          "ref": "by3zh",
+                          "name": "BackLink — Pedidos"
                         },
                         {
                           "type": "frame",
@@ -46466,64 +46520,6 @@
                                   "width": "fill_container",
                                   "content": "Aplicado individualmente aos produtos deste pedido.",
                                   "lineHeight": 1.35,
-                                  "fontFamily": "$font-body",
-                                  "fontSize": 10,
-                                  "fontWeight": "600"
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "aKE5a",
-                          "name": "Aviso Registro imutável",
-                          "width": "fill_container",
-                          "fill": "$info-soft",
-                          "cornerRadius": 12,
-                          "gap": 10,
-                          "padding": [
-                            14,
-                            16
-                          ],
-                          "children": [
-                            {
-                              "type": "icon",
-                              "id": "yryQb",
-                              "name": "Ícone Registro imutável",
-                              "width": 17,
-                              "height": 17,
-                              "icon": "lock-keyhole",
-                              "library": "lucide",
-                              "fill": "$info"
-                            },
-                            {
-                              "type": "frame",
-                              "id": "AS2ng",
-                              "name": "Texto Registro imutável",
-                              "width": "fill_container",
-                              "layout": "vertical",
-                              "gap": 3,
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "aSBkE",
-                                  "name": "Título Registro imutável",
-                                  "fill": "$info",
-                                  "content": "Registro imutável",
-                                  "fontFamily": "$font-body",
-                                  "fontSize": 11,
-                                  "fontWeight": "800"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "yeTAh",
-                                  "name": "Descrição Registro imutável",
-                                  "fill": "$info",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "Produtos, canal e valores refletem exatamente o momento em que o pedido foi registrado. O cancelamento está disponível apenas para Gerentes.",
-                                  "lineHeight": 1.4,
                                   "fontFamily": "$font-body",
                                   "fontSize": 10,
                                   "fontWeight": "600"
@@ -48867,33 +48863,10 @@
               ],
               "children": [
                 {
-                  "type": "frame",
-                  "id": "C4bS5",
-                  "name": "Voltar para usuários",
-                  "gap": 8,
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "icon",
-                      "id": "ys8qk",
-                      "name": "Ícone voltar",
-                      "width": 16,
-                      "height": 16,
-                      "icon": "arrow-left",
-                      "library": "lucide",
-                      "fill": "$text-secondary"
-                    },
-                    {
-                      "type": "text",
-                      "id": "oYi04",
-                      "name": "Texto voltar",
-                      "fill": "$text-secondary",
-                      "content": "Usuários",
-                      "fontFamily": "$font-body",
-                      "fontSize": 13,
-                      "fontWeight": "700"
-                    }
-                  ]
+                  "id": "FzT8X",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Usuários"
                 },
                 {
                   "type": "frame",
@@ -51062,33 +51035,10 @@
               ],
               "children": [
                 {
-                  "type": "frame",
-                  "id": "VW0gL",
-                  "name": "Voltar para usuários",
-                  "gap": 8,
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "icon",
-                      "id": "vlX5m",
-                      "name": "Ícone voltar",
-                      "width": 16,
-                      "height": 16,
-                      "icon": "arrow-left",
-                      "library": "lucide",
-                      "fill": "$text-secondary"
-                    },
-                    {
-                      "type": "text",
-                      "id": "lnGUA",
-                      "name": "Texto voltar",
-                      "fill": "$text-secondary",
-                      "content": "Usuários",
-                      "fontFamily": "$font-body",
-                      "fontSize": 13,
-                      "fontWeight": "700"
-                    }
-                  ]
+                  "id": "ODjlx",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Usuários"
                 },
                 {
                   "type": "frame",
@@ -52270,33 +52220,10 @@
               ],
               "children": [
                 {
-                  "type": "frame",
-                  "id": "o7vFWa",
-                  "name": "Voltar para usuários",
-                  "gap": 8,
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "icon",
-                      "id": "QZJNB",
-                      "name": "Ícone voltar",
-                      "width": 16,
-                      "height": 16,
-                      "icon": "arrow-left",
-                      "library": "lucide",
-                      "fill": "$text-secondary"
-                    },
-                    {
-                      "type": "text",
-                      "id": "e1g19W",
-                      "name": "Texto voltar",
-                      "fill": "$text-secondary",
-                      "content": "Usuários",
-                      "fontFamily": "$font-body",
-                      "fontSize": 13,
-                      "fontWeight": "700"
-                    }
-                  ]
+                  "id": "T8qIc",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Usuários"
                 },
                 {
                   "type": "frame",
@@ -53442,33 +53369,10 @@
               ],
               "children": [
                 {
-                  "type": "frame",
-                  "id": "pA1Y8",
-                  "name": "Voltar para usuários",
-                  "gap": 8,
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "icon",
-                      "id": "pNZGG",
-                      "name": "Ícone voltar",
-                      "width": 16,
-                      "height": 16,
-                      "icon": "arrow-left",
-                      "library": "lucide",
-                      "fill": "$text-secondary"
-                    },
-                    {
-                      "type": "text",
-                      "id": "S8thd",
-                      "name": "Texto voltar",
-                      "fill": "$text-secondary",
-                      "content": "Usuários",
-                      "fontFamily": "$font-body",
-                      "fontSize": 13,
-                      "fontWeight": "700"
-                    }
-                  ]
+                  "id": "CSJbZ",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Usuários"
                 },
                 {
                   "type": "frame",
@@ -57914,33 +57818,10 @@
                       "gap": 7,
                       "children": [
                         {
-                          "type": "frame",
-                          "id": "jlegL",
-                          "name": "Voltar para pedidos",
-                          "gap": 7,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "icon",
-                              "id": "pGUwU",
-                              "name": "Ícone Voltar",
-                              "width": 15,
-                              "height": 15,
-                              "icon": "arrow-left",
-                              "library": "lucide",
-                              "fill": "$text-secondary"
-                            },
-                            {
-                              "type": "text",
-                              "id": "slskW",
-                              "name": "Texto Voltar",
-                              "fill": "$text-secondary",
-                              "content": "Voltar para pedidos",
-                              "fontFamily": "$font-body",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            }
-                          ]
+                          "id": "N7MJxu",
+                          "type": "ref",
+                          "ref": "by3zh",
+                          "name": "BackLink — Pedidos"
                         },
                         {
                           "type": "frame",
@@ -59227,64 +59108,6 @@
                               ]
                             }
                           ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "YQk1E",
-                          "name": "Aviso Pedido cancelado",
-                          "width": "fill_container",
-                          "fill": "$danger-soft",
-                          "cornerRadius": 12,
-                          "gap": 10,
-                          "padding": [
-                            14,
-                            16
-                          ],
-                          "children": [
-                            {
-                              "type": "icon",
-                              "id": "cgKyf",
-                              "name": "Ícone Pedido cancelado",
-                              "width": 17,
-                              "height": 17,
-                              "icon": "circle-x",
-                              "library": "lucide",
-                              "fill": "$danger"
-                            },
-                            {
-                              "type": "frame",
-                              "id": "EmvyS",
-                              "name": "Texto Registro imutável",
-                              "width": "fill_container",
-                              "layout": "vertical",
-                              "gap": 3,
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "eg7P2",
-                                  "name": "Título Pedido cancelado",
-                                  "fill": "$danger",
-                                  "content": "Pedido cancelado",
-                                  "fontFamily": "$font-body",
-                                  "fontSize": 11,
-                                  "fontWeight": "800"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "m9u07",
-                                  "name": "Descrição Pedido cancelado",
-                                  "fill": "$danger",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "O cancelamento restaurou o estoque consumido. Os itens, o canal e os valores registrados neste pedido foram preservados.",
-                                  "lineHeight": 1.4,
-                                  "fontFamily": "$font-body",
-                                  "fontSize": 10,
-                                  "fontWeight": "600"
-                                }
-                              ]
-                            }
-                          ]
                         }
                       ]
                     }
@@ -59444,6 +59267,12 @@
                 32
               ],
               "children": [
+                {
+                  "id": "vRBTh",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Pedidos"
+                },
                 {
                   "type": "frame",
                   "id": "nSmcN",
@@ -59865,6 +59694,12 @@
                 32
               ],
               "children": [
+                {
+                  "id": "A3R60",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Pedidos"
+                },
                 {
                   "type": "frame",
                   "id": "K6442R",
@@ -67307,6 +67142,12 @@
                 48
               ],
               "children": [
+                {
+                  "id": "Atx13",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Notificações"
+                },
                 {
                   "type": "frame",
                   "id": "x4TdwW",
@@ -78845,6 +78686,12 @@
               ],
               "children": [
                 {
+                  "id": "F3FyDh",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Descontos"
+                },
+                {
                   "type": "frame",
                   "id": "c54Mqc",
                   "name": "Cabeçalho da página",
@@ -81629,21 +81476,6 @@
       }
     },
     {
-      "type": "rectangle",
-      "id": "mRmda",
-      "x": 18059,
-      "y": -4136,
-      "name": "Scoops — Gestão para sorveterias",
-      "fill": {
-        "type": "image",
-        "enabled": true,
-        "url": "screenshot-localhost.png",
-        "mode": "fill"
-      },
-      "width": 624,
-      "height": 38
-    },
-    {
       "id": "DyrWo",
       "type": "ref",
       "ref": "iSdux",
@@ -81729,6 +81561,12 @@
               "gap": 24,
               "padding": 32,
               "children": [
+                {
+                  "id": "mdqom",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Tipos de acompanhamento"
+                },
                 {
                   "type": "frame",
                   "id": "WyNGF",
@@ -83756,8 +83594,8 @@
     {
       "type": "frame",
       "id": "FyBRF",
-      "x": 11244,
-      "y": 2776,
+      "x": 11204,
+      "y": 2948,
       "name": "Dialog Fatores por Marca",
       "width": 560,
       "height": 500,
@@ -84232,6 +84070,3427 @@
           "content": "Excluir canal"
         }
       }
+    },
+    {
+      "type": "frame",
+      "id": "g9l12m",
+      "x": -2097,
+      "y": 2989,
+      "name": "Cadastro de produto — Estoque único — Narrow",
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$bg-page",
+      "children": [
+        {
+          "type": "frame",
+          "id": "Y0Am3w",
+          "name": "Main Column",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "yKJhC",
+              "name": "Cabeçalho mobile",
+              "width": "fill_container",
+              "height": 60,
+              "fill": "$bg-card",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                0,
+                16
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "m3JaYg",
+                  "name": "Menu",
+                  "width": 38,
+                  "height": 38,
+                  "cornerRadius": 9,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "c6ZNY",
+                      "name": "Ícone menu",
+                      "width": 19,
+                      "height": 19,
+                      "icon": "menu",
+                      "library": "lucide",
+                      "fill": "$text-primary"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "w77GXE",
+                  "name": "Marca Scoops",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "LReVW",
+                      "name": "Marca",
+                      "width": 30,
+                      "height": 30,
+                      "fill": "$primary",
+                      "cornerRadius": 8,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "SJ35o",
+                          "name": "Ícone Scoops",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "ice-cream-bowl",
+                          "library": "lucide",
+                          "fill": "#FFFFFF"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "Mdxyy",
+                      "name": "Nome Scoops",
+                      "fill": "$primary",
+                      "content": "Scoops",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "800"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZsHF4",
+                  "name": "Avatar",
+                  "width": 34,
+                  "height": 34,
+                  "fill": "$success-soft",
+                  "cornerRadius": 999,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "A6ZSuV",
+                      "name": "Iniciais",
+                      "fill": "$success",
+                      "content": "CO",
+                      "fontFamily": "$font-body",
+                      "fontSize": 10,
+                      "fontWeight": "800"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "owoq4",
+              "name": "Conteúdo narrow",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 11,
+              "padding": [
+                14,
+                16,
+                16,
+                16
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "pXPWA",
+                  "name": "Cabeçalho cadastro",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "q4JZf",
+                      "name": "Título",
+                      "fill": "$text-primary",
+                      "content": "Novo produto",
+                      "fontFamily": "$font-body",
+                      "fontSize": 21,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ZdRC7",
+                      "name": "Descrição",
+                      "fill": "$text-secondary",
+                      "content": "Catálogo e estoque em uma única página.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "cLZbg",
+                      "name": "BackLink",
+                      "height": 28,
+                      "gap": 4,
+                      "padding": 1,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "qNW1y",
+                          "name": "Chevron esquerdo",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "chevron-left",
+                          "library": "lucide",
+                          "fill": "$primary"
+                        },
+                        {
+                          "type": "text",
+                          "id": "rUle4",
+                          "name": "Rótulo Voltar",
+                          "fill": "$primary",
+                          "content": "Voltar",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZhDcQ",
+                  "name": "Seção Catálogo",
+                  "width": "fill_container",
+                  "fill": "$bg-card",
+                  "cornerRadius": 12,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "YcgVI",
+                      "name": "Linha Nome e Unidade",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "y4ntcg",
+                          "name": "Campo Nome",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "qgJK9",
+                              "name": "Campo Nome Label",
+                              "fill": "$text-secondary",
+                              "content": "Nome",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Hi5cJ",
+                              "name": "Campo Nome Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "A9kAR",
+                                  "name": "Campo Nome Value",
+                                  "fill": "$text-tertiary",
+                                  "content": "Ex: Polpa de Açaí",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "nxSme",
+                          "name": "Campo Unidade",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "poNi2",
+                              "name": "Campo Unidade Label",
+                              "fill": "$text-secondary",
+                              "content": "Unidade",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "I97TOJ",
+                              "name": "Campo Unidade Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "L9vIX",
+                                  "name": "Campo Unidade Value",
+                                  "fill": "$text-primary",
+                                  "content": "g",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "icon",
+                                  "id": "mTH3n",
+                                  "name": "Campo Unidade Icon",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "chevron-down",
+                                  "library": "lucide",
+                                  "fill": "$text-secondary"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "VXA9K",
+                      "name": "Campo Categorias",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "S4XhHU",
+                          "name": "Rótulo Categorias",
+                          "fill": "$text-secondary",
+                          "content": "Categorias",
+                          "fontFamily": "$font-body",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "WvhdS",
+                          "name": "Categorias 1",
+                          "width": "fill_container",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "wBu46",
+                              "name": "Categoria Ingrediente",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$primary-soft",
+                              "cornerRadius": 8,
+                              "stroke": "$primary",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "PzhgR",
+                                  "name": "Seleção Ingrediente",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square-check-big",
+                                  "library": "lucide",
+                                  "fill": "$primary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "jhl0K",
+                                  "name": "Texto Ingrediente",
+                                  "fill": "$primary",
+                                  "content": "Ingrediente",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "blwHo",
+                              "name": "Categoria Fabricável",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$bg-card",
+                              "cornerRadius": 8,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "zCtPj",
+                                  "name": "Seleção Fabricável",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square",
+                                  "library": "lucide",
+                                  "fill": "$text-tertiary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "mn6d8",
+                                  "name": "Texto Fabricável",
+                                  "fill": "$text-primary",
+                                  "content": "Fabricável",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "s9LFLX",
+                          "name": "Categorias 2",
+                          "width": "fill_container",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "J43wi",
+                              "name": "Categoria Porção",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$bg-card",
+                              "cornerRadius": 8,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "MbqxG",
+                                  "name": "Seleção Porção",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square",
+                                  "library": "lucide",
+                                  "fill": "$text-tertiary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "vhnxK",
+                                  "name": "Texto Porção",
+                                  "fill": "$text-primary",
+                                  "content": "Porção",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "f3v5iD",
+                              "name": "Categoria Revenda",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$bg-card",
+                              "cornerRadius": 8,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "lfJry",
+                                  "name": "Seleção Revenda",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square",
+                                  "library": "lucide",
+                                  "fill": "$text-tertiary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "nmcRO",
+                                  "name": "Texto Revenda",
+                                  "fill": "$text-primary",
+                                  "content": "Revenda",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "KTpnT",
+                          "name": "Categoria Acompanhamento",
+                          "width": "fill_container",
+                          "height": 34,
+                          "fill": "$bg-card",
+                          "cornerRadius": 8,
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 6,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "oeday",
+                              "name": "Seleção Acompanhamento",
+                              "width": 14,
+                              "height": 14,
+                              "icon": "square",
+                              "library": "lucide",
+                              "fill": "$text-tertiary"
+                            },
+                            {
+                              "type": "text",
+                              "id": "EjTBh",
+                              "name": "Texto Acompanhamento",
+                              "fill": "$text-primary",
+                              "content": "Acompanhamento",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "TAnps",
+                  "name": "Seção Estoque",
+                  "width": "fill_container",
+                  "fill": "$bg-card",
+                  "cornerRadius": 12,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 11,
+                  "padding": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "vVyAu",
+                      "name": "Seletor Estoque único",
+                      "width": "fill_container",
+                      "height": 36,
+                      "fill": "$bg-muted",
+                      "cornerRadius": 9,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "qcyqa",
+                          "name": "Estoque único selecionado",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "fill": "$bg-card",
+                          "cornerRadius": 7,
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Rcm5v",
+                              "name": "Texto Estoque único",
+                              "fill": "$text-primary",
+                              "content": "Estoque único",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "800"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "c7Cgi",
+                          "name": "Por marca não selecionado",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "l8qIBp",
+                              "name": "Texto Por marca",
+                              "fill": "$text-secondary",
+                              "content": "Por marca",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "W85eM",
+                      "name": "Permitir negativo",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "gJzFX",
+                          "name": "Texto negativo",
+                          "layout": "vertical",
+                          "gap": 1,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "rk907",
+                              "name": "Rótulo negativo",
+                              "fill": "$text-primary",
+                              "content": "Permitir estoque negativo",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "oJpSe",
+                              "name": "Ajuda negativo",
+                              "fill": "$text-secondary",
+                              "content": "Desativado",
+                              "fontFamily": "$font-body",
+                              "fontSize": 10,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mJCh2",
+                          "name": "Switch",
+                          "width": 34,
+                          "height": 20,
+                          "fill": "$border",
+                          "cornerRadius": 999,
+                          "padding": 2,
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "ybDBN",
+                              "name": "Controle switch",
+                              "fill": "$bg-card",
+                              "width": 16,
+                              "height": 16
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Iryr0",
+                      "name": "Linha saldos",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "sBblY",
+                          "name": "Estoque inicial",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "q5nY2",
+                              "name": "Estoque inicial Label",
+                              "fill": "$text-secondary",
+                              "content": "Estoque inicial",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "sc4Nb",
+                              "name": "Estoque inicial Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "RDkvK",
+                                  "name": "Estoque inicial Value",
+                                  "fill": "$text-primary",
+                                  "content": "0",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "gvb14",
+                          "name": "Estoque ideal",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "RjlEg",
+                              "name": "Estoque ideal Label",
+                              "fill": "$text-secondary",
+                              "content": "Estoque ideal",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "UpUMw",
+                              "name": "Estoque ideal Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "uhpD1",
+                                  "name": "Estoque ideal Value",
+                                  "fill": "$text-primary",
+                                  "content": "0",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "tgLWh",
+                      "name": "Custo unitário",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 5,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "f19zy",
+                          "name": "Custo unitário Label",
+                          "fill": "$text-secondary",
+                          "content": "Custo unitário",
+                          "fontFamily": "$font-body",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "q2QCU",
+                          "name": "Custo unitário Control",
+                          "width": "fill_container",
+                          "height": 38,
+                          "fill": "$bg-card",
+                          "cornerRadius": 9,
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            11
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "NfCB0",
+                              "name": "Custo unitário Value",
+                              "fill": "$text-primary",
+                              "content": "R$ 0,00",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "e6GXfH",
+                  "name": "Ações",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "j8l1HE",
+                      "name": "Cancelar",
+                      "height": 38,
+                      "fill": "$bg-card",
+                      "cornerRadius": 9,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "BtWlW",
+                          "name": "Texto Cancelar",
+                          "fill": "$text-primary",
+                          "content": "Cancelar",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "bYSXp",
+                      "type": "ref",
+                      "ref": "j81wx",
+                      "name": "Criar produto",
+                      "height": 38,
+                      "descendants": {
+                        "b1bQY": {
+                          "icon": "check"
+                        },
+                        "dURHs": {
+                          "content": "Criar produto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "z41Sbx",
+      "x": -1627,
+      "y": 2989,
+      "name": "Cadastro de produto — Por marca — Narrow — Rolado",
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$bg-page",
+      "children": [
+        {
+          "type": "frame",
+          "id": "eUpbS",
+          "name": "Main Column",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "evmWo",
+              "name": "Cabeçalho mobile",
+              "width": "fill_container",
+              "height": 60,
+              "fill": "$bg-card",
+              "stroke": "$border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "padding": [
+                0,
+                16
+              ],
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Bg4Ns",
+                  "name": "Menu",
+                  "width": 38,
+                  "height": 38,
+                  "cornerRadius": 9,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "qfJn5",
+                      "name": "Ícone menu",
+                      "width": 19,
+                      "height": 19,
+                      "icon": "menu",
+                      "library": "lucide",
+                      "fill": "$text-primary"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Gln7X",
+                  "name": "Marca Scoops",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "M16suS",
+                      "name": "Marca",
+                      "width": 30,
+                      "height": 30,
+                      "fill": "$primary",
+                      "cornerRadius": 8,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "F5zG1c",
+                          "name": "Ícone Scoops",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "ice-cream-bowl",
+                          "library": "lucide",
+                          "fill": "#FFFFFF"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "lC7cx",
+                      "name": "Nome Scoops",
+                      "fill": "$primary",
+                      "content": "Scoops",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "800"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ojTPE",
+                  "name": "Avatar",
+                  "width": 34,
+                  "height": 34,
+                  "fill": "$success-soft",
+                  "cornerRadius": 999,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "qJKp8",
+                      "name": "Iniciais",
+                      "fill": "$success",
+                      "content": "CO",
+                      "fontFamily": "$font-body",
+                      "fontSize": 10,
+                      "fontWeight": "800"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "VDZXo",
+              "name": "Conteúdo narrow rolado",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 11,
+              "padding": [
+                14,
+                16,
+                16,
+                16
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "hxuCw",
+                  "name": "Cabeçalho cadastro",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "p7qDOf",
+                      "name": "Título",
+                      "fill": "$text-primary",
+                      "content": "Novo produto",
+                      "fontFamily": "$font-body",
+                      "fontSize": 21,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "xErkP",
+                      "name": "Descrição",
+                      "fill": "$text-secondary",
+                      "content": "Catálogo e estoque em uma única página.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "z4cN2",
+                  "name": "Seção Por marca",
+                  "width": "fill_container",
+                  "fill": "$bg-card",
+                  "cornerRadius": 12,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 11,
+                  "padding": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "kF3hc",
+                      "name": "Seletor Por marca",
+                      "width": "fill_container",
+                      "height": 36,
+                      "fill": "$bg-muted",
+                      "cornerRadius": 9,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "YTPYX",
+                          "name": "Estoque único não selecionado",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "aG5tp",
+                              "name": "Texto Estoque único",
+                              "fill": "$text-secondary",
+                              "content": "Estoque único",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "x4ZNF",
+                          "name": "Por marca selecionado",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "fill": "$bg-card",
+                          "cornerRadius": 7,
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Q1ylK9",
+                              "name": "Texto Por marca",
+                              "fill": "$text-primary",
+                              "content": "Por marca",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "800"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "rvP2G",
+                      "name": "Permitir negativo",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "LQP1b",
+                          "name": "Texto negativo",
+                          "layout": "vertical",
+                          "gap": 1,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "fZnUn",
+                              "name": "Rótulo negativo",
+                              "fill": "$text-primary",
+                              "content": "Permitir estoque negativo",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "l5yFt2",
+                              "name": "Ajuda negativo",
+                              "fill": "$text-secondary",
+                              "content": "Desativado",
+                              "fontFamily": "$font-body",
+                              "fontSize": 10,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "k7Ns6",
+                          "name": "Switch",
+                          "width": 34,
+                          "height": 20,
+                          "fill": "$border",
+                          "cornerRadius": 999,
+                          "padding": 2,
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "XtN1R",
+                              "name": "Controle switch",
+                              "fill": "$bg-card",
+                              "width": 16,
+                              "height": 16
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "dBSHP",
+                      "name": "Primeira marca",
+                      "width": "fill_container",
+                      "fill": "$bg-muted",
+                      "cornerRadius": 10,
+                      "stroke": "$border-soft",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 9,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "ZFM9N",
+                          "name": "Cabeçalho marca",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "KfvuS",
+                              "name": "Título marca",
+                              "fill": "$text-primary",
+                              "content": "1",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "800"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "u8Sxu",
+                              "name": "Controle Marca principal",
+                              "gap": 7,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "D24Yg",
+                                  "name": "Rótulo Marca principal",
+                                  "fill": "$text-secondary",
+                                  "content": "Marca principal",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "ho9nS",
+                                  "name": "Switch Marca principal",
+                                  "width": 38,
+                                  "height": 22,
+                                  "fill": "$primary",
+                                  "cornerRadius": 999,
+                                  "padding": 2,
+                                  "justifyContent": "end",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "AF5v8",
+                                      "name": "Controle switch",
+                                      "fill": "$bg-card",
+                                      "width": 18,
+                                      "height": 18
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "KHG7o",
+                          "name": "Nome da marca",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "seFrt",
+                              "name": "Nome da marca Label",
+                              "fill": "$text-secondary",
+                              "content": "Nome da marca",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "A6dNE",
+                              "name": "Nome da marca Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "PPEEG",
+                                  "name": "Nome da marca Value",
+                                  "fill": "$text-tertiary",
+                                  "content": "Ex: Frooty",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "CNa81",
+                          "name": "Linha embalagem",
+                          "width": "fill_container",
+                          "gap": 7,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "aJSXC",
+                              "name": "Quantidade embalagem",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 5,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Hs2WO",
+                                  "name": "Quantidade embalagem Label",
+                                  "fill": "$text-secondary",
+                                  "content": "Qtd. por embalagem",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "dILXC",
+                                  "name": "Quantidade embalagem Control",
+                                  "width": "fill_container",
+                                  "height": 38,
+                                  "fill": "$bg-card",
+                                  "cornerRadius": 9,
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    0,
+                                    11
+                                  ],
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "dphdY",
+                                      "name": "Quantidade embalagem Value",
+                                      "fill": "$text-primary",
+                                      "content": "1",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "i6Lxu",
+                              "name": "Valor embalagem",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 5,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "jbZTj",
+                                  "name": "Valor embalagem Label",
+                                  "fill": "$text-secondary",
+                                  "content": "Valor por embalagem",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "fMIe9",
+                                  "name": "Valor embalagem Control",
+                                  "width": "fill_container",
+                                  "height": 38,
+                                  "fill": "$bg-card",
+                                  "cornerRadius": 9,
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    0,
+                                    11
+                                  ],
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "w24Sr",
+                                      "name": "Valor embalagem Value",
+                                      "fill": "$text-primary",
+                                      "content": "R$ 0,00",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "yL292",
+                          "name": "Pacotes iniciais",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "VPy8d",
+                              "name": "Pacotes iniciais Label",
+                              "fill": "$text-secondary",
+                              "content": "Quantidade inicial de pacotes",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "UtKEZ",
+                              "name": "Pacotes iniciais Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "f2m7FI",
+                                  "name": "Pacotes iniciais Value",
+                                  "fill": "$text-primary",
+                                  "content": "0",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "E3Svz4",
+                      "name": "Adicionar marca",
+                      "width": "fill_container",
+                      "height": 36,
+                      "cornerRadius": 9,
+                      "stroke": "$primary",
+                      "strokeWidth": 1,
+                      "gap": 6,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "v2APNT",
+                          "name": "Ícone adicionar",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "plus",
+                          "library": "lucide",
+                          "fill": "$primary"
+                        },
+                        {
+                          "type": "text",
+                          "id": "HCY3k",
+                          "name": "Texto adicionar",
+                          "fill": "$primary",
+                          "content": "Adicionar outra marca",
+                          "fontFamily": "$font-body",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "J5VIym",
+                  "name": "Ações",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "d3wyJ",
+                      "name": "Cancelar",
+                      "height": 38,
+                      "fill": "$bg-card",
+                      "cornerRadius": 9,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "z9xHd",
+                          "name": "Texto Cancelar",
+                          "fill": "$text-primary",
+                          "content": "Cancelar",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "s3PLB",
+                      "type": "ref",
+                      "ref": "j81wx",
+                      "name": "Criar produto",
+                      "height": 38,
+                      "descendants": {
+                        "b1bQY": {
+                          "icon": "check"
+                        },
+                        "dURHs": {
+                          "content": "Criar produto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "k4tYU",
+      "x": -3817,
+      "y": 2989,
+      "name": "Cadastro de produto — Estoque único — Desktop",
+      "clip": true,
+      "width": 1440,
+      "height": 900,
+      "fill": "$bg-page",
+      "children": [
+        {
+          "id": "jjR4M",
+          "type": "ref",
+          "ref": "K4g10V",
+          "name": "Sidebar Produtos",
+          "height": "fill_container"
+        },
+        {
+          "type": "frame",
+          "id": "GyRMr",
+          "name": "Main Column",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "children": [
+            {
+              "id": "BHTe6",
+              "type": "ref",
+              "ref": "d8DadK",
+              "name": "Cabeçalho global",
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "F27pLQ",
+              "name": "Conteúdo narrow",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ezcTz",
+                  "layoutPosition": "absolute",
+                  "x": 48,
+                  "y": 20,
+                  "name": "Cabeçalho cadastro",
+                  "width": 1077,
+                  "height": 84,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "id": "ZpE60",
+                      "type": "ref",
+                      "ref": "by3zh",
+                      "name": "BackLink — Produtos"
+                    },
+                    {
+                      "type": "text",
+                      "id": "SmnAG",
+                      "name": "Título",
+                      "fill": "$text-primary",
+                      "content": "Novo produto",
+                      "fontFamily": "$font-body",
+                      "fontSize": 21,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "G4qmev",
+                      "name": "Descrição",
+                      "fill": "$text-secondary",
+                      "content": "Catálogo e estoque em uma única página.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "uQC0X",
+                  "layoutPosition": "absolute",
+                  "x": 48,
+                  "y": 118,
+                  "name": "Seção Catálogo",
+                  "width": 1077,
+                  "fill": "$bg-card",
+                  "cornerRadius": 12,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Ct1X6",
+                      "name": "Linha Nome e Unidade",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "VEctJ",
+                          "name": "Campo Nome",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Lx4fT",
+                              "name": "Campo Nome Label",
+                              "fill": "$text-secondary",
+                              "content": "Nome",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "AgQam",
+                              "name": "Campo Nome Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "JsgID",
+                                  "name": "Campo Nome Value",
+                                  "fill": "$text-tertiary",
+                                  "content": "Ex: Polpa de Açaí",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "bElKw",
+                          "name": "Campo Unidade",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "CLuvx",
+                              "name": "Campo Unidade Label",
+                              "fill": "$text-secondary",
+                              "content": "Unidade",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Kda1A",
+                              "name": "Campo Unidade Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "RbXzX",
+                                  "name": "Campo Unidade Value",
+                                  "fill": "$text-primary",
+                                  "content": "g",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "icon",
+                                  "id": "W3fzmL",
+                                  "name": "Campo Unidade Icon",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "chevron-down",
+                                  "library": "lucide",
+                                  "fill": "$text-secondary"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YRKro",
+                      "name": "Campo Categorias",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Y9Dob",
+                          "name": "Rótulo Categorias",
+                          "fill": "$text-secondary",
+                          "content": "Categorias",
+                          "fontFamily": "$font-body",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "tGzwn",
+                          "name": "Categorias 1",
+                          "width": "fill_container",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "oVwek",
+                              "name": "Categoria Ingrediente",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$primary-soft",
+                              "cornerRadius": 8,
+                              "stroke": "$primary",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "L1SuQB",
+                                  "name": "Seleção Ingrediente",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square-check-big",
+                                  "library": "lucide",
+                                  "fill": "$primary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "DdTxh",
+                                  "name": "Texto Ingrediente",
+                                  "fill": "$primary",
+                                  "content": "Ingrediente",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "v6NWj",
+                              "name": "Categoria Fabricável",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$bg-card",
+                              "cornerRadius": 8,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "K9NfZs",
+                                  "name": "Seleção Fabricável",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square",
+                                  "library": "lucide",
+                                  "fill": "$text-tertiary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "RaRcN",
+                                  "name": "Texto Fabricável",
+                                  "fill": "$text-primary",
+                                  "content": "Fabricável",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "H2BOhj",
+                          "name": "Categorias 2",
+                          "width": "fill_container",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "eG40Y",
+                              "name": "Categoria Porção",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$bg-card",
+                              "cornerRadius": 8,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "s5kP8G",
+                                  "name": "Seleção Porção",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square",
+                                  "library": "lucide",
+                                  "fill": "$text-tertiary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "eLfVk",
+                                  "name": "Texto Porção",
+                                  "fill": "$text-primary",
+                                  "content": "Porção",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "VQ7Ag",
+                              "name": "Categoria Revenda",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$bg-card",
+                              "cornerRadius": 8,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "nJOwQ",
+                                  "name": "Seleção Revenda",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square",
+                                  "library": "lucide",
+                                  "fill": "$text-tertiary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Hs4W0",
+                                  "name": "Texto Revenda",
+                                  "fill": "$text-primary",
+                                  "content": "Revenda",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "ut2bG",
+                          "name": "Categoria Acompanhamento",
+                          "width": 520,
+                          "height": 34,
+                          "fill": "$bg-card",
+                          "cornerRadius": 8,
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 6,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "FjcmU",
+                              "name": "Seleção Acompanhamento",
+                              "width": 14,
+                              "height": 14,
+                              "icon": "square",
+                              "library": "lucide",
+                              "fill": "$text-tertiary"
+                            },
+                            {
+                              "type": "text",
+                              "id": "uQxRq",
+                              "name": "Texto Acompanhamento",
+                              "fill": "$text-primary",
+                              "content": "Acompanhamento",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "r1j4ip",
+                  "layoutPosition": "absolute",
+                  "x": 48,
+                  "y": 365,
+                  "name": "Seção Estoque",
+                  "width": 1077,
+                  "fill": "$bg-card",
+                  "cornerRadius": 12,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 11,
+                  "padding": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "W42e2i",
+                      "name": "Seletor Estoque único",
+                      "width": "fill_container",
+                      "height": 36,
+                      "fill": "$bg-muted",
+                      "cornerRadius": 9,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "ON5rs",
+                          "name": "Estoque único selecionado",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "fill": "$bg-card",
+                          "cornerRadius": 7,
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "qvhMI",
+                              "name": "Texto Estoque único",
+                              "fill": "$text-primary",
+                              "content": "Estoque único",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "800"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "yTfQN",
+                          "name": "Por marca não selecionado",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "lKUDz",
+                              "name": "Texto Por marca",
+                              "fill": "$text-secondary",
+                              "content": "Por marca",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "lobmR",
+                      "name": "Permitir negativo",
+                      "width": "fill_container",
+                      "fill": "$bg-card",
+                      "cornerRadius": 9,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        11
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "p8RLo",
+                          "name": "Texto negativo",
+                          "layout": "vertical",
+                          "gap": 1,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "oGLyb",
+                              "name": "Rótulo negativo",
+                              "fill": "$text-primary",
+                              "content": "Permitir estoque negativo",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "tPM9O",
+                              "name": "Ajuda negativo",
+                              "fill": "$text-secondary",
+                              "content": "Permite registrar saídas acima do saldo disponível",
+                              "fontFamily": "$font-body",
+                              "fontSize": 10,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Be8YF",
+                          "name": "Switch",
+                          "width": 38,
+                          "height": 22,
+                          "fill": "$border",
+                          "cornerRadius": 999,
+                          "padding": 2,
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "p5JDa",
+                              "name": "Controle switch",
+                              "fill": "$bg-card",
+                              "width": 18,
+                              "height": 18
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mCql0",
+                      "name": "Linha saldos",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "aQmEg",
+                          "name": "Estoque inicial",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "HFYMb",
+                              "name": "Estoque inicial Label",
+                              "fill": "$text-secondary",
+                              "content": "Estoque inicial",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "I8A33",
+                              "name": "Estoque inicial Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "zSNdO",
+                                  "name": "Estoque inicial Value",
+                                  "fill": "$text-primary",
+                                  "content": "0",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "WQX5f",
+                          "name": "Estoque ideal",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "YW08A",
+                              "name": "Estoque ideal Label",
+                              "fill": "$text-secondary",
+                              "content": "Estoque ideal",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "CHHjV",
+                              "name": "Estoque ideal Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "cd8r9",
+                                  "name": "Estoque ideal Value",
+                                  "fill": "$text-primary",
+                                  "content": "0",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "aZvgw",
+                      "name": "Custo unitário",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 5,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "TqV3r",
+                          "name": "Custo unitário Label",
+                          "fill": "$text-secondary",
+                          "content": "Custo unitário",
+                          "fontFamily": "$font-body",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "uB5Cc",
+                          "name": "Custo unitário Control",
+                          "width": "fill_container",
+                          "height": 38,
+                          "fill": "$bg-card",
+                          "cornerRadius": 9,
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            0,
+                            11
+                          ],
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "gmA0s",
+                              "name": "Custo unitário Value",
+                              "fill": "$text-primary",
+                              "content": "R$ 0,00",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "UXFLf",
+                  "layoutPosition": "absolute",
+                  "x": 48,
+                  "y": 622,
+                  "name": "Ações",
+                  "width": 1077,
+                  "gap": 10,
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "pR0zy",
+                      "name": "Cancelar",
+                      "height": 38,
+                      "fill": "$bg-card",
+                      "cornerRadius": 9,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "bQgKh",
+                          "name": "Texto Cancelar",
+                          "fill": "$text-primary",
+                          "content": "Cancelar",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "SpSE2",
+                      "type": "ref",
+                      "ref": "j81wx",
+                      "name": "Criar produto",
+                      "height": 38,
+                      "descendants": {
+                        "b1bQY": {
+                          "icon": "check"
+                        },
+                        "dURHs": {
+                          "content": "Criar produto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "lZGJu",
+      "x": -3817,
+      "y": 4049,
+      "name": "Cadastro de produto — Por marca — Desktop",
+      "clip": true,
+      "width": 1440,
+      "height": 972,
+      "fill": "$bg-page",
+      "children": [
+        {
+          "id": "Z3aWAp",
+          "type": "ref",
+          "ref": "K4g10V",
+          "name": "Sidebar Produtos",
+          "height": "fill_container"
+        },
+        {
+          "type": "frame",
+          "id": "qoVqb",
+          "name": "Main Column",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "children": [
+            {
+              "id": "TYoly",
+              "type": "ref",
+              "ref": "d8DadK",
+              "name": "Cabeçalho global",
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "o85iU",
+              "name": "Linha BackLink",
+              "width": "fill_container",
+              "height": 36,
+              "padding": [
+                4,
+                48
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "VGMKw",
+                  "type": "ref",
+                  "ref": "by3zh",
+                  "name": "BackLink — Produtos"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "F5tZ4",
+              "name": "Conteúdo narrow",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "QhdtB",
+                  "layoutPosition": "absolute",
+                  "x": 48,
+                  "y": 20,
+                  "name": "Cabeçalho cadastro",
+                  "width": 1077,
+                  "height": 84,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "xAUb8",
+                      "name": "Título",
+                      "fill": "$text-primary",
+                      "content": "Novo produto",
+                      "fontFamily": "$font-body",
+                      "fontSize": 21,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "s1lsdu",
+                      "name": "Descrição",
+                      "fill": "$text-secondary",
+                      "content": "Catálogo e estoque em uma única página.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "TjpSS",
+                  "layoutPosition": "absolute",
+                  "x": 48,
+                  "y": 118,
+                  "name": "Seção Catálogo",
+                  "width": 1077,
+                  "fill": "$bg-card",
+                  "cornerRadius": 12,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "d5UNUI",
+                      "name": "Linha Nome e Unidade",
+                      "width": "fill_container",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "B1Ratp",
+                          "name": "Campo Nome",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "UMLrR",
+                              "name": "Campo Nome Label",
+                              "fill": "$text-secondary",
+                              "content": "Nome",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "n3kt4z",
+                              "name": "Campo Nome Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "j1BYYy",
+                                  "name": "Campo Nome Value",
+                                  "fill": "$text-tertiary",
+                                  "content": "Ex: Polpa de Açaí",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mpq8g",
+                          "name": "Campo Unidade",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "T2YDZK",
+                              "name": "Campo Unidade Label",
+                              "fill": "$text-secondary",
+                              "content": "Unidade",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "RhvXq",
+                              "name": "Campo Unidade Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "WroMQ",
+                                  "name": "Campo Unidade Value",
+                                  "fill": "$text-primary",
+                                  "content": "g",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "icon",
+                                  "id": "ABZix",
+                                  "name": "Campo Unidade Icon",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "chevron-down",
+                                  "library": "lucide",
+                                  "fill": "$text-secondary"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Jn1Ev",
+                      "name": "Campo Categorias",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "cbV48",
+                          "name": "Rótulo Categorias",
+                          "fill": "$text-secondary",
+                          "content": "Categorias",
+                          "fontFamily": "$font-body",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "JTOqZ",
+                          "name": "Categorias 1",
+                          "width": "fill_container",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "uUSCf",
+                              "name": "Categoria Ingrediente",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$primary-soft",
+                              "cornerRadius": 8,
+                              "stroke": "$primary",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "zOQmC",
+                                  "name": "Seleção Ingrediente",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square-check-big",
+                                  "library": "lucide",
+                                  "fill": "$primary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "CoCpC",
+                                  "name": "Texto Ingrediente",
+                                  "fill": "$primary",
+                                  "content": "Ingrediente",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "WybqE",
+                              "name": "Categoria Fabricável",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$bg-card",
+                              "cornerRadius": 8,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "xqbSO",
+                                  "name": "Seleção Fabricável",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square",
+                                  "library": "lucide",
+                                  "fill": "$text-tertiary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "o6WXRQ",
+                                  "name": "Texto Fabricável",
+                                  "fill": "$text-primary",
+                                  "content": "Fabricável",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "J7fCSd",
+                          "name": "Categorias 2",
+                          "width": "fill_container",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "rtAVa",
+                              "name": "Categoria Porção",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$bg-card",
+                              "cornerRadius": 8,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "FtXZX",
+                                  "name": "Seleção Porção",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square",
+                                  "library": "lucide",
+                                  "fill": "$text-tertiary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "m2eoH",
+                                  "name": "Texto Porção",
+                                  "fill": "$text-primary",
+                                  "content": "Porção",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "AsBSL",
+                              "name": "Categoria Revenda",
+                              "width": "fill_container",
+                              "height": 34,
+                              "fill": "$bg-card",
+                              "cornerRadius": 8,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                8
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "JJOf4",
+                                  "name": "Seleção Revenda",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "square",
+                                  "library": "lucide",
+                                  "fill": "$text-tertiary"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "CYrUu",
+                                  "name": "Texto Revenda",
+                                  "fill": "$text-primary",
+                                  "content": "Revenda",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "sN6Jc",
+                          "name": "Categoria Acompanhamento",
+                          "width": 520,
+                          "height": 34,
+                          "fill": "$bg-card",
+                          "cornerRadius": 8,
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "gap": 6,
+                          "padding": [
+                            0,
+                            8
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "Hd8U2",
+                              "name": "Seleção Acompanhamento",
+                              "width": 14,
+                              "height": 14,
+                              "icon": "square",
+                              "library": "lucide",
+                              "fill": "$text-tertiary"
+                            },
+                            {
+                              "type": "text",
+                              "id": "ON3Xr",
+                              "name": "Texto Acompanhamento",
+                              "fill": "$text-primary",
+                              "content": "Acompanhamento",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "tzkbQ",
+                  "layoutPosition": "absolute",
+                  "x": 48,
+                  "y": 365,
+                  "name": "Seção Estoque por marca",
+                  "width": 1077,
+                  "height": 476,
+                  "fill": "$bg-card",
+                  "cornerRadius": 12,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 11,
+                  "padding": 14,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "K0FzhA",
+                      "name": "Seletor Por marca",
+                      "width": "fill_container",
+                      "height": 36,
+                      "fill": "$bg-muted",
+                      "cornerRadius": 9,
+                      "padding": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "GQlzi",
+                          "name": "Estoque único não selecionado",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Z8eAAl",
+                              "name": "Texto Estoque único",
+                              "fill": "$text-secondary",
+                              "content": "Estoque único",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "600"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "SdNwV",
+                          "name": "Por marca selecionado",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "fill": "$bg-card",
+                          "cornerRadius": 7,
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "wBFZP",
+                              "name": "Texto Por marca",
+                              "fill": "$text-primary",
+                              "content": "Por marca",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "800"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sFiPs",
+                      "name": "Permitir negativo",
+                      "width": "fill_container",
+                      "fill": "$bg-card",
+                      "cornerRadius": 9,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        11
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "VKhmz",
+                          "name": "Texto negativo",
+                          "layout": "vertical",
+                          "gap": 1,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "I7nuzt",
+                              "name": "Rótulo negativo",
+                              "fill": "$text-primary",
+                              "content": "Permitir estoque negativo",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "hTXii",
+                              "name": "Ajuda negativo",
+                              "fill": "$text-secondary",
+                              "content": "Permite registrar saídas acima do saldo disponível",
+                              "fontFamily": "$font-body",
+                              "fontSize": 10,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "pNKMY",
+                          "name": "Switch",
+                          "width": 38,
+                          "height": 22,
+                          "fill": "$border",
+                          "cornerRadius": 999,
+                          "padding": 2,
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "SNCbk",
+                              "name": "Controle switch",
+                              "fill": "$bg-card",
+                              "width": 18,
+                              "height": 18
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "IXtEs",
+                      "name": "Primeira marca",
+                      "width": "fill_container",
+                      "fill": "$bg-muted",
+                      "cornerRadius": 10,
+                      "stroke": "$border-soft",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 9,
+                      "padding": 12,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "EcbTj",
+                          "name": "Cabeçalho marca",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "l3X7J",
+                              "name": "Título marca",
+                              "fill": "$text-primary",
+                              "content": "1",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "800"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "fQxlL",
+                              "name": "Controle Marca principal",
+                              "gap": 7,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "CWQrD",
+                                  "name": "Rótulo Marca principal",
+                                  "fill": "$text-secondary",
+                                  "content": "Marca principal",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "m8F5to",
+                                  "name": "Switch Marca principal",
+                                  "width": 38,
+                                  "height": 22,
+                                  "fill": "$primary",
+                                  "cornerRadius": 999,
+                                  "padding": 2,
+                                  "justifyContent": "end",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "NQE4f",
+                                      "name": "Controle switch",
+                                      "fill": "$bg-card",
+                                      "width": 18,
+                                      "height": 18
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "iUS85",
+                          "name": "Nome da marca",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "AHwfk",
+                              "name": "Nome da marca Label",
+                              "fill": "$text-secondary",
+                              "content": "Nome da marca",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "OYEF9",
+                              "name": "Nome da marca Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Z3634",
+                                  "name": "Nome da marca Value",
+                                  "fill": "$text-tertiary",
+                                  "content": "Ex: Frooty",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "J77tC6",
+                          "name": "Linha embalagem",
+                          "width": "fill_container",
+                          "gap": 7,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "LCket",
+                              "name": "Quantidade embalagem",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 5,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "SziYt",
+                                  "name": "Quantidade embalagem Label",
+                                  "fill": "$text-secondary",
+                                  "content": "Qtd. por embalagem",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "j31Xv",
+                                  "name": "Quantidade embalagem Control",
+                                  "width": "fill_container",
+                                  "height": 38,
+                                  "fill": "$bg-card",
+                                  "cornerRadius": 9,
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    0,
+                                    11
+                                  ],
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "dCH5H",
+                                      "name": "Quantidade embalagem Value",
+                                      "fill": "$text-primary",
+                                      "content": "1",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "m6dU3",
+                              "name": "Valor embalagem",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 5,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "p1zNU",
+                                  "name": "Valor embalagem Label",
+                                  "fill": "$text-secondary",
+                                  "content": "Valor por embalagem",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "myN7H",
+                                  "name": "Valor embalagem Control",
+                                  "width": "fill_container",
+                                  "height": 38,
+                                  "fill": "$bg-card",
+                                  "cornerRadius": 9,
+                                  "stroke": "$border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    0,
+                                    11
+                                  ],
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "Wn3RN",
+                                      "name": "Valor embalagem Value",
+                                      "fill": "$text-primary",
+                                      "content": "R$ 0,00",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 12,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "s2GkB3",
+                          "name": "Pacotes iniciais",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 5,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "XoQDW",
+                              "name": "Pacotes iniciais Label",
+                              "fill": "$text-secondary",
+                              "content": "Quantidade inicial de pacotes",
+                              "fontFamily": "$font-body",
+                              "fontSize": 11,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "qHOmx",
+                              "name": "Pacotes iniciais Control",
+                              "width": "fill_container",
+                              "height": 38,
+                              "fill": "$bg-card",
+                              "cornerRadius": 9,
+                              "stroke": "$border",
+                              "strokeWidth": 1,
+                              "padding": [
+                                0,
+                                11
+                              ],
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "jGrsd",
+                                  "name": "Pacotes iniciais Value",
+                                  "fill": "$text-primary",
+                                  "content": "0",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "P5GwB",
+                      "name": "Adicionar marca",
+                      "width": "fill_container",
+                      "height": 36,
+                      "cornerRadius": 9,
+                      "stroke": "$primary",
+                      "strokeWidth": 1,
+                      "gap": 6,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "T7Wz8",
+                          "name": "Ícone adicionar",
+                          "width": 14,
+                          "height": 14,
+                          "icon": "plus",
+                          "library": "lucide",
+                          "fill": "$primary"
+                        },
+                        {
+                          "type": "text",
+                          "id": "N0eu2z",
+                          "name": "Texto adicionar",
+                          "fill": "$primary",
+                          "content": "Adicionar outra marca",
+                          "fontFamily": "$font-body",
+                          "fontSize": 11,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "gTCLK",
+                  "layoutPosition": "absolute",
+                  "x": 48,
+                  "y": 789,
+                  "name": "Ações",
+                  "width": 1077,
+                  "gap": 10,
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Zzc2e",
+                      "name": "Cancelar",
+                      "height": 38,
+                      "fill": "$bg-card",
+                      "cornerRadius": 9,
+                      "stroke": "$border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "KKo2M",
+                          "name": "Texto Cancelar",
+                          "fill": "$text-primary",
+                          "content": "Cancelar",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "RNOk6",
+                      "type": "ref",
+                      "ref": "j81wx",
+                      "name": "Criar produto",
+                      "height": 38,
+                      "descendants": {
+                        "b1bQY": {
+                          "icon": "check"
+                        },
+                        "dURHs": {
+                          "content": "Criar produto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "by3zh",
+      "x": -1963,
+      "y": -3259,
+      "name": "BackLink",
+      "reusable": true,
+      "height": 28,
+      "gap": 4,
+      "padding": 1,
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "icon",
+          "id": "iBWe2",
+          "name": "Chevron esquerdo",
+          "width": 16,
+          "height": 16,
+          "icon": "chevron-left",
+          "library": "lucide",
+          "fill": "$primary"
+        },
+        {
+          "type": "text",
+          "id": "m7CdX",
+          "name": "Rótulo Voltar",
+          "fill": "$primary",
+          "content": "Voltar",
+          "fontFamily": "$font-body",
+          "fontSize": 12,
+          "fontWeight": "600"
+        }
+      ]
     }
   ],
   "variables": {

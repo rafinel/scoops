@@ -26,6 +26,13 @@ const ingredient = ProductFaker.fake({
   stockControl: ProductStockControl.Single,
   currentUnitCost: 2,
 })
+const byBrandIngredient = ProductFaker.fake({
+  id: 'ingredient-by-brand-1',
+  establishmentId: product.establishmentId,
+  name: 'Chocolate',
+  categories: [ProductCategory.Ingredient],
+  stockControl: ProductStockControl.ByBrand,
+})
 const recipe = RecipeFaker.fake({
   id: 'recipe-1',
   establishmentId: product.establishmentId,
@@ -77,6 +84,55 @@ describe('Update Recipe Ingredient Use Case', () => {
       recipe.id,
       line.id,
       { quantity: 1.5 },
+    )
+  })
+
+  it('persists an explicitly selected ingredient brand', async () => {
+    const byBrandLine = { ...line, ingredientProductId: byBrandIngredient.id }
+    scope.productsRepository.findById.mockImplementation(async (_, id) => {
+      if (id === product.id) return product
+      return id === byBrandIngredient.id ? byBrandIngredient : ingredient
+    })
+    scope.recipeIngredientsRepository.findById.mockResolvedValue(byBrandLine)
+    scope.brandsRepository.findManyByProductId.mockResolvedValue([
+      {
+        id: 'brand-primary',
+        productId: byBrandIngredient.id,
+        name: 'Marca principal',
+        packageQuantity: 1,
+        packagePrice: 4,
+        isPrimary: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 'brand-secondary',
+        productId: byBrandIngredient.id,
+        name: 'Marca alternativa',
+        packageQuantity: 1,
+        packagePrice: 5,
+        isPrimary: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ])
+
+    await useCase.execute({
+      actor: {
+        id: 'manager-1',
+        establishmentId: product.establishmentId,
+        profile: UserProfile.Manager,
+      },
+      productId: product.id,
+      lineId: line.id,
+      input: { ingredientBrandId: 'brand-secondary', quantity: 1.5 },
+    })
+
+    expect(scope.recipeIngredientsRepository.replace).toHaveBeenCalledWith(
+      product.establishmentId,
+      recipe.id,
+      line.id,
+      { ingredientBrandId: 'brand-secondary', quantity: 1.5 },
     )
   })
 })

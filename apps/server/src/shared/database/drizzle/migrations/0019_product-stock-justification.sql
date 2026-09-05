@@ -1,0 +1,1 @@
+ALTER TABLE "mrp_stock_transactions" ADD COLUMN "justification" text;
