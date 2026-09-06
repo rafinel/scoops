@@ -2,6 +2,7 @@ import type {
   RegistrationAttemptsRepository,
   UsersRepository,
 } from '@scoops/core/identity/interfaces'
+import { UserInvitationAcceptedEvent } from '@scoops/core/identity/domain/events'
 import {
   UserFaker,
   UserRegistrationAttemptFaker,
@@ -18,6 +19,8 @@ import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
+import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
 describe('Accept User Invitation Controller [POST /registration-attempts/invitation/accept]', () => {
   const { establishmentId, invitationToken, managerId, managerToken, operatorId } =
     IdentityModuleFixture.userManagement
@@ -90,6 +93,46 @@ describe('Accept User Invitation Controller [POST /registration-attempts/invitat
         .get<RegistrationAttemptsRepository>(IDENTITY_REPOSITORIES.registrationAttempts)
         .findByUserId(operatorId),
     ).resolves.toMatchObject({ status: RegistrationAttemptStatus.Confirmed })
+    const broker = fixture.get(InngestBroker) as unknown as InngestMock
+    expect(broker.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: UserInvitationAcceptedEvent._NAME,
+          payload: expect.objectContaining({
+            userId: operatorId,
+            establishmentId,
+            userName: 'Pending Operator',
+            profile: UserProfile.Operator,
+          }),
+        }),
+      ]),
+    )
+  })
+
+  it('rolls back activation and invitation confirmation when event publication fails', async () => {
+    const broker = fixture.get(InngestBroker) as unknown as InngestMock
+    const originalPublish = broker.publish.bind(broker)
+    broker.publish = async () => {
+      throw new Error('Injected identity publication failure.')
+    }
+
+    try {
+      const response = await request(fixture.app.getHttpServer())
+        .post('/registration-attempts/invitation/accept')
+        .set('Cookie', betterAuthFixture.cookieFor('invite-session'))
+        .send({ confirmationToken: invitationToken, password: 'password123' })
+      expect(response.status).toBe(500)
+      await expect(
+        fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users).findById(operatorId),
+      ).resolves.toMatchObject({ status: UserStatus.Pending })
+      await expect(
+        fixture
+          .get<RegistrationAttemptsRepository>(IDENTITY_REPOSITORIES.registrationAttempts)
+          .findByUserId(operatorId),
+      ).resolves.toMatchObject({ status: RegistrationAttemptStatus.Pending })
+    } finally {
+      broker.publish = originalPublish
+    }
   })
 
   it('serializes an accept-vs-cancel race so only one transition wins', async () => {

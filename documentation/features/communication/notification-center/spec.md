@@ -1,7 +1,7 @@
 ---
 title: In-product notification center
-status: open
-revision: 1
+status: in_progress
+revision: 4
 source:
   type: issue
   ref: https://github.com/rafinel/scoops/issues/30
@@ -26,7 +26,7 @@ scope:
   - documentation/prds/communication.md
   - documentation/prds/mrp.md
   - design/onoreo.pen
-last_updated_at: 2026-09-05
+last_updated_at: 2026-09-06
 ---
 
 # In-product notification center
@@ -46,8 +46,8 @@ security, concurrency, migration, retry, responsive, and accessibility boundarie
 The governing product contract is Communication REQ-01, REQ-02, REQ-04 through REQ-09, with MRP
 REQ-03 and Identity REQ-05, REQ-07, and REQ-08 as authoritative fact dependencies. The user
 approved amendments to Communication REQ-01/REQ-04 and MRP REQ-03 before this Spec was authored.
-Those requirements remain unchecked because `create-spec` does not mark product requirements
-Implemented.
+At authoring time those requirements were left unchecked; conclusion updates only the
+requirements whose complete current outcomes are delivered.
 
 ### Current behavior and product gap
 
@@ -107,7 +107,7 @@ Implemented.
 | Full-page loading | Loads 20 notifications per cursor page. `Ver mais` appends; it is disabled while loading and disappears when no cursor remains. |
 | Periods | `Últimos 7 dias`, `Últimos 30 dias` (default), `Últimos 90 dias`, and `Todo o período`; inclusive local-day bounds are converted to ISO instants by the browser. |
 | Date sections | Group by the authenticated browser's local calendar. Today's heading is `HOJE`; every earlier heading is a localized full date, with each row retaining a localized relative or date-time label. |
-| Back control | Reuse `BackLink` with route `app`, which navigates to the authenticated home route `/`. |
+| Back control | Use the shared `BackLink` style: a compact, borderless, transparent link with a purple `chevron-left` and `Voltar` label; when browser history is available, return to the previous page, otherwise navigate to the authenticated home route `/`. |
 | Missing frames | The user accepted design-system-derived loading, no-history, filtered-empty, recoverable error, retry, and `390 × 844` behavior without supplemental Pencil frames. |
 | Reference divergence | Billing, invitation-sent, and NFS-e examples are visual exemplars only. The page uses per-date headings instead of the reference's coarse `ANTERIORES` group. |
 
@@ -126,7 +126,7 @@ Implemented.
 | `RF-07` | Communication REQ-07 | An authenticated user may mark 1–50 notification IDs read. The server updates only matching tenant-and-recipient unread rows with one captured timestamp, ignores duplicates/already-read/foreign IDs without disclosing their existence, and returns only IDs changed or already owned and read for idempotent client reconciliation. |
 | `RF-08` | Communication REQ-06/07; Issue Header acceptance | The Header bell exposes an accessible unread indicator and opens a viewport-contained dropdown with the newest three rows. The panel closes through its close button, Escape, outside interaction, or footer navigation and restores focus to the bell. `Ver todas as notificações` navigates to `/notifications`. |
 | `RF-09` | Communication REQ-07 | A notification is submitted for read reconciliation only after at least 50% of its row intersects the open dropdown or page viewport. Newly visible IDs are batched, submitted once per local visibility cycle, and reconciled without optimistic cross-user state. Off-screen, unmounted, or closed-dropdown rows remain unread. |
-| `RF-10` | Communication REQ-06/09; Issue full-page acceptance | `/notifications` uses the authenticated shell, shared `BackLink`, page heading/subtitle, default 30-day period, browser-local date groups, and 20-row cursor pages. `Ver mais` appends without duplicate/skipped rows under concurrent arrivals. Changing period updates route search, resets accumulated pages, and fetches the new inclusive local-day interval. |
+| `RF-10` | Communication REQ-06/09; Issue full-page acceptance | `/notifications` uses the authenticated shell, shared history-aware `BackLink`, page heading/subtitle, default 30-day period, browser-local date groups, and 20-row cursor pages. `Ver mais` appends without duplicate/skipped rows under concurrent arrivals. Changing period updates route search, resets accumulated pages, and fetches the new inclusive local-day interval. |
 | `RF-11` | Communication REQ-06/09 | Dropdown and page distinguish initial loading, no history, period-filtered empty, populated, first-page failure, next-page failure, retrying, and exhausted history. A next-page failure preserves prior rows and the selected period; retry resumes the failed boundary. |
 | `RF-12` | Communication REQ-06/07; Issue accessibility acceptance | Both surfaces work for Manager and Operator at desktop and `390 × 844`, avoid horizontal overflow, preserve visible focus and semantic heading/list/status relationships, support keyboard-only open/filter/load/close/navigation, announce recoverable status changes, and honor reduced motion. |
 | `RF-13` | Issue exclusions; Communication REQ-01/03/04/06 | The in-product type registry and UI must contain only the seven scoped kinds. Billing and email-only Identity events must neither materialize rows nor appear in dropdown/page fixtures except as explicitly excluded design-reference examples. No read filter, custom dates, preferences, row actions, deletion, retention, or delivery-monitoring surface may be inferred. |
@@ -178,7 +178,9 @@ Implementation must map all visual values to existing tokens and primitives docu
 `documentation/design.md`. No supplemental Pencil frame blocks implementation because the user
 explicitly accepted the manifest's loading, empty, filtered-empty, error/retry, and `390 × 844`
 assumptions. Fresh Playwright CLI screenshots are required at each material UI checkpoint and must
-not reuse these exports as evidence.
+not reuse these exports as evidence. Saved implementation captures belong to the ignored
+Playwright `apps/web/test-results/communication/` output and are referenced from the Evaluation
+ledger by artifact path.
 
 ## 3. Technical Contract
 
@@ -713,7 +715,7 @@ delete prior migration history.
 | `apps/server/src/communication/rest/controllers/index.ts` | Create | Controller barrel | Export exactly two controllers | — | Module | — |
 | `apps/server/src/communication/rest/dtos/notification-response.dto.ts` | Create | `NotificationResponseDto`, `NotificationCursorResponseDto`, `NotificationPageResponseDto`, `NotificationReadResponseDto` | Swagger/JSON serialization only | Dates serialize ISO; optional fields omitted; page contains items/nextCursor/unreadCount; read response contains `notificationIds` | REST/web mapper | DTO barrel/controllers |
 | `apps/server/src/communication/rest/dtos/index.ts` | Create | DTO barrel | Export response DTOs | — | Controllers | — |
-| `apps/server/src/communication/fixtures/communication-module-fixture.ts` | Create | `CommunicationModuleFixture` | Test-only composition of Identity auth, audience bridge, Communication database/module, and shared Inngest with overridable broker | Seeds users and `NotificationCreate` through module seeders; reset/close lifecycle | Controller tests only | Excluded fixture source; no direct test |
+| `apps/server/src/communication/fixtures/communication-module-fixture.ts` | Modify | `CommunicationModuleFixture` | Test-only composition of Identity auth, audience bridge, Communication database/module, and shared Inngest with overridable broker | Extends the existing fixture with notification seed/reset and Communication controller dependencies without changing its shared test lifecycle | Controller tests only | Excluded fixture source; no direct test |
 | `apps/server/rest-client/communication/notifications.rest` | Create | Notification route-group examples | `@baseUrl = http://localhost:3336`; cookie-authenticated examples without committed credentials | Named requests for default/bounded/cursor/all-period GET and valid/invalid PATCH bodies | Manual transport parity | Exactly one example per controller operation plus representative variants |
 
 ### `apps/server` — Messaging
@@ -732,7 +734,7 @@ delete prior migration history.
 | `apps/server/src/communication/messaging/inngest/jobs/create-in-product-notifications-job.test.ts` | Create | Job integration/unit boundary | Exercises five trigger mappings, promotion/demotion branch, malformed payload, missing event ID, duplicate execution, audience/store failure | Observable persisted/captured fact and propagated retry failures, not only mock calls | Direct test allowed for job | Test Inngest harness/core fakes |
 | `apps/server/src/communication/messaging/inngest/jobs/index.ts` | Modify | Job barrel | Export new job and triggers needed by tests/composition | Keep existing email exports | — | Messaging module/AppModule |
 | `apps/server/src/communication/messaging/communication-messaging.module.ts` | Modify | `CommunicationMessagingModule` | Import Communication database, shared messaging/provision; provide/export new job with existing email jobs | Audience token is supplied by global app composition; no direct Identity module import | Feature owns job lifecycle | Communication root/AppModule |
-| `apps/server/src/shared/messaging/outbox/event-validation.ts` | Modify | Typed event registry | Register five schemas under event class name-compatible literals; retain known/existing names and excluded Billing/email events | Reject malformed outbox insertion before commit | Shared broker boundary | All five publishers |
+| `apps/server/src/shared/messaging/outbox/event-validation.ts` | Create | Typed event registry | Register five schemas under event class name-compatible literals; retain known/existing names and excluded Billing/email events | Reject malformed outbox insertion before commit | Shared broker boundary | All five publishers |
 | `apps/server/src/shared/messaging/outbox/tests/event-validation.test.ts` | Create | Event-validation suite | Valid/minimally malformed payload per newly typed name; unknown/non-object/serialization cases retained or added | Proves additive event payloads are accepted and incomplete facts rejected | Direct outbox test allowed | Shared broker contract |
 
 ### `apps/server` — Composition
@@ -792,7 +794,7 @@ behavior. The remaining server-side stock source is PDV's explicit transaction-b
 
 | Path | Change | Declaration/ownership | Behavior and data flow | State/accessibility contract | Tests/consumers |
 | --- | --- | --- | --- | --- | --- |
-| `apps/web/src/constants/routes.ts` | Modify | Add `notifications: '/notifications'` | Typed destination for footer and back/page navigation | No literal route duplication | Router, dropdown, `BackLink` |
+| `apps/web/src/constants/routes.ts` | Modify | Add `notifications: '/notifications'` | Typed destination for footer and back/page navigation | No literal route duplication | Router, dropdown, notifications back-button fallback |
 | `apps/web/src/ui/shared/contexts/rest-context/types/rest-context-value.ts` | Modify | Add `communicationService` | Makes one composed service available through existing context | Existing providers remain unchanged | Communication hooks |
 | `apps/web/src/ui/shared/contexts/rest-context/use-rest-context-provider.ts` | Modify | Compose memoized Communication service | Uses the existing shared REST client | No new credentials or global requests | Rest context |
 | `apps/web/src/routes/_authenticated/notifications/index.tsx` | Create | TanStack route | Validates search with `notificationsSearchSchema`; renders `NotificationsPage` | Authenticated parent owns access redirect | Generated route tree |
@@ -822,9 +824,9 @@ behavior. The remaining server-side stock source is PDV's explicit transaction-b
 | `apps/web/src/ui/communication/widgets/components/notification-row/tests/notification-row.test.tsx` | Create | Widget suite | Seven scoped kinds, read/unread and timestamp output | No excluded labels/actions | Required direct widget test |
 | `apps/web/src/ui/communication/widgets/components/notification-list-state/index.tsx` | Create | Pure lifecycle-state Component widget | Renders skeleton, no history, filtered empty, first/next-page error, retrying | Uses `status`/`alert`, named retry, stable dimensions, no spinner-only meaning | Dropdown/page; covered by parent tests |
 | `apps/web/src/ui/communication/widgets/components/notification-period-filter/index.tsx` | Create | Pure Component widget | Native/select-system control for four approved labels and route-search callback | Labelled control, keyboard native behavior | Page; covered by page tests |
-| `apps/web/src/ui/communication/widgets/pages/notifications-page/index.tsx` | Create | `NotificationsPage` Page widget | Composes `BackLink route='app'`, title/subtitle, period filter, list/state, and `Ver mais` | Responsive single column matching saved page frame; live load/error status | Authenticated route |
+| `apps/web/src/ui/communication/widgets/pages/notifications-page/index.tsx` | Create | `NotificationsPage` Page widget | Composes the history-aware shared `BackLink`, title/subtitle, period filter, list/state, and `Ver mais` | Responsive single column matching saved page frame; live load/error status | Authenticated route |
 | `apps/web/src/ui/communication/widgets/pages/notifications-page/use-notifications-page.ts` | Create | Behavior hook | Converts selected browser-local inclusive days to UTC instants, drives route search/query, flattens pages, and owns load-more state | Defers bound construction until browser mount; all-period omits bounds | Page |
-| `apps/web/src/ui/communication/widgets/pages/notifications-page/tests/notifications-page.test.tsx` | Create | Widget suite | Design hierarchy, all lifecycle states, BackLink, four periods, groups/load-more | Desktop/narrow semantics and no excluded content | Required direct page-widget test |
+| `apps/web/src/ui/communication/widgets/pages/notifications-page/tests/notifications-page.test.tsx` | Create | Widget suite | Design hierarchy, all lifecycle states, history-aware back button, four periods, groups/load-more | Desktop/narrow semantics and no excluded content | Required direct page-widget test |
 | `apps/web/src/ui/communication/widgets/pages/notifications-page/tests/use-notifications-page.test.ts` | Create | Hook suite | DST/local-day bounds, 30-day default, 7/90/all reset, cursor append/error/retry/exhaustion | Fake clock/time zone and duplicate-ID defense | Required direct behavior-hook test |
 | `apps/web/tests/routes/communication/notifications.index.test.tsx` | Create | Playwright route suite | Dropdown and page populated/lifecycle/period/load-more/visibility/navigation scenarios | Desktop, `390 × 844`, keyboard, URL/request/read assertions, console failure check | Mocked browser regression evidence |
 
@@ -838,7 +840,7 @@ AppLayout
         └── NotificationRow
 
 NotificationsPage
-├── BackLink (existing)
+├── BackLink (existing shared primitive)
 ├── NotificationPeriodFilter
 ├── NotificationListState
 └── NotificationList
@@ -917,7 +919,7 @@ thin TanStack adapters and are covered through their owning widget/route tests.
 | `EV-02` | `pnpm --filter @scoops/core test:coverage` | Communication entity/use cases plus MRP transition and Identity event behavior pass with thresholds preserved | `CA-01`–`CA-08` |
 | `EV-03` | `pnpm --filter server test:coverage` | Real Drizzle/controller isolation, source transaction/outbox behavior, job routing, validation, and retry pass | `CA-01`–`CA-08`, `CA-14` |
 | `EV-04` | `pnpm --filter web test:coverage` | Dropdown/page widgets and behavior hooks pass across visibility, periods, lifecycle, keyboard, and responsive contracts | `CA-08`–`CA-14` |
-| `EV-05` | `pnpm --filter web test:integration -- tests/routes/communication/notifications.index.test.tsx` | Committed Playwright CLI route suite proves browser behavior with explicit transport mocks | `CA-08`–`CA-14` |
+| `EV-05` | `pnpm --filter web test:integration tests/routes/communication/notifications.index.test.tsx` | Committed Playwright CLI route suite proves browser behavior with explicit transport mocks | `CA-08`–`CA-14` |
 | `EV-06` | `pnpm check:types && pnpm check:code && pnpm check:architecture` | Workspace types, formatting/lint, dependency boundaries, exports, and generated route references pass | All |
 | `EV-07` | Generate the migration, then run the repository migration command against the disposable/local database and inspect Drizzle metadata | Enum/table/constraints/indexes are generated, additive, and executable in order | `CA-04`–`CA-07` |
 
@@ -938,7 +940,7 @@ network requests, viewport, and fresh screenshot paths in `evaluation.md`.
 | Scenario | Procedure and required assertions | Evidence artifact | Acceptance coverage |
 | --- | --- | --- | --- |
 | `MV-01` | Sign in as Manager, open the Header bell by keyboard, verify newest three/unread indicator; expose one row below and at the 50% threshold; close via Escape, outside interaction, and close control with focus restoration; retry a recoverable response; follow the footer. Repeat the essential open/read path as Operator and at `390 × 844`. | Fresh desktop and narrow dropdown screenshots compared with `design/n5xnGg.png`; request/read-state and console log | `CA-08`–`CA-10`, `CA-13` |
-| `MV-02` | Visit `/notifications`; verify default 30-day URL/search, per-local-date headings, Back component to `/`, 20-row first page, `Ver mais`, stable append, 7/90/all resets, loading/no-history/filtered-empty/error-next-page retry/exhaustion, keyboard flow, and no horizontal overflow at desktop and `390 × 844`. | Fresh desktop and narrow page screenshots compared with `design/K3Vu9o.png`; list request/cursor/read-state and console log | `CA-06`, `CA-11`–`CA-13` |
+| `MV-02` | Visit `/notifications`; verify default 30-day URL/search, per-local-date headings, history-aware Back component to the previous page with `/` fallback, 20-row first page, `Ver mais`, stable append, 7/90/all resets, loading/no-history/filtered-empty/error-next-page retry/exhaustion, keyboard flow, and no horizontal overflow at desktop and `390 × 844`. | Fresh desktop and narrow page screenshots compared with `design/K3Vu9o.png`; list request/cursor/read-state and console log | `CA-06`, `CA-11`–`CA-13` |
 | `MV-03` | Through real authenticated server-backed MRP/PDV flows, create an initially alerting product, cross normal→low→zero, remain zero, recover, and cross again; include by-brand aggregate and sale consumption. Inspect balances, ledgers, outbox IDs, and resulting Manager/Operator notifications. Force a broker insertion failure in automated evidence, not by corrupting shared local services. | API/UI observations plus targeted database/outbox queries recorded without secrets | `CA-01`, `CA-02`, `CA-05` |
 | `MV-04` | Accept an invitation, promote/demote, inactivate/reactivate through real authenticated flows. Verify approved recipient sets, inactive-row inaccessibility and post-reactivation visibility, exact snapshot names, and no notification for a no-op or invitation creation. | API/UI observations and persisted recipient rows | `CA-03`–`CA-05` |
 | `MV-05` | With Manager, Operator, same-tenant second user, and second tenant, request histories and submit mixed read IDs. Verify private rows/unread counts, neutral foreign-ID responses, unchanged foreign timestamps, `401`, and representative `422` inputs. | REST responses plus persisted read timestamps | `CA-07` |
@@ -1059,7 +1061,7 @@ Capture the fresh `VIS-01-desktop` and `VIS-02-narrow` screenshots and compare t
 30-day URL/search and first request; (2) inspect HOJE/prior local-date sections and visible-read PATCH;
 (3) activate `Ver mais` and verify cursor append; (4) select 7, 90, and all periods and verify URL,
 bounds, and reset; (5) exercise loading, both empty states, first/next failure, retry, and exhaustion;
-(6) traverse all controls by keyboard and use the existing `Voltar` component to reach `/`.
+(6) traverse all controls by keyboard and use the existing `Voltar` component to return to the previous page, falling back to `/` when no browser history is available.
 Record DOM/focus/overflow/console/network checks and fresh `VIS-03-desktop`/`VIS-04-narrow`
 screenshots compared to `K3Vu9o.png`.
 
@@ -1081,7 +1083,7 @@ console output and redacts cookies/credentials.
 | `pnpm --filter @scoops/core test:coverage` | Core Communication, MRP, and Identity contracts |
 | `pnpm --filter server test:coverage` | Database, REST, messaging, composition, and source transactions |
 | `pnpm --filter web test:coverage` | Widget and hook behavior with configured thresholds |
-| `pnpm --filter web test:integration -- tests/routes/communication/notifications.index.test.tsx` | Focused committed Playwright CLI route suite |
+| `pnpm --filter web test:integration tests/routes/communication/notifications.index.test.tsx` | Focused committed Playwright CLI route suite |
 | `pnpm check:types` | Workspace TypeScript and generated-route compatibility |
 | `pnpm check:code` | Formatting/lint/static policy |
 | `pnpm check:architecture` | Package/layer dependency directions |
@@ -1133,3 +1135,6 @@ approved through the active Spec amendment workflow.
 | Revision | Date | Material change | Reason |
 | --- | --- | --- | --- |
 | `1` | `2026-09-05` | Created the complete cross-module, persistent, design-backed notification-center Contract and amended its governing PRDs first. | Issue #30 plus explicit approval of recipients, stock creation/transition semantics, periods, per-date grouping, shared Back component, 50% visibility reads, and missing visual states. |
+| `2` | `2026-09-05` | Corrected mechanical baseline classifications for the already-tracked Communication fixture and new outbox validation registry. | Path-conformance review; product behavior and implementation contracts unchanged. |
+| `3` | `2026-09-06` | Changed the notifications page `Voltar` control to use browser history when available, retaining the authenticated home route as a fallback. | Explicit product correction: returning from notifications should restore the previous page rather than always navigating to the dashboard. |
+| `4` | `2026-09-06` | Standardized page-level back controls on the shared borderless purple `BackLink` treatment with a `chevron-left`, including Notifications, Combo Discounts, and order-not-found recovery. | Explicit visual correction: all back buttons should use the supplied compact `Voltar` style. |

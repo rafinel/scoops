@@ -96,6 +96,7 @@ export class AcceptUserInvitationUseCase implements UseCase<Request, AuthUser> {
           userId: updated.id,
           establishmentId: updated.establishmentId,
           email: updated.email,
+          userName: updated.name,
           profile: updated.profile,
           occurredAt: now,
         }),

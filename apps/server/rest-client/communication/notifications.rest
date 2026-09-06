@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:3336
+@sessionCookie = scoops.session_token=replace-with-local-session
+
+### List notifications with defaults
+GET {{baseUrl}}/notifications
+Cookie: {{sessionCookie}}
+
+### List notifications with inclusive period bounds
+GET {{baseUrl}}/notifications?limit=20&occurredFrom=2026-01-01T00:00:00.000Z&occurredTo=2026-12-31T23:59:59.999Z
+Cookie: {{sessionCookie}}
+
+### List notifications from a cursor
+GET {{baseUrl}}/notifications?limit=20&cursorOccurredAt=2026-09-05T12:00:00.000Z&cursorId=55000000-0000-4000-8000-000000000004
+Cookie: {{sessionCookie}}
+
+### List notifications across the full available period
+GET {{baseUrl}}/notifications?limit=50
+Cookie: {{sessionCookie}}
+
+### Mark notifications as read
+PATCH {{baseUrl}}/notifications/read
+Content-Type: application/json
+Cookie: {{sessionCookie}}
+
+{
+  "notificationIds": [
+    "55000000-0000-4000-8000-000000000004"
+  ]
+}
+
+### Reject an invalid mark-read body
+PATCH {{baseUrl}}/notifications/read
+Content-Type: application/json
+Cookie: {{sessionCookie}}
+
+{
+  "notificationIds": []
+}

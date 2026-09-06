@@ -5,6 +5,7 @@ export class UserReactivatedEvent extends Event<{
   userId: User['id']
   establishmentId: User['establishmentId']
   email: User['email']
+  userName: User['name']
   actorUserId: string
   previousStatus: User['status']
   profile: User['profile']

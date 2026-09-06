@@ -5,6 +5,7 @@ export class UserInvitationAcceptedEvent extends Event<{
   userId: string
   establishmentId: string
   email: string
+  userName: User['name']
   profile: User['profile']
   occurredAt: Date
 }> {

@@ -129,6 +129,21 @@ export class DrizzleUsersRepository extends DrizzleRepository implements UsersRe
     )
   }
 
+  async findManyActiveByEstablishment(establishmentId: string): Promise<User[]> {
+    const records = await this.database
+      .select()
+      .from(userModel)
+      .where(
+        and(
+          eq(userModel.establishmentId, establishmentId),
+          eq(userModel.status, UserStatus.Active),
+        ),
+      )
+      .orderBy(asc(userModel.id))
+
+    return records.map(DrizzleUserMapper.toDomain)
+  }
+
   async countActiveManagers(establishmentId: string): Promise<number> {
     const [result] = await this.database
       .select({ count: count() })

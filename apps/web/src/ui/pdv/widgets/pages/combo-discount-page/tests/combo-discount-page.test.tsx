@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { ReactNode } from 'react'
 
 import { ComboDiscountPage } from '..'
 import { useComboDiscountPage } from '../use-combo-discount-page'
@@ -7,6 +8,13 @@ import { useComboDiscountPage } from '../use-combo-discount-page'
 import { comboDetails } from './combo-test-fixtures'
 
 vi.mock('../use-combo-discount-page', () => ({ useComboDiscountPage: vi.fn() }))
+vi.mock('@/ui/shared/widgets/components/back-link', () => ({
+  BackLink: ({ children = 'Voltar', ...props }: { children?: ReactNode }) => (
+    <a href='/discounts' {...props}>
+      {children}
+    </a>
+  ),
+}))
 vi.mock('../combo-discount-form', () => ({
   ComboDiscountForm: () => <div data-testid='combo-form' />,
 }))

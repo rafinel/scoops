@@ -115,7 +115,7 @@ REQ-03, REQ-04, REQ-06, and REQ-08.
 
 ### REQ-02 — Stock Messages
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** users responsible for operational stock follow-up receive enough information to
 recognize low or depleted stock.
@@ -247,7 +247,7 @@ REQ-04.
 
 ### REQ-06 — Notification Center
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** an authenticated user can privately consult and navigate their complete in-product
 notification history from the Header.
@@ -281,7 +281,7 @@ REQ-09.
 
 ### REQ-07 — Individual Notification Reading
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** each authenticated user's read state reflects only the notifications that have become
 visible to that user.
@@ -337,7 +337,7 @@ obligations; supported channels and recipient selection from REQ-01.
 
 ### REQ-09 — Durable and Clear In-Product Messages
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** users can revisit in-product messages and understand the event and any required action
 from their content.

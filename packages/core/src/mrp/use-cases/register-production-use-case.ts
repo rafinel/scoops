@@ -9,12 +9,14 @@ import { ProductStockControl } from '#mrp/domain/structures/product-stock-contro
 import type { ProductionRequest } from '#mrp/domain/structures/production-request.ts'
 import { StockTransactionType } from '#mrp/domain/structures/stock-transaction-type.ts'
 import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import { PublishProductStockAlertUseCase } from '#mrp/use-cases/publish-product-stock-alert-use-case.ts'
 import {
   AuthorizationError,
   BadRequestError,
   NotFoundError,
 } from '#shared/domain/errors/index.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
 type Request = {
@@ -36,6 +38,7 @@ export class RegisterProductionUseCase implements UseCase<Request, Production> {
   constructor(
     private readonly database: MrpDatabase,
     private readonly datetimeProvider: DatetimeProvider,
+    private readonly broker?: Broker,
   ) {}
 
   async execute(request: Request): Promise<Production> {
@@ -63,18 +66,44 @@ export class RegisterProductionUseCase implements UseCase<Request, Production> {
         throw new BadRequestError('A receita deve possuir pelo menos um ingrediente.')
       }
 
+      const productIds = [
+        ...new Set([product.id, ...ingredients.map((item) => item.ingredientProductId)]),
+      ].sort()
+      const products = new Map<string, Product>()
+      for (const productId of productIds) {
+        const lockedProduct =
+          (await scope.productsRepository.findByIdForUpdate(
+            request.actor.establishmentId,
+            productId,
+          )) ??
+          (await scope.productsRepository.findById(
+            request.actor.establishmentId,
+            productId,
+          ))
+        if (!lockedProduct) {
+          if (productId === product.id) throw new NotFoundError('Produto não encontrado.')
+          throw new NotFoundError('Ingrediente da receita não encontrado.')
+        }
+        products.set(productId, lockedProduct)
+      }
+      const lockedProduct = products.get(product.id)
+      if (!lockedProduct) throw new NotFoundError('Produto não encontrado.')
+      const previousQuantities = new Map<string, number>()
+      for (const productId of productIds)
+        previousQuantities.set(
+          productId,
+          await this.findProductQuantity(scope, productId),
+        )
+
       const outputBalance = await scope.stockBalancesRepository.findByProductId(
-        product.id,
+        lockedProduct.id,
       )
       if (!outputBalance) {
         throw new BadRequestError('O produto fabricável não possui saldo de estoque.')
       }
       const consumptions = await Promise.all(
         ingredients.map(async (ingredient) => {
-          const ingredientProduct = await scope.productsRepository.findById(
-            request.actor.establishmentId,
-            ingredient.ingredientProductId,
-          )
+          const ingredientProduct = products.get(ingredient.ingredientProductId)
           if (!ingredientProduct) {
             throw new NotFoundError('Ingrediente da receita não encontrado.')
           }
@@ -188,6 +217,20 @@ export class RegisterProductionUseCase implements UseCase<Request, Production> {
         occurredAt,
       })
 
+      if (this.broker) {
+        const publishStockAlert = new PublishProductStockAlertUseCase(this.broker)
+        for (const productId of productIds) {
+          const sourceProduct = products.get(productId)
+          if (!sourceProduct) continue
+          await publishStockAlert.execute({
+            product: sourceProduct,
+            previousQuantity: previousQuantities.get(productId),
+            availableQuantity: await this.findProductQuantity(scope, productId),
+            occurredAt,
+          })
+        }
+      }
+
       return production
     })
   }
@@ -256,5 +299,13 @@ export class RegisterProductionUseCase implements UseCase<Request, Production> {
 
   private hasAtMostThreeDecimalPlaces(value: number): boolean {
     return Math.abs(value * 1_000 - Math.round(value * 1_000)) < 1e-8
+  }
+
+  private async findProductQuantity(
+    scope: MrpDatabaseScope,
+    productId: string,
+  ): Promise<number> {
+    const balances = await scope.stockBalancesRepository.findManyByProductId(productId)
+    return (balances ?? []).reduce((total, balance) => total + balance.quantity, 0)
   }
 }

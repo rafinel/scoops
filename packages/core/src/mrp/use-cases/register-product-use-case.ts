@@ -1,5 +1,6 @@
 import type { Product } from '#mrp/domain/entities/product.ts'
 import { ProductCreatedEvent } from '#mrp/domain/events/product-created-event.ts'
+import { PublishProductStockAlertUseCase } from '#mrp/use-cases/publish-product-stock-alert-use-case.ts'
 import {
   ProductCategory,
   ProductStatus,
@@ -34,6 +35,7 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
     this.validateActor(request.actor)
     this.validateInput(request)
 
+    const occurredAt = this.datetimeProvider.now()
     const product = await this.database.run(async (scope) => {
       const existingProduct = await scope.productsRepository.findByName(
         request.actor.establishmentId,
@@ -77,7 +79,7 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
             balanceAfter: balance.quantity,
             performedBy: request.actor.id,
             performedByName: request.actor.name,
-            occurredAt: this.datetimeProvider.now(),
+            occurredAt,
           })
         }
       } else {
@@ -111,11 +113,24 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
               balanceAfter: balance.quantity,
               performedBy: request.actor.id,
               performedByName: request.actor.name,
-              occurredAt: this.datetimeProvider.now(),
+              occurredAt,
             })
           }
         }
       }
+
+      const availableQuantity =
+        request.stockControl === ProductStockControl.Single
+          ? (request.initialStock ?? 0)
+          : (request.brands ?? []).reduce(
+              (total, brand) => total + brand.initialQuantity,
+              0,
+            )
+      await new PublishProductStockAlertUseCase(this.broker).execute({
+        product: createdProduct,
+        availableQuantity,
+        occurredAt,
+      })
 
       return createdProduct
     })

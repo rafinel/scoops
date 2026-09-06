@@ -13,6 +13,8 @@ import {
 } from '#shared/domain/errors/index.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
+import type { Broker } from '#shared/interfaces/broker.ts'
+import { PublishProductStockAlertUseCase } from '#mrp/use-cases/publish-product-stock-alert-use-case.ts'
 
 type Request = {
   actor: ProductActor & { readonly name: string }
@@ -24,18 +26,26 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
   constructor(
     private readonly database: MrpDatabase,
     private readonly datetimeProvider: DatetimeProvider,
+    private readonly broker?: Broker,
   ) {}
 
   async execute(request: Request): Promise<StockBalance> {
     this.validateActor(request.actor)
     this.validateInput(request.input)
     const justification = this.normalizeJustification(request.input.justification)
+    const occurredAt = this.datetimeProvider.now()
     return this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
+      const product =
+        (await scope.productsRepository.findByIdForUpdate(
+          request.actor.establishmentId,
+          request.productId,
+        )) ??
+        (await scope.productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        ))
       if (!product) throw new NotFoundError('Produto não encontrado.')
+      const previousQuantity = await this.findProductQuantity(scope, product.id)
       let brandName: string | undefined
       if (product.stockControl === ProductStockControl.Single && request.input.brandId)
         throw new BadRequestError('Estoque único não aceita uma marca de destino.')
@@ -88,9 +98,18 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
         balanceAfter: balance.quantity,
         performedBy: request.actor.id,
         performedByName: request.actor.name,
-        occurredAt: this.datetimeProvider.now(),
+        occurredAt,
         ...(justification === undefined ? {} : { justification }),
       })
+      if (this.broker) {
+        const availableQuantity = await this.findProductQuantity(scope, product.id)
+        await new PublishProductStockAlertUseCase(this.broker).execute({
+          product,
+          previousQuantity,
+          availableQuantity,
+          occurredAt,
+        })
+      }
       return balance
     })
   }
@@ -122,5 +141,13 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
 
   private hasAtMostSixDecimalPlaces(value: number): boolean {
     return Math.abs(value * 1_000_000 - Math.round(value * 1_000_000)) < 1e-8
+  }
+
+  private async findProductQuantity(
+    scope: import('#mrp/interfaces/mrp-database.ts').MrpDatabaseScope,
+    productId: string,
+  ): Promise<number> {
+    const balances = await scope.stockBalancesRepository.findManyByProductId(productId)
+    return (balances ?? []).reduce((total, balance) => total + balance.quantity, 0)
   }
 }

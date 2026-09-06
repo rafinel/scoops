@@ -52,21 +52,21 @@ export class ReactivateUserUseCase implements UseCase<Request, UserDetails> {
         newValue: UserStatus.Active,
         occurredAt: now,
       })
-      return { user, changed: true }
-    })
-    if (result.changed)
       await this.broker?.publish(
         new UserReactivatedEvent({
-          userId: result.user.id,
-          establishmentId: result.user.establishmentId,
-          email: result.user.email,
+          userId: user.id,
+          establishmentId: user.establishmentId,
+          email: user.email,
+          userName: user.name,
           actorUserId: request.actor.id,
           previousStatus: UserStatus.Inactive,
-          status: result.user.status,
-          profile: result.user.profile,
+          status: user.status,
+          profile: user.profile,
           updatedAt: now,
         }),
       )
+      return { user, changed: true }
+    })
     const records = await this.database.run(async ({ userAuditRecordsRepository }) =>
       userAuditRecordsRepository
         ? await userAuditRecordsRepository.findManyByUser({

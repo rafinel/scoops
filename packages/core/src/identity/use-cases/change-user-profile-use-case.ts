@@ -65,20 +65,21 @@ export class ChangeUserProfileUseCase implements UseCase<Request, UserDetails> {
         newValue: user.profile,
         occurredAt: updatedAt,
       })
+      if (this.broker)
+        await this.broker.publish(
+          new UserProfileUpdatedEvent({
+            userId: user.id,
+            establishmentId: user.establishmentId,
+            email: user.email,
+            userName: user.name,
+            actorUserId: request.actor.id,
+            previousProfile: target.profile,
+            profile: user.profile,
+            updatedAt,
+          }),
+        )
       return { user, changed: true, previousProfile: target.profile }
     })
-    if (result.changed && this.broker)
-      await this.broker.publish(
-        new UserProfileUpdatedEvent({
-          userId: result.user.id,
-          establishmentId: result.user.establishmentId,
-          email: result.user.email,
-          actorUserId: request.actor.id,
-          previousProfile: result.previousProfile,
-          profile: result.user.profile,
-          updatedAt,
-        }),
-      )
     const auditRecords = await this.database.run(
       async ({ userAuditRecordsRepository }) =>
         userAuditRecordsRepository

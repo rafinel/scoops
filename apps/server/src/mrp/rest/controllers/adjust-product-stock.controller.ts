@@ -4,6 +4,7 @@ import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { MrpDatabase } from '@scoops/core/mrp/interfaces'
 import { AdjustProductStockUseCase } from '@scoops/core/mrp/use-cases'
+import type { Broker } from '@scoops/core/shared/interfaces'
 
 import { CurrentAccount, RequiredProfiles } from '@/identity/decorators'
 import { MRP_REPOSITORIES } from '@/mrp/constants'
@@ -11,6 +12,7 @@ import { MrpController } from '@/mrp/decorators'
 import { StockBalanceResponseDto } from '@/mrp/rest/dtos'
 import { adjustProductStockSchema } from '@/mrp/rest/schemas/product-schemas'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 
@@ -23,8 +25,9 @@ export class AdjustProductStockController {
   constructor(
     @Inject(MRP_REPOSITORIES.database) database: MrpDatabase,
     @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
+    @Inject(InngestBroker) broker: Broker,
   ) {
-    this.useCase = new AdjustProductStockUseCase(database, datetimeProvider)
+    this.useCase = new AdjustProductStockUseCase(database, datetimeProvider, broker)
   }
 
   @Post(':productId/stock-adjustments')

@@ -11,6 +11,7 @@ import type {
 } from '@scoops/core/mrp/interfaces'
 import type { SalesCatalogProvider, StockConsumer } from '@scoops/core/pdv/interfaces'
 import type { StockRestorer } from '@scoops/core/pdv/interfaces'
+import type { Broker } from '@scoops/core/shared/interfaces'
 import type {
   OrderStockRestoration,
   StockRestorationRequest,
@@ -33,7 +34,10 @@ import { DrizzleResaleConfigurationsRepository } from '@/mrp/database/drizzle/re
 import { DrizzleStockBalancesRepository } from '@/mrp/database/drizzle/repositories/drizzle-stock-balances-repository'
 import { DrizzleStockTransactionsRepository } from '@/mrp/database/drizzle/repositories/drizzle-stock-transactions-repository'
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
+import { DatabaseTransactionContext } from '@/shared/database/drizzle/database-transaction-context'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import type { DrizzleExecutor } from '@/shared/database/drizzle/drizzle-repository'
+import { PublishProductStockAlertUseCase } from '@scoops/core/mrp/use-cases'
 
 type TransactionBoundRepositories = {
   readonly products: ProductsRepository
@@ -54,10 +58,20 @@ export type TransactionBoundOrderRegistrationDependencies = {
 
 @Injectable()
 export class TransactionBoundOrderRegistrationDependenciesFactory {
-  constructor(@Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient) {}
+  constructor(
+    @Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient,
+    @Inject(InngestBroker) private readonly broker: Broker,
+    @Inject(DatabaseTransactionContext)
+    private readonly transactionContext: DatabaseTransactionContext,
+  ) {}
 
   forExecutor(executor: DrizzleExecutor): TransactionBoundOrderRegistrationDependencies {
     const repositories = this.createRepositories(executor)
+    const transactionBoundBroker = new TransactionBoundBroker(
+      this.broker,
+      this.transactionContext,
+      executor,
+    )
 
     return {
       salesCatalogProvider: new TransactionBoundSalesCatalogProvider(
@@ -74,6 +88,7 @@ export class TransactionBoundOrderRegistrationDependenciesFactory {
         repositories.brands,
         repositories.stockBalances,
         repositories.stockTransactions,
+        transactionBoundBroker,
       ),
       stockRestorer: new TransactionBoundStockRestorer(
         repositories.products,
@@ -116,22 +131,49 @@ class TransactionBoundStockConsumer implements StockConsumer {
     private readonly brandsRepository: BrandsRepository,
     private readonly stockBalancesRepository: StockBalancesRepository,
     private readonly stockTransactionsRepository: StockTransactionsRepository,
+    private readonly broker: Broker,
   ) {}
 
   async consume(event: OrderRegisteredEvent): Promise<void> {
+    const productIds = [
+      ...new Set(event.payload.consumptions.map(({ productId }) => productId)),
+    ].sort()
+    const products = new Map<string, import('@scoops/core/mrp/domain/entities').Product>()
+    const previousQuantities = new Map<string, number>()
+    for (const productId of productIds) {
+      const product = await this.productsRepository.findByIdForUpdate(
+        event.payload.establishmentId,
+        productId,
+      )
+      if (!product || product.establishmentId !== event.payload.establishmentId)
+        throw new ConflictError('O estoque do pedido não está mais disponível.')
+      products.set(productId, product)
+      previousQuantities.set(productId, await this.findProductQuantity(productId))
+    }
+
     for (const consumption of event.payload.consumptions)
-      await this.consumeProduct(event, consumption)
+      await this.consumeProduct(event, consumption, products)
+
+    const publishStockAlert = new PublishProductStockAlertUseCase(this.broker)
+    for (const productId of productIds) {
+      const product = products.get(productId)
+      if (!product) continue
+      await publishStockAlert.execute({
+        product,
+        previousQuantity: previousQuantities.get(productId),
+        availableQuantity: await this.findProductQuantity(productId),
+        occurredAt: event.payload.occurredAt,
+      })
+    }
   }
 
   private async consumeProduct(
     event: OrderRegisteredEvent,
     consumption: OrderRegisteredEvent['payload']['consumptions'][number],
+    products: ReadonlyMap<string, import('@scoops/core/mrp/domain/entities').Product>,
   ): Promise<void> {
     const { establishmentId } = event.payload
-    const product = await this.productsRepository.findById(
-      establishmentId,
-      consumption.productId,
-    )
+    const product = products.get(consumption.productId)
     if (!product || product.establishmentId !== establishmentId)
       throw new ConflictError('O estoque do pedido não está mais disponível.')
 
@@ -172,6 +214,11 @@ class TransactionBoundStockConsumer implements StockConsumer {
       occurredAt: event.payload.occurredAt,
     })
   }
+
+  private async findProductQuantity(productId: string): Promise<number> {
+    const balances = await this.stockBalancesRepository.findManyByProductId(productId)
+    return balances.reduce((total, balance) => total + balance.quantity, 0)
+  }
 }
 
 export class TransactionBoundStockRestorer implements StockRestorer {
@@ -185,20 +232,29 @@ export class TransactionBoundStockRestorer implements StockRestorer {
   async restore(
     request: StockRestorationRequest,
   ): Promise<readonly OrderStockRestoration[]> {
+    const products = new Map<string, import('@scoops/core/mrp/domain/entities').Product>()
+    for (const productId of [
+      ...new Set(request.targets.map(({ productId }) => productId)),
+    ].sort()) {
+      const product = await this.productsRepository.findByIdForUpdate(
+        request.establishmentId,
+        productId,
+      )
+      if (product && product.establishmentId === request.establishmentId)
+        products.set(productId, product)
+    }
     const restorations: OrderStockRestoration[] = []
     for (const target of request.targets)
-      restorations.push(await this.restoreTarget(request, target))
+      restorations.push(await this.restoreTarget(request, target, products))
     return restorations
   }
 
   private async restoreTarget(
     request: StockRestorationRequest,
     target: StockRestorationTarget,
+    products: ReadonlyMap<string, import('@scoops/core/mrp/domain/entities').Product>,
   ): Promise<OrderStockRestoration> {
-    const product = await this.productsRepository.findById(
-      request.establishmentId,
-      target.productId,
-    )
+    const product = products.get(target.productId)
     if (!product || product.establishmentId !== request.establishmentId)
       return this.toSkippedRestoration(target)
 
@@ -253,5 +309,17 @@ export class TransactionBoundStockRestorer implements StockRestorer {
       quantity: target.quantity,
       outcome: 'skipped',
     }
+  }
+}
+
+class TransactionBoundBroker implements Broker {
+  constructor(
+    private readonly delegate: Broker,
+    private readonly transactionContext: DatabaseTransactionContext,
+    private readonly executor: DrizzleExecutor,
+  ) {}
+
+  publish(event: Parameters<Broker['publish']>[0]): Promise<void> {
+    return this.transactionContext.run(this.executor, () => this.delegate.publish(event))
   }
 }

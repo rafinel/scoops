@@ -1,4 +1,5 @@
 import { Button } from '@/ui/shadcn/button'
+import { BackLink } from '@/ui/shared/widgets/components/back-link'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import { ChangeComboStatusDialog } from './change-combo-status-dialog'
@@ -60,7 +61,9 @@ export const ComboDiscountPage = (props: ComboDiscountPageProps) => {
             <Button onClick={handleRetry} variant='outline'>
               Tentar novamente
             </Button>
-            <Button onClick={handleCancel}>Voltar para descontos</Button>
+            <BackLink aria-label='Voltar para descontos' route='discounts'>
+              Voltar para descontos
+            </BackLink>
           </div>
         </div>
       </section>
@@ -73,15 +76,13 @@ export const ComboDiscountPage = (props: ComboDiscountPageProps) => {
     <section className='min-w-0 space-y-5'>
       <header className='flex flex-col gap-4 border-b border-border-soft pb-5 sm:flex-row sm:items-start sm:justify-between'>
         <div>
-          <Button
+          <BackLink
+            aria-label='Voltar para descontos'
             className='-ml-2 mb-3'
-            onClick={handleCancel}
-            size='sm'
-            type='button'
-            variant='ghost'
+            route='discounts'
           >
-            <Icon name='arrow-left' /> Voltar para descontos
-          </Button>
+            Voltar para descontos
+          </BackLink>
           <h1 className='mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl'>
             {props.mode === 'create' ? 'Adicionar desconto' : 'Editar desconto'}
           </h1>

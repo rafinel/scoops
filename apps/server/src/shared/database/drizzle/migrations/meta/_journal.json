@@ -148,6 +148,13 @@
       "when": 1788574897289,
       "tag": "0020_recipe-ingredient-brand",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1788658056472,
+      "tag": "0021_notification-center",
+      "breakpoints": true
     }
   ]
 }

@@ -14,6 +14,7 @@ export interface UsersRepository {
   findByEmail(email: string): Promise<User | undefined>
   findMany(input: UsersListParams): Promise<UsersPage<User>>
   countActiveManagers(establishmentId: string): Promise<number>
+  findManyActiveByEstablishment(establishmentId: string): Promise<readonly User[]>
   replace(establishmentId: string, userId: string, changes: UserUpdate): Promise<User>
   removeAll(): Promise<void>
   remove(establishmentId: string, userId: string): Promise<void>

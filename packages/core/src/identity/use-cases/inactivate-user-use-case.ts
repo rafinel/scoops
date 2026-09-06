@@ -73,6 +73,7 @@ export class InactivateUserUseCase implements UseCase<Request, UserDetails> {
           userId: user.id,
           establishmentId: user.establishmentId,
           email: user.email,
+          userName: user.name,
           actorUserId: request.actor.id,
           previousStatus: UserStatus.Active,
           status: user.status,
