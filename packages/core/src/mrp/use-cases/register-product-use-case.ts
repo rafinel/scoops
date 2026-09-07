@@ -18,6 +18,7 @@ import {
 } from '#shared/domain/errors/index.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
+import { PublishProductStockAlertUseCase } from '#mrp/use-cases/publish-product-stock-alert-use-case.ts'
 
 type Request = RegisterProductInput & {
   actor: ProductActor & { readonly name: string }
@@ -119,6 +120,19 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
             }
           }
         }
+
+        const availableQuantity =
+          request.stockControl === ProductStockControl.Single
+            ? (request.initialStock ?? 0)
+            : (request.brands ?? []).reduce(
+                (total, brand) => total + brand.initialQuantity,
+                0,
+              )
+        await new PublishProductStockAlertUseCase(eventsRepository).execute({
+          product: createdProduct,
+          availableQuantity,
+          occurredAt: createdProduct.createdAt,
+        })
 
         await eventsRepository.add(
           new ProductCreatedEvent({

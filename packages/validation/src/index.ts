@@ -44,6 +44,7 @@ export { comboListQuerySchema } from './pdv/combo-list-query-schema.ts'
 export { saveComboSchema } from './pdv/save-combo-schema.ts'
 export { updateComboSchema } from './pdv/update-combo-schema.ts'
 export { productSalesConfigurationChangedEventSchema } from './mrp/product-sales-configuration-changed-event-schema.ts'
+export { productStockAlertStateEnteredEventSchema } from './mrp/product-stock-alert-state-entered-event-schema.ts'
 export { adjustProductStockSchema } from './mrp/adjust-product-stock-schema.ts'
 export {
   addRecipeIngredientSchema,
@@ -106,6 +107,22 @@ export { productSizeFormSchema } from './web/product-size-form-schema.ts'
 export { resaleConfigurationFormSchema } from './web/resale-configuration-form-schema.ts'
 export { accompanimentTypeFormSchema } from './web/accompaniment-type-form-schema.ts'
 export { accompanimentTypesSearchSchema } from './web/accompaniment-types-search-schema.ts'
+export {
+  notificationListQuerySchema,
+  type NotificationListQuery,
+} from './communication/notification-list-query-schema.ts'
+export {
+  markNotificationsReadSchema,
+  type MarkNotificationsReadInput,
+} from './communication/mark-notifications-read-schema.ts'
+export { userInvitationAcceptedEventSchema } from './communication/user-invitation-accepted-event-schema.ts'
+export { userProfileUpdatedEventSchema } from './communication/user-profile-updated-event-schema.ts'
+export { userInactivatedEventSchema } from './communication/user-inactivated-event-schema.ts'
+export { userReactivatedEventSchema } from './communication/user-reactivated-event-schema.ts'
+export {
+  notificationsSearchSchema,
+  type NotificationsSearch,
+} from './web/notifications-search-schema.ts'
 export { salesChannelFormSchema } from './web/sales-channel-form-schema.ts'
 export {
   salesChannelsSearchSchema,

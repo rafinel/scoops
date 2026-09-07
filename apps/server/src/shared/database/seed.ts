@@ -5,6 +5,10 @@ import { NestFactory } from '@nestjs/core'
 import type { INestApplicationContext } from '@nestjs/common'
 import { AppError } from '@scoops/core/shared/domain/errors'
 import {
+  NotificationKind,
+  type NotificationCreate,
+} from '@scoops/core/communication/domain/structures'
+import {
   EstablishmentStatus,
   UserProfile,
   UserStatus,
@@ -29,6 +33,7 @@ import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MrpSeeder } from '@/mrp/database/mrp-seeder'
 import { PdvSeeder } from '@/pdv/database/pdv-seeder'
+import { CommunicationSeeder } from '@/communication/database/communication-seeder'
 import { parseSeedEnv } from '@/shared/database/seed-env'
 
 const SEED_ESTABLISHMENT_ID = '00000000-0000-4000-8000-000000000001'
@@ -48,6 +53,102 @@ const SEED_USERS = {
     profile: UserProfile.Operator,
   },
 } as const
+
+const SEED_NOTIFICATION_TEMPLATES = [
+  {
+    slug: 'stock-below-ideal',
+    kind: NotificationKind.StockBelowIdeal,
+    title: 'Estoque abaixo do ideal',
+    message: 'Açaí base está com 12 kg disponíveis. Ideal: 20 kg.',
+  },
+  {
+    slug: 'stock-zero',
+    kind: NotificationKind.StockZero,
+    title: 'Estoque zerado',
+    message: 'Leite condensado está com 0 kg disponíveis.',
+  },
+  {
+    slug: 'user-added',
+    kind: NotificationKind.UserAdded,
+    title: 'Novo usuário adicionado',
+    message: 'Ana Operadora agora faz parte do estabelecimento.',
+  },
+  {
+    slug: 'user-promoted',
+    kind: NotificationKind.UserPromoted,
+    title: 'Usuário promovido',
+    message: 'Ana Operadora agora possui o perfil Gerente.',
+  },
+  {
+    slug: 'user-demoted',
+    kind: NotificationKind.UserDemoted,
+    title: 'Usuário alterado para Operador',
+    message: 'Ana Operadora agora possui o perfil Operador.',
+  },
+  {
+    slug: 'user-inactivated',
+    kind: NotificationKind.UserInactivated,
+    title: 'Usuário inativado',
+    message: 'O acesso de Ana Operadora foi inativado.',
+  },
+  {
+    slug: 'user-reactivated',
+    kind: NotificationKind.UserReactivated,
+    title: 'Usuário reativado',
+    message: 'O acesso de Ana Operadora foi reativado.',
+  },
+] as const
+
+const SEED_NOTIFICATION_DATES = ['2026-09-02', '2026-09-03', '2026-09-04'] as const
+
+const SEED_NOTIFICATION_RECIPIENTS = [
+  { key: 'manager', userId: SEED_USERS.manager.id },
+  { key: 'operator', userId: SEED_USERS.operator.id },
+] as const
+
+const SEED_NOTIFICATIONS: NotificationCreate[] = [
+  {
+    sourceEventId: 'seed/notification/manager-stock-below-ideal',
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    recipientUserId: SEED_USERS.manager.id,
+    kind: NotificationKind.StockBelowIdeal,
+    title: 'Estoque abaixo do ideal',
+    message: 'Açaí base está com 12 kg disponíveis. Ideal: 20 kg.',
+    occurredAt: new Date('2026-09-01T09:00:00.000Z'),
+    createdAt: new Date('2026-09-01T09:00:01.000Z'),
+  },
+  {
+    sourceEventId: 'seed/notification/operator-stock-zero',
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    recipientUserId: SEED_USERS.operator.id,
+    kind: NotificationKind.StockZero,
+    title: 'Estoque zerado',
+    message: 'Leite condensado está com 0 kg disponíveis.',
+    occurredAt: new Date('2026-09-01T10:00:00.000Z'),
+    createdAt: new Date('2026-09-01T10:00:01.000Z'),
+  },
+  ...SEED_NOTIFICATION_RECIPIENTS.flatMap(({ key, userId }) =>
+    SEED_NOTIFICATION_DATES.flatMap((date, dateIndex) =>
+      SEED_NOTIFICATION_TEMPLATES.map((template, templateIndex) => {
+        const occurredAt = new Date(`${date}T12:00:00.000Z`)
+        const createdAt = new Date(occurredAt.getTime() + 1000)
+        const readAt = new Date(occurredAt.getTime() + 60_000)
+
+        return {
+          sourceEventId: `seed/notification/${key}/${date}/${template.slug}`,
+          establishmentId: SEED_ESTABLISHMENT_ID,
+          recipientUserId: userId,
+          kind: template.kind,
+          title: template.title,
+          message: template.message,
+          occurredAt,
+          createdAt,
+          ...(dateIndex === 1 && templateIndex % 2 === 0 ? { readAt } : {}),
+        }
+      }),
+    ),
+  ),
+]
 
 const SEED_ACCOMPANIMENT_TYPES = [
   { establishmentId: SEED_ESTABLISHMENT_ID, name: 'Caldas' },
@@ -447,8 +548,10 @@ async function seedDatabase() {
     const identitySeeder = app.get(IdentitySeeder)
     const mrpSeeder = app.get(MrpSeeder)
     const pdvSeeder = app.get(PdvSeeder)
+    const communicationSeeder = app.get(CommunicationSeeder)
 
     await resetSeedUsers(auth)
+    await communicationSeeder.clear()
     await identitySeeder.clear()
     await mrpSeeder.clear()
     await pdvSeeder.clear()
@@ -486,6 +589,7 @@ async function seedDatabase() {
       ],
       registrationAttempts: [],
     })
+    await communicationSeeder.run({ notifications: SEED_NOTIFICATIONS })
     await verifySeedUsers(auth)
     await mrpSeeder.run({
       accompanimentTypes: [...SEED_ACCOMPANIMENT_TYPES],

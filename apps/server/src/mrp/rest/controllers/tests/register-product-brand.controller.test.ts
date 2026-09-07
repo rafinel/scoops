@@ -1,12 +1,19 @@
+import {
+  ProductSalesConfigurationChangedEvent,
+  ProductStockAlertStateEnteredEvent,
+} from '@scoops/core/mrp/domain/events'
 import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { vi } from 'vitest'
 
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
 
 import {
   createProduct,
+  findEvents,
   managerRequestAuthorization,
   prepareMrpFixture,
   resetMrpFixture,
@@ -21,7 +28,7 @@ describe('Register Product Brand Controller [POST /products/:productId/brands]',
 
   it('makes the first brand primary and atomically records positive initial stock', async () => {
     const product = await fixture.addProduct(
-      createProduct({ stockControl: ProductStockControl.ByBrand }),
+      createProduct({ stockControl: ProductStockControl.ByBrand, idealStock: 10 }),
     )
     const response = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/brands`)
@@ -52,6 +59,26 @@ describe('Register Product Brand Controller [POST /products/:productId/brands]',
       brandName: 'Callebaut',
       performedByName: 'Maria Manager',
     })
+    const configurationEvents = await findEvents(
+      fixture,
+      ProductSalesConfigurationChangedEvent._NAME,
+    )
+    expect(configurationEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            productId: product.id,
+            state: 'available',
+            configuration: expect.objectContaining({
+              stockControl: ProductStockControl.ByBrand,
+            }),
+          }),
+        }),
+      ]),
+    )
+    await expect(
+      findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME),
+    ).resolves.toHaveLength(0)
   })
 
   it('creates no ledger row for zero stock and rolls back duplicate registration', async () => {
@@ -86,6 +113,40 @@ describe('Register Product Brand Controller [POST /products/:productId/brands]',
         })
       ).items,
     ).toHaveLength(0)
+  })
+
+  it('commits stock before post-transaction configuration publication failure', async () => {
+    const product = await fixture.addProduct(
+      createProduct({ stockControl: ProductStockControl.ByBrand, idealStock: 10 }),
+    )
+    const addSpy = vi
+      .spyOn(DrizzleEventsRepository.prototype, 'add')
+      .mockRejectedValueOnce(new Error('Injected notification publication failure.'))
+
+    try {
+      const response = await request(fixture.app.getHttpServer())
+        .post(`/products/${product.id}/brands`)
+        .set('Cookie', managerRequestAuthorization())
+        .send({
+          name: 'Rollback brand',
+          packageQuantity: 1,
+          packageValue: 10,
+          initialQuantity: 5,
+        })
+      expect(response.status).toBe(500)
+      expect(await fixture.brands.findManyByProductId(product.id)).toHaveLength(0)
+      expect(await fixture.balances.findManyByProductId(product.id)).toHaveLength(0)
+      await expect(
+        fixture.transactions.findPage(product.establishmentId, product.id, {
+          page: 1,
+          limit: 20,
+        }),
+      ).resolves.toMatchObject({
+        items: [],
+      })
+    } finally {
+      addSpy.mockRestore()
+    }
   })
 
   it('rejects malformed values before persistence', async () => {

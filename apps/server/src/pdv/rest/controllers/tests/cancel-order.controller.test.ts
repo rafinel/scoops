@@ -1,6 +1,7 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { StockTransactionType } from '@scoops/core/mrp/domain/structures'
+import { ProductStockAlertStateEnteredEvent } from '@scoops/core/mrp/domain/events'
 import { AppError } from '@scoops/core/shared/domain/errors'
 
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
@@ -31,6 +32,9 @@ describe('Cancel Order Controller [PATCH /orders/:orderId/cancel]', () => {
       PdvModuleFixture.accounts.establishmentId,
       registered.product.id,
     )
+    const alertsBeforeCancellation = fixture.broker.events.filter(
+      (event) => event.name === ProductStockAlertStateEnteredEvent._NAME,
+    ).length
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/orders/${registered.order.id}/cancel`)
@@ -76,6 +80,11 @@ describe('Cancel Order Controller [PATCH /orders/:orderId/cancel]', () => {
         }),
       ]),
     )
+    expect(
+      fixture.broker.events.filter(
+        (event) => event.name === ProductStockAlertStateEnteredEvent._NAME,
+      ),
+    ).toHaveLength(alertsBeforeCancellation)
   })
 
   it('enforces manager access, reason bounds and one-way cancellation', async () => {

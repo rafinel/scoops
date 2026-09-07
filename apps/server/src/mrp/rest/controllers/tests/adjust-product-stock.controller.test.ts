@@ -1,9 +1,13 @@
 import request from 'supertest'
+import { ProductStockAlertStateEnteredEvent } from '@scoops/core/mrp/domain/events'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
+import { vi } from 'vitest'
 import {
   createProduct,
+  findEvents,
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
   operatorRequestAuthorization,
@@ -18,7 +22,7 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
   beforeEach(async () => resetMrpFixture(fixture, auth))
   afterAll(async () => fixture?.close())
 
-  it('commits one balance delta and one immutable transaction without publication', async () => {
+  it('commits one balance delta and one immutable transaction without a threshold publication', async () => {
     const product = await fixture.addProduct(createProduct())
     await fixture.balances.initialize(product.id)
     const response = await request(fixture.app.getHttpServer())
@@ -39,6 +43,67 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
       balanceAfter: 3.125,
       performedByName: 'Maria Manager',
     })
+    await expect(
+      findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME),
+    ).resolves.toHaveLength(0)
+  })
+
+  it('publishes only normal-to-alert transitions and permits recovery without repetition', async () => {
+    const product = await fixture.addProduct(createProduct({ idealStock: 10 }))
+    await fixture.balances.initialize(product.id)
+    await fixture.balances.add({ productId: product.id }, 10)
+    const writeOff = () =>
+      request(fixture.app.getHttpServer())
+        .post(`/products/${product.id}/stock-adjustments`)
+        .set('Cookie', managerRequestAuthorization())
+        .send({ type: 'write-off', quantity: 1 })
+
+    expect((await writeOff()).status).toBe(201)
+    expect((await writeOff()).status).toBe(201)
+    await expect(
+      findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME),
+    ).resolves.toHaveLength(1)
+
+    const recovery = await request(fixture.app.getHttpServer())
+      .post(`/products/${product.id}/stock-adjustments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ type: 'entry', quantity: 2 })
+    expect(recovery.status).toBe(201)
+    expect((await writeOff()).status).toBe(201)
+    await expect(
+      findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME),
+    ).resolves.toHaveLength(2)
+    await expect(fixture.balances.findByProductId(product.id)).resolves.toMatchObject({
+      quantity: 9,
+    })
+  })
+
+  it('rolls back the balance and ledger when threshold publication fails', async () => {
+    const product = await fixture.addProduct(createProduct({ idealStock: 10 }))
+    await fixture.balances.initialize(product.id)
+    await fixture.balances.add({ productId: product.id }, 10)
+    const addSpy = vi
+      .spyOn(DrizzleEventsRepository.prototype, 'add')
+      .mockRejectedValueOnce(new Error('Injected notification publication failure.'))
+
+    try {
+      const response = await request(fixture.app.getHttpServer())
+        .post(`/products/${product.id}/stock-adjustments`)
+        .set('Cookie', managerRequestAuthorization())
+        .send({ type: 'write-off', quantity: 1 })
+      expect(response.status).toBe(500)
+      await expect(fixture.balances.findByProductId(product.id)).resolves.toMatchObject({
+        quantity: 10,
+      })
+      await expect(
+        fixture.transactions.findPage(product.establishmentId, product.id, {
+          page: 1,
+          limit: 20,
+        }),
+      ).resolves.toMatchObject({ items: [] })
+    } finally {
+      addSpy.mockRestore()
+    }
   })
 
   it('trims and serializes an optional justification in stock history', async () => {

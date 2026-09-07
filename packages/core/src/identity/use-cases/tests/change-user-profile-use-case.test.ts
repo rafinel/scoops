@@ -4,6 +4,7 @@ import { AccountFaker, UserFaker } from '#identity/domain/entities/fakers/index.
 import { ProfileChangeNotAllowedError } from '#identity/domain/errors/profile-change-not-allowed-error.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { UserStatus } from '#identity/domain/structures/user-status.ts'
+import { UserProfileUpdatedEvent } from '#identity/domain/events/user-profile-updated-event.ts'
 import type {
   IdentityDatabase,
   IdentityDatabaseRepositories,
@@ -12,6 +13,7 @@ import type { EstablishmentsRepository } from '#identity/interfaces/establishmen
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import { ConflictError } from '#shared/domain/errors/conflict-error.ts'
 import { NotFoundError } from '#shared/domain/errors/not-found-error.ts'
 import { ChangeUserProfileUseCase } from '#identity/use-cases/change-user-profile-use-case.ts'
@@ -21,17 +23,19 @@ describe('Change User Profile Use Case', () => {
   let datetimeProvider: MockProxy<DatetimeProvider>
   let scope: IdentityDatabaseRepositories
   let usersRepository: MockProxy<UsersRepository>
+  let eventsRepository: MockProxy<EventsRepository>
   let useCase: ChangeUserProfileUseCase
 
   beforeEach(() => {
     database = mock<IdentityDatabase>()
     datetimeProvider = mock<DatetimeProvider>()
     usersRepository = mock<UsersRepository>()
+    eventsRepository = mock<EventsRepository>()
     scope = {
       usersRepository,
       establishmentsRepository: mock<EstablishmentsRepository>(),
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
-      eventsRepository: mock(),
+      eventsRepository,
     }
     database.run.mockImplementation((operation) => operation(scope))
     datetimeProvider.now.mockReturnValue(new Date('2026-02-03T04:05:06.000Z'))
@@ -60,6 +64,19 @@ describe('Change User Profile Use Case', () => {
         profile: UserProfile.Manager,
         updatedAt: new Date('2026-02-03T04:05:06.000Z'),
       },
+    )
+    expect(eventsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: UserProfileUpdatedEvent._NAME,
+        payload: expect.objectContaining({
+          userId: target.id,
+          email: updatedUser.email,
+          userName: updatedUser.name,
+          actorUserId: actor.id,
+          previousProfile: UserProfile.Operator,
+          profile: UserProfile.Manager,
+        }),
+      }),
     )
   })
 

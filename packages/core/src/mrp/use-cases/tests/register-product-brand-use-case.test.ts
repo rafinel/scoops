@@ -3,6 +3,7 @@ import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Brand } from '#mrp/domain/entities/brand.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
 import {
   ProductCategory,
   ProductStatus,
@@ -32,6 +33,7 @@ const product: Product = {
   categories: [ProductCategory.Ingredient],
   stockControl: ProductStockControl.ByBrand,
   status: ProductStatus.Active,
+  idealStock: 10,
   createdAt: new Date(),
   updatedAt: new Date(),
 }
@@ -73,10 +75,21 @@ describe('Register Product Brand Use Case', () => {
       quantity: 3,
       situation: StockSituation.Normal,
     })
+    scope.stockBalancesRepository.findManyByProductId.mockResolvedValue([])
     useCase = new RegisterProductBrandUseCase(database, datetime)
   })
 
   it('registers first brand as main with initial balance and ledger row', async () => {
+    scope.stockBalancesRepository.findManyByProductId
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          productId: 'p1',
+          brandId: 'b1',
+          quantity: 3,
+          situation: StockSituation.Normal,
+        },
+      ])
     await useCase.execute({
       actor,
       productId: 'p1',
@@ -96,6 +109,42 @@ describe('Register Product Brand Use Case', () => {
         performedByName: 'Manager',
       }),
     )
+    expect(scope.productsRepository.findByIdForUpdate).toHaveBeenCalledWith('e1', 'p1')
+    expect(scope.eventsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: ProductSalesConfigurationChangedEvent._NAME,
+        payload: expect.objectContaining({
+          productId: 'p1',
+          state: 'available',
+        }),
+      }),
+    )
+  })
+
+  it('propagates alert persistence failures through the transaction boundary', async () => {
+    scope.stockBalancesRepository.findManyByProductId
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          productId: 'p1',
+          brandId: 'b1',
+          quantity: 3,
+          situation: StockSituation.Normal,
+        },
+      ])
+    const error = new Error('event persistence failed')
+    scope.eventsRepository.add.mockRejectedValue(error)
+
+    await expect(
+      useCase.execute({
+        actor,
+        productId: 'p1',
+        input: { name: ' A ', packageQuantity: 2, packageValue: 10, initialQuantity: 3 },
+      }),
+    ).rejects.toBe(error)
+    expect(scope.productsRepository.findByIdForUpdate).toHaveBeenCalledWith('e1', 'p1')
+    expect(scope.stockTransactionsRepository.add).toHaveBeenCalledTimes(1)
+    expect(database.run).toHaveBeenCalledTimes(1)
   })
 
   it('creates no ledger row for zero and rejects invalid or duplicate brand', async () => {

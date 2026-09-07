@@ -127,7 +127,7 @@ test.describe('Pedido detail route', () => {
       page.getByRole('heading', { name: 'Pedido não encontrado' }),
     ).toBeVisible()
     await expect(page.getByRole('button', { name: 'Tentar novamente' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Voltar para pedidos' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Voltar para pedidos' })).toBeVisible()
     await page.setViewportSize({ width: 1481, height: 1050 })
     await page.screenshot({
       path: 'test-results/pdv-orders-detail-not-found-1481x1050.png',

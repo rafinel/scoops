@@ -19,6 +19,7 @@ import {
 } from '#shared/domain/errors/index.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
+import { PublishProductStockAlertUseCase } from '#mrp/use-cases/publish-product-stock-alert-use-case.ts'
 
 type Request = {
   actor: ProductActor & { readonly name: string }
@@ -35,6 +36,7 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
   async execute(request: Request): Promise<ProductBrandStock> {
     this.validateActor(request.actor)
     this.validateInput(request.input)
+    const occurredAt = this.datetimeProvider.now()
 
     const result = await this.database.run(
       async ({
@@ -67,10 +69,15 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
           resaleConfigurationsRepository,
           eventsRepository,
         }
-        const product = await productsRepository.findById(
-          request.actor.establishmentId,
-          request.productId,
-        )
+        const product =
+          (await productsRepository.findByIdForUpdate(
+            request.actor.establishmentId,
+            request.productId,
+          )) ??
+          (await productsRepository.findById(
+            request.actor.establishmentId,
+            request.productId,
+          ))
         if (!product) throw new NotFoundError('Produto não encontrado.')
         if (product.stockControl !== ProductStockControl.ByBrand) {
           throw new BadRequestError('Este produto não utiliza estoque por marca.')
@@ -82,6 +89,7 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
         }
 
         const isPrimary = (await brandsRepository.countByProductId(product.id)) === 0
+        const previousQuantity = await this.findProductQuantity(scope, product.id)
         const brand = await brandsRepository.add({
           productId: product.id,
           name,
@@ -113,9 +121,16 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
             balanceAfter: balance.quantity,
             performedBy: request.actor.id,
             performedByName: request.actor.name,
-            occurredAt: this.datetimeProvider.now(),
+            occurredAt,
           })
         }
+
+        await new PublishProductStockAlertUseCase(eventsRepository).execute({
+          product,
+          previousQuantity,
+          availableQuantity: await this.findProductQuantity(scope, product.id),
+          occurredAt,
+        })
 
         const configurations =
           await new GetAffectedProductSalesConfigurationsUseCase().execute({
@@ -162,5 +177,13 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
     if (!Number.isFinite(input.initialQuantity) || input.initialQuantity < 0) {
       throw new BadRequestError('O estoque inicial não pode ser negativo.')
     }
+  }
+
+  private async findProductQuantity(
+    scope: MrpDatabaseRepositories,
+    productId: string,
+  ): Promise<number> {
+    const balances = await scope.stockBalancesRepository.findManyByProductId(productId)
+    return balances.reduce((total, balance) => total + balance.quantity, 0)
   }
 }

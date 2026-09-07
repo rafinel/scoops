@@ -15,6 +15,10 @@ import type {
 
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
 import { EVENTS_REPOSITORY } from '@/shared/database/drizzle/events/events-repository-token'
+import {
+  OutboxEventValidationError,
+  validateOutboxEvent,
+} from '@/shared/messaging/inngest/jobs/event-validation'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 
 const RESERVATION_BATCH_SIZE = 100
@@ -94,6 +98,7 @@ export class InngestBroker implements OnModuleInit, OnModuleDestroy {
     now: Date,
   ): Promise<void> {
     try {
+      validateOutboxEvent(event.eventName, event.payload)
       await this.inngest.send({
         id: event.id,
         name: event.eventName,
@@ -104,7 +109,7 @@ export class InngestBroker implements OnModuleInit, OnModuleDestroy {
         owner,
         this.datetimeProvider.now(),
       )
-    } catch {
+    } catch (error) {
       const attempts = event.attempts + 1
       const backoffMinutes =
         BACKOFF_MINUTES[Math.min(attempts - 1, BACKOFF_MINUTES.length - 1)]
@@ -113,7 +118,10 @@ export class InngestBroker implements OnModuleInit, OnModuleDestroy {
         owner,
         attempts,
         availableAt: new Date(now.getTime() + backoffMinutes * 60 * 1000),
-        errorCode: 'publish_failed',
+        errorCode:
+          error instanceof OutboxEventValidationError
+            ? 'invalid_event'
+            : 'publish_failed',
         updatedAt: now,
       })
 

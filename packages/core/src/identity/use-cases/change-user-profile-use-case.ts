@@ -72,6 +72,7 @@ export class ChangeUserProfileUseCase implements UseCase<Request, UserDetails> {
             userId: user.id,
             establishmentId: user.establishmentId,
             email: user.email,
+            userName: user.name,
             actorUserId: request.actor.id,
             previousProfile: target.profile,
             profile: user.profile,

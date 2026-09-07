@@ -168,6 +168,14 @@ Gap/padding scale: 4, 6, 8, 12, 14, 16, 20, 24, 32.
 - Circular avatar 32×32 (background `$success-soft`, text `$success` 13/900).
 - Name 14/800 + 14px gray `chevron-down` icon.
 
+### Back navigation
+
+- Use the shared `BackLink` component for page-level return navigation.
+- Resting treatment is compact, borderless, and transparent: a 16px purple `chevron-left`
+  followed by a purple `Voltar` label or contextual `Voltar para …` label.
+- Preserve the visible focus ring for keyboard users; hover must not introduce a filled button
+  surface.
+
 ### Main Cards
 
 **Standard structure:**

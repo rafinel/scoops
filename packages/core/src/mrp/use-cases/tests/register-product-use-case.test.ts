@@ -3,6 +3,7 @@ import { mock, type MockProxy } from 'vitest-mock-extended'
 
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { ProductCreatedEvent } from '#mrp/domain/events/product-created-event.ts'
+import { ProductStockAlertStateEnteredEvent } from '#mrp/domain/events/product-stock-alert-state-entered-event.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import {
   ProductCategory,
@@ -84,7 +85,10 @@ describe('Register Product Use Case', () => {
     })
     eventsRepository.add.mockImplementation(async (event) => {
       order.push('event')
-      expect(event).toBeInstanceOf(ProductCreatedEvent)
+      expect(
+        event instanceof ProductCreatedEvent ||
+          event instanceof ProductStockAlertStateEnteredEvent,
+      ).toBe(true)
     })
 
     const result = await useCase.execute({
@@ -113,7 +117,15 @@ describe('Register Product Use Case', () => {
       allowNegativeStock: false,
       idealStock: 10,
     })
-    expect(order).toEqual(['product', 'stock', 'event'])
+    expect(order).toEqual(['product', 'stock', 'event', 'event'])
+    expect(eventsRepository.add).toHaveBeenNthCalledWith(
+      1,
+      expect.any(ProductStockAlertStateEnteredEvent),
+    )
+    expect(eventsRepository.add).toHaveBeenNthCalledWith(
+      2,
+      expect.any(ProductCreatedEvent),
+    )
   })
 
   it('persists when a product allows negative stock', async () => {

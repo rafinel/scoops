@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   ProductCategory,
   ProductStatus,
@@ -7,7 +7,9 @@ import {
   StockTransactionType,
   ProductUnit,
 } from '@scoops/core/mrp/domain/structures'
+import { ProductStockAlertStateEnteredEvent } from '@scoops/core/mrp/domain/events'
 import { AppError, ServiceUnavailableError } from '@scoops/core/shared/domain/errors'
+import { eq } from 'drizzle-orm'
 
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import {
@@ -16,6 +18,18 @@ import {
   preparePdvFixture,
   resetPdvFixture,
 } from '@/pdv/fixtures/pdv-module-fixture'
+import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
+import { eventModel } from '@/shared/database/drizzle/models/event-model'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
+
+async function findEvents(fixture: PdvModuleFixture, eventName: string) {
+  return fixture
+    .get(DrizzleClient)
+    .requireDatabase()
+    .select()
+    .from(eventModel)
+    .where(eq(eventModel.eventName, eventName))
+}
 
 describe('Register Order Controller [POST /orders]', () => {
   let fixture: PdvModuleFixture
@@ -34,7 +48,7 @@ describe('Register Order Controller [POST /orders]', () => {
       stockControl: ProductStockControl.Single,
       status: ProductStatus.Active,
       allowNegativeStock: false,
-      idealStock: 0,
+      idealStock: 2,
       currentUnitCost: 2,
     })
     const size = await fixture.addProductSize({
@@ -88,6 +102,19 @@ describe('Register Order Controller [POST /orders]', () => {
     expect(replay.status).toBe(200)
     expect(replay.body).toMatchObject({ kind: 'registered', replayed: true })
     expect(replay.body.order).toEqual(first.body.order)
+    const events = await findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME)
+    expect(events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            productId: product.id,
+            state: 'below-ideal',
+            availableQuantity: 1,
+            idealQuantity: 2,
+          }),
+        }),
+      ]),
+    )
   })
 
   it('rejects a conflicting idempotency key without creating another order', async () => {
@@ -248,6 +275,63 @@ describe('Register Order Controller [POST /orders]', () => {
       { page: 1, limit: 20 },
     )
     expect(ledger.items).toEqual([])
+  })
+
+  it('rolls back order, stock, and ledger when alert publication fails', async () => {
+    const { product, size } = await addRegisterablePortion(
+      fixture,
+      'Publication Failure Portion',
+    )
+    const lines = [
+      {
+        productId: product.id,
+        kind: 'portion' as const,
+        quantity: 1,
+        sizeId: size.id,
+        accompanimentIds: [],
+      },
+    ]
+    const preview = await request(fixture.app.getHttpServer())
+      .post('/orders/preview')
+      .set('Cookie', managerRequestAuthorization())
+      .send({ lines })
+    const addSpy = vi
+      .spyOn(DrizzleEventsRepository.prototype, 'add')
+      .mockRejectedValueOnce(new Error('Injected notification publication failure.'))
+
+    try {
+      const response = await request(fixture.app.getHttpServer())
+        .post('/orders')
+        .set('Cookie', managerRequestAuthorization())
+        .send({
+          idempotencyKey: '55000000-0000-4000-8000-00000000000d',
+          previewToken: preview.body.previewToken,
+          lines,
+        })
+      expect(response.status).toBe(500)
+      await expect(
+        fixture.stockBalances.findByProductId(
+          PdvModuleFixture.accounts.establishmentId,
+          product.id,
+        ),
+      ).resolves.toMatchObject({ quantity: 2 })
+      await expect(
+        fixture.stockTransactions.findPage(
+          PdvModuleFixture.accounts.establishmentId,
+          product.id,
+          { page: 1, limit: 20 },
+        ),
+      ).resolves.toMatchObject({ items: [] })
+      await expect(
+        fixture.orders.findMany({
+          establishmentId: PdvModuleFixture.accounts.establishmentId,
+          page: 1,
+          pageSize: 20,
+        }),
+      ).resolves.toMatchObject({ total: 0 })
+    } finally {
+      addSpy.mockRestore()
+    }
   })
 
   it('rejects a malformed registration without exposing a rebuilt cart', async () => {
@@ -493,7 +577,7 @@ async function addRegisterablePortion(fixture: PdvModuleFixture, name: string) {
     stockControl: ProductStockControl.Single,
     status: ProductStatus.Active,
     allowNegativeStock: false,
-    idealStock: 0,
+    idealStock: 2,
     currentUnitCost: 2,
   })
   const size = await fixture.addProductSize({

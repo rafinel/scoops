@@ -6,9 +6,9 @@ import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { ROUTES } from '@/constants/routes'
 import type { SidebarItem } from '@/constants/sidebar-items'
-import { Button } from '@/ui/shadcn/button'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
+import { NotificationDropdown } from '@/ui/communication/widgets/components/notification-dropdown'
 
 import { UserMenu } from './user-menu'
 import { useAppLayout } from './use-app-layout'
@@ -127,15 +127,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                   placeholder='Buscar no Scoops...'
                 />
               </Label>
-              <Button
-                aria-label='Notificações'
-                className='size-10 shrink-0 rounded-lg border-0 text-muted-foreground'
-                size='icon'
-                type='button'
-                variant='ghost'
-              >
-                <Icon name='bell' className='size-[18px]' />
-              </Button>
+              <NotificationDropdown />
               {userMenu}
             </div>
           </header>

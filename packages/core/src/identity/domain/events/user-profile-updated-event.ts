@@ -5,6 +5,7 @@ export class UserProfileUpdatedEvent extends Event<{
   userId: User['id']
   establishmentId: User['establishmentId']
   email: User['email']
+  userName: User['name']
   actorUserId: string
   previousProfile: User['profile']
   profile: User['profile']

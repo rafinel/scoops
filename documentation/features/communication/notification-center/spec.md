@@ -1,7 +1,7 @@
 ---
 title: In-product notification center
-status: open
-revision: 1
+status: completed
+revision: 4
 source:
   type: issue
   ref: https://github.com/rafinel/scoops/issues/30
@@ -26,7 +26,7 @@ scope:
   - documentation/prds/communication.md
   - documentation/prds/mrp.md
   - design/onoreo.pen
-last_updated_at: 2026-09-05
+last_updated_at: 2026-09-06
 ---
 
 # In-product notification center
@@ -46,8 +46,8 @@ security, concurrency, migration, retry, responsive, and accessibility boundarie
 The governing product contract is Communication REQ-01, REQ-02, REQ-04 through REQ-09, with MRP
 REQ-03 and Identity REQ-05, REQ-07, and REQ-08 as authoritative fact dependencies. The user
 approved amendments to Communication REQ-01/REQ-04 and MRP REQ-03 before this Spec was authored.
-Those requirements remain unchecked because `create-spec` does not mark product requirements
-Implemented.
+At authoring time those requirements were left unchecked; conclusion updates only the
+requirements whose complete current outcomes are delivered.
 
 ### Current behavior and product gap
 
@@ -65,8 +65,9 @@ Implemented.
 - Product rows already support tenant-qualified `FOR UPDATE` reads. This is the established lock
   boundary needed to serialize product-level before/after stock classification without adding a
   second stock-state store.
-- The shared outbox already makes `Broker.publish` atomic when called inside a module transaction,
-  and publishes the committed row to Inngest using the row ID as the external event ID.
+- The shared events repository already makes `EventsRepository.add` atomic when called with the
+  active transaction context, and the committed row is published to Inngest using its row ID as
+  the external event ID.
 
 ### Scope and product alignment
 
@@ -107,7 +108,7 @@ Implemented.
 | Full-page loading | Loads 20 notifications per cursor page. `Ver mais` appends; it is disabled while loading and disappears when no cursor remains. |
 | Periods | `Últimos 7 dias`, `Últimos 30 dias` (default), `Últimos 90 dias`, and `Todo o período`; inclusive local-day bounds are converted to ISO instants by the browser. |
 | Date sections | Group by the authenticated browser's local calendar. Today's heading is `HOJE`; every earlier heading is a localized full date, with each row retaining a localized relative or date-time label. |
-| Back control | Reuse `BackLink` with route `app`, which navigates to the authenticated home route `/`. |
+| Back control | Use the shared `BackLink` style: a compact, borderless, transparent link with a purple `chevron-left` and `Voltar` label; when browser history is available, return to the previous page, otherwise navigate to the authenticated home route `/`. |
 | Missing frames | The user accepted design-system-derived loading, no-history, filtered-empty, recoverable error, retry, and `390 × 844` behavior without supplemental Pencil frames. |
 | Reference divergence | Billing, invitation-sent, and NFS-e examples are visual exemplars only. The page uses per-date headings instead of the reference's coarse `ANTERIORES` group. |
 
@@ -118,7 +119,7 @@ Implemented.
 | ID | REQ/source coverage | Required behavior |
 | --- | --- | --- |
 | `RF-01` | MRP REQ-03; Issue stock acceptance | MRP must lock each affected product in deterministic product-ID order, capture the committed-operation before and after product-total quantities, classify them by the approved state table, and publish one `ProductStockAlertStateEnteredEvent` per product only for an emitting transition. Product registration has no prior state and emits when its final initial total is alerting. |
-| `RF-02` | Communication REQ-08; MRP REQ-03; Identity REQ-05/07/08 | Product/brand registration, manual adjustment, production, PDV registration/cancellation stock work, invitation acceptance, profile change, inactivation, and reactivation must enqueue any required authoritative event while their owning database transaction is active. A broker insertion failure rolls back the originating mutation; no-op Identity transitions publish nothing. |
+| `RF-02` | Communication REQ-08; MRP REQ-03; Identity REQ-05/07/08 | Product/brand registration, manual adjustment, production, PDV registration/cancellation stock work, invitation acceptance, profile change, inactivation, and reactivation must enqueue any required authoritative event while their owning database transaction is active. An EventsRepository insertion failure rolls back the originating mutation; no-op Identity transitions publish nothing. |
 | `RF-03` | Communication REQ-01/02/04 | Communication must validate each external event, map it to one Communication-owned fact, resolve the approved audience from Identity's authoritative directory, explicitly include an inactivated target where required, exclude the newly activated user from user-added recipients, deduplicate user IDs, and create no row for an excluded event type. |
 | `RF-04` | Communication REQ-02/04/05/09 | Each notification stores a Brazilian Portuguese title and complete context snapshot. Stock content identifies product, available quantity, unit, and ideal quantity when below ideal; Identity content identifies the affected user's captured name and exact activation/profile/status change. The two stock states remain distinguishable without color. |
 | `RF-05` | Communication REQ-08/09 | Notification materialization is retry-safe: at most one immutable row exists for a source event ID, notification kind, and recipient. A duplicate delivery returns the existing logical outcome without rewriting title, message, occurrence time, recipient, or read state. History has no retention job or user deletion operation. |
@@ -126,7 +127,7 @@ Implemented.
 | `RF-07` | Communication REQ-07 | An authenticated user may mark 1–50 notification IDs read. The server updates only matching tenant-and-recipient unread rows with one captured timestamp, ignores duplicates/already-read/foreign IDs without disclosing their existence, and returns only IDs changed or already owned and read for idempotent client reconciliation. |
 | `RF-08` | Communication REQ-06/07; Issue Header acceptance | The Header bell exposes an accessible unread indicator and opens a viewport-contained dropdown with the newest three rows. The panel closes through its close button, Escape, outside interaction, or footer navigation and restores focus to the bell. `Ver todas as notificações` navigates to `/notifications`. |
 | `RF-09` | Communication REQ-07 | A notification is submitted for read reconciliation only after at least 50% of its row intersects the open dropdown or page viewport. Newly visible IDs are batched, submitted once per local visibility cycle, and reconciled without optimistic cross-user state. Off-screen, unmounted, or closed-dropdown rows remain unread. |
-| `RF-10` | Communication REQ-06/09; Issue full-page acceptance | `/notifications` uses the authenticated shell, shared `BackLink`, page heading/subtitle, default 30-day period, browser-local date groups, and 20-row cursor pages. `Ver mais` appends without duplicate/skipped rows under concurrent arrivals. Changing period updates route search, resets accumulated pages, and fetches the new inclusive local-day interval. |
+| `RF-10` | Communication REQ-06/09; Issue full-page acceptance | `/notifications` uses the authenticated shell, shared history-aware `BackLink`, page heading/subtitle, default 30-day period, browser-local date groups, and 20-row cursor pages. `Ver mais` appends without duplicate/skipped rows under concurrent arrivals. Changing period updates route search, resets accumulated pages, and fetches the new inclusive local-day interval. |
 | `RF-11` | Communication REQ-06/09 | Dropdown and page distinguish initial loading, no history, period-filtered empty, populated, first-page failure, next-page failure, retrying, and exhausted history. A next-page failure preserves prior rows and the selected period; retry resumes the failed boundary. |
 | `RF-12` | Communication REQ-06/07; Issue accessibility acceptance | Both surfaces work for Manager and Operator at desktop and `390 × 844`, avoid horizontal overflow, preserve visible focus and semantic heading/list/status relationships, support keyboard-only open/filter/load/close/navigation, announce recoverable status changes, and honor reduced motion. |
 | `RF-13` | Issue exclusions; Communication REQ-01/03/04/06 | The in-product type registry and UI must contain only the seven scoped kinds. Billing and email-only Identity events must neither materialize rows nor appear in dropdown/page fixtures except as explicitly excluded design-reference examples. No read filter, custom dates, preferences, row actions, deletion, retention, or delivery-monitoring surface may be inferred. |
@@ -178,7 +179,9 @@ Implementation must map all visual values to existing tokens and primitives docu
 `documentation/design.md`. No supplemental Pencil frame blocks implementation because the user
 explicitly accepted the manifest's loading, empty, filtered-empty, error/retry, and `390 × 844`
 assumptions. Fresh Playwright CLI screenshots are required at each material UI checkpoint and must
-not reuse these exports as evidence.
+not reuse these exports as evidence. Saved implementation captures belong to the ignored
+Playwright `apps/web/test-results/communication/` output and are referenced from the Evaluation
+ledger by artifact path.
 
 ## 3. Technical Contract
 
@@ -187,10 +190,10 @@ not reuse these exports as evidence.
 | Evidence | Current responsibility | Gap |
 | --- | --- | --- |
 | `packages/core/src/communication/**` | Email message/delivery structures, one provider interface, errors | No in-product vocabulary, actions, ports, or browser service contract |
-| Identity event/use-case paths | Existing invitation-accepted/profile/status facts and Broker handoff | Missing `userName`; profile/reactivation publication occurs after transaction; no Communication consumer |
+| Identity event/use-case paths | Existing invitation-accepted/profile/status facts and EventsRepository handoff | Missing `userName`; profile/reactivation publication occurs after transaction; no Communication consumer |
 | `StockAdjustedEvent` and MRP stock use cases | Manual-adjustment-shaped unused event; balance/ledger updates across MRP and PDV integration | No product-total transition fact, creation/production/PDV coverage, suppression, or atomic outbox initiation |
 | `ProductsRepository.findByIdForUpdate` | Existing tenant-qualified product row lock | Not consistently used before stock mutation/evaluation |
-| Shared outbox/Inngest | Transaction-aware durable enqueue, committed-row publisher, stable external event ID, retries | Scoped event schemas/job registrations are absent |
+| Shared events repository/Inngest | Transaction-aware durable enqueue, committed-row publisher, stable external event ID, retries | Scoped event schemas/job registrations are absent |
 | `apps/server/src/communication` | Email provision and jobs | No database, seeder, recipient bridge, in-product job, REST controllers, or module wiring |
 | `AppLayout` and route constants | Authenticated shell and inert bell | No dropdown, unread state, Communication service/query hooks, or `/notifications` route |
 | Pencil nodes `n5xnGg`, `K3Vu9o` | Populated desktop visual references | Excluded sample content and no lifecycle/narrow frames; handled by confirmed manifest assumptions |
@@ -200,7 +203,7 @@ not reuse these exports as evidence.
 MRP owns threshold classification and event completeness. Every stock-changing transaction first
 locks all unique affected products in ascending ID order, records each product's total, performs all
 balance/ledger work, records final totals, and invokes `PublishProductStockAlertUseCase` before
-commit. The use case applies the approved transition table and calls `Broker.publish` only for an
+commit. The use case applies the approved transition table and calls `EventsRepository.add` only for an
 emitting final state. Identity similarly publishes enriched facts while its transition transaction
 is active. A failed outbox insert therefore rolls back the source action.
 
@@ -520,9 +523,9 @@ export type ProductStockAlertState =
 | `CreateInProductNotificationsUseCase` | Validated external source fact | `{ fact } → void` | `NotificationsRepository`, `NotificationAudienceProvider`, `DatetimeProvider` | Resolve one audience snapshot, deduplicate, then one idempotent batch insert | Directory/store failures propagate for Inngest retry; no external side effect |
 | `ListNotificationsUseCase` | Active Manager or Operator | `{ actor, limit, bounds?, cursor? } → NotificationPage` | `NotificationsRepository` | Server actor supplies tenant/recipient; validates bounds/limit before one read | `AuthorizationError`, `BadRequestError` |
 | `MarkNotificationsReadUseCase` | Active Manager or Operator | `{ actor, notificationIds } → readonly string[]` | `NotificationsRepository`, `DatetimeProvider` | Deduplicates 1–50 IDs and applies one captured read time under tenant+recipient predicate | `AuthorizationError`, `BadRequestError`; persistence mutation only |
-| `PublishProductStockAlertUseCase` | MRP source action inside active transaction | Product snapshot, optional prior quantity, final quantity, occurrence → `void` | `Broker` | Pure state/transition decision followed by at most one transactional enqueue | Invalid impossible state is rejected; emitting transition publishes `ProductStockAlertStateEnteredEvent` |
-| Existing MRP mutation use cases | Manager action or PDV source fact | Existing inputs/results | Existing MRP database plus `Broker` and stock-alert publisher | Product locks/totals, stock writes, ledger, and event enqueue share one transaction | Existing failures retained; enqueue failure rolls back |
-| Existing Identity transition use cases | Invitee or Manager | Existing inputs/results | Existing Identity database, providers, `Broker` | State/audit/session work and enriched event enqueue share one transaction | Existing failures retained; no-op publishes nothing; enqueue failure rolls back |
+| `PublishProductStockAlertUseCase` | MRP source action inside active transaction | Product snapshot, optional prior quantity, final quantity, occurrence → `void` | `EventsRepository` | Pure state/transition decision followed by at most one transactional enqueue | Invalid impossible state is rejected; emitting transition publishes `ProductStockAlertStateEnteredEvent` |
+| Existing MRP mutation use cases | Manager action or PDV source fact | Existing inputs/results | Existing MRP database plus `EventsRepository` and stock-alert publisher | Product locks/totals, stock writes, ledger, and event enqueue share one transaction | Existing failures retained; enqueue failure rolls back |
+| Existing Identity transition use cases | Invitee or Manager | Existing inputs/results | Existing Identity database, providers, `EventsRepository` | State/audit/session work and enriched event enqueue share one transaction | Existing failures retained; no-op publishes nothing; enqueue failure rolls back |
 
 | Path | Change | Declaration/signature | Input/output/errors | Authorization/consistency | Side effects/dependencies | Consumers/tests |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -536,21 +539,21 @@ export type ProductStockAlertState =
 | `packages/core/src/mrp/use-cases/publish-product-stock-alert-use-case.ts` | Create | `PublishProductStockAlertUseCase.execute({ product, previousQuantity?, availableQuantity, occurredAt }): Promise<void>` | Product snapshot and totals; no transport types | Applies zero dominance and downward-only transition table; validates finite values | Publishes one complete MRP event or none | MRP/PDV mutation orchestration; direct unit test |
 | `packages/core/src/mrp/use-cases/tests/publish-product-stock-alert-use-case.test.ts` | Create | Unit suite | Creation, all nine prior/final combinations, absent ideal, non-positive values, event snapshot | Exhaustive transition decision | Exact event or no publish | Required direct test |
 | `packages/core/src/mrp/use-cases/register-product-use-case.ts` | Modify | `RegisterProductUseCase.execute` | Existing contract unchanged | Final initial total evaluated once after all single/by-brand balances; no prior state | Enqueue only the required stock-alert event inside the transaction; retain the existing post-commit `ProductCreatedEvent` behavior | Existing direct test/controller |
-| `packages/core/src/mrp/use-cases/tests/register-product-use-case.test.ts` | Modify | Unit suite | Zero/low/normal single and summed by-brand registration; broker failure | Source write/event atomic orchestration contract | Exact alert/product events and no normal alert | Required direct test |
+| `packages/core/src/mrp/use-cases/tests/register-product-use-case.test.ts` | Modify | Unit suite | Zero/low/normal single and summed by-brand registration; EventsRepository failure | Source write/event atomic orchestration contract | Exact alert/product events and no normal alert | Required direct test |
 | `packages/core/src/mrp/use-cases/register-product-brand-use-case.ts` | Modify | `RegisterProductBrandUseCase.execute` | Existing contract unchanged | Tenant `findByIdForUpdate`; total before brand creation and after initial balance | Enqueue only the required stock-alert event inside the transaction; retain the existing post-commit sales-config publication behavior | Existing direct test/controller |
-| `packages/core/src/mrp/use-cases/tests/register-product-brand-use-case.test.ts` | Modify | Unit suite | Lock, summed totals, normal→low/zero, recovery/no-repeat, broker failure | Verifies final total not target-brand balance | Exact events and rollback-facing failure propagation | Required direct test |
-| `packages/core/src/mrp/use-cases/adjust-product-stock-use-case.ts` | Modify | `AdjustProductStockUseCase.execute` | Existing contract unchanged | Lock product; total before/after manual entry/write-off in one transaction | Inject required Broker; ledger and optional alert enqueue commit together | Existing direct test/controller |
-| `packages/core/src/mrp/use-cases/tests/adjust-product-stock-use-case.test.ts` | Modify | Unit suite | Single/by-brand totals, threshold crossings, recovery, unchanged states, broker failure | Verifies lock precedes total/write | Exact event/no-event and existing balance/ledger result | Required direct test |
-| `packages/core/src/mrp/use-cases/register-production-use-case.ts` | Modify | `RegisterProductionUseCase.execute` | Existing contract unchanged | Resolve unique output/ingredient products, lock sorted IDs before stock writes, snapshot totals, evaluate each final total once | Inject Broker; production, all ledger rows, and all alert rows commit together | Existing direct test/controller |
-| `packages/core/src/mrp/use-cases/tests/register-production-use-case.test.ts` | Modify | Unit suite | Sorted locks, repeated ingredient aggregation, ingredient low/zero, output recovery, multi-event/broker failure | No intermediate uncommitted alert | Exact per-product final event set | Required direct test |
+| `packages/core/src/mrp/use-cases/tests/register-product-brand-use-case.test.ts` | Modify | Unit suite | Lock, summed totals, normal→low/zero, recovery/no-repeat, EventsRepository failure | Verifies final total not target-brand balance | Exact events and rollback-facing failure propagation | Required direct test |
+| `packages/core/src/mrp/use-cases/adjust-product-stock-use-case.ts` | Modify | `AdjustProductStockUseCase.execute` | Existing contract unchanged | Lock product; total before/after manual entry/write-off in one transaction | Inject required EventsRepository; ledger and optional alert enqueue commit together | Existing direct test/controller |
+| `packages/core/src/mrp/use-cases/tests/adjust-product-stock-use-case.test.ts` | Modify | Unit suite | Single/by-brand totals, threshold crossings, recovery, unchanged states, EventsRepository failure | Verifies lock precedes total/write | Exact event/no-event and existing balance/ledger result | Required direct test |
+| `packages/core/src/mrp/use-cases/register-production-use-case.ts` | Modify | `RegisterProductionUseCase.execute` | Existing contract unchanged | Resolve unique output/ingredient products, lock sorted IDs before stock writes, snapshot totals, evaluate each final total once | Inject EventsRepository; production, all ledger rows, and all alert rows commit together | Existing direct test/controller |
+| `packages/core/src/mrp/use-cases/tests/register-production-use-case.test.ts` | Modify | Unit suite | Sorted locks, repeated ingredient aggregation, ingredient low/zero, output recovery, multi-event/EventsRepository failure | No intermediate uncommitted alert | Exact per-product final event set | Required direct test |
 | `packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts` | Modify | `AcceptUserInvitationUseCase.execute` | Existing contract unchanged | Add `userName`; already publishes inside transaction after activation/audit | Enriched event remains same transaction | Existing direct test/controller |
-| `packages/core/src/identity/use-cases/tests/accept-user-invitation-use-case.test.ts` | Modify | Unit suite | Affected-name payload and broker rollback propagation | User-added fact only after active replacement | Exact enriched event | Required direct test |
+| `packages/core/src/identity/use-cases/tests/accept-user-invitation-use-case.test.ts` | Modify | Unit suite | Affected-name payload and EventsRepository rollback propagation | User-added fact only after active replacement | Exact enriched event | Required direct test |
 | `packages/core/src/identity/use-cases/change-user-profile-use-case.ts` | Modify | `ChangeUserProfileUseCase.execute` | Existing contract unchanged | Add `userName`; move publish inside database callback after state/audit and before commit; no-op unchanged | Mandatory outbox enqueue; event only on real change | Existing direct test/controller |
-| `packages/core/src/identity/use-cases/tests/change-user-profile-use-case.test.ts` | Modify | Unit suite | Promotion/demotion name payload, in-transaction publish, broker failure, no-op | Existing auth/concurrency preserved | Exact enriched event/no-event | Required direct test |
+| `packages/core/src/identity/use-cases/tests/change-user-profile-use-case.test.ts` | Modify | Unit suite | Promotion/demotion name payload, in-transaction publish, EventsRepository failure, no-op | Existing auth/concurrency preserved | Exact enriched event/no-event | Required direct test |
 | `packages/core/src/identity/use-cases/inactivate-user-use-case.ts` | Modify | `InactivateUserUseCase.execute` | Existing contract unchanged | Add `userName`; existing in-transaction publication retained; no-op unchanged | Session removal/state/audit/event remain one transaction | Existing direct test/controller |
-| `packages/core/src/identity/use-cases/tests/inactivate-user-use-case.test.ts` | Modify | Unit suite | Name payload, broker failure, no-op | Existing last-Manager/self/tenant behavior retained | Exact enriched event/no-event | Required direct test |
+| `packages/core/src/identity/use-cases/tests/inactivate-user-use-case.test.ts` | Modify | Unit suite | Name payload, EventsRepository failure, no-op | Existing last-Manager/self/tenant behavior retained | Exact enriched event/no-event | Required direct test |
 | `packages/core/src/identity/use-cases/reactivate-user-use-case.ts` | Modify | `ReactivateUserUseCase.execute` | Existing contract unchanged | Add `userName`; move publication into transaction after state/audit and before commit; no-op unchanged | Mandatory outbox enqueue | Existing direct test/controller |
-| `packages/core/src/identity/use-cases/tests/reactivate-user-use-case.test.ts` | Modify | Unit suite | Name payload, in-transaction publish, broker failure, no-op | Existing tenant/transition behavior retained | Exact enriched event/no-event | Required direct test |
+| `packages/core/src/identity/use-cases/tests/reactivate-user-use-case.test.ts` | Modify | Unit suite | Name payload, in-transaction publish, EventsRepository failure, no-op | Existing tenant/transition behavior retained | Exact enriched event/no-event | Required direct test |
 
 `CreateInProductNotificationsUseCase` owns these exact stored content templates; presentation may
 format the stored occurrence time separately but must not reconstruct the body from live entities:
@@ -713,7 +716,7 @@ delete prior migration history.
 | `apps/server/src/communication/rest/controllers/index.ts` | Create | Controller barrel | Export exactly two controllers | — | Module | — |
 | `apps/server/src/communication/rest/dtos/notification-response.dto.ts` | Create | `NotificationResponseDto`, `NotificationCursorResponseDto`, `NotificationPageResponseDto`, `NotificationReadResponseDto` | Swagger/JSON serialization only | Dates serialize ISO; optional fields omitted; page contains items/nextCursor/unreadCount; read response contains `notificationIds` | REST/web mapper | DTO barrel/controllers |
 | `apps/server/src/communication/rest/dtos/index.ts` | Create | DTO barrel | Export response DTOs | — | Controllers | — |
-| `apps/server/src/communication/fixtures/communication-module-fixture.ts` | Create | `CommunicationModuleFixture` | Test-only composition of Identity auth, audience bridge, Communication database/module, and shared Inngest with overridable broker | Seeds users and `NotificationCreate` through module seeders; reset/close lifecycle | Controller tests only | Excluded fixture source; no direct test |
+| `apps/server/src/communication/fixtures/communication-module-fixture.ts` | Modify | `CommunicationModuleFixture` | Test-only composition of Identity auth, audience bridge, Communication database/module, and shared Inngest with overridable EventsRepository | Extends the existing fixture with notification seed/reset and Communication controller dependencies without changing its shared test lifecycle | Controller tests only | Excluded fixture source; no direct test |
 | `apps/server/rest-client/communication/notifications.rest` | Create | Notification route-group examples | `@baseUrl = http://localhost:3336`; cookie-authenticated examples without committed credentials | Named requests for default/bounded/cursor/all-period GET and valid/invalid PATCH bodies | Manual transport parity | Exactly one example per controller operation plus representative variants |
 
 ### `apps/server` — Messaging
@@ -729,11 +732,11 @@ delete prior migration history.
 | Path | Change | Declaration | Event/trigger/payload | Reliability/steps | Lifecycle/registration | Producers/consumers |
 | --- | --- | --- | --- | --- | --- | --- |
 | `apps/server/src/communication/messaging/inngest/jobs/create-in-product-notifications-job.ts` | Create | `CreateInProductNotificationsJob` and five typed event triggers | Uses each event class `_NAME` and matching Zod schema; requires `event.id`; event-name branch maps complete fact and ISO time to `Date` | Function ID `communication/create-in-product-notifications`; `retries: 5`; concurrency limit 1 keyed by `event.data.establishmentId`; one stable step `create-in-product-notifications`; use case/store idempotency | Injectable `InngestJob`; no second endpoint | Five source events → create use case |
-| `apps/server/src/communication/messaging/inngest/jobs/create-in-product-notifications-job.test.ts` | Create | Job integration/unit boundary | Exercises five trigger mappings, promotion/demotion branch, malformed payload, missing event ID, duplicate execution, audience/store failure | Observable persisted/captured fact and propagated retry failures, not only mock calls | Direct test allowed for job | Test Inngest harness/core fakes |
+| `apps/server/src/communication/messaging/inngest/jobs/tests/create-in-product-notifications-job.test.ts` | Create | Job integration/unit boundary | Exercises five trigger mappings, promotion/demotion branch, malformed payload, missing event ID, duplicate execution, audience/store failure | Observable persisted/captured fact and propagated retry failures, not only mock calls | Direct test allowed for job | Test Inngest harness/core fakes |
 | `apps/server/src/communication/messaging/inngest/jobs/index.ts` | Modify | Job barrel | Export new job and triggers needed by tests/composition | Keep existing email exports | — | Messaging module/AppModule |
 | `apps/server/src/communication/messaging/communication-messaging.module.ts` | Modify | `CommunicationMessagingModule` | Import Communication database, shared messaging/provision; provide/export new job with existing email jobs | Audience token is supplied by global app composition; no direct Identity module import | Feature owns job lifecycle | Communication root/AppModule |
-| `apps/server/src/shared/messaging/outbox/event-validation.ts` | Modify | Typed event registry | Register five schemas under event class name-compatible literals; retain known/existing names and excluded Billing/email events | Reject malformed outbox insertion before commit | Shared broker boundary | All five publishers |
-| `apps/server/src/shared/messaging/outbox/tests/event-validation.test.ts` | Create | Event-validation suite | Valid/minimally malformed payload per newly typed name; unknown/non-object/serialization cases retained or added | Proves additive event payloads are accepted and incomplete facts rejected | Direct outbox test allowed | Shared broker contract |
+| `apps/server/src/shared/messaging/inngest/jobs/event-validation.ts` | Create | Typed event registry | Register five schemas under event class name-compatible literals; retain known/existing names and excluded Billing/email events | Reject malformed event payloads before publication | Shared events repository/Inngest boundary | All five publishers |
+| `apps/server/src/shared/messaging/inngest/jobs/tests/event-validation.test.ts` | Create | Event-validation suite | Valid/minimally malformed payload per newly typed name; unknown/non-object/serialization cases retained or added | Proves additive event payloads are accepted and incomplete facts rejected | Direct event-validation test allowed | Shared events repository contract |
 
 ### `apps/server` — Composition
 
@@ -758,18 +761,17 @@ behavior. The remaining server-side stock source is PDV's explicit transaction-b
 
 | Path | Change | Declaration/signature | Contract mapping/config | Failure/retry boundary | Lifecycle/registration | Consumers/tests |
 | --- | --- | --- | --- | --- | --- | --- |
-| `apps/server/src/mrp/provision/pdv/transaction-bound-order-registration-dependencies-factory.ts` | Modify | Factory plus `TransactionBoundStockConsumer`/`TransactionBoundStockRestorer` | Inject `Broker`; lock sorted unique product IDs, snapshot totals, process complete sale/restoration, then invoke MRP stock-alert publisher once per product with order occurrence time | Runs inside PDV database transaction and shared transaction context; enqueue failure rolls back order/stock/ledger; restoration updates recovery state but emits no upward alert | Existing MRP provision token/factory | PDV register/cancel use cases and controller tests; no direct provision test |
-| `apps/server/src/mrp/provision/mrp-provision.module.ts` | Modify | `MrpProvisionModule` | Import shared messaging and supply Broker to transaction-bound factory while retaining existing exports | Singleton provider; no broker in database scope | MRP provision token | PDV database module/factory |
+| `apps/server/src/mrp/provision/pdv/transaction-bound-order-registration-dependencies-factory.ts` | Modify | Factory plus `TransactionBoundStockConsumer`/`TransactionBoundStockRestorer` | Create an executor-bound `EventsRepository`; lock sorted unique product IDs, snapshot totals, process complete sale/restoration, then invoke MRP stock-alert publisher once per product with order occurrence time | Runs inside PDV database transaction and shared transaction context; enqueue failure rolls back order/stock/ledger; restoration updates recovery state but emits no upward alert | Existing MRP provision token/factory | PDV register/cancel use cases and controller tests; no direct provision test |
 
 ### `apps/server` — REST
 
 | Path | Change | Declaration/signature | Contract mapping/config | Failure/retry boundary | Lifecycle/registration | Consumers/tests |
 | --- | --- | --- | --- | --- | --- | --- |
-| `apps/server/src/mrp/rest/controllers/tests/register-product.controller.test.ts` | Modify | Existing HTTP integration suite | Add zero/low/normal initial product cases and broker failure | Assert product, balances, and required stock-alert outbox row commit/rollback together while existing product event behavior remains compatible | Real transaction/outbox evidence | Product registration boundary |
-| `apps/server/src/mrp/rest/controllers/tests/register-product-brand.controller.test.ts` | Modify | Existing HTTP integration suite | Add aggregate crossing/recovery cases and broker failure | Assert brand, balances, and required alert row are atomic while existing sales-config behavior remains compatible | Real transaction/outbox evidence | Brand registration boundary |
-| `apps/server/src/mrp/rest/controllers/tests/adjust-product-stock.controller.test.ts` | Modify | Existing HTTP integration suite | Add downward, repeat, recovery, and later-crossing cases | Assert balance, ledger, and alert outbox rows match the transition table atomically | Real transaction/outbox evidence | Manual adjustment boundary |
-| `apps/server/src/mrp/rest/controllers/tests/register-production.controller.test.ts` | Modify | Existing HTTP integration suite | Add sorted multi-product and repeated-ingredient threshold cases plus broker failure | Assert production, all balance/ledger changes, and alert row set commit/rollback together | Real transaction/outbox evidence | Production boundary |
-| `apps/server/src/pdv/rest/controllers/tests/register-order.controller.test.ts` | Modify | Existing HTTP integration suite | Add stock threshold source cases for aggregate same-product consumptions and multiple products | Assert order, balances, ledger, and outbox events commit/rollback together | Real transaction + Inngest broker/outbox evidence | Indirect adapter proof through controller |
+| `apps/server/src/mrp/rest/controllers/tests/register-product.controller.test.ts` | Modify | Existing HTTP integration suite | Add zero/low/normal initial product cases and EventsRepository failure | Assert product, balances, and required stock-alert event row commit/rollback together while existing product event behavior remains compatible | Real transaction/events evidence | Product registration boundary |
+| `apps/server/src/mrp/rest/controllers/tests/register-product-brand.controller.test.ts` | Modify | Existing HTTP integration suite | Add aggregate crossing/recovery cases and EventsRepository failure | Assert brand, balances, and required alert row are atomic while existing sales-config behavior remains compatible | Real transaction/events evidence | Brand registration boundary |
+| `apps/server/src/mrp/rest/controllers/tests/adjust-product-stock.controller.test.ts` | Modify | Existing HTTP integration suite | Add downward, repeat, recovery, and later-crossing cases | Assert balance, ledger, and alert event rows match the transition table atomically | Real transaction/events evidence | Manual adjustment boundary |
+| `apps/server/src/mrp/rest/controllers/tests/register-production.controller.test.ts` | Modify | Existing HTTP integration suite | Add sorted multi-product and repeated-ingredient threshold cases plus EventsRepository failure | Assert production, all balance/ledger changes, and alert row set commit/rollback together | Real transaction/events evidence | Production boundary |
+| `apps/server/src/pdv/rest/controllers/tests/register-order.controller.test.ts` | Modify | Existing HTTP integration suite | Add stock threshold source cases for aggregate same-product consumptions and multiple products | Assert order, balances, ledger, and event rows commit/rollback together | Real transaction + Inngest EventsRepository evidence | Indirect adapter proof through controller |
 | `apps/server/src/pdv/rest/controllers/tests/cancel-order.controller.test.ts` | Modify | Existing HTTP integration suite | Add upward restoration/no-alert and recovery-followed-by-later-sale coverage where practical | Assert cancellation/restoration commit and no recovery notification event | Real transaction boundary | Indirect adapter proof through controller |
 
 ### `apps/server` — REST
@@ -777,8 +779,8 @@ behavior. The remaining server-side stock source is PDV's explicit transaction-b
 | Path | Change | Declaration/operation | Contract mapping | Integrity/query contract | Transaction | Consumers/tests |
 | --- | --- | --- | --- | --- | --- | --- |
 | `apps/server/src/identity/rest/controllers/tests/accept-user-invitation.controller.test.ts` | Modify | Existing HTTP integration suite | Assert enriched invitation-accepted outbox payload only after active state | User/name/tenant snapshot and no pre-acceptance row | Activation/audit/outbox atomic | Identity/Communication integration evidence |
-| `apps/server/src/identity/rest/controllers/tests/change-user-profile.controller.test.ts` | Modify | Existing HTTP integration suite | Assert promotion/demotion enriched outbox rows and broker failure rollback | Existing role/tenant/concurrent last-Manager behavior preserved | Profile/audit/outbox atomic | Identity/Communication integration evidence |
-| `apps/server/src/identity/rest/controllers/tests/change-user-status.controller.test.ts` | Modify | Existing HTTP integration suite | Assert inactivation/reactivation enriched rows, no-op suppression, and broker rollback | Existing self/last-Manager/tenant behavior preserved | Status/audit/session/outbox atomic | Identity/Communication integration evidence |
+| `apps/server/src/identity/rest/controllers/tests/change-user-profile.controller.test.ts` | Modify | Existing HTTP integration suite | Assert promotion/demotion enriched event rows and EventsRepository failure rollback | Existing role/tenant/concurrent last-Manager behavior preserved | Profile/audit/event atomic | Identity/Communication integration evidence |
+| `apps/server/src/identity/rest/controllers/tests/change-user-status.controller.test.ts` | Modify | Existing HTTP integration suite | Assert inactivation/reactivation enriched rows, no-op suppression, and EventsRepository rollback | Existing self/last-Manager/tenant behavior preserved | Status/audit/session/event atomic | Identity/Communication integration evidence |
 
 ### `apps/web` — REST
 
@@ -792,7 +794,7 @@ behavior. The remaining server-side stock source is PDV's explicit transaction-b
 
 | Path | Change | Declaration/ownership | Behavior and data flow | State/accessibility contract | Tests/consumers |
 | --- | --- | --- | --- | --- | --- |
-| `apps/web/src/constants/routes.ts` | Modify | Add `notifications: '/notifications'` | Typed destination for footer and back/page navigation | No literal route duplication | Router, dropdown, `BackLink` |
+| `apps/web/src/constants/routes.ts` | Modify | Add `notifications: '/notifications'` | Typed destination for footer and back/page navigation | No literal route duplication | Router, dropdown, notifications back-button fallback |
 | `apps/web/src/ui/shared/contexts/rest-context/types/rest-context-value.ts` | Modify | Add `communicationService` | Makes one composed service available through existing context | Existing providers remain unchanged | Communication hooks |
 | `apps/web/src/ui/shared/contexts/rest-context/use-rest-context-provider.ts` | Modify | Compose memoized Communication service | Uses the existing shared REST client | No new credentials or global requests | Rest context |
 | `apps/web/src/routes/_authenticated/notifications/index.tsx` | Create | TanStack route | Validates search with `notificationsSearchSchema`; renders `NotificationsPage` | Authenticated parent owns access redirect | Generated route tree |
@@ -822,9 +824,9 @@ behavior. The remaining server-side stock source is PDV's explicit transaction-b
 | `apps/web/src/ui/communication/widgets/components/notification-row/tests/notification-row.test.tsx` | Create | Widget suite | Seven scoped kinds, read/unread and timestamp output | No excluded labels/actions | Required direct widget test |
 | `apps/web/src/ui/communication/widgets/components/notification-list-state/index.tsx` | Create | Pure lifecycle-state Component widget | Renders skeleton, no history, filtered empty, first/next-page error, retrying | Uses `status`/`alert`, named retry, stable dimensions, no spinner-only meaning | Dropdown/page; covered by parent tests |
 | `apps/web/src/ui/communication/widgets/components/notification-period-filter/index.tsx` | Create | Pure Component widget | Native/select-system control for four approved labels and route-search callback | Labelled control, keyboard native behavior | Page; covered by page tests |
-| `apps/web/src/ui/communication/widgets/pages/notifications-page/index.tsx` | Create | `NotificationsPage` Page widget | Composes `BackLink route='app'`, title/subtitle, period filter, list/state, and `Ver mais` | Responsive single column matching saved page frame; live load/error status | Authenticated route |
+| `apps/web/src/ui/communication/widgets/pages/notifications-page/index.tsx` | Create | `NotificationsPage` Page widget | Composes the history-aware shared `BackLink`, title/subtitle, period filter, list/state, and `Ver mais` | Responsive single column matching saved page frame; live load/error status | Authenticated route |
 | `apps/web/src/ui/communication/widgets/pages/notifications-page/use-notifications-page.ts` | Create | Behavior hook | Converts selected browser-local inclusive days to UTC instants, drives route search/query, flattens pages, and owns load-more state | Defers bound construction until browser mount; all-period omits bounds | Page |
-| `apps/web/src/ui/communication/widgets/pages/notifications-page/tests/notifications-page.test.tsx` | Create | Widget suite | Design hierarchy, all lifecycle states, BackLink, four periods, groups/load-more | Desktop/narrow semantics and no excluded content | Required direct page-widget test |
+| `apps/web/src/ui/communication/widgets/pages/notifications-page/tests/notifications-page.test.tsx` | Create | Widget suite | Design hierarchy, all lifecycle states, history-aware back button, four periods, groups/load-more | Desktop/narrow semantics and no excluded content | Required direct page-widget test |
 | `apps/web/src/ui/communication/widgets/pages/notifications-page/tests/use-notifications-page.test.ts` | Create | Hook suite | DST/local-day bounds, 30-day default, 7/90/all reset, cursor append/error/retry/exhaustion | Fake clock/time zone and duplicate-ID defense | Required direct behavior-hook test |
 | `apps/web/tests/routes/communication/notifications.index.test.tsx` | Create | Playwright route suite | Dropdown and page populated/lifecycle/period/load-more/visibility/navigation scenarios | Desktop, `390 × 844`, keyboard, URL/request/read assertions, console failure check | Mocked browser regression evidence |
 
@@ -838,7 +840,7 @@ AppLayout
         └── NotificationRow
 
 NotificationsPage
-├── BackLink (existing)
+├── BackLink (existing shared primitive)
 ├── NotificationPeriodFilter
 ├── NotificationListState
 └── NotificationList
@@ -875,7 +877,8 @@ apps/server/src/communication/
 ├── database/{communication-database.module.ts,communication-seeder.ts,index.ts,drizzle/{mappers,repositories,models,types}/...}
 ├── decorators/{notifications-controller.ts,index.ts}
 ├── fixtures/communication-module-fixture.ts
-├── messaging/inngest/jobs/{create-in-product-notifications-job.ts,create-in-product-notifications-job.test.ts,index.ts}
+├── messaging/inngest/jobs/{create-in-product-notifications-job.ts,index.ts}
+│   └── tests/create-in-product-notifications-job.test.ts
 └── rest/{controllers/{list-notifications.controller.ts,mark-notifications-read.controller.ts,tests/*.test.ts,index.ts},dtos/{notification-response.dto.ts,index.ts}}
 apps/server/src/composition/communication-identity/{identity-notification-audience-provider.ts,notification-audience-composition.module.ts}
 apps/server/rest-client/communication/notifications.rest
@@ -917,7 +920,7 @@ thin TanStack adapters and are covered through their owning widget/route tests.
 | `EV-02` | `pnpm --filter @scoops/core test:coverage` | Communication entity/use cases plus MRP transition and Identity event behavior pass with thresholds preserved | `CA-01`–`CA-08` |
 | `EV-03` | `pnpm --filter server test:coverage` | Real Drizzle/controller isolation, source transaction/outbox behavior, job routing, validation, and retry pass | `CA-01`–`CA-08`, `CA-14` |
 | `EV-04` | `pnpm --filter web test:coverage` | Dropdown/page widgets and behavior hooks pass across visibility, periods, lifecycle, keyboard, and responsive contracts | `CA-08`–`CA-14` |
-| `EV-05` | `pnpm --filter web test:integration -- tests/routes/communication/notifications.index.test.tsx` | Committed Playwright CLI route suite proves browser behavior with explicit transport mocks | `CA-08`–`CA-14` |
+| `EV-05` | `pnpm --filter web test:integration tests/routes/communication/notifications.index.test.tsx` | Committed Playwright CLI route suite proves browser behavior with explicit transport mocks | `CA-08`–`CA-14` |
 | `EV-06` | `pnpm check:types && pnpm check:code && pnpm check:architecture` | Workspace types, formatting/lint, dependency boundaries, exports, and generated route references pass | All |
 | `EV-07` | Generate the migration, then run the repository migration command against the disposable/local database and inspect Drizzle metadata | Enum/table/constraints/indexes are generated, additive, and executable in order | `CA-04`–`CA-07` |
 
@@ -938,8 +941,8 @@ network requests, viewport, and fresh screenshot paths in `evaluation.md`.
 | Scenario | Procedure and required assertions | Evidence artifact | Acceptance coverage |
 | --- | --- | --- | --- |
 | `MV-01` | Sign in as Manager, open the Header bell by keyboard, verify newest three/unread indicator; expose one row below and at the 50% threshold; close via Escape, outside interaction, and close control with focus restoration; retry a recoverable response; follow the footer. Repeat the essential open/read path as Operator and at `390 × 844`. | Fresh desktop and narrow dropdown screenshots compared with `design/n5xnGg.png`; request/read-state and console log | `CA-08`–`CA-10`, `CA-13` |
-| `MV-02` | Visit `/notifications`; verify default 30-day URL/search, per-local-date headings, Back component to `/`, 20-row first page, `Ver mais`, stable append, 7/90/all resets, loading/no-history/filtered-empty/error-next-page retry/exhaustion, keyboard flow, and no horizontal overflow at desktop and `390 × 844`. | Fresh desktop and narrow page screenshots compared with `design/K3Vu9o.png`; list request/cursor/read-state and console log | `CA-06`, `CA-11`–`CA-13` |
-| `MV-03` | Through real authenticated server-backed MRP/PDV flows, create an initially alerting product, cross normal→low→zero, remain zero, recover, and cross again; include by-brand aggregate and sale consumption. Inspect balances, ledgers, outbox IDs, and resulting Manager/Operator notifications. Force a broker insertion failure in automated evidence, not by corrupting shared local services. | API/UI observations plus targeted database/outbox queries recorded without secrets | `CA-01`, `CA-02`, `CA-05` |
+| `MV-02` | Visit `/notifications`; verify default 30-day URL/search, per-local-date headings, history-aware Back component to the previous page with `/` fallback, 20-row first page, `Ver mais`, stable append, 7/90/all resets, loading/no-history/filtered-empty/error-next-page retry/exhaustion, keyboard flow, and no horizontal overflow at desktop and `390 × 844`. | Fresh desktop and narrow page screenshots compared with `design/K3Vu9o.png`; list request/cursor/read-state and console log | `CA-06`, `CA-11`–`CA-13` |
+| `MV-03` | Through real authenticated server-backed MRP/PDV flows, create an initially alerting product, cross normal→low→zero, remain zero, recover, and cross again; include by-brand aggregate and sale consumption. Inspect balances, ledgers, event IDs, and resulting Manager/Operator notifications. Force an EventsRepository insertion failure in automated evidence, not by corrupting shared local services. | API/UI observations plus targeted database/event queries recorded without secrets | `CA-01`, `CA-02`, `CA-05` |
 | `MV-04` | Accept an invitation, promote/demote, inactivate/reactivate through real authenticated flows. Verify approved recipient sets, inactive-row inaccessibility and post-reactivation visibility, exact snapshot names, and no notification for a no-op or invitation creation. | API/UI observations and persisted recipient rows | `CA-03`–`CA-05` |
 | `MV-05` | With Manager, Operator, same-tenant second user, and second tenant, request histories and submit mixed read IDs. Verify private rows/unread counts, neutral foreign-ID responses, unchanged foreign timestamps, `401`, and representative `422` inputs. | REST responses plus persisted read timestamps | `CA-07` |
 
@@ -965,8 +968,8 @@ leave shared Docker services running unless the implementation task explicitly r
 | `packages/core/src/identity/use-cases/tests/change-user-profile-use-case.test.ts` | Unit | Profile transition | Promotion/demotion event, no-op, transactional failure |
 | `packages/core/src/identity/use-cases/tests/inactivate-user-use-case.test.ts` | Unit | Inactivation | Enriched event, no-op, session/state/audit failure behavior |
 | `packages/core/src/identity/use-cases/tests/reactivate-user-use-case.test.ts` | Unit | Reactivation | Enriched event, no-op, transactional failure |
-| `apps/server/src/communication/messaging/inngest/jobs/create-in-product-notifications-job.test.ts` | Job integration/unit | Five-trigger job | Validation/mapping, event-ID idempotency, retry failures |
-| `apps/server/src/shared/messaging/outbox/tests/event-validation.test.ts` | Unit | Outbox schema registry | Five complete payloads accepted; malformed payloads rejected |
+| `apps/server/src/communication/messaging/inngest/jobs/tests/create-in-product-notifications-job.test.ts` | Job integration/unit | Five-trigger job | Validation/mapping, event-ID idempotency, retry failures |
+| `apps/server/src/shared/messaging/inngest/jobs/tests/event-validation.test.ts` | Unit | Inngest event schema registry | Five complete payloads accepted; malformed payloads rejected |
 | `apps/server/src/communication/rest/controllers/tests/list-notifications.controller.test.ts` | HTTP integration | GET controller/repository | Auth, private stable cursor page, bounds, unread, `422` |
 | `apps/server/src/communication/rest/controllers/tests/mark-notifications-read.controller.test.ts` | HTTP integration | PATCH controller/repository | Auth, neutral foreign IDs, idempotency, persisted timestamp, `422` |
 | `apps/server/src/mrp/rest/controllers/tests/register-product.controller.test.ts` | HTTP integration | Product source transaction | Initial alert outbox commit/rollback |
@@ -996,26 +999,26 @@ leave shared Docker services running unless the implementation task explicitly r
 | `packages/core/src/communication/use-cases/tests/list-notifications-use-case.test.ts` | `lists private history` | Exercise roles, actor scope, bounds/cursor/limit | Exact repository request/result or named error |
 | `packages/core/src/communication/use-cases/tests/mark-notifications-read-use-case.test.ts` | `marks owned IDs` | Exercise authorization, limits, duplicates and clock | One tenant/user mutation and exact neutral result |
 | `packages/core/src/mrp/use-cases/tests/publish-product-stock-alert-use-case.test.ts` | `publishes entered alert states` | Creation plus all prior/final combinations | Exact event payload or no publication |
-| `packages/core/src/mrp/use-cases/tests/register-product-use-case.test.ts` | `enqueues initial alert atomically` | Register zero/low/normal products | Final aggregate event only; broker failure rejects action |
+| `packages/core/src/mrp/use-cases/tests/register-product-use-case.test.ts` | `enqueues initial alert atomically` | Register zero/low/normal products | Final aggregate event only; EventsRepository failure rejects action |
 | `packages/core/src/mrp/use-cases/tests/register-product-brand-use-case.test.ts` | `evaluates brand aggregate` | Add brand across normal/alert/recovery totals | Lock and exact final-total event/no-event |
 | `packages/core/src/mrp/use-cases/tests/adjust-product-stock-use-case.test.ts` | `evaluates manual mutation` | Entry/write-off across states | Ledger/balance result plus exact event/no-event |
 | `packages/core/src/mrp/use-cases/tests/register-production-use-case.test.ts` | `evaluates final production totals` | Repeated ingredients and multiple products | Sorted locks, one event per final product state, failure propagation |
-| `packages/core/src/identity/use-cases/tests/accept-user-invitation-use-case.test.ts` | `publishes activated user snapshot` | Accept pending invitation and fail broker | Name-bearing event after activation; failure rejects transaction callback |
+| `packages/core/src/identity/use-cases/tests/accept-user-invitation-use-case.test.ts` | `publishes activated user snapshot` | Accept pending invitation and fail EventsRepository | Name-bearing event after activation; failure rejects transaction callback |
 | `packages/core/src/identity/use-cases/tests/change-user-profile-use-case.test.ts` | `publishes real profile transition` | Promote/demote/no-op/failure | Exact name/profiles event only on change; failure rejects transaction |
 | `packages/core/src/identity/use-cases/tests/inactivate-user-use-case.test.ts` | `publishes inactivation snapshot` | Change/no-op/failure | Exact name/status event; existing guard/session effects preserved |
 | `packages/core/src/identity/use-cases/tests/reactivate-user-use-case.test.ts` | `publishes reactivation snapshot` | Change/no-op/failure | Exact name/status/profile event only on change; failure rejects transaction |
-| `apps/server/src/communication/messaging/inngest/jobs/create-in-product-notifications-job.test.ts` | `routes five typed events` | Valid, malformed, duplicate-ID and failed dependency runs | Correct fact/store, no duplicate row, retryable error propagation |
-| `apps/server/src/shared/messaging/outbox/tests/event-validation.test.ts` | `validates notification source events` | Complete/incomplete payloads and unknown values | Registry accepts only schema-valid serializable facts |
+| `apps/server/src/communication/messaging/inngest/jobs/tests/create-in-product-notifications-job.test.ts` | `routes five typed events` | Valid, malformed, duplicate-ID and failed dependency runs | Correct fact/store, no duplicate row, retryable error propagation |
+| `apps/server/src/shared/messaging/inngest/jobs/tests/event-validation.test.ts` | `validates notification source events` | Complete/incomplete payloads and unknown values | Registry accepts only schema-valid serializable facts |
 | `apps/server/src/communication/rest/controllers/tests/list-notifications.controller.test.ts` | `returns stable own page` | Anonymous/invalid/private/tied-cursor requests | Status/DTO/order/unread/count and zero cross-user/tenant leakage |
 | `apps/server/src/communication/rest/controllers/tests/mark-notifications-read.controller.test.ts` | `updates only owned rows` | Mixed own/foreign/already-read/invalid IDs | Neutral response, first timestamp retained, foreign rows unchanged |
-| `apps/server/src/mrp/rest/controllers/tests/register-product.controller.test.ts` | `commits product and initial fact together` | Alerting/normal registration and broker failure | Product, balances and outbox all commit or all roll back |
-| `apps/server/src/mrp/rest/controllers/tests/register-product-brand.controller.test.ts` | `commits brand aggregate fact` | Crossing/recovery and broker failure | Brand/balance/outbox atomic; existing sales-config behavior retained |
+| `apps/server/src/mrp/rest/controllers/tests/register-product.controller.test.ts` | `commits product and initial fact together` | Alerting/normal registration and EventsRepository failure | Product, balances and event rows all commit or all roll back |
+| `apps/server/src/mrp/rest/controllers/tests/register-product-brand.controller.test.ts` | `commits brand aggregate fact` | Crossing/recovery and EventsRepository failure | Brand/balance/event atomic; existing sales-config behavior retained |
 | `apps/server/src/mrp/rest/controllers/tests/adjust-product-stock.controller.test.ts` | `commits adjustment transition fact` | Downward/repeat/recovery sequence | Balance/ledger/outbox state matches transition table |
-| `apps/server/src/mrp/rest/controllers/tests/register-production.controller.test.ts` | `commits production facts` | Multi-product threshold changes and broker failure | Production, every ledger/balance and event are atomic |
+| `apps/server/src/mrp/rest/controllers/tests/register-production.controller.test.ts` | `commits production facts` | Multi-product threshold changes and EventsRepository failure | Production, every ledger/balance and event are atomic |
 | `apps/server/src/pdv/rest/controllers/tests/register-order.controller.test.ts` | `commits consumption facts` | Aggregated lines and multiple products | Order/stock/ledger/event atomicity and exact final events |
 | `apps/server/src/pdv/rest/controllers/tests/cancel-order.controller.test.ts` | `restores without upward fact` | Cancel alerting sale | Order/stock restore commits and emits no recovery alert |
-| `apps/server/src/identity/rest/controllers/tests/accept-user-invitation.controller.test.ts` | `commits activation fact` | Real acceptance and forced broker failure | User/audit/outbox atomicity and enriched payload |
-| `apps/server/src/identity/rest/controllers/tests/change-user-profile.controller.test.ts` | `commits profile fact` | Promote/demote/no-op/failure | State/audit/outbox atomicity, existing tenant/last-Manager rules |
+| `apps/server/src/identity/rest/controllers/tests/accept-user-invitation.controller.test.ts` | `commits activation fact` | Real acceptance and forced EventsRepository failure | User/audit/event atomicity and enriched payload |
+| `apps/server/src/identity/rest/controllers/tests/change-user-profile.controller.test.ts` | `commits profile fact` | Promote/demote/no-op/failure | State/audit/event atomicity, existing tenant/last-Manager rules |
 | `apps/server/src/identity/rest/controllers/tests/change-user-status.controller.test.ts` | `commits status fact` | Inactivate/reactivate/no-op/failure | State/session/audit/outbox atomicity and enriched payload |
 | `apps/web/src/ui/shared/widgets/layouts/app-layout/tests/app-layout.test.tsx` | `places notification control` | Render authenticated shell | Dropdown trigger appears once; existing shell/nav stays intact |
 | `apps/web/src/ui/communication/widgets/components/notification-dropdown/tests/notification-dropdown.test.tsx` | `renders and recovers every panel state` | Populate/delay/empty/fail/retry | Three rows/max, unread semantics, named close/footer/status, no excluded rows |
@@ -1059,7 +1062,7 @@ Capture the fresh `VIS-01-desktop` and `VIS-02-narrow` screenshots and compare t
 30-day URL/search and first request; (2) inspect HOJE/prior local-date sections and visible-read PATCH;
 (3) activate `Ver mais` and verify cursor append; (4) select 7, 90, and all periods and verify URL,
 bounds, and reset; (5) exercise loading, both empty states, first/next failure, retry, and exhaustion;
-(6) traverse all controls by keyboard and use the existing `Voltar` component to reach `/`.
+(6) traverse all controls by keyboard and use the existing `Voltar` component to return to the previous page, falling back to `/` when no browser history is available.
 Record DOM/focus/overflow/console/network checks and fresh `VIS-03-desktop`/`VIS-04-narrow`
 screenshots compared to `K3Vu9o.png`.
 
@@ -1081,7 +1084,7 @@ console output and redacts cookies/credentials.
 | `pnpm --filter @scoops/core test:coverage` | Core Communication, MRP, and Identity contracts |
 | `pnpm --filter server test:coverage` | Database, REST, messaging, composition, and source transactions |
 | `pnpm --filter web test:coverage` | Widget and hook behavior with configured thresholds |
-| `pnpm --filter web test:integration -- tests/routes/communication/notifications.index.test.tsx` | Focused committed Playwright CLI route suite |
+| `pnpm --filter web test:integration tests/routes/communication/notifications.index.test.tsx` | Focused committed Playwright CLI route suite |
 | `pnpm check:types` | Workspace TypeScript and generated-route compatibility |
 | `pnpm check:code` | Formatting/lint/static policy |
 | `pnpm check:architecture` | Package/layer dependency directions |
@@ -1133,3 +1136,6 @@ approved through the active Spec amendment workflow.
 | Revision | Date | Material change | Reason |
 | --- | --- | --- | --- |
 | `1` | `2026-09-05` | Created the complete cross-module, persistent, design-backed notification-center Contract and amended its governing PRDs first. | Issue #30 plus explicit approval of recipients, stock creation/transition semantics, periods, per-date grouping, shared Back component, 50% visibility reads, and missing visual states. |
+| `2` | `2026-09-05` | Corrected mechanical baseline classifications for the already-tracked Communication fixture and new outbox validation registry. | Path-conformance review; product behavior and implementation contracts unchanged. |
+| `3` | `2026-09-06` | Changed the notifications page `Voltar` control to use browser history when available, retaining the authenticated home route as a fallback. | Explicit product correction: returning from notifications should restore the previous page rather than always navigating to the dashboard. |
+| `4` | `2026-09-06` | Standardized page-level back controls on the shared borderless purple `BackLink` treatment with a `chevron-left`, including Notifications, Combo Discounts, and order-not-found recovery. | Explicit visual correction: all back buttons should use the supplied compact `Voltar` style. |

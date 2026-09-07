@@ -1,4 +1,5 @@
 import request from 'supertest'
+import { ProductStockAlertStateEnteredEvent } from '@scoops/core/mrp/domain/events'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
@@ -6,6 +7,7 @@ import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
   foreignManagerRequestAuthorization,
+  findEvents,
   managerRequestAuthorization,
   operatorRequestAuthorization,
   prepareMrpFixture,
@@ -64,6 +66,19 @@ describe('Register Product Controller [POST /products]', () => {
       balanceAfter: 5,
       performedByName: 'Maria Manager',
     })
+    const events = await findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME)
+    expect(events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            productId: product.id,
+            state: 'below-ideal',
+            availableQuantity: 5,
+            idealQuantity: 10,
+          }),
+        }),
+      ]),
+    )
   })
 
   it('registers all By-brand balances and persists the selected non-first primary brand', async () => {
@@ -134,6 +149,19 @@ describe('Register Product Controller [POST /products]', () => {
       'Callebaut',
       'Sicao',
     ])
+    const events = await findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME)
+    expect(events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            productId: product.id,
+            state: 'below-ideal',
+            availableQuantity: 5,
+            idealQuantity: 10,
+          }),
+        }),
+      ]),
+    )
   })
 
   it('rejects invalid primary cardinality before creating any product data', async () => {

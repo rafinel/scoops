@@ -2,6 +2,7 @@ import type {
   RegistrationAttemptsRepository,
   UsersRepository,
 } from '@scoops/core/identity/interfaces'
+import { UserInvitationAcceptedEvent } from '@scoops/core/identity/domain/events'
 import {
   UserFaker,
   UserRegistrationAttemptFaker,
@@ -12,12 +13,25 @@ import {
   UserProfile,
   UserStatus,
 } from '@scoops/core/identity/domain/structures'
+import { eq } from 'drizzle-orm'
 import request from 'supertest'
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { OnboardingTokenProviderFaker } from '@/identity/fixtures/onboarding-token-faker'
+import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
+import { eventModel } from '@/shared/database/drizzle/models/event-model'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
+
+async function findEvents(fixture: IdentityModuleFixture, eventName: string) {
+  return fixture
+    .get(DrizzleClient)
+    .requireDatabase()
+    .select()
+    .from(eventModel)
+    .where(eq(eventModel.eventName, eventName))
+}
 describe('Accept User Invitation Controller [POST /registration-attempts/invitation/accept]', () => {
   const { establishmentId, invitationToken, managerId, managerToken, operatorId } =
     IdentityModuleFixture.userManagement
@@ -90,6 +104,43 @@ describe('Accept User Invitation Controller [POST /registration-attempts/invitat
         .get<RegistrationAttemptsRepository>(IDENTITY_REPOSITORIES.registrationAttempts)
         .findByUserId(operatorId),
     ).resolves.toMatchObject({ status: RegistrationAttemptStatus.Confirmed })
+    const events = await findEvents(fixture, UserInvitationAcceptedEvent._NAME)
+    expect(events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            userId: operatorId,
+            establishmentId,
+            userName: 'Pending Operator',
+            profile: UserProfile.Operator,
+          }),
+        }),
+      ]),
+    )
+  })
+
+  it('rolls back activation and invitation confirmation when event publication fails', async () => {
+    const addSpy = vi
+      .spyOn(DrizzleEventsRepository.prototype, 'add')
+      .mockRejectedValueOnce(new Error('Injected identity publication failure.'))
+
+    try {
+      const response = await request(fixture.app.getHttpServer())
+        .post('/registration-attempts/invitation/accept')
+        .set('Cookie', betterAuthFixture.cookieFor('invite-session'))
+        .send({ confirmationToken: invitationToken, password: 'password123' })
+      expect(response.status).toBe(500)
+      await expect(
+        fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users).findById(operatorId),
+      ).resolves.toMatchObject({ status: UserStatus.Pending })
+      await expect(
+        fixture
+          .get<RegistrationAttemptsRepository>(IDENTITY_REPOSITORIES.registrationAttempts)
+          .findByUserId(operatorId),
+      ).resolves.toMatchObject({ status: RegistrationAttemptStatus.Pending })
+    } finally {
+      addSpy.mockRestore()
+    }
   })
 
   it('serializes an accept-vs-cancel race so only one transition wins', async () => {

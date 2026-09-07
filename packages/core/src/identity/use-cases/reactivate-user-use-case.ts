@@ -60,6 +60,7 @@ export class ReactivateUserUseCase implements UseCase<Request, UserDetails> {
             userId: user.id,
             establishmentId: user.establishmentId,
             email: user.email,
+            userName: user.name,
             actorUserId: request.actor.id,
             previousStatus: UserStatus.Inactive,
             status: user.status,

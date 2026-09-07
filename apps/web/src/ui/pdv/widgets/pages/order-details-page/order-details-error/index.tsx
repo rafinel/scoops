@@ -1,4 +1,5 @@
 import { Button } from '@/ui/shadcn/button'
+import { BackLink } from '@/ui/shared/widgets/components/back-link'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 export type OrderDetailsErrorProps = { onBack: () => void; onRetry: () => void }
@@ -19,9 +20,16 @@ export const OrderDetailsError = ({ onBack, onRetry }: OrderDetailsErrorProps) =
         <Button onClick={onRetry} type='button' variant='outline'>
           Tentar novamente
         </Button>
-        <Button onClick={onBack} type='button'>
+        <BackLink
+          aria-label='Voltar para pedidos'
+          onClick={(event) => {
+            event.preventDefault()
+            onBack()
+          }}
+          route='orders'
+        >
           Voltar para pedidos
-        </Button>
+        </BackLink>
       </div>
     </div>
   </section>

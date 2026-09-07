@@ -19,6 +19,7 @@ import {
 } from '#shared/domain/errors/index.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
+import { PublishProductStockAlertUseCase } from '#mrp/use-cases/publish-product-stock-alert-use-case.ts'
 
 type Request = {
   readonly actor: ProductActor & { readonly name: string }
@@ -76,14 +77,14 @@ export class RegisterProductionUseCase implements UseCase<Request, Production> {
           resaleConfigurationsRepository,
           eventsRepository,
         }
-        const product = await productsRepository.findById(
+        const productBeforeLock = await productsRepository.findById(
           request.actor.establishmentId,
           request.productId,
         )
-        this.validateProduct(product)
+        this.validateProduct(productBeforeLock)
         const recipe = await recipesRepository.findByProductId(
           request.actor.establishmentId,
-          product.id,
+          productBeforeLock.id,
         )
         if (!recipe || recipe.yieldQuantity <= 0) {
           throw new BadRequestError('O produto ainda não possui uma receita válida.')
@@ -96,16 +97,43 @@ export class RegisterProductionUseCase implements UseCase<Request, Production> {
           throw new BadRequestError('A receita deve possuir pelo menos um ingrediente.')
         }
 
+        const productIds = [
+          ...new Set([
+            productBeforeLock.id,
+            ...ingredients.map((item) => item.ingredientProductId),
+          ]),
+        ].sort()
+        const products = new Map<string, Product>()
+        for (const productId of productIds) {
+          const lockedProduct =
+            (await productsRepository.findByIdForUpdate(
+              request.actor.establishmentId,
+              productId,
+            )) ??
+            (await productsRepository.findById(request.actor.establishmentId, productId))
+          if (!lockedProduct) {
+            if (productId === productBeforeLock.id)
+              throw new NotFoundError('Produto não encontrado.')
+            throw new NotFoundError('Ingrediente da receita não encontrado.')
+          }
+          products.set(productId, lockedProduct)
+        }
+        const product = products.get(productBeforeLock.id)
+        if (!product) throw new NotFoundError('Produto não encontrado.')
+        const previousQuantities = new Map<string, number>()
+        for (const productId of productIds)
+          previousQuantities.set(
+            productId,
+            await this.findProductQuantity(scope, productId),
+          )
+
         const outputBalance = await stockBalancesRepository.findByProductId(product.id)
         if (!outputBalance) {
           throw new BadRequestError('O produto fabricável não possui saldo de estoque.')
         }
         const consumptions = await Promise.all(
           ingredients.map(async (ingredient) => {
-            const ingredientProduct = await productsRepository.findById(
-              request.actor.establishmentId,
-              ingredient.ingredientProductId,
-            )
+            const ingredientProduct = products.get(ingredient.ingredientProductId)
             if (!ingredientProduct) {
               throw new NotFoundError('Ingrediente da receita não encontrado.')
             }
@@ -222,6 +250,18 @@ export class RegisterProductionUseCase implements UseCase<Request, Production> {
           occurredAt,
         })
 
+        const publishStockAlert = new PublishProductStockAlertUseCase(eventsRepository)
+        for (const productId of productIds) {
+          const sourceProduct = products.get(productId)
+          if (!sourceProduct) continue
+          await publishStockAlert.execute({
+            product: sourceProduct,
+            previousQuantity: previousQuantities.get(productId),
+            availableQuantity: await this.findProductQuantity(scope, productId),
+            occurredAt,
+          })
+        }
+
         return production
       },
     )
@@ -291,5 +331,13 @@ export class RegisterProductionUseCase implements UseCase<Request, Production> {
 
   private hasAtMostThreeDecimalPlaces(value: number): boolean {
     return Math.abs(value * 1_000 - Math.round(value * 1_000)) < 1e-8
+  }
+
+  private async findProductQuantity(
+    scope: MrpDatabaseRepositories,
+    productId: string,
+  ): Promise<number> {
+    const balances = await scope.stockBalancesRepository.findManyByProductId(productId)
+    return balances.reduce((total, balance) => total + balance.quantity, 0)
   }
 }

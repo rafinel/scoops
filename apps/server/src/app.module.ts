@@ -3,6 +3,8 @@ import { serverEnvSchema } from '@scoops/validation'
 
 import { BillingModule } from '@/billing/billing.module'
 import { CommunicationModule } from '@/communication/communication.module'
+import { CreateInProductNotificationsJob } from '@/communication/messaging/inngest/jobs'
+import { NotificationAudienceCompositionModule } from '@/composition/communication-identity'
 import { IdentityModule } from '@/identity/identity.module'
 import { MrpModule } from '@/mrp/mrp.module'
 import { PdvModule } from '@/pdv/pdv.module'
@@ -49,11 +51,13 @@ const outboxMessagingComposition = createOutboxMessagingComposition(appMode)
     MrpModule,
     PdvModule,
     CommunicationModule,
+    NotificationAudienceCompositionModule,
     InngestModule.forRoot({
       functions: [
         SendInvitationEmailJob,
         SendOnboardingConfirmationEmailJob,
         SendPasswordRecoveryEmailJob,
+        CreateInProductNotificationsJob,
         ...outboxMessagingComposition.functions,
         CleanupPublishedEventsJob,
         ExpireIceCreamShopOnboardingsJob,

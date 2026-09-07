@@ -24,6 +24,7 @@ import { Route as AuthenticatedShopSettingsIndexRouteImport } from './routes/_au
 import { Route as AuthenticatedSalesChannelsIndexRouteImport } from './routes/_authenticated/sales-channels/index'
 import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authenticated/products/index'
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders/index'
+import { Route as AuthenticatedNotificationsIndexRouteImport } from './routes/_authenticated/notifications/index'
 import { Route as AuthenticatedDiscountsIndexRouteImport } from './routes/_authenticated/discounts/index'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account/index'
 import { Route as AuthenticatedAccompanimentTypesIndexRouteImport } from './routes/_authenticated/accompaniment-types/index'
@@ -118,6 +119,12 @@ const AuthenticatedOrdersIndexRoute =
   AuthenticatedOrdersIndexRouteImport.update({
     id: '/orders/',
     path: '/orders/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedNotificationsIndexRoute =
+  AuthenticatedNotificationsIndexRouteImport.update({
+    id: '/notifications/',
+    path: '/notifications/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDiscountsIndexRoute =
@@ -235,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/accompaniment-types/': typeof AuthenticatedAccompanimentTypesIndexRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/discounts/': typeof AuthenticatedDiscountsIndexRoute
+  '/notifications/': typeof AuthenticatedNotificationsIndexRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
   '/products/': typeof AuthenticatedProductsIndexRoute
   '/sales-channels/': typeof AuthenticatedSalesChannelsIndexRoute
@@ -266,6 +274,7 @@ export interface FileRoutesByTo {
   '/accompaniment-types': typeof AuthenticatedAccompanimentTypesIndexRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/discounts': typeof AuthenticatedDiscountsIndexRoute
+  '/notifications': typeof AuthenticatedNotificationsIndexRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
   '/products': typeof AuthenticatedProductsIndexRoute
   '/sales-channels': typeof AuthenticatedSalesChannelsIndexRoute
@@ -300,6 +309,7 @@ export interface FileRoutesById {
   '/_authenticated/accompaniment-types/': typeof AuthenticatedAccompanimentTypesIndexRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/discounts/': typeof AuthenticatedDiscountsIndexRoute
+  '/_authenticated/notifications/': typeof AuthenticatedNotificationsIndexRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
   '/_authenticated/products/': typeof AuthenticatedProductsIndexRoute
   '/_authenticated/sales-channels/': typeof AuthenticatedSalesChannelsIndexRoute
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/accompaniment-types/'
     | '/account/'
     | '/discounts/'
+    | '/notifications/'
     | '/orders/'
     | '/products/'
     | '/sales-channels/'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/accompaniment-types'
     | '/account'
     | '/discounts'
+    | '/notifications'
     | '/orders'
     | '/products'
     | '/sales-channels'
@@ -398,6 +410,7 @@ export interface FileRouteTypes {
     | '/_authenticated/accompaniment-types/'
     | '/_authenticated/account/'
     | '/_authenticated/discounts/'
+    | '/_authenticated/notifications/'
     | '/_authenticated/orders/'
     | '/_authenticated/products/'
     | '/_authenticated/sales-channels/'
@@ -529,6 +542,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders/'
       preLoaderRoute: typeof AuthenticatedOrdersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notifications/': {
+      id: '/_authenticated/notifications/'
+      path: '/notifications'
+      fullPath: '/notifications/'
+      preLoaderRoute: typeof AuthenticatedNotificationsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/discounts/': {
@@ -687,6 +707,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccompanimentTypesIndexRoute: typeof AuthenticatedAccompanimentTypesIndexRoute
   AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
   AuthenticatedDiscountsIndexRoute: typeof AuthenticatedDiscountsIndexRoute
+  AuthenticatedNotificationsIndexRoute: typeof AuthenticatedNotificationsIndexRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
   AuthenticatedProductsIndexRoute: typeof AuthenticatedProductsIndexRoute
   AuthenticatedSalesChannelsIndexRoute: typeof AuthenticatedSalesChannelsIndexRoute
@@ -708,6 +729,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAccompanimentTypesIndexRoute,
   AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
   AuthenticatedDiscountsIndexRoute: AuthenticatedDiscountsIndexRoute,
+  AuthenticatedNotificationsIndexRoute: AuthenticatedNotificationsIndexRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
   AuthenticatedProductsIndexRoute: AuthenticatedProductsIndexRoute,
   AuthenticatedSalesChannelsIndexRoute: AuthenticatedSalesChannelsIndexRoute,

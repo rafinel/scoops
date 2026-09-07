@@ -2,15 +2,20 @@ import {
   EstablishmentFaker,
   UserFaker,
 } from '@scoops/core/identity/domain/entities/fakers'
+import { UserProfileUpdatedEvent } from '@scoops/core/identity/domain/events'
 import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
 import type { User } from '@scoops/core/identity/domain/entities'
 import type { UsersRepository } from '@scoops/core/identity/interfaces'
+import { eq } from 'drizzle-orm'
 import request from 'supertest'
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
+import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
+import { eventModel } from '@/shared/database/drizzle/models/event-model'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
 
 const establishmentId = '20000000-0000-0000-0000-000000000001'
 const otherEstablishmentId = '20000000-0000-0000-0000-000000000002'
@@ -20,6 +25,15 @@ const operatorId = '00000000-0000-0000-0000-000000000012'
 const otherTenantUserId = '00000000-0000-0000-0000-000000000013'
 const managerToken = 'manager-token'
 const operatorToken = 'operator-token'
+
+async function findEvents(fixture: IdentityModuleFixture, eventName: string) {
+  return fixture
+    .get(DrizzleClient)
+    .requireDatabase()
+    .select()
+    .from(eventModel)
+    .where(eq(eventModel.eventName, eventName))
+}
 
 describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => {
   const betterAuthFixture = new BetterAuthFixture()
@@ -90,6 +104,41 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
     await expect(
       fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users).findById(target.id),
     ).resolves.toMatchObject({ profile: UserProfile.Manager })
+  })
+
+  it('rolls back a profile change when enriched event publication fails', async () => {
+    const manager = UserFaker.fake({
+      id: managerId,
+      establishmentId,
+      name: `User ${managerId}`,
+      email: `${managerId}@example.com`,
+      profile: UserProfile.Manager,
+    })
+    const target = UserFaker.fake({
+      id: operatorId,
+      establishmentId,
+      name: `User ${operatorId}`,
+      email: `${operatorId}@example.com`,
+      profile: UserProfile.Operator,
+    })
+    await seedUsers([manager, target])
+    authenticateManager()
+    const addSpy = vi
+      .spyOn(DrizzleEventsRepository.prototype, 'add')
+      .mockRejectedValueOnce(new Error('Injected identity publication failure.'))
+
+    try {
+      const response = await request(fixture.app.getHttpServer())
+        .patch(`/users/${target.id}/profile`)
+        .set('Cookie', betterAuthFixture.cookieFor())
+        .send({ profile: UserProfile.Manager })
+      expect(response.status).toBe(500)
+      await expect(
+        fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users).findById(target.id),
+      ).resolves.toMatchObject({ profile: UserProfile.Operator })
+    } finally {
+      addSpy.mockRestore()
+    }
   })
 
   it('rejects unknown body fields and invalid profiles', async () => {
@@ -235,6 +284,29 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
     await expect(
       fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users).findById(target.id),
     ).resolves.toMatchObject({ profile: UserProfile.Manager })
+    const events = await findEvents(fixture, UserProfileUpdatedEvent._NAME)
+    expect(events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            userId: target.id,
+            userName: `User ${target.id}`,
+            actorUserId: manager.id,
+            previousProfile: UserProfile.Operator,
+            profile: UserProfile.Manager,
+          }),
+        }),
+      ]),
+    )
+    const eventCount = events.length
+    const noOp = await request(fixture.app.getHttpServer())
+      .patch(`/users/${target.id}/profile`)
+      .set('Cookie', betterAuthFixture.cookieFor())
+      .send({ profile: UserProfile.Manager })
+    expect(noOp.status).toBe(200)
+    await expect(
+      findEvents(fixture, UserProfileUpdatedEvent._NAME),
+    ).resolves.toHaveLength(eventCount)
   })
 
   it('serializes concurrent Manager demotions without removing every Manager', async () => {

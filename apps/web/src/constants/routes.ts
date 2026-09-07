@@ -29,6 +29,7 @@ export const ROUTES = {
   subscription: '/subscription',
   account: '/account',
   shopSettings: '/shop-settings',
+  notifications: '/notifications',
 } as const
 
 export function productRecipeRoute(productId: string): string {

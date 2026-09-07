@@ -6,6 +6,7 @@ import { UserFaker, UserRegistrationAttemptFaker } from '#identity/domain/entiti
 import { RegistrationAttemptStatus } from '#identity/domain/structures/registration-attempt-status.ts'
 import { RegistrationAttemptType } from '#identity/domain/structures/registration-attempt-type.ts'
 import { UserStatus } from '#identity/domain/structures/user-status.ts'
+import { UserInvitationAcceptedEvent } from '#identity/domain/events/user-invitation-accepted-event.ts'
 import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import type { IdentityDatabase } from '#identity/interfaces/identity-database.ts'
 import type { DatetimeProvider } from '#shared/interfaces/index.ts'
@@ -96,6 +97,68 @@ describe('Accept User Invitation Use Case', () => {
       }),
     ).rejects.toBeInstanceOf(NotFoundError)
     expect(usersRepository.replace).not.toHaveBeenCalled()
+  })
+
+  it('activates the invitation and records the notification event in the transaction', async () => {
+    const database = mock<IdentityDatabase>()
+    const registrationAttemptsRepository = mock<RegistrationAttemptsRepository>()
+    const usersRepository = mock<UsersRepository>()
+    const eventsRepository = mock<EventsRepository>()
+    const user = UserFaker.fake({
+      id: '00000000-0000-0000-0000-000000000001',
+      email: 'invitee@example.com',
+      name: 'Invitee User',
+      status: UserStatus.Pending,
+    })
+    const attempt = UserRegistrationAttemptFaker.fake({
+      userId: user.id,
+      type: RegistrationAttemptType.UserInvitation,
+      email: user.email,
+      status: RegistrationAttemptStatus.Pending,
+    })
+    const scope: IdentityDatabaseRepositories = {
+      usersRepository,
+      registrationAttemptsRepository,
+      establishmentsRepository: mock<EstablishmentsRepository>(),
+      eventsRepository,
+    }
+    database.run.mockImplementation((operation) => operation(scope))
+    registrationAttemptsRepository.findPendingByTokenHash.mockResolvedValue(attempt)
+    registrationAttemptsRepository.claimInvitationOperation.mockResolvedValue(attempt)
+    registrationAttemptsRepository.finalizeInvitationOperation.mockResolvedValue(attempt)
+    usersRepository.findById.mockResolvedValue(user)
+    const updated = { ...user, status: UserStatus.Active }
+    usersRepository.replace.mockResolvedValue(updated)
+    const tokens = mock<OnboardingTokenProvider>()
+    tokens.hash.mockReturnValue('hash')
+    const provider = mock<UserAccessIdentityProvider>()
+    provider.setInvitationPassword.mockResolvedValue({ id: user.id, email: user.email })
+    const datetimeProvider = mock<DatetimeProvider>()
+    const occurredAt = new Date('2026-01-01T00:00:00.000Z')
+    datetimeProvider.now.mockReturnValue(occurredAt)
+    const useCase = new AcceptUserInvitationUseCase(
+      database,
+      datetimeProvider,
+      tokens,
+      mock<OnboardingIdentifierProvider>(),
+      provider,
+    )
+
+    await useCase.execute({ confirmationToken: 'token', password: 'password123' })
+
+    expect(eventsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: UserInvitationAcceptedEvent._NAME,
+        payload: expect.objectContaining({
+          userId: user.id,
+          establishmentId: user.establishmentId,
+          email: user.email,
+          userName: user.name,
+          profile: user.profile,
+          occurredAt,
+        }),
+      }),
+    )
   })
 
   it('does not reactivate a used invitation link', async () => {
