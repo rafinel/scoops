@@ -22,7 +22,7 @@ such as `checkout-flow-tester`, `catalog-schema-explorer`, or
 `auth-api-builder`; do not use generic names such as `worker`, `agent`, or
 `subagent`.
 
-### Pencil (`mcp__pencil__*`)
+### Pencil MCP
 
 Use Pencil for `.pen` files, Pencil node inspection or editing, design-system
 work, design-to-code implementation, and visual validation tied to a Pencil
@@ -75,7 +75,7 @@ When implementing a Pencil design:
 Use the Pencil design skill whenever a task involves a Pencil workflow and that
 skill is available in the current agent environment.
 
-### Context7 (`mcp__context7__*`)
+### Context7 MCP
 
 Use Context7 when implementation depends on current documentation for a library,
 framework, SDK, API, CLI, or cloud service. This is especially important for
@@ -110,6 +110,15 @@ checkpoint; never reuse a pre-change screenshot as evidence. Screenshots support
 the behavioral assertions and do not replace them. Non-visual changes do not
 require a new screenshot. Mocked transport coverage must not be presented as
 evidence that a real authenticated, server-backed flow works.
+
+## CodeGraph MCP
+
+In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the repo root), reach for it BEFORE grep/find or reading files when you need to understand or locate code:
+
+- **MCP tool** (when available): `codegraph_explore` answers most code questions in one call — the relevant symbols' verbatim source plus the call paths between them, including dynamic-dispatch hops grep can't follow. Name a file or symbol in the query to read its current line-numbered source. If it's listed but deferred, load it by name via tool search.
+- **Shell** (always works): `codegraph explore "<symbol names or question>"` prints the same output.
+
+If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
 
 #### Required Playwright CLI validation workflow
 
@@ -233,13 +242,4 @@ CI configuration, deployment secrets, or environment names from another project.
 - Stop persistent development processes started for a task when validation is
   complete, unless the user asks to leave them running.
 
-<!-- CODEGRAPH_START -->
-## CodeGraph
 
-In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the repo root), reach for it BEFORE grep/find or reading files when you need to understand or locate code:
-
-- **MCP tool** (when available): `codegraph_explore` answers most code questions in one call — the relevant symbols' verbatim source plus the call paths between them, including dynamic-dispatch hops grep can't follow. Name a file or symbol in the query to read its current line-numbered source. If it's listed but deferred, load it by name via tool search.
-- **Shell** (always works): `codegraph explore "<symbol names or question>"` prints the same output.
-
-If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
-<!-- CODEGRAPH_END -->
