@@ -52,23 +52,23 @@ dist
 .vscode/
 
 # Agents
-.agent/
-.agents/
-.cursor/
-.codex/
-.claude/
-.context/
-.serena/
-.opencode/
+.agent
+.agents
+.cursor
+.codex
+.claude
+.context
+.serena
+.opencode
 opencode.json
 .mcp.json
+.impeccable
+.codegraph
 prompt.md
 issue.md
 CLAUDE.md
 GEMINI.md
 AGENTS.local.md
-.obsidian/
-.impeccable
 
 # MCP's
 .playwright-mcp
