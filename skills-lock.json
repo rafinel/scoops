@@ -5,25 +5,31 @@
       "source": "anthropics/skills",
       "sourceType": "github",
       "skillPath": "skills/frontend-design/SKILL.md",
-      "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
+      "computedHash": "89496d5dd00f4810205f351759594fc2742bf8eea85a2f2b2d1de59f4bd91576"
     },
-    "grill-me": {
-      "source": "mattpocock/skills",
+    "gh-cli": {
+      "source": "trailofbits/skills",
       "sourceType": "github",
-      "skillPath": "skills/productivity/grill-me/SKILL.md",
-      "computedHash": "f361db4e15e6bfd562a9282b1dccda513910a50061f9e838ce017be9c69dde3f"
+      "skillPath": "plugins/gh-cli/skills/gh-cli/SKILL.md",
+      "computedHash": "6dfc8c3797fdfedb651de5c9ecda0110564e8d09d185a81d38667e8b489d36fb"
     },
     "impeccable": {
       "source": "pbakaus/impeccable",
       "sourceType": "github",
       "skillPath": ".agents/skills/impeccable/SKILL.md",
-      "computedHash": "0ddaa378737861fbe4645cfbd96ed676bf6135a67bc8d653967a3496b3ecef95"
+      "computedHash": "568cb1d9e18f4b4151924df70357da694be3a09b9169e16fa6b26f06db35006b"
     },
     "pencil-design": {
       "source": "chiroro-jr/pencil-design-skill",
       "sourceType": "github",
       "skillPath": "SKILL.md",
       "computedHash": "e898f789a2fdf7eceace95294be4601aa7a2699aeefbb16a741c1ee78d208856"
+    },
+    "playwright-cli": {
+      "source": "microsoft/playwright-cli",
+      "sourceType": "github",
+      "skillPath": "skills/playwright-cli/SKILL.md",
+      "computedHash": "19b6942c9cbcf9b9e3000fc497f8f156b8251d66055de806017e4aaa651e0c7b"
     }
   }
 }
