@@ -39,6 +39,12 @@ jobs:
     name: Server
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    services:
+      mailpit:
+        image: axllent/mailpit:v1.21
+        ports:
+          - 54324:8025
+          - 54325:1025
     env:
       INNGEST_BASE_URL: http://127.0.0.1:8288
       SCOOPS_PDV_PREVIEW_TOKEN_SECRET: scoops-ci-preview-token-secret-at-least-32-characters
@@ -71,6 +77,9 @@ jobs:
 
       - name: Check types
         run: pnpm --filter server check:types
+
+      - name: Run Inngest integration tests
+        run: pnpm --filter server test:inngest
 
       - name: Run tests with coverage
         id: coverage
