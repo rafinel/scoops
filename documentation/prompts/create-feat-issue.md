@@ -84,7 +84,7 @@ Use all of those fields together to derive the issue Outcome and Scope; do not t
 field as the complete requirement. PRDs intentionally have no Acceptance Criteria or User
 Stories sections. Derive issue-level acceptance criteria from the selected requirement fields
 without adding a duplicate PRD contract. Use User Journeys only to preserve end-to-end or
-alternate scenarios that cross one or more `REQ-*` requirements.
+alternate scenarios that cross one or more `PRQ-*` requirements.
 
 The PRD Product Dependency Graph describes consumption of product capabilities or
 authoritative facts. It is not implementation sequencing, issue decomposition, foundation

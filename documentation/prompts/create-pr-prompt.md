@@ -13,8 +13,8 @@ and update an existing delivery PR instead of creating a duplicate.
 Read the implemented Spec or Bug Report, Plan when present, `evaluation.md`, actual diff,
 `documentation/sdd.md`, `documentation/tooling.md`, applicable Rules and
 `documentation/rules/commit-rules.md`. For a feature delivery, confirm that the Evaluation
-uses the canonical `documentation/templates/evaluation.md` structure and that its evidence is
-current for the exact Spec revision.
+uses the Canonical Evaluation shape defined in `documentation/prompts/implement-spec-prompt.md`
+and that its evidence is current for the exact Spec revision.
 Preserve only actual GitHub Issue or direct-request traceability; do not invent external
 records.
 
@@ -166,9 +166,9 @@ Include these sections in this order:
 - **Related issues** — real GitHub Issues and their relationship, or `None`. For every listed
   issue, use the GitHub closing keyword `Closes #<number>`; do not use `Refs #<number>` or
   another non-closing relationship when an issue is listed.
-- **PRD and Spec traceability** — applicable PRD, fully/partially delivered `REQ-*`
+- **PRD and Spec traceability** — applicable PRD, fully/partially delivered `PRQ-*`
   requirements and their current Implemented-checkbox disposition, Spec, Plan, exact revision
-  and covered `RF-*`/`CA-*` criteria. Report the state established by `conclude-spec`; this
+  and covered `FR-*`/`AC-*` criteria. Report the state established by `conclude-spec`; this
   workflow does not change PRD checkboxes;
 - **Implementation** — coherent frontend, backend, domain, persistence and test slices with
   the most relevant changed paths. Describe each affected layer concretely: name the

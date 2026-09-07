@@ -70,7 +70,7 @@ Before drafting the issue:
 When an applicable PRD requirement exists:
 
 - use its Outcome, Actors, Capabilities and Experience to state expected behavior;
-- include its `REQ-*` identifier in Context;
+- include its `PRQ-*` identifier in Context;
 - use relevant User Journeys only to clarify the reported path; and
 - treat its Implemented delivery state as read-only.
 
@@ -124,7 +124,7 @@ Use only this structure:
 - **Environment:** {local | staging | production | Unknown}
 - **Frequency:** {always | intermittent | observed once | Unknown}
 - **Affected profile:** {profile or Not identified}
-- **PRD requirement:** {REQ-* link or Not identified}
+- **PRD requirement:** {PRQ-* link or Not identified}
 - **Evidence:** {links or Not provided}
 ```
 

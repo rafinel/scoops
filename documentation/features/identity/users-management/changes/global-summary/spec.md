@@ -34,15 +34,15 @@ for manageable same-establishment users, still excluding the authenticated Manag
 
 | ID | Source | Required behavior |
 | --- | --- | --- |
-| `RF-01` | Identity REQ-06 global-summary rule | `GET /users` returns global `total`, `managers`, and `operators` counts for all manageable users in the actor's establishment, excluding the actor and foreign tenants, independently of search/profile/status/page. |
-| `RF-02` | Identity REQ-06 list rules | Items and pagination metadata continue to respect active search/profile/status/page inputs. |
-| `RF-03` | Direct request | The Users header summary and Todos/Gerentes/Operadores chips consume the global summary and remain stable as the table query changes. |
+| `FR-01` | Identity PRQ-06 global-summary rule | `GET /users` returns global `total`, `managers`, and `operators` counts for all manageable users in the actor's establishment, excluding the actor and foreign tenants, independently of search/profile/status/page. |
+| `FR-02` | Identity PRQ-06 list rules | Items and pagination metadata continue to respect active search/profile/status/page inputs. |
+| `FR-03` | Direct request | The Users header summary and Todos/Gerentes/Operadores chips consume the global summary and remain stable as the table query changes. |
 
 | ID | RF coverage | Given | When | Then | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| `CA-01` | `RF-01`, `RF-02` | Same-tenant users inside/outside a filter and a foreign tenant user | A Manager requests a filtered page | Rows/metadata are filtered; summary counts the full manageable tenant team only | Core and real controller tests |
-| `CA-02` | `RF-03` | A populated Users page | Search/profile/status/page changes | Table changes while all summary values remain unchanged and no separate summary request occurs | Widget and Playwright tests |
-| `CA-03` | `RF-03` | The filtered browser state at 1481×900 | Evidence is captured | Global counts and filtered table state are visibly clear without layout change | `MV-01`, `VIS-01` |
+| `AC-01` | `FR-01`, `FR-02` | Same-tenant users inside/outside a filter and a foreign tenant user | A Manager requests a filtered page | Rows/metadata are filtered; summary counts the full manageable tenant team only | Core and real controller tests |
+| `AC-02` | `FR-03` | A populated Users page | Search/profile/status/page changes | Table changes while all summary values remain unchanged and no separate summary request occurs | Widget and Playwright tests |
+| `AC-03` | `FR-03` | The filtered browser state at 1481×900 | Evidence is captured | Global counts and filtered table state are visibly clear without layout change | `MV-01`, `EV-VIS-01` |
 
 ## 3. Technical Contract
 
@@ -60,7 +60,7 @@ visible rows or issue a second request.
 | `EV-CORE` | Core code/types and focused list-users use-case test | Response contract and mapping |
 | `EV-SERVER` | Focused real `list-users.controller.test.ts`, server code/types | Tenant/global summary plus filtered list |
 | `EV-WEB` | Focused widget tests, web code/types, mocked Users route Playwright | Stable visible counts and one request per state |
-| `MV-01` | At 1481×900, note counts, apply a narrowing filter/search, verify changed table/request and unchanged counts; inspect console/network | `CA-02`, `CA-03` |
+| `MV-01` | At 1481×900, note counts, apply a narrowing filter/search, verify changed table/request and unchanged counts; inspect console/network | `AC-02`, `AC-03` |
 
 Capture the filtered browser state through Playwright into `test-results/` or a CI artifact and
 record the exact viewport, comparison result and artifact identifier in `evaluation.md`.
@@ -69,7 +69,7 @@ record the exact viewport, comparison result and artifact identifier in `evaluat
 
 | Authority | Alignment |
 | --- | --- |
-| `documentation/prds/identity.md` | REQ-06 now defines global manageable-team counts. |
+| `documentation/prds/identity.md` | PRQ-06 now defines global manageable-team counts. |
 | Architecture/Modules/Design/Tooling | Existing backend authority, Identity ownership, visual pattern, and commands remain unchanged. |
 | Rule Pack | Core, use-case testing, database, REST, controller testing, UI, widget testing, and code conventions apply. |
 

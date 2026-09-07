@@ -32,7 +32,7 @@ Require:
 - `evaluation.md` has `status: ready` and references the current Spec revision and
   implementation;
 - direct implementation or all Plan phases are complete;
-- required CA, `MV-*`, runtime and visual evidence is current;
+- required AC, `MV-*`, runtime and visual evidence is current;
 - no blocking implementation finding remains;
 - source and GitHub Issue traceability is preserved.
 
@@ -59,8 +59,8 @@ diff, and contains one current labeled example for every controller route with t
 parameters, headers and representative body. A passing controller test does not replace this
 REST-client artifact check.
 
-Require explicit PRD implementation traceability in that record. Map every in-scope `REQ-*`
-through the Spec's `RF-*` requirements and `CA-*` acceptance criteria to current Evaluation
+Require explicit PRD implementation traceability in that record. Map every in-scope `PRQ-*`
+through the Spec's `FR-*` requirements and `AC-*` acceptance criteria to current Evaluation
 evidence, then classify it as fully delivered, partially delivered or deferred. A requirement
 is fully delivered only when its complete current Outcome, Actors, applicable Consumes and
 Provides, Capabilities and conditional Experience are implemented and every mapped Contract
@@ -85,7 +85,7 @@ it:
   evaluation to `in_progress` and immediately invoke `implement-spec`. It selects the current
   Plan automatically when present and owns the correction and validation.
 - **Contract change:** set the Spec to `draft`, immediately invoke `create-spec`, obtain required
-  product or technical authority, uncheck every materially changed PRD `REQ-*` before the
+  product or technical authority, uncheck every materially changed PRD `PRQ-*` before the
   revised Spec is authored, increment the revision, reconcile Plan/evaluation and continue
   through the recommended implementation route before resuming conclusion.
 - **Documented transient CI/infrastructure failure:** keep the Spec `in_progress` and allow
@@ -124,7 +124,7 @@ conclusion automatically after it returns evaluation to `ready`.
    implementation or acceptance-evidence change routes back to the implementation workflow. If a
    later correction changes, creates, generates or removes a contracted path, rerun the package
    check before committing or publishing.
-6. Resolve the PRD implementation-checkbox disposition from the completed `REQ-*`/`RF-*`/`CA-*`
+6. Resolve the PRD implementation-checkbox disposition from the completed `PRQ-*`/`FR-*`/`AC-*`
    traceability record. Change only fully delivered requirements to
    `- [x] **Implemented**`; leave partially delivered and deferred requirements as
    `- [ ] **Implemented**`. Make this PRD update only after steps 1–5 pass and before invoking
@@ -172,7 +172,7 @@ If CI fails:
 
 - record the failure in `evaluation.md` and keep the Spec `in_progress`;
 - classify whether it proves an affected PRD requirement is not delivered. Uncheck each affected
-  previously checked `REQ-*` only for a verified product failure; preserve checkbox state for a
+  previously checked `PRQ-*` only for a verified product failure; preserve checkbox state for a
   transient CI/infrastructure failure or an evidence-only issue where product behavior remains
   verified;
 - immediately invoke the applicable implementation or amendment workflow through the
@@ -205,8 +205,8 @@ incomplete conclusion run.
 
 After CI passes, verify `evaluation.md` contains:
 
-- the canonical `documentation/templates/evaluation.md` sections, table columns and stable
-  evidence IDs;
+- the Canonical Evaluation shape from `documentation/prompts/implement-spec-prompt.md`, including
+  its sections, table columns and stable evidence IDs;
 - exact Spec revision;
 - complete acceptance-criteria matrix;
 - automated, runtime, manual and visual evidence;
@@ -232,7 +232,7 @@ Check PRD, Architecture, Modules, Design, Tooling and the Rule Pack against deli
 Apply factual documentation corrections only. Product, Contract, global Rule, module
 ownership or architecture changes require user authority and the late-change route.
 
-Reconcile the final PRD checkbox state against the same complete `REQ-*`/`RF-*`/`CA-*`
+Reconcile the final PRD checkbox state against the same complete `PRQ-*`/`FR-*`/`AC-*`
 traceability used before publication. Every checked requirement must still be fully delivered;
 every partial or deferred requirement must remain unchecked. A mismatch is a blocking closure
 finding and follows the same correction, amendment or transient-failure routing above.
@@ -313,8 +313,8 @@ Return:
 - clickable Spec, Plan when present, evaluation and PR links;
 - Spec revision and completed status;
 - delivery references, when present;
-- validation result and CA/manual/visual coverage;
-- fully delivered, partially delivered and deferred PRD `REQ-*` requirements with their final
+- validation result and AC/manual/visual coverage;
+- fully delivered, partially delivered and deferred PRD `PRQ-*` requirements with their final
   Implemented-checkbox disposition;
 - applicable PR CI workflows and results;
 - documentation paths included in the delivery, with explicitly preserved exclusions and their

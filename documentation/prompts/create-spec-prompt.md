@@ -31,11 +31,11 @@ Repository authority overrides generic workflow assumptions. Use actual reposito
 commands, versions, terminology and source systems. Never invent tickets, migrations,
 framework conventions or validation categories.
 
-When a PRD is authoritative, consume each applicable `REQ-*` through its `Outcome`, `Actors`,
+When a PRD is authoritative, consume each applicable `PRQ-*` through its `Outcome`, `Actors`,
 `Consumes`, `Provides`, `Capabilities` and `Experience`. The PRD does not own Acceptance
-Criteria or User Stories: derive the Spec's `RF-*` and `CA-*` contract from those requirement
+Criteria or User Stories: derive the Spec's `FR-*` and `AC-*` contract from those requirement
 fields instead of expecting, reconstructing or requesting duplicate PRD sections. Use User
-Journeys as cross-`REQ-*` scenario context. Treat the Product Dependency Graph as product
+Journeys as cross-`PRQ-*` scenario context. Treat the Product Dependency Graph as product
 capability and authoritative-fact dependency evidence only, never as implementation order,
 foundation work, execution waves or Plan sequencing.
 
@@ -117,7 +117,7 @@ writing the Spec. This includes inferred actions, permission boundaries, read-on
 editable fields, session/device controls, deletion or destructive controls, status badges,
 workflow transitions, empty/loading/error behavior, role-specific differences, and any
 element whose presence suggests product behavior rather than decoration. Do not silently
-promote an inferred screenshot detail into an RF, CA, API, route or implementation scope.
+promote an inferred screenshot detail into an FR, AC, API, route or implementation scope.
 
 Each screenshot-derived clarification must include:
 
@@ -226,7 +226,7 @@ Use Markdown tables whenever repeated items share the same attributes or exact m
 important. Tables are required for:
 
 - scope/product alignment when more than one item is involved;
-- RF/REQ/CA traceability;
+- FR/PRQ/AC traceability;
 - design-frame inventory in `design/manifest.md`;
 - implementation paths grouped by affected application and layer;
 - technical decisions, when any are recorded;
@@ -266,13 +266,13 @@ Do not put repository implementation evidence or technical decisions in this sec
 
 ### 2. Implementation Contract
 
-Define observable requirements as `RF-*`. Keep internal paths and algorithms out of them.
-When the authoritative PRD/source defines `REQ-*` requirements, map every RF to one or more
-real `REQ-*` identifiers; do not invent requirement IDs. If no REQ taxonomy exists, map each RF
-to the actual source statement or Issue acceptance instead. Show the mapping directly in the RF
-table or an adjacent RF-to-REQ/source traceability table.
+Define observable requirements as `FR-*`. Keep internal paths and algorithms out of them.
+When the authoritative PRD/source defines `PRQ-*` requirements, map every FR to one or more
+real `PRQ-*` identifiers; do not invent requirement IDs. If no PRQ taxonomy exists, map each FR
+to the actual source statement or Issue acceptance instead. Show the mapping directly in the FR
+table or an adjacent FR-to-PRQ/source traceability table.
 
-For every applicable PRD `REQ-*`, derive the RF and CA set from the complete requirement
+For every applicable PRD `PRQ-*`, derive the FR and AC set from the complete requirement
 contract:
 
 - `Outcome` defines the user or business result the Spec must deliver;
@@ -284,29 +284,29 @@ contract:
 - `Experience` defines user-visible interaction, feedback, states, responsiveness and
   accessibility when present.
 
-Do not reduce a requirement to only its Capabilities or Experience bullets. Synthesize RFs from
-the six fields, then derive Spec-owned `CA-*` criteria that prove those RFs. Use PRD User
+Do not reduce a requirement to only its Capabilities or Experience bullets. Synthesize FRs from
+the six fields, then derive Spec-owned `AC-*` criteria that prove those FRs. Use PRD User
 Journeys to identify end-to-end and alternate scenarios spanning one or more requirements and
-to inform CA/MV coverage without copying journeys into a second requirement system. Do not
+to inform AC/MV coverage without copying journeys into a second requirement system. Do not
 look for PRD Acceptance Criteria or User Stories; their absence is intentional.
 
 Use a requirements table when there is more than one requirement:
 
-| ID | REQ/source coverage | Required behavior |
+| ID | PRQ/source coverage | Required behavior |
 | --- | --- | --- |
-| `RF-01` | `<real REQ-* IDs or source anchor>` | `<observable behavior and applicable restrictions>` |
+| `FR-01` | `<real PRQ-* IDs or source anchor>` | `<observable behavior and applicable restrictions>` |
 
-Map every requirement to acceptance evidence using this required table. Every CA must link to
-one or more RFs, and every RF must link to one or more CAs; do not leave either direction
+Map every requirement to acceptance evidence using this required table. Every AC must link to
+one or more FRs, and every FR must link to one or more ACs; do not leave either direction
 implicit:
 
-| ID | RF coverage | Requirement | Given | When | Then | Expected evidence |
+| ID | FR coverage | Requirement | Given | When | Then | Expected evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| `CA-01` | `RF-01` | `<observable criterion>` | `<precondition>` | `<action>` | `<observable result>` | `<test boundary and/or MV-01>` |
+| `AC-01` | `FR-01` | `<observable criterion>` | `<precondition>` | `<action>` | `<observable result>` | `<test boundary and/or MV-01>` |
 
 Cover applicable success, rejection, authorization, tenant isolation, concurrency,
 provider failure, session/hydration restoration, accessibility, performance and secret
-boundaries. Every RF must have acceptance evidence. `MV-*` identifies a manual scenario;
+boundaries. Every FR must have acceptance evidence. `MV-*` identifies a manual scenario;
 it is not another requirement system.
 
 Add **Cross-cutting restrictions** only when needed. Use a `Concern | Contract` table when
@@ -331,13 +331,13 @@ inventory covering:
 - hierarchy, alignment, spacing relationships, dimensions, typography, color tokens,
   borders, radii, shadows and responsive implications;
 - elements intentionally absent, ambiguous, or likely to be confused with adjacent scope;
-- the RF/CA criteria and implementation surface that the screenshot must validate.
+- the FR/AC criteria and implementation surface that the screenshot must validate.
 
 The design manifest must preserve that analysis in a concise table or linked design note:
 
 | Reference | Route/surface/state | Viewport | Required visible inventory | Interaction/state coverage | Ambiguities or exclusions | Validation target |
 | --- | --- | --- | --- | --- | --- | --- |
-| `<screenshot>` | `<route and state>` | `<width × height>` | `<elements and hierarchy>` | `<controls/states>` | `<explicit notes>` | `<CA/MV/validation-artifact identifier>` |
+| `<screenshot>` | `<route and state>` | `<width × height>` | `<elements and hierarchy>` | `<controls/states>` | `<explicit notes>` | `<AC/MV/validation-artifact identifier>` |
 
 After reviewing the supplied screenshots, the Spec creator must decide whether additional
 screenshots are necessary. Suggest them whenever the supplied bundle leaves a material gap,
@@ -347,7 +347,7 @@ role, tenant, mobile or breakpoint states. Each suggestion must state:
 - the proposed route/surface/state and role or fixture;
 - the exact viewport;
 - why the supplied references are insufficient;
-- the RF/CA/MV criteria it would clarify;
+- the FR/AC/MV criteria it would clarify;
 - whether it is **required before implementation** or **recommended supplemental coverage**.
 
 Required supplemental screenshots must be captured and added to the feature-local design
@@ -448,7 +448,7 @@ path in its owning application and layer.
 
 Do not turn this section into an execution Plan. Specify required declarations and
 semantics, not task order, implementation attempts or incidental algorithms. Do not repeat
-RF/CA behavior, validation procedures or the same technical responsibility in multiple
+FR/AC behavior, validation procedures or the same technical responsibility in multiple
 subsections.
 
 #### Current technical state
@@ -516,7 +516,7 @@ contract a manual edit to a generated file.
 For every row, name exact declarations rather than describing a file generically. Include
 types, named errors, side-effect timing, exports, registration and generated outputs when
 they are part of the contract. State both what changes and the runtime guarantee the change
-must preserve. Reference RF/CA IDs only where they disambiguate the responsibility; the
+must preserve. Reference FR/AC IDs only where they disambiguate the responsibility; the
 Validation Contract remains the canonical evidence map. Add a short TypeScript signature,
 JSON/schema example or state table after the layer table only when the columns would
 otherwise leave the contract ambiguous. Domain Entity/Structure declaration code is required
@@ -931,7 +931,7 @@ technical decisions: keep the Spec `draft` and return to clarification.
 ### 4. Validation Contract
 
 Testing is part of implementation. Derive each boundary from the repository test taxonomy
-and name real test files/suites and the CA IDs they prove. Keep mocked transport, real
+and name real test files/suites and the AC IDs they prove. Keep mocked transport, real
 integration and manual Playwright CLI evidence distinct. Do not invent test functions, arbitrary
 coverage percentages or commands. Use the repository coverage policy and real
 `test:coverage` commands from `documentation/tooling.md` for every affected testable workspace.
@@ -961,11 +961,11 @@ Use this required coverage table:
 
 | Acceptance | Automated boundary | Manual scenario | Evidence target |
 | --- | --- | --- | --- |
-| `CA-01` | `<real test file/suite or none with reason>` | `MV-01` or `—` | `<evaluation section/artifact>` |
+| `AC-01` | `<real test file/suite or none with reason>` | `MV-01` or `—` | `<evaluation section/artifact>` |
 
 For each `MV-*`, provide:
 
-- mapped CA IDs, services/health checks, accounts/fixtures and preconditions;
+- mapped AC IDs, services/health checks, accounts/fixtures and preconditions;
 - starting route/state, exact viewport and saved design reference when applicable;
 - numbered actions, including a keyboard path;
 - expected visible result, final URL, network and persistence/provider effect;
@@ -1053,11 +1053,11 @@ Spec review remains. Before changing it to `open`, verify:
   as a resolved clarification or explicit Contract decision;
 - metadata, source, status and revision consistency;
 - every applicable PRD requirement was consumed through Outcome, Actors, Consumes, Provides,
-  Capabilities and Experience, with cross-REQ User Journeys reflected where relevant;
+  Capabilities and Experience, with cross-PRQ User Journeys reflected where relevant;
 - no Product Dependency Graph edge was treated as implementation sequencing;
 - no requirement was marked Implemented by this workflow, and every materially amended
   applicable requirement is unchecked before Spec authoring;
-- complete RF/CA/evidence traceability;
+- complete FR/AC/evidence traceability;
 - filesystem-valid layer-contract path and change classifications;
 - complete resulting field schemas for every affected Entity and Structure;
 - no unresolved material product or technical ambiguity;

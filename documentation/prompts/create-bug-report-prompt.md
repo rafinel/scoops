@@ -42,7 +42,7 @@ from hypotheses and omit claims that cannot be supported by repository evidence.
 1. Require an existing GitHub bug issue. If none exists, stop and route intake through
    `create-bug-issue`; do not create or update the issue from this workflow.
 2. Separate the observed failure from expected product behavior.
-3. Link the report to the relevant PRD `REQ-*` when the defect violates an existing product
+3. Link the report to the relevant PRD `PRQ-*` when the defect violates an existing product
    requirement. Do not amend the PRD unless intended product behavior changes.
 4. Inspect the real feature entry point, state control, remote call, use case, persistence and
    integration boundaries implicated by the evidence.
@@ -54,7 +54,7 @@ from hypotheses and omit claims that cannot be supported by repository evidence.
    - **Direct correction** for a narrow, well-understood, low-risk fix that does not require a
      durable implementation contract; or
    - **Correction Spec** for ambiguous, cross-layer, high-risk or coordinated work that needs
-     formal `CA-*`, `MV-*` or implementation planning.
+     formal `AC-*`, `MV-*` or implementation planning.
 7. Report the GitHub issue, Bug Report path and recommended delivery route in the final output
    summary. Do not write the route into a separate Bug Report section.
 
@@ -64,7 +64,7 @@ from hypotheses and omit claims that cannot be supported by repository evidence.
 ---
 title: {Short descriptive title}
 issue: {GitHub issue URL}
-prd: {PRD path and REQ-* or null}
+prd: {PRD path and PRQ-* or null}
 status: open
 last_updated_at: {YYYY-MM-DD}
 ---

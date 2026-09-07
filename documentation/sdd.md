@@ -47,7 +47,7 @@ updated authority.
 
 ### PRD requirement contract
 
-Each module PRD expresses a canonical `REQ-*` requirement with these fields, in this order:
+Each module PRD expresses a canonical `PRQ-*` requirement with these fields, in this order:
 
 1. an **Implemented** checkbox;
 2. **Outcome**;
@@ -60,7 +60,7 @@ Each module PRD expresses a canonical `REQ-*` requirement with these fields, in 
 Omit `Consumes` or `Provides` when no meaningful product-capability relationship exists, and
 omit `Experience` only for a purely system-executed requirement with no user-visible effect.
 PRDs do not contain User Stories or Acceptance Criteria. Observable implementation acceptance
-belongs to the Spec's `CA-*` contract. PRD User Journeys may cross several `REQ-*` requirements
+belongs to the Spec's `AC-*` contract. PRD User Journeys may cross several `PRQ-*` requirements
 and must not become a duplicate requirement list.
 
 A PRD Product Dependency Graph records only product-capability consumption: an edge from A to B
@@ -70,12 +70,29 @@ parallelism. Specs and Plans derive execution dependencies from the Technical Co
 repository boundaries, never from the PRD graph.
 
 New and materially amended requirements use an unchecked Implemented checkbox. A material PRD
-amendment returns every affected `REQ-*` to unchecked before the revised Spec is authored.
+amendment returns every affected `PRQ-*` to unchecked before the revised Spec is authored.
 `create-prd`, `create-spec` and `implement-spec` never check a PRD requirement. Only
 `conclude-spec` may check a fully delivered current requirement, after conclusion preflight and
 before the delivery commit and final PR CI. Evaluation `ready` means implementation evidence can
 enter conclusion; it is not PRD closure and does not authorize a checkbox change by
 `implement-spec`.
+
+### SDD identifier taxonomy
+
+| Identifier | Meaning | Owner or use |
+| --- | --- | --- |
+| `PRQ-*` | Product Requirement | Module PRDs |
+| `FR-*` | Functional Requirement | Spec Implementation Contract |
+| `AC-*` | Acceptance Criterion | Spec acceptance and traceability |
+| `MV-*` | Manual Validation | Executable user-visible validation scenario |
+| `EV-*` | Evidence | Automated, runtime, manual-supporting or visual evidence; use a `Type` field for visual evidence |
+| `FND-*` | Finding | Evaluation issue, discrepancy or correction record |
+| `CI-*` | CI Quality Gate | Evaluation record for a checked-in PR workflow run |
+
+`VIS-*` is not a separate namespace. Visual comparisons use `EV-*` with `Type = visual`.
+Completed historical Specs and Evaluations may retain legacy identifiers for record stability;
+new artifacts and active artifacts being revised use this taxonomy. Do not rewrite historical
+evidence only to rename an identifier.
 
 ## Roles
 
@@ -220,7 +237,7 @@ technical, design and validation ambiguity. Questions include repository evidenc
 recommendation, alternatives and impact. Facts already fixed by authoritative documents
 are not delegated back to the user.
 
-When a PRD is authoritative, the Spec derives its `RF-*` and `CA-*` contracts from the complete
+When a PRD is authoritative, the Spec derives its `FR-*` and `AC-*` contracts from the complete
 mapped requirement: Outcome, Actors, applicable Consumes and Provides, Capabilities, conditional
 Experience and relevant cross-requirement User Journeys. The PRD does not duplicate User Stories
 or Acceptance Criteria, and its Product Dependency Graph is not implementation sequencing.
@@ -230,7 +247,7 @@ The Spec has five top-level sections:
 | Section | Content |
 | --- | --- |
 | Context and scope | Objective, source, current product gap, boundaries, product alignment and accepted assumptions. |
-| Implementation Contract | Observable `RF-*` requirements, `CA-*` Given/When/Then acceptance, cross-cutting restrictions and conditional Design Contract. |
+| Implementation Contract | Observable `FR-*` requirements, `AC-*` Given/When/Then acceptance, cross-cutting restrictions and conditional Design Contract. |
 | Technical Contract | Current technical state, runtime flow, application/layer contracts and consequential technical decisions. |
 | Validation Contract | Automated boundaries, executable `MV-*` manual scenarios, commands and evidence targets. |
 | Documentation alignment and revision history | Governing documents, exact Rule Pack and material Spec revisions. |
@@ -251,7 +268,7 @@ the file to the REST-owning Builder (or the Orchestrator when it is a shared gen
 coordination artifact), and Evaluation records the route/example parity check. A route group
 is not implementation-complete while its REST-client file is missing, stale or untracked.
 
-The Spec remains `draft` until its metadata, RF/CA traceability, technical map, design
+The Spec remains `draft` until its metadata, FR/AC traceability, technical map, design
 bundle, manual scenarios, commands, links and Rule Pack pass Orchestrator integrity checks and
 the applicable independent [`Spec Reviewer`](./agents/spec-reviewer-agent.md) finds no unresolved
 Architecture or Rule compatibility issue. This review runs inside `create-spec`, before any
@@ -309,9 +326,9 @@ current Plan references the Spec revision. The common workflow:
 
 1. freeze the current Spec revision;
 2. set the Spec to `in_progress`, and the Plan when present;
-3. create or reconcile `evaluation.md` from the canonical
-   [`evaluation.md` template](./templates/evaluation.md) with `status: in_progress`;
-4. activate bounded direct or stable ownership Builders with RF/CA coverage, allowed paths,
+3. create or reconcile `evaluation.md` from the Canonical Evaluation shape in
+   [`implement-spec`](./prompts/implement-spec-prompt.md) with `status: in_progress`;
+4. activate bounded direct or stable ownership Builders with FR/AC coverage, allowed paths,
    assigned phases, Rules, Architecture and design references;
 5. inspect and integrate all Builder diffs and Orchestrator-owned artifacts, run
    `pnpm check:spec-implementation -- <exact-spec-path>` on the complete candidate, then run
@@ -350,8 +367,8 @@ affected checkbox, and it changes it only to unchecked. Reaching Evaluation `rea
 only that the current implementation and evidence can proceed to conclusion; it neither closes
 the PRD requirement nor marks it implemented.
 
-The canonical [`evaluation.md` template](./templates/evaluation.md) fixes the table structure
-and stable evidence IDs. An Evaluation records:
+The Canonical Evaluation shape in [`implement-spec`](./prompts/implement-spec-prompt.md) fixes
+the table structure and stable evidence IDs. An Evaluation records:
 
 - Spec and Plan references, revision and status;
 - acceptance matrix;
@@ -376,7 +393,7 @@ unless the Spec or another repository authority requires one. The Reviewer cover
 contracts and, when UI is affected, inspects every final visual comparison and independently
 replays high-risk Playwright CLI interactions. The Orchestrator compares every transient
 implementation capture with its original saved reference at the exact viewport and state, records
-each CA and MV result, inspects console, network and persisted-state evidence, and verifies every
+each AC and MV result, inspects console, network and persisted-state evidence, and verifies every
 affected REST-client example file against the current controller operations and shared request
 schemas. REST-client parity is a separate artifact check and does not replace real HTTP integration
 evidence.
@@ -399,7 +416,7 @@ artifacts are changed:
 | Classification | Meaning | SDD action |
 | --- | --- | --- |
 | Implementation correction | Existing implementation does not satisfy the current Spec, Design Contract or Rule. | Keep the Spec revision, record a finding, reopen affected work/evidence, resume the responsible Builder when possible and rerun the affected validation. |
-| Contract change | Requested product behavior, design intent or technical boundary differs from the current Spec. | Set the Spec to `draft`, route through `create-spec`, update higher authority first when required, return every materially amended PRD `REQ-*` to unchecked, increment revision, refresh affected design/validation, reopen and reroute implementation. |
+| Contract change | Requested product behavior, design intent or technical boundary differs from the current Spec. | Set the Spec to `draft`, route through `create-spec`, update higher authority first when required, return every materially amended PRD `PRQ-*` to unchecked, increment revision, refresh affected design/validation, reopen and reroute implementation. |
 
 Earlier evidence and verdicts affected by a new Spec revision remain as historical records.
 If the route changes from Plan to direct implementation, the Plan becomes `superseded`.
@@ -417,7 +434,7 @@ With user authorization to commit, push and publish, conclusion:
 1. runs `pnpm check:spec-implementation -- <exact-spec-path>` on the complete delivery candidate,
    then runs the remaining required local preflight;
 2. verifies generated artifacts, migrations, design evidence and documentation;
-3. resolves every in-scope PRD requirement through `REQ-*`/`RF-*`/`CA-*` traceability, checks
+3. resolves every in-scope PRD requirement through `PRQ-*`/`FR-*`/`AC-*` traceability, checks
    only fully delivered requirements as Implemented and leaves partial/deferred requirements
    unchecked;
 4. uses `commit-code` for scoped commits, including required PRD checkbox changes;

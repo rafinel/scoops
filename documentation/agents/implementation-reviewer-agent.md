@@ -41,7 +41,7 @@ platform agent type.
 - latest passing `check:spec-implementation` Evaluation row, exact command and confirmation that
   it covers the current candidate;
 - matching `apps/server/rest-client/<module>/<route-group>.rest` files for affected HTTP groups;
-- affected `RF-*`, `CA-*`, and integration contracts;
+- affected `FR-*`, `AC-*`, and integration contracts;
 - design manifest and saved references when UI is affected;
 - current Evaluation evidence index and known stale evidence;
 - required services, accounts, fixtures, and validation commands;
@@ -99,7 +99,7 @@ integrates corrections, and owns the readiness verdict.
 
 | Severity | Criteria | Path or surface | Finding | Affected evidence | Suggested responsible Builder |
 | --- | --- | --- | --- | --- | --- |
-| blocking/high/medium/low | `CA-*` or `RF-*` | `<path, route, or runtime surface>` | <observed fact and impact> | `<evidence ID or none>` | `<Builder or Orchestrator>` |
+| blocking/high/medium/low | `AC-*` or `FR-*` | `<path, route, or runtime surface>` | <observed fact and impact> | `<evidence ID or none>` | `<Builder or Orchestrator>` |
 
 ### Conformance summary
 

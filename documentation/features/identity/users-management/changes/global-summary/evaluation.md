@@ -10,7 +10,7 @@ updated_at: 2026-08-20
 
 Evaluation of Spec revision 1. Current result: Ready. Global tenant summary, filtered list behavior, REST mapping, browser stability, and fresh visual evidence pass.
 
-Builder Direct `/root/users_global_summary_builder` is activated for revision 1 with RF-01–RF-03/CA-01–CA-03. Owned paths are the Core Identity summary/page structures, list-users use case/interface/service contracts and tests; Identity Drizzle users repository, list-users DTO/controller test; web Identity REST adapter, users query/page/widget tests; and `apps/web/tests/routes/identity/users.index.test.ts`. SDD/PRD/Rules, migrations/models, unrelated routes, and all other dirty paths are prohibited. Required exits are focused Biome, Core/server/web types and tests, authenticated controller evidence, mocked Playwright behavior, screenshot, and console/network inspection.
+Builder Direct `/root/users_global_summary_builder` is activated for revision 1 with FR-01–FR-03/AC-01–AC-03. Owned paths are the Core Identity summary/page structures, list-users use case/interface/service contracts and tests; Identity Drizzle users repository, list-users DTO/controller test; web Identity REST adapter, users query/page/widget tests; and `apps/web/tests/routes/identity/users.index.test.ts`. SDD/PRD/Rules, migrations/models, unrelated routes, and all other dirty paths are prohibited. Required exits are focused Biome, Core/server/web types and tests, authenticated controller evidence, mocked Playwright behavior, screenshot, and console/network inspection.
 
 After dependency tracing, Builder ownership also includes the existing web Identity
 `users-page-mapper.ts` and its focused test/barrel only when required; this is the current
@@ -20,9 +20,9 @@ adapter boundary that maps `GET /users` responses into the Core page contract.
 
 | Criterion | Evidence | Status |
 | --- | --- | --- |
-| `CA-01` | `EV-CORE`; `EV-SERVER` | `passed` |
-| `CA-02` | `EV-WEB`; `MV-01` | `passed` |
-| `CA-03` | `MV-01`; `VIS-01` | `passed` |
+| `AC-01` | `EV-CORE`; `EV-SERVER` | `passed` |
+| `AC-02` | `EV-WEB`; `MV-01` | `passed` |
+| `AC-03` | `MV-01`; `EV-VIS-01` | `passed` |
 
 ## Automated and runtime evidence
 
@@ -37,13 +37,13 @@ adapter boundary that maps `GET /users` responses into the Core page contract.
 
 | ID | Scenario | Criteria | Expected | Observed | Status |
 | --- | --- | --- | --- | --- | --- |
-| `MV-01` | Filter a populated Users table | `CA-02`, `CA-03` | Table changes while global counts remain stable; clean console/network | Search/profile/status narrowed the table to one inactive Operator while summary remained 3 total, 1 Manager, 2 Operators; four list-state requests and no separate summary request; console/request failures empty | `passed` |
+| `MV-01` | Filter a populated Users table | `AC-02`, `AC-03` | Table changes while global counts remain stable; clean console/network | Search/profile/status narrowed the table to one inactive Operator while summary remained 3 total, 1 Manager, 2 Operators; four list-state requests and no separate summary request; console/request failures empty | `passed` |
 
 ## Visual evidence
 
-| ID | Surface and state | Viewport | Reference | Implementation | Differences | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| `VIS-01` | Filtered Users table with global summary | `1481 × 900` | User-supplied screenshot as behavioral report | Playwright `test-results/` artifact, not retained in feature docs | Inspected: Ana/inactive filtered row and global 3/1/2 header/chips are visible; layout unchanged | `passed` |
+| ID | Type | Surface and state | Viewport | Reference | Implementation | Differences | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `EV-VIS-01` | `visual` | Filtered Users table with global summary | `1481 × 900` | User-supplied screenshot as behavioral report | Playwright `test-results/` artifact, not retained in feature docs | Inspected: Ana/inactive filtered row and global 3/1/2 header/chips are visible; layout unchanged | `passed` |
 
 ## Rule and documentation compliance
 
@@ -57,7 +57,7 @@ adapter boundary that maps `GET /users` responses into the Core page contract.
 
 | ID | Classification | Source | Affected evidence | Status | Resolution |
 | --- | --- | --- | --- | --- | --- |
-| `FND-001` | Contract/implementation | Direct request and baseline UI/repository inspection | `EV-CORE`; `EV-SERVER`; `EV-WEB`; `MV-01`; `VIS-01` | `resolved` | Added authoritative `UsersPage.summary`, tenant/actor-scoped aggregation, REST mapping and UI consumption without a second request |
+| `FND-001` | Contract/implementation | Direct request and baseline UI/repository inspection | `EV-CORE`; `EV-SERVER`; `EV-WEB`; `MV-01`; `EV-VIS-01` | `resolved` | Added authoritative `UsersPage.summary`, tenant/actor-scoped aggregation, REST mapping and UI consumption without a second request |
 | `FND-002` | Test expectation | Initial focused controller rerun | `EV-SERVER` | `resolved` | Replaced an incompatible nested `toMatchObject`/array matcher with direct ID comparison; data implementation was unchanged and focused 2/2 rerun passed |
 
 ## PR CI quality gate

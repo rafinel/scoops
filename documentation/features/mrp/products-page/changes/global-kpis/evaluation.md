@@ -16,8 +16,8 @@ Builder Direct `/root/global_kpis_builder` is activated for revision 1. Owned pa
 `apps/server/src/mrp/database/drizzle/repositories/drizzle-products-repository.ts`, the
 existing repository-backed `GET /products` controller test/fixture path, and
 `apps/web/tests/routes/mrp/products.index.test.ts`. All other feature, SDD, authority,
-migration, route, and production UI paths are prohibited. Contract coverage is RF-01–RF-03
-and CA-01–CA-03; the required exits are focused Biome, server/web types, focused server
+migration, route, and production UI paths are prohibited. Contract coverage is FR-01–FR-03
+and AC-01–AC-03; the required exits are focused Biome, server/web types, focused server
 integration evidence, and focused Products Playwright evidence.
 
 Builder Fix QG-2 expands validation ownership only to
@@ -30,9 +30,9 @@ repository-direct test.
 
 | Criterion | Evidence | Status |
 | --- | --- | --- |
-| `CA-01` | `EV-02` | `passed` |
-| `CA-02` | `EV-02` | `passed` |
-| `CA-03` | `EV-03`; `MV-01`; `VIS-01` | `passed` |
+| `AC-01` | `EV-02` | `passed` |
+| `AC-02` | `EV-02` | `passed` |
+| `AC-03` | `EV-03`; `MV-01`; `EV-VIS-01` | `passed` |
 
 ## Automated and runtime evidence
 
@@ -46,13 +46,13 @@ repository-direct test.
 
 | ID | Scenario | Criteria | Expected | Observed | Status |
 | --- | --- | --- | --- | --- | --- |
-| `MV-01` | Narrow a populated product list with search/filter | `CA-03` | Rows and request change; Products, Brands, and Low Stock values do not | Search `morango` produced filtered-empty state while cards remained 22/7/4; authenticated repeated-category flow likewise retained the initial KPI payload | `passed` |
+| `MV-01` | Narrow a populated product list with search/filter | `AC-03` | Rows and request change; Products, Brands, and Low Stock values do not | Search `morango` produced filtered-empty state while cards remained 22/7/4; authenticated repeated-category flow likewise retained the initial KPI payload | `passed` |
 
 ## Visual evidence
 
-| ID | Surface and state | Viewport | Reference | Implementation | Differences | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| `VIS-01` | Products catalog with narrowed list and global KPIs | `1481 × 900` viewport (`1481 × 901` full-page image) | User-supplied current-state screenshot (behavioral report, not styling authority) | Playwright `test-results/` artifact, not retained in feature docs | Inspected: filtered-empty list and search are visible; global cards remain 22/7/4; layout is unchanged | `passed` |
+| ID | Type | Surface and state | Viewport | Reference | Implementation | Differences | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `EV-VIS-01` | `visual` | Products catalog with narrowed list and global KPIs | `1481 × 900` viewport (`1481 × 901` full-page image) | User-supplied current-state screenshot (behavioral report, not styling authority) | Playwright `test-results/` artifact, not retained in feature docs | Inspected: filtered-empty list and search are visible; global cards remain 22/7/4; layout is unchanged | `passed` |
 
 ## Rule and documentation compliance
 
@@ -66,9 +66,9 @@ repository-direct test.
 
 | ID | Classification | Source | Affected evidence | Status | Resolution |
 | --- | --- | --- | --- | --- | --- |
-| `FND-001` | Contract/implementation | Direct request; former PRD and Products-page revision-16 RF-03 | `EV-02`; `EV-03`; `MV-01`; `VIS-01` | `resolved` | KPI SQL uses the establishment predicate alone; rows and pagination retain active filter predicates |
-| `FND-002` | Validation evidence | Builder Direct handoff inspection | `EV-03`; `MV-01`; `VIS-01` | `resolved` | QG-1 added the required fresh 1481×900 viewport capture and focused browser rerun passed |
-| `FND-003` | Validation evidence | Builder Direct handoff inspection | `EV-02`; `CA-01`; `CA-02` | `resolved` | QG-2 compares unfiltered and filtered KPI payloads through the real authenticated REST/repository flow; 1/1 passes with clean console/network |
+| `FND-001` | Contract/implementation | Direct request; former PRD and Products-page revision-16 FR-03 | `EV-02`; `EV-03`; `MV-01`; `EV-VIS-01` | `resolved` | KPI SQL uses the establishment predicate alone; rows and pagination retain active filter predicates |
+| `FND-002` | Validation evidence | Builder Direct handoff inspection | `EV-03`; `MV-01`; `EV-VIS-01` | `resolved` | QG-1 added the required fresh 1481×900 viewport capture and focused browser rerun passed |
+| `FND-003` | Validation evidence | Builder Direct handoff inspection | `EV-02`; `AC-01`; `AC-02` | `resolved` | QG-2 compares unfiltered and filtered KPI payloads through the real authenticated REST/repository flow; 1/1 passes with clean console/network |
 
 ## PR CI quality gate
 

@@ -76,7 +76,7 @@ Numeric targets for these metrics have not been approved in the existing product
 
 ## 5. Requirements
 
-### REQ-01 — Communication Channels and Recipients
+### PRQ-01 — Communication Channels and Recipients
 
 - [ ] **Implemented**
 
@@ -85,8 +85,8 @@ in-product notification, or both.
 
 **Actors:** System.
 
-**Provides:** supported communication channels and context-defined recipient selection for REQ-02,
-REQ-03, REQ-04, REQ-06, and REQ-08.
+**Provides:** supported communication channels and context-defined recipient selection for PRQ-02,
+PRQ-03, PRQ-04, PRQ-06, and PRQ-08.
 
 #### Capabilities
 
@@ -113,7 +113,7 @@ REQ-03, REQ-04, REQ-06, and REQ-08.
 
 ---
 
-### REQ-02 — Stock Messages
+### PRQ-02 — Stock Messages
 
 - [x] **Implemented**
 
@@ -123,8 +123,8 @@ recognize low or depleted stock.
 **Actors:** System.
 
 **Consumes:** authoritative stock status and quantities from MRP; supported channels and recipient
-selection from REQ-01; channel-appropriate content from REQ-05; mandatory initiation behavior from
-REQ-08; durable and clear in-product messaging from REQ-09.
+selection from PRQ-01; channel-appropriate content from PRQ-05; mandatory initiation behavior from
+PRQ-08; durable and clear in-product messaging from PRQ-09.
 
 #### Capabilities
 
@@ -144,7 +144,7 @@ REQ-08; durable and clear in-product messaging from REQ-09.
 
 ---
 
-### REQ-03 — Billing Messages
+### PRQ-03 — Billing Messages
 
 - [ ] **Implemented**
 
@@ -154,9 +154,9 @@ information they need to understand the current situation, applicable deadline, 
 **Actors:** System.
 
 **Consumes:** authoritative billing, subscription, tax-document, and commercial-access facts from
-Billing; supported channels and recipient selection from REQ-01; channel-appropriate content from
-REQ-05; mandatory initiation behavior from REQ-08; durable and clear in-product messaging from
-REQ-09 when the defined channel includes an in-product notification.
+Billing; supported channels and recipient selection from PRQ-01; channel-appropriate content from
+PRQ-05; mandatory initiation behavior from PRQ-08; durable and clear in-product messaging from
+PRQ-09 when the defined channel includes an in-product notification.
 
 #### Capabilities
 
@@ -181,7 +181,7 @@ REQ-09 when the defined channel includes an in-product notification.
 
 ---
 
-### REQ-04 — Identity Messages
+### PRQ-04 — Identity Messages
 
 - [ ] **Implemented**
 
@@ -191,8 +191,8 @@ in-product communication for relevant identity and establishment-access events.
 **Actors:** System.
 
 **Consumes:** authoritative onboarding, email, invitation, password, access, user-status, and
-establishment-exclusion facts from Identity; supported channels and recipient selection from REQ-01;
-channel-appropriate content from REQ-05; mandatory initiation behavior from REQ-08.
+establishment-exclusion facts from Identity; supported channels and recipient selection from PRQ-01;
+channel-appropriate content from PRQ-05; mandatory initiation behavior from PRQ-08.
 
 #### Capabilities
 
@@ -216,7 +216,7 @@ channel-appropriate content from REQ-05; mandatory initiation behavior from REQ-
 
 ---
 
-### REQ-05 — Channel-Appropriate Message Content
+### PRQ-05 — Channel-Appropriate Message Content
 
 - [ ] **Implemented**
 
@@ -225,8 +225,8 @@ recipient.
 
 **Actors:** System.
 
-**Provides:** channel-appropriate Brazilian Portuguese message content for REQ-02, REQ-03, and
-REQ-04.
+**Provides:** channel-appropriate Brazilian Portuguese message content for PRQ-02, PRQ-03, and
+PRQ-04.
 
 #### Capabilities
 
@@ -245,7 +245,7 @@ REQ-04.
 
 ---
 
-### REQ-06 — Notification Center
+### PRQ-06 — Notification Center
 
 - [x] **Implemented**
 
@@ -254,15 +254,19 @@ notification history from the Header.
 
 **Actors:** Manager, Operator.
 
-**Consumes:** in-product notifications from REQ-01; durable notification history and clarity from
-REQ-09.
+**Consumes:** in-product notifications from PRQ-01; durable notification history and clarity from
+PRQ-09.
 
-**Provides:** authenticated notification visibility for REQ-07.
+**Provides:** authenticated notification visibility for PRQ-07.
 
 #### Capabilities
 
 - The product must provide a notification center accessible through the Header.
 - The center must display only notifications belonging to the authenticated user.
+- When a new in-product notification is created for an authenticated user with an active session,
+  the product must surface a realtime, non-blocking toast without requiring a page refresh or
+  manual notification-center refresh. This applies to every in-product notification type,
+  regardless of its originating module; email-only communications do not produce a toast.
 - The center must organize notifications by date and allow filtering by period.
 - The center must load older notifications through a “See more” action.
 - The center must preserve notification history without a retention limit.
@@ -276,10 +280,18 @@ REQ-09.
 - The period filter and “See more” action must let the user narrow the history and progressively
   reveal older notifications.
 - The center must display an empty state when the authenticated user has no notifications.
+- A toast must show the notification's objective title and concise contextual message, remain
+  dismissible and non-blocking, and auto-dismiss after approximately 4–6 seconds. Auto-dismissal
+  must pause while the toast is hovered or focused.
+- The toast must be responsive, keyboard accessible, announced appropriately to screen readers,
+  and must not steal focus. Selecting the toast may open the Header notification dropdown.
+- A notification missed while the user is offline or returning to the tab must remain available in
+  notification history without being replayed as a new toast.
+- Design reference: supplied notification-toast screenshot, Pencil Node ID `n5xnGg`.
 
 ---
 
-### REQ-07 — Individual Notification Reading
+### PRQ-07 — Individual Notification Reading
 
 - [x] **Implemented**
 
@@ -288,11 +300,14 @@ visible to that user.
 
 **Actors:** Manager, Operator.
 
-**Consumes:** authenticated notification visibility from REQ-06.
+**Consumes:** authenticated notification visibility from PRQ-06.
 
 #### Capabilities
 
 - A notification must be considered read when it is visible to the authenticated user.
+- Displaying, dismissing, or ignoring a realtime toast alone must not mark its notification as
+  read. For realtime delivery, the notification becomes read only when it is visible in the Header
+  dropdown, using the existing individual read behavior.
 - Read state must be individual to the user.
 - Marking a notification as read for one user must not change its state for another user.
 
@@ -304,7 +319,7 @@ visible to that user.
 
 ---
 
-### REQ-08 — Communication Initiation Consistency
+### PRQ-08 — Communication Initiation Consistency
 
 - [ ] **Implemented**
 
@@ -315,9 +330,9 @@ user's screen.
 **Actors:** System.
 
 **Consumes:** relevant business facts from Identity, Billing, or MRP and their defined communication
-obligations; supported channels and recipient selection from REQ-01.
+obligations; supported channels and recipient selection from PRQ-01.
 
-**Provides:** mandatory initiation behavior for REQ-02, REQ-03, and REQ-04.
+**Provides:** mandatory initiation behavior for PRQ-02, PRQ-03, and PRQ-04.
 
 #### Capabilities
 
@@ -335,7 +350,7 @@ obligations; supported channels and recipient selection from REQ-01.
 
 ---
 
-### REQ-09 — Durable and Clear In-Product Messages
+### PRQ-09 — Durable and Clear In-Product Messages
 
 - [x] **Implemented**
 
@@ -344,7 +359,7 @@ from their content.
 
 **Actors:** Manager, Operator.
 
-**Provides:** durable notification history and clarity for REQ-02, REQ-03, and REQ-06.
+**Provides:** durable notification history and clarity for PRQ-02, PRQ-03, and PRQ-06.
 
 #### Capabilities
 
@@ -363,27 +378,27 @@ from their content.
 
 ```mermaid
 flowchart LR
-    ID["Identity"] --> R4["REQ-04 Identity Messages"]
-    ID --> R8["REQ-08 Communication Initiation Consistency"]
-    BI["Billing"] --> R3["REQ-03 Billing Messages"]
+    ID["Identity"] --> R4["PRQ-04 Identity Messages"]
+    ID --> R8["PRQ-08 Communication Initiation Consistency"]
+    BI["Billing"] --> R3["PRQ-03 Billing Messages"]
     BI --> R8
-    MRP["MRP"] --> R2["REQ-02 Stock Messages"]
+    MRP["MRP"] --> R2["PRQ-02 Stock Messages"]
     MRP --> R8
-    R1["REQ-01 Channels and Recipients"] --> R2
+    R1["PRQ-01 Channels and Recipients"] --> R2
     R1 --> R3
     R1 --> R4
     R1 --> R8
-    R5["REQ-05 Message Content"] --> R2
+    R5["PRQ-05 Message Content"] --> R2
     R5 --> R3
     R5 --> R4
     R8 --> R2
     R8 --> R3
     R8 --> R4
-    R9["REQ-09 Durable and Clear Messages"] --> R2
+    R9["PRQ-09 Durable and Clear Messages"] --> R2
     R9 --> R3
-    R9 --> R6["REQ-06 Notification Center"]
+    R9 --> R6["PRQ-06 Notification Center"]
     R1 --> R6
-    R6 --> R7["REQ-07 Individual Reading"]
+    R6 --> R7["PRQ-07 Individual Reading"]
 ```
 
 Each edge means the destination consumes the product capability or authoritative fact provided by
@@ -401,9 +416,12 @@ the source. It does not express implementation order.
    - Failure: the originating action is not completed because its mandatory communication could not
      be initiated.
 4. The recipient receives an email, an in-product notification, or both according to the message
-   definition.
+   definition. When an in-product notification is created during the recipient's active session,
+   it also appears as a realtime toast without requiring a manual refresh.
 5. When the communication includes an in-product notification, it appears in the Header dropdown
-   and remains available in the recipient's notification-center history.
+   and remains available in the recipient's notification-center history. If the toast is dismissed,
+   ignored, or missed during a disconnected session, history remains the recovery mechanism and the
+   notification is not replayed as a new toast.
 
 ### Journey B — Consult In-Product Notification History
 

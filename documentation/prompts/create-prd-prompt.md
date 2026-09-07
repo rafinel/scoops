@@ -251,13 +251,13 @@ When [context], I want [action], so that [result].
 
 Define a small set of product objectives and measurable success metrics. Metrics describe
 product outcomes or operational quality; they are not implementation tests and do not replace
-the Spec's `CA-*` acceptance criteria.
+the Spec's `AC-*` acceptance criteria.
 
 ### 5. Requirements
 
 Each requirement must follow this format:
 
-#### REQ-01 — Requirement Name
+#### PRQ-01 — Requirement Name
 
 - [ ] **Implemented**
 
@@ -269,7 +269,7 @@ schedule, event reaction or webhook workflow; do not list System merely because 
 processes a user action.
 
 **Consumes:** list required product capabilities or authoritative facts, with the owning
-`REQ-*` or business module. Omit when the requirement is self-contained. Do not put files,
+`PRQ-*` or business module. Omit when the requirement is self-contained. Do not put files,
 DTOs, endpoints, programming types or implementation sequencing here.
 
 **Provides:** list durable product outcomes or authoritative facts that another requirement or
@@ -289,7 +289,7 @@ module consumes. Omit when there is no meaningful downstream consumer.
 - Omit this subsection for a purely system-executed requirement with no user-visible effect.
 - Keep end-to-end step sequences in User Journeys instead of duplicating them here.
 
-Use sequential requirements: `REQ-01`, `REQ-02`, `REQ-03`.
+Use sequential requirements: `PRQ-01`, `PRQ-02`, `PRQ-03`.
 
 Use `[ ]` for every new or materially amended requirement. Only `conclude-spec` may change it
 to `[x]`, after conclusion preflight confirms the complete current requirement is delivered and
@@ -327,7 +327,7 @@ Journey A — Journey name
 ```
 
 Group by actor or product outcome when that improves clarity. A journey may cross several
-`REQ-*` requirements. Include main and alternate journeys, errors, empty states and destructive
+`PRQ-*` requirements. Include main and alternate journeys, errors, empty states and destructive
 actions without reproducing every Capability or Experience bullet.
 
 Do not add a separate User Stories section. `Outcome`, `Actors`, `Capabilities` and User Journeys

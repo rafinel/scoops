@@ -170,7 +170,7 @@ Success is measured by:
 
 ## 5. Requirements
 
-### REQ-01 — Commercial Plan and Offer
+### PRQ-01 — Commercial Plan and Offer
 
 - [ ] **Implemented**
 
@@ -181,8 +181,8 @@ with a uniform price and complete product scope.
 
 **Consumes:** Identity — Manager profile and functional permissions
 
-**Provides:** Authoritative commercial offer to REQ-02, REQ-03, REQ-04 and
-REQ-17
+**Provides:** Authoritative commercial offer to PRQ-02, PRQ-03, PRQ-04 and
+PRQ-17
 
 #### Capabilities
 
@@ -216,7 +216,7 @@ REQ-17
 
 ---
 
-### REQ-02 — Free Trial
+### PRQ-02 — Free Trial
 
 - [ ] **Implemented**
 
@@ -226,10 +226,10 @@ REQ-17
 **Actors:** Manager, System
 
 **Consumes:** Identity — activation of the establishment and first Manager;
-REQ-01 — commercial offer
+PRQ-01 — commercial offer
 
-**Provides:** Authoritative trial eligibility, period and status to REQ-05,
-REQ-12 and REQ-18
+**Provides:** Authoritative trial eligibility, period and status to PRQ-05,
+PRQ-12 and PRQ-18
 
 #### Capabilities
 
@@ -267,7 +267,7 @@ REQ-12 and REQ-18
 
 ---
 
-### REQ-03 — Holder, Billing Data and Acceptance
+### PRQ-03 — Holder, Billing Data and Acceptance
 
 - [ ] **Implemented**
 
@@ -276,10 +276,10 @@ preserves explicit acceptance of the commercial and privacy conditions.
 
 **Actors:** Manager
 
-**Consumes:** Identity — authenticated Manager; REQ-01 — commercial offer
+**Consumes:** Identity — authenticated Manager; PRQ-01 — commercial offer
 
-**Provides:** Authoritative billing profile and acceptance evidence to REQ-04
-and REQ-11
+**Provides:** Authoritative billing profile and acceptance evidence to PRQ-04
+and PRQ-11
 
 #### Capabilities
 
@@ -318,7 +318,7 @@ and REQ-11
 
 ---
 
-### REQ-04 — Checkout and Payment Methods
+### PRQ-04 — Checkout and Payment Methods
 
 - [ ] **Implemented**
 
@@ -327,10 +327,10 @@ Automatic Pix through an Asaas-hosted checkout.
 
 **Actors:** Manager, System, Asaas
 
-**Consumes:** REQ-01 — commercial offer; REQ-03 — billing profile and acceptance
+**Consumes:** PRQ-01 — commercial offer; PRQ-03 — billing profile and acceptance
 
 **Provides:** Authoritative payment, payment-method and provider-reference facts
-to REQ-05, REQ-06, REQ-07, REQ-09, REQ-10, REQ-11 and REQ-13
+to PRQ-05, PRQ-06, PRQ-07, PRQ-09, PRQ-10, PRQ-11 and PRQ-13
 
 #### Capabilities
 
@@ -369,7 +369,7 @@ to REQ-05, REQ-06, REQ-07, REQ-09, REQ-10, REQ-11 and REQ-13
 
 ---
 
-### REQ-05 — Subscription and Access Control States
+### PRQ-05 — Subscription and Access Control States
 
 - [ ] **Implemented**
 
@@ -378,12 +378,12 @@ is enforced consistently across protected routes and actions.
 
 **Actors:** Manager, Operator, System
 
-**Consumes:** REQ-02 — trial state; REQ-04 — confirmed financial facts; REQ-06
-— renewal and tolerance state; REQ-08 — cancellation state; REQ-09 — refund
-and chargeback state; REQ-13 — retention and disposal state
+**Consumes:** PRQ-02 — trial state; PRQ-04 — confirmed financial facts; PRQ-06
+— renewal and tolerance state; PRQ-08 — cancellation state; PRQ-09 — refund
+and chargeback state; PRQ-13 — retention and disposal state
 
 **Provides:** Authoritative commercial-access state to Identity and the MRP and
-PDV operational modules, and to REQ-17
+PDV operational modules, and to PRQ-17
 
 #### Capabilities
 
@@ -432,7 +432,7 @@ PDV operational modules, and to REQ-17
 
 ---
 
-### REQ-06 — Renewal, Billing Failure and Tolerance
+### PRQ-06 — Renewal, Billing Failure and Tolerance
 
 - [ ] **Implemented**
 
@@ -441,11 +441,11 @@ days to recover a failed charge before operational access is blocked.
 
 **Actors:** Manager, System, Asaas
 
-**Consumes:** REQ-04 — recurring payment and payment method; REQ-05 —
+**Consumes:** PRQ-04 — recurring payment and payment method; PRQ-05 —
 commercial-access state
 
-**Provides:** Authoritative renewal, failure and tolerance facts to REQ-05,
-REQ-07, REQ-12 and REQ-18
+**Provides:** Authoritative renewal, failure and tolerance facts to PRQ-05,
+PRQ-07, PRQ-12 and PRQ-18
 
 #### Capabilities
 
@@ -479,7 +479,7 @@ REQ-07, REQ-12 and REQ-18
 
 ---
 
-### REQ-07 — Change of Payment Method
+### PRQ-07 — Change of Payment Method
 
 - [ ] **Implemented**
 
@@ -488,10 +488,10 @@ without exposing sensitive financial data.
 
 **Actors:** Manager, System, Asaas
 
-**Consumes:** REQ-04 — current payment method and provider references; REQ-06 —
+**Consumes:** PRQ-04 — current payment method and provider references; PRQ-06 —
 renewal and tolerance state
 
-**Provides:** Authoritative current payment-method facts to REQ-06 and REQ-10
+**Provides:** Authoritative current payment-method facts to PRQ-06 and PRQ-10
 
 #### Capabilities
 
@@ -526,7 +526,7 @@ renewal and tolerance state
 
 ---
 
-### REQ-08 — Cancellation and Resumption of Renewal
+### PRQ-08 — Cancellation and Resumption of Renewal
 
 - [ ] **Implemented**
 
@@ -535,11 +535,11 @@ period and can resume renewal before that period ends.
 
 **Actors:** Manager, System, Asaas
 
-**Consumes:** REQ-04 — provider subscription; REQ-05 — current
+**Consumes:** PRQ-04 — provider subscription; PRQ-05 — current
 commercial-access state
 
-**Provides:** Authoritative scheduled-cancellation state to REQ-05, REQ-12,
-REQ-13 and REQ-18
+**Provides:** Authoritative scheduled-cancellation state to PRQ-05, PRQ-12,
+PRQ-13 and PRQ-18
 
 #### Capabilities
 
@@ -576,7 +576,7 @@ REQ-13 and REQ-18
 
 ---
 
-### REQ-09 — Refund and Chargeback
+### PRQ-09 — Refund and Chargeback
 
 - [ ] **Implemented**
 
@@ -585,11 +585,11 @@ establishment receives predictable access treatment for refunds and chargebacks.
 
 **Actors:** Manager, System, Asaas
 
-**Consumes:** REQ-04 — confirmed charge; REQ-05 — commercial-access state;
-REQ-11 — issued NFS-e
+**Consumes:** PRQ-04 — confirmed charge; PRQ-05 — commercial-access state;
+PRQ-11 — issued NFS-e
 
-**Provides:** Authoritative refund and chargeback facts to REQ-05, REQ-10,
-REQ-11, REQ-12, REQ-13 and REQ-18
+**Provides:** Authoritative refund and chargeback facts to PRQ-05, PRQ-10,
+PRQ-11, PRQ-12, PRQ-13 and PRQ-18
 
 #### Capabilities
 
@@ -629,7 +629,7 @@ REQ-11, REQ-12, REQ-13 and REQ-18
 
 ---
 
-### REQ-10 — Charges, Receipts and History
+### PRQ-10 — Charges, Receipts and History
 
 - [ ] **Implemented**
 
@@ -638,8 +638,8 @@ history, receipts and tax-document links without accessing the provider panel.
 
 **Actors:** Manager, System
 
-**Consumes:** REQ-04 — charge facts; REQ-07 — payment-method facts; REQ-09 —
-refund and chargeback facts; REQ-11 — NFS-e facts
+**Consumes:** PRQ-04 — charge facts; PRQ-07 — payment-method facts; PRQ-09 —
+refund and chargeback facts; PRQ-11 — NFS-e facts
 
 #### Capabilities
 
@@ -672,7 +672,7 @@ refund and chargeback facts; REQ-11 — NFS-e facts
 
 ---
 
-### REQ-11 — Issuance and Delivery of NFS-e
+### PRQ-11 — Issuance and Delivery of NFS-e
 
 - [ ] **Implemented**
 
@@ -681,11 +681,11 @@ billing and jurisdictional tax data.
 
 **Actors:** System
 
-**Consumes:** REQ-03 — billing profile; REQ-04 — confirmed payment; REQ-09 —
+**Consumes:** PRQ-03 — billing profile; PRQ-04 — confirmed payment; PRQ-09 —
 refund facts
 
-**Provides:** Authoritative NFS-e facts and documents to REQ-09, REQ-10, REQ-12
-and REQ-14
+**Provides:** Authoritative NFS-e facts and documents to PRQ-09, PRQ-10, PRQ-12
+and PRQ-14
 
 #### Capabilities
 
@@ -721,7 +721,7 @@ and REQ-14
 
 ---
 
-### REQ-12 — Billing Notifications
+### PRQ-12 — Billing Notifications
 
 - [ ] **Implemented**
 
@@ -731,9 +731,9 @@ billing events that require knowledge or action.
 **Actors:** System
 
 **Consumes:** Communication — transactional email and in-product notification
-delivery; REQ-02 — trial milestones; REQ-06 — failure and tolerance milestones;
-REQ-08 — cancellation state; REQ-09 — refund and chargeback state; REQ-11 —
-NFS-e state; REQ-13 — retention and disposal milestones
+delivery; PRQ-02 — trial milestones; PRQ-06 — failure and tolerance milestones;
+PRQ-08 — cancellation state; PRQ-09 — refund and chargeback state; PRQ-11 —
+NFS-e state; PRQ-13 — retention and disposal milestones
 
 #### Capabilities
 
@@ -768,7 +768,7 @@ NFS-e state; REQ-13 — retention and disposal milestones
 
 ---
 
-### REQ-13 — Retention, Reactivation and Future Operational Disposal
+### PRQ-13 — Retention, Reactivation and Future Operational Disposal
 
 - [ ] **Implemented**
 
@@ -778,11 +778,11 @@ lifecycle, never through a customer-facing Identity action.
 
 **Actors:** Manager, System, Asaas
 
-**Consumes:** REQ-04 — confirmed reactivation payment; REQ-05 — blocked access
-state; REQ-08 — ended cancellation period; REQ-09 — confirmed refund
+**Consumes:** PRQ-04 — confirmed reactivation payment; PRQ-05 — blocked access
+state; PRQ-08 — ended cancellation period; PRQ-09 — confirmed refund
 
 **Provides:** Authoritative retention, reactivation and disposal facts to
-REQ-05, REQ-12 and REQ-14
+PRQ-05, PRQ-12 and PRQ-14
 
 #### Capabilities
 
@@ -823,7 +823,7 @@ REQ-05, REQ-12 and REQ-14
 
 ---
 
-### REQ-14 — Tax Archive and Privacy
+### PRQ-14 — Tax Archive and Privacy
 
 - [ ] **Implemented**
 
@@ -832,7 +832,7 @@ while preserving only the segregated tax minimum required by legal obligation.
 
 **Actors:** System, authorized Scoops accounting or legal staff
 
-**Consumes:** REQ-11 — NFS-e and fiscal facts; REQ-13 — completed operational
+**Consumes:** PRQ-11 — NFS-e and fiscal facts; PRQ-13 — completed operational
 disposal
 
 **Provides:** Authoritative segregated tax archive
@@ -874,7 +874,7 @@ disposal
 
 ---
 
-### REQ-15 — Permissions and Audit
+### PRQ-15 — Permissions and Audit
 
 - [ ] **Implemented**
 
@@ -884,8 +884,8 @@ authorship and history of administrative and autonomous commercial actions.
 **Actors:** Manager, System
 
 **Consumes:** Identity — authenticated establishment, Manager and Operator
-profiles; authoritative actions and state transitions from REQ-02 through
-REQ-13
+profiles; authoritative actions and state transitions from PRQ-02 through
+PRQ-13
 
 **Provides:** Authoritative Billing audit history
 
@@ -921,7 +921,7 @@ REQ-13
 
 ---
 
-### REQ-16 — Integration, Reliability and Security
+### PRQ-16 — Integration, Reliability and Security
 
 - [ ] **Implemented**
 
@@ -972,7 +972,7 @@ reconciliation capabilities
 
 ---
 
-### REQ-17 — Navigation, Responsiveness and Accessibility
+### PRQ-17 — Navigation, Responsiveness and Accessibility
 
 - [ ] **Implemented**
 
@@ -982,10 +982,10 @@ Subscription experience.
 
 **Actors:** Manager, Operator
 
-**Consumes:** Identity — profile and navigation permissions; REQ-01 —
-commercial offer; REQ-05 — commercial-access state; REQ-07 — payment-method
-state; REQ-08 — cancellation actions; REQ-09 — refund actions; REQ-10 —
-financial history; REQ-11 — NFS-e state
+**Consumes:** Identity — profile and navigation permissions; PRQ-01 —
+commercial offer; PRQ-05 — commercial-access state; PRQ-07 — payment-method
+state; PRQ-08 — cancellation actions; PRQ-09 — refund actions; PRQ-10 —
+financial history; PRQ-11 — NFS-e state
 
 #### Capabilities
 
@@ -1019,7 +1019,7 @@ financial history; REQ-11 — NFS-e state
 
 ---
 
-### REQ-18 — Metrics and Instrumentation
+### PRQ-18 — Metrics and Instrumentation
 
 - [ ] **Implemented**
 
@@ -1029,8 +1029,8 @@ Billing metrics.
 
 **Actors:** System
 
-**Consumes:** Authoritative lifecycle events from REQ-02, REQ-04, REQ-06,
-REQ-08, REQ-09 and REQ-13
+**Consumes:** Authoritative lifecycle events from PRQ-02, PRQ-04, PRQ-06,
+PRQ-08, PRQ-09 and PRQ-13
 
 #### Capabilities
 
@@ -1065,24 +1065,24 @@ flowchart LR
     Asaas[Asaas]
     MRP[MRP]
     PDV[PDV]
-    R1[REQ-01]
-    R2[REQ-02]
-    R3[REQ-03]
-    R4[REQ-04]
-    R5[REQ-05]
-    R6[REQ-06]
-    R7[REQ-07]
-    R8[REQ-08]
-    R9[REQ-09]
-    R10[REQ-10]
-    R11[REQ-11]
-    R12[REQ-12]
-    R13[REQ-13]
-    R14[REQ-14]
-    R15[REQ-15]
-    R16[REQ-16]
-    R17[REQ-17]
-    R18[REQ-18]
+    R1[PRQ-01]
+    R2[PRQ-02]
+    R3[PRQ-03]
+    R4[PRQ-04]
+    R5[PRQ-05]
+    R6[PRQ-06]
+    R7[PRQ-07]
+    R8[PRQ-08]
+    R9[PRQ-09]
+    R10[PRQ-10]
+    R11[PRQ-11]
+    R12[PRQ-12]
+    R13[PRQ-13]
+    R14[PRQ-14]
+    R15[PRQ-15]
+    R16[PRQ-16]
+    R17[PRQ-17]
+    R18[PRQ-18]
 
     Identity --> R1
     Identity --> R2

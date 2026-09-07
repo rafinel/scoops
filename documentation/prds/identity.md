@@ -99,7 +99,7 @@ establishment, invite staff, and control administrative and operational access.
 
 ## 5. Requirements
 
-### REQ-01 — Establishment Onboarding
+### PRQ-01 — Establishment Onboarding
 
 - [x] **Implemented**
 
@@ -112,7 +112,7 @@ Manager through a public, confirmed onboarding flow.
 module; transactional confirmation delivery from the Communication module.
 
 **Provides:** Pending and active establishment and first-Manager states consumed by
-REQ-02, REQ-10, REQ-13, and REQ-14.
+PRQ-02, PRQ-10, PRQ-13, and PRQ-14.
 
 #### Capabilities
 
@@ -157,7 +157,7 @@ REQ-02, REQ-10, REQ-13, and REQ-14.
 
 ---
 
-### REQ-02 — Authentication and Session
+### PRQ-02 — Authentication and Session
 
 - [x] **Implemented**
 
@@ -166,12 +166,12 @@ credentials and remain authenticated only while their session is valid.
 
 **Actors:** Manager, Operator
 
-**Consumes:** Active establishment and first-Manager state from REQ-01; active invited
-user state from REQ-05; fixed authorization facts from REQ-04; active or inactive user
-state from REQ-08.
+**Consumes:** Active establishment and first-Manager state from PRQ-01; active invited
+user state from PRQ-05; fixed authorization facts from PRQ-04; active or inactive user
+state from PRQ-08.
 
-**Provides:** Current-session and session-expiration states consumed by REQ-09 and
-REQ-13.
+**Provides:** Current-session and session-expiration states consumed by PRQ-09 and
+PRQ-13.
 
 #### Capabilities
 
@@ -197,7 +197,7 @@ REQ-13.
 
 ---
 
-### REQ-03 — Password and Access Recovery
+### PRQ-03 — Password and Access Recovery
 
 - [x] **Implemented**
 
@@ -208,8 +208,8 @@ or setting it.
 
 **Consumes:** Transactional recovery delivery from the Communication module.
 
-**Provides:** Recovery request and password-change facts consumed by REQ-10, and link
-states consumed by REQ-13.
+**Provides:** Recovery request and password-change facts consumed by PRQ-10, and link
+states consumed by PRQ-13.
 
 #### Capabilities
 
@@ -233,7 +233,7 @@ states consumed by REQ-13.
 
 ---
 
-### REQ-04 — Profiles and Authorization
+### PRQ-04 — Profiles and Authorization
 
 - [x] **Implemented**
 
@@ -243,8 +243,8 @@ within the user's own establishment.
 **Actors:** Manager, Operator
 
 **Provides:** Fixed profile, authorization, establishment-isolation, self-change, and
-last-active-Manager facts consumed by REQ-02, REQ-05, REQ-06, REQ-07, REQ-08, REQ-09,
-REQ-11, REQ-13, and REQ-14.
+last-active-Manager facts consumed by PRQ-02, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09,
+PRQ-11, PRQ-13, and PRQ-14.
 
 #### Capabilities
 
@@ -268,7 +268,7 @@ REQ-11, REQ-13, and REQ-14.
 
 ---
 
-### REQ-05 — User Registration and Invitation
+### PRQ-05 — User Registration and Invitation
 
 - [x] **Implemented**
 
@@ -277,11 +277,11 @@ profile while the invited person retains control of their password.
 
 **Actors:** Manager, Invited User
 
-**Consumes:** Fixed profile and authorization facts from REQ-04; transactional
+**Consumes:** Fixed profile and authorization facts from PRQ-04; transactional
 invitation delivery from the Communication module.
 
-**Provides:** Pending and active invited-user lifecycle facts consumed by REQ-02,
-REQ-06, REQ-07, REQ-08, REQ-10, REQ-13, and REQ-14.
+**Provides:** Pending and active invited-user lifecycle facts consumed by PRQ-02,
+PRQ-06, PRQ-07, PRQ-08, PRQ-10, PRQ-13, and PRQ-14.
 
 #### Capabilities
 
@@ -308,7 +308,7 @@ REQ-06, REQ-07, REQ-08, REQ-10, REQ-13, and REQ-14.
 
 ---
 
-### REQ-06 — User Listing and Consultation
+### PRQ-06 — User Listing and Consultation
 
 - [x] **Implemented**
 
@@ -317,10 +317,10 @@ status, recent activity, available actions, and administrative history.
 
 **Actors:** Manager
 
-**Consumes:** Authorization facts from REQ-04; user lifecycle facts from REQ-05,
-REQ-07, and REQ-08; administrative history from REQ-10.
+**Consumes:** Authorization facts from PRQ-04; user lifecycle facts from PRQ-05,
+PRQ-07, and PRQ-08; administrative history from PRQ-10.
 
-**Provides:** Team-management outcome facts consumed by REQ-14.
+**Provides:** Team-management outcome facts consumed by PRQ-14.
 
 #### Capabilities
 
@@ -349,7 +349,7 @@ REQ-07, and REQ-08; administrative history from REQ-10.
 
 ---
 
-### REQ-07 — Promotion and Demotion
+### PRQ-07 — Promotion and Demotion
 
 - [ ] **Implemented**
 
@@ -358,10 +358,10 @@ responsibility without losing historical authorship or the final active Manager.
 
 **Actors:** Manager
 
-**Consumes:** Fixed profile and last-active-Manager facts from REQ-04; active user facts
-from REQ-05; notification delivery from the Communication module.
+**Consumes:** Fixed profile and last-active-Manager facts from PRQ-04; active user facts
+from PRQ-05; notification delivery from the Communication module.
 
-**Provides:** Profile-change facts consumed by REQ-06, REQ-10, REQ-13, and REQ-14.
+**Provides:** Profile-change facts consumed by PRQ-06, PRQ-10, PRQ-13, and PRQ-14.
 
 #### Capabilities
 
@@ -385,7 +385,7 @@ from REQ-05; notification delivery from the Communication module.
 
 ---
 
-### REQ-08 — Inactivation and Reactivation
+### PRQ-08 — Inactivation and Reactivation
 
 - [x] **Implemented**
 
@@ -394,11 +394,11 @@ their identity, profile, reserved email, or history.
 
 **Actors:** Manager
 
-**Consumes:** Authorization and last-active-Manager facts from REQ-04; user lifecycle
-facts from REQ-05; notification delivery from the Communication module.
+**Consumes:** Authorization and last-active-Manager facts from PRQ-04; user lifecycle
+facts from PRQ-05; notification delivery from the Communication module.
 
-**Provides:** Active and inactive user states consumed by REQ-02, REQ-06, REQ-10,
-REQ-13, and REQ-14.
+**Provides:** Active and inactive user states consumed by PRQ-02, PRQ-06, PRQ-10,
+PRQ-13, and PRQ-14.
 
 #### Capabilities
 
@@ -423,7 +423,7 @@ REQ-13, and REQ-14.
 
 ---
 
-### REQ-09 — Personal Data and My Account
+### PRQ-09 — Personal Data and My Account
 
 - [x] **Implemented**
 
@@ -432,9 +432,9 @@ and end the current session without changing immutable access attributes.
 
 **Actors:** Manager, Operator
 
-**Consumes:** Current-session facts from REQ-02; fixed profile facts from REQ-04.
+**Consumes:** Current-session facts from PRQ-02; fixed profile facts from PRQ-04.
 
-**Provides:** Name-change facts consumed by REQ-10.
+**Provides:** Name-change facts consumed by PRQ-10.
 
 #### Capabilities
 
@@ -458,7 +458,7 @@ and end the current session without changing immutable access attributes.
 
 ---
 
-### REQ-10 — Administrative Audit
+### PRQ-10 — Administrative Audit
 
 - [ ] **Implemented**
 
@@ -467,13 +467,13 @@ establishment-scoped administrative history that excludes secrets.
 
 **Actors:** Manager
 
-**Consumes:** Onboarding facts from REQ-01; recovery facts from REQ-03; invitation and
-activation facts from REQ-05; profile-change facts from REQ-07; inactivation and
-reactivation facts from REQ-08; name-change facts from REQ-09; establishment-name facts
-from REQ-11.
+**Consumes:** Onboarding facts from PRQ-01; recovery facts from PRQ-03; invitation and
+activation facts from PRQ-05; profile-change facts from PRQ-07; inactivation and
+reactivation facts from PRQ-08; name-change facts from PRQ-09; establishment-name facts
+from PRQ-11.
 
-**Provides:** Administrative history consumed by REQ-06 and audit-completeness facts
-consumed by REQ-14.
+**Provides:** Administrative history consumed by PRQ-06 and audit-completeness facts
+consumed by PRQ-14.
 
 #### Capabilities
 
@@ -501,7 +501,7 @@ consumed by REQ-14.
 
 ---
 
-### REQ-11 — Establishment Management
+### PRQ-11 — Establishment Management
 
 - [ ] **Implemented**
 
@@ -510,9 +510,9 @@ without changing its identity, membership, data ownership, or historical snapsho
 
 **Actors:** Manager
 
-**Consumes:** Manager authorization and establishment-isolation facts from REQ-04.
+**Consumes:** Manager authorization and establishment-isolation facts from PRQ-04.
 
-**Provides:** Establishment-name change facts consumed by REQ-10.
+**Provides:** Establishment-name change facts consumed by PRQ-10.
 
 #### Capabilities
 
@@ -535,7 +535,7 @@ without changing its identity, membership, data ownership, or historical snapsho
 
 ---
 
-### REQ-12 — Customer-Initiated Establishment Deletion Removed
+### PRQ-12 — Customer-Initiated Establishment Deletion Removed
 
 - [ ] **Implemented**
 
@@ -563,7 +563,7 @@ historical and policy-governed data lifecycles remain outside this product surfa
 
 ---
 
-### REQ-13 — Navigation, States, and Quality of Experience
+### PRQ-13 — Navigation, States, and Quality of Experience
 
 - [x] **Implemented**
 
@@ -572,9 +572,9 @@ through coherent, authorized, responsive, and accessible navigation and feedback
 
 **Actors:** Manager, Operator, Prospective Manager, Invited User
 
-**Consumes:** Onboarding states from REQ-01; session states from REQ-02; recovery states
-from REQ-03; authorization facts from REQ-04; invitation states from REQ-05; profile
-change facts from REQ-07; active and inactive states from REQ-08.
+**Consumes:** Onboarding states from PRQ-01; session states from PRQ-02; recovery states
+from PRQ-03; authorization facts from PRQ-04; invitation states from PRQ-05; profile
+change facts from PRQ-07; active and inactive states from PRQ-08.
 
 #### Capabilities
 
@@ -598,7 +598,7 @@ change facts from REQ-07; active and inactive states from REQ-08.
 
 ---
 
-### REQ-14 — Outcome Measurement
+### PRQ-14 — Outcome Measurement
 
 - [ ] **Implemented**
 
@@ -607,10 +607,10 @@ administrative-autonomy, audit, and authorization success metrics.
 
 **Actors:** System
 
-**Consumes:** Onboarding outcome facts from REQ-01; authorization facts from REQ-04;
-invitation outcome facts from REQ-05; team-management outcome facts from REQ-06;
-profile-change facts from REQ-07; access-status facts from REQ-08; audit-completeness
-facts from REQ-10.
+**Consumes:** Onboarding outcome facts from PRQ-01; authorization facts from PRQ-04;
+invitation outcome facts from PRQ-05; team-management outcome facts from PRQ-06;
+profile-change facts from PRQ-07; access-status facts from PRQ-08; audit-completeness
+facts from PRQ-10.
 
 #### Capabilities
 
@@ -626,55 +626,55 @@ requirement that consumes it.
 
 ```mermaid
 flowchart LR
-    Billing["Billing module"] --> REQ01["REQ-01 Onboarding"]
-    Communication["Communication module"] --> REQ01
-    Communication --> REQ03["REQ-03 Recovery"]
-    Communication --> REQ05["REQ-05 Invitation"]
-    Communication --> REQ07["REQ-07 Profile changes"]
-    Communication --> REQ08["REQ-08 Access status"]
+    Billing["Billing module"] --> PRQ01["PRQ-01 Onboarding"]
+    Communication["Communication module"] --> PRQ01
+    Communication --> PRQ03["PRQ-03 Recovery"]
+    Communication --> PRQ05["PRQ-05 Invitation"]
+    Communication --> PRQ07["PRQ-07 Profile changes"]
+    Communication --> PRQ08["PRQ-08 Access status"]
 
-    REQ01 --> REQ02["REQ-02 Authentication"]
-    REQ01 --> REQ10["REQ-10 Audit"]
-    REQ01 --> REQ13["REQ-13 Experience states"]
-    REQ01 --> REQ14["REQ-14 Measurement"]
+    PRQ01 --> PRQ02["PRQ-02 Authentication"]
+    PRQ01 --> PRQ10["PRQ-10 Audit"]
+    PRQ01 --> PRQ13["PRQ-13 Experience states"]
+    PRQ01 --> PRQ14["PRQ-14 Measurement"]
 
-    REQ02 --> REQ09["REQ-09 My Account"]
-    REQ02 --> REQ13
-    REQ03 --> REQ10
-    REQ03 --> REQ13
+    PRQ02 --> PRQ09["PRQ-09 My Account"]
+    PRQ02 --> PRQ13
+    PRQ03 --> PRQ10
+    PRQ03 --> PRQ13
 
-    REQ04["REQ-04 Authorization"] --> REQ02
-    REQ04 --> REQ05
-    REQ04 --> REQ06["REQ-06 User consultation"]
-    REQ04 --> REQ07
-    REQ04 --> REQ08
-    REQ04 --> REQ09
-    REQ04 --> REQ11["REQ-11 Establishment management"]
-    REQ04 --> REQ13
-    REQ04 --> REQ14
+    PRQ04["PRQ-04 Authorization"] --> PRQ02
+    PRQ04 --> PRQ05
+    PRQ04 --> PRQ06["PRQ-06 User consultation"]
+    PRQ04 --> PRQ07
+    PRQ04 --> PRQ08
+    PRQ04 --> PRQ09
+    PRQ04 --> PRQ11["PRQ-11 Establishment management"]
+    PRQ04 --> PRQ13
+    PRQ04 --> PRQ14
 
-    REQ05 --> REQ02
-    REQ05 --> REQ06
-    REQ05 --> REQ07
-    REQ05 --> REQ08
-    REQ05 --> REQ10
-    REQ05 --> REQ13
-    REQ05 --> REQ14
+    PRQ05 --> PRQ02
+    PRQ05 --> PRQ06
+    PRQ05 --> PRQ07
+    PRQ05 --> PRQ08
+    PRQ05 --> PRQ10
+    PRQ05 --> PRQ13
+    PRQ05 --> PRQ14
 
-    REQ06 --> REQ14
-    REQ07 --> REQ06
-    REQ07 --> REQ10
-    REQ07 --> REQ13
-    REQ07 --> REQ14
-    REQ08 --> REQ02
-    REQ08 --> REQ06
-    REQ08 --> REQ10
-    REQ08 --> REQ13
-    REQ08 --> REQ14
-    REQ09 --> REQ10
-    REQ10 --> REQ06
-    REQ10 --> REQ14
-    REQ11 --> REQ10
+    PRQ06 --> PRQ14
+    PRQ07 --> PRQ06
+    PRQ07 --> PRQ10
+    PRQ07 --> PRQ13
+    PRQ07 --> PRQ14
+    PRQ08 --> PRQ02
+    PRQ08 --> PRQ06
+    PRQ08 --> PRQ10
+    PRQ08 --> PRQ13
+    PRQ08 --> PRQ14
+    PRQ09 --> PRQ10
+    PRQ10 --> PRQ06
+    PRQ10 --> PRQ14
+    PRQ11 --> PRQ10
 ```
 
 ## 7. User Journeys

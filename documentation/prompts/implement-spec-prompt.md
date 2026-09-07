@@ -78,7 +78,7 @@ stop before editing feature source and report the exact blocker:
   simulate a removed implementation workflow.
 - No feature source, test, generated artifact or migration edit starts until a scoped execution
   assignment is activated and the preflight checklist below is recorded in an Evaluation
-  materialized from `documentation/templates/evaluation.md`.
+  materialized using the Canonical Evaluation shape below.
 - The Orchestrator may assume the recorded `Builder Direct` role in the current context for a
   small cohesive delivery. Plan-backed work requires scoped ownership Builders; the Orchestrator
   may inspect, coordinate and integrate, but may not replace them with unscoped direct edits. A
@@ -131,7 +131,7 @@ stop before editing feature source and report the exact blocker:
 
 For feature implementation changes, the Orchestrator must activate a scoped execution assignment
 before any feature source is edited. The assignment must receive the exact Spec revision,
-Spec `CA-*` acceptance criteria, mapped PRD `REQ-*` requirements or source statements, required
+Spec `AC-*` acceptance criteria, mapped PRD `PRQ-*` requirements or source statements, required
 file/widget tree, allowed paths, Rule Pack, design references and validation exits; its
 activation and scope must be recorded in Evaluation and the current execution artifacts. PRDs do
 not define a separate Acceptance Criteria section.
@@ -178,7 +178,7 @@ implementation/correction, its revision is current, required design references e
 material ambiguity remains. Preserve actual source and GitHub Issue traceability without
 inventing external records.
 
-When a module PRD is authoritative, confirm each mapped `REQ-*` uses the canonical contract:
+When a module PRD is authoritative, confirm each mapped `PRQ-*` uses the canonical contract:
 Implemented checkbox, Outcome, Actors, optional Consumes, optional Provides, Capabilities and
 conditional Experience. Treat User Journeys as cross-requirement product narratives, not as
 execution order. Do not expect PRD User Stories or Acceptance Criteria, and do not add them as
@@ -193,11 +193,10 @@ Before the first implementation change for the current revision:
    after a syntax error; correct the command from `documentation/tooling.md` and rerun it;
 2. freeze the Spec revision;
 3. set an `open` Spec to `in_progress`;
-4. create colocated `evaluation.md` from
-   `documentation/templates/evaluation.md` when absent, or reconcile an existing file to
-   that structure without discarding existing evidence;
+4. create colocated `evaluation.md` using the Canonical Evaluation shape below when absent, or
+   reconcile an existing file to that structure without discarding existing evidence;
 5. activate the direct assignment or affected ownership Builders and record, before any feature
-   edit, their identifiers, exact Spec revision, RF/CA mapping, owned and prohibited paths,
+   edit, their identifiers, exact Spec revision, FR/AC mapping, owned and prohibited paths,
    assigned phases, required file/widget tree, Rule Pack, design references, validation exits
    and expected evidence locations;
 6. compare the untouched implementation against the Spec's required tree, contracts, states and
@@ -223,13 +222,13 @@ implementation inputs for the current revision. Historical or completed evidence
 not proof for a new revision; keep it intact and recapture any evidence affected by the current
 diff.
 
-### Evaluation template contract
+### Evaluation contract
 
-Treat `documentation/templates/evaluation.md` as the structural source of truth at every
-implementation kickoff or resume. Copy it into the feature folder; do not link to it, edit the
-shared template with feature evidence or invent a parallel Evaluation format. Replace its
-placeholders with actual values, omit only the optional `plan` metadata when direct execution
-applies, and preserve its section order and canonical table columns.
+Treat the Canonical Evaluation shape below as the structural source of truth at every
+implementation kickoff or resume. Materialize it in the feature folder; do not invent a
+parallel Evaluation format. Replace its placeholders with actual values, omit only the optional
+`plan` metadata when direct execution applies, and preserve its section order and canonical table
+columns.
 
 Do not add base, current or candidate commit metadata to Spec, Plan or Evaluation. Commit
 identity is not part of SDD state. During conclusion, only the PR CI table records the PR head
@@ -240,11 +239,12 @@ evidence into them without deleting historical commands, findings, failed attemp
 visual comparisons. Remove unused example rows; use an explicit `not_applicable` row only when
 the absence itself needs traceability.
 
-Add one row per `CA-*`, executed automated/runtime sensor, `MV-*`, each supplied or required
+Add one row per `AC-*`, executed automated/runtime sensor, `MV-*`, each supplied or required
 supplemental design screenshot, finding and PR CI run; do not collapse criterion or screenshot
 ranges into one row. Visual rows are mandatory for design-backed UI and optional only when no
 design reference applies. Use stable
-`EV-*`, `MV-*`, `VIS-*`, `FND-*` and `CI-*` IDs so findings can invalidate exact evidence.
+`EV-*`, `MV-*`, `FND-*` and `CI-*` IDs so findings can invalidate exact evidence. Visual
+evidence uses `EV-*` with `Type = visual`; do not create a separate `VIS-*` namespace.
 
 Use `pending`, `passed`, `failed`, `stale` or `not_applicable` for ordinary evidence.
 Visual evidence may use `passed_with_authorized_difference`; findings use `active`,
@@ -255,49 +255,78 @@ visual evidence applies only when no design reference is in scope.
 
 ### Canonical Evaluation shape
 
-Materialize the colocated file using the canonical template's exact frontmatter and section
-order. The resulting file must have this shape; do not replace it with a narrative report or a
-feature-specific ledger:
+Materialize the colocated file using the canonical template's exact frontmatter, section order
+and table columns. The resulting file must have this shape; do not replace it with a narrative
+report or a feature-specific ledger:
 
 ```text
 ---
 feature: "<domain>/<feature>"
 spec: ./spec.md
-plan: ./plan.md                 # omit for direct execution
-spec_revision: <revision>
-status: in_progress | ready | completed
+plan: ./plan.md # omit for direct execution
+spec_revision: 1
+status: in_progress
 updated_at: YYYY-MM-DD
 ---
 
 # Evaluation
 
-Current result: <concise statement>
+Evaluation of Spec revision `<revision>` against the current implementation.
+
+Current result: `<concise statement of validated, pending and blocking evidence>`.
 
 ## Acceptance matrix
+
 | Criterion | Evidence | Status |
+| --- | --- | --- |
 
 ## Automated and runtime evidence
+
 | ID | Layer | Command or scenario | Result | Status |
+| --- | --- | --- | --- | --- |
 
 ## Manual evidence
+
 | ID | Scenario | Criteria | Expected | Observed | Status |
+| --- | --- | --- | --- | --- | --- |
 
 ## Visual evidence
-| ID | Surface and state | Viewport | Reference | Implementation | Differences | Status |
+
+Visual evidence uses the common `EV-*` Evidence identifiers with `Type = visual`.
+
+| ID | Type | Surface and state | Viewport | Reference | Implementation | Differences | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 
 ## Rule and documentation compliance
+
 | Authority | Reference | Result | Notes |
+| --- | --- | --- | --- |
 
 ## Findings
-| ID | Classification | Source | Affected evidence | Status | Resolution |
 
-## PR CI quality gate
-| ID | Workflow | Head SHA | Result | Run |
+| ID | Classification | Source | Affected evidence | Status | Resolution |
+| --- | --- | --- | --- | --- | --- |
 
 ## Lessons learned
-| Lesson | Source finding | Authority disposition |
+
+- `<reusable lesson extracted from a material finding, or “No durable lesson identified.”>`
+
+## PR CI quality gate
+
+<!-- Populate during conclude-spec. The head SHA identifies the PR revision checked by CI; it
+is not SDD current-commit metadata. Retain failed and superseded-head runs as history. -->
+
+| ID | Workflow | Head SHA | Result | Run |
+| --- | --- | --- | --- | --- |
+
+## History
+
+| Date/Time | Event |
+| --- | --- |
 ```
 
+The initial file uses `status: in_progress`; update it to `ready` only when all required current
+evidence is present and no blocking finding remains, and to `completed` only during conclusion.
 Preserve the template's column names, evidence ID conventions and status vocabulary exactly.
 The PR CI table is populated only during `conclude-spec`; its head SHA identifies the PR
 revision checked by CI and is not current-implementation metadata.
@@ -323,7 +352,7 @@ and evidence unless they overlap evaluated paths, contaminate evidence or cause 
 
 Use when no current Plan exists:
 
-1. activate `Builder Direct` in the current context with the current revision, RF/CA mapping,
+1. activate `Builder Direct` in the current context with the current revision, FR/AC mapping,
    observable outcome, allowed/prohibited paths, Rule Pack, Architecture, design bundle and
    applicable tools;
 2. implement within that recorded scope, then inspect the diff; while acting as `Builder Direct`,
@@ -498,7 +527,7 @@ the result is unchanged:
 | File/widget tree | Every required path exists, no path is misplaced, and any intentional extra path is mapped to the Spec or explicitly excluded from the candidate. |
 | Boundary ownership | Each changed path is inside the active Builder scope and the Spec's declared layer/module boundary. |
 | REST-client parity | Every affected route group has its declared `.rest` file; each controller route is represented once with current method, path, parameters, headers and representative body, and no credentials are committed. |
-| Contract | RF/CA, API fields, domain rules, persistence behavior, error semantics and exclusions match the current revision. |
+| Contract | FR/AC, API fields, domain rules, persistence behavior, error semantics and exclusions match the current revision. |
 | Behavior hooks | Every in-scope `use-*.ts` behavior hook has a colocated `tests/use-*.test.ts` file, or an explicit Rule Pack exception with linked consumer/route evidence. |
 | UI states | Loading, empty, success, error, recovery, disabled, selected, focus, keyboard and responsive states applicable to the change are exercised. |
 | Design references | Every supplied and required supplemental screenshot has an exact state/viewport capture, direct comparison, and current transient artifact identifier. |
@@ -566,7 +595,7 @@ When product behavior, design intent or technical boundaries change:
 1. pause affected work and set the Spec to `draft`;
 2. immediately invoke `create-spec` for clarification and authority alignment, updating PRD,
    Rules, Architecture, Modules, Design or Tooling first when required;
-3. when the approved change materially amends PRD requirements, return every affected `REQ-*`
+3. when the approved change materially amends PRD requirements, return every affected `PRQ-*`
    Implemented checkbox to unchecked before authoring the revised Spec;
 4. increment the revision, update affected Contracts/design/validation and run integrity
    checks;
@@ -593,7 +622,7 @@ the applicable sensors:
 5. execute every applicable `MV-*` with the Playwright CLI;
 6. verify every affected REST-client file against its controller route group and shared request
    schemas, then record the parity result;
-7. inspect every CA, manual scenario and supplied/supplemental screenshot with exact
+7. inspect every AC, manual scenario and supplied/supplemental screenshot with exact
    viewport/state, console/network, accessibility, DOM/layout and persistence evidence;
 8. when an Implementation Reviewer applies, verify and classify every finding;
 9. record commands, captures, REST-client parity, results, review findings and resolutions in

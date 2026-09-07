@@ -83,7 +83,7 @@ Success is measured by:
 
 ## 5. Requirements
 
-### REQ-01 — Product Registration and Categories
+### PRQ-01 — Product Registration and Categories
 
 - [ ] **Implemented**
 
@@ -94,7 +94,7 @@ stock control, status, and optional operational settings that determine its late
 
 **Provides:** Establishment product catalog, category assignments, product stock unit, stock
 control, status, ideal-stock target, negative-stock policy, and current single-stock ingredient
-unit cost for REQ-02, REQ-03, REQ-04, REQ-05, REQ-06, REQ-07, REQ-08, REQ-09, REQ-10, and PDV.
+unit cost for PRQ-02, PRQ-03, PRQ-04, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09, PRQ-10, and PDV.
 
 #### Capabilities
 
@@ -142,7 +142,7 @@ unit cost for REQ-02, REQ-03, REQ-04, REQ-05, REQ-06, REQ-07, REQ-08, REQ-09, RE
 
 ---
 
-### REQ-02 — Brand Management and Main Brand
+### PRQ-02 — Brand Management and Main Brand
 
 - [ ] **Implemented**
 
@@ -151,10 +151,10 @@ and exactly one main brand for future automatic write-offs.
 
 **Actors:** Manager
 
-**Consumes:** Product stock control and the product unit default from REQ-01.
+**Consumes:** Product stock control and the product unit default from PRQ-01.
 
 **Provides:** Brand balances, packaging conversion, current unit price, and main-brand selection
-for REQ-03, REQ-06, REQ-07, REQ-08, REQ-09, and REQ-10.
+for PRQ-03, PRQ-06, PRQ-07, PRQ-08, PRQ-09, and PRQ-10.
 
 #### Capabilities
 
@@ -192,7 +192,7 @@ for REQ-03, REQ-06, REQ-07, REQ-08, REQ-09, and REQ-10.
 
 ---
 
-### REQ-03 — Inventory Control and Stock History
+### PRQ-03 — Inventory Control and Stock History
 
 - [ ] **Implemented**
 
@@ -203,12 +203,12 @@ inconsistent.
 **Actors:** Manager, Operator
 
 **Consumes:** Product stock control, unit, ideal-stock target, negative-stock policy, and current
-single-stock cost from REQ-01; brand balances and main-brand facts from REQ-02; responsible-user
-identity and establishment authorization from Identity; production stock changes from REQ-07;
+single-stock cost from PRQ-01; brand balances and main-brand facts from PRQ-02; responsible-user
+identity and establishment authorization from Identity; production stock changes from PRQ-07;
 sales-consumption facts from PDV.
 
 **Provides:** Current product and brand balances, stock status, immutable stock-transaction history
-for REQ-04, REQ-06, REQ-07, and PDV, and authoritative product-total stock-threshold facts for
+for PRQ-04, PRQ-06, PRQ-07, and PDV, and authoritative product-total stock-threshold facts for
 Communication.
 
 #### Capabilities
@@ -274,7 +274,7 @@ Communication.
 
 ---
 
-### REQ-04 — Product Listing
+### PRQ-04 — Product Listing
 
 - [ ] **Implemented**
 
@@ -283,8 +283,8 @@ operational context and predictable filters, sorting, and pagination.
 
 **Actors:** Manager, Operator
 
-**Consumes:** Product catalog and classification from REQ-01; brand totals from REQ-02; current
-balances and stock status from REQ-03; production capacity from REQ-06.
+**Consumes:** Product catalog and classification from PRQ-01; brand totals from PRQ-02; current
+balances and stock status from PRQ-03; production capacity from PRQ-06.
 
 #### Capabilities
 
@@ -311,7 +311,7 @@ balances and stock status from REQ-03; production capacity from REQ-06.
 
 ---
 
-### REQ-05 — Dedicated Product Page and Settings
+### PRQ-05 — Dedicated Product Page and Settings
 
 - [ ] **Implemented**
 
@@ -320,10 +320,10 @@ understanding the impact of category, unit, and deletion changes.
 
 **Actors:** Manager
 
-**Consumes:** Product catalog, categories, unit, status, and stock-control facts from REQ-01.
+**Consumes:** Product catalog, categories, unit, status, and stock-control facts from PRQ-01.
 
-**Provides:** Product-page context and recoverable settings-change state for REQ-06, REQ-08,
-REQ-09, and REQ-10.
+**Provides:** Product-page context and recoverable settings-change state for PRQ-06, PRQ-08,
+PRQ-09, and PRQ-10.
 
 #### Capabilities
 
@@ -358,7 +358,7 @@ REQ-09, and REQ-10.
 
 ---
 
-### REQ-06 — Manufacturable Product Recipes
+### PRQ-06 — Manufacturable Product Recipes
 
 - [x] **Implemented**
 
@@ -367,11 +367,11 @@ stock constraints, and maximum producible quantity before recording production.
 
 **Actors:** Manager
 
-**Consumes:** Product categories, units, and single-stock ingredient costs from REQ-01; main-brand
-and brand-price facts from REQ-02; current balances from REQ-03; product-page context from REQ-05.
+**Consumes:** Product categories, units, and single-stock ingredient costs from PRQ-01; main-brand
+and brand-price facts from PRQ-02; current balances from PRQ-03; product-page context from PRQ-05.
 
 **Provides:** Persisted recipe, reference yield, current COGS, unit cost, ingredient projections,
-and maximum producible quantity for REQ-04, REQ-07, and REQ-10.
+and maximum producible quantity for PRQ-04, PRQ-07, and PRQ-10.
 
 #### Capabilities
 
@@ -415,7 +415,7 @@ and maximum producible quantity for REQ-04, REQ-07, and REQ-10.
 
 ---
 
-### REQ-07 — Production Record
+### PRQ-07 — Production Record
 
 - [ ] **Implemented**
 
@@ -424,11 +424,11 @@ consumption and atomic stock updates, while invalid or failed production leaves 
 
 **Actors:** Manager
 
-**Consumes:** Product units and negative-stock policies from REQ-01; main-brand selection from
-REQ-02; current balances from REQ-03; recipe, yield, COGS, and ingredient requirements from REQ-06.
+**Consumes:** Product units and negative-stock policies from PRQ-01; main-brand selection from
+PRQ-02; current balances from PRQ-03; recipe, yield, COGS, and ingredient requirements from PRQ-06.
 
 **Provides:** Atomic ingredient write-offs, finished-product input, and retained production facts
-for REQ-03.
+for PRQ-03.
 
 #### Capabilities
 
@@ -466,7 +466,7 @@ for REQ-03.
 
 ---
 
-### REQ-08 — Accompaniments and Accompaniment Types
+### PRQ-08 — Accompaniments and Accompaniment Types
 
 - [ ] **Implemented**
 
@@ -475,11 +475,11 @@ Accompaniment products to Portions with the quantity and brand context needed fo
 
 **Actors:** Manager
 
-**Consumes:** Product categories and units from REQ-01; main-brand facts from REQ-02; product-page
-context from REQ-05.
+**Consumes:** Product categories and units from PRQ-01; main-brand facts from PRQ-02; product-page
+context from PRQ-05.
 
 **Provides:** Accompaniment types, Portion-accompaniment links, per-portion consumption, and brand
-context for REQ-09, REQ-10, and PDV.
+context for PRQ-09, PRQ-10, and PDV.
 
 #### Capabilities
 
@@ -522,7 +522,7 @@ context for REQ-09, REQ-10, and PDV.
 
 ---
 
-### REQ-09 — Integrated Commercial Settings
+### PRQ-09 — Integrated Commercial Settings
 
 - [ ] **Implemented**
 
@@ -531,11 +531,11 @@ availability without duplicating cart, sale, or historical-order rules in MRP.
 
 **Actors:** Manager
 
-**Consumes:** Product categories, units, and status from REQ-01; brand facts from REQ-02;
-product-page context from REQ-05; accompaniment links from REQ-08.
+**Consumes:** Product categories, units, and status from PRQ-01; brand facts from PRQ-02;
+product-page context from PRQ-05; accompaniment links from PRQ-08.
 
 **Provides:** Active Portion sizes, Resale packaging and brand availability, and
-product-size-accompaniment prices for REQ-10 and PDV.
+product-size-accompaniment prices for PRQ-10 and PDV.
 
 #### Capabilities
 
@@ -573,7 +573,7 @@ product-size-accompaniment prices for REQ-10 and PDV.
 
 ---
 
-### REQ-10 — Navigation, States, and High-Impact Changes
+### PRQ-10 — Navigation, States, and High-Impact Changes
 
 - [ ] **Implemented**
 
@@ -583,7 +583,7 @@ product changes with clear dependency, loading, success, and error feedback.
 **Actors:** Manager
 
 **Consumes:** Establishment authorization from Identity; product and dependency facts from
-REQ-01, REQ-02, REQ-05, REQ-06, REQ-08, and REQ-09.
+PRQ-01, PRQ-02, PRQ-05, PRQ-06, PRQ-08, and PRQ-09.
 
 #### Capabilities
 
@@ -634,16 +634,16 @@ authoritative fact.
 flowchart LR
     ID[Identity]
     PDV[PDV]
-    R1[REQ-01 Product Registration]
-    R2[REQ-02 Brand Management]
-    R3[REQ-03 Inventory Control]
-    R4[REQ-04 Product Listing]
-    R5[REQ-05 Product Page]
-    R6[REQ-06 Recipes]
-    R7[REQ-07 Production]
-    R8[REQ-08 Accompaniments]
-    R9[REQ-09 Commercial Settings]
-    R10[REQ-10 Navigation and Changes]
+    R1[PRQ-01 Product Registration]
+    R2[PRQ-02 Brand Management]
+    R3[PRQ-03 Inventory Control]
+    R4[PRQ-04 Product Listing]
+    R5[PRQ-05 Product Page]
+    R6[PRQ-06 Recipes]
+    R7[PRQ-07 Production]
+    R8[PRQ-08 Accompaniments]
+    R9[PRQ-09 Commercial Settings]
+    R10[PRQ-10 Navigation and Changes]
 
     R1 --> R2
     R1 --> R3

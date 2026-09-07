@@ -131,7 +131,7 @@ who need to assemble and record orders during service.
 
 ## 5. Requirements
 
-### REQ-01 — Sales Channel Management
+### PRQ-01 — Sales Channel Management
 
 - [x] **Implemented**
 
@@ -143,7 +143,7 @@ apply a global percentage to the paid items of an order.
 **Consumes:** establishment access and profile authorization from the Identity module.
 
 **Provides:** active sales-channel configuration and immutable channel facts consumed by
-REQ-05, REQ-06, REQ-07, REQ-09 and REQ-10.
+PRQ-05, PRQ-06, PRQ-07, PRQ-09 and PRQ-10.
 
 #### Capabilities
 
@@ -190,7 +190,7 @@ REQ-05, REQ-06, REQ-07, REQ-09 and REQ-10.
 
 ---
 
-### REQ-02 — New Sale Product Catalog
+### PRQ-02 — New Sale Product Catalog
 
 - [x] **Implemented**
 
@@ -203,8 +203,8 @@ category.
 **Consumes:** product, category, size, brand, accompaniment, base-price and availability facts
 from the MRP module.
 
-**Provides:** eligible product catalog and product availability consumed by REQ-03, REQ-04 and
-REQ-05.
+**Provides:** eligible product catalog and product availability consumed by PRQ-03, PRQ-04 and
+PRQ-05.
 
 #### Capabilities
 
@@ -265,7 +265,7 @@ of sale.
 
 ---
 
-### REQ-03 — Portion Item Configuration
+### PRQ-03 — Portion Item Configuration
 
 - [x] **Implemented**
 
@@ -274,11 +274,11 @@ quantity before adding a Portion to the cart.
 
 **Actors:** Operator, Manager
 
-**Consumes:** eligible product catalog from REQ-02 and Portion size, accompaniment, price,
+**Consumes:** eligible product catalog from PRQ-02 and Portion size, accompaniment, price,
 consumption and availability facts from the MRP module.
 
 **Provides:** valid configured Portion items and their calculated consumption consumed by
-REQ-05 and REQ-13.
+PRQ-05 and PRQ-13.
 
 #### Capabilities
 
@@ -319,7 +319,7 @@ REQ-05 and REQ-13.
 
 ---
 
-### REQ-04 — Resale Item Configuration
+### PRQ-04 — Resale Item Configuration
 
 - [x] **Implemented**
 
@@ -328,11 +328,11 @@ and the quantity of units from a Resale product before adding it to the cart.
 
 **Actors:** Operator, Manager
 
-**Consumes:** eligible product catalog from REQ-02 and Resale brand, price and availability
+**Consumes:** eligible product catalog from PRQ-02 and Resale brand, price and availability
 facts from the MRP module.
 
-**Provides:** valid configured Resale items and their calculated consumption consumed by REQ-05
-and REQ-13.
+**Provides:** valid configured Resale items and their calculated consumption consumed by PRQ-05
+and PRQ-13.
 
 #### Capabilities
 
@@ -364,7 +364,7 @@ and REQ-13.
 
 ---
 
-### REQ-05 — Cart Assembly and Editing
+### PRQ-05 — Cart Assembly and Editing
 
 - [x] **Implemented**
 
@@ -372,11 +372,11 @@ and REQ-13.
 
 **Actors:** Operator, Manager
 
-**Consumes:** active channel configuration from REQ-01, eligible product catalog from REQ-02,
-configured Portion items from REQ-03 and configured Resale items from REQ-04.
+**Consumes:** active channel configuration from PRQ-01, eligible product catalog from PRQ-02,
+configured Portion items from PRQ-03 and configured Resale items from PRQ-04.
 
 **Provides:** the current unpersisted cart, selected channel and configured line items consumed
-by REQ-06, REQ-07, REQ-08 and REQ-14.
+by PRQ-06, PRQ-07, PRQ-08 and PRQ-14.
 
 #### Capabilities
 
@@ -434,7 +434,7 @@ by REQ-06, REQ-07, REQ-08 and REQ-14.
 
 ---
 
-### REQ-06 — Pricing by Channel
+### PRQ-06 — Pricing by Channel
 
 - [x] **Implemented**
 
@@ -443,10 +443,10 @@ optional sales channel selected for the order.
 
 **Actors:** Operator, Manager
 
-**Consumes:** active channel configuration from REQ-01 and the current cart from REQ-05.
+**Consumes:** active channel configuration from PRQ-01 and the current cart from PRQ-05.
 
-**Provides:** channel-adjusted line prices, subtotals and totals consumed by REQ-07, REQ-08,
-REQ-09 and REQ-14.
+**Provides:** channel-adjusted line prices, subtotals and totals consumed by PRQ-07, PRQ-08,
+PRQ-09 and PRQ-14.
 
 #### Capabilities
 
@@ -482,7 +482,7 @@ REQ-09 and REQ-14.
 
 ---
 
-### REQ-07 — Channel, Combo and Stock Revalidation
+### PRQ-07 — Channel, Combo and Stock Revalidation
 
 - [x] **Implemented**
 
@@ -491,12 +491,12 @@ and consolidated stock consumption have been revalidated against current authori
 
 **Actors:** Operator, Manager
 
-**Consumes:** current channel configuration from REQ-01, the cart from REQ-05, calculated prices
-from REQ-06, active Combo definitions from REQ-13, applied Combo facts from REQ-14 and current
+**Consumes:** current channel configuration from PRQ-01, the cart from PRQ-05, calculated prices
+from PRQ-06, active Combo definitions from PRQ-13, applied Combo facts from PRQ-14 and current
 product, brand and stock availability from the MRP module.
 
 **Provides:** a current, all-or-nothing registration decision and reviewed order values consumed
-by REQ-08.
+by PRQ-08.
 
 #### Capabilities
 
@@ -542,7 +542,7 @@ by REQ-08.
 
 ---
 
-### REQ-08 — Order Confirmation and Registration
+### PRQ-08 — Order Confirmation and Registration
 
 - [x] **Implemented**
 
@@ -551,11 +551,11 @@ with all stock consumption in one atomic transaction.
 
 **Actors:** Operator, Manager
 
-**Consumes:** the current cart from REQ-05, channel-adjusted prices from REQ-06, the current
-registration decision from REQ-07 and applied Combo facts from REQ-14.
+**Consumes:** the current cart from PRQ-05, channel-adjusted prices from PRQ-06, the current
+registration decision from PRQ-07 and applied Combo facts from PRQ-14.
 
 **Provides:** completed, numbered order facts and atomic stock-consumption facts consumed by
-REQ-09.
+PRQ-09.
 
 #### Capabilities
 
@@ -574,7 +574,7 @@ REQ-09.
 - **Internal identifier:** may exist separately and should not be displayed
   as the main reference.
 - **Immutability:** the order cannot be edited, reversed or deleted in MVP;
-  cancellation follows REQ-15 and does not alter preserved snapshots.
+  cancellation follows PRQ-15 and does not alter preserved snapshots.
 - **Success:** clears the cart only after confirmation from the server.
 - **Failure:** does not create order or maintain any write-off.
 
@@ -597,7 +597,7 @@ REQ-09.
 
 ---
 
-### REQ-09 — Order Snapshot
+### PRQ-09 — Order Snapshot
 
 - [x] **Implemented**
 
@@ -606,11 +606,11 @@ at the time an order is registered.
 
 **Actors:** Operator, Manager
 
-**Consumes:** channel facts from REQ-01, calculated prices from REQ-06, completed order and stock
-consumption facts from REQ-08, applied Combo facts from REQ-14 and product configuration facts
+**Consumes:** channel facts from PRQ-01, calculated prices from PRQ-06, completed order and stock
+consumption facts from PRQ-08, applied Combo facts from PRQ-14 and product configuration facts
 from the MRP module.
 
-**Provides:** immutable order snapshots consumed by REQ-10.
+**Provides:** immutable order snapshots consumed by PRQ-10.
 
 #### Capabilities
 
@@ -661,7 +661,7 @@ from the MRP module.
 
 ---
 
-### REQ-10 — Order History
+### PRQ-10 — Order History
 
 - [x] **Implemented**
 
@@ -670,8 +670,8 @@ open their immutable details.
 
 **Actors:** Operator, Manager
 
-**Consumes:** active and historical channel identity from REQ-01, immutable order snapshots from
-REQ-09 and establishment access from the Identity module.
+**Consumes:** active and historical channel identity from PRQ-01, immutable order snapshots from
+PRQ-09 and establishment access from the Identity module.
 
 #### Capabilities
 
@@ -689,7 +689,7 @@ REQ-09 and establishment access from the Identity module.
 - **Status:** each order displays `Registered` or `Canceled`, and users can
   filter by status.
 - **No edit/reversal/deletion:** there are no edit, reverse or delete actions;
-  a Manager can cancel a registered order according to REQ-15.
+  a Manager can cancel a registered order according to PRQ-15.
 - **No reports:** metrics, dashboards and exports do not belong to MVP.
 - **Multi-tenancy:** orders from other ice cream shops can never be returned.
 
@@ -715,7 +715,7 @@ REQ-09 and establishment access from the Identity module.
 
 ---
 
-### REQ-11 — Permissions, Navigation and Isolation
+### PRQ-11 — Permissions, Navigation and Isolation
 
 - [ ] **Implemented**
 
@@ -757,7 +757,7 @@ module.
 
 ---
 
-### REQ-12 — Performance, Responsiveness and Accessibility
+### PRQ-12 — Performance, Responsiveness and Accessibility
 
 - [ ] **Implemented**
 
@@ -803,7 +803,7 @@ devices while receiving consistent server-backed results.
 
 ---
 
-### REQ-13 — Combo Discount Management
+### PRQ-13 — Combo Discount Management
 
 - [x] **Implemented**
 
@@ -814,9 +814,9 @@ Combo, made up of different products and sold for a fixed final price.
 
 **Consumes:** establishment access and profile authorization from the Identity module; product,
 size, accompaniment, brand, price and availability facts from the MRP module; configured Portion
-and Resale facts from REQ-03 and REQ-04.
+and Resale facts from PRQ-03 and PRQ-04.
 
-**Provides:** active, validated Combo definitions consumed by REQ-07 and REQ-14.
+**Provides:** active, validated Combo definitions consumed by PRQ-07 and PRQ-14.
 
 #### Capabilities
 
@@ -883,7 +883,7 @@ and Resale facts from REQ-03 and REQ-04.
 
 ---
 
-### REQ-14 — Automatic Combo Application
+### PRQ-14 — Automatic Combo Application
 
 - [x] **Implemented**
 
@@ -892,11 +892,11 @@ produces the greatest total savings without reusing product units.
 
 **Actors:** Operator, Manager
 
-**Consumes:** the current cart from REQ-05, channel-adjusted prices from REQ-06 and active Combo
-definitions from REQ-13.
+**Consumes:** the current cart from PRQ-05, channel-adjusted prices from PRQ-06 and active Combo
+definitions from PRQ-13.
 
-**Provides:** applied Combo discounts, savings and participating-unit facts consumed by REQ-07,
-REQ-08 and REQ-09.
+**Provides:** applied Combo discounts, savings and participating-unit facts consumed by PRQ-07,
+PRQ-08 and PRQ-09.
 
 #### Capabilities
 
@@ -974,7 +974,7 @@ REQ-08 and REQ-09.
 
 ---
 
-### REQ-15 — Order Cancellation
+### PRQ-15 — Order Cancellation
 
 - [x] **Implemented**
 
@@ -984,10 +984,10 @@ restoration for deleted targets, and preserving the original commercial and oper
 
 **Actors:** Manager
 
-**Consumes:** registered order and immutable stock-consumption facts from REQ-08 and REQ-09;
+**Consumes:** registered order and immutable stock-consumption facts from PRQ-08 and PRQ-09;
 establishment access and Manager authorization from Identity; current stock facts from MRP.
 
-**Provides:** canceled order facts and restored stock facts consumed by REQ-10 and future
+**Provides:** canceled order facts and restored stock facts consumed by PRQ-10 and future
 operational history.
 
 #### Capabilities
@@ -1041,20 +1041,20 @@ An edge `A --> B` means B consumes a product capability or authoritative fact pr
 flowchart LR
     Identity["Identity module"]
     MRP["MRP module"]
-    R01["REQ-01 Sales channels"]
-    R02["REQ-02 Sale catalog"]
-    R03["REQ-03 Portion configuration"]
-    R04["REQ-04 Resale configuration"]
-    R05["REQ-05 Cart"]
-    R06["REQ-06 Channel pricing"]
-    R07["REQ-07 Revalidation"]
-    R08["REQ-08 Registration"]
-    R09["REQ-09 Snapshot"]
-    R10["REQ-10 History"]
-    R11["REQ-11 Access and isolation"]
-    R13["REQ-13 Combo management"]
-    R14["REQ-14 Combo application"]
-    R15["REQ-15 Order cancellation"]
+    R01["PRQ-01 Sales channels"]
+    R02["PRQ-02 Sale catalog"]
+    R03["PRQ-03 Portion configuration"]
+    R04["PRQ-04 Resale configuration"]
+    R05["PRQ-05 Cart"]
+    R06["PRQ-06 Channel pricing"]
+    R07["PRQ-07 Revalidation"]
+    R08["PRQ-08 Registration"]
+    R09["PRQ-09 Snapshot"]
+    R10["PRQ-10 History"]
+    R11["PRQ-11 Access and isolation"]
+    R13["PRQ-13 Combo management"]
+    R14["PRQ-14 Combo application"]
+    R15["PRQ-15 Order cancellation"]
 
     Identity --> R01
     Identity --> R10

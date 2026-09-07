@@ -53,15 +53,15 @@ was amended before this Contract.
 
 | ID | REQ/source coverage | Required behavior |
 | --- | --- | --- |
-| `RF-01` | MRP PRD REQ-04 KPI rule; direct request | `GET /products` returns establishment-wide Products, Brands, and Low Stock KPIs independently of list search, filters, sorting, and pagination. |
-| `RF-02` | MRP PRD REQ-04 list behavior | Rows, `totalItems`, and `totalPages` continue to reflect the active list query without weakening tenant isolation or filter semantics. |
-| `RF-03` | Direct request and supplied current-state screenshot | The Products page keeps the same KPI values while filtered rows update, including filtered-empty results. |
+| `FR-01` | MRP PRD PRQ-04 KPI rule; direct request | `GET /products` returns establishment-wide Products, Brands, and Low Stock KPIs independently of list search, filters, sorting, and pagination. |
+| `FR-02` | MRP PRD PRQ-04 list behavior | Rows, `totalItems`, and `totalPages` continue to reflect the active list query without weakening tenant isolation or filter semantics. |
+| `FR-03` | Direct request and supplied current-state screenshot | The Products page keeps the same KPI values while filtered rows update, including filtered-empty results. |
 
 | ID | RF coverage | Requirement | Given | When | Then | Expected evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| `CA-01` | `RF-01`, `RF-02` | Global server aggregation | An establishment has products both inside and outside an active filter | The manager requests the filtered catalog | Rows and pagination describe the filtered set while all KPI values describe the complete establishment catalog | Repository-backed controller/integration assertion |
-| `CA-02` | `RF-01` | Tenant isolation | Another establishment has products, brands, or low stock | The manager requests any catalog query | Foreign records contribute to neither rows nor KPIs | Existing tenant test plus focused aggregation assertion |
-| `CA-03` | `RF-03` | Browser-visible KPI stability | The populated Products page shows global KPIs | Search or filters narrow the list | The list changes and the three KPI values remain unchanged | Focused Playwright route scenario and fresh screenshot |
+| `AC-01` | `FR-01`, `FR-02` | Global server aggregation | An establishment has products both inside and outside an active filter | The manager requests the filtered catalog | Rows and pagination describe the filtered set while all KPI values describe the complete establishment catalog | Repository-backed controller/integration assertion |
+| `AC-02` | `FR-01` | Tenant isolation | Another establishment has products, brands, or low stock | The manager requests any catalog query | Foreign records contribute to neither rows nor KPIs | Existing tenant test plus focused aggregation assertion |
+| `AC-03` | `FR-03` | Browser-visible KPI stability | The populated Products page shows global KPIs | Search or filters narrow the list | The list changes and the three KPI values remain unchanged | Focused Playwright route scenario and fresh screenshot |
 
 ## 3. Technical Contract
 
@@ -79,9 +79,9 @@ not change. This is one server-owned read-model correction, not a new client que
 | Evidence | Command or scenario | Coverage |
 | --- | --- | --- |
 | Core/static | `pnpm --filter @scoops/core check:types` and focused list use-case test | Contract and normalization remain compatible |
-| Server | Focused repository-backed `GET /products` test, server types, and Biome | `CA-01`, `CA-02` |
-| Web | `pnpm --filter web check:types` and focused Products Playwright test | `CA-03` |
-| Manual `MV-01` | At 1481px, note KPI values, apply a narrowing search/filter, verify changed rows/request and unchanged cards; inspect console and failed requests | `CA-03` |
+| Server | Focused repository-backed `GET /products` test, server types, and Biome | `AC-01`, `AC-02` |
+| Web | `pnpm --filter web check:types` and focused Products Playwright test | `AC-03` |
+| Manual `MV-01` | At 1481px, note KPI values, apply a narrowing search/filter, verify changed rows/request and unchanged cards; inspect console and failed requests | `AC-03` |
 
 Capture the fresh browser state through Playwright into `test-results/` or a CI artifact and
 record the exact viewport, comparison result and artifact identifier in `evaluation.md`.
@@ -90,7 +90,7 @@ record the exact viewport, comparison result and artifact identifier in `evaluat
 
 | Authority | Alignment |
 | --- | --- |
-| `documentation/prds/mrp.md` | REQ-04 now defines establishment-wide KPI totals. |
+| `documentation/prds/mrp.md` | PRQ-04 now defines establishment-wide KPI totals. |
 | `documentation/architecture.md` | Backend authority and tenant scoping remain unchanged. |
 | `documentation/modules.md` | MRP continues to own catalog and stock summaries. |
 | `documentation/rules/code-conventions-rules.md` | Applies to changed TypeScript. |
