@@ -12,8 +12,9 @@ monorepo. For application architecture and runtime technology choices, see
 
 - **Node.js** `>= 20.0.0`, as declared by the root `package.json` and required by Vitest 4.
 - **pnpm** `9.0.0`, pinned through the root `packageManager` field.
-- **Docker Engine with Docker Compose** for the local PostgreSQL, Mailpit,
-  MinIO, and Inngest services.
+- **Docker Engine with Docker Compose** for the local PostgreSQL, Mailpit, and
+  Inngest services. MinIO is optional local infrastructure reserved for future
+  object-storage work.
 
 Enable Corepack so the repository's pnpm version is selected automatically:
 
@@ -421,7 +422,7 @@ Messaging implementation rules are documented in
 
 - standard PostgreSQL for business and Better Auth schemas;
 - Mailpit for local email capture;
-- MinIO plus an initialization container for S3-compatible storage;
+- optional MinIO plus an initialization container for future S3-compatible storage;
 - the Inngest development server.
 
 Start and inspect the stack from the repository root:

@@ -7,7 +7,6 @@ export const serverEnvSchema = z
       .url()
       .default('postgresql://postgres:postgres@127.0.0.1:54322/postgres'),
     PORT: z.coerce.number().int().positive().optional(),
-    S3_ENDPOINT: z.string().url().default('http://127.0.0.1:9000'),
     INNGEST_DEV: z.enum(['0', '1']).default('0'),
     INNGEST_BASE_URL: z
       .string()

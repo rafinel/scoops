@@ -5,10 +5,6 @@ export type ServiceState = 'UP' | 'DOWN'
 export class HealthServicesDto {
   @ApiProperty({ enum: ['UP', 'DOWN'] })
   database!: ServiceState
-
-  @ApiProperty({ enum: ['UP', 'DOWN'] })
-  @ApiProperty({ enum: ['UP', 'DOWN'] })
-  storage!: ServiceState
 }
 
 export class HealthResponseDto {

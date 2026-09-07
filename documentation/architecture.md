@@ -71,7 +71,6 @@ flowchart LR
   auth["Better Auth in Scoops Server"]
   db[("PostgreSQL\nNeon when deployed")]
   jobs["Inngest"]
-  storage["S3-compatible Storage"]
   billing["Billing Provider"]
   email["Email Provider"]
 
@@ -82,7 +81,6 @@ flowchart LR
   auth -->|"Auth schema through Drizzle"| db
   api -->|"Queries and transactions"| db
   api -->|"Publish events and serve jobs"| jobs
-  api -->|"Files and health checks"| storage
   api -->|"Customers, charges, and webhooks"| billing
   jobs -->|"Transactional messages"| email
 ```
@@ -91,7 +89,7 @@ The web application is the user-facing experience. The server coordinates use
 cases and is the only component allowed to access business data directly. The
 domain core defines the meaning of operations, while the shared Validation package
 defines reusable runtime schemas at application boundaries. Infrastructure services
-provide identity, persistence, durable execution, storage, billing, and communication.
+provide identity, persistence, durable execution, billing, and communication.
 
 ## 4. Runtime and deployment units
 
@@ -108,10 +106,11 @@ packages:
 
 Neither `packages/core`, `packages/validation`, nor `packages/email` has a
 network boundary.
-Standard PostgreSQL, MinIO, Mailpit, and Inngest run as local supporting
-containers. Staging and production use Neon through the same `DATABASE_URL`
-contract, Resend for transactional email, and managed equivalents for the other
-services without changing application boundaries.
+Standard PostgreSQL, Mailpit, and Inngest run as local supporting containers.
+MinIO remains optional local infrastructure reserved for future object-storage
+work. Staging and production use Neon through the same `DATABASE_URL` contract,
+Resend for transactional email, and managed equivalents for the other services
+without changing application boundaries.
 
 ## 5. Technology decisions
 
@@ -131,7 +130,7 @@ services without changing application boundaries.
 | Persistence | PostgreSQL and Drizzle ORM | Current | Transactional data, repositories, and schema evolution. |
 | Identity | Better Auth hosted by NestJS | Approved target | Credential, verification, and cookie-session lifecycle in the Scoops server. |
 | Messaging | Inngest | Current foundation | Event-triggered jobs, retries, steps, and observability. |
-| Object storage | S3-compatible storage/MinIO | Current foundation | File storage behind server-owned adapters. |
+| Object storage | S3-compatible storage/MinIO | Deferred | Reserved for future file storage behind server-owned adapters. |
 | Billing | Asaas | Planned | Subscription customers, charges, and billing webhooks. |
 | Email | Resend, SMTP/Mailpit, and React Email | Approved target | Communication-owned transactional delivery and message composition, with Resend in staging/production and Mailpit locally. |
 | Quality | TypeScript, Biome, Vitest, Playwright | Current | Static checks and automated validation at several boundaries. |
@@ -463,7 +462,7 @@ the technical capability is intentionally shared by several modules.
 | Better Auth | Identity | Credentials, verification, provider identity, and cookie sessions hosted by the server. |
 | Asaas | Billing | Customer, subscription, charge, and webhook operations. |
 | Resend, SMTP/Mailpit, and React Email | Communication | Transactional message delivery and composition behind a Communication-owned email-provider interface. |
-| MinIO/S3 | Shared provision or owning module | Object storage without provider-specific types. |
+| MinIO/S3 | Shared provision or owning module | Deferred object storage without provider-specific types. |
 | Inngest | Shared messaging plus feature jobs | Event publication and durable function execution. |
 
 Adapters translate provider responses and errors into core contracts. Webhooks
@@ -471,10 +470,11 @@ require signature verification, runtime validation, deduplication, and an
 idempotent application operation. Provider outages must not corrupt local state;
 timeouts, retries, fallback, and operator visibility are explicit.
 
-PostgreSQL stores file metadata and ownership; S3-compatible storage holds binary
-content behind a server adapter. The server validates tenant ownership, type,
-size, and operation. Immutable records need stable references and retention, so
-deleting a current entity cannot remove files still required by history.
+When object storage is introduced, PostgreSQL will store file metadata and
+ownership while S3-compatible storage holds binary content behind a server
+adapter. The server will validate tenant ownership, type, size, and operation.
+Immutable records need stable references and retention, so deleting a current
+entity cannot remove files still required by history.
 
 ## 16. Error handling and observability
 
@@ -488,10 +488,9 @@ Operational visibility is required at each boundary:
 - business-critical transitions need auditable domain records where required by
   the owning PRD.
 
-The server health endpoint checks PostgreSQL and S3-compatible storage. Better
-Auth exposes a deployment smoke endpoint through the server HTTP surface rather
-than an external dependency health check; Swagger exposes the application REST
-surface.
+The server health endpoint checks PostgreSQL. Better Auth exposes a deployment
+smoke endpoint through the server HTTP surface rather than an external dependency
+health check; Swagger exposes the application REST surface.
 
 Structured logs, correlation IDs, metrics, tracing, alerting, and dashboards are
 evolution requirements. Never hide their absence by discarding errors. Telemetry
@@ -535,10 +534,10 @@ replicas. In particular:
 
 ## 19. Environment and delivery architecture
 
-Local development uses Docker Compose for standard PostgreSQL, Mailpit, MinIO,
-and Inngest. The web and server normally run as local pnpm processes. Staging
-and production use Neon through `DATABASE_URL` and Resend through server-only
-credentials.
+Local development uses Docker Compose for standard PostgreSQL, Mailpit, and
+Inngest. MinIO is optional and reserved for future object-storage work. The web
+and server normally run as local pnpm processes. Staging and production use Neon
+through `DATABASE_URL` and Resend through server-only credentials.
 
 Environment configuration is separated by boundary:
 

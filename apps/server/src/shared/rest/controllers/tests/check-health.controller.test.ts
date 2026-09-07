@@ -16,10 +16,7 @@ describe('Check Health Controller [GET /health]', () => {
     app = undefined
   })
 
-  it('returns healthy status when every dependency is available', async () => {
-    const fetchMock = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValue({ ok: true } as Response)
+  it('returns healthy status when the database is available', async () => {
     app = await createHealthApp({ databaseHealthy: true })
 
     const response = await request(app.getHttpServer()).get('/health')
@@ -28,34 +25,20 @@ describe('Check Health Controller [GET /health]', () => {
     expect(response.body).toMatchObject({
       status: 'ok',
       mode: 'test',
-      services: { database: 'UP', storage: 'UP' },
+      services: { database: 'UP' },
     })
     expect(response.body.timestamp).toEqual(expect.any(String))
-    expect(fetchMock).toHaveBeenCalledWith(
-      new URL('http://storage.test/minio/health/live'),
-      expect.objectContaining({ signal: expect.anything() }),
-    )
   })
 
   it.each([
     {
       dependency: 'database',
       databaseHealthy: false,
-      storageHealthy: true,
-      expectedServices: { database: 'DOWN', storage: 'UP' },
-    },
-    {
-      dependency: 'storage',
-      databaseHealthy: true,
-      storageHealthy: false,
-      expectedServices: { database: 'UP', storage: 'DOWN' },
+      expectedServices: { database: 'DOWN' },
     },
   ])(
     'returns unavailable status when the $dependency dependency is unavailable',
-    async ({ databaseHealthy, storageHealthy, expectedServices }) => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-        ok: storageHealthy,
-      } as Response)
+    async ({ databaseHealthy, expectedServices }) => {
       app = await createHealthApp({ databaseHealthy })
 
       const response = await request(app.getHttpServer()).get('/health')
@@ -77,7 +60,7 @@ async function createHealthApp({ databaseHealthy }: { databaseHealthy: boolean }
     isHealthy: vi.fn().mockResolvedValue(databaseHealthy),
   } as unknown as DrizzleClient
   const envProvider = {
-    get: vi.fn((key: string) => (key === 'S3_ENDPOINT' ? 'http://storage.test' : 'test')),
+    get: vi.fn(() => 'test'),
   } as unknown as EnvProvider
   const moduleRef = await Test.createTestingModule({
     controllers: [CheckHealthController],
