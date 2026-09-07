@@ -13,9 +13,14 @@ CLI for all browser interaction, inspection and validation; do not use
 Whenever the work contains independent workstreams that can be executed in
 parallel, create subagents and delegate those workstreams instead of performing
 them sequentially. Give each subagent a clearly bounded responsibility, identify
-the files or paths it owns, and avoid assigning overlapping edits. Keep shared
-decisions and integration in the main task, then review and validate all
-subagent results together before completion.
+the files or paths it owns, and give it a specific name that describes its
+responsibility; do not use generic names. Avoid assigning overlapping edits.
+Keep shared decisions and integration in the main task, then review and validate
+all subagent results together before completion.
+Subagent names must be specific and descriptive of the assigned responsibility,
+such as `checkout-flow-tester`, `catalog-schema-explorer`, or
+`auth-api-builder`; do not use generic names such as `worker`, `agent`, or
+`subagent`.
 
 ### Pencil (`mcp__pencil__*`)
 
