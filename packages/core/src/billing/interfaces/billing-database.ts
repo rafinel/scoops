@@ -5,8 +5,9 @@ import type { ChargesRepository } from '#billing/interfaces/charges-repository.t
 import type { FiscalDocumentsRepository } from '#billing/interfaces/fiscal-documents-repository.ts'
 import type { SubscriptionsRepository } from '#billing/interfaces/subscriptions-repository.ts'
 import type { TrialEligibilitiesRepository } from '#billing/interfaces/trial-eligibilities-repository.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 
-export type BillingDatabaseScope = {
+export type BillingDatabaseRepositories = {
   billingProfilesRepository: BillingProfilesRepository
   subscriptionsRepository: SubscriptionsRepository
   chargesRepository: ChargesRepository
@@ -14,10 +15,11 @@ export type BillingDatabaseScope = {
   billingAcceptancesRepository: BillingAcceptancesRepository
   trialEligibilitiesRepository: TrialEligibilitiesRepository
   billingProviderEventsRepository: BillingProviderEventsRepository
+  eventsRepository: Pick<EventsRepository, 'add'>
 }
 
 export interface BillingDatabase {
   run<Result>(
-    operation: (scope: BillingDatabaseScope) => Promise<Result>,
+    operation: (scope: BillingDatabaseRepositories) => Promise<Result>,
   ): Promise<Result>
 }

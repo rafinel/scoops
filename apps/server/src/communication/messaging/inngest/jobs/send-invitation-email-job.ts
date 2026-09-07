@@ -15,6 +15,7 @@ export const sendInvitationEmailEvent = eventType(UserInvitationPreparedEvent._N
 
 @Injectable()
 export class SendInvitationEmailJob extends InngestJob {
+  static readonly ID = 'communication/send-invitation-email'
   readonly function: InngestFunction.Like
 
   constructor(
@@ -25,7 +26,7 @@ export class SendInvitationEmailJob extends InngestJob {
 
     this.function = this.inngest.createFunction(
       {
-        id: 'communication/send-invitation-email',
+        id: SendInvitationEmailJob.ID,
         retries: 5,
         triggers: [sendInvitationEmailEvent],
       },

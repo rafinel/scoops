@@ -30,21 +30,20 @@ Publishers and consumers import `_NAME`; they must not repeat the event-name
 literal. When a job creates a child event, instantiate the domain event and send
 its `name` and `payload` instead of recreating an untyped object.
 
-The shared broker contract remains deliberately small:
+The shared event repository contract remains deliberately small:
 
 ```ts
-export interface Broker {
-  publish(event: Event): Promise<void>
+export interface EventsRepository {
+  add(event: Event): Promise<void>
 }
 ```
 
-Core use cases depend on `Broker`, never on `InngestClient`. `InngestBroker` is
-the shared server implementation. `InngestBroker.publish` means durable enqueue:
-it inserts one pending row in the shared `events` table and performs no network
-request. When an active
-`DatabaseTransactionContext` exists, it must use that transaction so the event and
-originating state commit or roll back together. The broker is injected directly
-into use cases; it must not be placed inside a module database-scope object.
+Core use cases depend on their module database and call
+`scope.eventsRepository.add(event)`, never on `InngestClient`. The repository is
+available in every module database scope and inserts one pending row in the shared
+`events` table through that transaction. `InngestBroker` is the shared Server
+relay: it listens for committed rows and sends them directly through
+`InngestClient`; it is not injected into use cases.
 
 ## The originating module builds authoritative event data
 
@@ -69,10 +68,11 @@ Shared infrastructure belongs under:
 ```text
 apps/server/src/shared/messaging/
 ├── inngest/
-│   ├── inngest-broker.ts
 │   ├── inngest-client.ts
 │   ├── inngest-job.ts
 │   ├── inngest-options.ts
+│   ├── jobs/
+│   │   └── inngest-broker.ts
 │   └── inngest.module.ts
 └── shared-messaging.module.ts
 ```
@@ -148,28 +148,27 @@ Inngest step. Each child event must remain independently retryable and
 reprocessable. Success or failure of one child must not erase successful sibling
 work.
 
-## Direct publication is the MVP reliability boundary
+## Transactional event persistence is the reliability boundary
 
-The MVP publishes through `Broker` without a transactional outbox. Do not add an
-event table, polling relay, or outbox framework unless a requirement explicitly
-changes the delivery guarantee. Revisit an outbox when database mutation and
-event publication must become atomic or when observed event loss justifies the
-additional operational complexity.
+The originating module persists events through its database scope. Do not publish
+directly from a use case after the transaction commits, because a process failure
+between the mutation and publication could lose the event.
 
 When an approved requirement does require atomic mutation and publication, call
-the injected `Broker.publish` while the originating module's database transaction
-is active. `InngestBroker` persists the complete event through that transaction.
+`scope.eventsRepository.add(event)` while the originating module's database
+transaction is active. The module-scoped EventsRepository persists the complete
+event through that transaction.
 Shared database owns the `events` outbox model and persistence types under
 `apps/server/src/shared/database/drizzle/outbox/`, and the Drizzle adapter at
 `apps/server/src/shared/database/drizzle/drizzle-outbox-database.ts`, while the
 provider-neutral `OutboxDatabase` contract belongs in
-`packages/core/src/shared/interfaces/`; shared messaging owns `PublishEventJob`.
+`packages/core/src/shared/interfaces/`; shared messaging owns `InngestBroker`.
 The Server composition layer owns the Nest worker that listens to a PostgreSQL
 `LISTEN/NOTIFY` channel emitted after an outbox
 insert commits, reads and reserves pending rows through a database interface,
 publishes each row directly through `InngestClient` with the event row ID as the
 external event ID, then marks the row published only after acknowledgement. It
-must not call `Broker.publish`, which would enqueue a second row. Notifications
+must not write a second event row. Notifications
 are a latency optimization and are not the durability boundary: startup and
 reconnect drain pending rows, while `ReprocessEventsJob` remains the periodic
 recovery path. Inngest owns consumer retries; the outbox does not track
@@ -181,16 +180,15 @@ infrastructure.
 Shared database infrastructure provides the singleton `DatabaseTransactionContext`.
 Shared messaging imports that database module and owns `InngestBroker`,
 `InngestClient`, and publish/reprocessing/cleanup jobs in one acyclic module; do not
-create an outbox module that imports its parent messaging module. `PublishEventJob` claims
+create an outbox module that imports its parent messaging module. `InngestBroker` claims
 only pending rows. Failed publication uses bounded backoff and a finite automatic
 attempt cap; a separate reprocessing job returns only eligible failed or
 expired-reservation rows to pending, while terminal failures remain visible for operator
 action.
 
 `ReprocessEventsJob` is registered and scheduled only in local and test environments.
-Staging and production rely on startup/reconnect draining and the guarded operator
-requeue path; environment composition must not instantiate or register the reprocessor
-in `stg` or `prod`.
+Staging and production rely on startup/reconnect draining; environment composition
+must not instantiate or register the reprocessor in `stg` or `prod`.
 
 Call the expiring worker ownership a `reservation`, not a lease or database lock.
 Reservation columns use `reserved_by` and `reservation_expires_at`; guarded completion

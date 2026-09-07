@@ -5,7 +5,7 @@ import { InviteUserUseCase } from '#identity/use-cases/invite-user-use-case.ts'
 import { AuthorizationError } from '#shared/domain/errors/authorization-error.ts'
 import { mock } from 'vitest-mock-extended'
 import type { IdentityDatabase } from '#identity/interfaces/identity-database.ts'
-import type { DatetimeProvider, Broker } from '#shared/interfaces/index.ts'
+import type { DatetimeProvider, EventsRepository } from '#shared/interfaces/index.ts'
 import type {
   OnboardingIdentifierProvider,
   OnboardingTokenProvider,
@@ -18,7 +18,7 @@ import {
 } from '#identity/domain/entities/fakers'
 import { RegistrationAttemptType } from '#identity/domain/structures/registration-attempt-type.ts'
 import { RegistrationAttemptStatus } from '#identity/domain/structures/registration-attempt-status.ts'
-import type { IdentityDatabaseScope } from '#identity/interfaces/identity-database.ts'
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
@@ -35,7 +35,6 @@ describe('Invite User Use Case', () => {
       mock<OnboardingTokenProvider>(),
       mock<OnboardingIdentifierProvider>(),
       provider,
-      mock<Broker>(),
     )
     await expect(
       useCase.execute({
@@ -54,11 +53,13 @@ describe('Invite User Use Case', () => {
     const usersRepository = mock<UsersRepository>()
     const registrationAttemptsRepository = mock<RegistrationAttemptsRepository>()
     const userAuditRecordsRepository = mock<UserAuditRecordsRepository>()
-    const scope: IdentityDatabaseScope = {
+    const eventsRepository = mock<EventsRepository>()
+    const scope: IdentityDatabaseRepositories = {
       usersRepository,
       registrationAttemptsRepository,
       establishmentsRepository: mock<EstablishmentsRepository>(),
       userAuditRecordsRepository,
+      eventsRepository,
     }
     database.run.mockImplementation((operation) => operation(scope))
     const now = new Date('2026-01-01T00:00:00.000Z')
@@ -100,8 +101,7 @@ describe('Invite User Use Case', () => {
         operation: 'initial',
       }),
     })
-    const broker = mock<Broker>()
-    broker.publish.mockRejectedValue(new Error('broker unavailable'))
+    eventsRepository.add.mockRejectedValue(new Error('events repository unavailable'))
     const tokenProvider = mock<OnboardingTokenProvider>()
     tokenProvider.issue.mockReturnValue({ token: 'token', hash: 'hash' })
     const identifierProvider = mock<OnboardingIdentifierProvider>()
@@ -114,7 +114,6 @@ describe('Invite User Use Case', () => {
       tokenProvider,
       identifierProvider,
       provider,
-      broker,
     )
 
     await expect(
@@ -125,7 +124,7 @@ describe('Invite User Use Case', () => {
         profile: user.profile,
         invitationRedirectBaseUrl: 'https://example.com/invitation',
       }),
-    ).rejects.toThrow('broker unavailable')
+    ).rejects.toThrow('events repository unavailable')
     expect(provider.removeIdentity).toHaveBeenCalledWith(user.id)
     expect(usersRepository.add).toHaveBeenCalledWith(
       expect.objectContaining({ id: user.id, status: 'pending' }),

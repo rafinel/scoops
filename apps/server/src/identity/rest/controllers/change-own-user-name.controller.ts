@@ -2,7 +2,7 @@ import { Body, HttpStatus, Inject, Patch } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
 import { ChangeOwnUserNameUseCase } from '@scoops/core/identity/use-cases'
 import type { Account } from '@scoops/core/identity/domain/entities'
-import type { Broker, DatetimeProvider } from '@scoops/core/shared/interfaces'
+import type { DatetimeProvider } from '@scoops/core/shared/interfaces'
 import type { IdentityDatabase } from '@scoops/core/identity/interfaces'
 
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
@@ -12,7 +12,6 @@ import { changeIdentityNameSchema } from '@/identity/rest/schemas/change-identit
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 import { DatetimeProvider as ServerDatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 type RequestBody = Omit<Parameters<ChangeOwnUserNameUseCase['execute']>[0], 'actor'>
 
@@ -23,9 +22,8 @@ export class ChangeOwnUserNameController {
   constructor(
     @Inject(IDENTITY_REPOSITORIES.database) database: IdentityDatabase,
     @Inject(ServerDatetimeProvider) datetimeProvider: DatetimeProvider,
-    @Inject(InngestBroker) broker: Broker,
   ) {
-    this.useCase = new ChangeOwnUserNameUseCase(database, datetimeProvider, broker)
+    this.useCase = new ChangeOwnUserNameUseCase(database, datetimeProvider)
   }
 
   @Patch('session/name')

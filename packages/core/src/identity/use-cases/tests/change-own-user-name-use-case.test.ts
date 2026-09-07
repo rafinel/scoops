@@ -6,14 +6,14 @@ import { UserNameChangeNotAllowedError } from '#identity/domain/errors/user-name
 import { UserStatus } from '#identity/domain/structures/user-status.ts'
 import type {
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
   UsersRepository,
   EstablishmentsRepository,
   UserAuditRecordsRepository,
   EstablishmentAuditRecordsRepository,
 } from '#identity/interfaces/index.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import { ChangeOwnUserNameUseCase } from '#identity/use-cases/change-own-user-name-use-case.ts'
 
 describe('Change Own User Name Use Case', () => {
@@ -23,8 +23,8 @@ describe('Change Own User Name Use Case', () => {
   let userAuditRecordsRepository: MockProxy<UserAuditRecordsRepository>
   let establishmentAuditRecordsRepository: MockProxy<EstablishmentAuditRecordsRepository>
   let datetimeProvider: MockProxy<DatetimeProvider>
-  let broker: MockProxy<Broker>
-  let scope: IdentityDatabaseScope
+  let eventsRepository: MockProxy<EventsRepository>
+  let scope: IdentityDatabaseRepositories
   let useCase: ChangeOwnUserNameUseCase
 
   beforeEach(() => {
@@ -34,17 +34,18 @@ describe('Change Own User Name Use Case', () => {
     userAuditRecordsRepository = mock<UserAuditRecordsRepository>()
     establishmentAuditRecordsRepository = mock<EstablishmentAuditRecordsRepository>()
     datetimeProvider = mock<DatetimeProvider>()
-    broker = mock<Broker>()
+    eventsRepository = mock<EventsRepository>()
     scope = {
       usersRepository,
       establishmentsRepository,
       registrationAttemptsRepository: mock(),
       userAuditRecordsRepository,
       establishmentAuditRecordsRepository,
+      eventsRepository,
     }
     database.run.mockImplementation((operation) => operation(scope))
     datetimeProvider.now.mockReturnValue(new Date('2026-08-16T14:00:00.000Z'))
-    useCase = new ChangeOwnUserNameUseCase(database, datetimeProvider, broker)
+    useCase = new ChangeOwnUserNameUseCase(database, datetimeProvider)
   })
 
   it.each(['manager', 'operator'] as const)(
@@ -99,7 +100,7 @@ describe('Change Own User Name Use Case', () => {
           newValue: 'Updated Name',
         }),
       )
-      expect(broker.publish).toHaveBeenCalledTimes(1)
+      expect(eventsRepository.add).toHaveBeenCalledTimes(1)
     },
   )
 
@@ -137,7 +138,7 @@ describe('Change Own User Name Use Case', () => {
     )
     expect(usersRepository.replace).not.toHaveBeenCalled()
     expect(userAuditRecordsRepository.add).not.toHaveBeenCalled()
-    expect(broker.publish).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
   })
 
   it('rejects an inactive authenticated user without writing', async () => {
@@ -178,6 +179,6 @@ describe('Change Own User Name Use Case', () => {
     await expect(useCase.execute({ actor, name: 'New Name' })).rejects.toThrow(
       'audit failed',
     )
-    expect(broker.publish).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
   })
 })

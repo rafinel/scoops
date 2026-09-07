@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { ProductBrandStock } from '#mrp/domain/structures/product-brand-stock.ts'
@@ -5,12 +6,11 @@ import { ProductStockControl } from '#mrp/domain/structures/product-stock-contro
 import { ProductUnit } from '#mrp/domain/structures/product-unit.ts'
 import type { RegisterProductBrandInput } from '#mrp/domain/structures/register-product-brand-input.ts'
 import { StockAdjustmentType } from '#mrp/domain/structures/stock-adjustment-type.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
 import {
   GetAffectedProductSalesConfigurationsUseCase,
   publishAffectedProductSalesConfigurations,
 } from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -31,7 +31,6 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
   constructor(
     private readonly database: MrpDatabase,
     private readonly datetimeProvider: DatetimeProvider,
-    private readonly broker?: Broker,
   ) {}
 
   async execute(request: Request): Promise<ProductBrandStock> {
@@ -39,90 +38,120 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
     this.validateInput(request.input)
     const occurredAt = this.datetimeProvider.now()
 
-    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
-      []
-    const result = await this.database.run(async (scope) => {
-      const product =
-        (await scope.productsRepository.findByIdForUpdate(
-          request.actor.establishmentId,
-          request.productId,
-        )) ??
-        (await scope.productsRepository.findById(
-          request.actor.establishmentId,
-          request.productId,
-        ))
-      if (!product) throw new NotFoundError('Produto não encontrado.')
-      if (product.stockControl !== ProductStockControl.ByBrand) {
-        throw new BadRequestError('Este produto não utiliza estoque por marca.')
-      }
+    const result = await this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const product =
+          (await productsRepository.findByIdForUpdate(
+            request.actor.establishmentId,
+            request.productId,
+          )) ??
+          (await productsRepository.findById(
+            request.actor.establishmentId,
+            request.productId,
+          ))
+        if (!product) throw new NotFoundError('Produto não encontrado.')
+        if (product.stockControl !== ProductStockControl.ByBrand) {
+          throw new BadRequestError('Este produto não utiliza estoque por marca.')
+        }
 
-      const name = request.input.name.trim()
-      if (await scope.brandsRepository.findByName(product.id, name)) {
-        throw new ConflictError('Já existe uma marca com esse nome para o produto.')
-      }
+        const name = request.input.name.trim()
+        if (await brandsRepository.findByName(product.id, name)) {
+          throw new ConflictError('Já existe uma marca com esse nome para o produto.')
+        }
 
-      const isPrimary = (await scope.brandsRepository.countByProductId(product.id)) === 0
-      const previousQuantity = await this.findProductQuantity(scope, product.id)
-      const brand = await scope.brandsRepository.add({
-        productId: product.id,
-        name,
-        unit: request.input.unit ?? product.unit,
-        packageQuantity: request.input.packageQuantity,
-        packagePrice: request.input.packageValue,
-        isPrimary,
-      })
-      await scope.stockBalancesRepository.initialize(product.id, brand.id)
-      let balance = await scope.stockBalancesRepository.findByProductAndBrand(
-        product.id,
-        brand.id,
-      )
-
-      if (request.input.initialQuantity > 0) {
-        balance = await scope.stockBalancesRepository.add(
-          { productId: product.id, brandId: brand.id },
-          request.input.initialQuantity,
-        )
-        await scope.stockTransactionsRepository.add({
-          establishmentId: request.actor.establishmentId,
+        const isPrimary = (await brandsRepository.countByProductId(product.id)) === 0
+        const previousQuantity = await this.findProductQuantity(scope, product.id)
+        const brand = await brandsRepository.add({
           productId: product.id,
-          brandId: brand.id,
-          productName: product.name,
-          brandName: brand.name,
-          unit: product.unit,
-          type: StockAdjustmentType.Entry,
-          quantity: request.input.initialQuantity,
-          balanceAfter: balance.quantity,
-          performedBy: request.actor.id,
-          performedByName: request.actor.name,
-          occurredAt,
+          name,
+          unit: request.input.unit ?? product.unit,
+          packageQuantity: request.input.packageQuantity,
+          packagePrice: request.input.packageValue,
+          isPrimary,
         })
-      }
+        await stockBalancesRepository.initialize(product.id, brand.id)
+        let balance = await stockBalancesRepository.findByProductAndBrand(
+          product.id,
+          brand.id,
+        )
 
-      if (this.broker)
-        await new PublishProductStockAlertUseCase(this.broker).execute({
+        if (request.input.initialQuantity > 0) {
+          balance = await stockBalancesRepository.add(
+            { productId: product.id, brandId: brand.id },
+            request.input.initialQuantity,
+          )
+          await stockTransactionsRepository.add({
+            establishmentId: request.actor.establishmentId,
+            productId: product.id,
+            brandId: brand.id,
+            productName: product.name,
+            brandName: brand.name,
+            unit: product.unit,
+            type: StockAdjustmentType.Entry,
+            quantity: request.input.initialQuantity,
+            balanceAfter: balance.quantity,
+            performedBy: request.actor.id,
+            performedByName: request.actor.name,
+            occurredAt,
+          })
+        }
+
+        await new PublishProductStockAlertUseCase(eventsRepository).execute({
           product,
           previousQuantity,
-          availableQuantity: previousQuantity + request.input.initialQuantity,
+          availableQuantity: await this.findProductQuantity(scope, product.id),
           occurredAt,
         })
 
-      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
-        scope,
-        establishmentId: request.actor.establishmentId,
-        productId: request.productId,
-      })
-      return {
-        brand,
-        stockQuantity: balance?.quantity ?? 0,
-        unitPrice: brand.packagePrice / brand.packageQuantity,
-      }
-    })
-    await publishAffectedProductSalesConfigurations({
-      broker: this.broker,
-      establishmentId: request.actor.establishmentId,
-      productId: request.productId,
-      configurations,
-    })
+        const configurations =
+          await new GetAffectedProductSalesConfigurationsUseCase().execute({
+            scope,
+            establishmentId: request.actor.establishmentId,
+            productId: request.productId,
+          })
+        const result = {
+          brand,
+          stockQuantity: balance?.quantity ?? 0,
+          unitPrice: brand.packagePrice / brand.packageQuantity,
+        }
+        await publishAffectedProductSalesConfigurations({
+          scope,
+          establishmentId: request.actor.establishmentId,
+          productId: request.productId,
+          configurations,
+        })
+        return result
+      },
+    )
     return result
   }
 
@@ -151,10 +180,10 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
   }
 
   private async findProductQuantity(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     productId: string,
   ): Promise<number> {
     const balances = await scope.stockBalancesRepository.findManyByProductId(productId)
-    return (balances ?? []).reduce((total, balance) => total + balance.quantity, 0)
+    return balances.reduce((total, balance) => total + balance.quantity, 0)
   }
 }

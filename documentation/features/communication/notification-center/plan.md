@@ -1,6 +1,6 @@
 ---
 title: In-product notification center — implementation plan
-status: completed
+status: in_progress
 spec: ./spec.md
 spec_revision: 4
 evaluation: ./evaluation.md
@@ -12,9 +12,9 @@ updated_at: 2026-09-06
 
 - **Spec:** [`spec.md`](./spec.md), revision `4`, `in_progress`.
 - **Rationale:** Plan-backed execution is required because the Spec crosses Core, Validation, MRP, Identity, PDV, Communication persistence and messaging, authenticated REST, Composition, Web routing/UI, generated artifacts, migration risk, and complex full-stack/visual validation.
-- **Current phase:** `F4` — integrated validation and shared back-navigation visual correction completed.
-- **Next action:** Route the validated revision-4 Spec to `conclude-spec`.
-- **Active blockers:** None. The missing `apps/server/rest-client/communication/notifications.rest` is explicitly declared for creation by the Spec and is scheduled in `F3-T1`.
+- **Current phase:** `F4` — mainline EventsRepository integration correction.
+- **Next action:** Complete the merge adaptation, refresh affected Core/Server evidence, and return Evaluation to `ready` before conclusion.
+- **Active blockers:** Mainline integration correction is in progress; no product or authority blocker remains.
 - **Builders:** `Builder Core`, `Builder Server`, and `Builder Web` completed their assigned phases. The Orchestrator owns integrated validation and evidence freshness.
 - **Shared coordination:** The Orchestrator owns root/generated artifacts and integration: the Drizzle shared-schema export and generated `0021` migration metadata, `AppModule` registration, generated `apps/web/src/routeTree.gen.ts`, shared Playwright fixture registration, package/lockfile changes, and final cross-Builder validation. Builders do not edit overlapping paths.
 - **Visual evidence:** Fresh Playwright captures are stored in ignored `apps/web/test-results/communication/` output and linked from `evaluation.md` by artifact path; feature-local `evidence/` is not part of the delivery artifact.

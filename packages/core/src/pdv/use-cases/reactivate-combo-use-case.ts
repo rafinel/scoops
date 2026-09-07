@@ -1,9 +1,9 @@
+import type { PdvDatabaseRepositories } from '#pdv/interfaces/pdv-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { DiscountStatus } from '#pdv/domain/structures/discount-status.ts'
 import type { ComboActor } from '#pdv/domain/structures/combo-actor.ts'
 import type { ComboDetails } from '#pdv/domain/structures/combo-details.ts'
 import { DiscountUpdatedEvent } from '#pdv/domain/events/discount-updated-event.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { PdvDatabase } from '#pdv/interfaces/pdv-database.ts'
 import type { SalesCatalogProvider } from '#pdv/interfaces/sales-catalog-provider.ts'
 import {
@@ -23,13 +23,13 @@ export class ReactivateComboUseCase implements UseCase<Request, ComboDetails> {
   constructor(
     private readonly database: PdvDatabase,
     private readonly catalog: SalesCatalogProvider,
-    private readonly broker: Broker,
   ) {}
   async execute(request: Request): Promise<ComboDetails> {
     if (request.actor.profile !== UserProfile.Manager)
       throw new AuthorizationError('Somente gestores podem gerenciar combos.')
-    const current = await this.database.run((scope) =>
-      scope.discountsRepository.findById(request.actor.establishmentId, request.comboId),
+    const current = await this.database.run(
+      ({ discountsRepository }: PdvDatabaseRepositories) =>
+        discountsRepository.findById(request.actor.establishmentId, request.comboId),
     )
     if (!current || current.establishmentId !== request.actor.establishmentId)
       throw new NotFoundError('Combo não encontrado.')
@@ -56,21 +56,23 @@ export class ReactivateComboUseCase implements UseCase<Request, ComboDetails> {
         throw new BadRequestError(
           'O preço fixo deve ser menor que o preço normal dos componentes.',
         )
-      const combo = await this.database.run((scope) =>
-        scope.discountsRepository.setStatus(
-          request.actor.establishmentId,
-          current.id,
-          DiscountStatus.Active,
-          request.expectedUpdatedAt,
-        ),
-      )
-      await this.broker.publish(
-        new DiscountUpdatedEvent({
-          discountId: combo.id,
-          establishmentId: combo.establishmentId,
-          type: combo.type,
-          updatedAt: combo.updatedAt,
-        }),
+      const combo = await this.database.run(
+        async ({ discountsRepository, eventsRepository }: PdvDatabaseRepositories) => {
+          const updatedCombo = await discountsRepository.setStatus(
+            request.actor.establishmentId,
+            current.id,
+            DiscountStatus.Active,
+            request.expectedUpdatedAt,
+          )
+          const event = new DiscountUpdatedEvent({
+            discountId: updatedCombo.id,
+            establishmentId: updatedCombo.establishmentId,
+            type: updatedCombo.type,
+            updatedAt: updatedCombo.updatedAt,
+          })
+          await eventsRepository.add(event)
+          return updatedCombo
+        },
       )
       return ListCombosUseCase.details(combo, map)
     }

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { UserRegistrationAttemptFaker } from '#identity/domain/entities/fakers/index.ts'
 import type {
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
 } from '#identity/interfaces/identity-database.ts'
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
@@ -24,7 +24,7 @@ describe('Expire Ice Cream Shop Onboardings Use Case', () => {
   let userProvider: MockProxy<UserAccessIdentityProvider>
   let users: MockProxy<UsersRepository>
   let datetime: MockProxy<DatetimeProvider>
-  let scope: IdentityDatabaseScope
+  let scope: IdentityDatabaseRepositories
   let useCase: ExpireIceCreamShopOnboardingsUseCase
   beforeEach(() => {
     database = mock<IdentityDatabase>()
@@ -38,6 +38,7 @@ describe('Expire Ice Cream Shop Onboardings Use Case', () => {
       registrationAttemptsRepository: attempts,
       establishmentsRepository: establishments,
       usersRepository: users,
+      eventsRepository: mock(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     datetime.now.mockReturnValue(new Date('2026-01-09T00:00:00.000Z'))

@@ -1,3 +1,4 @@
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { Establishment } from '#identity/domain/entities/establishment.ts'
 import type { UserRegistrationAttempt } from '#identity/domain/entities/user-registration-attempt.ts'
 import type { User } from '#identity/domain/entities/user.ts'
@@ -14,7 +15,6 @@ import type { OnboardingIdentifierProvider } from '#identity/interfaces/onboardi
 import type { OnboardingIdentityProvider } from '#identity/interfaces/onboarding-identity-provider.ts'
 import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import { confirmationRedirectUrl } from '#identity/use-cases/confirmation-redirect.ts'
 
 type Request = IceCreamShopOnboardingInput & { confirmationRedirectBaseUrl: string }
@@ -28,7 +28,6 @@ export class RegisterIceCreamShopUseCase {
     private readonly onboardingTokenProvider: OnboardingTokenProvider,
     private readonly onboardingIdentifierProvider: OnboardingIdentifierProvider,
     private readonly onboardingIdentityProvider: OnboardingIdentityProvider,
-    private readonly broker?: Broker,
   ) {}
 
   async execute(request: Request): Promise<IceCreamShopOnboardingRegistration> {
@@ -42,7 +41,10 @@ export class RegisterIceCreamShopUseCase {
     const attemptId = this.onboardingIdentifierProvider.generate()
 
     await this.database.run(
-      async ({ registrationAttemptsRepository, usersRepository }) => {
+      async ({
+        registrationAttemptsRepository,
+        usersRepository,
+      }: IdentityDatabaseRepositories) => {
         const existingUser = await usersRepository.findByEmail(email)
         const existingAttempt =
           await registrationAttemptsRepository.findActiveByEmail(email)
@@ -52,68 +54,75 @@ export class RegisterIceCreamShopUseCase {
 
     let providerSubject: string | undefined
     try {
-      const onboarding = await this.database.run(async (scope) => {
-        const existingUser = await scope.usersRepository.findByEmail(email)
-        const existingAttempt =
-          await scope.registrationAttemptsRepository.findActiveByEmail(email)
-        if (existingUser || existingAttempt) throw new OnboardingEmailUnavailableError()
+      const onboarding = await this.database.run(
+        async ({
+          establishmentsRepository,
+          registrationAttemptsRepository,
+          usersRepository,
+          eventsRepository,
+        }: IdentityDatabaseRepositories) => {
+          const existingUser = await usersRepository.findByEmail(email)
+          const existingAttempt =
+            await registrationAttemptsRepository.findActiveByEmail(email)
+          if (existingUser || existingAttempt) throw new OnboardingEmailUnavailableError()
 
-        const providerIdentity =
-          await this.onboardingIdentityProvider.registerPendingIdentity({
-            email,
-            password: request.password,
-            name: managerName,
-            confirmationRedirectTo: confirmationRedirectUrl(
-              request.confirmationRedirectBaseUrl,
-              continuation.token,
-            ),
+          const providerIdentity =
+            await this.onboardingIdentityProvider.registerPendingIdentity({
+              email,
+              password: request.password,
+              name: managerName,
+              confirmationRedirectTo: confirmationRedirectUrl(
+                request.confirmationRedirectBaseUrl,
+                continuation.token,
+              ),
+            })
+          providerSubject = providerIdentity.authUser.id
+
+          const establishment: Establishment = await establishmentsRepository.add({
+            id: establishmentId,
+            name: establishmentName,
+            status: EstablishmentStatus.Pending,
+            createdAt: now,
+            updatedAt: now,
           })
-        providerSubject = providerIdentity.authUser.id
-
-        const establishment: Establishment = await scope.establishmentsRepository.add({
-          id: establishmentId,
-          name: establishmentName,
-          status: EstablishmentStatus.Pending,
-          createdAt: now,
-          updatedAt: now,
-        })
-        const user: User = await scope.usersRepository.add({
-          id: providerIdentity.authUser.id,
-          establishmentId,
-          name: managerName,
-          email,
-          profile: UserProfile.Manager,
-          status: UserStatus.Pending,
-          createdAt: now,
-          updatedAt: now,
-        })
-        const attempt: UserRegistrationAttempt =
-          await scope.registrationAttemptsRepository.add({
-            id: attemptId,
-            userId: user.id,
-            establishmentId: establishment.id,
+          const user: User = await usersRepository.add({
+            id: providerIdentity.authUser.id,
+            establishmentId,
             name: managerName,
             email,
             profile: UserProfile.Manager,
-            type: RegistrationAttemptType.EstablishmentOnboarding,
-            status: RegistrationAttemptStatus.Pending,
-            tokenHash: continuation.hash,
-            expiresAt,
+            status: UserStatus.Pending,
             createdAt: now,
             updatedAt: now,
-            revision: 0,
           })
-        await this.broker?.publish(providerIdentity.event)
-        return {
-          continuationToken: continuation.token,
-          onboarding: {
-            establishmentName: establishment.name,
-            managerName: user.name,
-            email: user.email,
-            expiresAt: attempt.expiresAt,
-          },
-        }
-      })
+          const attempt: UserRegistrationAttempt =
+            await registrationAttemptsRepository.add({
+              id: attemptId,
+              userId: user.id,
+              establishmentId: establishment.id,
+              name: managerName,
+              email,
+              profile: UserProfile.Manager,
+              type: RegistrationAttemptType.EstablishmentOnboarding,
+              status: RegistrationAttemptStatus.Pending,
+              tokenHash: continuation.hash,
+              expiresAt,
+              createdAt: now,
+              updatedAt: now,
+              revision: 0,
+            })
+          await eventsRepository.add(providerIdentity.event)
+          return {
+            continuationToken: continuation.token,
+            onboarding: {
+              establishmentName: establishment.name,
+              managerName: user.name,
+              email: user.email,
+              expiresAt: attempt.expiresAt,
+            },
+          }
+        },
+      )
       return onboarding
     } catch (error) {
       if (providerSubject) {

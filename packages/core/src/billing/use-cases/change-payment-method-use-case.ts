@@ -1,3 +1,4 @@
+import type { BillingDatabaseRepositories } from '#billing/interfaces/billing-database.ts'
 import type { BillingPaymentMethodChange } from '#billing/domain/structures/billing-payment-method-change.ts'
 import type { CheckoutSession } from '#billing/domain/structures/checkout-session.ts'
 import type { BillingDatabase } from '#billing/interfaces/billing-database.ts'
@@ -14,8 +15,9 @@ export class ChangePaymentMethodUseCase
   ) {}
 
   async execute(request: BillingPaymentMethodChange): Promise<CheckoutSession> {
-    const subscription = await this.database.run((scope) =>
-      scope.subscriptionsRepository.findByEstablishmentId(request.establishmentId),
+    const subscription = await this.database.run(
+      ({ subscriptionsRepository }: BillingDatabaseRepositories) =>
+        subscriptionsRepository.findByEstablishmentId(request.establishmentId),
     )
 
     if (!subscription) throw new NotFoundError('Assinatura não encontrada.')

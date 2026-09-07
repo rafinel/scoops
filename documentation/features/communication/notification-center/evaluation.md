@@ -3,7 +3,7 @@ feature: "communication/notification-center"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 4
-status: ready
+status: in_progress
 updated_at: 2026-09-06
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-09-06
 
 Evaluation of Spec revision `4` against the untouched implementation at kickoff, with a mechanical path-classification correction recorded during F4 conformance, a history-aware back-control correction during closure validation, and a shared back-navigation visual correction.
 
-Current result: `ready`; the Spec is frozen at revision 4, the history-aware back-control and shared visual corrections are implemented and validated, all affected Web gates pass, and fresh visual captures are stored in ignored `apps/web/test-results/communication/` output.
+Current result: `in_progress`; mainline integration requires adapting the notification event publishers and Communication fixture to the current EventsRepository/Inngest architecture. Previous revision-4 evidence is stale until the merge is resolved and the affected Core/Server gates are rerun.
 
 ## Acceptance matrix
 
@@ -141,6 +141,7 @@ remain unchecked.
 | `FND-003` | product correction | User feedback on notifications page back navigation | `EV-05`, `MV-02`, `VIS-02` | `resolved` | The page now calls the shared router history back action when history exists and retains the authenticated home route as the link fallback. The focused page tests, Web coverage, and 6-test Chromium route suite passed. |
 | `FND-004` | final Web coverage | `pnpm --filter web test:coverage` on the revision-3 candidate | `EV-04`, `EV-05`, `MV-01`, `MV-02`, `VIS-01`–`VIS-18` | `resolved` | Isolated component tests now mock the shared router-backed `BackLink` boundary; Web coverage passed with 181 files and 497 tests. Fresh visual and focused Chromium evidence was regenerated. |
 | `FND-005` | visual consistency | User feedback on page-level back-button styling | `EV-04`, `EV-05`, `EV-05-A`, `VIS-02` | `resolved` | The shared `BackLink` now owns the compact borderless transparent treatment with a purple `chevron-left` and label. Notifications, Combo Discounts, and order-not-found recovery use the shared component; the stale MRP consumer assertion was updated through the Web Builder, focused tests and the full 200-test Chromium route gate passed. |
+| `FND-006` | mainline integration | Required merge of `origin/main` moved shared outbox and transaction contracts to `EventsRepository`/Inngest | `EV-02`, `EV-03`, `EV-06`, `MV-03`, `MV-04` | `in_progress` | Adapt the notification publishers, source transactions, Communication fixture, and event-validation tests to the current mainline paths; rerun all affected Core/Server/runtime evidence before conclusion. |
 
 ## Lessons learned
 

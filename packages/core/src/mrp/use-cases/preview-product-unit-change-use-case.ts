@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { ProductUnit } from '#mrp/domain/structures/product-unit.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
@@ -26,77 +27,84 @@ export class PreviewProductUnitChangeUseCase
     this.validateActor(request.actor)
     this.validateUnit(request.input.targetUnit)
 
-    return this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      if (!product || product.establishmentId !== request.actor.establishmentId) {
-        throw new NotFoundError('Produto não encontrado.')
-      }
-      if (product.unit === request.input.targetUnit) {
-        throw new BadRequestError('A unidade de destino deve ser diferente da atual.')
-      }
-
-      const brands = await scope.brandsRepository.findManyByProductId(
-        request.actor.establishmentId,
-        product.id,
-      )
-      const [balances, recipeYields, recipeIngredients, sizes, accompanimentLinks] =
-        await Promise.all([
-          scope.stockBalancesRepository.countByProductId(
-            request.actor.establishmentId,
-            product.id,
-          ),
-          scope.recipesRepository.countByProductId(
-            request.actor.establishmentId,
-            product.id,
-          ),
-          scope.recipeIngredientsRepository.countByIngredientProductId(
-            request.actor.establishmentId,
-            product.id,
-          ),
-          scope.productSizesRepository.countByProductId(
-            request.actor.establishmentId,
-            product.id,
-          ),
-          scope.productAccompanimentsRepository.countByAccompanimentProductId(
-            request.actor.establishmentId,
-            product.id,
-          ),
-        ])
-
-      const affectedBrands = brands
-        .filter(
-          (brand) =>
-            brand.productId === product.id &&
-            product.establishmentId === request.actor.establishmentId,
+    return this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        stockBalancesRepository,
+        productSizesRepository,
+        productAccompanimentsRepository,
+      }: MrpDatabaseRepositories) => {
+        const product = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
         )
-        .map(({ id, name }) => ({ brandId: id, brandName: name }))
-        .sort(
-          (left, right) =>
-            left.brandName
-              .trim()
-              .toLocaleLowerCase()
-              .localeCompare(right.brandName.trim().toLocaleLowerCase()) ||
-            left.brandId.localeCompare(right.brandId),
-        )
+        if (!product || product.establishmentId !== request.actor.establishmentId) {
+          throw new NotFoundError('Produto não encontrado.')
+        }
+        if (product.unit === request.input.targetUnit) {
+          throw new BadRequestError('A unidade de destino deve ser diferente da atual.')
+        }
 
-      return {
-        currentUnit: product.unit,
-        targetUnit: request.input.targetUnit,
-        affected: {
-          balances,
-          brands: affectedBrands,
-          recipeYields,
-          recipeIngredients,
-          sizes,
-          accompanimentLinks,
-          hasIdealStock: product.idealStock !== undefined,
-          hasCurrentUnitCost: product.currentUnitCost !== undefined,
-        },
-      }
-    })
+        const brands = await brandsRepository.findManyByProductId(
+          request.actor.establishmentId,
+          product.id,
+        )
+        const [balances, recipeYields, recipeIngredients, sizes, accompanimentLinks] =
+          await Promise.all([
+            stockBalancesRepository.countByProductId(
+              request.actor.establishmentId,
+              product.id,
+            ),
+            recipesRepository.countByProductId(request.actor.establishmentId, product.id),
+            recipeIngredientsRepository.countByIngredientProductId(
+              request.actor.establishmentId,
+              product.id,
+            ),
+            productSizesRepository.countByProductId(
+              request.actor.establishmentId,
+              product.id,
+            ),
+            productAccompanimentsRepository.countByAccompanimentProductId(
+              request.actor.establishmentId,
+              product.id,
+            ),
+          ])
+
+        const affectedBrands = brands
+          .filter(
+            (brand) =>
+              brand.productId === product.id &&
+              product.establishmentId === request.actor.establishmentId,
+          )
+          .map(({ id, name }) => ({ brandId: id, brandName: name }))
+          .sort(
+            (left, right) =>
+              left.brandName
+                .trim()
+                .toLocaleLowerCase()
+                .localeCompare(right.brandName.trim().toLocaleLowerCase()) ||
+              left.brandId.localeCompare(right.brandId),
+          )
+
+        return {
+          currentUnit: product.unit,
+          targetUnit: request.input.targetUnit,
+          affected: {
+            balances,
+            brands: affectedBrands,
+            recipeYields,
+            recipeIngredients,
+            sizes,
+            accompanimentLinks,
+            hasIdealStock: product.idealStock !== undefined,
+            hasCurrentUnitCost: product.currentUnitCost !== undefined,
+          },
+        }
+      },
+    )
   }
 
   private validateActor(actor: ProductActor): void {

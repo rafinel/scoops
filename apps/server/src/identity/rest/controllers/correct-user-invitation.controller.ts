@@ -18,8 +18,6 @@ import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
-import type { Broker } from '@scoops/core/shared/interfaces'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 type RequestBody = Omit<
   Parameters<CorrectUserInvitationUseCase['execute']>[0],
@@ -39,7 +37,6 @@ export class CorrectUserInvitationController {
     @Inject(IDENTITY_PROVIDERS.onboardingToken)
     tokenProvider: OnboardingTokenProvider,
     @Inject(IDENTITY_PROVIDERS.userAccessIdentity) provider: UserAccessIdentityProvider,
-    @Inject(InngestBroker) broker: Broker,
     @Inject(EnvProvider) envProvider: EnvProvider,
   ) {
     this.useCase = new CorrectUserInvitationUseCase(
@@ -48,7 +45,6 @@ export class CorrectUserInvitationController {
       identifierProvider,
       tokenProvider,
       provider,
-      broker,
     )
     this.invitationRedirectBaseUrl = `${envProvider.get('SCOOPS_WEB_APP_URL')}/invitation/accept`
   }

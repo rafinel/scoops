@@ -1,7 +1,7 @@
 import {
   OutboxEventValidationError,
   validateOutboxEvent,
-} from '@/shared/messaging/outbox/event-validation'
+} from '@/shared/messaging/inngest/jobs/event-validation'
 import { describe, expect, it } from 'vitest'
 
 const ids = {

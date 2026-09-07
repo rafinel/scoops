@@ -1,6 +1,6 @@
 import type {
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
 } from '@scoops/core/identity/interfaces'
 import { ConflictError } from '@scoops/core/shared/domain/errors'
 import { Inject, Injectable } from '@nestjs/common'
@@ -14,6 +14,7 @@ import { DrizzleAuthenticationSessionsRepository } from '@/identity/database/dri
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 import { DatabaseTransactionContext } from '@/shared/database/drizzle/database-transaction-context'
 import type { DrizzleExecutor } from '@/shared/database/drizzle/drizzle-repository'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
 
 @Injectable()
 export class DrizzleIdentityDatabase implements IdentityDatabase {
@@ -24,7 +25,7 @@ export class DrizzleIdentityDatabase implements IdentityDatabase {
   ) {}
 
   run<Result>(
-    operation: (scope: IdentityDatabaseScope) => Promise<Result>,
+    operation: (scope: IdentityDatabaseRepositories) => Promise<Result>,
   ): Promise<Result> {
     const activeTransaction = this.transactionContext.get()
 
@@ -34,7 +35,7 @@ export class DrizzleIdentityDatabase implements IdentityDatabase {
   }
 
   private async runWithRetry<Result>(
-    operation: (scope: IdentityDatabaseScope) => Promise<Result>,
+    operation: (scope: IdentityDatabaseRepositories) => Promise<Result>,
     hasRetried: boolean,
   ): Promise<Result> {
     try {
@@ -58,7 +59,7 @@ export class DrizzleIdentityDatabase implements IdentityDatabase {
     }
   }
 
-  private createScope(transaction: DrizzleExecutor): IdentityDatabaseScope {
+  private createScope(transaction: DrizzleExecutor): IdentityDatabaseRepositories {
     return {
       establishmentsRepository: new DrizzleEstablishmentsRepository(
         this.drizzleClient,
@@ -81,6 +82,7 @@ export class DrizzleIdentityDatabase implements IdentityDatabase {
         this.drizzleClient,
         transaction,
       ),
+      eventsRepository: new DrizzleEventsRepository(this.drizzleClient, transaction),
     }
   }
 

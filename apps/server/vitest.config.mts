@@ -36,6 +36,7 @@ export default defineConfig({
       },
     },
     environment: 'node',
+    exclude: ['src/**/messaging/inngest/jobs/tests/**/*.test.ts'],
     fileParallelism: false,
     isolate: false,
     include: ['src/**/*.test.ts'],

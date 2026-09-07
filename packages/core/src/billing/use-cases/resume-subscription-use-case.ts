@@ -1,10 +1,10 @@
+import type { BillingDatabaseRepositories } from '#billing/interfaces/billing-database.ts'
 import type { Subscription } from '#billing/domain/entities/subscription.ts'
 import { SubscriptionReactivatedEvent } from '#billing/domain/events/subscription-reactivated-event.ts'
 import { SubscriptionStatus } from '#billing/domain/structures/subscription-status.ts'
 import type { BillingDatabase } from '#billing/interfaces/billing-database.ts'
 import type { BillingProvider } from '#billing/interfaces/billing-provider.ts'
 import { ConflictError, NotFoundError } from '#shared/domain/errors/index.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
@@ -19,12 +19,12 @@ export class ResumeSubscriptionUseCase
     private readonly database: BillingDatabase,
     private readonly billingProvider: BillingProvider,
     private readonly datetimeProvider: DatetimeProvider,
-    private readonly broker: Broker,
   ) {}
 
   async execute(request: ResumeSubscriptionRequest): Promise<Subscription> {
-    const subscription = await this.database.run((scope) =>
-      scope.subscriptionsRepository.findByEstablishmentId(request.establishmentId),
+    const subscription = await this.database.run(
+      ({ subscriptionsRepository }: BillingDatabaseRepositories) =>
+        subscriptionsRepository.findByEstablishmentId(request.establishmentId),
     )
 
     if (!subscription) throw new NotFoundError('Assinatura não encontrada.')
@@ -43,19 +43,26 @@ export class ResumeSubscriptionUseCase
         ? SubscriptionStatus.Trial
         : SubscriptionStatus.Active
 
-    const resumedSubscription = await this.database.run((scope) =>
-      scope.subscriptionsRepository.replace(request.establishmentId, {
-        status,
-        cancellationScheduledAt: undefined,
-      }),
-    )
-
-    await this.broker.publish(
-      new SubscriptionReactivatedEvent({
-        subscriptionId: resumedSubscription.id,
-        establishmentId: resumedSubscription.establishmentId,
-        status: resumedSubscription.status,
-      }),
+    const resumedSubscription = await this.database.run(
+      async ({
+        subscriptionsRepository,
+        eventsRepository,
+      }: BillingDatabaseRepositories) => {
+        const updatedSubscription = await subscriptionsRepository.replace(
+          request.establishmentId,
+          {
+            status,
+            cancellationScheduledAt: undefined,
+          },
+        )
+        const event = new SubscriptionReactivatedEvent({
+          subscriptionId: updatedSubscription.id,
+          establishmentId: updatedSubscription.establishmentId,
+          status: updatedSubscription.status,
+        })
+        await eventsRepository.add(event)
+        return updatedSubscription
+      },
     )
 
     return resumedSubscription

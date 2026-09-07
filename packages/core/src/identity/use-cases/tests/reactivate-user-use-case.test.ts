@@ -6,7 +6,7 @@ import { NotFoundError } from '#shared/domain/errors/not-found-error.ts'
 import { mock } from 'vitest-mock-extended'
 import type { IdentityDatabase } from '#identity/interfaces/identity-database.ts'
 import type { DatetimeProvider } from '#shared/interfaces/index.ts'
-import type { IdentityDatabaseScope } from '#identity/interfaces/identity-database.ts'
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
@@ -15,10 +15,11 @@ describe('Reactivate User Use Case', () => {
   it('returns a neutral not-found error for an unknown target', async () => {
     const database = mock<IdentityDatabase>()
     const usersRepository = mock<UsersRepository>()
-    const scope: IdentityDatabaseScope = {
+    const scope: IdentityDatabaseRepositories = {
       usersRepository,
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
       establishmentsRepository: mock<EstablishmentsRepository>(),
+      eventsRepository: mock(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     usersRepository.findByIdInEstablishment.mockResolvedValue(undefined)

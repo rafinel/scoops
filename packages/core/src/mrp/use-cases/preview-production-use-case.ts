@@ -6,7 +6,10 @@ import { ProductStatus } from '#mrp/domain/structures/product-status.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
 import type { ProductionPreview } from '#mrp/domain/structures/production-preview.ts'
 import type { ProductionRequest } from '#mrp/domain/structures/production-request.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -35,107 +38,136 @@ export class PreviewProductionUseCase implements UseCase<Request, ProductionPrev
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    return this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      this.validateProduct(product)
-      const recipe = await scope.recipesRepository.findByProductId(
-        request.actor.establishmentId,
-        product.id,
-      )
-      if (!recipe || recipe.yieldQuantity <= 0) {
-        throw new BadRequestError('O produto ainda não possui uma receita válida.')
-      }
-      const ingredients = await scope.recipeIngredientsRepository.findByRecipeId(
-        request.actor.establishmentId,
-        recipe.id,
-      )
-      if (!ingredients.length) {
-        throw new BadRequestError('A receita deve possuir pelo menos um ingrediente.')
-      }
+    return this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const product = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        )
+        this.validateProduct(product)
+        const recipe = await recipesRepository.findByProductId(
+          request.actor.establishmentId,
+          product.id,
+        )
+        if (!recipe || recipe.yieldQuantity <= 0) {
+          throw new BadRequestError('O produto ainda não possui uma receita válida.')
+        }
+        const ingredients = await recipeIngredientsRepository.findByRecipeId(
+          request.actor.establishmentId,
+          recipe.id,
+        )
+        if (!ingredients.length) {
+          throw new BadRequestError('A receita deve possuir pelo menos um ingrediente.')
+        }
 
-      const blockReasons: string[] = []
-      const consumptions = await Promise.all(
-        ingredients.map(async (ingredient) => {
-          const ingredientProduct = await scope.productsRepository.findById(
-            request.actor.establishmentId,
-            ingredient.ingredientProductId,
-          )
-          if (!ingredientProduct) {
-            const reason = 'Um ingrediente da receita não está disponível.'
-            blockReasons.push(reason)
-            return {
-              ingredientProductId: ingredient.ingredientProductId,
-              ingredientProductName: 'Ingrediente indisponível',
-              unit: product.unit,
-              quantity: 0,
-              unitCost: 0,
-              lineCost: 0,
-              currentBalance: 0,
-              projectedBalance: 0,
-              missingQuantity: 0,
-              allowsNegativeStock: false,
+        const blockReasons: string[] = []
+        const consumptions = await Promise.all(
+          ingredients.map(async (ingredient) => {
+            const ingredientProduct = await productsRepository.findById(
+              request.actor.establishmentId,
+              ingredient.ingredientProductId,
+            )
+            if (!ingredientProduct) {
+              const reason = 'Um ingrediente da receita não está disponível.'
+              blockReasons.push(reason)
+              return {
+                ingredientProductId: ingredient.ingredientProductId,
+                ingredientProductName: 'Ingrediente indisponível',
+                unit: product.unit,
+                quantity: 0,
+                unitCost: 0,
+                lineCost: 0,
+                currentBalance: 0,
+                projectedBalance: 0,
+                missingQuantity: 0,
+                allowsNegativeStock: false,
+              }
             }
-          }
-          const source = await this.resolveSource(
-            scope,
-            ingredientProduct,
-            ingredient.ingredientBrandId,
-          )
-          if (source.blockReason) blockReasons.push(source.blockReason)
-          const quantity =
-            ingredient.quantity * (request.input.quantity / recipe.yieldQuantity)
-          const projectedBalance = source.balance - quantity
-          const missingQuantity = Math.max(0, -projectedBalance)
-          const allowsNegativeStock = ingredientProduct.allowNegativeStock === true
-          if (missingQuantity > 0 && !allowsNegativeStock) {
-            blockReasons.push(`Estoque insuficiente para ${ingredientProduct.name}.`)
-          }
+            const source = await this.resolveSource(
+              scope,
+              ingredientProduct,
+              ingredient.ingredientBrandId,
+            )
+            if (source.blockReason) blockReasons.push(source.blockReason)
+            const quantity =
+              ingredient.quantity * (request.input.quantity / recipe.yieldQuantity)
+            const projectedBalance = source.balance - quantity
+            const missingQuantity = Math.max(0, -projectedBalance)
+            const allowsNegativeStock = ingredientProduct.allowNegativeStock === true
+            if (missingQuantity > 0 && !allowsNegativeStock) {
+              blockReasons.push(`Estoque insuficiente para ${ingredientProduct.name}.`)
+            }
 
-          return {
-            ingredientProductId: ingredientProduct.id,
-            ingredientProductName: ingredientProduct.name,
-            ingredientBrandId: source.brandId,
-            ingredientBrandName: source.brandName,
-            unit: ingredientProduct.unit,
-            quantity,
-            unitCost: source.unitCost,
-            lineCost: quantity * source.unitCost,
-            currentBalance: source.balance,
-            projectedBalance,
-            missingQuantity,
-            allowsNegativeStock,
-          }
-        }),
-      )
-      const outputBalance = await scope.stockBalancesRepository.findByProductId(
-        product.id,
-      )
-      if (!outputBalance)
-        blockReasons.push('O produto fabricável não possui saldo de estoque.')
-      const totalCost = consumptions.reduce((total, line) => total + line.lineCost, 0)
-      const batches = request.input.quantity / recipe.yieldQuantity
+            return {
+              ingredientProductId: ingredientProduct.id,
+              ingredientProductName: ingredientProduct.name,
+              ingredientBrandId: source.brandId,
+              ingredientBrandName: source.brandName,
+              unit: ingredientProduct.unit,
+              quantity,
+              unitCost: source.unitCost,
+              lineCost: quantity * source.unitCost,
+              currentBalance: source.balance,
+              projectedBalance,
+              missingQuantity,
+              allowsNegativeStock,
+            }
+          }),
+        )
+        const outputBalance = await stockBalancesRepository.findByProductId(product.id)
+        if (!outputBalance)
+          blockReasons.push('O produto fabricável não possui saldo de estoque.')
+        const totalCost = consumptions.reduce((total, line) => total + line.lineCost, 0)
+        const batches = request.input.quantity / recipe.yieldQuantity
 
-      return {
-        productId: product.id,
-        unit: product.unit,
-        quantity: request.input.quantity,
-        recipeYield: recipe.yieldQuantity,
-        ...(Number.isInteger(batches) && batches > 0 ? { batches } : {}),
-        consumptions,
-        totalCost,
-        currentOutputStock: outputBalance?.quantity ?? 0,
-        projectedOutputStock: (outputBalance?.quantity ?? 0) + request.input.quantity,
-        canProduce: blockReasons.length === 0,
-        blockReasons: [...new Set(blockReasons)],
-      }
-    })
+        return {
+          productId: product.id,
+          unit: product.unit,
+          quantity: request.input.quantity,
+          recipeYield: recipe.yieldQuantity,
+          ...(Number.isInteger(batches) && batches > 0 ? { batches } : {}),
+          consumptions,
+          totalCost,
+          currentOutputStock: outputBalance?.quantity ?? 0,
+          projectedOutputStock: (outputBalance?.quantity ?? 0) + request.input.quantity,
+          canProduce: blockReasons.length === 0,
+          blockReasons: [...new Set(blockReasons)],
+        }
+      },
+    )
   }
 
   private async resolveSource(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     product: Product,
     selectedBrandId?: string,
   ): Promise<Source> {

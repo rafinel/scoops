@@ -1,3 +1,4 @@
+import type { PdvDatabaseRepositories } from '#pdv/interfaces/pdv-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Order } from '#pdv/domain/entities/order.ts'
 import { OrderStatus } from '#pdv/domain/structures/order-status.ts'
@@ -36,39 +37,41 @@ export class CancelOrderUseCase implements UseCase<CancelOrderRequest, Order> {
     this.validateActor(request.actor)
     const reason = this.normalizeReason(request.reason)
 
-    return this.database.run(async (scope) => {
-      const order = await scope.ordersRepository.findByIdForUpdate(
-        request.actor.establishmentId,
-        request.orderId,
-      )
-      if (!order || order.establishmentId !== request.actor.establishmentId)
-        throw new NotFoundError('Pedido não encontrado.')
-      if (order.status !== OrderStatus.Registered)
-        throw new ConflictError('O pedido já foi cancelado.')
+    return this.database.run(
+      async ({ ordersRepository, stockRestorer }: PdvDatabaseRepositories) => {
+        const order = await ordersRepository.findByIdForUpdate(
+          request.actor.establishmentId,
+          request.orderId,
+        )
+        if (!order || order.establishmentId !== request.actor.establishmentId)
+          throw new NotFoundError('Pedido não encontrado.')
+        if (order.status !== OrderStatus.Registered)
+          throw new ConflictError('O pedido já foi cancelado.')
 
-      const occurredAt = this.datetimeProvider.now()
-      const restorations = await scope.stockRestorer.restore({
-        establishmentId: request.actor.establishmentId,
-        orderId: order.id,
-        performedBy: request.actor.id,
-        performedByName: request.actor.name,
-        occurredAt,
-        targets: toRestorationTargets(order),
-      })
-      const cancellation: OrderCancellation = {
-        canceledAt: occurredAt,
-        canceledBy: request.actor.id,
-        canceledByName: request.actor.name,
-        ...(reason ? { reason } : {}),
-        restorations,
-      }
+        const occurredAt = this.datetimeProvider.now()
+        const restorations = await stockRestorer.restore({
+          establishmentId: request.actor.establishmentId,
+          orderId: order.id,
+          performedBy: request.actor.id,
+          performedByName: request.actor.name,
+          occurredAt,
+          targets: toRestorationTargets(order),
+        })
+        const cancellation: OrderCancellation = {
+          canceledAt: occurredAt,
+          canceledBy: request.actor.id,
+          canceledByName: request.actor.name,
+          ...(reason ? { reason } : {}),
+          restorations,
+        }
 
-      return scope.ordersRepository.cancel(
-        request.actor.establishmentId,
-        order.id,
-        cancellation,
-      )
-    })
+        return ordersRepository.cancel(
+          request.actor.establishmentId,
+          order.id,
+          cancellation,
+        )
+      },
+    )
   }
 
   private validateActor(actor: Actor): void {

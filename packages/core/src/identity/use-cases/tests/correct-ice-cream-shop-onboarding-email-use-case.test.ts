@@ -7,7 +7,7 @@ import {
 } from '#identity/domain/entities/fakers/index.ts'
 import type {
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
 } from '#identity/interfaces/identity-database.ts'
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
@@ -15,7 +15,7 @@ import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { OnboardingIdentityProvider } from '#identity/interfaces/onboarding-identity-provider.ts'
 import type { OnboardingIdentifierProvider } from '#identity/interfaces/onboarding-identifier-provider.ts'
 import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import { OnboardingConfirmationPreparedEvent } from '#identity/domain/events/onboarding-confirmation-prepared-event.ts'
 import { CorrectIceCreamShopOnboardingEmailUseCase } from '#identity/use-cases/correct-ice-cream-shop-onboarding-email-use-case.ts'
 
@@ -27,7 +27,7 @@ describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
   let provider: MockProxy<OnboardingIdentityProvider>
   let tokens: MockProxy<OnboardingTokenProvider>
   let identifiers: MockProxy<OnboardingIdentifierProvider>
-  let scope: IdentityDatabaseScope
+  let scope: IdentityDatabaseRepositories
   let useCase: CorrectIceCreamShopOnboardingEmailUseCase
   beforeEach(() => {
     database = mock<IdentityDatabase>()
@@ -41,6 +41,7 @@ describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
       registrationAttemptsRepository: attempts,
       establishmentsRepository: establishments,
       usersRepository: users,
+      eventsRepository: mock<EventsRepository>(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     tokens.hash.mockReturnValue('hash')
@@ -88,7 +89,6 @@ describe('Correct Ice Cream Shop Onboarding Email Use Case', () => {
       tokens,
       identifiers,
       provider,
-      mock<Broker>(),
     )
   })
   it('replaces the pending subject and preserves the original deadline', async () => {

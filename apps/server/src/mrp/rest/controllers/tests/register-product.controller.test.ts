@@ -4,11 +4,10 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
-import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
 
 import {
   foreignManagerRequestAuthorization,
+  findEvents,
   managerRequestAuthorization,
   operatorRequestAuthorization,
   prepareMrpFixture,
@@ -67,11 +66,13 @@ describe('Register Product Controller [POST /products]', () => {
       balanceAfter: 5,
       performedByName: 'Maria Manager',
     })
-    const broker = fixture.get(InngestBroker) as unknown as InngestMock
-    expect(broker.events).toEqual(
+    const events = await findEvents(
+      fixture,
+      ProductStockAlertStateEnteredEvent._NAME,
+    )
+    expect(events).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          name: ProductStockAlertStateEnteredEvent._NAME,
           payload: expect.objectContaining({
             productId: product.id,
             state: 'below-ideal',
@@ -151,11 +152,13 @@ describe('Register Product Controller [POST /products]', () => {
       'Callebaut',
       'Sicao',
     ])
-    const broker = fixture.get(InngestBroker) as unknown as InngestMock
-    expect(broker.events).toEqual(
+    const events = await findEvents(
+      fixture,
+      ProductStockAlertStateEnteredEvent._NAME,
+    )
+    expect(events).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          name: ProductStockAlertStateEnteredEvent._NAME,
           payload: expect.objectContaining({
             productId: product.id,
             state: 'below-ideal',

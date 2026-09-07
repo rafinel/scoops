@@ -5,7 +5,7 @@ import { EstablishmentStatus } from '#identity/domain/structures/establishment-s
 import { UserStatus } from '#identity/domain/structures/user-status.ts'
 import type {
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
 } from '#identity/interfaces/identity-database.ts'
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
@@ -14,7 +14,7 @@ import { ResolveAuthenticatedUserUseCase } from '#identity/use-cases/resolve-aut
 
 describe('Resolve Authenticated User Use Case', () => {
   let database: MockProxy<IdentityDatabase>
-  let scope: IdentityDatabaseScope
+  let scope: IdentityDatabaseRepositories
   let usersRepository: MockProxy<UsersRepository>
   let establishmentsRepository: MockProxy<EstablishmentsRepository>
   let useCase: ResolveAuthenticatedUserUseCase
@@ -27,6 +27,7 @@ describe('Resolve Authenticated User Use Case', () => {
       usersRepository,
       establishmentsRepository,
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
+      eventsRepository: mock(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     useCase = new ResolveAuthenticatedUserUseCase(database)

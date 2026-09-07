@@ -10,7 +10,10 @@ import {
   ProductUnit,
   StockSituation,
 } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import { BadRequestError, ConflictError } from '#shared/domain/errors/index.ts'
 import { RegisterProductBrandUseCase } from '#mrp/use-cases/register-product-brand-use-case.ts'
@@ -45,7 +48,7 @@ const brand: Brand = {
 
 describe('Register Product Brand Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let datetime: MockProxy<DatetimeProvider>
   let useCase: RegisterProductBrandUseCase
   beforeEach(() => {

@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
@@ -21,33 +22,39 @@ export class RemoveRecipeIngredientUseCase implements UseCase<Request, void> {
   async execute(request: Request): Promise<void> {
     this.validateActor(request.actor)
 
-    await this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      if (!product) throw new NotFoundError('Produto não encontrado.')
-      if (!product.categories.includes(ProductCategory.Manufacturable)) {
-        throw new BadRequestError('O produto não é fabricável.')
-      }
-      const recipe = await scope.recipesRepository.findByProductId(
-        request.actor.establishmentId,
-        product.id,
-      )
-      if (!recipe) throw new NotFoundError('Receita não encontrada.')
-      const line = await scope.recipeIngredientsRepository.findById(
-        request.actor.establishmentId,
-        recipe.id,
-        request.lineId,
-      )
-      if (!line) throw new NotFoundError('Ingrediente da receita não encontrado.')
+    await this.database.run(
+      async ({
+        productsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+      }: MrpDatabaseRepositories) => {
+        const product = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        )
+        if (!product) throw new NotFoundError('Produto não encontrado.')
+        if (!product.categories.includes(ProductCategory.Manufacturable)) {
+          throw new BadRequestError('O produto não é fabricável.')
+        }
+        const recipe = await recipesRepository.findByProductId(
+          request.actor.establishmentId,
+          product.id,
+        )
+        if (!recipe) throw new NotFoundError('Receita não encontrada.')
+        const line = await recipeIngredientsRepository.findById(
+          request.actor.establishmentId,
+          recipe.id,
+          request.lineId,
+        )
+        if (!line) throw new NotFoundError('Ingrediente da receita não encontrado.')
 
-      await scope.recipeIngredientsRepository.remove(
-        request.actor.establishmentId,
-        recipe.id,
-        line.id,
-      )
-    })
+        await recipeIngredientsRepository.remove(
+          request.actor.establishmentId,
+          recipe.id,
+          line.id,
+        )
+      },
+    )
   }
 
   private validateActor(actor: ProductActor): void {

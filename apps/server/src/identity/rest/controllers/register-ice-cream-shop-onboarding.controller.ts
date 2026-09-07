@@ -7,7 +7,6 @@ import type {
   OnboardingTokenProvider,
   IdentityDatabase,
 } from '@scoops/core/identity/interfaces'
-import type { Broker } from '@scoops/core/shared/interfaces'
 
 import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { RegistrationAttemptsController } from '@/identity/decorators'
@@ -17,7 +16,6 @@ import { ZodValidationPipe } from '@/shared/rest/pipes'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 type RequestBody = Omit<
   Parameters<RegisterIceCreamShopUseCase['execute']>[0],
@@ -38,7 +36,6 @@ export class RegisterIceCreamShopOnboardingController {
     onboardingIdentifierProvider: OnboardingIdentifierProvider,
     @Inject(IDENTITY_PROVIDERS.onboardingIdentity)
     onboardingIdentityProvider: OnboardingIdentityProvider,
-    @Inject(InngestBroker) broker: Broker,
     @Inject(EnvProvider) envProvider: EnvProvider,
   ) {
     this.useCase = new RegisterIceCreamShopUseCase(
@@ -47,7 +44,6 @@ export class RegisterIceCreamShopOnboardingController {
       onboardingTokenProvider,
       onboardingIdentifierProvider,
       onboardingIdentityProvider,
-      broker,
     )
     this.confirmationRedirectBaseUrl = `${envProvider.get('SCOOPS_WEB_APP_URL')}/onboarding/confirm`
   }

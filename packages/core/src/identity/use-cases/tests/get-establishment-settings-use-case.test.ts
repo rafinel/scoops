@@ -23,6 +23,7 @@ describe('Get Establishment Settings Use Case', () => {
         establishmentsRepository,
         usersRepository: mock(),
         registrationAttemptsRepository: mock(),
+        eventsRepository: mock(),
       }),
     )
     useCase = new GetEstablishmentSettingsUseCase(database)

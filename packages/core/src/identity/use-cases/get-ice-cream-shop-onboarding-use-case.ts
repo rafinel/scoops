@@ -1,3 +1,4 @@
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import { OnboardingExpiredError } from '#identity/domain/errors/onboarding-expired-error.ts'
 import type { PendingIceCreamShopOnboarding } from '#identity/domain/structures/pending-ice-cream-shop-onboarding.ts'
 import { RegistrationAttemptStatus } from '#identity/domain/structures/registration-attempt-status.ts'
@@ -19,7 +20,10 @@ export class GetIceCreamShopOnboardingUseCase {
     const now = this.datetimeProvider.now()
     const tokenHash = this.onboardingTokenProvider.hash(request.continuationToken)
     return this.database.run(
-      async ({ registrationAttemptsRepository, establishmentsRepository }) => {
+      async ({
+        registrationAttemptsRepository,
+        establishmentsRepository,
+      }: IdentityDatabaseRepositories) => {
         const attempt =
           await registrationAttemptsRepository.findPendingByTokenHash(tokenHash)
         if (!attempt || attempt.status !== RegistrationAttemptStatus.Pending) {

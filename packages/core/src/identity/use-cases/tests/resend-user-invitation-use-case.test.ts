@@ -12,7 +12,7 @@ import { AuthorizationError } from '#shared/domain/errors/authorization-error.ts
 import { mock } from 'vitest-mock-extended'
 import type {
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
 } from '#identity/interfaces/identity-database.ts'
 import type { DatetimeProvider } from '#shared/interfaces/index.ts'
 import type {
@@ -20,7 +20,7 @@ import type {
   OnboardingTokenProvider,
   UserAccessIdentityProvider,
 } from '#identity/interfaces/index.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import { UserInvitationPreparedEvent } from '#identity/domain/events/user-invitation-prepared-event.ts'
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
@@ -35,7 +35,6 @@ describe('Resend User Invitation Use Case', () => {
       tokenProvider,
       mock<OnboardingIdentifierProvider>(),
       mock<UserAccessIdentityProvider>(),
-      mock<Broker>(),
     )
     await expect(
       useCase.execute({
@@ -65,10 +64,11 @@ describe('Resend User Invitation Use Case', () => {
       email: user.email,
       status: RegistrationAttemptStatus.Pending,
     })
-    const scope: IdentityDatabaseScope = {
+    const scope: IdentityDatabaseRepositories = {
       usersRepository: users,
       registrationAttemptsRepository: attempts,
       establishmentsRepository: mock<EstablishmentsRepository>(),
+      eventsRepository: mock<EventsRepository>(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     users.findByIdInEstablishment.mockResolvedValue(user)
@@ -97,14 +97,12 @@ describe('Resend User Invitation Use Case', () => {
         operation: 'resent',
       }),
     )
-    const broker = mock<Broker>()
     const useCase = new ResendUserInvitationUseCase(
       database,
       { now: () => new Date('2026-01-02T00:00:00.000Z') },
       tokenProvider,
       identifierProvider,
       provider,
-      broker,
     )
 
     await useCase.execute({

@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { AdjustProductStockInput } from '#mrp/domain/structures/adjust-product-stock-input.ts'
@@ -13,7 +14,6 @@ import {
 } from '#shared/domain/errors/index.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import { PublishProductStockAlertUseCase } from '#mrp/use-cases/publish-product-stock-alert-use-case.ts'
 
 type Request = {
@@ -26,7 +26,6 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
   constructor(
     private readonly database: MrpDatabase,
     private readonly datetimeProvider: DatetimeProvider,
-    private readonly broker?: Broker,
   ) {}
 
   async execute(request: Request): Promise<StockBalance> {
@@ -34,84 +33,87 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
     this.validateInput(request.input)
     const justification = this.normalizeJustification(request.input.justification)
     const occurredAt = this.datetimeProvider.now()
-    return this.database.run(async (scope) => {
-      const product =
-        (await scope.productsRepository.findByIdForUpdate(
-          request.actor.establishmentId,
-          request.productId,
-        )) ??
-        (await scope.productsRepository.findById(
-          request.actor.establishmentId,
-          request.productId,
-        ))
-      if (!product) throw new NotFoundError('Produto não encontrado.')
-      const previousQuantity = await this.findProductQuantity(scope, product.id)
-      let brandName: string | undefined
-      if (product.stockControl === ProductStockControl.Single && request.input.brandId)
-        throw new BadRequestError('Estoque único não aceita uma marca de destino.')
-      if (request.input.currentUnitCost !== undefined) {
-        if (request.input.type !== StockAdjustmentType.Entry) {
-          throw new BadRequestError(
-            'O custo unitário atual só pode ser informado em uma entrada.',
-          )
+    return this.database.run(
+      async (scope: MrpDatabaseRepositories) => {
+        const {
+          productsRepository,
+          brandsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          eventsRepository,
+        } = scope
+        const product =
+          (await productsRepository.findByIdForUpdate(
+            request.actor.establishmentId,
+            request.productId,
+          )) ??
+          (await productsRepository.findById(
+            request.actor.establishmentId,
+            request.productId,
+          ))
+        if (!product) throw new NotFoundError('Produto não encontrado.')
+        const previousQuantity = await this.findProductQuantity(scope, product.id)
+        let brandName: string | undefined
+        if (product.stockControl === ProductStockControl.Single && request.input.brandId)
+          throw new BadRequestError('Estoque único não aceita uma marca de destino.')
+        if (request.input.currentUnitCost !== undefined) {
+          if (request.input.type !== StockAdjustmentType.Entry) {
+            throw new BadRequestError(
+              'O custo unitário atual só pode ser informado em uma entrada.',
+            )
+          }
+          if (
+            product.stockControl !== ProductStockControl.Single ||
+            !product.categories.includes(ProductCategory.Ingredient)
+          ) {
+            throw new BadRequestError(
+              'O custo unitário atual é permitido apenas para ingredientes de estoque único.',
+            )
+          }
+          await productsRepository.replace(product.id, {
+            currentUnitCost: request.input.currentUnitCost,
+          })
         }
-        if (
-          product.stockControl !== ProductStockControl.Single ||
-          !product.categories.includes(ProductCategory.Ingredient)
-        ) {
-          throw new BadRequestError(
-            'O custo unitário atual é permitido apenas para ingredientes de estoque único.',
-          )
+        if (product.stockControl === ProductStockControl.ByBrand) {
+          if (!request.input.brandId)
+            throw new BadRequestError('A marca é obrigatória para este produto.')
+          const brand = await brandsRepository.findById(product.id, request.input.brandId)
+          if (!brand) throw new NotFoundError('Marca não encontrada.')
+          brandName = brand.name
         }
-        await scope.productsRepository.replace(product.id, {
-          currentUnitCost: request.input.currentUnitCost,
-        })
-      }
-      if (product.stockControl === ProductStockControl.ByBrand) {
-        if (!request.input.brandId)
-          throw new BadRequestError('A marca é obrigatória para este produto.')
-        const brand = await scope.brandsRepository.findById(
-          product.id,
-          request.input.brandId,
+        const signedQuantity =
+          request.input.type === StockAdjustmentType.Entry
+            ? request.input.quantity
+            : -request.input.quantity
+        const balance = await stockBalancesRepository.add(
+          { productId: product.id, brandId: request.input.brandId },
+          signedQuantity,
+          product.allowNegativeStock ? undefined : 0,
         )
-        if (!brand) throw new NotFoundError('Marca não encontrada.')
-        brandName = brand.name
-      }
-      const signedQuantity =
-        request.input.type === StockAdjustmentType.Entry
-          ? request.input.quantity
-          : -request.input.quantity
-      const balance = await scope.stockBalancesRepository.add(
-        { productId: product.id, brandId: request.input.brandId },
-        signedQuantity,
-        product.allowNegativeStock ? undefined : 0,
-      )
-      await scope.stockTransactionsRepository.add({
-        establishmentId: request.actor.establishmentId,
-        productId: product.id,
-        brandId: request.input.brandId,
-        productName: product.name,
-        brandName,
-        unit: product.unit,
-        type: request.input.type,
-        quantity: request.input.quantity,
-        balanceAfter: balance.quantity,
-        performedBy: request.actor.id,
-        performedByName: request.actor.name,
-        occurredAt,
-        ...(justification === undefined ? {} : { justification }),
-      })
-      if (this.broker) {
-        const availableQuantity = await this.findProductQuantity(scope, product.id)
-        await new PublishProductStockAlertUseCase(this.broker).execute({
+        await stockTransactionsRepository.add({
+          establishmentId: request.actor.establishmentId,
+          productId: product.id,
+          brandId: request.input.brandId,
+          productName: product.name,
+          brandName,
+          unit: product.unit,
+          type: request.input.type,
+          quantity: request.input.quantity,
+          balanceAfter: balance.quantity,
+          performedBy: request.actor.id,
+          performedByName: request.actor.name,
+          occurredAt,
+          ...(justification === undefined ? {} : { justification }),
+        })
+        await new PublishProductStockAlertUseCase(eventsRepository).execute({
           product,
           previousQuantity,
-          availableQuantity,
+          availableQuantity: await this.findProductQuantity(scope, product.id),
           occurredAt,
         })
-      }
-      return balance
-    })
+        return balance
+      },
+    )
   }
 
   private validateActor(actor: ProductActor): void {
@@ -144,10 +146,10 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
   }
 
   private async findProductQuantity(
-    scope: import('#mrp/interfaces/mrp-database.ts').MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     productId: string,
   ): Promise<number> {
     const balances = await scope.stockBalancesRepository.findManyByProductId(productId)
-    return (balances ?? []).reduce((total, balance) => total + balance.quantity, 0)
+    return balances.reduce((total, balance) => total + balance.quantity, 0)
   }
 }

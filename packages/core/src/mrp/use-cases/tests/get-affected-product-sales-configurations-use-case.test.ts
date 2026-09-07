@@ -4,12 +4,13 @@ import { mockDeep, type DeepMockProxy } from 'vitest-mock-extended'
 import { ProductFaker } from '#mrp/domain/entities/fakers/index.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
-import type { MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { GetAffectedProductSalesConfigurationsUseCase } from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
 
 describe('GetAffectedProductSalesConfigurationsUseCase', () => {
   it('builds a complete tenant-qualified current snapshot', async () => {
-    const scope: DeepMockProxy<MrpDatabaseScope> = mockDeep<MrpDatabaseScope>()
+    const scope: DeepMockProxy<MrpDatabaseRepositories> =
+      mockDeep<MrpDatabaseRepositories>()
     const updatedAt = new Date('2026-01-01T00:00:00.000Z')
     const product = ProductFaker.fake({
       id: 'p1',

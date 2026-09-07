@@ -4,7 +4,10 @@ import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { ProductCategoryDependency } from '#mrp/domain/structures/product-category-dependency.ts'
 import type { ProductCategoryRemovalImpact } from '#mrp/domain/structures/product-category-removal-impact.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -27,36 +30,67 @@ export class PreviewProductCategoryRemovalUseCase
     this.validateActor(request.actor)
     this.validateCategory(request.category)
 
-    return this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      this.validateProduct(product, request.actor.establishmentId)
-      if (!product.categories.includes(request.category)) {
-        throw new BadRequestError('A categoria não está atribuída ao produto.')
-      }
-      if (product.categories.length === 1) {
-        throw new BadRequestError('O produto deve possuir pelo menos uma categoria.')
-      }
+    return this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const product = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        )
+        this.validateProduct(product, request.actor.establishmentId)
+        if (!product.categories.includes(request.category)) {
+          throw new BadRequestError('A categoria não está atribuída ao produto.')
+        }
+        if (product.categories.length === 1) {
+          throw new BadRequestError('O produto deve possuir pelo menos uma categoria.')
+        }
 
-      const dependencies = await this.findDependencies(
-        scope,
-        request.actor.establishmentId,
-        product,
-        request.category,
-      )
+        const dependencies = await this.findDependencies(
+          scope,
+          request.actor.establishmentId,
+          product,
+          request.category,
+        )
 
-      return {
-        category: request.category,
-        canRemove: dependencies.length === 0,
-        dependencies,
-      }
-    })
+        return {
+          category: request.category,
+          canRemove: dependencies.length === 0,
+          dependencies,
+        }
+      },
+    )
   }
 
   private async findDependencies(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     product: Product,
     category: ProductCategory,

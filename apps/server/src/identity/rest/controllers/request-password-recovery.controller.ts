@@ -11,7 +11,6 @@ type PasswordRecoveryIdentityProvider = Pick<
   ServerAuthProvider,
   'preparePasswordRecovery' | 'resetPassword'
 >
-import type { Broker } from '@scoops/core/shared/interfaces'
 
 import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { RegistrationAttemptsController } from '@/identity/decorators'
@@ -20,7 +19,6 @@ import { PublicRoute } from '@/shared/rest/decorators/public-route'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 const requestPasswordRecoverySchema = z.object({ email: emailSchema }).strict()
 type RequestBody = z.infer<typeof requestPasswordRecoverySchema>
@@ -36,14 +34,12 @@ export class RequestPasswordRecoveryController {
     @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
     @Inject(IDENTITY_PROVIDERS.onboardingIdentity)
     provider: PasswordRecoveryIdentityProvider,
-    @Inject(InngestBroker) broker: Broker,
     @Inject(EnvProvider) envProvider: EnvProvider,
   ) {
     this.useCase = new RequestPasswordRecoveryUseCase(
       database,
       datetimeProvider,
       provider,
-      broker,
     )
     this.recoveryRedirectBaseUrl = `${envProvider.get('SCOOPS_WEB_APP_URL')}/reset-password`
   }

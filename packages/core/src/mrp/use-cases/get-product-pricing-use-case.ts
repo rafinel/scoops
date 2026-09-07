@@ -11,7 +11,10 @@ import {
   type ProductSizePricing,
   type ResalePricing,
 } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -30,24 +33,55 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
   async execute(request: Request): Promise<ProductPricingDetails> {
     this.validateActor(request.actor)
 
-    return this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
+    return this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const product = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        )
 
-      this.validateProduct(product, request.actor.establishmentId)
+        this.validateProduct(product, request.actor.establishmentId)
 
-      return GetProductPricingUseCase.buildDetails(
-        scope,
-        request.actor.establishmentId,
-        product,
-      )
-    })
+        return GetProductPricingUseCase.buildDetails(
+          scope,
+          request.actor.establishmentId,
+          product,
+        )
+      },
+    )
   }
 
   static async buildDetails(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     product: Product,
   ): Promise<ProductPricingDetails> {
@@ -79,7 +113,7 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
   }
 
   private static async buildPortionDetails(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     product: Product,
   ): Promise<ProductPricingDetails> {
@@ -109,7 +143,7 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
   }
 
   private static async buildSingleResaleDetails(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     product: Product,
   ): Promise<ProductPricingDetails> {
@@ -138,7 +172,7 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
   }
 
   private static async buildByBrandResaleDetails(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     product: Product,
   ): Promise<ProductPricingDetails> {
@@ -205,7 +239,7 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
   }
 
   private static async resolveUnitCost(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     product: Product,
   ): Promise<number | undefined> {
@@ -265,7 +299,7 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
   }
 
   private static async resolveIngredientUnitCost(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     product: Product | undefined,
     establishmentId: string,
     selectedBrandId?: string,

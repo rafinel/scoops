@@ -11,7 +11,7 @@ import type {
 } from '@scoops/core/mrp/interfaces'
 import type { SalesCatalogProvider, StockConsumer } from '@scoops/core/pdv/interfaces'
 import type { StockRestorer } from '@scoops/core/pdv/interfaces'
-import type { Broker } from '@scoops/core/shared/interfaces'
+import type { EventsRepository } from '@scoops/core/shared/interfaces'
 import type {
   OrderStockRestoration,
   StockRestorationRequest,
@@ -34,8 +34,7 @@ import { DrizzleResaleConfigurationsRepository } from '@/mrp/database/drizzle/re
 import { DrizzleStockBalancesRepository } from '@/mrp/database/drizzle/repositories/drizzle-stock-balances-repository'
 import { DrizzleStockTransactionsRepository } from '@/mrp/database/drizzle/repositories/drizzle-stock-transactions-repository'
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
-import { DatabaseTransactionContext } from '@/shared/database/drizzle/database-transaction-context'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
 import type { DrizzleExecutor } from '@/shared/database/drizzle/drizzle-repository'
 import { PublishProductStockAlertUseCase } from '@scoops/core/mrp/use-cases'
 
@@ -58,18 +57,12 @@ export type TransactionBoundOrderRegistrationDependencies = {
 
 @Injectable()
 export class TransactionBoundOrderRegistrationDependenciesFactory {
-  constructor(
-    @Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient,
-    @Inject(InngestBroker) private readonly broker: Broker,
-    @Inject(DatabaseTransactionContext)
-    private readonly transactionContext: DatabaseTransactionContext,
-  ) {}
+  constructor(@Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient) {}
 
   forExecutor(executor: DrizzleExecutor): TransactionBoundOrderRegistrationDependencies {
     const repositories = this.createRepositories(executor)
-    const transactionBoundBroker = new TransactionBoundBroker(
-      this.broker,
-      this.transactionContext,
+    const eventsRepository: Pick<EventsRepository, 'add'> = new DrizzleEventsRepository(
+      this.drizzleClient,
       executor,
     )
 
@@ -88,7 +81,7 @@ export class TransactionBoundOrderRegistrationDependenciesFactory {
         repositories.brands,
         repositories.stockBalances,
         repositories.stockTransactions,
-        transactionBoundBroker,
+        eventsRepository,
       ),
       stockRestorer: new TransactionBoundStockRestorer(
         repositories.products,
@@ -131,7 +124,7 @@ class TransactionBoundStockConsumer implements StockConsumer {
     private readonly brandsRepository: BrandsRepository,
     private readonly stockBalancesRepository: StockBalancesRepository,
     private readonly stockTransactionsRepository: StockTransactionsRepository,
-    private readonly broker: Broker,
+    private readonly eventsRepository: Pick<EventsRepository, 'add'>,
   ) {}
 
   async consume(event: OrderRegisteredEvent): Promise<void> {
@@ -154,7 +147,7 @@ class TransactionBoundStockConsumer implements StockConsumer {
     for (const consumption of event.payload.consumptions)
       await this.consumeProduct(event, consumption, products)
 
-    const publishStockAlert = new PublishProductStockAlertUseCase(this.broker)
+    const publishStockAlert = new PublishProductStockAlertUseCase(this.eventsRepository)
     for (const productId of productIds) {
       const product = products.get(productId)
       if (!product) continue
@@ -309,17 +302,5 @@ export class TransactionBoundStockRestorer implements StockRestorer {
       quantity: target.quantity,
       outcome: 'skipped',
     }
-  }
-}
-
-class TransactionBoundBroker implements Broker {
-  constructor(
-    private readonly delegate: Broker,
-    private readonly transactionContext: DatabaseTransactionContext,
-    private readonly executor: DrizzleExecutor,
-  ) {}
-
-  publish(event: Parameters<Broker['publish']>[0]): Promise<void> {
-    return this.transactionContext.run(this.executor, () => this.delegate.publish(event))
   }
 }

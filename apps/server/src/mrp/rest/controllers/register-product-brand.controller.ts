@@ -4,7 +4,6 @@ import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { MrpDatabase } from '@scoops/core/mrp/interfaces'
 import { RegisterProductBrandUseCase } from '@scoops/core/mrp/use-cases'
-import type { Broker } from '@scoops/core/shared/interfaces'
 
 import { CurrentAccount, RequiredProfiles } from '@/identity/decorators'
 import { MRP_REPOSITORIES } from '@/mrp/constants'
@@ -13,7 +12,6 @@ import { ProductBrandStockResponseDto } from '@/mrp/rest/dtos'
 import { productBrandSchema } from '@/mrp/rest/schemas/product-schemas'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 
 type RequestBody = Parameters<RegisterProductBrandUseCase['execute']>[0]['input']
@@ -25,9 +23,8 @@ export class RegisterProductBrandController {
   constructor(
     @Inject(MRP_REPOSITORIES.database) database: MrpDatabase,
     @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
-    @Inject(InngestBroker) broker: Broker,
   ) {
-    this.useCase = new RegisterProductBrandUseCase(database, datetimeProvider, broker)
+    this.useCase = new RegisterProductBrandUseCase(database, datetimeProvider)
   }
 
   @Post(':productId/brands')

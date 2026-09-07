@@ -2,14 +2,15 @@ import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import { ProductStockAlertStateEnteredEvent } from '@scoops/core/mrp/domain/events'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { vi } from 'vitest'
 
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
-import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
 
 import {
   createProduct,
+  findEvents,
   managerRequestAuthorization,
   prepareMrpFixture,
   resetMrpFixture,
@@ -73,11 +74,13 @@ describe('Register Production Controller [POST /products/:productId/productions]
         balanceAfter: 4,
       },
     ])
-    const broker = fixture.get(InngestBroker) as unknown as InngestMock
-    expect(broker.events).toEqual(
+    const events = await findEvents(
+      fixture,
+      ProductStockAlertStateEnteredEvent._NAME,
+    )
+    expect(events).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          name: ProductStockAlertStateEnteredEvent._NAME,
           payload: expect.objectContaining({
             productId: ingredient.id,
             state: 'below-ideal',
@@ -108,11 +111,9 @@ describe('Register Production Controller [POST /products/:productId/productions]
       .set('Cookie', managerRequestAuthorization())
       .send({ ingredientProductId: ingredient.id, quantity: 1 })
 
-    const broker = fixture.get(InngestBroker) as unknown as InngestMock
-    const originalPublish = broker.publish.bind(broker)
-    broker.publish = async () => {
-      throw new Error('Injected notification publication failure.')
-    }
+    const addSpy = vi
+      .spyOn(DrizzleEventsRepository.prototype, 'add')
+      .mockRejectedValueOnce(new Error('Injected notification publication failure.'))
 
     try {
       const response = await request(fixture.app.getHttpServer())
@@ -139,7 +140,7 @@ describe('Register Production Controller [POST /products/:productId/productions]
         }),
       ).resolves.toMatchObject({ items: [] })
     } finally {
-      broker.publish = originalPublish
+      addSpy.mockRestore()
     }
   })
 })

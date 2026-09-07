@@ -6,14 +6,14 @@ import {
 } from '#identity/domain/entities/fakers/index.ts'
 import type {
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
 } from '#identity/interfaces/identity-database.ts'
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
 import type { OnboardingIdentityProvider } from '#identity/interfaces/onboarding-identity-provider.ts'
 import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import { OnboardingConfirmationPreparedEvent } from '#identity/domain/events/onboarding-confirmation-prepared-event.ts'
 import { ResendIceCreamShopConfirmationUseCase } from '#identity/use-cases/resend-ice-cream-shop-confirmation-use-case.ts'
 
@@ -23,7 +23,7 @@ describe('Resend Ice Cream Shop Confirmation Use Case', () => {
   let establishments: MockProxy<EstablishmentsRepository>
   let provider: MockProxy<OnboardingIdentityProvider>
   let tokenProvider: MockProxy<OnboardingTokenProvider>
-  let scope: IdentityDatabaseScope
+  let scope: IdentityDatabaseRepositories
   let useCase: ResendIceCreamShopConfirmationUseCase
   beforeEach(() => {
     database = mock<IdentityDatabase>()
@@ -35,6 +35,7 @@ describe('Resend Ice Cream Shop Confirmation Use Case', () => {
       registrationAttemptsRepository: attempts,
       establishmentsRepository: establishments,
       usersRepository: mock<UsersRepository>(),
+      eventsRepository: mock<EventsRepository>(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     tokenProvider.hash.mockReturnValue('hash')
@@ -44,7 +45,6 @@ describe('Resend Ice Cream Shop Confirmation Use Case', () => {
       { now: () => new Date('2026-01-02T00:00:00.000Z') },
       tokenProvider,
       provider,
-      mock<Broker>(),
     )
   })
   it('resends confirmation without changing the snapshot', async () => {

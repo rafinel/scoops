@@ -3,10 +3,11 @@ import { ProductStockAlertStateEnteredEvent } from '@scoops/core/mrp/domain/even
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
-import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
+import { vi } from 'vitest'
 import {
   createProduct,
+  findEvents,
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
   operatorRequestAuthorization,
@@ -42,20 +43,15 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
       balanceAfter: 3.125,
       performedByName: 'Maria Manager',
     })
-    const broker = fixture.get(InngestBroker) as unknown as InngestMock
-    expect(
-      broker.events.some(
-        (event) => event.name === ProductStockAlertStateEnteredEvent._NAME,
-      ),
-    ).toBe(false)
+    await expect(
+      findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME),
+    ).resolves.toHaveLength(0)
   })
 
   it('publishes only normal-to-alert transitions and permits recovery without repetition', async () => {
     const product = await fixture.addProduct(createProduct({ idealStock: 10 }))
     await fixture.balances.initialize(product.id)
     await fixture.balances.add({ productId: product.id }, 10)
-    const broker = fixture.get(InngestBroker) as unknown as InngestMock
-
     const writeOff = () =>
       request(fixture.app.getHttpServer())
         .post(`/products/${product.id}/stock-adjustments`)
@@ -64,11 +60,9 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
 
     expect((await writeOff()).status).toBe(201)
     expect((await writeOff()).status).toBe(201)
-    expect(
-      broker.events.filter(
-        (event) => event.name === ProductStockAlertStateEnteredEvent._NAME,
-      ),
-    ).toHaveLength(1)
+    await expect(
+      findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME),
+    ).resolves.toHaveLength(1)
 
     const recovery = await request(fixture.app.getHttpServer())
       .post(`/products/${product.id}/stock-adjustments`)
@@ -76,11 +70,9 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
       .send({ type: 'entry', quantity: 2 })
     expect(recovery.status).toBe(201)
     expect((await writeOff()).status).toBe(201)
-    expect(
-      broker.events.filter(
-        (event) => event.name === ProductStockAlertStateEnteredEvent._NAME,
-      ),
-    ).toHaveLength(2)
+    await expect(
+      findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME),
+    ).resolves.toHaveLength(2)
     await expect(fixture.balances.findByProductId(product.id)).resolves.toMatchObject({
       quantity: 9,
     })
@@ -90,11 +82,9 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
     const product = await fixture.addProduct(createProduct({ idealStock: 10 }))
     await fixture.balances.initialize(product.id)
     await fixture.balances.add({ productId: product.id }, 10)
-    const broker = fixture.get(InngestBroker) as unknown as InngestMock
-    const originalPublish = broker.publish.bind(broker)
-    broker.publish = async () => {
-      throw new Error('Injected notification publication failure.')
-    }
+    const addSpy = vi
+      .spyOn(DrizzleEventsRepository.prototype, 'add')
+      .mockRejectedValueOnce(new Error('Injected notification publication failure.'))
 
     try {
       const response = await request(fixture.app.getHttpServer())
@@ -112,7 +102,7 @@ describe('Adjust Product Stock Controller [POST /products/:productId/stock-adjus
         }),
       ).resolves.toMatchObject({ items: [] })
     } finally {
-      broker.publish = originalPublish
+      addSpy.mockRestore()
     }
   })
 

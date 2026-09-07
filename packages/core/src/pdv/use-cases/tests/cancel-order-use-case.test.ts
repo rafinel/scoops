@@ -4,7 +4,10 @@ import { mock, type MockProxy } from 'vitest-mock-extended'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { OrderFaker } from '#pdv/domain/entities/fakers/order-faker.ts'
 import { OrderStatus } from '#pdv/domain/structures/order-status.ts'
-import type { PdvDatabase, PdvDatabaseScope } from '#pdv/interfaces/pdv-database.ts'
+import type {
+  PdvDatabase,
+  PdvDatabaseRepositories,
+} from '#pdv/interfaces/pdv-database.ts'
 import type { DiscountsRepository } from '#pdv/interfaces/discounts-repository.ts'
 import type { OrdersRepository } from '#pdv/interfaces/orders-repository.ts'
 import type { OrderSequencesRepository } from '#pdv/interfaces/order-sequences-repository.ts'
@@ -19,6 +22,7 @@ import {
   NotFoundError,
 } from '#shared/domain/errors/index.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import { CancelOrderUseCase } from '#pdv/use-cases/cancel-order-use-case.ts'
 
 const actor = {
@@ -30,7 +34,7 @@ const actor = {
 
 describe('Cancel Order Use Case', () => {
   let database: MockProxy<PdvDatabase>
-  let scope: PdvDatabaseScope
+  let scope: PdvDatabaseRepositories
   let orders: MockProxy<OrdersRepository>
   let restorer: MockProxy<StockRestorer>
   let datetime: MockProxy<DatetimeProvider>
@@ -49,6 +53,7 @@ describe('Cancel Order Use Case', () => {
       orderSequencesRepository: mock<OrderSequencesRepository>(),
       stockConsumer: mock<StockConsumer>(),
       stockRestorer: restorer,
+      eventsRepository: mock<EventsRepository>(),
     }
     database = mock<PdvDatabase>()
     database.run.mockImplementation(async (operation) => operation(scope))

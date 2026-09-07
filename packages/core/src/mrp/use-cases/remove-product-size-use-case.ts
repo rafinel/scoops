@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
@@ -7,7 +8,6 @@ import {
   GetAffectedProductSalesConfigurationsUseCase,
   publishAffectedProductSalesConfigurations,
 } from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -22,53 +22,80 @@ type Request = {
 }
 
 export class RemoveProductSizeUseCase implements UseCase<Request, void> {
-  constructor(
-    private readonly database: MrpDatabase,
-    private readonly broker?: Broker,
-  ) {}
+  constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<void> {
     this.validateActor(request.actor)
 
-    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
-      []
-    await this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      validatePortionProduct(product, request.actor.establishmentId)
+    await this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const product = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        )
+        validatePortionProduct(product, request.actor.establishmentId)
 
-      const size = await scope.productSizesRepository.findById(
-        request.actor.establishmentId,
-        product.id,
-        request.sizeId,
-      )
-      if (
-        !size ||
-        size.establishmentId !== request.actor.establishmentId ||
-        size.productId !== product.id
-      ) {
-        throw new NotFoundError('Tamanho não encontrado.')
-      }
+        const size = await productSizesRepository.findById(
+          request.actor.establishmentId,
+          product.id,
+          request.sizeId,
+        )
+        if (
+          !size ||
+          size.establishmentId !== request.actor.establishmentId ||
+          size.productId !== product.id
+        ) {
+          throw new NotFoundError('Tamanho não encontrado.')
+        }
 
-      await scope.productSizesRepository.remove(
-        request.actor.establishmentId,
-        product.id,
-        size.id,
-      )
-      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
-        scope,
-        establishmentId: request.actor.establishmentId,
-        productId: request.productId,
-      })
-    })
-    await publishAffectedProductSalesConfigurations({
-      broker: this.broker,
-      establishmentId: request.actor.establishmentId,
-      productId: request.productId,
-      configurations,
-    })
+        await productSizesRepository.remove(
+          request.actor.establishmentId,
+          product.id,
+          size.id,
+        )
+        const configurations =
+          await new GetAffectedProductSalesConfigurationsUseCase().execute({
+            scope,
+            establishmentId: request.actor.establishmentId,
+            productId: request.productId,
+          })
+        await publishAffectedProductSalesConfigurations({
+          scope,
+          establishmentId: request.actor.establishmentId,
+          productId: request.productId,
+          configurations,
+        })
+      },
+    )
   }
 
   private validateActor(actor: ProductActor): void {

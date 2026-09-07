@@ -8,7 +8,10 @@ import {
   RecipeIngredientFaker,
 } from '#mrp/domain/entities/fakers/index.ts'
 import { ProductCategory, ProductStockControl } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import { ConflictError } from '#shared/domain/errors/index.ts'
 import { AddRecipeIngredientUseCase } from '#mrp/use-cases/add-recipe-ingredient-use-case.ts'
 
@@ -36,12 +39,12 @@ const recipe = RecipeFaker.fake({
 
 describe('Add Recipe Ingredient Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let useCase: AddRecipeIngredientUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
+    scope = mockDeep<MrpDatabaseRepositories>()
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.productsRepository.findById.mockImplementation(async (_, id) =>
       id === product.id ? product : ingredient,

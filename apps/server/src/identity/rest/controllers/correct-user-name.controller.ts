@@ -3,7 +3,6 @@ import { ApiParam, ApiResponse } from '@nestjs/swagger'
 import { CorrectUserNameUseCase } from '@scoops/core/identity/use-cases'
 import type { Account } from '@scoops/core/identity/domain/entities'
 import type { IdentityDatabase } from '@scoops/core/identity/interfaces'
-import type { Broker } from '@scoops/core/shared/interfaces'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
@@ -13,7 +12,6 @@ import { correctUserNameSchema } from '@/identity/rest/schemas/user-management-s
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 type RequestBody = Omit<
   Parameters<CorrectUserNameUseCase['execute']>[0],
@@ -27,9 +25,8 @@ export class CorrectUserNameController {
   constructor(
     @Inject(IDENTITY_REPOSITORIES.database) database: IdentityDatabase,
     @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
-    @Inject(InngestBroker) broker: Broker,
   ) {
-    this.useCase = new CorrectUserNameUseCase(database, datetimeProvider, broker)
+    this.useCase = new CorrectUserNameUseCase(database, datetimeProvider)
   }
 
   @Patch(':userId/name')

@@ -11,12 +11,15 @@ import {
   ProductStockControl,
   ProductUnit,
 } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import type { BrandsRepository } from '#mrp/interfaces/brands-repository.ts'
 import type { ProductsRepository } from '#mrp/interfaces/products-repository.ts'
 import type { StockBalancesRepository } from '#mrp/interfaces/stock-balances-repository.ts'
 import type { StockTransactionsRepository } from '#mrp/interfaces/stock-transactions-repository.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import {
   AuthorizationError,
@@ -40,9 +43,9 @@ const product: Product = {
 
 describe('Register Product Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let broker: MockProxy<Broker>
+  let eventsRepository: MockProxy<EventsRepository>
   let datetimeProvider: MockProxy<DatetimeProvider>
-  let scope: MockProxy<MrpDatabaseScope>
+  let scope: MockProxy<MrpDatabaseRepositories>
   let brandsRepository: MockProxy<BrandsRepository>
   let productsRepository: MockProxy<ProductsRepository>
   let stockBalancesRepository: MockProxy<StockBalancesRepository>
@@ -51,7 +54,7 @@ describe('Register Product Use Case', () => {
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    broker = mock<Broker>()
+    eventsRepository = mock<EventsRepository>()
     datetimeProvider = mock<DatetimeProvider>()
     datetimeProvider.now.mockReturnValue(new Date('2026-01-01T00:00:00.000Z'))
     brandsRepository = mock<BrandsRepository>()
@@ -63,14 +66,15 @@ describe('Register Product Use Case', () => {
       productsRepository,
       stockBalancesRepository,
       stockTransactionsRepository,
-    } as unknown as MockProxy<MrpDatabaseScope>
+      eventsRepository,
+    } as unknown as MockProxy<MrpDatabaseRepositories>
     productsRepository.findByName.mockResolvedValue(undefined)
     productsRepository.add.mockResolvedValue(product)
     database.run.mockImplementation(async (operation) => operation(scope))
-    useCase = new RegisterProductUseCase(database, broker, datetimeProvider)
+    useCase = new RegisterProductUseCase(database, datetimeProvider)
   })
 
-  it('creates an active single-stock product and publishes after initialization', async () => {
+  it('creates an active single-stock product and records the event in the transaction', async () => {
     const order: string[] = []
     productsRepository.add.mockImplementation(async (input) => {
       order.push('product')
@@ -79,7 +83,7 @@ describe('Register Product Use Case', () => {
     stockBalancesRepository.initialize.mockImplementation(async () => {
       order.push('stock')
     })
-    broker.publish.mockImplementation(async (event) => {
+    eventsRepository.add.mockImplementation(async (event) => {
       order.push('event')
       expect(
         event instanceof ProductCreatedEvent ||
@@ -114,11 +118,11 @@ describe('Register Product Use Case', () => {
       idealStock: 10,
     })
     expect(order).toEqual(['product', 'stock', 'event', 'event'])
-    expect(broker.publish).toHaveBeenNthCalledWith(
+    expect(eventsRepository.add).toHaveBeenNthCalledWith(
       1,
       expect.any(ProductStockAlertStateEnteredEvent),
     )
-    expect(broker.publish).toHaveBeenNthCalledWith(2, expect.any(ProductCreatedEvent))
+    expect(eventsRepository.add).toHaveBeenNthCalledWith(2, expect.any(ProductCreatedEvent))
   })
 
   it('persists when a product allows negative stock', async () => {
@@ -345,7 +349,7 @@ describe('Register Product Use Case', () => {
     ).rejects.toBeInstanceOf(BadRequestError)
 
     expect(productsRepository.add).not.toHaveBeenCalled()
-    expect(broker.publish).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
   })
 
   it('rejects non-manager registration without starting a transaction', async () => {
@@ -366,7 +370,7 @@ describe('Register Product Use Case', () => {
     ).rejects.toBeInstanceOf(AuthorizationError)
 
     expect(database.run).not.toHaveBeenCalled()
-    expect(broker.publish).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
   })
 
   it('rejects invalid current unit costs without persistence', async () => {
@@ -442,6 +446,6 @@ describe('Register Product Use Case', () => {
 
     expect(database.run).not.toHaveBeenCalled()
     expect(productsRepository.add).not.toHaveBeenCalled()
-    expect(broker.publish).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
   })
 })

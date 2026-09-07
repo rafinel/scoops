@@ -10,7 +10,10 @@ import {
   ProductUnit,
   StockSituation,
 } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import { ConflictError, NotFoundError } from '#shared/domain/errors/index.ts'
 import { UpdateProductBrandUseCase } from '#mrp/use-cases/update-product-brand-use-case.ts'
 
@@ -39,7 +42,7 @@ const brand: Brand = {
 
 describe('Update Product Brand Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let useCase: UpdateProductBrandUseCase
   beforeEach(() => {
     database = mock()

@@ -16,6 +16,7 @@ export const sendPasswordRecoveryEmailEvent = eventType(
 
 @Injectable()
 export class SendPasswordRecoveryEmailJob extends InngestJob {
+  static readonly ID = 'communication/send-password-recovery-email'
   readonly function: InngestFunction.Like
 
   constructor(
@@ -26,7 +27,7 @@ export class SendPasswordRecoveryEmailJob extends InngestJob {
 
     this.function = this.inngest.createFunction(
       {
-        id: 'communication/send-password-recovery-email',
+        id: SendPasswordRecoveryEmailJob.ID,
         retries: 5,
         triggers: [sendPasswordRecoveryEmailEvent],
       },

@@ -4,7 +4,6 @@ import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { MrpDatabase } from '@scoops/core/mrp/interfaces'
 import { UpdateProductAccompanimentUseCase } from '@scoops/core/mrp/use-cases'
-import type { Broker } from '@scoops/core/shared/interfaces'
 
 import { CurrentAccount, RequiredProfiles } from '@/identity/decorators'
 import { MRP_REPOSITORIES } from '@/mrp/constants'
@@ -12,7 +11,6 @@ import { MrpController } from '@/mrp/decorators'
 import { ProductAccompanimentDetailsResponseDto } from '@/mrp/rest/dtos'
 import { updateProductAccompanimentSchema } from '@/mrp/rest/schemas/product-schemas'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 
 type RequestBody = Parameters<UpdateProductAccompanimentUseCase['execute']>[0]['input']
@@ -21,11 +19,8 @@ type RequestBody = Parameters<UpdateProductAccompanimentUseCase['execute']>[0]['
 export class UpdateProductAccompanimentController {
   private readonly useCase: UpdateProductAccompanimentUseCase
 
-  constructor(
-    @Inject(MRP_REPOSITORIES.database) database: MrpDatabase,
-    @Inject(InngestBroker) broker: Broker,
-  ) {
-    this.useCase = new UpdateProductAccompanimentUseCase(database, broker)
+  constructor(@Inject(MRP_REPOSITORIES.database) database: MrpDatabase) {
+    this.useCase = new UpdateProductAccompanimentUseCase(database)
   }
 
   @Patch(':productId/accompaniments/:linkId')

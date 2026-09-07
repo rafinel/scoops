@@ -5,14 +5,15 @@ import {
 import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { vi } from 'vitest'
 
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
-import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
 
 import {
   createProduct,
+  findEvents,
   managerRequestAuthorization,
   prepareMrpFixture,
   resetMrpFixture,
@@ -58,11 +59,13 @@ describe('Register Product Brand Controller [POST /products/:productId/brands]',
       brandName: 'Callebaut',
       performedByName: 'Maria Manager',
     })
-    const broker = fixture.get(InngestBroker) as unknown as InngestMock
-    expect(broker.events).toEqual(
+    const configurationEvents = await findEvents(
+      fixture,
+      ProductSalesConfigurationChangedEvent._NAME,
+    )
+    expect(configurationEvents).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          name: ProductSalesConfigurationChangedEvent._NAME,
           payload: expect.objectContaining({
             productId: product.id,
             state: 'available',
@@ -73,13 +76,9 @@ describe('Register Product Brand Controller [POST /products/:productId/brands]',
         }),
       ]),
     )
-    expect(
-      broker.events.some(
-        (event) =>
-          event.name === ProductStockAlertStateEnteredEvent._NAME &&
-          event.payload.productId === product.id,
-      ),
-    ).toBe(false)
+    await expect(
+      findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME),
+    ).resolves.toHaveLength(0)
   })
 
   it('creates no ledger row for zero stock and rolls back duplicate registration', async () => {
@@ -120,11 +119,9 @@ describe('Register Product Brand Controller [POST /products/:productId/brands]',
     const product = await fixture.addProduct(
       createProduct({ stockControl: ProductStockControl.ByBrand, idealStock: 10 }),
     )
-    const broker = fixture.get(InngestBroker) as unknown as InngestMock
-    const originalPublish = broker.publish.bind(broker)
-    broker.publish = async () => {
-      throw new Error('Injected notification publication failure.')
-    }
+    const addSpy = vi
+      .spyOn(DrizzleEventsRepository.prototype, 'add')
+      .mockRejectedValueOnce(new Error('Injected notification publication failure.'))
 
     try {
       const response = await request(fixture.app.getHttpServer())
@@ -137,26 +134,18 @@ describe('Register Product Brand Controller [POST /products/:productId/brands]',
           initialQuantity: 5,
         })
       expect(response.status).toBe(500)
-      expect(await fixture.brands.findManyByProductId(product.id)).toHaveLength(1)
-      expect(await fixture.balances.findManyByProductId(product.id)).toMatchObject([
-        { quantity: 5 },
-      ])
+      expect(await fixture.brands.findManyByProductId(product.id)).toHaveLength(0)
+      expect(await fixture.balances.findManyByProductId(product.id)).toHaveLength(0)
       await expect(
         fixture.transactions.findPage(product.establishmentId, product.id, {
           page: 1,
           limit: 20,
         }),
       ).resolves.toMatchObject({
-        items: [
-          expect.objectContaining({
-            type: 'entry',
-            quantity: 5,
-            balanceAfter: 5,
-          }),
-        ],
+        items: [],
       })
     } finally {
-      broker.publish = originalPublish
+      addSpy.mockRestore()
     }
   })
 

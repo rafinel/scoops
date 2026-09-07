@@ -4,8 +4,8 @@ import type { EstablishmentSettings } from '#identity/domain/structures/establis
 import { UserAuditActorType } from '#identity/domain/structures/user-audit-actor-type.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { IdentityDatabase } from '#identity/interfaces/identity-database.ts'
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 import { EstablishmentUpdatedEvent } from '#identity/domain/events/establishment-updated-event.ts'
 import { ProfileChangeNotAllowedError } from '#identity/domain/errors/profile-change-not-allowed-error.ts'
@@ -20,7 +20,6 @@ export class ChangeEstablishmentNameUseCase
   constructor(
     private readonly database: IdentityDatabase,
     private readonly datetimeProvider: DatetimeProvider,
-    private readonly broker?: Broker,
   ) {}
 
   async execute(request: Request): Promise<EstablishmentSettings> {
@@ -31,58 +30,63 @@ export class ChangeEstablishmentNameUseCase
     if (!name) throw new ProfileChangeNotAllowedError()
 
     const updatedAt = this.datetimeProvider.now()
-    const result = await this.database.run(async (scope) => {
-      const establishment = await scope.establishmentsRepository.findById(
-        request.actor.establishmentId,
-      )
-      if (!establishment) throw new NotFoundError('Establishment not found')
+    const result = await this.database.run(
+      async ({
+        establishmentsRepository,
+        establishmentAuditRecordsRepository,
+        eventsRepository,
+      }: IdentityDatabaseRepositories) => {
+        const establishment = await establishmentsRepository.findById(
+          request.actor.establishmentId,
+        )
+        if (!establishment) throw new NotFoundError('Establishment not found')
 
-      if (establishment.name === name) {
+        if (establishment.name === name) {
+          return {
+            settings: this.toSettings(establishment, request.actor),
+            changed: false,
+            previousName: establishment.name,
+          }
+        }
+
+        const updatedEstablishment = await establishmentsRepository.replace(
+          request.actor.establishmentId,
+          { name, updatedAt },
+        )
+        const auditRepository = establishmentAuditRecordsRepository
+        if (!auditRepository)
+          throw new AppError('Establishment audit repository is not configured')
+
+        await auditRepository.add({
+          id: `${updatedEstablishment.id}:${updatedAt.toISOString()}:name`,
+          establishmentId: updatedEstablishment.id,
+          affectedEstablishmentName: updatedEstablishment.name,
+          actorType: UserAuditActorType.User,
+          actorUserId: request.actor.id,
+          actorName: request.actor.name,
+          action: EstablishmentAuditAction.EstablishmentNameChanged,
+          previousValue: establishment.name,
+          newValue: updatedEstablishment.name,
+          occurredAt: updatedAt,
+        })
+
+        await eventsRepository.add(
+          new EstablishmentUpdatedEvent({
+            establishmentId: updatedEstablishment.id,
+            actorUserId: request.actor.id,
+            previousName: establishment.name,
+            name: updatedEstablishment.name,
+            updatedAt,
+          }),
+        )
+
         return {
-          settings: this.toSettings(establishment, request.actor),
-          changed: false,
+          settings: this.toSettings(updatedEstablishment, request.actor),
+          changed: true,
           previousName: establishment.name,
         }
-      }
-
-      const updatedEstablishment = await scope.establishmentsRepository.replace(
-        request.actor.establishmentId,
-        { name, updatedAt },
-      )
-      const auditRepository = scope.establishmentAuditRecordsRepository
-      if (!auditRepository)
-        throw new AppError('Establishment audit repository is not configured')
-
-      await auditRepository.add({
-        id: `${updatedEstablishment.id}:${updatedAt.toISOString()}:name`,
-        establishmentId: updatedEstablishment.id,
-        affectedEstablishmentName: updatedEstablishment.name,
-        actorType: UserAuditActorType.User,
-        actorUserId: request.actor.id,
-        actorName: request.actor.name,
-        action: EstablishmentAuditAction.EstablishmentNameChanged,
-        previousValue: establishment.name,
-        newValue: updatedEstablishment.name,
-        occurredAt: updatedAt,
-      })
-
-      return {
-        settings: this.toSettings(updatedEstablishment, request.actor),
-        changed: true,
-        previousName: establishment.name,
-      }
-    })
-
-    if (result.changed)
-      await this.broker?.publish(
-        new EstablishmentUpdatedEvent({
-          establishmentId: result.settings.establishment.id,
-          actorUserId: request.actor.id,
-          previousName: result.previousName,
-          name: result.settings.establishment.name,
-          updatedAt,
-        }),
-      )
+      },
+    )
 
     return result.settings
   }

@@ -3,7 +3,10 @@ import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-
 
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { AccompanimentTypeFaker } from '#mrp/domain/entities/fakers/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   AuthorizationError,
   ConflictError,
@@ -19,12 +22,12 @@ const type = AccompanimentTypeFaker.fake({
 
 describe('Rename Accompaniment Type Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let useCase: RenameAccompanimentTypeUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
+    scope = mockDeep<MrpDatabaseRepositories>()
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.accompanimentTypesRepository.findById.mockResolvedValue(type)
     scope.accompanimentTypesRepository.findByName.mockResolvedValue(undefined)

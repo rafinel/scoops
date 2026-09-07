@@ -1,3 +1,4 @@
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { ProductBrandStock } from '#mrp/domain/structures/product-brand-stock.ts'
@@ -9,7 +10,6 @@ import {
   GetAffectedProductSalesConfigurationsUseCase,
   publishAffectedProductSalesConfigurations,
 } from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -26,57 +26,85 @@ type Request = {
 }
 
 export class UpdateProductBrandUseCase implements UseCase<Request, ProductBrandStock> {
-  constructor(
-    private readonly database: MrpDatabase,
-    private readonly broker?: Broker,
-  ) {}
+  constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<ProductBrandStock> {
     this.validateActor(request.actor)
     this.validateInput(request.input)
-    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
-      []
-    const result = await this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      if (!product) throw new NotFoundError('Produto não encontrado.')
-      if (product.stockControl !== ProductStockControl.ByBrand)
-        throw new BadRequestError('Este produto não utiliza estoque por marca.')
-      const brand = await scope.brandsRepository.findById(product.id, request.brandId)
-      if (!brand) throw new NotFoundError('Marca não encontrada.')
-      const name = request.input.name.trim()
-      const duplicate = await scope.brandsRepository.findByName(product.id, name)
-      if (duplicate && duplicate.id !== brand.id)
-        throw new ConflictError('Já existe uma marca com esse nome para o produto.')
-      const savedBrand = await scope.brandsRepository.replace(product.id, brand.id, {
-        name,
-        unit: request.input.unit ?? brand.unit,
-        packageQuantity: request.input.packageQuantity,
-        packagePrice: request.input.packageValue,
-      })
-      const balance = await scope.stockBalancesRepository.findByProductAndBrand(
-        product.id,
-        brand.id,
-      )
-      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
-        scope,
-        establishmentId: request.actor.establishmentId,
-        productId: request.productId,
-      })
-      return {
-        brand: savedBrand,
-        stockQuantity: balance?.quantity ?? 0,
-        unitPrice: savedBrand.packagePrice / savedBrand.packageQuantity,
-      }
-    })
-    await publishAffectedProductSalesConfigurations({
-      broker: this.broker,
-      establishmentId: request.actor.establishmentId,
-      productId: request.productId,
-      configurations,
-    })
+    const result = await this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
+        }
+        const product = await productsRepository.findById(
+          request.actor.establishmentId,
+          request.productId,
+        )
+        if (!product) throw new NotFoundError('Produto não encontrado.')
+        if (product.stockControl !== ProductStockControl.ByBrand)
+          throw new BadRequestError('Este produto não utiliza estoque por marca.')
+        const brand = await brandsRepository.findById(product.id, request.brandId)
+        if (!brand) throw new NotFoundError('Marca não encontrada.')
+        const name = request.input.name.trim()
+        const duplicate = await brandsRepository.findByName(product.id, name)
+        if (duplicate && duplicate.id !== brand.id)
+          throw new ConflictError('Já existe uma marca com esse nome para o produto.')
+        const savedBrand = await brandsRepository.replace(product.id, brand.id, {
+          name,
+          unit: request.input.unit ?? brand.unit,
+          packageQuantity: request.input.packageQuantity,
+          packagePrice: request.input.packageValue,
+        })
+        const balance = await stockBalancesRepository.findByProductAndBrand(
+          product.id,
+          brand.id,
+        )
+        const configurations =
+          await new GetAffectedProductSalesConfigurationsUseCase().execute({
+            scope,
+            establishmentId: request.actor.establishmentId,
+            productId: request.productId,
+          })
+        const result = {
+          brand: savedBrand,
+          stockQuantity: balance?.quantity ?? 0,
+          unitPrice: savedBrand.packagePrice / savedBrand.packageQuantity,
+        }
+        await publishAffectedProductSalesConfigurations({
+          scope,
+          establishmentId: request.actor.establishmentId,
+          productId: request.productId,
+          configurations,
+        })
+        return result
+      },
+    )
     return result
   }
 

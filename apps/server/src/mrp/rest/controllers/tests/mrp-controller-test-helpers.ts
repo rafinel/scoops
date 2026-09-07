@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm'
 import type { Product, ProductCreate } from '@scoops/core/mrp/domain/entities'
 import {
   ProductCategory,
@@ -8,6 +9,8 @@ import {
 
 import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
+import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
+import { eventModel } from '@/shared/database/drizzle/models/event-model'
 
 export function createProduct(overrides: Partial<ProductCreate> = {}): ProductCreate {
   return {
@@ -52,4 +55,13 @@ export function operatorRequestAuthorization() {
 
 export function foreignManagerRequestAuthorization() {
   return `scoops.session_token=${MrpModuleFixture.accounts.foreignManagerToken}`
+}
+
+export async function findEvents(fixture: MrpModuleFixture, eventName: string) {
+  return fixture
+    .get(DrizzleClient)
+    .requireDatabase()
+    .select()
+    .from(eventModel)
+    .where(eq(eventModel.eventName, eventName))
 }

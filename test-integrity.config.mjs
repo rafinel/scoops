@@ -86,7 +86,6 @@ export default {
   ],
   forbiddenTestPatterns: [
     'apps/server/src/shared/messaging/inngest/inngest-broker.test.ts',
-    'apps/server/src/shared/messaging/outbox/tests/requeue-event.test.ts',
     'apps/web/src/rest/services/**/*.test.ts',
     'apps/web/src/rest/services/**/*.test.tsx',
     'apps/web/src/ui/**/hooks/tests/**/*.test.ts',

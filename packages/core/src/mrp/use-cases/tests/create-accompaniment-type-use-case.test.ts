@@ -3,7 +3,10 @@ import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-
 
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { AccompanimentTypeFaker } from '#mrp/domain/entities/fakers/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -13,12 +16,12 @@ import { CreateAccompanimentTypeUseCase } from '#mrp/use-cases/create-accompanim
 
 describe('Create Accompaniment Type Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let useCase: CreateAccompanimentTypeUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
+    scope = mockDeep<MrpDatabaseRepositories>()
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.accompanimentTypesRepository.findByName.mockResolvedValue(undefined)
     scope.accompanimentTypesRepository.add.mockResolvedValue(

@@ -6,7 +6,7 @@ import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { UserStatus } from '#identity/domain/structures/user-status.ts'
 import type {
   IdentityDatabase,
-  IdentityDatabaseScope,
+  IdentityDatabaseRepositories,
 } from '#identity/interfaces/identity-database.ts'
 import type { EstablishmentsRepository } from '#identity/interfaces/establishments-repository.ts'
 import type { RegistrationAttemptsRepository } from '#identity/interfaces/registration-attempts-repository.ts'
@@ -19,7 +19,7 @@ import { ChangeUserProfileUseCase } from '#identity/use-cases/change-user-profil
 describe('Change User Profile Use Case', () => {
   let database: MockProxy<IdentityDatabase>
   let datetimeProvider: MockProxy<DatetimeProvider>
-  let scope: IdentityDatabaseScope
+  let scope: IdentityDatabaseRepositories
   let usersRepository: MockProxy<UsersRepository>
   let useCase: ChangeUserProfileUseCase
 
@@ -31,6 +31,7 @@ describe('Change User Profile Use Case', () => {
       usersRepository,
       establishmentsRepository: mock<EstablishmentsRepository>(),
       registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
+      eventsRepository: mock(),
     }
     database.run.mockImplementation((operation) => operation(scope))
     datetimeProvider.now.mockReturnValue(new Date('2026-02-03T04:05:06.000Z'))

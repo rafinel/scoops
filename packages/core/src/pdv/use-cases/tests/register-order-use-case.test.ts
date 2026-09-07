@@ -3,7 +3,7 @@ import { mock, type MockProxy } from 'vitest-mock-extended'
 
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { OrderFaker } from '#pdv/domain/entities/fakers/index.ts'
-import type { PdvDatabase, PdvDatabaseScope } from '#pdv/interfaces/index.ts'
+import type { PdvDatabase, PdvDatabaseRepositories } from '#pdv/interfaces/index.ts'
 import { OrderRegisteredEvent } from '#pdv/domain/events/order-registered-event.ts'
 import type { OrderRegistrationInput } from '#pdv/domain/structures/order-registration-input.ts'
 import type { DiscountsRepository } from '#pdv/interfaces/discounts-repository.ts'
@@ -16,6 +16,7 @@ import type { StockConsumer } from '#pdv/interfaces/stock-consumer.ts'
 import type { StockRestorer } from '#pdv/interfaces/stock-restorer.ts'
 import { BadRequestError, ConflictError } from '#shared/domain/errors/index.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import { RegisterOrderUseCase } from '#pdv/use-cases/register-order-use-case.ts'
 
 type Actor = {
@@ -58,7 +59,7 @@ const product = {
 
 describe('Register Order Use Case', () => {
   let database: MockProxy<PdvDatabase>
-  let scope: PdvDatabaseScope
+  let scope: PdvDatabaseRepositories
   let catalog: MockProxy<SalesCatalogProvider>
   let datetime: MockProxy<DatetimeProvider>
   let orders: MockProxy<OrdersRepository>
@@ -88,6 +89,7 @@ describe('Register Order Use Case', () => {
       orderSequencesRepository: orderSequences,
       stockConsumer,
       stockRestorer,
+      eventsRepository: mock<EventsRepository>(),
     }
     orders.findByIdempotencyKey.mockResolvedValue(undefined)
     discounts.findActive.mockResolvedValue([])

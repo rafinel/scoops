@@ -2,7 +2,7 @@ import type { Product } from '#mrp/domain/entities/product.ts'
 import { ProductStockAlertStateEnteredEvent } from '#mrp/domain/events/product-stock-alert-state-entered-event.ts'
 import { ProductStockAlertState } from '#mrp/domain/structures/product-stock-alert-state.ts'
 import { BadRequestError } from '#shared/domain/errors/bad-request-error.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
+import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
 type Request = {
@@ -13,7 +13,7 @@ type Request = {
 }
 
 export class PublishProductStockAlertUseCase implements UseCase<Request> {
-  constructor(private readonly broker: Broker) {}
+  constructor(private readonly eventsRepository: Pick<EventsRepository, 'add'>) {}
 
   async execute(request: Request): Promise<void> {
     this.validateQuantity(request.previousQuantity, 'previousQuantity')
@@ -33,7 +33,7 @@ export class PublishProductStockAlertUseCase implements UseCase<Request> {
     )
       return
 
-    await this.broker.publish(
+    await this.eventsRepository.add(
       new ProductStockAlertStateEnteredEvent({
         establishmentId: request.product.establishmentId,
         productId: request.product.id,

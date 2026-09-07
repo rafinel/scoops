@@ -2,13 +2,12 @@ import type { Product } from '#mrp/domain/entities/product.ts'
 import type { ProductAccompaniment } from '#mrp/domain/entities/product-accompaniment.ts'
 import type { ProductSalesConfiguration } from '#mrp/domain/structures/product-sales-configuration.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
-import type { MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { NotFoundError } from '#shared/domain/errors/index.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
 
 type Request = {
-  readonly scope: MrpDatabaseScope
+  readonly scope: MrpDatabaseRepositories
   readonly establishmentId: string
   readonly productId: string
   readonly affectedProductIds?: readonly string[]
@@ -49,7 +48,7 @@ export class GetAffectedProductSalesConfigurationsUseCase {
   }
 
   private async findInverseOwnerIds(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     accompanimentProductId: string,
   ): Promise<readonly string[]> {
@@ -67,7 +66,7 @@ export class GetAffectedProductSalesConfigurationsUseCase {
   }
 
   private async buildConfiguration(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     productId: string,
   ): Promise<ProductSalesConfiguration | undefined> {
@@ -157,7 +156,7 @@ export class GetAffectedProductSalesConfigurationsUseCase {
   }
 
   private async buildAccompaniment(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     link: ProductAccompaniment,
   ): Promise<AccompanimentSnapshot> {
@@ -194,7 +193,7 @@ export class GetAffectedProductSalesConfigurationsUseCase {
   }
 
   private async resolveBasePrice(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     establishmentId: string,
     product: Product,
   ): Promise<number> {
@@ -227,15 +226,14 @@ export class GetAffectedProductSalesConfigurationsUseCase {
 }
 
 export async function publishAffectedProductSalesConfigurations(request: {
-  readonly broker: Broker | undefined
+  readonly scope: MrpDatabaseRepositories
   readonly establishmentId: string
   readonly productId: string
   readonly configurations: readonly ProductSalesConfiguration[]
   readonly deleted?: boolean
 }): Promise<void> {
-  if (!request.broker) return
   for (const configuration of request.configurations) {
-    await request.broker.publish(
+    await request.scope.eventsRepository.add(
       new ProductSalesConfigurationChangedEvent({
         establishmentId: request.establishmentId,
         productId: configuration.productId,
@@ -245,7 +243,7 @@ export async function publishAffectedProductSalesConfigurations(request: {
     )
   }
   if (request.deleted) {
-    await request.broker.publish(
+    await request.scope.eventsRepository.add(
       new ProductSalesConfigurationChangedEvent({
         establishmentId: request.establishmentId,
         productId: request.productId,

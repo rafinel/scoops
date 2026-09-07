@@ -4,7 +4,10 @@ import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { ProductFaker, ProductSizeFaker } from '#mrp/domain/entities/fakers/index.ts'
 import { ProductCategory } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -38,12 +41,12 @@ const addedSize = ProductSizeFaker.fake({
 
 describe('Register Product Size Use Case', () => {
   let database: MockProxy<MrpDatabase>
-  let scope: DeepMockProxy<MrpDatabaseScope>
+  let scope: DeepMockProxy<MrpDatabaseRepositories>
   let useCase: RegisterProductSizeUseCase
 
   beforeEach(() => {
     database = mock<MrpDatabase>()
-    scope = mockDeep<MrpDatabaseScope>()
+    scope = mockDeep<MrpDatabaseRepositories>()
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.productsRepository.findById.mockResolvedValue(product)
     scope.productSizesRepository.findManyByProductId

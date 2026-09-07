@@ -1,3 +1,4 @@
+import type { PdvDatabaseRepositories } from '#pdv/interfaces/pdv-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { ComboActor } from '#pdv/domain/structures/combo-actor.ts'
 import type { ComboDetails } from '#pdv/domain/structures/combo-details.ts'
@@ -20,8 +21,9 @@ export class GetComboUseCase implements UseCase<Request, ComboDetails> {
   async execute(request: Request): Promise<ComboDetails> {
     if (request.actor.profile !== UserProfile.Manager)
       throw new AuthorizationError('Somente gestores podem gerenciar combos.')
-    const combo = await this.database.run((scope) =>
-      scope.discountsRepository.findById(request.actor.establishmentId, request.comboId),
+    const combo = await this.database.run(
+      ({ discountsRepository }: PdvDatabaseRepositories) =>
+        discountsRepository.findById(request.actor.establishmentId, request.comboId),
     )
     if (!combo || combo.establishmentId !== request.actor.establishmentId)
       throw new NotFoundError('Combo não encontrado.')

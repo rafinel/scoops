@@ -18,9 +18,7 @@ import { CurrentAccount, RequiredProfiles } from '@/identity/decorators'
 import { PDV_REPOSITORIES } from '@/pdv/constants'
 import { DiscountsController } from '@/pdv/decorators'
 import { ErrorResponseDto } from '@/shared/rest/dtos'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
-import type { Broker } from '@scoops/core/shared/interfaces'
 
 type QueryInput = Omit<Parameters<RemoveComboUseCase['execute']>[0], 'actor' | 'comboId'>
 
@@ -28,11 +26,8 @@ type QueryInput = Omit<Parameters<RemoveComboUseCase['execute']>[0], 'actor' | '
 export class DeleteComboController {
   private readonly useCase: RemoveComboUseCase
 
-  constructor(
-    @Inject(PDV_REPOSITORIES.database) database: PdvDatabase,
-    @Inject(InngestBroker) broker: Broker,
-  ) {
-    this.useCase = new RemoveComboUseCase(database, broker)
+  constructor(@Inject(PDV_REPOSITORIES.database) database: PdvDatabase) {
+    this.useCase = new RemoveComboUseCase(database)
   }
 
   @Delete(':discountId')

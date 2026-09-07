@@ -1,3 +1,4 @@
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { Account } from '#identity/domain/entities/account.ts'
 import type { UserDetails } from '#identity/domain/structures/user-details.ts'
 import { UserAuditAction } from '#identity/domain/structures/user-audit-action.ts'
@@ -11,7 +12,6 @@ import type { OnboardingIdentifierProvider } from '#identity/interfaces/onboardi
 import type { OnboardingTokenProvider } from '#identity/interfaces/onboarding-token-provider.ts'
 import type { UserAccessIdentityProvider } from '#identity/interfaces/user-access-identity-provider.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 import { AuthorizationError } from '#shared/domain/errors/authorization-error.ts'
 import { UserInvitationEmailUnavailableError } from '#identity/domain/errors/user-invitation-email-unavailable-error.ts'
@@ -33,7 +33,6 @@ export class InviteUserUseCase implements UseCase<Request, UserDetails> {
     private readonly tokenProvider: OnboardingTokenProvider,
     private readonly identifierProvider: OnboardingIdentifierProvider,
     private readonly provider: UserAccessIdentityProvider,
-    private readonly broker: Broker,
   ) {}
 
   async execute(request: Request): Promise<UserDetails> {
@@ -45,7 +44,10 @@ export class InviteUserUseCase implements UseCase<Request, UserDetails> {
     const attemptToken = this.tokenProvider.issue()
     const attemptId = this.identifierProvider.generate()
     const existing = await this.database.run(
-      async ({ usersRepository, registrationAttemptsRepository }) => ({
+      async ({
+        usersRepository,
+        registrationAttemptsRepository,
+      }: IdentityDatabaseRepositories) => ({
         user: await usersRepository.findByEmail(email),
         attempt: await registrationAttemptsRepository.findActiveByEmail(email),
       }),
@@ -54,61 +56,69 @@ export class InviteUserUseCase implements UseCase<Request, UserDetails> {
       throw new UserInvitationEmailUnavailableError()
     let providerSubject: string | undefined
     const commitInvitation = async () =>
-      this.database.run(async (scope) => {
-        const duplicate = await scope.usersRepository.findByEmail(email)
-        const duplicateAttempt =
-          await scope.registrationAttemptsRepository.findActiveByEmail(email)
-        if (duplicate || duplicateAttempt) throw new UserInvitationEmailUnavailableError()
-        const identity = await this.provider.inviteIdentity({
-          establishmentId: request.actor.establishmentId,
-          email,
-          name,
-          invitationRedirectTo: confirmationRedirectUrl(
-            request.invitationRedirectBaseUrl,
-            attemptToken.token,
-          ),
-        })
-        providerSubject = identity.authUser.id
-        const user = await scope.usersRepository.add({
-          id: identity.authUser.id,
-          establishmentId: request.actor.establishmentId,
-          name,
-          email,
-          profile: request.profile,
-          status: UserStatus.Pending,
-          createdAt: now,
-          updatedAt: now,
-        })
-        const attempt = await scope.registrationAttemptsRepository.add({
-          id: attemptId,
-          userId: user.id,
-          establishmentId: user.establishmentId,
-          name,
-          email,
-          profile: user.profile,
-          type: RegistrationAttemptType.UserInvitation,
-          status: RegistrationAttemptStatus.Pending,
-          tokenHash: attemptToken.hash,
-          expiresAt: new Date(now.getTime() + INVITATION_DURATION_MS),
-          createdAt: now,
-          updatedAt: now,
-          revision: 0,
-        })
-        await scope.userAuditRecordsRepository?.add({
-          id: `${attempt.id}:registered`,
-          establishmentId: user.establishmentId,
-          affectedUserId: user.id,
-          affectedUserName: user.name,
-          actorType: UserAuditActorType.User,
-          actorUserId: request.actor.id,
-          actorName: request.actor.name,
-          action: UserAuditAction.UserRegistered,
-          newValue: user.profile,
-          occurredAt: now,
-        })
-        await this.broker.publish(identity.event)
-        return { user, attempt }
-      })
+      this.database.run(
+        async ({
+          registrationAttemptsRepository,
+          usersRepository,
+          userAuditRecordsRepository,
+          eventsRepository,
+        }: IdentityDatabaseRepositories) => {
+          const duplicate = await usersRepository.findByEmail(email)
+          const duplicateAttempt =
+            await registrationAttemptsRepository.findActiveByEmail(email)
+          if (duplicate || duplicateAttempt)
+            throw new UserInvitationEmailUnavailableError()
+          const identity = await this.provider.inviteIdentity({
+            establishmentId: request.actor.establishmentId,
+            email,
+            name,
+            invitationRedirectTo: confirmationRedirectUrl(
+              request.invitationRedirectBaseUrl,
+              attemptToken.token,
+            ),
+          })
+          providerSubject = identity.authUser.id
+          const user = await usersRepository.add({
+            id: identity.authUser.id,
+            establishmentId: request.actor.establishmentId,
+            name,
+            email,
+            profile: request.profile,
+            status: UserStatus.Pending,
+            createdAt: now,
+            updatedAt: now,
+          })
+          const attempt = await registrationAttemptsRepository.add({
+            id: attemptId,
+            userId: user.id,
+            establishmentId: user.establishmentId,
+            name,
+            email,
+            profile: user.profile,
+            type: RegistrationAttemptType.UserInvitation,
+            status: RegistrationAttemptStatus.Pending,
+            tokenHash: attemptToken.hash,
+            expiresAt: new Date(now.getTime() + INVITATION_DURATION_MS),
+            createdAt: now,
+            updatedAt: now,
+            revision: 0,
+          })
+          await userAuditRecordsRepository?.add({
+            id: `${attempt.id}:registered`,
+            establishmentId: user.establishmentId,
+            affectedUserId: user.id,
+            affectedUserName: user.name,
+            actorType: UserAuditActorType.User,
+            actorUserId: request.actor.id,
+            actorName: request.actor.name,
+            action: UserAuditAction.UserRegistered,
+            newValue: user.profile,
+            occurredAt: now,
+          })
+          await eventsRepository.add(identity.event)
+          return { user, attempt }
+        },
+      )
     let result: Awaited<ReturnType<typeof commitInvitation>>
     try {
       result = await commitInvitation()
@@ -117,7 +127,7 @@ export class InviteUserUseCase implements UseCase<Request, UserDetails> {
       throw error
     }
     const auditRecords = await this.database.run(
-      async ({ userAuditRecordsRepository }) =>
+      async ({ userAuditRecordsRepository }: IdentityDatabaseRepositories) =>
         userAuditRecordsRepository
           ? await userAuditRecordsRepository.findManyByUser({
               establishmentId: result.user.establishmentId,

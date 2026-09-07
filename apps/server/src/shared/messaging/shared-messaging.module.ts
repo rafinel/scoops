@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common'
 
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
-import { CleanupPublishedEventsJob } from '@/shared/messaging/outbox/cleanup-published-events-job'
-import { DrizzleOutboxDatabase } from '@/shared/database/drizzle/drizzle-outbox-database'
-import { OUTBOX_DATABASE } from '@/shared/database/drizzle/outbox/outbox-database-token'
-import { PublishEventJob } from '@/shared/messaging/outbox/publish-event-job'
-import { RequeueEvent } from '@/shared/messaging/outbox/requeue-event'
+import { InngestBroker } from '@/shared/messaging/inngest/jobs/inngest-broker'
+import { CleanupPublishedEventsJob } from '@/shared/messaging/inngest/jobs/cleanup-published-events-job'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
+import { EVENTS_REPOSITORY } from '@/shared/database/drizzle/events/events-repository-token'
 import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
 import { ProvisionModule } from '@/shared/provision/provision.module'
 
@@ -15,19 +13,10 @@ import { ProvisionModule } from '@/shared/provision/provision.module'
   providers: [
     InngestClient,
     InngestBroker,
-    DrizzleOutboxDatabase,
-    { provide: OUTBOX_DATABASE, useExisting: DrizzleOutboxDatabase },
-    PublishEventJob,
+    DrizzleEventsRepository,
+    { provide: EVENTS_REPOSITORY, useExisting: DrizzleEventsRepository },
     CleanupPublishedEventsJob,
-    RequeueEvent,
   ],
-  exports: [
-    InngestClient,
-    InngestBroker,
-    OUTBOX_DATABASE,
-    PublishEventJob,
-    CleanupPublishedEventsJob,
-    RequeueEvent,
-  ],
+  exports: [InngestClient, InngestBroker, EVENTS_REPOSITORY, CleanupPublishedEventsJob],
 })
 export class SharedMessagingModule {}

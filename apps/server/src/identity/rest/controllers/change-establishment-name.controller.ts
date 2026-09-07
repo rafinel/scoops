@@ -3,7 +3,7 @@ import { ApiResponse } from '@nestjs/swagger'
 import { ChangeEstablishmentNameUseCase } from '@scoops/core/identity/use-cases'
 import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
-import type { Broker, DatetimeProvider } from '@scoops/core/shared/interfaces'
+import type { DatetimeProvider } from '@scoops/core/shared/interfaces'
 import type { IdentityDatabase } from '@scoops/core/identity/interfaces'
 
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
@@ -17,7 +17,6 @@ import { changeIdentityNameSchema } from '@/identity/rest/schemas/change-identit
 import { ErrorResponseDto } from '@/shared/rest/dtos'
 import { ZodValidationPipe } from '@/shared/rest/pipes'
 import { DatetimeProvider as ServerDatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 
 type RequestBody = Omit<Parameters<ChangeEstablishmentNameUseCase['execute']>[0], 'actor'>
 
@@ -28,9 +27,8 @@ export class ChangeEstablishmentNameController {
   constructor(
     @Inject(IDENTITY_REPOSITORIES.database) database: IdentityDatabase,
     @Inject(ServerDatetimeProvider) datetimeProvider: DatetimeProvider,
-    @Inject(InngestBroker) broker: Broker,
   ) {
-    this.useCase = new ChangeEstablishmentNameUseCase(database, datetimeProvider, broker)
+    this.useCase = new ChangeEstablishmentNameUseCase(database, datetimeProvider)
   }
 
   @Patch('current/name')

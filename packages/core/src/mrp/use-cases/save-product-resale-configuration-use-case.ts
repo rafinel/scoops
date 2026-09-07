@@ -8,12 +8,14 @@ import {
   type ProductPricingDetails,
   type SaveProductResaleConfigurationInput,
 } from '#mrp/domain/structures/index.ts'
-import type { MrpDatabase, MrpDatabaseScope } from '#mrp/interfaces/mrp-database.ts'
+import type {
+  MrpDatabase,
+  MrpDatabaseRepositories,
+} from '#mrp/interfaces/mrp-database.ts'
 import {
   GetAffectedProductSalesConfigurationsUseCase,
   publishAffectedProductSalesConfigurations,
 } from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
-import type { Broker } from '#shared/interfaces/broker.ts'
 import { GetProductPricingUseCase } from '#mrp/use-cases/get-product-pricing-use-case.ts'
 import {
   AuthorizationError,
@@ -32,76 +34,104 @@ type Request = {
 export class SaveProductResaleConfigurationUseCase
   implements UseCase<Request, ProductPricingDetails>
 {
-  constructor(
-    private readonly database: MrpDatabase,
-    private readonly broker?: Broker,
-  ) {}
+  constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<ProductPricingDetails> {
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    let configurations: readonly import('#mrp/domain/structures/product-sales-configuration.ts').ProductSalesConfiguration[] =
-      []
-    const result = await this.database.run(async (scope) => {
-      const product = await scope.productsRepository.findById(
-        request.actor.establishmentId,
-        request.productId,
-      )
-      validateResaleProduct(product, request.actor.establishmentId)
-
-      if (product.stockControl === ProductStockControl.Single) {
-        if (request.brandId !== undefined) {
-          throw new BadRequestError('O produto de estoque único não possui marcas.')
+    const result = await this.database.run(
+      async ({
+        productsRepository,
+        brandsRepository,
+        recipesRepository,
+        recipeIngredientsRepository,
+        productionsRepository,
+        productionIngredientsRepository,
+        stockBalancesRepository,
+        stockTransactionsRepository,
+        productSizesRepository,
+        accompanimentTypesRepository,
+        productAccompanimentsRepository,
+        resaleConfigurationsRepository,
+        eventsRepository,
+      }: MrpDatabaseRepositories) => {
+        const scope = {
+          productsRepository,
+          brandsRepository,
+          recipesRepository,
+          recipeIngredientsRepository,
+          productionsRepository,
+          productionIngredientsRepository,
+          stockBalancesRepository,
+          stockTransactionsRepository,
+          productSizesRepository,
+          accompanimentTypesRepository,
+          productAccompanimentsRepository,
+          resaleConfigurationsRepository,
+          eventsRepository,
         }
-
-        const existing = await scope.resaleConfigurationsRepository.findByProductAndBrand(
+        const product = await productsRepository.findById(
           request.actor.establishmentId,
-          product.id,
+          request.productId,
         )
-        await this.saveConfiguration(scope, request, product, existing)
-      } else if (product.stockControl === ProductStockControl.ByBrand) {
-        if (request.brandId === undefined) {
-          throw new BadRequestError('Informe a marca da configuração de revenda.')
+        validateResaleProduct(product, request.actor.establishmentId)
+
+        if (product.stockControl === ProductStockControl.Single) {
+          if (request.brandId !== undefined) {
+            throw new BadRequestError('O produto de estoque único não possui marcas.')
+          }
+
+          const existing = await resaleConfigurationsRepository.findByProductAndBrand(
+            request.actor.establishmentId,
+            product.id,
+          )
+          await this.saveConfiguration(scope, request, product, existing)
+        } else if (product.stockControl === ProductStockControl.ByBrand) {
+          if (request.brandId === undefined) {
+            throw new BadRequestError('Informe a marca da configuração de revenda.')
+          }
+
+          const brand = await brandsRepository.findById(product.id, request.brandId)
+          if (!brand || brand.productId !== product.id) {
+            throw new NotFoundError('Marca não encontrada.')
+          }
+
+          const existing = await resaleConfigurationsRepository.findByProductAndBrand(
+            request.actor.establishmentId,
+            product.id,
+            brand.id,
+          )
+          await this.saveConfiguration(scope, request, product, existing, brand.id)
+        } else {
+          throw new BadRequestError('O controle de estoque do produto não é suportado.')
         }
 
-        const brand = await scope.brandsRepository.findById(product.id, request.brandId)
-        if (!brand || brand.productId !== product.id) {
-          throw new NotFoundError('Marca não encontrada.')
-        }
-
-        const existing = await scope.resaleConfigurationsRepository.findByProductAndBrand(
+        const configurations =
+          await new GetAffectedProductSalesConfigurationsUseCase().execute({
+            scope,
+            establishmentId: request.actor.establishmentId,
+            productId: request.productId,
+          })
+        const result = await GetProductPricingUseCase.buildDetails(
+          scope,
           request.actor.establishmentId,
-          product.id,
-          brand.id,
+          product,
         )
-        await this.saveConfiguration(scope, request, product, existing, brand.id)
-      } else {
-        throw new BadRequestError('O controle de estoque do produto não é suportado.')
-      }
-
-      configurations = await new GetAffectedProductSalesConfigurationsUseCase().execute({
-        scope,
-        establishmentId: request.actor.establishmentId,
-        productId: request.productId,
-      })
-      return GetProductPricingUseCase.buildDetails(
-        scope,
-        request.actor.establishmentId,
-        product,
-      )
-    })
-    await publishAffectedProductSalesConfigurations({
-      broker: this.broker,
-      establishmentId: request.actor.establishmentId,
-      productId: request.productId,
-      configurations,
-    })
+        await publishAffectedProductSalesConfigurations({
+          scope,
+          establishmentId: request.actor.establishmentId,
+          productId: request.productId,
+          configurations,
+        })
+        return result
+      },
+    )
     return result
   }
 
   private async saveConfiguration(
-    scope: MrpDatabaseScope,
+    scope: MrpDatabaseRepositories,
     request: Request,
     product: Product,
     existing: ResaleConfiguration | undefined,

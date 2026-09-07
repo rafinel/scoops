@@ -1,3 +1,4 @@
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { Account } from '#identity/domain/entities/account.ts'
 import type { EstablishmentSettings } from '#identity/domain/structures/establishment-settings.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
@@ -17,25 +18,27 @@ export class GetEstablishmentSettingsUseCase
     if (request.actor.profile !== UserProfile.Manager)
       throw new ProfileChangeNotAllowedError()
 
-    return this.database.run(async ({ establishmentsRepository }) => {
-      const establishment = await establishmentsRepository.findById(
-        request.actor.establishmentId,
-      )
-      if (!establishment) throw new NotFoundError('Establishment not found')
+    return this.database.run(
+      async ({ establishmentsRepository }: IdentityDatabaseRepositories) => {
+        const establishment = await establishmentsRepository.findById(
+          request.actor.establishmentId,
+        )
+        if (!establishment) throw new NotFoundError('Establishment not found')
 
-      return {
-        establishment: {
-          id: establishment.id,
-          name: establishment.name,
-          status: establishment.status,
-          createdAt: establishment.createdAt,
-          updatedAt: establishment.updatedAt,
-        },
-        responsibleManager: {
-          id: request.actor.id,
-          name: request.actor.name,
-        },
-      }
-    })
+        return {
+          establishment: {
+            id: establishment.id,
+            name: establishment.name,
+            status: establishment.status,
+            createdAt: establishment.createdAt,
+            updatedAt: establishment.updatedAt,
+          },
+          responsibleManager: {
+            id: request.actor.id,
+            name: request.actor.name,
+          },
+        }
+      },
+    )
   }
 }

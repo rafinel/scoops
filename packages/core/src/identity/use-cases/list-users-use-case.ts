@@ -1,3 +1,4 @@
+import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { Account } from '#identity/domain/entities/account.ts'
 import { AuthorizationError } from '#shared/domain/errors/authorization-error.ts'
 import type { UserSummary } from '#identity/domain/structures/user-summary.ts'
@@ -24,16 +25,17 @@ export class ListUsersUseCase implements UseCase<Request, UsersPage<UserSummary>
       throw new AuthorizationError('Manager access required')
     const page = Math.max(1, Math.floor(request.page))
     const pageSize = Math.min(100, Math.max(1, Math.floor(request.pageSize)))
-    const result = await this.database.run(({ usersRepository }) =>
-      usersRepository.findMany({
-        establishmentId: request.actor.establishmentId,
-        excludeUserId: request.actor.id,
-        search: request.search?.trim() || undefined,
-        profile: request.profile,
-        status: request.status,
-        page,
-        pageSize,
-      }),
+    const result = await this.database.run(
+      ({ usersRepository }: IdentityDatabaseRepositories) =>
+        usersRepository.findMany({
+          establishmentId: request.actor.establishmentId,
+          excludeUserId: request.actor.id,
+          search: request.search?.trim() || undefined,
+          profile: request.profile,
+          status: request.status,
+          page,
+          pageSize,
+        }),
     )
     return new UsersPage(
       result.items.map(
