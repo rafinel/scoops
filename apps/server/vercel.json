@@ -1,7 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
   "installCommand": "corepack pnpm install --frozen-lockfile",
-  "buildCommand": "corepack pnpm build",
+  "buildCommand": "corepack pnpm build && if [ \"$SCOOPS_SERVER_APP_MODE\" = \"stg\" ]; then corepack pnpm db:migration:apply && corepack pnpm db:seed; fi",
   "outputDirectory": "dist",
   "rewrites": [
     {
