@@ -3,7 +3,7 @@ feature: "communication/notification-center"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 4
-status: ready
+status: completed
 updated_at: 2026-09-06
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-09-06
 
 Evaluation of Spec revision `4` against the untouched implementation at kickoff, with a mechanical path-classification correction recorded during F4 conformance, a history-aware back-control correction during closure validation, and a shared back-navigation visual correction.
 
-Current result: `ready`; the CI/test-boundary correction is complete locally. Server CI now provides Mailpit and runs the dedicated Inngest suite; regular Server coverage retains the feature job tests needed to clear unchanged floors.
+Current result: `completed`; the CI/test-boundary correction is complete and every applicable PR check passed on head `446b1364b7672c5d5787e0296755bf7550d4ec63`.
 
 ## Acceptance matrix
 
@@ -181,6 +181,11 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `CI-06` | Validation CI (pull request) | `df894b1a9a2c6d842ae8cafbd756baec6532a37f` | `passed` | [run 34076517833](https://github.com/rafinel/scoops/actions/runs/34076517833) |
 | `CI-07` | Web CI (push) | `df894b1a9a2c6d842ae8cafbd756baec6532a37f` | `passed; superseded by correction` | [run 34076484004](https://github.com/rafinel/scoops/actions/runs/34076484004) |
 | `CI-08` | Web CI (pull request) | `df894b1a9a2c6d842ae8cafbd756baec6532a37f` | `passed; superseded by correction` | [run 34076517648](https://github.com/rafinel/scoops/actions/runs/34076517648) |
+| `CI-09` | Core CI (pull request) | `446b1364b7672c5d5787e0296755bf7550d4ec63` | `passed` | [run 34079207264](https://github.com/rafinel/scoops/actions/runs/34079207264) |
+| `CI-10` | Validation CI (pull request) | `446b1364b7672c5d5787e0296755bf7550d4ec63` | `passed` | [run 34079207354](https://github.com/rafinel/scoops/actions/runs/34079207354) |
+| `CI-11` | Server CI (push) | `446b1364b7672c5d5787e0296755bf7550d4ec63` | `passed` | [run 34079205459](https://github.com/rafinel/scoops/actions/runs/34079205459) |
+| `CI-12` | Server CI (pull request) | `446b1364b7672c5d5787e0296755bf7550d4ec63` | `passed` | [run 34079207296](https://github.com/rafinel/scoops/actions/runs/34079207296) |
+| `CI-13` | Web CI (pull request) | `446b1364b7672c5d5787e0296755bf7550d4ec63` | `passed` | [run 34079207305](https://github.com/rafinel/scoops/actions/runs/34079207305) |
 
 ## History
 
@@ -211,3 +216,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | `2026-09-06` | Final merged-tree closure validation completed: path conformance passed with 146 contracted paths; root code/types/architecture passed; Core coverage passed (88 files/229 tests); Server coverage cleared all configured floors (88 files/231 tests; 73.62% statements, 54.98% branches, 72.00% functions, 76.90% lines); Web coverage passed (181 files/497 tests); Inngest passed (8 files/23 tests); focused Server tests passed (6 files/28 tests); both application builds passed; focused notification pagination passed after a transient first-run failure; and the full 200-test Web route gate passed. Evaluation is ready for PR CI. |
 | `2026-09-07` | PR CI Server coverage failed on the pre-existing mainline email Inngest tests because Mailpit is not started in the Server workflow (`ECONNREFUSED 127.0.0.1:54324` and 60-second delivery timeouts); the notification job test itself passed. The correction restores the repository’s documented split: all `src/**/messaging/inngest/jobs/tests/**/*.test.ts` suites run under `test:inngest`, while regular Server coverage excludes them. |
 | `2026-09-07` | Implement-spec CI correction completed: Server CI now maps Mailpit API/SMTP ports `54324:8025`/`54325:1025` and runs `pnpm --filter server test:inngest`; regular coverage keeps shared infrastructure job tests excluded, includes the Communication job tests, and preserves all floors. Local validation passed for the requested job (4 tests), Inngest (8 files/23 tests), and Server coverage (88 files/231 tests; 73.37% statements, 54.54% branches, 71.81% functions, 76.63% lines). Evaluation returned to ready. |
+| `2026-09-07` | Final PR CI Quality Gate passed on head `446b1364b7672c5d5787e0296755bf7550d4ec63`: Core, Validation, Server push, Server pull request, and Web pull request workflows all passed; preview deployments passed. Evaluation is complete. |

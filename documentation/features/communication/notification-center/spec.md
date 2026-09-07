@@ -1,6 +1,6 @@
 ---
 title: In-product notification center
-status: in_progress
+status: completed
 revision: 4
 source:
   type: issue
