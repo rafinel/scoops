@@ -1,6 +1,7 @@
 import './register-paths'
 
 import { NestFactory } from '@nestjs/core'
+import type { INestApplication } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import { AppModule } from '@/app.module'
@@ -9,7 +10,7 @@ import { getTrustedOrigins, isAllowedBetterAuthRoute } from '@/identity/provisio
 import { configureHttpApp } from '@/configure-http-app'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
 
-async function bootstrap() {
+export async function createApp(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModule, { bodyParser: false })
 
   const openApiConfig = new DocumentBuilder()
@@ -27,7 +28,18 @@ async function bootstrap() {
     isAllowedRoute: isAllowedBetterAuthRoute,
   })
 
+  await app.init()
+
+  return app
+}
+
+async function bootstrap() {
+  const app = await createApp()
+  const envProvider = app.get(EnvProvider)
+
   await app.listen(envProvider.get('PORT') ?? envProvider.get('SCOOPS_SERVER_APP_PORT'))
 }
 
-bootstrap()
+if (process.env.VERCEL !== '1') {
+  void bootstrap()
+}

@@ -20,6 +20,7 @@ import {
   validateOutboxEvent,
 } from '@/shared/messaging/inngest/jobs/event-validation'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
+import { EnvProvider } from '@/shared/provision/env/env-provider'
 
 const RESERVATION_BATCH_SIZE = 100
 const BACKOFF_MINUTES = [1, 5, 15, 60] as const
@@ -38,9 +39,12 @@ export class InngestBroker implements OnModuleInit, OnModuleDestroy {
     @Inject(InngestClient) private readonly inngest: InngestClient,
     @Inject(EVENTS_REPOSITORY) private readonly eventsRepository: EventsRepository,
     @Inject(DatetimeProvider) private readonly datetimeProvider: DatetimeProvider,
+    @Inject(EnvProvider) private readonly envProvider: EnvProvider,
   ) {}
 
   async onModuleInit(): Promise<void> {
+    if (this.envProvider.get('VERCEL') === '1') return
+
     let didConnect = false
     this.listener = await this.eventsRepository.subscribe(
       () => this.requestDrain(),

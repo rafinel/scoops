@@ -11,10 +11,12 @@ export const serverEnvSchema = z
     INNGEST_DEV: z.enum(['0', '1']).default('0'),
     INNGEST_BASE_URL: z
       .string()
+      .optional()
       .transform((value) => (value === '' ? undefined : value))
       .pipe(z.string().url().optional()),
     INNGEST_EVENT_KEY: z.string().optional(),
     INNGEST_SIGNING_KEY: z.string().optional(),
+    VERCEL: z.enum(['0', '1']).optional(),
     SCOOPS_SERVER_APP_MODE: z.enum(['dev', 'prod', 'stg', 'test']).default('dev'),
     SCOOPS_SERVER_APP_PORT: z.coerce.number().int().positive().default(3336),
     SCOOPS_PDV_PREVIEW_TOKEN_SECRET: z.string().min(32),

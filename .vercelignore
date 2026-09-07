@@ -1,0 +1,12 @@
+**/node_modules
+**/.turbo
+**/.cache
+**/dist
+**/.output
+**/.tanstack
+**/coverage
+**/playwright-report
+**/test-results
+**/.playwright-cli
+**/.vercel
+**/.env*

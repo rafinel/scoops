@@ -2,6 +2,9 @@ const bundledWorkspacePackages = [
   '@scoops/core',
   '@scoops/email',
   '@scoops/validation',
+  'better-auth',
+  'better-call',
+  'rou3',
 ]
 
 module.exports = (options) => {
@@ -9,6 +12,12 @@ module.exports = (options) => {
 
   return {
     ...options,
+    output: {
+      ...options.output,
+      library: {
+        type: 'commonjs2',
+      },
+    },
     resolve: {
       ...options.resolve,
       extensionAlias: {
