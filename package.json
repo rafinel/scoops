@@ -6,6 +6,7 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "biome format --write .",
+    "skills": "pnpm dlx skills experimental_install",
     "sync:commands": "node scripts/sync-commands.mjs",
     "sync:agents": "node scripts/sync-agents.mjs",
     "sync": "pnpm sync:commands && pnpm sync:agents",
