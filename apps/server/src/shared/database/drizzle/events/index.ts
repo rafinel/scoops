@@ -8,4 +8,4 @@ export type {
   EventsRepositoryListener,
   OutboxEvent,
 } from '@scoops/core/shared/interfaces'
-export type { DrizzleEvent } from '@/shared/database/drizzle/outbox/types'
+export type { DrizzleEvent } from '@/shared/database/drizzle/types'
