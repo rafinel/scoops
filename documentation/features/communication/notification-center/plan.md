@@ -1,6 +1,6 @@
 ---
 title: In-product notification center — implementation plan
-status: in_progress
+status: completed
 spec: ./spec.md
 spec_revision: 4
 evaluation: ./evaluation.md
@@ -12,9 +12,9 @@ updated_at: 2026-09-06
 
 - **Spec:** [`spec.md`](./spec.md), revision `4`, `in_progress`.
 - **Rationale:** Plan-backed execution is required because the Spec crosses Core, Validation, MRP, Identity, PDV, Communication persistence and messaging, authenticated REST, Composition, Web routing/UI, generated artifacts, migration risk, and complex full-stack/visual validation.
-- **Current phase:** `F4` — mainline EventsRepository integration correction.
-- **Next action:** Complete the merge adaptation, refresh affected Core/Server evidence, and return Evaluation to `ready` before conclusion.
-- **Active blockers:** Mainline integration correction is in progress; no product or authority blocker remains.
+- **Current phase:** `F4` — integrated validation complete.
+- **Next action:** Publish the ready candidate through `conclude-spec` and complete the PR CI Quality Gate.
+- **Active blockers:** None; PR CI is the remaining delivery gate.
 - **Builders:** `Builder Core`, `Builder Server`, and `Builder Web` completed their assigned phases. The Orchestrator owns integrated validation and evidence freshness.
 - **Shared coordination:** The Orchestrator owns root/generated artifacts and integration: the Drizzle shared-schema export and generated `0021` migration metadata, `AppModule` registration, generated `apps/web/src/routeTree.gen.ts`, shared Playwright fixture registration, package/lockfile changes, and final cross-Builder validation. Builders do not edit overlapping paths.
 - **Visual evidence:** Fresh Playwright captures are stored in ignored `apps/web/test-results/communication/` output and linked from `evaluation.md` by artifact path; feature-local `evidence/` is not part of the delivery artifact.
@@ -80,11 +80,11 @@ updated_at: 2026-09-06
 
 - **Status/owner:** `completed` — Builder Server
 - **Depends/parallel:** Depends on F1 and F2-T1; runs in parallel with F3-T2. All changes remain under Server ownership except Orchestrator-owned root/generated wiring.
-- **Paths:** `apps/server/src/communication/constants/communication-providers.ts`; `apps/server/src/communication/communication.module.ts`; `apps/server/src/communication/messaging/**`; `apps/server/src/communication/rest/**`; `apps/server/src/composition/communication-identity/**`; MRP/PDV transaction-bound stock adapter and source controller/use-case tests; Identity source use-case/controller tests; `apps/server/src/shared/messaging/outbox/event-validation.ts` and its test; `apps/server/rest-client/communication/notifications.rest`; validation-only parity checks for `apps/server/rest-client/mrp/products.rest`, `apps/server/rest-client/pdv/orders.rest`, and `apps/server/rest-client/identity/users.rest`. `apps/server/src/app.module.ts` remains Orchestrator-owned root wiring.
+- **Paths:** `apps/server/src/communication/constants/communication-providers.ts`; `apps/server/src/communication/communication.module.ts`; `apps/server/src/communication/messaging/**`; `apps/server/src/communication/rest/**`; `apps/server/src/composition/communication-identity/**`; MRP/PDV transaction-bound stock adapter and source controller/use-case tests; Identity source use-case/controller tests; `apps/server/src/shared/messaging/inngest/jobs/event-validation.ts` and its test; `apps/server/rest-client/communication/notifications.rest`; validation-only parity checks for `apps/server/rest-client/mrp/products.rest`, `apps/server/rest-client/pdv/orders.rest`, and `apps/server/rest-client/identity/users.rest`. `apps/server/src/app.module.ts` remains Orchestrator-owned root wiring.
 - **Contract:** Spec §3 runtime boundary, Composition, REST, Messaging, MRP/PDV provision, and source-controller tables; `RF-01`–`RF-07`, `RF-13`; `CA-01`–`CA-07`, `CA-14`; `MV-03`–`MV-05`.
 - **Outcome:** Source transactions lock/order products and enqueue authoritative facts atomically; the typed five-trigger job validates/maps and materializes retry-safely through the Composition audience bridge; authenticated GET/PATCH controllers enforce account-derived tenant/recipient isolation; the Communication route group is wired and all affected `.rest` artifacts are route-complete.
-- **Rules:** `documentation/rules/messaging-layer-rules.md` (Core events, authoritative publishers, typed schemas, Inngest jobs, transaction-bound Broker/outbox); `documentation/rules/provision-layer-rules.md` (Core contracts, composition adapters, transaction-bound providers); `documentation/rules/rest-layer-rules.md` (group decorator, one controller per action, request types, Swagger/error boundary, REST client); `documentation/rules/server-app-layer-rules.md` (feature modules, provision/messaging ownership, Composition); `documentation/rules/controllers-testing-rules.md` (real HTTP/database fixture, one file per controller, persistence/security assertions); `documentation/rules/code-conventions-rules.md`. No dedicated `Antipatterns to Avoid` subsection exists in these rule documents.
-- **Exit:** Run focused Core/server source, messaging, validation, controller, and fixture suites plus `pnpm --filter server check:code`, `pnpm --filter server check:types`, and `pnpm --filter server build`. Verify real request/response, persisted notification/read state, authorization/tenant isolation, broker rollback, outbox event IDs, job retry/idempotency, and all `.rest` examples against both current controller routes and shared request schemas: one labeled request per GET/PATCH operation/variant, reusable local `@baseUrl`, no credentials, and no stale method/path/query/body/header.
+- **Rules:** `documentation/rules/messaging-layer-rules.md` (Core events, authoritative publishers, typed schemas, Inngest jobs, transaction-bound EventsRepository/events); `documentation/rules/provision-layer-rules.md` (Core contracts, composition adapters, transaction-bound providers); `documentation/rules/rest-layer-rules.md` (group decorator, one controller per action, request types, Swagger/error boundary, REST client); `documentation/rules/server-app-layer-rules.md` (feature modules, provision/messaging ownership, Composition); `documentation/rules/controllers-testing-rules.md` (real HTTP/database fixture, one file per controller, persistence/security assertions); `documentation/rules/code-conventions-rules.md`. No dedicated `Antipatterns to Avoid` subsection exists in these rule documents.
+- **Exit:** Run focused Core/server source, messaging, validation, controller, and fixture suites plus `pnpm --filter server check:code`, `pnpm --filter server check:types`, and `pnpm --filter server build`. Verify real request/response, persisted notification/read state, authorization/tenant isolation, EventsRepository rollback, event IDs, job retry/idempotency, and all `.rest` examples against both current controller routes and shared request schemas: one labeled request per GET/PATCH operation/variant, reusable local `@baseUrl`, no credentials, and no stale method/path/query/body/header.
 
 #### F3-T2 — Implement notification dropdown, page, route, fixtures, and browser coverage
 
@@ -115,7 +115,7 @@ updated_at: 2026-09-06
 | Automated | Complete affected-path map | All RF/CA paths | Spec Technical Contract | `./evaluation.md` — `pnpm check:spec-implementation -- documentation/features/communication/notification-center/spec.md` | `passed` |
 | Automated | Test-integrity policy | `CA-01`–`CA-14` | Spec EV-01 | `./evaluation.md` — `pnpm check:test-integrity` (unrelated pre-existing failures classified) | `passed` |
 | Automated | Core domain, source transitions, and Identity event behavior | `CA-01`–`CA-08`, `CA-14` | Spec EV-02 | `./evaluation.md` — `pnpm --filter @scoops/core test:coverage` | `passed` |
-| Automated | Server database, REST, jobs, source transactions, and outbox | `CA-01`–`CA-08`, `CA-14` | Spec EV-03 | `./evaluation.md` — `pnpm --filter server test:coverage` | `passed` |
+| Automated | Server database, REST, jobs, source transactions, and events | `CA-01`–`CA-08`, `CA-14` | Spec EV-03 | `./evaluation.md` — `pnpm --filter server test:coverage` | `passed with isolated unrelated timing flake` |
 | Automated | Web widgets, hooks, route mocks, accessibility, and responsive behavior | `CA-08`–`CA-14` | Spec EV-04 | `./evaluation.md` — `pnpm --filter web test:coverage` | `passed` |
 | Runtime | Real source mutation → outbox → Communication materialization | `CA-01`–`CA-05`, `CA-14` | `MV-03`, `MV-04`; Integration Contract | `./evaluation.md` with persisted source/outbox/notification records | `passed` |
 | Runtime | Real private list/read HTTP and tenant/user isolation | `CA-06`–`CA-08` | `MV-05`; REST Contract | `./evaluation.md` with response bodies and persisted read timestamps | `passed` |

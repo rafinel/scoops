@@ -66,10 +66,7 @@ describe('Register Product Controller [POST /products]', () => {
       balanceAfter: 5,
       performedByName: 'Maria Manager',
     })
-    const events = await findEvents(
-      fixture,
-      ProductStockAlertStateEnteredEvent._NAME,
-    )
+    const events = await findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME)
     expect(events).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -152,10 +149,7 @@ describe('Register Product Controller [POST /products]', () => {
       'Callebaut',
       'Sicao',
     ])
-    const events = await findEvents(
-      fixture,
-      ProductStockAlertStateEnteredEvent._NAME,
-    )
+    const events = await findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME)
     expect(events).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   ProductCategory,
   ProductStatus,
@@ -9,6 +9,7 @@ import {
 } from '@scoops/core/mrp/domain/structures'
 import { ProductStockAlertStateEnteredEvent } from '@scoops/core/mrp/domain/events'
 import { AppError, ServiceUnavailableError } from '@scoops/core/shared/domain/errors'
+import { eq } from 'drizzle-orm'
 
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import {
@@ -17,6 +18,18 @@ import {
   preparePdvFixture,
   resetPdvFixture,
 } from '@/pdv/fixtures/pdv-module-fixture'
+import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
+import { eventModel } from '@/shared/database/drizzle/models/event-model'
+import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
+
+async function findEvents(fixture: PdvModuleFixture, eventName: string) {
+  return fixture
+    .get(DrizzleClient)
+    .requireDatabase()
+    .select()
+    .from(eventModel)
+    .where(eq(eventModel.eventName, eventName))
+}
 
 describe('Register Order Controller [POST /orders]', () => {
   let fixture: PdvModuleFixture
@@ -89,10 +102,10 @@ describe('Register Order Controller [POST /orders]', () => {
     expect(replay.status).toBe(200)
     expect(replay.body).toMatchObject({ kind: 'registered', replayed: true })
     expect(replay.body.order).toEqual(first.body.order)
-    expect(fixture.broker.events).toEqual(
+    const events = await findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME)
+    expect(events).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          name: ProductStockAlertStateEnteredEvent._NAME,
           payload: expect.objectContaining({
             productId: product.id,
             state: 'below-ideal',
@@ -282,10 +295,9 @@ describe('Register Order Controller [POST /orders]', () => {
       .post('/orders/preview')
       .set('Cookie', managerRequestAuthorization())
       .send({ lines })
-    const originalPublish = fixture.broker.publish.bind(fixture.broker)
-    fixture.broker.publish = async () => {
-      throw new Error('Injected notification publication failure.')
-    }
+    const addSpy = vi
+      .spyOn(DrizzleEventsRepository.prototype, 'add')
+      .mockRejectedValueOnce(new Error('Injected notification publication failure.'))
 
     try {
       const response = await request(fixture.app.getHttpServer())
@@ -318,7 +330,7 @@ describe('Register Order Controller [POST /orders]', () => {
         }),
       ).resolves.toMatchObject({ total: 0 })
     } finally {
-      fixture.broker.publish = originalPublish
+      addSpy.mockRestore()
     }
   })
 

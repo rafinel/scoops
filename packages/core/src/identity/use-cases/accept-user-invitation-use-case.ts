@@ -95,11 +95,11 @@ export class AcceptUserInvitationUseCase implements UseCase<Request, AuthUser> {
         })
         await eventsRepository.add(
           new UserInvitationAcceptedEvent({
-          userId: updated.id,
-          establishmentId: updated.establishmentId,
-          email: updated.email,
-          userName: updated.name,
-          profile: updated.profile,
+            userId: updated.id,
+            establishmentId: updated.establishmentId,
+            email: updated.email,
+            userName: updated.name,
+            profile: updated.profile,
             occurredAt: now,
           }),
         )

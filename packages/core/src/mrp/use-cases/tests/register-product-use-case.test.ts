@@ -122,7 +122,10 @@ describe('Register Product Use Case', () => {
       1,
       expect.any(ProductStockAlertStateEnteredEvent),
     )
-    expect(eventsRepository.add).toHaveBeenNthCalledWith(2, expect.any(ProductCreatedEvent))
+    expect(eventsRepository.add).toHaveBeenNthCalledWith(
+      2,
+      expect.any(ProductCreatedEvent),
+    )
   })
 
   it('persists when a product allows negative stock', async () => {

@@ -3,6 +3,7 @@ import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Brand } from '#mrp/domain/entities/brand.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
+import { ProductStockAlertStateEnteredEvent } from '#mrp/domain/events/product-stock-alert-state-entered-event.ts'
 import {
   ProductCategory,
   ProductStatus,
@@ -38,6 +39,7 @@ const product: Product = {
   stockControl: ProductStockControl.Single,
   status: ProductStatus.Active,
   allowNegativeStock: false,
+  idealStock: 10,
   createdAt: new Date(),
   updatedAt: new Date(),
 }
@@ -70,6 +72,7 @@ describe('Adjust Product Stock Use Case', () => {
       quantity: 8,
       situation: StockSituation.Normal,
     })
+    scope.stockBalancesRepository.findManyByProductId.mockResolvedValue([])
     useCase = new AdjustProductStockUseCase(database, datetime)
   })
   it('atomically applies entry and write-off and records one transaction', async () => {
@@ -94,6 +97,7 @@ describe('Adjust Product Stock Use Case', () => {
     expect(scope.stockTransactionsRepository.add.mock.calls[0][0]).not.toHaveProperty(
       'justification',
     )
+    expect(scope.productsRepository.findByIdForUpdate).toHaveBeenCalledWith('e1', 'p1')
     await useCase.execute({
       actor,
       productId: 'p1',
@@ -105,6 +109,69 @@ describe('Adjust Product Stock Use Case', () => {
       0,
     )
     expect(scope.stockTransactionsRepository.add).toHaveBeenCalledTimes(2)
+  })
+
+  it('publishes only normal-to-alert transitions', async () => {
+    scope.stockBalancesRepository.findManyByProductId
+      .mockResolvedValueOnce([
+        { productId: 'p1', quantity: 10, situation: StockSituation.Normal },
+      ])
+      .mockResolvedValueOnce([
+        { productId: 'p1', quantity: 9, situation: StockSituation.Normal },
+      ])
+      .mockResolvedValueOnce([
+        { productId: 'p1', quantity: 9, situation: StockSituation.Normal },
+      ])
+      .mockResolvedValueOnce([
+        { productId: 'p1', quantity: 8, situation: StockSituation.Normal },
+      ])
+
+    await useCase.execute({
+      actor,
+      productId: 'p1',
+      input: { type: StockAdjustmentType.WriteOff, quantity: 1 },
+    })
+    await useCase.execute({
+      actor,
+      productId: 'p1',
+      input: { type: StockAdjustmentType.WriteOff, quantity: 1 },
+    })
+
+    expect(scope.eventsRepository.add).toHaveBeenCalledTimes(1)
+    expect(scope.eventsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: ProductStockAlertStateEnteredEvent._NAME,
+        payload: expect.objectContaining({
+          productId: 'p1',
+          state: 'below-ideal',
+          availableQuantity: 9,
+          idealQuantity: 10,
+        }),
+      }),
+    )
+    expect(scope.productsRepository.findByIdForUpdate).toHaveBeenCalledTimes(2)
+  })
+
+  it('propagates alert persistence failures so the transaction can roll back', async () => {
+    scope.stockBalancesRepository.findManyByProductId
+      .mockResolvedValueOnce([
+        { productId: 'p1', quantity: 10, situation: StockSituation.Normal },
+      ])
+      .mockResolvedValueOnce([
+        { productId: 'p1', quantity: 9, situation: StockSituation.Normal },
+      ])
+    const error = new Error('event persistence failed')
+    scope.eventsRepository.add.mockRejectedValue(error)
+
+    await expect(
+      useCase.execute({
+        actor,
+        productId: 'p1',
+        input: { type: StockAdjustmentType.WriteOff, quantity: 1 },
+      }),
+    ).rejects.toBe(error)
+    expect(scope.stockTransactionsRepository.add).toHaveBeenCalledTimes(1)
+    expect(database.run).toHaveBeenCalledTimes(1)
   })
   it('validates target and negative-stock policy', async () => {
     await expect(

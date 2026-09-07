@@ -13,6 +13,7 @@ import {
   ProductStockControl,
   StockSituation,
 } from '#mrp/domain/structures/index.ts'
+import { ProductStockAlertStateEnteredEvent } from '#mrp/domain/events/product-stock-alert-state-entered-event.ts'
 import type {
   MrpDatabase,
   MrpDatabaseRepositories,
@@ -26,6 +27,7 @@ const product = ProductFaker.fake({
   name: 'Cake',
   categories: [ProductCategory.Manufacturable],
   stockControl: ProductStockControl.Single,
+  idealStock: 10,
 })
 const ingredient = ProductFaker.fake({
   id: 'ingredient-1',
@@ -34,6 +36,7 @@ const ingredient = ProductFaker.fake({
   categories: [ProductCategory.Ingredient],
   stockControl: ProductStockControl.Single,
   currentUnitCost: 2,
+  idealStock: 5,
 })
 
 describe('Register Production Use Case', () => {
@@ -71,6 +74,9 @@ describe('Register Production Use Case', () => {
       quantity: 10,
       situation: StockSituation.Normal,
     }))
+    scope.stockBalancesRepository.findManyByProductId.mockResolvedValue([
+      { productId: ingredient.id, quantity: 5, situation: StockSituation.Normal },
+    ])
     scope.stockBalancesRepository.add.mockResolvedValue({
       productId: ingredient.id,
       quantity: 8,
@@ -96,6 +102,19 @@ describe('Register Production Use Case', () => {
   })
 
   it('atomically records production, snapshots, and correlated movements', async () => {
+    scope.stockBalancesRepository.findManyByProductId
+      .mockResolvedValueOnce([
+        { productId: ingredient.id, quantity: 5, situation: StockSituation.Normal },
+      ])
+      .mockResolvedValueOnce([
+        { productId: product.id, quantity: 10, situation: StockSituation.Normal },
+      ])
+      .mockResolvedValueOnce([
+        { productId: ingredient.id, quantity: 3, situation: StockSituation.Normal },
+      ])
+      .mockResolvedValueOnce([
+        { productId: product.id, quantity: 10, situation: StockSituation.Normal },
+      ])
     const result = await useCase.execute({
       actor: {
         id: 'manager-1',
@@ -113,5 +132,58 @@ describe('Register Production Use Case', () => {
       ]),
     )
     expect(scope.stockTransactionsRepository.add).toHaveBeenCalledTimes(2)
+    expect(scope.productsRepository.findByIdForUpdate).toHaveBeenCalledWith(
+      product.establishmentId,
+      ingredient.id,
+    )
+    expect(scope.productsRepository.findByIdForUpdate).toHaveBeenCalledWith(
+      product.establishmentId,
+      product.id,
+    )
+    expect(scope.eventsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: ProductStockAlertStateEnteredEvent._NAME,
+        payload: expect.objectContaining({
+          productId: ingredient.id,
+          state: 'below-ideal',
+          availableQuantity: 3,
+          idealQuantity: 5,
+        }),
+      }),
+    )
+  })
+
+  it('propagates alert persistence failures so production can roll back', async () => {
+    scope.stockBalancesRepository.findManyByProductId
+      .mockResolvedValueOnce([
+        { productId: ingredient.id, quantity: 5, situation: StockSituation.Normal },
+      ])
+      .mockResolvedValueOnce([
+        { productId: product.id, quantity: 10, situation: StockSituation.Normal },
+      ])
+      .mockResolvedValueOnce([
+        { productId: ingredient.id, quantity: 3, situation: StockSituation.Normal },
+      ])
+      .mockResolvedValueOnce([
+        { productId: product.id, quantity: 10, situation: StockSituation.Normal },
+      ])
+    const error = new Error('event persistence failed')
+    scope.eventsRepository.add.mockRejectedValue(error)
+
+    await expect(
+      useCase.execute({
+        actor: {
+          id: 'manager-1',
+          name: 'Manager',
+          establishmentId: product.establishmentId,
+          profile: UserProfile.Manager,
+        },
+        productId: product.id,
+        input: { quantity: 2 },
+      }),
+    ).rejects.toBe(error)
+    expect(scope.productsRepository.findByIdForUpdate).toHaveBeenCalledTimes(2)
+    expect(scope.productionIngredientsRepository.addMany).toHaveBeenCalledTimes(1)
+    expect(scope.eventsRepository.add).toHaveBeenCalledTimes(1)
   })
 })

@@ -110,10 +110,7 @@ export class RegisterProductionUseCase implements UseCase<Request, Production> {
               request.actor.establishmentId,
               productId,
             )) ??
-            (await productsRepository.findById(
-              request.actor.establishmentId,
-              productId,
-            ))
+            (await productsRepository.findById(request.actor.establishmentId, productId))
           if (!lockedProduct) {
             if (productId === productBeforeLock.id)
               throw new NotFoundError('Produto não encontrado.')

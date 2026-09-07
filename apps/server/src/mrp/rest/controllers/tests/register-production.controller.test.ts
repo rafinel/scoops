@@ -74,10 +74,7 @@ describe('Register Production Controller [POST /products/:productId/productions]
         balanceAfter: 4,
       },
     ])
-    const events = await findEvents(
-      fixture,
-      ProductStockAlertStateEnteredEvent._NAME,
-    )
+    const events = await findEvents(fixture, ProductStockAlertStateEnteredEvent._NAME)
     expect(events).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

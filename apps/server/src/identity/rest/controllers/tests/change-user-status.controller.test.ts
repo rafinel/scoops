@@ -5,13 +5,23 @@ import {
 } from '@scoops/core/identity/domain/events'
 import { UserFaker } from '@scoops/core/identity/domain/entities/fakers'
 import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
+import { eq } from 'drizzle-orm'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixture'
 import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
-import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
-import { InngestMock } from '@/shared/messaging/inngest/inngest-mock'
+import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
+import { eventModel } from '@/shared/database/drizzle/models/event-model'
+
+async function findEvents(fixture: IdentityModuleFixture, eventName: string) {
+  return fixture
+    .get(DrizzleClient)
+    .requireDatabase()
+    .select()
+    .from(eventModel)
+    .where(eq(eventModel.eventName, eventName))
+}
 describe('Change User Status Controller [PATCH /users/:userId/status]', () => {
   const { establishmentId, managerId, managerToken, operatorId } =
     IdentityModuleFixture.userManagement
@@ -58,11 +68,10 @@ describe('Change User Status Controller [PATCH /users/:userId/status]', () => {
     await expect(
       fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users).findById(operatorId),
     ).resolves.toMatchObject({ status: UserStatus.Inactive })
-    const broker = fixture.get(InngestBroker) as unknown as InngestMock
-    expect(broker.events).toEqual(
+    const inactivatedEvents = await findEvents(fixture, UserInactivatedEvent._NAME)
+    expect(inactivatedEvents).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          name: UserInactivatedEvent._NAME,
           payload: expect.objectContaining({
             userId: operatorId,
             userName: 'Operator',
@@ -80,10 +89,10 @@ describe('Change User Status Controller [PATCH /users/:userId/status]', () => {
     expect(active.status).toBe(200)
     expect(active.body.user.status).toBe(UserStatus.Active)
     expect(active.body.auditRecords).toHaveLength(2)
-    expect(broker.events).toEqual(
+    const reactivatedEvents = await findEvents(fixture, UserReactivatedEvent._NAME)
+    expect(reactivatedEvents).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          name: UserReactivatedEvent._NAME,
           payload: expect.objectContaining({
             userId: operatorId,
             userName: 'Operator',
@@ -95,22 +104,16 @@ describe('Change User Status Controller [PATCH /users/:userId/status]', () => {
         }),
       ]),
     )
-    const eventCount = broker.events.filter(
-      (event) =>
-        event.name === UserInactivatedEvent._NAME ||
-        event.name === UserReactivatedEvent._NAME,
-    ).length
+    const eventCount = inactivatedEvents.length + reactivatedEvents.length
     const noOp = await request(fixture.app.getHttpServer())
       .patch(url)
       .set('Cookie', betterAuthFixture.cookieFor())
       .send({ status: UserStatus.Active })
     expect(noOp.status).toBe(200)
-    expect(
-      broker.events.filter(
-        (event) =>
-          event.name === UserInactivatedEvent._NAME ||
-          event.name === UserReactivatedEvent._NAME,
-      ),
-    ).toHaveLength(eventCount)
+    const eventsAfterNoOp = await Promise.all([
+      findEvents(fixture, UserInactivatedEvent._NAME),
+      findEvents(fixture, UserReactivatedEvent._NAME),
+    ])
+    expect(eventsAfterNoOp[0].length + eventsAfterNoOp[1].length).toBe(eventCount)
   })
 })
