@@ -24,7 +24,7 @@ export class ResendEmailProvider implements EmailProvider {
     // a real key only when Resend is selected, while local SMTP mode keeps this adapter unused.
     this.client =
       client ?? new Resend(envProvider.get('RESEND_API_KEY') ?? 're_placeholder')
-    this.sender = envProvider.get('EMAIL_FROM')
+    this.sender = envProvider.get('SCOOPS_EMAIL_SENDER')
   }
 
   async send(message: EmailMessage): Promise<EmailDelivery> {

@@ -121,12 +121,12 @@ export class CommunicationModuleFixture {
       provider: process.env.SCOOPS_EMAIL_PROVIDER,
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
-      from: process.env.EMAIL_FROM,
+      from: process.env.SCOOPS_EMAIL_SENDER,
     }
     process.env.SCOOPS_EMAIL_PROVIDER = 'smtp'
     process.env.SMTP_HOST = '127.0.0.1'
     process.env.SMTP_PORT = '54325'
-    process.env.EMAIL_FROM = 'no-reply@scoops.local'
+    process.env.SCOOPS_EMAIL_SENDER = 'no-reply@scoops.local'
 
     let restFixture: RestFixture | undefined
     const inngestFixture = new InngestFixture({
@@ -335,7 +335,10 @@ export class CommunicationModuleFixture {
     )
     CommunicationModuleFixture.restoreEnvironmentVariable('SMTP_HOST', environment.host)
     CommunicationModuleFixture.restoreEnvironmentVariable('SMTP_PORT', environment.port)
-    CommunicationModuleFixture.restoreEnvironmentVariable('EMAIL_FROM', environment.from)
+    CommunicationModuleFixture.restoreEnvironmentVariable(
+      'SCOOPS_EMAIL_SENDER',
+      environment.from,
+    )
   }
 
   private static restoreEnvironmentVariable(key: string, value: string | undefined) {

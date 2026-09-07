@@ -511,7 +511,7 @@ manual requeue pass the IDs they changed to `wake` after their database transact
 | `SCOOPS_EMAIL_PROVIDER` | `smtp` in `dev`/`test`; `resend` in `stg`/`prod` |
 | `SMTP_HOST`, `SMTP_PORT` | Local Mailpit connection; defaults `127.0.0.1` and `54325` |
 | `RESEND_API_KEY` | Required only for `resend`; server secret |
-| `EMAIL_FROM` | Required sender identity in every mode; a verified domain is required for Resend |
+| `SCOOPS_EMAIL_SENDER` | Required sender identity in every mode; a verified domain is required for Resend |
 
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, browser Supabase variables, and
 Supabase JWT settings are deleted. No legacy source credentials or cutover command is part of the

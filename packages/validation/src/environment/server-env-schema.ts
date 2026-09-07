@@ -27,7 +27,7 @@ export const serverEnvSchema = z
     SMTP_HOST: z.string().default('127.0.0.1'),
     SMTP_PORT: z.coerce.number().int().positive().default(54325),
     RESEND_API_KEY: z.string().optional(),
-    EMAIL_FROM: z.string().email(),
+    SCOOPS_EMAIL_SENDER: z.string().email(),
   })
   .superRefine((environment, context) => {
     const expectedProvider =

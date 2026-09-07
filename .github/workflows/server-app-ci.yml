@@ -49,7 +49,7 @@ jobs:
       INNGEST_BASE_URL: http://127.0.0.1:8288
       SCOOPS_PDV_PREVIEW_TOKEN_SECRET: scoops-ci-preview-token-secret-at-least-32-characters
       BETTER_AUTH_SECRET: scoops-ci-better-auth-secret-at-least-32-characters
-      EMAIL_FROM: no-reply@scoops.local
+      SCOOPS_EMAIL_SENDER: no-reply@scoops.local
 
     steps:
       - name: Checkout

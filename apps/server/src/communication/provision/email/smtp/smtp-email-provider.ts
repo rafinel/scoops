@@ -27,7 +27,7 @@ export class SmtpEmailProvider implements EmailProvider {
         port: envProvider.get('SMTP_PORT'),
         secure: false,
       })
-    this.sender = envProvider.get('EMAIL_FROM')
+    this.sender = envProvider.get('SCOOPS_EMAIL_SENDER')
   }
 
   async send(message: EmailMessage): Promise<EmailDelivery> {
