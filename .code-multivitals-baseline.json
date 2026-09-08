@@ -56705,23 +56705,23 @@
         {
           "name": "assertConfiguredCookieContract",
           "startLine": 133,
-          "endLine": 161,
+          "endLine": 148,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 12,
+              "value": 6,
               "threshold": 15,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 9,
+              "value": 5,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 27,
+              "value": 14,
               "threshold": 70,
               "severity": "ok"
             },
@@ -56733,26 +56733,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 707.02,
+              "value": 287.34,
               "threshold": 800,
-              "severity": "warn"
+              "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 47.2,
+          "maintainabilityIndex": 57,
           "maintainabilityRating": "warn",
-          "healthScore": 48,
-          "smells": [
-            {
-              "id": "fragile",
-              "label": "Fragile",
-              "reason": "High cyclomatic complexity (12) with low MI (47.2) — many branches and hard to maintain safely."
-            }
-          ]
+          "healthScore": 69,
+          "smells": []
         },
         {
           "name": "parseSetCookie",
-          "startLine": 173,
-          "endLine": 182,
+          "startLine": 160,
+          "endLine": 169,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -56792,8 +56786,8 @@
         },
         {
           "name": "parseSetCookieAttributes",
-          "startLine": 184,
-          "endLine": 198,
+          "startLine": 171,
+          "endLine": 185,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -56839,8 +56833,8 @@
         },
         {
           "name": "hasValidLifetime",
-          "startLine": 200,
-          "endLine": 208,
+          "startLine": 187,
+          "endLine": 195,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -56880,8 +56874,8 @@
         },
         {
           "name": "matchesCookieContract",
-          "startLine": 210,
-          "endLine": 235,
+          "startLine": 197,
+          "endLine": 222,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -56924,53 +56918,12 @@
               "reason": "High cyclomatic complexity (12) with low MI (48.7) — many branches and hard to maintain safely."
             }
           ]
-        },
-        {
-          "name": "isSharedParentDomain",
-          "startLine": 250,
-          "endLine": 265,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 6,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 5,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 16,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 261.52,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 56,
-          "maintainabilityRating": "warn",
-          "healthScore": 69,
-          "smells": []
         }
       ],
       "summary": {
-        "totalLines": 266,
-        "weightedMI": 55,
-        "weightedHealthScore": 62.5,
+        "totalLines": 236,
+        "weightedMI": 56.2,
+        "weightedHealthScore": 64.6,
         "worstSeverity": "error",
         "smellIds": [
           "god-function",
@@ -57025,23 +56978,23 @@
         {
           "name": "createBetterAuth",
           "startLine": 50,
-          "endLine": 159,
+          "endLine": 151,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 13,
+              "value": 9,
               "threshold": 15,
               "severity": "warn"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 4,
+              "value": 1,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 105,
+              "value": 97,
               "threshold": 70,
               "severity": "error"
             },
@@ -57053,20 +57006,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 1142.74,
+              "value": 867.55,
               "threshold": 800,
               "severity": "error"
             }
           ],
-          "maintainabilityIndex": 32.7,
+          "maintainabilityIndex": 34.9,
           "maintainabilityRating": "warn",
-          "healthScore": 41,
+          "healthScore": 51,
           "smells": []
         },
         {
           "name": "before",
-          "startLine": 137,
-          "endLine": 146,
+          "startLine": 129,
+          "endLine": 138,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -57106,9 +57059,9 @@
         }
       ],
       "summary": {
-        "totalLines": 166,
-        "weightedMI": 42.8,
-        "weightedHealthScore": 53.2,
+        "totalLines": 158,
+        "weightedMI": 44.8,
+        "weightedHealthScore": 60.8,
         "worstSeverity": "error",
         "smellIds": []
       }
@@ -60051,8 +60004,8 @@
       "functions": [
         {
           "name": "handle",
-          "startLine": 38,
-          "endLine": 63,
+          "startLine": 40,
+          "endLine": 65,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -60092,9 +60045,9 @@
         }
       ],
       "summary": {
-        "totalLines": 69,
-        "weightedMI": 60.6,
-        "weightedHealthScore": 81,
+        "totalLines": 79,
+        "weightedMI": 61.8,
+        "weightedHealthScore": 81.5,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -70656,24 +70609,24 @@
       "functions": [
         {
           "name": "onModuleInit",
-          "startLine": 45,
-          "endLine": 58,
+          "startLine": 43,
+          "endLine": 54,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 3,
+              "value": 2,
               "threshold": 15,
               "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 2,
+              "value": 1,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 14,
+              "value": 12,
               "threshold": 70,
               "severity": "ok"
             },
@@ -70685,20 +70638,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 112.59,
+              "value": 60.94,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 60.2,
+          "maintainabilityIndex": 63.7,
           "maintainabilityRating": "warn",
-          "healthScore": 79,
+          "healthScore": 83,
           "smells": []
         },
         {
           "name": "requestDrain",
-          "startLine": 66,
-          "endLine": 80,
+          "startLine": 62,
+          "endLine": 76,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70738,8 +70691,8 @@
         },
         {
           "name": "drain",
-          "startLine": 82,
-          "endLine": 97,
+          "startLine": 78,
+          "endLine": 93,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70779,8 +70732,8 @@
         },
         {
           "name": "publishEvent",
-          "startLine": 99,
-          "endLine": 142,
+          "startLine": 95,
+          "endLine": 138,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70826,8 +70779,8 @@
         },
         {
           "name": "emitBacklogSignal",
-          "startLine": 144,
-          "endLine": 155,
+          "startLine": 140,
+          "endLine": 151,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70867,9 +70820,9 @@
         }
       ],
       "summary": {
-        "totalLines": 166,
+        "totalLines": 162,
         "weightedMI": 59.3,
-        "weightedHealthScore": 74.8,
+        "weightedHealthScore": 75,
         "worstSeverity": "warn",
         "smellIds": [
           "bloated"

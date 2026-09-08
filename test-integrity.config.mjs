@@ -15,6 +15,7 @@ export default {
     ],
     allowed: [
       'apps/web/src/constants/browser-env.ts',
+      'apps/server/src/configure-http-app.ts',
       'apps/server/src/**/messaging/**/jobs/*.ts',
       'apps/server/src/**/messaging/outbox/*.ts',
       'apps/server/src/**/database/cutover/**/*.ts',
