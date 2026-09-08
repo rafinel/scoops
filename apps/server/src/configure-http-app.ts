@@ -62,7 +62,7 @@ export async function sanitizeBetterAuthResponse(
   if (!new URL(request.url).pathname.endsWith('/sign-in/email')) return resolved
   if (!resolved.headers.get('content-type')?.includes('application/json')) return resolved
 
-  const body = await resolved.json()
+  const body = await resolved.clone().json()
   if (!body || typeof body !== 'object' || !('token' in body)) return resolved
 
   const { token: _token, ...sanitized } = body as Record<string, unknown>

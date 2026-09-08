@@ -1,9 +1,9 @@
-@baseUrl = http://localhost:3336
 @sessionCookie = replace-with-scoops-session-cookie
 
 ### Sign in with the seeded Manager account
 POST {{baseUrl}}/api/auth/sign-in/email
 Content-Type: application/json
+Origin: {{webOrigin}}
 
 {
   "email": "{{seedEmail}}",
@@ -27,6 +27,7 @@ Content-Type: application/json
 ### Sign out the current device
 POST {{baseUrl}}/api/auth/sign-out
 Cookie: {{sessionCookie}}
+Origin: {{webOrigin}}
 
 ### Request password recovery (non-enumerating)
 POST {{baseUrl}}/registration-attempts/password-recovery
