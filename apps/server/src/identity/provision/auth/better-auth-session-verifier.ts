@@ -23,6 +23,11 @@ const ALLOWED_SET_COOKIE_ATTRIBUTES = new Set([
   'secure',
 ])
 
+type ParsedSetCookie = {
+  nameValue: string
+  attributes: Map<string, string | true>
+}
+
 export type VerifiedBetterAuthSession = {
   session: AuthSession
   token: string
@@ -159,54 +164,81 @@ export class BetterAuthSessionVerifier {
     value: string,
     cookie: ReturnType<typeof getCookies>['sessionToken'],
   ): boolean {
+    const parsedCookie = this.parseSetCookie(value, cookie.name)
+    if (!parsedCookie || !this.hasValidLifetime(parsedCookie.attributes)) return false
+
+    return this.matchesCookieContract(parsedCookie, cookie)
+  }
+
+  private parseSetCookie(value: string, cookieName: string): ParsedSetCookie | undefined {
     const [nameValue, ...attributeParts] = value.split(';').map((part) => part.trim())
     const separator = nameValue?.indexOf('=') ?? -1
-    if (separator <= 0 || nameValue.slice(0, separator) !== cookie.name) return false
+    if (separator <= 0 || nameValue.slice(0, separator) !== cookieName) return undefined
 
+    const attributes = this.parseSetCookieAttributes(attributeParts)
+    if (!attributes) return undefined
+
+    return { nameValue, attributes }
+  }
+
+  private parseSetCookieAttributes(
+    parts: string[],
+  ): Map<string, string | true> | undefined {
     const attributes = new Map<string, string | true>()
-    for (const part of attributeParts) {
-      if (!part) return false
-      const attributeSeparator = part.indexOf('=')
-      const name = (
-        attributeSeparator === -1 ? part : part.slice(0, attributeSeparator)
-      ).toLowerCase()
-      const attributeValue =
-        attributeSeparator === -1 ? true : part.slice(attributeSeparator + 1)
+    for (const part of parts) {
+      if (!part) return undefined
+      const separator = part.indexOf('=')
+      const name = (separator === -1 ? part : part.slice(0, separator)).toLowerCase()
+      const attributeValue = separator === -1 ? true : part.slice(separator + 1)
       if (!name || attributes.has(name) || !ALLOWED_SET_COOKIE_ATTRIBUTES.has(name))
-        return false
+        return undefined
       attributes.set(name, attributeValue)
     }
+    return attributes
+  }
 
-    const expectedDomain = cookie.attributes.domain?.replace(/^\./, '').toLowerCase()
-    const domain = attributes.get('domain')
-    const secure = attributes.get('secure')
-    const httpOnly = attributes.get('httponly')
-    const sameSite = attributes.get('samesite')
-    const path = attributes.get('path')
+  private hasValidLifetime(attributes: Map<string, string | true>): boolean {
     const expires = attributes.get('expires')
     const maxAge = attributes.get('max-age')
-    if (
-      (expires !== undefined &&
-        (typeof expires !== 'string' || Number.isNaN(Date.parse(expires)))) ||
-      (maxAge !== undefined && (typeof maxAge !== 'string' || !/^-?\d+$/.test(maxAge)))
+    return (
+      (expires === undefined ||
+        (typeof expires === 'string' && !Number.isNaN(Date.parse(expires)))) &&
+      (maxAge === undefined || (typeof maxAge === 'string' && /^-?\d+$/.test(maxAge)))
     )
-      return false
+  }
 
-    const cookieValue = nameValue.slice(separator + 1)
-    const isExpired =
-      maxAge === '0' || (typeof expires === 'string' && Date.parse(expires) <= Date.now())
+  private matchesCookieContract(
+    parsedCookie: ParsedSetCookie,
+    cookie: ReturnType<typeof getCookies>['sessionToken'],
+  ): boolean {
+    const separator = parsedCookie.nameValue.indexOf('=')
+    const cookieValue = parsedCookie.nameValue.slice(separator + 1)
+    const { attributes } = parsedCookie
+    const expectedDomain = cookie.attributes.domain?.replace(/^\./, '').toLowerCase()
+    const domain = attributes.get('domain')
+    const isExpired = this.isExpiredCookie(attributes)
 
     return (
-      path === '/' &&
-      httpOnly === true &&
-      sameSite === 'Lax' &&
-      (cookie.attributes.secure ? secure === true : secure === undefined) &&
+      attributes.get('path') === '/' &&
+      attributes.get('httponly') === true &&
+      attributes.get('samesite') === 'Lax' &&
+      (cookie.attributes.secure
+        ? attributes.get('secure') === true
+        : attributes.get('secure') === undefined) &&
       (expectedDomain
         ? typeof domain === 'string' &&
           domain.replace(/^\./, '').toLowerCase() === expectedDomain
         : domain === undefined) &&
       (cookieValue.length > 0 || isExpired) &&
       (cookieValue.length === 0 || !isExpired)
+    )
+  }
+
+  private isExpiredCookie(attributes: Map<string, string | true>): boolean {
+    const maxAge = attributes.get('max-age')
+    const expires = attributes.get('expires')
+    return (
+      maxAge === '0' || (typeof expires === 'string' && Date.parse(expires) <= Date.now())
     )
   }
 
