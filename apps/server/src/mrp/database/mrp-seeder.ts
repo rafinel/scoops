@@ -126,67 +126,112 @@ export class MrpSeeder {
   }
 
   async run(seed: MrpSeed | MrpProductSeed[] = []): Promise<void> {
-    const {
-      accompanimentTypes,
-      products,
-      brands,
-      stockBalances,
-      productSizes,
-      productAccompaniments,
-      resaleConfigurations,
-    } = Array.isArray(seed)
-      ? {
-          accompanimentTypes: [],
-          products: seed,
-          brands: [],
-          stockBalances: [],
-          productSizes: [],
-          productAccompaniments: [],
-          resaleConfigurations: [],
-        }
-      : seed
+    const normalizedSeed = this.normalizeSeed(seed)
+    const accompanimentTypeIdsByName = await this.addAccompanimentTypes(
+      normalizedSeed.accompanimentTypes,
+    )
+    const { createdProducts, productIdsByName } = await this.addProducts(
+      normalizedSeed.products,
+    )
 
-    const createdAccompanimentTypes = await Promise.all(
+    await this.addProductSizes(
+      normalizedSeed.productSizes,
+      createdProducts,
+      productIdsByName,
+    )
+    await this.addInitialProductStock(normalizedSeed.products, createdProducts)
+
+    const brandIdsByProductAndName = await this.addBrands(
+      normalizedSeed.brands,
+      productIdsByName,
+    )
+    await this.addStockBalances(
+      normalizedSeed.stockBalances,
+      productIdsByName,
+      brandIdsByProductAndName,
+    )
+    await this.addResaleConfigurations(
+      normalizedSeed.resaleConfigurations,
+      createdProducts,
+      productIdsByName,
+      brandIdsByProductAndName,
+    )
+    await this.addProductAccompaniments(
+      normalizedSeed.productAccompaniments,
+      createdProducts,
+      productIdsByName,
+      accompanimentTypeIdsByName,
+    )
+  }
+
+  private normalizeSeed(seed: MrpSeed | MrpProductSeed[]): MrpSeed {
+    if (!Array.isArray(seed)) return seed
+
+    return {
+      accompanimentTypes: [],
+      products: seed,
+      brands: [],
+      stockBalances: [],
+      productSizes: [],
+      productAccompaniments: [],
+      resaleConfigurations: [],
+    }
+  }
+
+  private async addAccompanimentTypes(
+    accompanimentTypes: AccompanimentTypeCreate[],
+  ): Promise<Map<string, string>> {
+    const createdTypes = await Promise.all(
       accompanimentTypes.map((type) => this.accompanimentTypesRepository.add(type)),
     )
-    const accompanimentTypeIdsByName = new Map(
-      createdAccompanimentTypes.map((type) => [type.name, type.id]),
-    )
+    return new Map(createdTypes.map((type) => [type.name, type.id]))
+  }
 
+  private async addProducts(products: MrpProductSeed[]) {
     const createdProducts = await this.productsRepository.addMany(
       products.map(({ initialStock: _initialStock, ...product }) => product),
     )
-    const productIdsByName = new Map(
-      createdProducts.map((product) => [product.name, product.id]),
-    )
-    for (const sizeSeed of productSizes) {
-      const resolvedProductId =
-        sizeSeed.productId ??
-        (sizeSeed.productName ? productIdsByName.get(sizeSeed.productName) : undefined)
-      if (!resolvedProductId) {
-        throw new AppError(
-          `O produto do tamanho seed ${sizeSeed.name} não foi encontrado.`,
-          'Seed MRP inválido',
-        )
-      }
+    return {
+      createdProducts,
+      productIdsByName: new Map(
+        createdProducts.map((product) => [product.name, product.id]),
+      ),
+    }
+  }
 
-      const product = createdProducts.find(({ id }) => id === resolvedProductId)
-      if (!product) {
-        throw new AppError(
-          `O produto do tamanho seed ${sizeSeed.name} não foi criado nesta seed.`,
-          'Seed MRP inválido',
-        )
-      }
+  private async addProductSizes(
+    productSizes: MrpProductSizeSeed[],
+    createdProducts: Awaited<ReturnType<ProductsRepository['addMany']>>,
+    productIdsByName: Map<string, string>,
+  ): Promise<void> {
+    for (const sizeSeed of productSizes) {
+      const productId = this.resolveProductId(
+        sizeSeed.productId,
+        sizeSeed.productName,
+        productIdsByName,
+        `O produto do tamanho seed ${sizeSeed.name} não foi encontrado.`,
+      )
+      const product = this.getCreatedProduct(
+        productId,
+        createdProducts,
+        `O produto do tamanho seed ${sizeSeed.name} não foi criado nesta seed.`,
+      )
 
       await this.productSizesRepository.add({
         establishmentId: product.establishmentId,
-        productId: resolvedProductId,
+        productId,
         name: sizeSeed.name,
         quantity: sizeSeed.quantity,
         price: sizeSeed.price,
         isActive: sizeSeed.isActive,
       })
     }
+  }
+
+  private async addInitialProductStock(
+    products: MrpProductSeed[],
+    createdProducts: Awaited<ReturnType<ProductsRepository['addMany']>>,
+  ): Promise<void> {
     for (const [index, product] of createdProducts.entries()) {
       const initialStock = products[index]?.initialStock
       if (initialStock === undefined || initialStock <= 0) continue
@@ -194,18 +239,21 @@ export class MrpSeeder {
       await this.stockBalancesRepository.initialize(product.id)
       await this.stockBalancesRepository.add({ productId: product.id }, initialStock)
     }
+  }
+
+  private async addBrands(
+    brands: MrpBrandSeed[],
+    productIdsByName: Map<string, string>,
+  ): Promise<Map<string, string>> {
     const brandIdsByProductAndName = new Map<string, string>()
     for (const brandSeed of brands) {
       const { productId, productName, initialStock, ...brand } = brandSeed
-      const resolvedProductId =
-        productId ?? (productName ? productIdsByName.get(productName) : undefined)
-      if (!resolvedProductId) {
-        throw new AppError(
-          `O produto da marca seed ${brand.name} não foi encontrado.`,
-          'Seed MRP inválido',
-        )
-      }
-
+      const resolvedProductId = this.resolveProductId(
+        productId,
+        productName,
+        productIdsByName,
+        `O produto da marca seed ${brand.name} não foi encontrado.`,
+      )
       const createdBrand = await this.brandsRepository.add({
         ...brand,
         productId: resolvedProductId,
@@ -220,139 +268,103 @@ export class MrpSeeder {
       await this.stockBalancesRepository.initialize(target.productId, target.brandId)
       await this.stockBalancesRepository.add(target, initialStock)
     }
+    return brandIdsByProductAndName
+  }
+
+  private async addStockBalances(
+    stockBalances: MrpStockBalanceSeed[],
+    productIdsByName: Map<string, string>,
+    brandIdsByProductAndName: Map<string, string>,
+  ): Promise<void> {
     for (const stockBalance of stockBalances) {
-      const resolvedProductId =
-        stockBalance.productId ??
-        (stockBalance.productName
-          ? productIdsByName.get(stockBalance.productName)
-          : undefined)
-      if (!resolvedProductId) {
-        throw new AppError(
-          'O produto da balança seed não foi encontrado.',
-          'Seed MRP inválido',
-        )
-      }
-
-      const resolvedBrandId =
+      const productId = this.resolveProductId(
+        stockBalance.productId,
+        stockBalance.productName,
+        productIdsByName,
+        'O produto da balança seed não foi encontrado.',
+      )
+      const brandId =
         stockBalance.brandId ??
-        (stockBalance.brandName
-          ? brandIdsByProductAndName.get(
-              this.getBrandKey(resolvedProductId, stockBalance.brandName),
-            )
-          : undefined)
-      if (stockBalance.brandName && !resolvedBrandId) {
-        throw new AppError(
+        this.resolveBrandId(
+          productId,
+          stockBalance.brandName,
+          brandIdsByProductAndName,
           'A marca da balança seed não foi encontrada.',
-          'Seed MRP inválido',
         )
-      }
+      const target = { productId, brandId }
 
-      const target = {
-        productId: resolvedProductId,
-        brandId: resolvedBrandId,
-      }
       await this.stockBalancesRepository.initialize(target.productId, target.brandId)
       if (stockBalance.quantity !== 0) {
         await this.stockBalancesRepository.add(target, stockBalance.quantity)
       }
     }
+  }
 
+  private async addResaleConfigurations(
+    resaleConfigurations: MrpResaleConfigurationSeed[],
+    createdProducts: Awaited<ReturnType<ProductsRepository['addMany']>>,
+    productIdsByName: Map<string, string>,
+    brandIdsByProductAndName: Map<string, string>,
+  ): Promise<void> {
     for (const resaleConfiguration of resaleConfigurations) {
-      const resolvedProductId =
-        resaleConfiguration.productId ??
-        (resaleConfiguration.productName
-          ? productIdsByName.get(resaleConfiguration.productName)
-          : undefined)
-      if (!resolvedProductId) {
-        throw new AppError(
-          'O produto da configuração de revenda seed não foi encontrado.',
-          'Seed MRP inválido',
-        )
-      }
-
-      const product = createdProducts.find(({ id }) => id === resolvedProductId)
-      if (!product) {
-        throw new AppError(
-          'A configuração de revenda seed referencia um produto que não foi criado nesta seed.',
-          'Seed MRP inválido',
-        )
-      }
-
-      const resolvedBrandId =
+      const productId = this.resolveProductId(
+        resaleConfiguration.productId,
+        resaleConfiguration.productName,
+        productIdsByName,
+        'O produto da configuração de revenda seed não foi encontrado.',
+      )
+      const product = this.getCreatedProduct(
+        productId,
+        createdProducts,
+        'A configuração de revenda seed referencia um produto que não foi criado nesta seed.',
+      )
+      const brandId =
         resaleConfiguration.brandId ??
-        (resaleConfiguration.brandName
-          ? brandIdsByProductAndName.get(
-              this.getBrandKey(resolvedProductId, resaleConfiguration.brandName),
-            )
-          : undefined)
-      if (resaleConfiguration.brandName && !resolvedBrandId) {
-        throw new AppError(
+        this.resolveBrandId(
+          productId,
+          resaleConfiguration.brandName,
+          brandIdsByProductAndName,
           'A marca da configuração de revenda seed não foi encontrada.',
-          'Seed MRP inválido',
         )
-      }
-      if (
-        product.stockControl === ProductStockControl.Single &&
-        resolvedBrandId !== undefined
-      ) {
-        throw new AppError(
-          'O produto de estoque único não pode ter marca na configuração de revenda seed.',
-          'Seed MRP inválido',
-        )
-      }
-      if (
-        product.stockControl === ProductStockControl.ByBrand &&
-        resolvedBrandId === undefined
-      ) {
-        throw new AppError(
-          'Informe a marca da configuração de revenda seed para produtos por marca.',
-          'Seed MRP inválido',
-        )
-      }
 
+      this.validateResaleConfiguration(product.stockControl, brandId)
       await this.resaleConfigurationsRepository.add({
         establishmentId: product.establishmentId,
-        productId: resolvedProductId,
-        ...(resolvedBrandId ? { brandId: resolvedBrandId } : {}),
+        productId,
+        ...(brandId ? { brandId } : {}),
         price: resaleConfiguration.price,
         isActive: resaleConfiguration.isActive,
       })
     }
+  }
 
+  private async addProductAccompaniments(
+    productAccompaniments: MrpProductAccompanimentSeed[],
+    createdProducts: Awaited<ReturnType<ProductsRepository['addMany']>>,
+    productIdsByName: Map<string, string>,
+    accompanimentTypeIdsByName: Map<string, string>,
+  ): Promise<void> {
     for (const accompanimentSeed of productAccompaniments) {
-      const productId = productIdsByName.get(accompanimentSeed.productName)
-      const accompanimentProductId = productIdsByName.get(
+      const productId = this.resolveNamedId(
+        productIdsByName,
+        accompanimentSeed.productName,
+        `A porção seed ${accompanimentSeed.productName} não foi encontrada.`,
+      )
+      const accompanimentProductId = this.resolveNamedId(
+        productIdsByName,
         accompanimentSeed.accompanimentProductName,
+        `O acompanhamento seed ${accompanimentSeed.accompanimentProductName} não foi encontrado.`,
       )
-      const accompanimentTypeId = accompanimentTypeIdsByName.get(
+      const accompanimentTypeId = this.resolveNamedId(
+        accompanimentTypeIdsByName,
         accompanimentSeed.accompanimentTypeName,
+        `O tipo de acompanhamento seed ${accompanimentSeed.accompanimentTypeName} não foi encontrado.`,
       )
-      if (!productId) {
-        throw new AppError(
-          `A porção seed ${accompanimentSeed.productName} não foi encontrada.`,
-          'Seed MRP inválido',
-        )
-      }
-      if (!accompanimentProductId) {
-        throw new AppError(
-          `O acompanhamento seed ${accompanimentSeed.accompanimentProductName} não foi encontrado.`,
-          'Seed MRP inválido',
-        )
-      }
-      if (!accompanimentTypeId) {
-        throw new AppError(
-          `O tipo de acompanhamento seed ${accompanimentSeed.accompanimentTypeName} não foi encontrado.`,
-          'Seed MRP inválido',
-        )
-      }
-
-      const product = createdProducts.find(({ id }) => id === productId)
-      if (!product) {
-        throw new AppError(
-          `A porção seed ${accompanimentSeed.productName} não foi criada nesta seed.`,
-          'Seed MRP inválido',
-        )
-      }
+      const product = this.getCreatedProduct(
+        productId,
+        createdProducts,
+        `A porção seed ${accompanimentSeed.productName} não foi criada nesta seed.`,
+      )
 
       await this.productAccompanimentsRepository.add({
         establishmentId: product.establishmentId,
@@ -361,6 +373,70 @@ export class MrpSeeder {
         accompanimentTypeId,
         quantityPerPortion: accompanimentSeed.quantityPerPortion,
       })
+    }
+  }
+
+  private resolveProductId(
+    productId: string | undefined,
+    productName: string | undefined,
+    productIdsByName: Map<string, string>,
+    errorMessage: string,
+  ): string {
+    if (productId) return productId
+    return this.resolveNamedId(productIdsByName, productName, errorMessage)
+  }
+
+  private resolveNamedId(
+    idsByName: Map<string, string>,
+    name: string | undefined,
+    errorMessage: string,
+  ): string {
+    const resolvedId = name ? idsByName.get(name) : undefined
+    if (!resolvedId) {
+      throw new AppError(errorMessage, 'Seed MRP inválido')
+    }
+    return resolvedId
+  }
+
+  private resolveBrandId(
+    productId: string,
+    brandName: string | undefined,
+    brandIdsByProductAndName: Map<string, string>,
+    errorMessage: string,
+  ): string | undefined {
+    if (!brandName) return undefined
+    return this.resolveNamedId(
+      brandIdsByProductAndName,
+      this.getBrandKey(productId, brandName),
+      errorMessage,
+    )
+  }
+
+  private getCreatedProduct(
+    productId: string,
+    createdProducts: Awaited<ReturnType<ProductsRepository['addMany']>>,
+    errorMessage: string,
+  ) {
+    const product = createdProducts.find(({ id }) => id === productId)
+    if (!product) throw new AppError(errorMessage, 'Seed MRP inválido')
+    return product
+  }
+
+  private validateResaleConfiguration(
+    stockControl: ProductStockControl,
+    brandId: string | undefined,
+  ): void {
+    if (stockControl === ProductStockControl.Single && brandId !== undefined) {
+      throw new AppError(
+        'O produto de estoque único não pode ter marca na configuração de revenda seed.',
+        'Seed MRP inválido',
+      )
+    }
+    if (stockControl === ProductStockControl.ByBrand && brandId === undefined) {
+      throw new AppError(
+        'Informe a marca da configuração de revenda seed para produtos por marca.',
+        'Seed MRP inválido',
+      )
     }
   }
 
