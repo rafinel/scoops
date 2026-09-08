@@ -3,6 +3,7 @@ import {
   Get,
   HttpStatus,
   Inject,
+  Redirect,
   ServiceUnavailableException,
 } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
@@ -61,6 +62,14 @@ export class CheckHealthController {
       services,
     }
   }
+
+  @Get('/')
+  @Redirect('/health', HttpStatus.FOUND)
+  @ApiResponse({
+    status: HttpStatus.FOUND,
+    description: 'Redirects root traffic to the health endpoint.',
+  })
+  redirectToHealth(): void {}
 
   private toServiceState(healthy: boolean): ServiceState {
     return healthy ? 'UP' : 'DOWN'

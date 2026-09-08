@@ -16,6 +16,15 @@ describe('Check Health Controller [GET /health]', () => {
     app = undefined
   })
 
+  it('redirects root traffic to the health endpoint', async () => {
+    app = await createHealthApp({ databaseHealthy: true })
+
+    const response = await request(app.getHttpServer()).get('/')
+
+    expect(response.status).toBe(302)
+    expect(response.headers.location).toBe('/health')
+  })
+
   it('returns healthy status when the database is available', async () => {
     app = await createHealthApp({ databaseHealthy: true })
 
