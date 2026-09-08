@@ -36,7 +36,6 @@ lerna-debug.log*
 # misc
 .DS_Store
 *.pem
-.vercel
 .branches
 .temp
 tmp/
@@ -44,9 +43,6 @@ dist
 
 # Tmp
 
-
-# Vercel
-.vercel
 
 # IDE's
 .vscode/
