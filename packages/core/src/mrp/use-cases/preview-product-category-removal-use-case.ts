@@ -95,100 +95,138 @@ export class PreviewProductCategoryRemovalUseCase
     product: Product,
     category: ProductCategory,
   ): Promise<readonly ProductCategoryDependency[]> {
-    if (category === ProductCategory.Ingredient) {
-      const lines = await scope.recipeIngredientsRepository.findManyByIngredientProductId(
+    switch (category) {
+      case ProductCategory.Ingredient:
+        return this.findIngredientDependencies(scope, establishmentId, product)
+      case ProductCategory.Manufacturable:
+        return this.findManufacturableDependencies(scope, establishmentId, product)
+      case ProductCategory.Portion:
+        return this.findPortionDependencies(scope, establishmentId, product)
+      case ProductCategory.Accompaniment:
+        return this.findAccompanimentDependencies(scope, establishmentId, product)
+      case ProductCategory.Resale:
+        return this.findResaleDependencies(scope, establishmentId, product)
+    }
+  }
+
+  private async findIngredientDependencies(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<readonly ProductCategoryDependency[]> {
+    const lines = await scope.recipeIngredientsRepository.findManyByIngredientProductId(
+      establishmentId,
+      product.id,
+    )
+    const dependencyByProductId = new Map<string, ProductCategoryDependency>()
+    for (const line of lines) {
+      const dependency = await this.findConsumingRecipeDependency(
+        scope,
+        establishmentId,
+        line.recipeId,
+      )
+      if (dependency) dependencyByProductId.set(dependency.productId, dependency)
+    }
+    return this.sortDependencies([...dependencyByProductId.values()])
+  }
+
+  private async findConsumingRecipeDependency(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    recipeId: string,
+  ): Promise<ProductCategoryDependency | undefined> {
+    const recipe = await scope.recipesRepository.findById(establishmentId, recipeId)
+    if (!recipe || recipe.establishmentId !== establishmentId) return undefined
+
+    const consumingProduct = await scope.productsRepository.findById(
+      establishmentId,
+      recipe.productId,
+    )
+    if (!consumingProduct || consumingProduct.establishmentId !== establishmentId) {
+      return undefined
+    }
+
+    return {
+      kind: 'consuming-recipe',
+      productId: consumingProduct.id,
+      productName: consumingProduct.name,
+    }
+  }
+
+  private async findManufacturableDependencies(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<readonly ProductCategoryDependency[]> {
+    const recipe = await scope.recipesRepository.findByProductId(
+      establishmentId,
+      product.id,
+    )
+    return recipe
+      ? [{ kind: 'owned-recipe', productId: product.id, productName: product.name }]
+      : []
+  }
+
+  private async findPortionDependencies(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<readonly ProductCategoryDependency[]> {
+    const [sizeCount, linkCount] = await Promise.all([
+      scope.productSizesRepository.countByProductId(establishmentId, product.id),
+      scope.productAccompanimentsRepository.countByProductId(establishmentId, product.id),
+    ])
+    const dependencies: ProductCategoryDependency[] = []
+    if (sizeCount > 0) {
+      dependencies.push({
+        kind: 'portion-size',
+        productId: product.id,
+        productName: product.name,
+        sizeCount,
+      })
+    }
+    if (linkCount > 0) {
+      dependencies.push({
+        kind: 'portion-accompaniment',
+        productId: product.id,
+        productName: product.name,
+        linkCount,
+      })
+    }
+    return this.sortDependencies(dependencies)
+  }
+
+  private async findAccompanimentDependencies(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<readonly ProductCategoryDependency[]> {
+    const links =
+      await scope.productAccompanimentsRepository.findManyByAccompanimentProductId(
         establishmentId,
         product.id,
       )
-      const dependencyByProductId = new Map<string, ProductCategoryDependency>()
-      for (const line of lines) {
-        const recipe = await scope.recipesRepository.findById(
-          establishmentId,
-          line.recipeId,
-        )
-        if (!recipe || recipe.establishmentId !== establishmentId) continue
-        const consumingProduct = await scope.productsRepository.findById(
-          establishmentId,
-          recipe.productId,
-        )
-        if (!consumingProduct || consumingProduct.establishmentId !== establishmentId) {
-          continue
-        }
-        dependencyByProductId.set(consumingProduct.id, {
-          kind: 'consuming-recipe',
-          productId: consumingProduct.id,
-          productName: consumingProduct.name,
-        })
-      }
-      return this.sortDependencies([...dependencyByProductId.values()])
-    }
-
-    if (category === ProductCategory.Manufacturable) {
-      const recipe = await scope.recipesRepository.findByProductId(
+    const dependencyByProductId = new Map<string, ProductCategoryDependency>()
+    for (const link of links) {
+      const portion = await scope.productsRepository.findById(
         establishmentId,
-        product.id,
+        link.productId,
       )
-      return recipe
-        ? [
-            {
-              kind: 'owned-recipe',
-              productId: product.id,
-              productName: product.name,
-            },
-          ]
-        : []
+      if (!portion || portion.establishmentId !== establishmentId) continue
+      dependencyByProductId.set(portion.id, {
+        kind: 'accompaniment-user',
+        productId: portion.id,
+        productName: portion.name,
+      })
     }
+    return this.sortDependencies([...dependencyByProductId.values()])
+  }
 
-    if (category === ProductCategory.Portion) {
-      const [sizeCount, linkCount] = await Promise.all([
-        scope.productSizesRepository.countByProductId(establishmentId, product.id),
-        scope.productAccompanimentsRepository.countByProductId(
-          establishmentId,
-          product.id,
-        ),
-      ])
-      const dependencies: ProductCategoryDependency[] = []
-      if (sizeCount > 0) {
-        dependencies.push({
-          kind: 'portion-size',
-          productId: product.id,
-          productName: product.name,
-          sizeCount,
-        })
-      }
-      if (linkCount > 0) {
-        dependencies.push({
-          kind: 'portion-accompaniment',
-          productId: product.id,
-          productName: product.name,
-          linkCount,
-        })
-      }
-      return this.sortDependencies(dependencies)
-    }
-
-    if (category === ProductCategory.Accompaniment) {
-      const links =
-        await scope.productAccompanimentsRepository.findManyByAccompanimentProductId(
-          establishmentId,
-          product.id,
-        )
-      const dependencyByProductId = new Map<string, ProductCategoryDependency>()
-      for (const link of links) {
-        const portion = await scope.productsRepository.findById(
-          establishmentId,
-          link.productId,
-        )
-        if (!portion || portion.establishmentId !== establishmentId) continue
-        dependencyByProductId.set(portion.id, {
-          kind: 'accompaniment-user',
-          productId: portion.id,
-          productName: portion.name,
-        })
-      }
-      return this.sortDependencies([...dependencyByProductId.values()])
-    }
-
+  private async findResaleDependencies(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<readonly ProductCategoryDependency[]> {
     const configurationCount =
       await scope.resaleConfigurationsRepository.countByProductId(
         establishmentId,

@@ -44,6 +44,16 @@ type LineBuild = {
   readonly shortages: readonly OrderRegistrationShortage[]
 }
 
+type ProductSize = SalesCatalogProduct['sizes'][number]
+type ProductBrand = SalesCatalogProduct['resaleBrands'][number]
+type ProductAccompaniment = ProductSize['accompaniments'][number]
+
+type LineConfiguration = {
+  readonly size: ProductSize | undefined
+  readonly brand: ProductBrand | undefined
+  readonly selectedAccompaniments: readonly ProductAccompaniment[]
+}
+
 /** Round a monetary calculation at the same boundary as the Combo use cases. */
 export function money(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100
@@ -277,7 +287,20 @@ function buildLine(
   product: SalesCatalogProduct,
   channelPercentage: number,
 ): LineBuild {
-  const shortages: OrderRegistrationShortage[] = []
+  const configuration = resolveLineConfiguration(inputLine, product)
+  const baseUnitPrice = calculateBaseUnitPrice(inputLine, product, configuration)
+  const finalUnitPrice = adjustUnitPrice(baseUnitPrice, channelPercentage)
+
+  return {
+    line: createLine(inputLine, product, configuration, baseUnitPrice, finalUnitPrice),
+    shortages: collectShortages(inputLine, product, configuration),
+  }
+}
+
+function resolveLineConfiguration(
+  inputLine: RegistrationLine,
+  product: SalesCatalogProduct,
+): LineConfiguration {
   const size =
     inputLine.kind === 'portion'
       ? product.sizes.find((candidate) => candidate.sizeId === inputLine.sizeId)
@@ -287,109 +310,188 @@ function buildLine(
       ? product.resaleBrands.find((candidate) => candidate.brandId === inputLine.brandId)
       : undefined
 
+  return {
+    size,
+    brand,
+    selectedAccompaniments:
+      inputLine.kind === 'portion'
+        ? (size?.accompaniments.filter((item) =>
+            inputLine.accompanimentIds.includes(item.accompanimentId),
+          ) ?? [])
+        : [],
+  }
+}
+
+function collectShortages(
+  inputLine: RegistrationLine,
+  product: SalesCatalogProduct,
+  configuration: LineConfiguration,
+): readonly OrderRegistrationShortage[] {
+  return [
+    ...collectProductShortages(inputLine, product, configuration),
+    ...collectConfigurationShortages(inputLine, product, configuration),
+  ]
+}
+
+function collectProductShortages(
+  inputLine: RegistrationLine,
+  product: SalesCatalogProduct,
+  configuration: LineConfiguration,
+): readonly OrderRegistrationShortage[] {
   const hasConfigurationAvailability =
-    inputLine.kind === 'portion' ? Boolean(size) : Boolean(brand)
-  if (!product.isAvailable && !hasConfigurationAvailability) {
-    shortages.push({
+    inputLine.kind === 'portion'
+      ? Boolean(configuration.size)
+      : Boolean(configuration.brand)
+  if (product.isAvailable || hasConfigurationAvailability) return []
+
+  return [
+    {
       productId: product.productId,
       productName: product.name,
       unit: ProductUnit.Unit,
       requiredQuantity: inputLine.quantity,
       availableQuantity: product.availableQuantity ?? 0,
-    })
-  }
-  if (size && !size.isAvailable) {
+    },
+  ]
+}
+
+function collectConfigurationShortages(
+  inputLine: RegistrationLine,
+  product: SalesCatalogProduct,
+  configuration: LineConfiguration,
+): readonly OrderRegistrationShortage[] {
+  const shortages: OrderRegistrationShortage[] = []
+  if (configuration.size && !configuration.size.isAvailable) {
     shortages.push({
       productId: product.productId,
       productName: product.name,
       unit: ProductUnit.Unit,
-      requiredQuantity: size.quantity * inputLine.quantity,
-      availableQuantity: size.availableQuantity ?? 0,
+      requiredQuantity: configuration.size.quantity * inputLine.quantity,
+      availableQuantity: configuration.size.availableQuantity ?? 0,
     })
   }
-  if (brand && !brand.isAvailable) {
+  if (configuration.brand && !configuration.brand.isAvailable) {
     shortages.push({
       productId: product.productId,
       productName: product.name,
-      brandId: brand.brandId,
-      brandName: brand.name,
+      brandId: configuration.brand.brandId,
+      brandName: configuration.brand.name,
       unit: ProductUnit.Unit,
       requiredQuantity: inputLine.quantity,
-      availableQuantity: brand.availableQuantity ?? 0,
+      availableQuantity: configuration.brand.availableQuantity ?? 0,
     })
   }
 
-  const selectedAccompaniments =
-    inputLine.kind === 'portion'
-      ? (size?.accompaniments.filter((item) =>
-          inputLine.accompanimentIds.includes(item.accompanimentId),
-        ) ?? [])
-      : []
-  for (const accompaniment of selectedAccompaniments) {
-    if (!accompaniment.isAvailable) {
-      shortages.push({
-        productId: accompaniment.productId ?? accompaniment.accompanimentId,
-        productName: accompaniment.name,
-        ...(accompaniment.brandId ? { brandId: accompaniment.brandId } : {}),
-        unit: ProductUnit.Unit,
-        requiredQuantity: accompaniment.quantityPerPortion * inputLine.quantity,
-        availableQuantity: accompaniment.availableQuantity ?? 0,
-      })
-    }
-  }
+  shortages.push(...collectAccompanimentShortages(inputLine.quantity, configuration))
+  return shortages
+}
 
-  const baseUnitPrice =
+function collectAccompanimentShortages(
+  quantity: number,
+  configuration: LineConfiguration,
+): readonly OrderRegistrationShortage[] {
+  const shortages: OrderRegistrationShortage[] = []
+  for (const accompaniment of configuration.selectedAccompaniments) {
+    if (accompaniment.isAvailable) continue
+    shortages.push({
+      productId: accompaniment.productId ?? accompaniment.accompanimentId,
+      productName: accompaniment.name,
+      ...(accompaniment.brandId ? { brandId: accompaniment.brandId } : {}),
+      unit: ProductUnit.Unit,
+      requiredQuantity: accompaniment.quantityPerPortion * quantity,
+      availableQuantity: accompaniment.availableQuantity ?? 0,
+    })
+  }
+  return shortages
+}
+
+function calculateBaseUnitPrice(
+  inputLine: RegistrationLine,
+  product: SalesCatalogProduct,
+  configuration: LineConfiguration,
+): number {
+  if (inputLine.kind === 'portion')
+    return calculatePortionUnitPrice(
+      configuration.size,
+      configuration.selectedAccompaniments,
+    )
+
+  return money(configuration.brand?.basePrice ?? product.resalePrice ?? 0)
+}
+
+function calculatePortionUnitPrice(
+  size: ProductSize | undefined,
+  accompaniments: readonly ProductAccompaniment[],
+): number {
+  const accompanimentsPrice = accompaniments.reduce(
+    (sum, accompaniment) =>
+      sum + accompaniment.basePrice * accompaniment.quantityPerPortion,
+    0,
+  )
+  return money((size?.basePrice ?? 0) + accompanimentsPrice)
+}
+
+function createLine(
+  inputLine: RegistrationLine,
+  product: SalesCatalogProduct,
+  configuration: LineConfiguration,
+  baseUnitPrice: number,
+  finalUnitPrice: number,
+): CartLine {
+  const configurationFields =
     inputLine.kind === 'portion'
-      ? money(
-          (size?.basePrice ?? 0) +
-            selectedAccompaniments.reduce(
-              (sum, accompaniment) =>
-                sum + accompaniment.basePrice * accompaniment.quantityPerPortion,
-              0,
-            ),
-        )
-      : money(brand?.basePrice ?? product.resalePrice ?? 0)
-  const finalUnitPrice = adjustUnitPrice(baseUnitPrice, channelPercentage)
-  const consumptions: StockConsumption[] =
-    inputLine.kind === 'portion'
-      ? [
-          {
-            productId: product.productId,
-            quantity: (size?.quantity ?? 0) * inputLine.quantity,
-          },
-          ...selectedAccompaniments.map((accompaniment) => ({
-            productId: accompaniment.productId ?? accompaniment.accompanimentId,
-            accompanimentId: accompaniment.accompanimentId,
-            ...(accompaniment.brandId ? { brandId: accompaniment.brandId } : {}),
-            quantity: accompaniment.quantityPerPortion * inputLine.quantity,
-          })),
-        ]
-      : [
-          {
-            productId: product.productId,
-            ...(brand ? { brandId: brand.brandId } : {}),
-            quantity: inputLine.quantity,
-          },
-        ]
+      ? { sizeId: inputLine.sizeId, accompanimentIds: [...inputLine.accompanimentIds] }
+      : {
+          ...(inputLine.brandId ? { brandId: inputLine.brandId } : {}),
+          accompanimentIds: [],
+        }
 
   return {
-    line: {
-      productId: product.productId,
-      kind: inputLine.kind,
-      quantity: inputLine.quantity,
-      ...(inputLine.kind === 'portion'
-        ? { sizeId: inputLine.sizeId, accompanimentIds: [...inputLine.accompanimentIds] }
-        : {
-            ...(inputLine.brandId ? { brandId: inputLine.brandId } : {}),
-            accompanimentIds: [],
-          }),
-      baseUnitPrice,
-      finalUnitPrice,
-      subtotal: money(finalUnitPrice * inputLine.quantity),
-      consumptions,
-    },
-    shortages,
+    productId: product.productId,
+    kind: inputLine.kind,
+    quantity: inputLine.quantity,
+    ...configurationFields,
+    baseUnitPrice,
+    finalUnitPrice,
+    subtotal: money(finalUnitPrice * inputLine.quantity),
+    consumptions: buildConsumptions(inputLine, product, configuration),
   }
+}
+
+function buildConsumptions(
+  inputLine: RegistrationLine,
+  product: SalesCatalogProduct,
+  configuration: LineConfiguration,
+): readonly StockConsumption[] {
+  if (inputLine.kind === 'portion')
+    return buildPortionConsumptions(inputLine, product, configuration)
+
+  return [
+    {
+      productId: product.productId,
+      ...(configuration.brand ? { brandId: configuration.brand.brandId } : {}),
+      quantity: inputLine.quantity,
+    },
+  ]
+}
+
+function buildPortionConsumptions(
+  inputLine: RegistrationLine,
+  product: SalesCatalogProduct,
+  configuration: LineConfiguration,
+): readonly StockConsumption[] {
+  return [
+    {
+      productId: product.productId,
+      quantity: (configuration.size?.quantity ?? 0) * inputLine.quantity,
+    },
+    ...configuration.selectedAccompaniments.map((accompaniment) => ({
+      productId: accompaniment.productId ?? accompaniment.accompanimentId,
+      accompanimentId: accompaniment.accompanimentId,
+      ...(accompaniment.brandId ? { brandId: accompaniment.brandId } : {}),
+      quantity: accompaniment.quantityPerPortion * inputLine.quantity,
+    })),
+  ]
 }
 
 export function validateOrderRegistrationInput(input: OrderRegistrationInput): void {

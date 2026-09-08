@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
+import { ProductUnit } from '#mrp/domain/structures/product-unit.ts'
 import { ComboFaker } from '#pdv/domain/entities/fakers/index.ts'
 import type { Cart } from '#pdv/domain/structures/cart.ts'
 import type { OrderPreviewInput } from '#pdv/domain/structures/order-preview.ts'
-import { allocateCombos, rebuildCart } from '#pdv/use-cases/order-pricing.ts'
+import {
+  allocateCombos,
+  rebuildCart,
+  rebuildCartWithIssues,
+} from '#pdv/use-cases/order-pricing.ts'
 
 const input: OrderPreviewInput = {
   lines: [
@@ -107,6 +112,49 @@ describe('Order Pricing', () => {
       accompanimentId: 'accompaniment-1',
     })
     expect(cart.total).toBe(33.02)
+  })
+
+  it('reports unavailable size and accompaniment stock in order', () => {
+    const portion = products[0]
+    const size = portion.sizes[0]
+    const accompaniment = size.accompaniments[0]
+    const unavailablePortion = {
+      ...portion,
+      sizes: [
+        {
+          ...size,
+          isAvailable: false,
+          availableQuantity: 0,
+          accompaniments: [
+            { ...accompaniment, isAvailable: false, availableQuantity: 0 },
+          ],
+        },
+      ],
+    }
+
+    const result = rebuildCartWithIssues(
+      { lines: [input.lines[0]] },
+      [unavailablePortion],
+      undefined,
+      [],
+    )
+
+    expect(result.shortages).toEqual([
+      {
+        productId: 'portion-1',
+        productName: 'Porção',
+        unit: ProductUnit.Unit,
+        requiredQuantity: 2,
+        availableQuantity: 0,
+      },
+      {
+        productId: 'accompaniment-product-1',
+        productName: 'Calda',
+        unit: ProductUnit.Unit,
+        requiredQuantity: 2,
+        availableQuantity: 0,
+      },
+    ])
   })
 
   it('chooses the maximum non-overlapping saving and only applies each Combo once', () => {

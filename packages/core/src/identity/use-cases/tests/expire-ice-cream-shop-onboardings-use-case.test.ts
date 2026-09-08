@@ -157,4 +157,74 @@ describe('Expire Ice Cream Shop Onboardings Use Case', () => {
       expect.objectContaining({ email: 'new@example.com' }),
     )
   })
+
+  it('clears a stale email correction when the provider email does not match', async () => {
+    const operation = UserRegistrationAttemptFaker.fake({
+      type: RegistrationAttemptType.UserInvitation,
+      operation: InvitationOperation.CorrectEmail,
+      operationToken: 'correction-operation',
+      pendingEmail: 'new@example.com',
+    })
+    attempts.findStaleInvitationOperations.mockResolvedValue([operation])
+    userProvider.getIdentityEmail.mockResolvedValue('different@example.com')
+
+    const useCaseWithUserProvider = new ExpireIceCreamShopOnboardingsUseCase(
+      database,
+      datetime,
+      provider,
+      userProvider,
+    )
+
+    await expect(
+      useCaseWithUserProvider.execute({ limit: 100, claimToken: 'claim' }),
+    ).resolves.toEqual({ expired: 0, removed: 0, failed: 0 })
+    expect(attempts.clearInvitationOperation).toHaveBeenCalledWith({
+      attemptId: operation.id,
+      operationToken: 'correction-operation',
+      updatedAt: new Date('2026-01-09T00:00:00.000Z'),
+    })
+  })
+
+  it('removes superseded identities for claims that are not expired', async () => {
+    const claim = UserRegistrationAttemptFaker.fake({
+      status: RegistrationAttemptStatus.Pending,
+      supersededProviderSubject: 'superseded-subject',
+    })
+    attempts.claimForCleanup.mockResolvedValue([claim])
+    provider.removeIdentity.mockResolvedValue()
+    attempts.clearSupersededProviderSubject.mockResolvedValue(true)
+
+    await expect(useCase.execute({ limit: 100, claimToken: 'claim' })).resolves.toEqual({
+      expired: 0,
+      removed: 1,
+      failed: 0,
+    })
+    expect(provider.removeIdentity).toHaveBeenCalledWith('superseded-subject')
+    expect(attempts.clearSupersededProviderSubject).toHaveBeenCalledWith({
+      attemptId: claim.id,
+      claimToken: 'claim',
+      supersededProviderSubject: 'superseded-subject',
+      updatedAt: new Date('2026-01-09T00:00:00.000Z'),
+    })
+  })
+
+  it('clears a cleanup claim when removing an expired identity fails', async () => {
+    const claim = UserRegistrationAttemptFaker.fake({
+      status: RegistrationAttemptStatus.Expired,
+    })
+    attempts.claimForCleanup.mockResolvedValue([claim])
+    provider.removeIdentity.mockRejectedValue(new Error('provider unavailable'))
+    attempts.clearCleanupClaim.mockResolvedValue(true)
+
+    await expect(useCase.execute({ limit: 100, claimToken: 'claim' })).resolves.toEqual({
+      expired: 1,
+      removed: 0,
+      failed: 1,
+    })
+    expect(attempts.clearCleanupClaim).toHaveBeenCalledWith({
+      attemptId: claim.id,
+      claimToken: 'claim',
+      updatedAt: new Date('2026-01-09T00:00:00.000Z'),
+    })
+  })
 })

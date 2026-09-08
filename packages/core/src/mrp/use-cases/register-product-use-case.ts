@@ -153,8 +153,19 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
   }
 
   private validateInput(input: RegisterProductInput): void {
-    if (!input.name.trim()) throw new BadRequestError('O nome do produto é obrigatório.')
+    this.validateName(input)
+    this.validateCategories(input)
+    this.validateStock(input)
+    this.validateCurrentUnitCost(input)
+    this.validateBrandConfiguration(input)
+    this.validateBrandValues(input)
+  }
 
+  private validateName(input: RegisterProductInput): void {
+    if (!input.name.trim()) throw new BadRequestError('O nome do produto é obrigatório.')
+  }
+
+  private validateCategories(input: RegisterProductInput): void {
     if (input.categories.length === 0) {
       throw new BadRequestError('O produto deve possuir pelo menos uma categoria.')
     }
@@ -172,7 +183,9 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
     ) {
       throw new BadRequestError('Produtos fabricáveis devem usar estoque único.')
     }
+  }
 
+  private validateStock(input: RegisterProductInput): void {
     if (input.idealStock === undefined || input.idealStock < 0) {
       throw new BadRequestError(
         'O estoque ideal deve ser informado e não pode ser negativo.',
@@ -186,63 +199,73 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
     ) {
       throw new BadRequestError('O estoque inicial não pode ser negativo.')
     }
+  }
 
-    if (input.currentUnitCost !== undefined) {
-      if (
-        input.stockControl !== ProductStockControl.Single ||
-        !input.categories.includes(ProductCategory.Ingredient)
-      ) {
-        throw new BadRequestError(
-          'O custo unitário atual é permitido apenas para ingredientes de estoque único.',
-        )
-      }
+  private validateCurrentUnitCost(input: RegisterProductInput): void {
+    if (input.currentUnitCost === undefined) return
 
-      if (
-        !Number.isFinite(input.currentUnitCost) ||
-        input.currentUnitCost < 0 ||
-        !this.hasAtMostSixDecimalPlaces(input.currentUnitCost)
-      ) {
-        throw new BadRequestError('O custo unitário atual é inválido.')
-      }
-    }
-
-    if (input.stockControl === ProductStockControl.ByBrand) {
-      if (!input.brands?.length) {
-        throw new BadRequestError(
-          'Produtos por marca devem possuir pelo menos uma marca.',
-        )
-      }
-
-      const initialStock = input.brands.reduce(
-        (total, brand) => total + brand.initialQuantity,
-        0,
+    const isSingleStockIngredient =
+      input.stockControl === ProductStockControl.Single &&
+      input.categories.includes(ProductCategory.Ingredient)
+    if (!isSingleStockIngredient) {
+      throw new BadRequestError(
+        'O custo unitário atual é permitido apenas para ingredientes de estoque único.',
       )
-      if (input.initialStock !== undefined && input.initialStock !== initialStock) {
-        throw new BadRequestError(
-          'O estoque inicial deve corresponder à soma dos estoques das marcas.',
-        )
-      }
-
-      const primaryBrandsCount = input.brands.filter((brand) => brand.isPrimary).length
-      if (primaryBrandsCount !== 1) {
-        throw new BadRequestError(
-          'Produtos por marca devem possuir exatamente uma marca principal.',
-        )
-      }
     }
 
+    if (
+      !Number.isFinite(input.currentUnitCost) ||
+      input.currentUnitCost < 0 ||
+      !this.hasAtMostSixDecimalPlaces(input.currentUnitCost)
+    ) {
+      throw new BadRequestError('O custo unitário atual é inválido.')
+    }
+  }
+
+  private validateBrandConfiguration(input: RegisterProductInput): void {
+    if (input.stockControl !== ProductStockControl.ByBrand) return
+    if (!input.brands?.length) {
+      throw new BadRequestError('Produtos por marca devem possuir pelo menos uma marca.')
+    }
+
+    const initialStock = input.brands.reduce(
+      (total, brand) => total + brand.initialQuantity,
+      0,
+    )
+    if (input.initialStock !== undefined && input.initialStock !== initialStock) {
+      throw new BadRequestError(
+        'O estoque inicial deve corresponder à soma dos estoques das marcas.',
+      )
+    }
+
+    const primaryBrandsCount = input.brands.filter((brand) => brand.isPrimary).length
+    if (primaryBrandsCount !== 1) {
+      throw new BadRequestError(
+        'Produtos por marca devem possuir exatamente uma marca principal.',
+      )
+    }
+  }
+
+  private validateBrandValues(input: RegisterProductInput): void {
     for (const brand of input.brands ?? []) {
-      if (!brand.name.trim()) throw new BadRequestError('O nome da marca é obrigatório.')
-      if (
-        brand.packageQuantity <= 0 ||
-        brand.packageValue < 0 ||
-        (brand.initialQuantity < 0 && !input.allowNegativeStock)
-      ) {
-        throw new BadRequestError('Os valores da marca não podem ser negativos.')
-      }
-      if (brand.unit !== undefined && !Object.values(ProductUnit).includes(brand.unit)) {
-        throw new BadRequestError('A unidade da marca é inválida.')
-      }
+      this.validateBrand(brand, input.allowNegativeStock)
+    }
+  }
+
+  private validateBrand(
+    brand: NonNullable<RegisterProductInput['brands']>[number],
+    allowNegativeStock: boolean | undefined,
+  ): void {
+    if (!brand.name.trim()) throw new BadRequestError('O nome da marca é obrigatório.')
+    if (
+      brand.packageQuantity <= 0 ||
+      brand.packageValue < 0 ||
+      (brand.initialQuantity < 0 && !allowNegativeStock)
+    ) {
+      throw new BadRequestError('Os valores da marca não podem ser negativos.')
+    }
+    if (brand.unit !== undefined && !Object.values(ProductUnit).includes(brand.unit)) {
+      throw new BadRequestError('A unidade da marca é inválida.')
     }
   }
 
