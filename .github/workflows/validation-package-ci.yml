@@ -5,21 +5,27 @@ on:
     paths:
       - '.github/workflows/validation-package-ci.yml'
       - 'biome.json'
+      - '.code-multivitals-baseline.json'
+      - '.code-multivitals.json'
       - 'package.json'
       - 'packages/core/**'
       - 'packages/validation/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'scripts/check-complexity.mjs'
       - '.dependency-cruiser.mjs'
   pull_request:
     paths:
       - '.github/workflows/validation-package-ci.yml'
       - 'biome.json'
+      - '.code-multivitals-baseline.json'
+      - '.code-multivitals.json'
       - 'package.json'
       - 'packages/core/**'
       - 'packages/validation/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'scripts/check-complexity.mjs'
       - '.dependency-cruiser.mjs'
 
 permissions:
@@ -61,3 +67,29 @@ jobs:
 
       - name: Check types
         run: pnpm --filter @scoops/validation check:types
+
+  complexity:
+    name: Complexity
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check complexity
+        run: pnpm check:complexity -- --scope packages/validation

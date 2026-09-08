@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - '.github/workflows/server-app-ci.yml'
+      - '.code-multivitals-baseline.json'
+      - '.code-multivitals.json'
       - 'apps/server/**'
       - 'biome.json'
       - 'package.json'
@@ -11,11 +13,14 @@ on:
       - 'packages/validation/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'scripts/check-complexity.mjs'
       - 'scripts/write-coverage-report.mjs'
       - '.dependency-cruiser.mjs'
   pull_request:
     paths:
       - '.github/workflows/server-app-ci.yml'
+      - '.code-multivitals-baseline.json'
+      - '.code-multivitals.json'
       - 'apps/server/**'
       - 'biome.json'
       - 'package.json'
@@ -23,6 +28,7 @@ on:
       - 'packages/validation/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'scripts/check-complexity.mjs'
       - 'scripts/write-coverage-report.mjs'
       - '.dependency-cruiser.mjs'
 
@@ -132,3 +138,29 @@ jobs:
 
       - name: Build
         run: pnpm --filter server build
+
+  complexity:
+    name: Complexity
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check complexity
+        run: pnpm check:complexity -- --scope apps/server

@@ -5,20 +5,26 @@ on:
     paths:
       - '.github/workflows/core-package-ci.yml'
       - 'biome.json'
+      - '.code-multivitals-baseline.json'
+      - '.code-multivitals.json'
       - 'package.json'
       - 'packages/core/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'scripts/check-complexity.mjs'
       - 'scripts/write-coverage-report.mjs'
       - '.dependency-cruiser.mjs'
   pull_request:
     paths:
       - '.github/workflows/core-package-ci.yml'
       - 'biome.json'
+      - '.code-multivitals-baseline.json'
+      - '.code-multivitals.json'
       - 'package.json'
       - 'packages/core/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'scripts/check-complexity.mjs'
       - 'scripts/write-coverage-report.mjs'
       - '.dependency-cruiser.mjs'
 
@@ -111,3 +117,29 @@ jobs:
           name: core-coverage-${{ github.run_id }}
           path: packages/core/coverage/
           retention-days: 14
+
+  complexity:
+    name: Complexity
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check complexity
+        run: pnpm check:complexity -- --scope packages/core
