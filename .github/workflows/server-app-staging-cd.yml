@@ -1,5 +1,6 @@
 name: Server Heroku CD
 
+# Staging deployment is intentionally triggered by pushes to main.
 on:
   push:
     branches:
