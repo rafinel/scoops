@@ -3,8 +3,6 @@
 .codegraph
 .agents
 .turbo
-.vercel
-**/.vercel
 **/.env
 **/.env.*
 **/node_modules
