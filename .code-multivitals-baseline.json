@@ -73664,23 +73664,23 @@
         {
           "name": "isAllowedSessionCookie",
           "startLine": 92,
-          "endLine": 171,
+          "endLine": 168,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 30,
+              "value": 29,
               "threshold": 15,
               "severity": "error"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 29,
+              "value": 28,
               "threshold": 25,
               "severity": "error"
             },
             {
               "name": "functionLength",
-              "value": 77,
+              "value": 74,
               "threshold": 70,
               "severity": "error"
             },
@@ -73692,67 +73692,26 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 1921.87,
+              "value": 1821.79,
               "threshold": 800,
               "severity": "error"
             }
           ],
-          "maintainabilityIndex": 31.8,
+          "maintainabilityIndex": 32.5,
           "maintainabilityRating": "warn",
-          "healthScore": 11,
+          "healthScore": 12,
           "smells": [
             {
               "id": "incomprehensible",
               "label": "Incomprehensible",
-              "reason": "High cognitive complexity (29) and Halstead volume (1921.87) with low MI (31.8) — very hard to understand."
+              "reason": "High cognitive complexity (28) and Halstead volume (1821.79) with low MI (32.5) — very hard to understand."
             }
           ]
         },
         {
-          "name": "isSharedParentDomain",
-          "startLine": 185,
-          "endLine": 203,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 6,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 4,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 19,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 206.32,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 55.1,
-          "maintainabilityRating": "warn",
-          "healthScore": 69,
-          "smells": []
-        },
-        {
           "name": "normalizeAuthSessionResolution",
-          "startLine": 205,
-          "endLine": 219,
+          "startLine": 182,
+          "endLine": 196,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -73792,26 +73751,26 @@
         },
         {
           "name": "normalizeBetterAuthSession",
-          "startLine": 221,
-          "endLine": 265,
+          "startLine": 198,
+          "endLine": 220,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 16,
+              "value": 7,
               "threshold": 15,
-              "severity": "error"
+              "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 13,
+              "value": 4,
               "threshold": 25,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 45,
+              "value": 23,
               "threshold": 70,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "nestingDepth",
@@ -73821,26 +73780,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 807.1,
+              "value": 394.2,
               "threshold": 800,
-              "severity": "error"
+              "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 41.4,
+          "maintainabilityIndex": 51.2,
           "maintainabilityRating": "warn",
-          "healthScore": 33,
-          "smells": [
-            {
-              "id": "incomprehensible",
-              "label": "Incomprehensible",
-              "reason": "High cognitive complexity (13) and Halstead volume (807.1) with low MI (41.4) — very hard to understand."
-            }
-          ]
+          "healthScore": 65,
+          "smells": []
         },
         {
           "name": "isAccount",
-          "startLine": 267,
-          "endLine": 278,
+          "startLine": 226,
+          "endLine": 237,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -73886,8 +73839,8 @@
         },
         {
           "name": "normalizeSession",
-          "startLine": 280,
-          "endLine": 300,
+          "startLine": 239,
+          "endLine": 259,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -73933,9 +73886,9 @@
         }
       ],
       "summary": {
-        "totalLines": 318,
-        "weightedMI": 47.8,
-        "weightedHealthScore": 47.9,
+        "totalLines": 277,
+        "weightedMI": 49,
+        "weightedHealthScore": 50.8,
         "worstSeverity": "error",
         "smellIds": [
           "bloated",

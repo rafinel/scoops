@@ -196,41 +196,31 @@ export function normalizeAuthSessionResolution(payload: unknown): AuthSessionRes
 }
 
 export function normalizeBetterAuthSession(payload: unknown): AuthSession | null {
-  if (!payload || typeof payload !== 'object') return null
+  if (!isRecord(payload) || !isRecord(payload.session)) return null
 
-  const record = payload as Record<string, unknown>
-  if (!record.session || typeof record.session !== 'object') return null
-
-  const session = record.session as Record<string, unknown>
-  const user = isAuthUser(record.user) ? record.user : session.user
+  const session = payload.session
+  const user = isAuthUser(payload.user) ? payload.user : session.user
   if (!isAuthUser(user)) return null
 
-  const currentSession = normalizeSession({ ...session, user })
-  if (currentSession) return currentSession
-
-  return normalizeLegacyBetterAuthSession(session, user)
+  // The server currently returns the normalized shape. Older deployments used
+  // Better Auth's `id` and omitted the absolute expiry, so retain that fallback
+  // while sessions created before the response-contract change remain valid.
+  return (
+    normalizeSession({ ...session, user }) ??
+    normalizeSession({
+      sessionId: session.id,
+      user,
+      createdAt: session.createdAt,
+      expiresAt: session.expiresAt,
+      absoluteExpiresAt: isDate(session.createdAt)
+        ? new Date(toDate(session.createdAt).getTime() + ABSOLUTE_SESSION_MS)
+        : null,
+    })
+  )
 }
 
-function normalizeLegacyBetterAuthSession(
-  session: Record<string, unknown>,
-  user: AuthUser,
-): AuthSession | null {
-  if (
-    typeof session.id !== 'string' ||
-    !isDate(session.createdAt) ||
-    !isDate(session.expiresAt)
-  ) {
-    return null
-  }
-
-  const createdAt = toDate(session.createdAt)
-  return {
-    sessionId: session.id,
-    user,
-    createdAt,
-    expiresAt: toDate(session.expiresAt),
-    absoluteExpiresAt: new Date(createdAt.getTime() + ABSOLUTE_SESSION_MS),
-  }
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object'
 }
 
 function isAccount(value: unknown): value is Account {
