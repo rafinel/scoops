@@ -164,10 +164,7 @@ export function isAllowedSessionCookie(
   const requestHostname = getHostname(context.requestHost)
   if (!requestHostname) return false
 
-  if (domain === undefined) return requestHostname === apiUrl.hostname
-
-  if (typeof domain !== 'string') return false
-  return isSharedParentDomain(domain, [apiUrl.hostname, requestHostname])
+  return domain === undefined && requestHostname === apiUrl.hostname
 }
 
 function isLoopbackHostname(hostname: string): boolean {
@@ -180,26 +177,6 @@ function getHostname(host: string): string | null {
   } catch {
     return null
   }
-}
-
-function isSharedParentDomain(domain: string, hostnames: string[]): boolean {
-  const normalizedDomain = domain.replace(/^\./, '').toLowerCase()
-  if (
-    normalizedDomain.length === 0 ||
-    normalizedDomain.includes('/') ||
-    normalizedDomain.includes(':') ||
-    normalizedDomain.split('.').length < 2
-  ) {
-    return false
-  }
-
-  return hostnames.every((hostname) => {
-    const normalizedHostname = hostname.toLowerCase()
-    return (
-      normalizedHostname !== normalizedDomain &&
-      normalizedHostname.endsWith(`.${normalizedDomain}`)
-    )
-  })
 }
 
 export function normalizeAuthSessionResolution(payload: unknown): AuthSessionResolution {

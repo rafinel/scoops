@@ -54,14 +54,10 @@ export function createBetterAuth(
   securityControls = new BetterAuthSecurityControls(identityDatabase, database),
 ) {
   const mode = envProvider.get('SCOOPS_SERVER_APP_MODE')
-  const cookieDomain = envProvider.get('BETTER_AUTH_COOKIE_DOMAIN')
   const serverAppUrl = envProvider.get('SCOOPS_SERVER_APP_URL')
   const webAppUrl = envProvider.get('SCOOPS_WEB_APP_URL')
   const trustedOrigins = getTrustedOrigins(webAppUrl)
   const secure = mode === 'stg' || mode === 'prod'
-  const usesSameOriginCookies = new URL(serverAppUrl).origin === new URL(webAppUrl).origin
-  const usesCrossSubdomainCookies =
-    secure && !usesSameOriginCookies && Boolean(cookieDomain)
 
   return betterAuth({
     appName: 'Scoops',
@@ -76,10 +72,6 @@ export function createBetterAuth(
     advanced: {
       database: { generateId: 'uuid' },
       cookiePrefix: 'scoops',
-      crossSubDomainCookies: {
-        enabled: usesCrossSubdomainCookies,
-        ...(usesCrossSubdomainCookies && cookieDomain ? { domain: cookieDomain } : {}),
-      },
       useSecureCookies: secure,
     },
     defaultCookieAttributes: {

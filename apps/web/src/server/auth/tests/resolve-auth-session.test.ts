@@ -11,8 +11,8 @@ const LOOPBACK_CONTEXT = {
   requestHost: '127.0.0.1:4000',
 }
 const DEPLOYED_CONTEXT = {
-  apiOrigin: 'https://api.scoops.example',
-  requestHost: 'web.scoops.example',
+  apiOrigin: 'https://scoops-web-blond.vercel.app',
+  requestHost: 'scoops-web-blond.vercel.app',
 }
 
 describe('SSR session cookie validation', () => {
@@ -30,15 +30,6 @@ describe('SSR session cookie validation', () => {
       isAllowedSessionCookie(
         'scoops.session_token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax',
         LOOPBACK_CONTEXT,
-      ),
-    ).toBe(true)
-  })
-
-  it('accepts the exact deployed shared-domain cookie attributes', () => {
-    expect(
-      isAllowedSessionCookie(
-        'scoops.session_token=session; Domain=.scoops.example; Path=/; HttpOnly; SameSite=Lax; Secure',
-        DEPLOYED_CONTEXT,
       ),
     ).toBe(true)
   })
@@ -66,9 +57,7 @@ describe('SSR session cookie validation', () => {
     'scoops.session_token=session; Path=/; HttpOnly; SameSite=Lax; Max-Age=forever',
     'scoops.session_token=; Path=/; HttpOnly; SameSite=Lax',
   ])('rejects weakened or mismatched attributes: %s', (cookie) => {
-    const context = cookie.includes('Domain=.scoops.example')
-      ? DEPLOYED_CONTEXT
-      : LOOPBACK_CONTEXT
+    const context = cookie.includes('Domain=') ? DEPLOYED_CONTEXT : LOOPBACK_CONTEXT
     expect(isAllowedSessionCookie(cookie, context)).toBe(false)
   })
 
@@ -91,17 +80,11 @@ describe('SSR session cookie validation', () => {
     ).toBe(true)
   })
 
-  it('rejects deployed cookies when the request host is malformed or outside the shared domain', () => {
+  it('rejects domain-scoped cookies for same-origin deployments', () => {
     expect(
       isAllowedSessionCookie(
         'scoops.session_token=session; Domain=.scoops.example; Path=/; HttpOnly; SameSite=Lax; Secure',
-        { apiOrigin: 'https://api.scoops.example', requestHost: 'not a host' },
-      ),
-    ).toBe(false)
-    expect(
-      isAllowedSessionCookie(
-        'scoops.session_token=session; Domain=.scoops.example; Path=/; HttpOnly; SameSite=Lax; Secure',
-        { apiOrigin: 'https://api.scoops.example', requestHost: 'evil.example' },
+        DEPLOYED_CONTEXT,
       ),
     ).toBe(false)
   })

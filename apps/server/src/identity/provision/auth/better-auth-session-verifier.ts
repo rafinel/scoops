@@ -136,25 +136,12 @@ export class BetterAuthSessionVerifier {
     const attributes = cookie.attributes as Record<string, unknown>
     const hostname = new URL(this.auth.options.baseURL).hostname
     const isLoopback = ['localhost', '127.0.0.1', '::1'].includes(hostname)
-    const configuredDomain = this.auth.options.advanced?.crossSubDomainCookies?.domain
-    const configuredDomainIsValid =
-      typeof configuredDomain === 'string' &&
-      isSharedParentDomain(configuredDomain, hostname)
-    const isHostOnlyCookie = configuredDomain === undefined
     if (
       attributes.path !== '/' ||
       attributes.httpOnly !== true ||
       attributes.sameSite !== 'lax' ||
       attributes.secure !== !isLoopback ||
-      (isLoopback
-        ? attributes.domain !== undefined
-        : isHostOnlyCookie
-          ? attributes.domain !== undefined
-          : typeof configuredDomain !== 'string' ||
-            !configuredDomainIsValid ||
-            typeof attributes.domain !== 'string' ||
-            attributes.domain.replace(/^\./, '').toLowerCase() !==
-              configuredDomain.replace(/^\./, '').toLowerCase())
+      attributes.domain !== undefined
     ) {
       throw new AuthenticationProviderUnavailableError()
     }
@@ -245,21 +232,4 @@ export class BetterAuthSessionVerifier {
   private toAuthUser(user: { id: string; email: string }): AuthUser {
     return { id: user.id, email: user.email }
   }
-}
-
-function isSharedParentDomain(domain: string, hostname: string): boolean {
-  const normalizedDomain = domain.replace(/^\./, '').toLowerCase()
-  if (
-    normalizedDomain.length === 0 ||
-    normalizedDomain.includes('/') ||
-    normalizedDomain.includes(':') ||
-    normalizedDomain.split('.').length < 2
-  )
-    return false
-
-  const normalizedHostname = hostname.toLowerCase()
-  return (
-    normalizedHostname !== normalizedDomain &&
-    normalizedHostname.endsWith(`.${normalizedDomain}`)
-  )
 }

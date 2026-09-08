@@ -123,8 +123,8 @@ concrete. No PRD amendment or requirement checkbox transition is part of this Sp
   used as input for the reviewed Drizzle migration but must not apply schema directly.
 - Authentication uses the `scoops.session_token` server cookie. Browser code cannot read, mirror,
   or persist its value. There are no access or refresh tokens in `AuthSession`.
-- Deployed Web and API hosts share one registrable application domain. The cookie is scoped to that
-  parent domain so both browser API requests and TanStack Start SSR requests can carry it. It is
+- Deployed Web and API requests use the Web application's same-origin Vercel proxy. The cookie is
+  host-only so browser API requests and TanStack Start SSR requests remain same-origin. It is
   `Secure`, `HttpOnly`, and `SameSite=Lax`; local loopback cookies are non-secure.
 - The web REST client uses credentials and never creates an `Authorization` header. TanStack Start
   server functions explicitly forward the incoming `Cookie` header only to the configured Scoops
@@ -504,10 +504,9 @@ manual requeue pass the IDs they changed to `wake` after their database transact
 | --- | --- |
 | `DATABASE_URL` | Server only; standard PostgreSQL locally/tests and Neon pooled URL in staging/production |
 | `BETTER_AUTH_SECRET` | Server only; minimum 32 characters; required in every mode |
-| `BETTER_AUTH_COOKIE_DOMAIN` | Empty/absent on loopback; required shared parent domain in `stg`/`prod` |
-| `SCOOPS_SERVER_APP_URL` | Canonical public API origin and Better Auth base URL |
+| `SCOOPS_SERVER_APP_URL` | Canonical public application origin and Better Auth base URL; same as the Web origin when using the Vercel same-origin proxy |
 | `SCOOPS_WEB_APP_URL` | Exact canonical Web origin and email-link origin |
-| `VITE_SCOOPS_SERVER_APP_URL` | Browser-exposed exact API origin only; never contains a secret and must equal the public API origin |
+| `VITE_SCOOPS_SERVER_APP_URL` | Browser-exposed exact public application origin only; never contains a secret and must equal the public Web origin when using the Vercel same-origin proxy |
 | `SCOOPS_EMAIL_PROVIDER` | `smtp` in `dev`/`test`; `resend` in `stg`/`prod` |
 | `SMTP_HOST`, `SMTP_PORT` | Local Mailpit connection; defaults `127.0.0.1` and `54325` |
 | `RESEND_API_KEY` | Required only for `resend`; server secret |
@@ -726,7 +725,7 @@ rollback, and validation contract.
 | --- | --- | --- | --- | --- |
 | Authentication runtime | Better Auth exact-pinned in NestJS through shared Drizzle/PostgreSQL | retain hosted Supabase Auth or run another auth service | satisfies issue #28, removes gateway/service-key dependency, and enables one transactional store | version-sensitive hooks/schema require exact pin, adapter tests, and reviewed migration |
 | Browser/SSR session transport | server-issued HttpOnly cookie plus sanitized Scoops session projection | readable Bearer tokens/local storage | eliminates JavaScript token handling and supports server authorization/session rotation | requires credentialed CORS, exact Origin checks, SSR cookie forwarding, and cookie-header allowlist |
-| Deployed cookie topology | Web/API share parent application domain; `Secure`, `HttpOnly`, `SameSite=Lax` parent-domain cookie | unrelated domains with `SameSite=None`, or API host-only cookie | same-site security and Web SSR must both receive the cookie | broader subdomain scope is constrained to the application parent and exact deployed hosts/origins |
+| Deployed cookie topology | Web/API use the Web application's same-origin Vercel proxy; `Secure`, `HttpOnly`, `SameSite=Lax` host-only cookie | unrelated direct API origin or `SameSite=None` cookie | same-origin security and Web SSR must both receive the cookie | direct cross-origin browser API access is not supported |
 | Authentication email provider | Communication-owned SMTP/Mailpit in dev/test and Resend in stg/prod | Better Auth Infrastructure now or SMTP fallback in production | matches approved environment decision and keeps provider choice out of Identity | no production fallback; provider failure remains visible/retryable; managed infrastructure explicitly deferred |
 | Message initiation reliability | `InngestBroker.publish` records one transactional `events` row through `DatabaseTransactionContext`; `PublishEventJob` listens after commit and sends through `InngestClient` with the stable UUID | direct after-commit publish or polling-only relay | Communication `REQ-08` and inactivation failure semantics require mutation/event atomicity without placing Broker in a database scope, while LISTEN/NOTIFY provides prompt dispatch | adds one notification channel/listener plus table and recovery/cleanup jobs; notifications can be lost and are covered by startup/reconnect draining and local/test reprocessing; at-least-once duplicates are controlled by stable idempotency; no delivery table |
 | Publication trigger and recovery | committed PostgreSQL `LISTEN/NOTIFY` for prompt `PublishEventJob` dispatch; startup/reconnect drain; `ReprocessEventsJob` only local/test | one-minute Inngest cron for both publisher and reprocessor | event publishing should be immediate while staging avoids scheduled reprocessing runs | notification delivery is not durable; drain/requeue controls remain required; staging terminal failures require operator visibility/requeue |
@@ -775,7 +774,6 @@ The Better Auth factory uses these explicit options for the pinned version:
 | `database` | `drizzleAdapter(database, { provider: 'pg', schema: betterAuthSchema })` |
 | `advanced.database.generateId` | `'uuid'` for every Better Auth model |
 | `advanced.cookiePrefix` | `'scoops'` |
-| `advanced.crossSubDomainCookies` | enabled with `BETTER_AUTH_COOKIE_DOMAIN` only in `stg`/`prod`; disabled on loopback |
 | `trustedOrigins` | exact normalized Web origins from the environment contract |
 | `emailAndPassword` | enabled; password length 8–64; bcrypt `hash`/`verify`; reset expiry 3,600 seconds; revoke sessions on reset |
 | `emailVerification` | required; one-time expiry aligned with the owning Scoops attempt; auto sign-in used only through the Scoops confirmation orchestration |
@@ -1352,7 +1350,7 @@ their disappearance is working-tree cleanup, not a new baseline `Remove` path.
 | `pnpm-lock.yaml` | Generate | match manifests exactly |
 | `.dependency-cruiser.mjs` | Modify | register Communication Core subpaths and prohibit Identity-to-Communication/provider imports |
 | `.env.example` | Modify | standard PostgreSQL/Mailpit Compose values only |
-| `apps/server/.env.example` | Modify | Better Auth, cookie-domain, server/Web origins, SMTP/Resend variables; no real secrets |
+| `apps/server/.env.example` | Modify | Better Auth, server/Web origins, SMTP/Resend variables; no real secrets |
 | `apps/web/.env.example` | Modify | Scoops API URL only |
 | `docker-compose.yaml` | Modify | `postgres:17-alpine` service with new `scoops-postgres-data` volume plus Mailpit/MinIO/Inngest; remove Auth/Kong/REST/Meta/Studio without deleting the old volume |
 | `volumes/auth/templates/confirmation.html` | Remove | remove Supabase-managed template; Communication owns the replacement |
@@ -1671,7 +1669,7 @@ or migration boundary.
 
 | Document | Authority for | State | Required change/confirmation |
 | --- | --- | --- | --- |
-| `documentation/architecture.md` | runtime, persistence, authentication, cookie, integration, and messaging boundaries | amended and user-approved, 2026-09-03 | Better Auth in NestJS; Neon/standard PostgreSQL; parent-domain server cookie; Communication-owned Resend/Mailpit; `InngestBroker` atomic outbox enqueue; committed `LISTEN/NOTIFY` delivery through non-Inngest `PublishEventJob`; local/test-only reprocessing |
+| `documentation/architecture.md` | runtime, persistence, authentication, cookie, integration, and messaging boundaries | amended and user-approved, 2026-09-03 | Better Auth in NestJS; Neon/standard PostgreSQL; host-only server cookie through the Web proxy; Communication-owned Resend/Mailpit; `InngestBroker` atomic outbox enqueue; committed `LISTEN/NOTIFY` delivery through non-Inngest `PublishEventJob`; local/test-only reprocessing |
 | `documentation/rules/email-package-rules.md` | standalone email package ownership and implementation conventions | created, 2026-09-03 | React Email composition stays independent from Server delivery/provider infrastructure; public components/render helpers use typed arrow-function declarations |
 | `documentation/modules.md` | module ownership and cross-module contracts | confirmed unchanged at `main@4ce2965` | Identity owns authentication facts; Communication alone owns email composition/provider/delivery; shared owns only transport |
 | `documentation/prds/identity.md` | authentication, onboarding, invitation, recovery, access, audit, and session outcomes | confirmed unchanged at `main@4ce2965` | preserve `REQ-01`–`REQ-05`, `REQ-08`, `REQ-09`, `REQ-10`, and `REQ-13`, including failure-without-state-change |
@@ -1688,7 +1686,7 @@ historical evidence merely because they truthfully describe the former Supabase 
 
 | Risk | Control |
 | --- | --- |
-| Cookie works in browser but not SSR | shared parent-domain cookie plus explicit server-only Cookie forwarding test |
+| Cookie works in browser but not SSR | same-origin host-only cookie plus explicit server-only Cookie forwarding test |
 | CSRF after moving from Bearer to cookies | SameSite, exact origins, Better Auth checks, protected unsafe-method Origin guard |
 | Provider/local partial completion | ordered idempotent operations, no early Set-Cookie, compensating cleanup, explicit retry tests |
 | Brute-force policy silently replaced by provider rate limit | separate persisted consecutive-failure control with controlled-time tests |

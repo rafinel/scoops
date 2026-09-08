@@ -20,7 +20,6 @@ export const serverEnvSchema = z
     SCOOPS_SERVER_APP_PORT: z.coerce.number().int().positive().default(3336),
     SCOOPS_PDV_PREVIEW_TOKEN_SECRET: z.string().min(32),
     BETTER_AUTH_SECRET: z.string().min(32),
-    BETTER_AUTH_COOKIE_DOMAIN: z.string().trim().optional(),
     SCOOPS_SERVER_APP_URL: z.url().default('http://127.0.0.1:3336'),
     SCOOPS_WEB_APP_URL: z.string().url().default('http://127.0.0.1:4000'),
     SCOOPS_EMAIL_PROVIDER: z.enum(['smtp', 'resend']).default('smtp'),
@@ -47,19 +46,6 @@ export const serverEnvSchema = z
         code: 'custom',
         path: ['RESEND_API_KEY'],
         message: 'Resend API key is required for staging and production',
-      })
-    }
-    if (
-      (environment.SCOOPS_SERVER_APP_MODE === 'stg' ||
-        environment.SCOOPS_SERVER_APP_MODE === 'prod') &&
-      !environment.BETTER_AUTH_COOKIE_DOMAIN &&
-      new URL(environment.SCOOPS_SERVER_APP_URL).origin !==
-        new URL(environment.SCOOPS_WEB_APP_URL).origin
-    ) {
-      context.addIssue({
-        code: 'custom',
-        path: ['BETTER_AUTH_COOKIE_DOMAIN'],
-        message: 'Cookie domain is required outside loopback environments',
       })
     }
   })
