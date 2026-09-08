@@ -1,7 +1,3 @@
----
-description: Ownership and responsibility boundaries for the Scoops business modules.
----
-
 # Business Modules
 
 Scoops is divided into cohesive business modules. Each module owns its domain
@@ -72,17 +68,3 @@ notifications. It must not reproduce the originating module's business rules.
 
 Product requirements are documented in
 [`prds/communication.md`](prds/communication.md).
-
-## Boundary rules
-
-- Put a business capability in the module that is authoritative for its rules and
-  lifecycle.
-- Keep domain declarations in the corresponding module under `packages/core`.
-- Keep server controllers, persistence, messaging jobs, and adapters under the
-  same owning module in `apps/server`.
-- Keep feature UI under the same owning module in `apps/web/src/ui`.
-- Use shared directories only for capabilities intentionally reused by multiple
-  modules and containing no module-specific business policy.
-- Communicate across modules through identifiers, core contracts, and business
-  events rather than internal imports.
-- Update this document and the owning PRD when module responsibility changes.
