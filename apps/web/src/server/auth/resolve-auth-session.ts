@@ -197,46 +197,38 @@ export function normalizeAuthSessionResolution(payload: unknown): AuthSessionRes
 
 export function normalizeBetterAuthSession(payload: unknown): AuthSession | null {
   if (!payload || typeof payload !== 'object') return null
+
   const record = payload as Record<string, unknown>
-  const session = record.session
-  const user = isAuthUser(record.user)
-    ? record.user
-    : session && typeof session === 'object'
-      ? (session as Record<string, unknown>).user
-      : null
-  if (!session || typeof session !== 'object' || !isAuthUser(user)) return null
+  if (!record.session || typeof record.session !== 'object') return null
 
-  const sessionRecord = session as Record<string, unknown>
+  const session = record.session as Record<string, unknown>
+  const user = isAuthUser(record.user) ? record.user : session.user
+  if (!isAuthUser(user)) return null
 
+  const currentSession = normalizeSession({ ...session, user })
+  if (currentSession) return currentSession
+
+  return normalizeLegacyBetterAuthSession(session, user)
+}
+
+function normalizeLegacyBetterAuthSession(
+  session: Record<string, unknown>,
+  user: AuthUser,
+): AuthSession | null {
   if (
-    typeof sessionRecord.sessionId === 'string' &&
-    isDate(sessionRecord.createdAt) &&
-    isDate(sessionRecord.expiresAt) &&
-    isDate(sessionRecord.absoluteExpiresAt)
-  ) {
-    return {
-      sessionId: sessionRecord.sessionId,
-      user,
-      createdAt: toDate(sessionRecord.createdAt),
-      expiresAt: toDate(sessionRecord.expiresAt),
-      absoluteExpiresAt: toDate(sessionRecord.absoluteExpiresAt),
-    }
-  }
-
-  if (
-    typeof sessionRecord.id !== 'string' ||
-    !isDate(sessionRecord.createdAt) ||
-    !isDate(sessionRecord.expiresAt)
+    typeof session.id !== 'string' ||
+    !isDate(session.createdAt) ||
+    !isDate(session.expiresAt)
   ) {
     return null
   }
 
-  const createdAt = toDate(sessionRecord.createdAt)
+  const createdAt = toDate(session.createdAt)
   return {
-    sessionId: sessionRecord.id,
+    sessionId: session.id,
     user,
     createdAt,
-    expiresAt: toDate(sessionRecord.expiresAt),
+    expiresAt: toDate(session.expiresAt),
     absoluteExpiresAt: new Date(createdAt.getTime() + ABSOLUTE_SESSION_MS),
   }
 }
