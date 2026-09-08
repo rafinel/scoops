@@ -40,6 +40,4 @@ async function bootstrap() {
   await app.listen(envProvider.get('PORT') ?? envProvider.get('SCOOPS_SERVER_APP_PORT'))
 }
 
-if (process.env.VERCEL !== '1') {
-  void bootstrap()
-}
+void bootstrap()
