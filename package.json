@@ -12,6 +12,8 @@
     "sync": "pnpm sync:commands && pnpm sync:agents",
     "test:scripts": "node --test scripts/tests/*.test.mjs",
     "check:test-integrity": "node scripts/check-test-integrity.mjs",
+    "check:complexity": "node scripts/check-complexity.mjs",
+    "update:complexity-baseline": "node scripts/check-complexity.mjs --update-baseline",
     "test:coverage": "pnpm --filter @scoops/core test:coverage && pnpm --filter server test:coverage && pnpm --filter web test:coverage",
     "check:architecture": "pnpm --filter @scoops/core check:architecture && pnpm --filter @scoops/validation check:architecture && pnpm --filter server check:architecture && pnpm --filter web check:architecture",
     "check:spec-implementation": "node scripts/check-spec-implementation.mjs",
@@ -21,6 +23,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.7",
+    "code-multivitals": "1.6.2",
     "dependency-cruiser": "16.10.4",
     "turbo": "^2.10.8",
     "typescript": "5.9.2"
