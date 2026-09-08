@@ -1,4 +1,5 @@
 import {
+  All,
   Controller,
   Get,
   HttpStatus,
@@ -63,7 +64,7 @@ export class CheckHealthController {
     }
   }
 
-  @Get('/')
+  @All('/')
   @Redirect('/health', HttpStatus.FOUND)
   @ApiResponse({
     status: HttpStatus.FOUND,

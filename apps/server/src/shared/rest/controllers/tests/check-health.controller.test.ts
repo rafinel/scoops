@@ -20,9 +20,12 @@ describe('Check Health Controller [GET /health]', () => {
     app = await createHealthApp({ databaseHealthy: true })
 
     const response = await request(app.getHttpServer()).get('/')
+    const postResponse = await request(app.getHttpServer()).post('/')
 
     expect(response.status).toBe(302)
     expect(response.headers.location).toBe('/health')
+    expect(postResponse.status).toBe(302)
+    expect(postResponse.headers.location).toBe('/health')
   })
 
   it('returns healthy status when the database is available', async () => {
