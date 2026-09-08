@@ -1,0 +1,80 @@
+name: Web Heroku CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.dockerignore'
+      - '.github/workflows/web-app-staging-cd.yml'
+      - 'apps/web/**'
+      - 'package.json'
+      - 'packages/core/**'
+      - 'packages/validation/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'scripts/sync-heroku-env.mjs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-heroku-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy Web
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+    env:
+      HEROKU_APP_NAME: scoops-web-app-staging
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+    steps:
+      - name: Checkout revision
+        uses: actions/checkout@v7
+
+      - name: Validate deployment configuration
+        run: |
+          test -n "$HEROKU_APP_NAME"
+          test -n "$HEROKU_API_KEY"
+
+      - name: Install Heroku CLI
+        run: curl https://cli-assets.heroku.com/install.sh | sh
+
+      - name: Authenticate with Heroku Container Registry
+        run: heroku container:login
+
+      - name: Load and sync web environment
+        env:
+          HEROKU_ENV_FILE: ${{ secrets.SCOOPS_WEB_APP_STAGING_ENV }}
+        run: |
+          test -n "$HEROKU_ENV_FILE"
+          env_file="$RUNNER_TEMP/web.env"
+          printf '%s' "$HEROKU_ENV_FILE" > "$env_file"
+          chmod 600 "$env_file"
+          node scripts/sync-heroku-env.mjs "$env_file" "$HEROKU_APP_NAME" "$GITHUB_ENV"
+
+      - name: Validate web build environment
+        run: |
+          test -n "$VITE_SCOOPS_SERVER_APP_URL"
+          test -n "$VITE_SCOOPS_SERVER_API_PREFIX"
+          test -n "$SCOOPS_SERVER_PROXY_URL"
+
+      - name: Build and push web image
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            --target runtime \
+            --build-arg "VITE_SCOOPS_SERVER_APP_URL=$VITE_SCOOPS_SERVER_APP_URL" \
+            --build-arg "VITE_SCOOPS_SERVER_API_PREFIX=$VITE_SCOOPS_SERVER_API_PREFIX" \
+            --build-arg "SCOOPS_SERVER_PROXY_URL=$SCOOPS_SERVER_PROXY_URL" \
+            --tag "registry.heroku.com/$HEROKU_APP_NAME/web" \
+            --file apps/web/Dockerfile \
+            .
+          docker push "registry.heroku.com/$HEROKU_APP_NAME/web"
+
+      - name: Release web
+        run: heroku container:release web --app "$HEROKU_APP_NAME"
