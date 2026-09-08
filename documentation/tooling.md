@@ -170,6 +170,41 @@ pnpm --filter @scoops/core check:code
 pnpm --filter @scoops/validation check:code
 ```
 
+## Complexity analysis with CodeMultiVitals
+
+CodeMultiVitals is pinned in the root `package.json` and lockfile. The
+repository configuration in `.code-multivitals.json` sets the thresholds for
+cyclomatic complexity, cognitive complexity, function length, nesting depth,
+and Halstead volume. `scripts/check-complexity.mjs` invokes the CodeMultiVitals
+CLI over production source files while excluding tests and generated route
+metadata.
+
+Run the local quality gate:
+
+```bash
+pnpm check:complexity
+```
+
+The committed `.code-multivitals-baseline.json` records existing violations so
+legacy complexity does not block unrelated work. New violations and worsened
+existing violation severities fail the check. The baseline stores
+repository-relative paths and is materialized into a temporary runner-specific
+file because the CodeMultiVitals CLI reports absolute paths.
+
+When an intentional refactor changes the accepted baseline, regenerate it and
+review the resulting diff before committing:
+
+```bash
+pnpm update:complexity-baseline
+pnpm check:complexity
+```
+
+Each app/package CI workflow has a separate `Complexity` job. It runs this gate
+against only that workflow's production source (`packages/core`,
+`packages/validation`, `apps/server`, or `apps/web`) while using the shared
+baseline. Changes to the CodeMultiVitals configuration, baseline, dependency
+lockfile, or checker also trigger the relevant jobs.
+
 ## Architecture boundaries
 
 Each workspace exposes a `check:architecture` command backed by Dependency Cruiser. Its
@@ -516,6 +551,10 @@ the maintained summary:
   architecture and type checks, unit tests, the mocked Playwright route suite and build
   for Web, Validation or Core inputs. Real-service browser scenarios are validated
   separately with their required Server/PostgreSQL environment.
+
+Each workflow also has a separate `Complexity` job that runs the scoped
+CodeMultiVitals baseline quality gate alongside the app/package-specific
+validation job.
 
 The workflows run on matching pushes and pull requests. The repository does not currently contain
 deployment automation, such as Coolify workflows; deployment remains a separate manual or
