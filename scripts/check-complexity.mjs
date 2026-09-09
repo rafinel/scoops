@@ -25,6 +25,7 @@ const SOURCE_PATTERNS_BY_SCOPE = {
   'apps/web': ['apps/web/src/**/*.{ts,tsx}'],
   'packages/core': ['packages/core/src/**/*.ts'],
   'packages/validation': ['packages/validation/src/**/*.ts'],
+  'packages/email': ['packages/email/templates/**/*.{ts,tsx}'],
 }
 
 function toRepositoryPath(filePath) {

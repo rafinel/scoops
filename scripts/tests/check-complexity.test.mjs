@@ -106,6 +106,13 @@ test('builds a scoped source pattern list for an app or package', () => {
       'packages/core/src/**/*.ts',
     ),
   )
+  assert.deepEqual(getScopePatterns('packages/email'), [
+    'packages/email/templates/**/*.{ts,tsx}',
+    '!**/*.test.ts',
+    '!**/*.test.tsx',
+    '!**/tests/**',
+    '!**/routeTree.gen.ts',
+  ])
 })
 
 test('rejects an unknown complexity scope', () => {
