@@ -23,7 +23,7 @@ export class ListProductsController {
   }
 
   @Get()
-  @RequiredProfiles([UserProfile.Manager])
+  @RequiredProfiles([UserProfile.Manager, UserProfile.Operator])
   handle(
     @QueryParameter(new ZodValidationPipe(listProductsQuerySchema)) query: QueryInput,
     @CurrentAccount() actor: Account,

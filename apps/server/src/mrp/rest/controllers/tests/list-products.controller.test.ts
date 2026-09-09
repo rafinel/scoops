@@ -58,7 +58,10 @@ describe('List Products Controller [GET /products]', () => {
       response.body.items.map((item: { product: { id: string } }) => item.product.id),
     ).not.toContain(unused.id)
     expect(anonymous.status).toBe(401)
-    expect(operator.status).toBe(403)
+    expect(operator.status).toBe(200)
+    expect(
+      operator.body.items.map((item: { product: { id: string } }) => item.product.id),
+    ).toEqual([used.id])
     expect(foreign.status).toBe(200)
     expect(foreign.body.items).toEqual([])
   })

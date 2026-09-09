@@ -38,8 +38,10 @@ export class ListProductsUseCase implements UseCase<Request, ProductCatalogPage>
   }
 
   private validateActor(actor: ProductActor): void {
-    if (actor.profile !== UserProfile.Manager) {
-      throw new AuthorizationError('Somente gestores podem consultar os produtos.')
+    if (actor.profile !== UserProfile.Manager && actor.profile !== UserProfile.Operator) {
+      throw new AuthorizationError(
+        'Somente gestores ou operadores podem consultar os produtos.',
+      )
     }
   }
 

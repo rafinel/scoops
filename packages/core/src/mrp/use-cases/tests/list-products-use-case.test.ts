@@ -51,7 +51,9 @@ describe('List Products Use Case', () => {
     })
   })
 
-  it('rejects non-manager actors and invalid page sizes', async () => {
+  it('allows operators and rejects unsupported actors or invalid page sizes', async () => {
+    productsRepository.findMany.mockResolvedValue({} as never)
+
     const operatorRequest = {
       actor: {
         id: 'operator-1',
@@ -60,9 +62,22 @@ describe('List Products Use Case', () => {
       },
     }
 
-    await expect(useCase.execute(operatorRequest)).rejects.toBeInstanceOf(
-      AuthorizationError,
-    )
+    await expect(useCase.execute(operatorRequest)).resolves.toEqual({})
+    expect(productsRepository.findMany).toHaveBeenCalledWith({
+      establishmentId: 'establishment-1',
+      page: 1,
+      pageSize: 10,
+      sortBy: ProductSortField.CreatedAt,
+      sortDirection: ProductSortDirection.Descending,
+    })
+
+    await expect(
+      useCase.execute({
+        ...operatorRequest,
+        actor: { ...operatorRequest.actor, profile: 'guest' as UserProfile },
+      }),
+    ).rejects.toBeInstanceOf(AuthorizationError)
+
     await expect(
       useCase.execute({
         actor: {
