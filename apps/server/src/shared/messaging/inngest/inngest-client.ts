@@ -13,6 +13,5 @@ export class InngestClient extends Inngest {
       eventKey: envProvider.get('INNGEST_EVENT_KEY'),
       signingKey: envProvider.get('INNGEST_SIGNING_KEY'),
     })
-    console.log('INNGEST_ENV', envProvider.get('INNGEST_DEV'))
   }
 }
