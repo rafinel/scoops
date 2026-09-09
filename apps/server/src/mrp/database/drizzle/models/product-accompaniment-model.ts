@@ -13,7 +13,7 @@ import { productModel } from './product-model'
 import { accompanimentTypeModel } from './accompaniment-type-model'
 
 export const productAccompanimentModel = pgTable(
-  'mrp_product_accompaniments',
+  'product_accompaniments',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

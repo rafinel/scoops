@@ -4,7 +4,7 @@ import { check, index, numeric, pgTable, text, uuid } from 'drizzle-orm/pg-core'
 import { productionModel } from './production-model'
 
 export const productionIngredientModel = pgTable(
-  'mrp_production_ingredients',
+  'production_ingredients',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

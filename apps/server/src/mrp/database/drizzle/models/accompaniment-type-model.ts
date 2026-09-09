@@ -10,7 +10,7 @@ import {
 } from 'drizzle-orm/pg-core'
 
 export const accompanimentTypeModel = pgTable(
-  'mrp_accompaniment_types',
+  'accompaniment_types',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

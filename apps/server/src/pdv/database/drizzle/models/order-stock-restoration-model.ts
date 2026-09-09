@@ -14,7 +14,7 @@ import { orderModel } from '@/pdv/database/drizzle/models/order-model'
 import { orderStockRestorationOutcomeModel } from '@/pdv/database/drizzle/models/order-stock-restoration-outcome-model'
 
 export const orderStockRestorationModel = pgTable(
-  'pdv_order_stock_restorations',
+  'order_stock_restorations',
   {
     id: uuid('id').primaryKey(),
     orderId: uuid('order_id')

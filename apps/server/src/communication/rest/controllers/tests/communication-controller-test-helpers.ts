@@ -22,10 +22,6 @@ export function managerRequestAuthorization() {
   return `scoops.session_token=${CommunicationModuleFixture.accounts.managerToken}`
 }
 
-export function operatorRequestAuthorization() {
-  return `scoops.session_token=${CommunicationModuleFixture.accounts.operatorToken}`
-}
-
 export function foreignManagerRequestAuthorization() {
   return `scoops.session_token=${CommunicationModuleFixture.accounts.foreignManagerToken}`
 }

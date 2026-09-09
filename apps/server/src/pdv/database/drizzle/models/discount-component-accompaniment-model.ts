@@ -12,7 +12,7 @@ import {
 import { discountComponentModel } from '@/pdv/database/drizzle/models/discount-component-model'
 
 export const discountComponentAccompanimentModel = pgTable(
-  'pdv_discount_component_accompaniments',
+  'discount_component_accompaniments',
   {
     componentId: uuid('component_id')
       .notNull()

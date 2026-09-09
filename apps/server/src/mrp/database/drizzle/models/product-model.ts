@@ -27,7 +27,7 @@ export const productStockControlModel = pgEnum('mrp_product_stock_control', [
 export const productStatusModel = pgEnum('mrp_product_status', ['active', 'inactive'])
 
 export const productModel = pgTable(
-  'mrp_products',
+  'products',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

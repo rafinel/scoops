@@ -14,7 +14,7 @@ import { productBrandModel } from '@/mrp/database/drizzle/models/product-brand-m
 import { productModel } from '@/mrp/database/drizzle/models/product-model'
 
 export const resaleConfigurationModel = pgTable(
-  'mrp_resale_configurations',
+  'resale_configurations',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

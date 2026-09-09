@@ -1,0 +1,27 @@
+ALTER TABLE "communication_notifications" RENAME TO "notifications";--> statement-breakpoint
+ALTER TABLE "mrp_accompaniment_types" RENAME TO "accompaniment_types";--> statement-breakpoint
+ALTER TABLE "mrp_product_accompaniments" RENAME TO "product_accompaniments";--> statement-breakpoint
+ALTER TABLE "mrp_product_brands" RENAME TO "product_brands";--> statement-breakpoint
+ALTER TABLE "mrp_products" RENAME TO "products";--> statement-breakpoint
+ALTER TABLE "mrp_product_sizes" RENAME TO "product_sizes";--> statement-breakpoint
+ALTER TABLE "mrp_production_ingredients" RENAME TO "production_ingredients";--> statement-breakpoint
+ALTER TABLE "mrp_productions" RENAME TO "productions";--> statement-breakpoint
+ALTER TABLE "mrp_recipe_ingredients" RENAME TO "recipe_ingredients";--> statement-breakpoint
+ALTER TABLE "mrp_recipes" RENAME TO "recipes";--> statement-breakpoint
+ALTER TABLE "mrp_resale_configurations" RENAME TO "resale_configurations";--> statement-breakpoint
+ALTER TABLE "mrp_stock_balances" RENAME TO "stock_balances";--> statement-breakpoint
+ALTER TABLE "mrp_stock_transactions" RENAME TO "stock_transactions";--> statement-breakpoint
+ALTER TABLE "pdv_discount_component_accompaniments" RENAME TO "discount_component_accompaniments";--> statement-breakpoint
+ALTER TABLE "pdv_discount_components" RENAME TO "discount_components";--> statement-breakpoint
+ALTER TABLE "pdv_discounts" RENAME TO "discounts";--> statement-breakpoint
+ALTER TABLE "pdv_order_discount_component_accompaniments" RENAME TO "order_discount_component_accompaniments";--> statement-breakpoint
+ALTER TABLE "pdv_order_discount_components" RENAME TO "order_discount_components";--> statement-breakpoint
+ALTER TABLE "pdv_order_discount_lines" RENAME TO "order_discount_lines";--> statement-breakpoint
+ALTER TABLE "pdv_order_discounts" RENAME TO "order_discounts";--> statement-breakpoint
+ALTER TABLE "pdv_order_line_accompaniments" RENAME TO "order_line_accompaniments";--> statement-breakpoint
+ALTER TABLE "pdv_order_line_consumptions" RENAME TO "order_line_consumptions";--> statement-breakpoint
+ALTER TABLE "pdv_order_lines" RENAME TO "order_lines";--> statement-breakpoint
+ALTER TABLE "pdv_orders" RENAME TO "orders";--> statement-breakpoint
+ALTER TABLE "pdv_order_sequences" RENAME TO "order_sequences";--> statement-breakpoint
+ALTER TABLE "pdv_order_stock_restorations" RENAME TO "order_stock_restorations";--> statement-breakpoint
+ALTER TABLE "pdv_sales_channels" RENAME TO "sales_channels";

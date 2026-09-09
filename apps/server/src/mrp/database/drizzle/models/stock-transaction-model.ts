@@ -12,7 +12,7 @@ import {
 import { productionModel } from './production-model'
 
 export const stockTransactionModel = pgTable(
-  'mrp_stock_transactions',
+  'stock_transactions',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

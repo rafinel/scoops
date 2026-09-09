@@ -5,7 +5,7 @@ import { discountComponentKindModel } from '@/pdv/database/drizzle/models/discou
 import { discountModel } from '@/pdv/database/drizzle/models/discount-model'
 
 export const discountComponentModel = pgTable(
-  'pdv_discount_components',
+  'discount_components',
   {
     id: uuid('id').primaryKey(),
     discountId: uuid('discount_id')

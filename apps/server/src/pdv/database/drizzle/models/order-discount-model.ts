@@ -14,7 +14,7 @@ import { discountTypeModel } from '@/pdv/database/drizzle/models/discount-type-m
 import { orderModel } from '@/pdv/database/drizzle/models/order-model'
 
 export const orderDiscountModel = pgTable(
-  'pdv_order_discounts',
+  'order_discounts',
   {
     id: uuid('id').primaryKey(),
     orderId: uuid('order_id')

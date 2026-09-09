@@ -14,7 +14,7 @@ import { productBrandModel } from './product-brand-model'
 import { recipeModel } from './recipe-model'
 
 export const recipeIngredientModel = pgTable(
-  'mrp_recipe_ingredients',
+  'recipe_ingredients',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

@@ -14,7 +14,7 @@ import { discountComponentKindModel } from '@/pdv/database/drizzle/models/discou
 import { orderModel } from '@/pdv/database/drizzle/models/order-model'
 
 export const orderLineModel = pgTable(
-  'pdv_order_lines',
+  'order_lines',
   {
     id: uuid('id').primaryKey(),
     orderId: uuid('order_id')

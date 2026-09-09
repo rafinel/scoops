@@ -4,7 +4,7 @@ import { check, index, integer, pgTable, primaryKey, uuid } from 'drizzle-orm/pg
 import { orderDiscountComponentModel } from '@/pdv/database/drizzle/models/order-discount-component-model'
 
 export const orderDiscountComponentAccompanimentModel = pgTable(
-  'pdv_order_discount_component_accompaniments',
+  'order_discount_component_accompaniments',
   {
     componentId: uuid('component_id')
       .notNull()

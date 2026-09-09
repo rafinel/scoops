@@ -4,7 +4,7 @@ import { orderDiscountComponentModel } from '@/pdv/database/drizzle/models/order
 import { orderLineModel } from '@/pdv/database/drizzle/models/order-line-model'
 
 export const orderDiscountLineModel = pgTable(
-  'pdv_order_discount_lines',
+  'order_discount_lines',
   {
     componentId: uuid('component_id')
       .notNull()

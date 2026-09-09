@@ -14,7 +14,7 @@ import {
 import { productModel, productUnitModel } from './product-model'
 
 export const productBrandModel = pgTable(
-  'mrp_product_brands',
+  'product_brands',
   {
     id: uuid('id').primaryKey(),
     productId: uuid('product_id')

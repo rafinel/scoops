@@ -1,4 +1,4 @@
-import { Inject, Injectable, Optional } from '@nestjs/common'
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common'
 import type {
   EmailMessage,
   EmailDelivery,
@@ -13,6 +13,7 @@ type ResendClient = Pick<Resend, 'emails'>
 
 @Injectable()
 export class ResendEmailProvider implements EmailProvider {
+  private readonly logger = new Logger(ResendEmailProvider.name)
   private readonly client: ResendClient
   private readonly sender: string
 
@@ -40,12 +41,55 @@ export class ResendEmailProvider implements EmailProvider {
       )
 
       if (error || !data?.id) {
-        throw new Error(error?.message ?? 'Resend did not return a message id')
+        throw error ?? new Error('Resend did not return a message id')
       }
 
       return { providerMessageId: data.id }
-    } catch {
+    } catch (error) {
+      this.logDeliveryFailure(message, error)
       throw new EmailDeliveryUnavailableError()
+    }
+  }
+
+  private logDeliveryFailure(message: EmailMessage, error: unknown): void {
+    const details = this.getErrorDetails(error)
+    this.logger.error(
+      JSON.stringify({
+        signal: 'email_delivery_failed',
+        provider: 'resend',
+        eventId: message.idempotencyKey,
+        from: this.sender,
+        to: message.to,
+        subject: message.subject,
+        ...details,
+      }),
+    )
+  }
+
+  private getErrorDetails(error: unknown) {
+    if (error instanceof Error) {
+      const statusCode = (error as Error & { statusCode?: unknown }).statusCode
+
+      return {
+        errorName: error.name,
+        errorMessage: error.message,
+        statusCode: typeof statusCode === 'number' ? statusCode : undefined,
+      }
+    }
+
+    if (error && typeof error === 'object') {
+      const record = error as Record<string, unknown>
+      return {
+        errorName: typeof record.name === 'string' ? record.name : 'ResendError',
+        errorMessage:
+          typeof record.message === 'string' ? record.message : 'Unknown Resend error',
+        statusCode: typeof record.statusCode === 'number' ? record.statusCode : undefined,
+      }
+    }
+
+    return {
+      errorName: 'UnknownError',
+      errorMessage: String(error),
     }
   }
 }

@@ -12,7 +12,7 @@ import {
 import { notificationKindModel } from '@/communication/database/drizzle/models/notification-kind-model'
 
 export const notificationModel = pgTable(
-  'communication_notifications',
+  'notifications',
   {
     id: uuid('id').primaryKey().defaultRandom(),
     sourceEventId: text('source_event_id').notNull(),

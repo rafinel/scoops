@@ -13,7 +13,7 @@ import { discountComponentKindModel } from '@/pdv/database/drizzle/models/discou
 import { orderDiscountModel } from '@/pdv/database/drizzle/models/order-discount-model'
 
 export const orderDiscountComponentModel = pgTable(
-  'pdv_order_discount_components',
+  'order_discount_components',
   {
     id: uuid('id').primaryKey(),
     orderDiscountId: uuid('order_discount_id')

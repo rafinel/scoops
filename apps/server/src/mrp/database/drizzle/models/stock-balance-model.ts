@@ -12,7 +12,7 @@ import { productBrandModel } from './product-brand-model'
 import { productModel } from './product-model'
 
 export const stockBalanceModel = pgTable(
-  'mrp_stock_balances',
+  'stock_balances',
   {
     productId: uuid('product_id')
       .notNull()

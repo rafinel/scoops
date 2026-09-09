@@ -12,7 +12,7 @@ import {
 import { productModel } from './product-model'
 
 export const recipeModel = pgTable(
-  'mrp_recipes',
+  'recipes',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

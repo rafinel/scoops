@@ -14,7 +14,7 @@ import {
 import { orderStatusModel } from '@/pdv/database/drizzle/models/order-status-model'
 
 export const orderModel = pgTable(
-  'pdv_orders',
+  'orders',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

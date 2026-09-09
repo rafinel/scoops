@@ -13,7 +13,7 @@ import {
 import { salesChannelStatusModel } from '@/pdv/database/drizzle/models/sales-channel-status-model'
 
 export const salesChannelModel = pgTable(
-  'pdv_sales_channels',
+  'sales_channels',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

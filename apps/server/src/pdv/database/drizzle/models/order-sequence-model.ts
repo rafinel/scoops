@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm'
 import { check, integer, pgTable, uuid } from 'drizzle-orm/pg-core'
 
 export const orderSequenceModel = pgTable(
-  'pdv_order_sequences',
+  'order_sequences',
   {
     establishmentId: uuid('establishment_id').primaryKey(),
     lastSequenceNumber: integer('last_sequence_number').notNull().default(0),

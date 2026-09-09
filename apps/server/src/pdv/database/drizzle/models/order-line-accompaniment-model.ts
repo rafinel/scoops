@@ -13,7 +13,7 @@ import {
 import { orderLineModel } from '@/pdv/database/drizzle/models/order-line-model'
 
 export const orderLineAccompanimentModel = pgTable(
-  'pdv_order_line_accompaniments',
+  'order_line_accompaniments',
   {
     orderLineId: uuid('order_line_id')
       .notNull()

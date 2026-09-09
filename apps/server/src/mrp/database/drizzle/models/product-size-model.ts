@@ -14,7 +14,7 @@ import {
 import { productModel } from '@/mrp/database/drizzle/models/product-model'
 
 export const productSizeModel = pgTable(
-  'mrp_product_sizes',
+  'product_sizes',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

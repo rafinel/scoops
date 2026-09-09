@@ -10,7 +10,7 @@ import {
 } from 'drizzle-orm/pg-core'
 
 export const productionModel = pgTable(
-  'mrp_productions',
+  'productions',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),

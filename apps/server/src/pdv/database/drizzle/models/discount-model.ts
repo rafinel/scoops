@@ -14,7 +14,7 @@ import { discountStatusModel } from '@/pdv/database/drizzle/models/discount-stat
 import { discountTypeModel } from '@/pdv/database/drizzle/models/discount-type-model'
 
 export const discountModel = pgTable(
-  'pdv_discounts',
+  'discounts',
   {
     id: uuid('id').primaryKey(),
     establishmentId: uuid('establishment_id').notNull(),
