@@ -39,7 +39,6 @@ export class DrizzleClient implements OnModuleDestroy {
     )
     this.client = postgres(this.databaseUrl, {
       connect_timeout: 5,
-      idle_timeout: 10,
       max: 3,
       prepare: false,
     })
