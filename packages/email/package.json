@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "email dev --dir templates --port 3000",
     "format": "biome format templates --write",
     "check:code": "biome check templates",
     "check:types": "tsc --noEmit"
@@ -18,8 +19,10 @@
     "react-dom": "19.2.0"
   },
   "devDependencies": {
+    "@react-email/ui": "6.9.5",
     "@types/react": "19.2.0",
     "@types/react-dom": "19.2.0",
+    "react-email": "6.9.5",
     "typescript": "5.9.2"
   }
 }

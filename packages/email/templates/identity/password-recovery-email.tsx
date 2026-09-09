@@ -1,7 +1,7 @@
-import { Button, Heading, Text } from '@react-email/components'
 import { render } from '@react-email/render'
 
 import { EmailLayout } from './email-layout.js'
+import { IdentityActionEmailContent } from './identity-action-email-content.js'
 
 export type PasswordRecoveryEmailProps = {
   name: string
@@ -9,26 +9,29 @@ export type PasswordRecoveryEmailProps = {
   expiresAt: string
 }
 
-export const PasswordRecoveryEmail = ({
-  name,
-  actionUrl,
-  expiresAt,
-}: PasswordRecoveryEmailProps) => {
-  return (
-    <EmailLayout preview='Redefina sua senha no Scoops'>
-      <Heading as='h1'>Redefina sua senha</Heading>
-      <Text>Olá, {name}!</Text>
-      <Text>Recebemos uma solicitação para redefinir a senha da sua conta Scoops.</Text>
-      <Button
-        href={actionUrl}
-        style={{ backgroundColor: '#2563eb', color: '#ffffff', padding: '12px 18px' }}
-      >
-        Redefinir senha
-      </Button>
-      <Text>Este link expira em {expiresAt}.</Text>
-    </EmailLayout>
-  )
-}
+export const PasswordRecoveryEmail = Object.assign(
+  ({ name, actionUrl, expiresAt }: PasswordRecoveryEmailProps) => {
+    return (
+      <EmailLayout preview='Redefina sua senha no Scoops'>
+        <IdentityActionEmailContent
+          actionLabel='Redefinir senha'
+          actionUrl={actionUrl}
+          description='Recebemos uma solicitação para redefinir a senha da sua conta Scoops.'
+          expiresAt={expiresAt}
+          heading='Redefina sua senha'
+          name={name}
+        />
+      </EmailLayout>
+    )
+  },
+  {
+    PreviewProps: {
+      name: 'Maria Silva',
+      actionUrl: 'https://example.com/password-reset',
+      expiresAt: '10/09/2026 às 18:00',
+    } satisfies PasswordRecoveryEmailProps,
+  },
+)
 
 export const renderPasswordRecoveryEmail = async (props: PasswordRecoveryEmailProps) => {
   return {
@@ -36,3 +39,5 @@ export const renderPasswordRecoveryEmail = async (props: PasswordRecoveryEmailPr
     html: await render(<PasswordRecoveryEmail {...props} />),
   }
 }
+
+export default PasswordRecoveryEmail

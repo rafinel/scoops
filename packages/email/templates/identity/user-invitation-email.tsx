@@ -1,7 +1,7 @@
-import { Button, Heading, Text } from '@react-email/components'
 import { render } from '@react-email/render'
 
 import { EmailLayout } from './email-layout.js'
+import { IdentityActionEmailContent } from './identity-action-email-content.js'
 
 export type UserInvitationEmailProps = {
   name: string
@@ -10,37 +10,35 @@ export type UserInvitationEmailProps = {
   operation: 'initial' | 'corrected' | 'resent'
 }
 
-export const UserInvitationEmail = ({
-  name,
-  actionUrl,
-  expiresAt,
-  operation,
-}: UserInvitationEmailProps) => {
-  const isCorrection = operation === 'corrected'
-  const preview = isCorrection
-    ? 'Seu convite do Scoops foi atualizado'
-    : 'Você recebeu um convite para o Scoops'
+export const UserInvitationEmail = Object.assign(
+  ({ name, actionUrl, expiresAt, operation }: UserInvitationEmailProps) => {
+    const isCorrection = operation === 'corrected'
+    const preview = isCorrection
+      ? 'Seu convite do Scoops foi atualizado'
+      : 'Você recebeu um convite para o Scoops'
 
-  return (
-    <EmailLayout preview={preview}>
-      <Heading as='h1'>
-        {isCorrection ? 'Seu convite foi atualizado' : 'Você foi convidado'}
-      </Heading>
-      <Text>Olá, {name}!</Text>
-      <Text>
-        Você recebeu um convite para acessar o Scoops. Use o botão abaixo para criar sua
-        senha e aceitar o convite.
-      </Text>
-      <Button
-        href={actionUrl}
-        style={{ backgroundColor: '#2563eb', color: '#ffffff', padding: '12px 18px' }}
-      >
-        Aceitar convite
-      </Button>
-      <Text>Este link expira em {expiresAt}.</Text>
-    </EmailLayout>
-  )
-}
+    return (
+      <EmailLayout preview={preview}>
+        <IdentityActionEmailContent
+          actionLabel='Aceitar convite'
+          actionUrl={actionUrl}
+          description='Você recebeu um convite para acessar o Scoops. Use o botão abaixo para criar sua senha e aceitar o convite.'
+          expiresAt={expiresAt}
+          heading={isCorrection ? 'Seu convite foi atualizado' : 'Você foi convidado'}
+          name={name}
+        />
+      </EmailLayout>
+    )
+  },
+  {
+    PreviewProps: {
+      name: 'Maria Silva',
+      actionUrl: 'https://example.com/invitation/accept',
+      expiresAt: '10/09/2026 às 18:00',
+      operation: 'initial',
+    } satisfies UserInvitationEmailProps,
+  },
+)
 
 export const renderUserInvitationEmail = async (props: UserInvitationEmailProps) => {
   return {
@@ -51,3 +49,5 @@ export const renderUserInvitationEmail = async (props: UserInvitationEmailProps)
     html: await render(<UserInvitationEmail {...props} />),
   }
 }
+
+export default UserInvitationEmail

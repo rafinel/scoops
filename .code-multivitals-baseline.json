@@ -1,11 +1,11 @@
 {
-  "analysedAt": "2026-09-07T23:39:06.874Z",
-  "totalFiles": 1466,
-  "totalFunctions": 4057,
-  "warnCount": 1124,
-  "errorCount": 223,
+  "analysedAt": "2026-09-09T01:46:16.383Z",
+  "totalFiles": 1467,
+  "totalFunctions": 4062,
+  "warnCount": 1122,
+  "errorCount": 222,
   "averageMI": 51,
-  "averageHealthScore": 65.4,
+  "averageHealthScore": 65.5,
   "clones": [
     {
       "similarity": 1,
@@ -136,23 +136,6 @@
         "lines": 10
       },
       "blockB": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/communication/fixtures/communication-module-fixture.ts",
-        "functionName": "constructor",
-        "startLine": 71,
-        "endLine": 80,
-        "lines": 10
-      },
-      "blockB": {
         "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
         "functionName": "constructor",
         "startLine": 22,
@@ -476,23 +459,6 @@
         "lines": 12
       },
       "blockB": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/identity/database/identity-seeder.ts",
-        "functionName": "constructor",
-        "startLine": 23,
-        "endLine": 34,
-        "lines": 12
-      },
-      "blockB": {
         "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
         "functionName": "constructor",
         "startLine": 22,
@@ -787,23 +753,6 @@
         "startLine": 40,
         "endLine": 48,
         "lines": 9
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/mrp/database/mrp-seeder.ts",
-        "functionName": "constructor",
-        "startLine": 85,
-        "endLine": 110,
-        "lines": 26
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
       }
     },
     {
@@ -1105,23 +1054,6 @@
         "lines": 10
       },
       "blockB": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/pdv/database/pdv-seeder.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 47,
-        "lines": 10
-      },
-      "blockB": {
         "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
         "functionName": "constructor",
         "startLine": 22,
@@ -1348,23 +1280,6 @@
         "startLine": 40,
         "endLine": 48,
         "lines": 9
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/pdv/fixtures/pdv-module-fixture.ts",
-        "functionName": "constructor",
-        "startLine": 118,
-        "endLine": 126,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
       }
     },
     {
@@ -6715,23 +6630,6 @@
         "lines": 7
       },
       "blockB": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/mrp/provision/pdv/transaction-bound-order-registration-dependencies-factory.ts",
-        "functionName": "constructor",
-        "startLine": 122,
-        "endLine": 128,
-        "lines": 7
-      },
-      "blockB": {
         "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
         "functionName": "constructor",
         "startLine": 22,
@@ -6936,23 +6834,6 @@
         "lines": 6
       },
       "blockB": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/mrp/provision/pdv/transaction-bound-order-registration-dependencies-factory.ts",
-        "functionName": "constructor",
-        "startLine": 218,
-        "endLine": 223,
-        "lines": 6
-      },
-      "blockB": {
         "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
         "functionName": "constructor",
         "startLine": 22,
@@ -7128,23 +7009,6 @@
         "startLine": 2,
         "endLine": 8,
         "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/mrp/provision/pdv/transaction-bound-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 40,
-        "endLine": 48,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
       }
     },
     {
@@ -18863,193 +18727,6 @@
     {
       "similarity": 1,
       "blockA": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 22,
-        "endLine": 28,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/cancel-user-invitation-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 23,
-        "endLine": 28,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/correct-ice-cream-shop-onboarding-email-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 18,
-        "endLine": 24,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/correct-user-invitation-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 30,
-        "endLine": 36,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/expire-ice-cream-shop-onboardings-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 23,
-        "endLine": 28,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/invite-user-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 30,
-        "endLine": 36,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/register-ice-cream-shop-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 25,
-        "endLine": 31,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/resend-ice-cream-shop-confirmation-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 18,
-        "endLine": 23,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/resend-user-invitation-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 27,
-        "endLine": 33,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/pdv/use-cases/preview-order-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 34,
-        "endLine": 39,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/messaging/inngest/jobs/inngest-broker.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/shared/responses/pagination-response.ts",
-        "functionName": "constructor",
-        "startLine": 2,
-        "endLine": 8,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
         "filePath": "apps/web/src/rest/services/mrp-service.ts",
         "functionName": "mapProduct",
         "startLine": 134,
@@ -29778,17 +29455,17 @@
       "similarity": 1,
       "blockA": {
         "filePath": "packages/email/templates/identity/onboarding-confirmation-email.tsx",
-        "functionName": "OnboardingConfirmationEmail",
-        "startLine": 12,
-        "endLine": 34,
-        "lines": 23
+        "functionName": "<anonymous>",
+        "startLine": 13,
+        "endLine": 26,
+        "lines": 14
       },
       "blockB": {
         "filePath": "packages/email/templates/identity/password-recovery-email.tsx",
-        "functionName": "PasswordRecoveryEmail",
-        "startLine": 12,
-        "endLine": 31,
-        "lines": 20
+        "functionName": "<anonymous>",
+        "startLine": 13,
+        "endLine": 26,
+        "lines": 14
       }
     },
     {
@@ -29803,8 +29480,8 @@
       "blockB": {
         "filePath": "packages/email/templates/identity/password-recovery-email.tsx",
         "functionName": "renderPasswordRecoveryEmail",
-        "startLine": 33,
-        "endLine": 38,
+        "startLine": 36,
+        "endLine": 41,
         "lines": 6
       }
     },
@@ -29847,15 +29524,15 @@
       "blockA": {
         "filePath": "apps/server/src/shared/database/drizzle/repositories/drizzle-events-repository.ts",
         "functionName": "markPublished",
-        "startLine": 134,
-        "endLine": 160,
+        "startLine": 136,
+        "endLine": 162,
         "lines": 27
       },
       "blockB": {
         "filePath": "apps/server/src/shared/database/drizzle/repositories/drizzle-events-repository.ts",
         "functionName": "markDeliveryFailed",
-        "startLine": 162,
-        "endLine": 192,
+        "startLine": 164,
+        "endLine": 194,
         "lines": 31
       }
     },
@@ -43309,6 +42986,40 @@
     {
       "similarity": 0.857,
       "blockA": {
+        "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/stock-transaction-history-card/index.tsx",
+        "functionName": "JustificationButton",
+        "startLine": 402,
+        "endLine": 416,
+        "lines": 15
+      },
+      "blockB": {
+        "filePath": "packages/email/templates/identity/onboarding-confirmation-email.tsx",
+        "functionName": "<anonymous>",
+        "startLine": 13,
+        "endLine": 26,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.857,
+      "blockA": {
+        "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/stock-transaction-history-card/index.tsx",
+        "functionName": "JustificationButton",
+        "startLine": 402,
+        "endLine": 416,
+        "lines": 15
+      },
+      "blockB": {
+        "filePath": "packages/email/templates/identity/password-recovery-email.tsx",
+        "functionName": "<anonymous>",
+        "startLine": 13,
+        "endLine": 26,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.857,
+      "blockA": {
         "filePath": "packages/core/src/identity/domain/entities/fakers/establishment-audit-record-faker.ts",
         "functionName": "fake",
         "startLine": 8,
@@ -48078,8 +47789,8 @@
       "blockB": {
         "filePath": "apps/web/src/server/auth/resolve-auth-session.ts",
         "functionName": "isAccount",
-        "startLine": 267,
-        "endLine": 278,
+        "startLine": 226,
+        "endLine": 237,
         "lines": 12
       }
     },
@@ -52423,15 +52134,15 @@
       "blockA": {
         "filePath": "apps/server/src/shared/database/drizzle/repositories/drizzle-events-repository.ts",
         "functionName": "releaseExpired",
-        "startLine": 112,
-        "endLine": 132,
+        "startLine": 114,
+        "endLine": 134,
         "lines": 21
       },
       "blockB": {
         "filePath": "apps/server/src/shared/database/drizzle/repositories/drizzle-events-repository.ts",
         "functionName": "markPublished",
-        "startLine": 134,
-        "endLine": 160,
+        "startLine": 136,
+        "endLine": 162,
         "lines": 27
       }
     },
@@ -52648,12 +52359,12 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 476.82,
+              "value": 496.09,
               "threshold": 800,
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 53.6,
+          "maintainabilityIndex": 53.5,
           "maintainabilityRating": "warn",
           "healthScore": 67,
           "smells": []
@@ -52713,7 +52424,7 @@
         }
       ],
       "summary": {
-        "totalLines": 46,
+        "totalLines": 44,
         "weightedMI": 56,
         "weightedHealthScore": 83.3,
         "worstSeverity": "warn",
@@ -70066,7 +69777,7 @@
         {
           "name": "add",
           "startLine": 30,
-          "endLine": 43,
+          "endLine": 45,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70082,7 +69793,7 @@
             },
             {
               "name": "functionLength",
-              "value": 14,
+              "value": 16,
               "threshold": 70,
               "severity": "ok"
             },
@@ -70094,20 +69805,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 187.98,
+              "value": 245.18,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 58.8,
+          "maintainabilityIndex": 56.7,
           "maintainabilityRating": "warn",
-          "healthScore": 83,
+          "healthScore": 82,
           "smells": []
         },
         {
           "name": "subscribe",
-          "startLine": 45,
-          "endLine": 62,
+          "startLine": 47,
+          "endLine": 64,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70147,8 +69858,8 @@
         },
         {
           "name": "reserveAvailable",
-          "startLine": 64,
-          "endLine": 110,
+          "startLine": 66,
+          "endLine": 112,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70188,8 +69899,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 68,
-          "endLine": 109,
+          "startLine": 70,
+          "endLine": 111,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70235,8 +69946,8 @@
         },
         {
           "name": "releaseExpired",
-          "startLine": 112,
-          "endLine": 132,
+          "startLine": 114,
+          "endLine": 134,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70276,8 +69987,8 @@
         },
         {
           "name": "markPublished",
-          "startLine": 134,
-          "endLine": 160,
+          "startLine": 136,
+          "endLine": 162,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70317,8 +70028,8 @@
         },
         {
           "name": "markDeliveryFailed",
-          "startLine": 162,
-          "endLine": 192,
+          "startLine": 164,
+          "endLine": 194,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70358,8 +70069,8 @@
         },
         {
           "name": "recover",
-          "startLine": 194,
-          "endLine": 248,
+          "startLine": 196,
+          "endLine": 250,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70399,8 +70110,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 200,
-          "endLine": 238,
+          "startLine": 202,
+          "endLine": 240,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70446,8 +70157,8 @@
         },
         {
           "name": "deleteDeliveredBefore",
-          "startLine": 250,
-          "endLine": 258,
+          "startLine": 252,
+          "endLine": 260,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70487,8 +70198,8 @@
         },
         {
           "name": "findOldestAvailable",
-          "startLine": 260,
-          "endLine": 270,
+          "startLine": 262,
+          "endLine": 272,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -70528,9 +70239,9 @@
         }
       ],
       "summary": {
-        "totalLines": 280,
-        "weightedMI": 53.7,
-        "weightedHealthScore": 79.4,
+        "totalLines": 282,
+        "weightedMI": 53.6,
+        "weightedHealthScore": 79.3,
         "worstSeverity": "warn",
         "smellIds": [
           "bloated"
@@ -114085,6 +113796,214 @@
       }
     },
     {
+      "filePath": "packages/core/src/pdv/domain/entities/fakers/combo-faker.ts",
+      "functions": [
+        {
+          "name": "fake",
+          "startLine": 8,
+          "endLine": 38,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 31,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 404.09,
+              "threshold": 800,
+              "severity": "warn"
+            }
+          ],
+          "maintainabilityIndex": 49.1,
+          "maintainabilityRating": "warn",
+          "healthScore": 79,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 44,
+        "weightedMI": 53.1,
+        "weightedHealthScore": 80.8,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "packages/core/src/pdv/domain/entities/fakers/order-faker.ts",
+      "functions": [
+        {
+          "name": "fake",
+          "startLine": 7,
+          "endLine": 41,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 35,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 595.6,
+              "threshold": 800,
+              "severity": "warn"
+            }
+          ],
+          "maintainabilityIndex": 46.8,
+          "maintainabilityRating": "warn",
+          "healthScore": 76,
+          "smells": [
+            {
+              "id": "bloated",
+              "label": "Bloated",
+              "reason": "Large function (35 lines) with high vocabulary (Halstead volume 595.6) but low branching — consider extracting helpers."
+            }
+          ]
+        },
+        {
+          "name": "fakeCanceled",
+          "startLine": 43,
+          "endLine": 70,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 6,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 28,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 206.82,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 51.4,
+          "maintainabilityRating": "warn",
+          "healthScore": 72,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 76,
+        "weightedMI": 62,
+        "weightedHealthScore": 79.1,
+        "worstSeverity": "warn",
+        "smellIds": [
+          "bloated"
+        ]
+      }
+    },
+    {
+      "filePath": "packages/core/src/pdv/domain/entities/fakers/sales-channel-faker.ts",
+      "functions": [
+        {
+          "name": "fake",
+          "startLine": 7,
+          "endLine": 20,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 14,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 174.23,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 59.2,
+          "maintainabilityRating": "warn",
+          "healthScore": 86,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 26,
+        "weightedMI": 64.6,
+        "weightedHealthScore": 87.9,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
       "filePath": "packages/core/src/mrp/domain/entities/fakers/accompaniment-type-faker.ts",
       "functions": [
         {
@@ -114615,275 +114534,6 @@
       }
     },
     {
-      "filePath": "packages/core/src/pdv/domain/entities/fakers/combo-faker.ts",
-      "functions": [
-        {
-          "name": "fake",
-          "startLine": 8,
-          "endLine": 38,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 1,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 31,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 404.09,
-              "threshold": 800,
-              "severity": "warn"
-            }
-          ],
-          "maintainabilityIndex": 49.1,
-          "maintainabilityRating": "warn",
-          "healthScore": 79,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 44,
-        "weightedMI": 53.1,
-        "weightedHealthScore": 80.8,
-        "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
-      "filePath": "packages/core/src/pdv/domain/entities/fakers/order-faker.ts",
-      "functions": [
-        {
-          "name": "fake",
-          "startLine": 7,
-          "endLine": 41,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 1,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 35,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 595.6,
-              "threshold": 800,
-              "severity": "warn"
-            }
-          ],
-          "maintainabilityIndex": 46.8,
-          "maintainabilityRating": "warn",
-          "healthScore": 76,
-          "smells": [
-            {
-              "id": "bloated",
-              "label": "Bloated",
-              "reason": "Large function (35 lines) with high vocabulary (Halstead volume 595.6) but low branching — consider extracting helpers."
-            }
-          ]
-        },
-        {
-          "name": "fakeCanceled",
-          "startLine": 43,
-          "endLine": 70,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 6,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 1,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 28,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 206.82,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 51.4,
-          "maintainabilityRating": "warn",
-          "healthScore": 72,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 76,
-        "weightedMI": 62,
-        "weightedHealthScore": 79.1,
-        "worstSeverity": "warn",
-        "smellIds": [
-          "bloated"
-        ]
-      }
-    },
-    {
-      "filePath": "packages/core/src/pdv/domain/entities/fakers/sales-channel-faker.ts",
-      "functions": [
-        {
-          "name": "fake",
-          "startLine": 7,
-          "endLine": 20,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 1,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 14,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 174.23,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 59.2,
-          "maintainabilityRating": "warn",
-          "healthScore": 86,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 26,
-        "weightedMI": 64.6,
-        "weightedHealthScore": 87.9,
-        "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
-      "filePath": "packages/validation/src/environment/server-env-schema.ts",
-      "functions": [
-        {
-          "name": "<anonymous>",
-          "startLine": 32,
-          "endLine": 65,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 10,
-              "threshold": 15,
-              "severity": "warn"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 8,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 34,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 477.02,
-              "threshold": 800,
-              "severity": "warn"
-            }
-          ],
-          "maintainabilityIndex": 46.5,
-          "maintainabilityRating": "warn",
-          "healthScore": 52,
-          "smells": [
-            {
-              "id": "fragile",
-              "label": "Fragile",
-              "reason": "High cyclomatic complexity (10) with low MI (46.5) — many branches and hard to maintain safely."
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "totalLines": 66,
-        "weightedMI": 47.8,
-        "weightedHealthScore": 53.2,
-        "worstSeverity": "warn",
-        "smellIds": [
-          "fragile"
-        ]
-      }
-    },
-    {
       "filePath": "packages/validation/src/communication/notification-list-query-schema.ts",
       "functions": [
         {
@@ -114942,6 +114592,59 @@
         "smellIds": [
           "fragile"
         ]
+      }
+    },
+    {
+      "filePath": "packages/validation/src/environment/server-env-schema.ts",
+      "functions": [
+        {
+          "name": "validateEmailProvider",
+          "startLine": 51,
+          "endLine": 60,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 2,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 10,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 93.77,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 64.1,
+          "maintainabilityRating": "warn",
+          "healthScore": 83,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 87,
+        "weightedMI": 72.5,
+        "weightedHealthScore": 88.2,
+        "worstSeverity": "warn",
+        "smellIds": []
       }
     },
     {
@@ -115546,8 +115249,8 @@
       "functions": [
         {
           "name": "EmailLayout",
-          "startLine": 18,
-          "endLine": 42,
+          "startLine": 62,
+          "endLine": 92,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -115563,7 +115266,7 @@
             },
             {
               "name": "functionLength",
-              "value": 25,
+              "value": 31,
               "threshold": 70,
               "severity": "ok"
             },
@@ -115575,32 +115278,32 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 102.57,
+              "value": 95.08,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 55.3,
+          "maintainabilityIndex": 53.5,
           "maintainabilityRating": "warn",
-          "healthScore": 83,
+          "healthScore": 82,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 43,
-        "weightedMI": 55.3,
-        "weightedHealthScore": 83,
+        "totalLines": 93,
+        "weightedMI": 53.5,
+        "weightedHealthScore": 82,
         "worstSeverity": "warn",
         "smellIds": []
       }
     },
     {
-      "filePath": "packages/email/templates/identity/onboarding-confirmation-email.tsx",
+      "filePath": "packages/email/templates/identity/identity-action-email-content.tsx",
       "functions": [
         {
-          "name": "OnboardingConfirmationEmail",
-          "startLine": 12,
-          "endLine": 34,
+          "name": "IdentityActionEmailContent",
+          "startLine": 64,
+          "endLine": 89,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -115628,74 +115331,21 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 43.02,
+              "value": 64,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 60.5,
+          "maintainabilityIndex": 59.3,
           "maintainabilityRating": "warn",
           "healthScore": 86,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 44,
-        "weightedMI": 63.8,
-        "weightedHealthScore": 87.3,
-        "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
-      "filePath": "packages/email/templates/identity/password-recovery-email.tsx",
-      "functions": [
-        {
-          "name": "PasswordRecoveryEmail",
-          "startLine": 12,
-          "endLine": 31,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 1,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 16,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 43.02,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 62.2,
-          "maintainabilityRating": "warn",
-          "healthScore": 87,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 39,
-        "weightedMI": 64.7,
-        "weightedHealthScore": 87.9,
+        "totalLines": 90,
+        "weightedMI": 59.3,
+        "weightedHealthScore": 86,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -115704,9 +115354,9 @@
       "filePath": "packages/email/templates/identity/user-invitation-email.tsx",
       "functions": [
         {
-          "name": "UserInvitationEmail",
-          "startLine": 13,
-          "endLine": 43,
+          "name": "<anonymous>",
+          "startLine": 14,
+          "endLine": 32,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -115722,7 +115372,7 @@
             },
             {
               "name": "functionLength",
-              "value": 26,
+              "value": 19,
               "threshold": 70,
               "severity": "ok"
             },
@@ -115734,21 +115384,21 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 109.81,
+              "value": 80,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 54.4,
+          "maintainabilityIndex": 58.4,
           "maintainabilityRating": "warn",
-          "healthScore": 80,
+          "healthScore": 82,
           "smells": []
         }
       ],
       "summary": {
         "totalLines": 54,
-        "weightedMI": 57.1,
-        "weightedHealthScore": 81.8,
+        "weightedMI": 61,
+        "weightedHealthScore": 83.9,
         "worstSeverity": "warn",
         "smellIds": []
       }
