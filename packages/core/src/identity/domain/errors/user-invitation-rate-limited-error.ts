@@ -3,7 +3,8 @@ import { TooManyRequestsError } from '#shared/domain/errors/too-many-requests-er
 export class UserInvitationRateLimitedError extends TooManyRequestsError {
   constructor() {
     super(
-      'O limite de envio de e-mails foi atingido. Aguarde um minuto e tente novamente.',
+      'Você atingiu o limite de envio de e-mails. Aguarde alguns minutos antes de tentar novamente.',
+      'Limite de convites atingido',
     )
   }
 }

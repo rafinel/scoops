@@ -14,7 +14,7 @@ export const useCancelUserInvitationAction = () => {
       try {
         ensureSuccessfulResponse(await identityService.cancelUserInvitation(userId))
       } catch (error) {
-        throw toActionError(error, 'Unable to cancel user invitation')
+        throw toActionError(error, 'Não foi possível cancelar o convite do usuário')
       }
     },
     onSuccess: async (_value, userId) => {

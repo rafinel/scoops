@@ -57,7 +57,7 @@ describe('Resend Ice Cream Shop Confirmation Controller [POST /registration-atte
       .send({ continuationToken: 'invalid' })
 
     expect(response.status).toBe(422)
-    expect(response.body).toMatchObject({ title: 'Invalid request' })
+    expect(response.body).toMatchObject({ title: 'Requisição inválida' })
     expect(betterAuthFixture.getCalls().resendConfirmation).toHaveLength(0)
   })
 })

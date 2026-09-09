@@ -65,7 +65,7 @@ export class DrizzleClient implements OnModuleDestroy {
     onError: (error: unknown) => void,
   ): Promise<DatabaseListener> {
     if (this.listenerClient) {
-      throw new Error('Database listener is already registered')
+      throw new Error('O listener do banco de dados já foi registrado.')
     }
 
     this.listenerClosing = false

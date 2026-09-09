@@ -28,9 +28,10 @@ export class DrizzleStockBalancesRepository
     const isScoped = scopedBrandId !== undefined
     const productId = isScoped ? productIdOrBrandId : establishmentOrProductId
     const brandId = isScoped ? scopedBrandId : productIdOrBrandId
-    if (!productId) throw new ConflictError('Database operation conflicted')
+    if (!productId)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
     if (isScoped && !(await this.hasProduct(productId, establishmentOrProductId))) {
-      throw new ConflictError('Database operation conflicted')
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
     }
     await this.database
       .insert(stockBalanceModel)
@@ -154,7 +155,8 @@ export class DrizzleStockBalancesRepository
         ),
       )
       .returning()
-    if (!record) throw new ConflictError('Database operation conflicted')
+    if (!record)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
     return this.toDomain(record)
   }
 
@@ -182,7 +184,8 @@ export class DrizzleStockBalancesRepository
       .set({ quantity: quantityAfter, updatedAt: new Date() })
       .where(minimumFilter)
       .returning()
-    if (!record) throw new ConflictError('Database operation conflicted')
+    if (!record)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
     return this.toDomain(record)
   }
 

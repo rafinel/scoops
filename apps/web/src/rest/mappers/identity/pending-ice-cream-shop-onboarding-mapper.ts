@@ -22,12 +22,12 @@ export const PendingIceCreamShopOnboardingMapper = (
     typeof response.expiresAt !== 'string' ||
     !ISO_DATETIME_WITH_OFFSET.test(response.expiresAt)
   ) {
-    throw new AppError('Unexpected onboarding response')
+    throw new AppError('Resposta inesperada do cadastro')
   }
 
   const expiresAt = IdentityDateMapper(
     response.expiresAt,
-    'Unexpected onboarding response',
+    'Resposta inesperada do cadastro',
   )
 
   return { ...response, expiresAt }

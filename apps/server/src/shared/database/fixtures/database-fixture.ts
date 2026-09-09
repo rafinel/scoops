@@ -114,7 +114,7 @@ export class DatabaseFixture {
 
   private getConnectionUri() {
     if (!this.container) {
-      throw new Error('Database fixture is not running')
+      throw new Error('O fixture do banco de dados não está em execução.')
     }
 
     return this.container.getConnectionUri()

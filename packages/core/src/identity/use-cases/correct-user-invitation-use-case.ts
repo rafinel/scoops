@@ -37,7 +37,7 @@ export class CorrectUserInvitationUseCase implements UseCase<Request, UserDetail
 
   async execute(request: Request): Promise<UserDetails> {
     if (request.actor.profile !== UserProfile.Manager)
-      throw new AuthorizationError('Manager access required')
+      throw new AuthorizationError('É necessário ter acesso de gerente.')
     const now = this.datetimeProvider.now()
     const name = request.name.trim()
     const email = request.email.trim().toLowerCase()
@@ -61,7 +61,7 @@ export class CorrectUserInvitationUseCase implements UseCase<Request, UserDetail
           now >= attempt.expiresAt ||
           !name
         )
-          throw new NotFoundError('Invitation not found')
+          throw new NotFoundError('Convite não encontrado.')
         if (
           email !== user.email &&
           ((await usersRepository.findByEmail(email)) ||
@@ -84,7 +84,7 @@ export class CorrectUserInvitationUseCase implements UseCase<Request, UserDetail
           pendingEmail: email,
         }),
     )
-    if (!claimed) throw new ConflictError('Invitation is being changed')
+    if (!claimed) throw new ConflictError('O convite está sendo alterado.')
 
     const nextToken = email !== result.user.email ? this.tokenProvider.issue() : undefined
     try {
@@ -117,7 +117,7 @@ export class CorrectUserInvitationUseCase implements UseCase<Request, UserDetail
                 updatedAt: now,
               },
             })
-          if (!attempt) throw new ConflictError('Invitation operation was superseded')
+          if (!attempt) throw new ConflictError('A operação do convite foi substituída.')
           const user = await usersRepository.replace(
             request.actor.establishmentId,
             request.userId,

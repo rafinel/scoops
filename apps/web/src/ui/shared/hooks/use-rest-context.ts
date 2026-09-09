@@ -8,7 +8,7 @@ export function useRestContext() {
   const context = useContext(RestContext)
 
   if (!context) {
-    throw new AppError('useRestContext must be used inside RestContextProvider')
+    throw new AppError('useRestContext deve ser usado dentro de RestContextProvider.')
   }
 
   return context

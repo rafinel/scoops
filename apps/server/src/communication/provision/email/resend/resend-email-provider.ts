@@ -41,7 +41,7 @@ export class ResendEmailProvider implements EmailProvider {
       )
 
       if (error || !data?.id) {
-        throw error ?? new Error('Resend did not return a message id')
+        throw error ?? new Error('O Resend não retornou o identificador da mensagem')
       }
 
       return { providerMessageId: data.id }

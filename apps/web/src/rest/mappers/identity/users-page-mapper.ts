@@ -19,7 +19,7 @@ export type UsersPageJson = PaginationJson<UserSummaryJson> & {
 
 export const UsersPageMapper = (response: UsersPageJson): UsersPage<UserSummary> => {
   if (!response || !Array.isArray(response.items) || !response.summary) {
-    throw new AppError('Unexpected users response')
+    throw new AppError('Resposta inesperada dos usuários')
   }
 
   return new UsersPage(

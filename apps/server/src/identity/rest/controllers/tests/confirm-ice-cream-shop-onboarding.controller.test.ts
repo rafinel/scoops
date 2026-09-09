@@ -101,6 +101,6 @@ describe('Confirm Ice Cream Shop Onboarding Controller [POST /registration-attem
       .send({ confirmationToken: 'short' })
 
     expect(response.status).toBe(422)
-    expect(response.body).toMatchObject({ title: 'Invalid request' })
+    expect(response.body).toMatchObject({ title: 'Requisição inválida' })
   })
 })

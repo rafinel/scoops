@@ -255,7 +255,8 @@ export class DrizzleProductsRepository
     const isScoped = typeof productIdOrChanges === 'string'
     const productId = isScoped ? productIdOrChanges : establishmentOrProductId
     const changes = isScoped ? scopedChanges : productIdOrChanges
-    if (!changes) throw new ConflictError('Database operation conflicted')
+    if (!changes)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
 
     const productFilters = isScoped
       ? [
@@ -276,7 +277,8 @@ export class DrizzleProductsRepository
       })
       .where(and(...productFilters))
       .returning()
-    if (!record) throw new ConflictError('Database operation conflicted')
+    if (!record)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
     return DrizzleProductMapper.toDomain(record)
   }
 
@@ -298,7 +300,8 @@ export class DrizzleProductsRepository
       .delete(productModel)
       .where(and(...filters))
       .returning({ id: productModel.id })
-    if (!deleted.length) throw new ConflictError('Database operation conflicted')
+    if (!deleted.length)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
   }
 
   async removeAll() {

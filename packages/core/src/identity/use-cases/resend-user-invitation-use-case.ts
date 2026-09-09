@@ -34,7 +34,7 @@ export class ResendUserInvitationUseCase implements UseCase<Request, UserDetails
 
   async execute(request: Request): Promise<UserDetails> {
     if (request.actor.profile !== UserProfile.Manager)
-      throw new AuthorizationError('Manager access required')
+      throw new AuthorizationError('É necessário ter acesso de gerente.')
     const now = this.datetimeProvider.now()
     const next = this.tokenProvider.issue()
     const operationToken = this.identifierProvider.generate()
@@ -56,7 +56,7 @@ export class ResendUserInvitationUseCase implements UseCase<Request, UserDetails
           user.status !== UserStatus.Pending ||
           attempt.status !== RegistrationAttemptStatus.Pending
         )
-          throw new NotFoundError('Invitation not found')
+          throw new NotFoundError('Convite não encontrado.')
         if (now.getTime() >= attempt.expiresAt.getTime())
           throw new UserInvitationExpiredError()
         return { user, attempt }
@@ -76,7 +76,7 @@ export class ResendUserInvitationUseCase implements UseCase<Request, UserDetails
           pendingExpiresAt: expiresAt,
         }),
     )
-    if (!claimed) throw new ConflictError('Invitation is being changed')
+    if (!claimed) throw new ConflictError('O convite está sendo alterado.')
 
     let result: User
     try {
@@ -105,7 +105,7 @@ export class ResendUserInvitationUseCase implements UseCase<Request, UserDetails
                 updatedAt: now,
               },
             })
-          if (!attempt) throw new ConflictError('Invitation operation was superseded')
+          if (!attempt) throw new ConflictError('A operação do convite foi substituída.')
           const user = await usersRepository.replace(
             pending.user.establishmentId,
             pending.user.id,

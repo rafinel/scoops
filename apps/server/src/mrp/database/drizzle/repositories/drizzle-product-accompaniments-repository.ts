@@ -152,7 +152,8 @@ export class DrizzleProductAccompanimentsRepository
           ),
         )
         .returning({ id: productAccompanimentModel.id })
-      if (records.length !== 1) throw new ConflictError('Database operation conflicted')
+      if (records.length !== 1)
+        throw new ConflictError('A operação no banco de dados entrou em conflito.')
     }
   }
 
@@ -252,7 +253,8 @@ export class DrizzleProductAccompanimentsRepository
           ),
         )
         .returning({ id: productAccompanimentModel.id })
-      if (!records.length) throw new ConflictError('Database operation conflicted')
+      if (!records.length)
+        throw new ConflictError('A operação no banco de dados entrou em conflito.')
     } catch (error) {
       throw this.toConflictError(error)
     }
@@ -264,7 +266,7 @@ export class DrizzleProductAccompanimentsRepository
 
   private toConflictError(error: unknown): unknown {
     if (this.isIntegrityConstraintError(error)) {
-      return new ConflictError('Database operation conflicted')
+      return new ConflictError('A operação no banco de dados entrou em conflito.')
     }
     return error
   }

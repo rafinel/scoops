@@ -80,7 +80,8 @@ export class DrizzleOrdersRepository
         })
         .returning()
 
-      if (!record) throw new ConflictError('Database operation conflicted')
+      if (!record)
+        throw new ConflictError('A operação no banco de dados entrou em conflito.')
 
       const lineRows = input.lines.map((line, position) =>
         this.toLineRow(orderId, line, position),
@@ -332,7 +333,8 @@ export class DrizzleOrdersRepository
       .from(orderSequenceModel)
       .where(eq(orderSequenceModel.establishmentId, establishmentId))
       .limit(1)
-    if (!record) throw new ConflictError('Database operation conflicted')
+    if (!record)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
     return record.sequenceNumber
   }
 
@@ -442,7 +444,8 @@ export class DrizzleOrdersRepository
   ): Promise<Order> {
     const aggregates =
       aggregateRows ?? (await this.findAggregateRows([record.id])).get(record.id)
-    if (!aggregates) throw new ConflictError('Database operation conflicted')
+    if (!aggregates)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
     return DrizzleOrderMapper.toDomain(
       record,
       aggregates.lines,
@@ -576,7 +579,7 @@ export class DrizzleOrdersRepository
   private toConflictError(error: unknown): unknown {
     if (error instanceof ConflictError) return error
     if (this.isIntegrityConstraintError(error))
-      return new ConflictError('Database operation conflicted')
+      return new ConflictError('A operação no banco de dados entrou em conflito.')
     return error
   }
 

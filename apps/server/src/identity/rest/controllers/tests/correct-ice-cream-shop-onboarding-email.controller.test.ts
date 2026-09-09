@@ -69,7 +69,7 @@ describe('Correct Ice Cream Shop Onboarding Email Controller [PATCH /registratio
       .send({ continuationToken: 'short', email: 'invalid', password: '' })
 
     expect(response.status).toBe(422)
-    expect(response.body).toMatchObject({ title: 'Invalid request' })
+    expect(response.body).toMatchObject({ title: 'Requisição inválida' })
     expect(betterAuthFixture.getCalls().registerReplacementIdentity).toHaveLength(0)
   })
 })

@@ -69,7 +69,7 @@ describe('Get Ice Cream Shop Onboarding Use Case', () => {
       }),
     )
     await expect(useCase.execute({ continuationToken: 'continuation' })).rejects.toThrow(
-      'expired',
+      'Este cadastro expirou.',
     )
   })
 })

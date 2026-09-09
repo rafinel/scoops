@@ -26,7 +26,10 @@ export const useResendIceCreamShopConfirmationAction = () => {
         await identityService.resendIceCreamShopConfirmation({ continuationToken }),
       )
     } catch (nextError) {
-      const actionError = toActionError(nextError, 'Unable to resend confirmation')
+      const actionError = toActionError(
+        nextError,
+        'Não foi possível reenviar a confirmação',
+      )
       setError(actionError)
       throw actionError
     } finally {

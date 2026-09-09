@@ -14,7 +14,7 @@ export type UserDetailsJson = {
 
 export const UserDetailsMapper = (response: UserDetailsJson): UserDetails => {
   if (!response?.user || !Array.isArray(response.auditRecords)) {
-    throw new AppError('Unexpected user details response')
+    throw new AppError('Resposta inesperada dos detalhes do usuário')
   }
 
   return {

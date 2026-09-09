@@ -111,7 +111,7 @@ export class DrizzleOrderMapper {
 
     if (record.status === OrderStatus.Registered) {
       if (hasCancellationFields || restorations.length > 0)
-        throw new ConflictError('Database operation conflicted')
+        throw new ConflictError('A operação no banco de dados entrou em conflito.')
       return undefined
     }
 
@@ -122,7 +122,7 @@ export class DrizzleOrderMapper {
       record.canceledByName === null ||
       record.canceledByName.trim().length === 0
     )
-      throw new ConflictError('Database operation conflicted')
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
 
     return {
       canceledAt: record.canceledAt,
@@ -136,7 +136,7 @@ export class DrizzleOrderMapper {
           (restoration.brandId === null) !== (restoration.brandName === null) ||
           restoration.brandName?.trim().length === 0
         )
-          throw new ConflictError('Database operation conflicted')
+          throw new ConflictError('A operação no banco de dados entrou em conflito.')
         return {
           productId: restoration.productId,
           productName: restoration.productName,

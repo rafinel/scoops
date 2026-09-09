@@ -223,7 +223,9 @@ export class BetterAuthServerAuthProvider implements ServerAuthProvider {
     const verification = await context.internalAdapter.consumeVerificationValue(
       `${IDENTITY_TOKEN_PREFIXES.recovery}${input.token}`,
     )
-    if (!verification) throw new BadRequestError('Recovery token is invalid or expired')
+    if (!verification) {
+      throw new BadRequestError('O token de recuperação é inválido ou expirou.')
+    }
     await context.internalAdapter.updatePassword(
       verification.value,
       await hashPassword(input.password),
@@ -313,7 +315,7 @@ export class BetterAuthServerAuthProvider implements ServerAuthProvider {
       `${prefix}${token}`,
     )
     if (!verification)
-      throw new BadRequestError('Confirmation token is invalid or expired')
+      throw new BadRequestError('O token de confirmação é inválido ou expirou.')
     const user = await context.internalAdapter.updateUser(verification.value, {
       emailVerified: true,
     })

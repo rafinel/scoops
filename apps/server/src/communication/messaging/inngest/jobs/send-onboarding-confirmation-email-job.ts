@@ -32,7 +32,8 @@ export class SendOnboardingConfirmationEmailJob extends InngestJob {
         triggers: [sendOnboardingConfirmationEmailEvent],
       },
       async ({ event, step }) => {
-        if (!event.id) throw new Error('Communication event id is required')
+        if (!event.id)
+          throw new Error('O identificador do evento de comunicação é obrigatório')
         const data = onboardingConfirmationPreparedEventSchema.parse(event.data)
 
         return step.run('send-onboarding-confirmation-email', async () => {

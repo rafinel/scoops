@@ -37,7 +37,7 @@ export class CorrectUserNameUseCase implements UseCase<Request, UserDetails> {
           request.actor.establishmentId,
           request.userId,
         )
-        if (!target) throw new NotFoundError('User not found')
+        if (!target) throw new NotFoundError('Usuário não encontrado.')
         if (target.name === name)
           return { user: target, changed: false, previousName: target.name }
         const user = await usersRepository.replace(target.establishmentId, target.id, {

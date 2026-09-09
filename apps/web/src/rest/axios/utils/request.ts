@@ -29,7 +29,8 @@ export async function request<ResponseBody>(
 
     return new RestResponse<ResponseBody>({
       statusCode: 0,
-      errorMessage: error instanceof Error ? error.message : 'Unknown request error',
+      errorMessage:
+        error instanceof Error ? error.message : 'Erro desconhecido na requisição',
     })
   }
 }

@@ -16,7 +16,10 @@ export const useRequestPasswordRecoveryAction = () => {
     try {
       ensureSuccessfulResponse(await identityService.requestPasswordRecovery({ email }))
     } catch (nextError) {
-      const actionError = toActionError(nextError, 'Password recovery request failed')
+      const actionError = toActionError(
+        nextError,
+        'Não foi possível solicitar a recuperação da senha',
+      )
       setError(actionError)
       throw actionError
     } finally {

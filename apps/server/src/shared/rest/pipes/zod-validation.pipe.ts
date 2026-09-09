@@ -13,8 +13,8 @@ export class ZodValidationPipe implements PipeTransform {
 
     if (!result.success) {
       throw new UnprocessableEntityException({
-        error: 'Invalid request',
-        message: 'Invalid request.',
+        error: 'Requisição inválida',
+        message: 'A requisição é inválida.',
       })
     }
 

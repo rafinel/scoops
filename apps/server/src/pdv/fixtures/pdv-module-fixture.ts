@@ -303,7 +303,7 @@ export class PdvModuleFixture {
 
     if (!context) {
       await inngestFixture.teardown()
-      throw new Error('The PDV fixture was not registered for Inngest.')
+      throw new Error('O fixture do PDV não foi registrado no Inngest.')
     }
 
     return PdvModuleFixture.fromRestContext(context, inngestFixture)
@@ -331,7 +331,7 @@ export class PdvModuleFixture {
 
   get inngestFunctionOptions(): InngestFunction.Options {
     if (!this.inngestFixture) {
-      throw new Error('The PDV fixture was not registered for Inngest.')
+      throw new Error('O fixture do PDV não foi registrado no Inngest.')
     }
 
     return this.inngestFixture.functionOptions
@@ -339,7 +339,7 @@ export class PdvModuleFixture {
 
   runInngest(event: EventPayload) {
     if (!this.inngestFixture) {
-      throw new Error('The PDV fixture was not registered for Inngest.')
+      throw new Error('O fixture do PDV não foi registrado no Inngest.')
     }
 
     return this.inngestFixture.run(event)
@@ -347,7 +347,7 @@ export class PdvModuleFixture {
 
   invokeInngest(data?: Record<string, unknown>) {
     if (!this.inngestFixture) {
-      throw new Error('The PDV fixture was not registered for Inngest.')
+      throw new Error('O fixture do PDV não foi registrado no Inngest.')
     }
 
     return this.inngestFixture.invoke(data)

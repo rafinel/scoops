@@ -11,11 +11,11 @@ export type UserJson = Omit<User, 'createdAt' | 'updatedAt' | 'lastAccessAt'> & 
 export const UserMapper = (response: UserJson): User => {
   return {
     ...response,
-    createdAt: IdentityDateMapper(response.createdAt, 'Unexpected user response'),
-    updatedAt: IdentityDateMapper(response.updatedAt, 'Unexpected user response'),
+    createdAt: IdentityDateMapper(response.createdAt, 'Resposta inesperada do usuário'),
+    updatedAt: IdentityDateMapper(response.updatedAt, 'Resposta inesperada do usuário'),
     lastAccessAt: OptionalIdentityDateMapper(
       response.lastAccessAt,
-      'Unexpected user response',
+      'Resposta inesperada do usuário',
     ),
   }
 }

@@ -141,12 +141,15 @@ describe('Request password recovery use case', () => {
       provider,
     )
 
-    await expect(
-      useCase.execute({
-        email: user.email,
-        recoveryRedirectTo: 'https://example.com/reset-password',
-      }),
-    ).rejects.toBeInstanceOf(AuthenticationMessageRateLimitedError)
+    const execution = useCase.execute({
+      email: user.email,
+      recoveryRedirectTo: 'https://example.com/reset-password',
+    })
+    await expect(execution).rejects.toBeInstanceOf(AuthenticationMessageRateLimitedError)
+    await expect(execution).rejects.toMatchObject({
+      message:
+        'Você atingiu o limite de mensagens de autenticação. Aguarde alguns minutos antes de tentar novamente. Se o limite diário continuar, tente novamente amanhã.',
+    })
     expect(audits.add).not.toHaveBeenCalled()
     expect(eventsRepository.add).not.toHaveBeenCalled()
   })

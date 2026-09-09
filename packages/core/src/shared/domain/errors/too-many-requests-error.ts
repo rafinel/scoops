@@ -1,7 +1,10 @@
 import { AppError } from '#shared/domain/errors/app-error.ts'
 
 export class TooManyRequestsError extends AppError {
-  constructor(message = 'Too many requests') {
-    super(message, 'Too Many Requests')
+  constructor(
+    message = 'Muitas solicitações foram feitas. Aguarde alguns instantes e tente novamente.',
+    title = 'Muitas Solicitações',
+  ) {
+    super(message, title)
   }
 }

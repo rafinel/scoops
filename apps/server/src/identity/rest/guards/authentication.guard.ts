@@ -58,8 +58,8 @@ export class AuthenticationGuard implements CanActivate {
     } catch (error) {
       if (error instanceof AuthenticationProviderUnavailableError) {
         throw new ServiceUnavailableException({
-          error: 'Authentication service unavailable',
-          message: 'Try again later.',
+          error: 'Serviço de autenticação indisponível',
+          message: 'Tente novamente mais tarde.',
         })
       }
 
@@ -73,8 +73,8 @@ export class AuthenticationGuard implements CanActivate {
 
   private createUnauthorizedException() {
     return new UnauthorizedException({
-      error: 'Authentication required',
-      message: 'Authentication required.',
+      error: 'Autenticação necessária',
+      message: 'A autenticação é necessária.',
     })
   }
 }

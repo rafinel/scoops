@@ -22,7 +22,7 @@ export class ListUsersUseCase implements UseCase<Request, UsersPage<UserSummary>
 
   async execute(request: Request): Promise<UsersPage<UserSummary>> {
     if (request.actor.profile !== 'manager')
-      throw new AuthorizationError('Manager access required')
+      throw new AuthorizationError('É necessário ter acesso de gerente.')
     const page = Math.max(1, Math.floor(request.page))
     const pageSize = Math.min(100, Math.max(1, Math.floor(request.pageSize)))
     const result = await this.database.run(

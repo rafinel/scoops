@@ -95,7 +95,7 @@ export class InngestFixture {
 
   get client() {
     if (!this.inngestClient) {
-      throw new AppError('The Inngest job fixture has not been started.')
+      throw new AppError('O fixture do job do Inngest não foi iniciado.')
     }
 
     return this.inngestClient
@@ -103,7 +103,7 @@ export class InngestFixture {
 
   get functionOptions() {
     if (!this.inngestFunctionOptions) {
-      throw new AppError('The Inngest fixture has not registered a function.')
+      throw new AppError('O fixture do Inngest não registrou uma função.')
     }
 
     return this.inngestFunctionOptions
@@ -111,7 +111,7 @@ export class InngestFixture {
 
   get database() {
     if (!this.databaseConnection) {
-      throw new AppError('The Inngest fixture database has not been started.')
+      throw new AppError('O banco de dados do fixture do Inngest não foi iniciado.')
     }
 
     return this.databaseConnection
@@ -235,7 +235,7 @@ export class InngestFixture {
 
   async invoke(data: Record<string, unknown> = {}) {
     if (!this.registeredFunctionSlug) {
-      throw new Error('The Inngest function is not registered.')
+      throw new Error('A função do Inngest não está registrada.')
     }
 
     const response = await this.fetchJson<InvokeResponse>(
@@ -272,7 +272,7 @@ export class InngestFixture {
 
   resetDatabase() {
     if (!this.databaseFixture) {
-      throw new AppError('The Inngest fixture database has not been started.')
+      throw new AppError('O banco de dados do fixture do Inngest não foi iniciado.')
     }
 
     return this.databaseFixture.reset()
@@ -323,7 +323,7 @@ export class InngestFixture {
     const address = this.endpointServer.address()
 
     if (!address || typeof address === 'string') {
-      throw new Error('The Inngest fixture could not resolve its endpoint port.')
+      throw new Error('O fixture do Inngest não conseguiu resolver a porta do endpoint.')
     }
 
     return (address as AddressInfo).port
@@ -408,7 +408,7 @@ export class InngestFixture {
 
   private async fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
     if (!this.inngestBaseUrl) {
-      throw new Error('The Inngest job fixture has not been started.')
+      throw new Error('O fixture do job do Inngest não foi iniciado.')
     }
 
     const response = await fetch(`${this.inngestBaseUrl}${path}`, init)

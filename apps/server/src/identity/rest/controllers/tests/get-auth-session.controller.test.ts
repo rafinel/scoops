@@ -75,12 +75,12 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
     expect(missing.status).toBe(401)
     expect(invalid.status).toBe(401)
     expect(missing.body).toMatchObject({
-      title: 'Authentication required',
-      message: 'Authentication required.',
+      title: 'Autenticação necessária',
+      message: 'A autenticação é necessária.',
     })
     expect(invalid.body).toMatchObject({
-      title: 'Authentication required',
-      message: 'Authentication required.',
+      title: 'Autenticação necessária',
+      message: 'A autenticação é necessária.',
     })
   })
 
@@ -99,8 +99,8 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
 
     expect(response.status).toBe(401)
     expect(response.body).toMatchObject({
-      title: 'Authentication required',
-      message: 'Authentication required.',
+      title: 'Autenticação necessária',
+      message: 'A autenticação é necessária.',
     })
     await expect(
       establishmentsRepository.findById(establishmentId),
@@ -150,6 +150,6 @@ describe('Get Auth Session Controller [GET /auth/session]', () => {
       .set('Cookie', betterAuthFixture.cookieFor())
 
     expect(response.status).toBe(401)
-    expect(response.body).toMatchObject({ title: 'Authentication required' })
+    expect(response.body).toMatchObject({ title: 'Autenticação necessária' })
   })
 })

@@ -25,7 +25,7 @@ export const useCorrectUserInvitationAction = () => {
           await identityService.correctUserInvitation(userId, input),
         )
       } catch (error) {
-        throw toActionError(error, 'Unable to correct user invitation')
+        throw toActionError(error, 'Não foi possível corrigir o convite do usuário')
       }
     },
     onSuccess: async (_details, input) => {

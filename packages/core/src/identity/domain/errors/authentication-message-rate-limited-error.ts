@@ -2,6 +2,9 @@ import { TooManyRequestsError } from '#shared/domain/errors/too-many-requests-er
 
 export class AuthenticationMessageRateLimitedError extends TooManyRequestsError {
   constructor() {
-    super('The authentication message limit has been reached')
+    super(
+      'Você atingiu o limite de mensagens de autenticação. Aguarde alguns minutos antes de tentar novamente. Se o limite diário continuar, tente novamente amanhã.',
+      'Limite de autenticação atingido',
+    )
   }
 }

@@ -135,7 +135,7 @@ export function createBetterAuth(
         if (await securityControls.isSignInLocked(email)) {
           throw APIError.from('UNAUTHORIZED', {
             code: 'INVALID_EMAIL_OR_PASSWORD',
-            message: 'Invalid email or password',
+            message: 'O e-mail ou a senha são inválidos.',
           })
         }
       },

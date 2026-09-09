@@ -146,7 +146,7 @@ describe('AxiosRestClient', () => {
     requestMock.mockRejectedValueOnce('unknown failure')
     await expect(restClient.get('/unknown')).resolves.toMatchObject({
       statusCode: 0,
-      errorMessage: 'Unknown request error',
+      errorMessage: 'Erro desconhecido na requisição',
     })
   })
 })

@@ -9,6 +9,9 @@ export type UserAuditRecordJson = Omit<UserAuditRecord, 'occurredAt'> & {
 export const UserAuditRecordMapper = (response: UserAuditRecordJson): UserAuditRecord => {
   return {
     ...response,
-    occurredAt: IdentityDateMapper(response.occurredAt, 'Unexpected user audit response'),
+    occurredAt: IdentityDateMapper(
+      response.occurredAt,
+      'Resposta inesperada da auditoria do usuário',
+    ),
   }
 }

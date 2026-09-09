@@ -35,13 +35,13 @@ export class ResendIceCreamShopConfirmationUseCase {
         const attempt =
           await registrationAttemptsRepository.findPendingByTokenHash(tokenHash)
         if (!attempt || attempt.status !== RegistrationAttemptStatus.Pending)
-          throw new NotFoundError('Onboarding not found')
+          throw new NotFoundError('Cadastro não encontrado.')
         if (now.getTime() >= attempt.expiresAt.getTime())
           throw new OnboardingExpiredError()
         const establishment = await establishmentsRepository.findById(
           attempt.establishmentId,
         )
-        if (!establishment) throw new NotFoundError('Onboarding not found')
+        if (!establishment) throw new NotFoundError('Cadastro não encontrado.')
         const event = await this.onboardingIdentityProvider.prepareOnboardingConfirmation(
           {
             providerSubject: attempt.userId,

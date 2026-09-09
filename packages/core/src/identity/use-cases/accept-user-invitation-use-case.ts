@@ -39,16 +39,16 @@ export class AcceptUserInvitationUseCase implements UseCase<Request, AuthUser> {
       }: IdentityDatabaseRepositories) => {
         const attempt = await registrationAttemptsRepository.findPendingByTokenHash(hash)
         if (attempt?.type !== 'user-invitation')
-          throw new NotFoundError('Invitation not found')
+          throw new NotFoundError('Convite não encontrado.')
         const user = await usersRepository.findById(attempt.userId)
-        if (!user) throw new NotFoundError('Invitation not found')
+        if (!user) throw new NotFoundError('Convite não encontrado.')
         if (now.getTime() >= attempt.expiresAt.getTime())
           throw new UserInvitationExpiredError()
         if (
           attempt.status !== RegistrationAttemptStatus.Pending ||
           user.status !== UserStatus.Pending
         )
-          throw new NotFoundError('Invitation not found')
+          throw new NotFoundError('Convite não encontrado.')
         const operationToken = this.identifierProvider.generate()
         const claimed = await registrationAttemptsRepository.claimInvitationOperation({
           attemptId: attempt.id,
@@ -58,13 +58,13 @@ export class AcceptUserInvitationUseCase implements UseCase<Request, AuthUser> {
           claimedAt: now,
           staleBefore: new Date(now.getTime() - 15 * 60 * 1000),
         })
-        if (!claimed) throw new ConflictError('Invitation is being changed')
+        if (!claimed) throw new ConflictError('O convite está sendo alterado.')
         const authUser = await this.provider.setInvitationPassword({
           providerSubject: user.id,
           password: request.password,
         })
         if (authUser.id !== user.id || authUser.email !== user.email) {
-          throw new NotFoundError('Invitation not found')
+          throw new NotFoundError('Convite não encontrado.')
         }
         const updated = await usersRepository.replace(user.establishmentId, user.id, {
           status: UserStatus.Active,
@@ -79,7 +79,7 @@ export class AcceptUserInvitationUseCase implements UseCase<Request, AuthUser> {
               updatedAt: now,
             },
           })
-        if (!finalized) throw new ConflictError('Invitation operation was superseded')
+        if (!finalized) throw new ConflictError('A operação do convite foi substituída.')
         await userAuditRecordsRepository?.add({
           id: `${user.id}:${now.toISOString()}:activated`,
           establishmentId: user.establishmentId,

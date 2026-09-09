@@ -22,7 +22,7 @@ export class InactivateUserUseCase implements UseCase<Request, UserDetails> {
   ) {}
   async execute(request: Request): Promise<UserDetails> {
     if (request.actor.profile !== UserProfile.Manager)
-      throw new AuthorizationError('Manager access required')
+      throw new AuthorizationError('É necessário ter acesso de gerente.')
     const now = this.datetimeProvider.now()
     const result = await this.database.run(
       async ({
@@ -37,7 +37,7 @@ export class InactivateUserUseCase implements UseCase<Request, UserDetails> {
           request.actor.establishmentId,
           request.userId,
         )
-        if (!target) throw new NotFoundError('User not found')
+        if (!target) throw new NotFoundError('Usuário não encontrado.')
         if (target.status === UserStatus.Inactive) {
           const auditRecords = userAuditRecordsRepository
             ? await userAuditRecordsRepository.findManyByUser({

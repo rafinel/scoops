@@ -14,7 +14,7 @@ export const useAcceptUserInvitationAction = () => {
       try {
         ensureSuccessfulResponse(await identityService.acceptUserInvitation(input))
       } catch (error) {
-        throw toActionError(error, 'Unable to accept user invitation')
+        throw toActionError(error, 'Não foi possível aceitar o convite do usuário')
       }
     },
   })

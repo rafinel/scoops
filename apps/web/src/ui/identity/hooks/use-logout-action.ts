@@ -25,7 +25,11 @@ export const useLogoutAction = () => {
       await signOut()
     } catch (nextError) {
       if (isMountedRef.current) {
-        setError(nextError instanceof Error ? nextError : new Error('Logout failed'))
+        setError(
+          nextError instanceof Error
+            ? nextError
+            : new Error('Não foi possível sair da conta.'),
+        )
       }
       throw nextError
     } finally {

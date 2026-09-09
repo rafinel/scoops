@@ -90,7 +90,8 @@ export class DrizzleRecipesRepository
         ),
       )
       .returning({ id: recipeModel.id })
-    if (records.length !== 1) throw new ConflictError('Database operation conflicted')
+    if (records.length !== 1)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
   }
 
   async replace(
@@ -125,7 +126,8 @@ export class DrizzleRecipesRepository
         ),
       )
       .returning({ id: recipeModel.id })
-    if (!records.length) throw new ConflictError('Database operation conflicted')
+    if (!records.length)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
   }
 
   async removeAll(): Promise<void> {

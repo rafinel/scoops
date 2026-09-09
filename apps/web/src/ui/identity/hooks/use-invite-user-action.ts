@@ -18,7 +18,7 @@ export const useInviteUserAction = () => {
       try {
         return ensureSuccessfulResponse(await identityService.inviteUser(input))
       } catch (error) {
-        throw toActionError(error, 'Unable to invite user')
+        throw toActionError(error, 'Não foi possível convidar o usuário')
       }
     },
     onSuccess: () => {

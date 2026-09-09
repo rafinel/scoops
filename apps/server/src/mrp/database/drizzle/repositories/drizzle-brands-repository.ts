@@ -158,7 +158,7 @@ export class DrizzleBrandsRepository
     const brandId = isScoped ? brandIdOrChanges : productIdOrBrandId
     const changes = isScoped ? scopedChanges : brandIdOrChanges
     if (!changes || typeof changes === 'string')
-      throw new ConflictError('Database operation conflicted')
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
 
     const filters = [
       eq(productBrandModel.productId, productId),
@@ -184,7 +184,8 @@ export class DrizzleBrandsRepository
       })
       .where(and(...filters))
       .returning()
-    if (!record) throw new ConflictError('Database operation conflicted')
+    if (!record)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
     return DrizzleBrandMapper.toDomain(record)
   }
 
@@ -217,7 +218,8 @@ export class DrizzleBrandsRepository
       .set({ isPrimary: true, updatedAt: new Date() })
       .where(and(...productFilters, eq(productBrandModel.id, brandId)))
       .returning()
-    if (!record) throw new ConflictError('Database operation conflicted')
+    if (!record)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
     return DrizzleBrandMapper.toDomain(record)
   }
 
@@ -244,7 +246,8 @@ export class DrizzleBrandsRepository
       .delete(productBrandModel)
       .where(and(...filters))
       .returning({ id: productBrandModel.id })
-    if (!records.length) throw new ConflictError('Database operation conflicted')
+    if (!records.length)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
   }
 
   async removeAll(): Promise<void> {

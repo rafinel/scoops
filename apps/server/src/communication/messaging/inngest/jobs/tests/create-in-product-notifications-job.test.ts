@@ -195,7 +195,7 @@ describe('CreateInProductNotificationsJob', () => {
         event: { name: 'identity/user.inactivated', data: {} },
         step,
       }),
-    ).rejects.toThrow('Communication event id is required')
+    ).rejects.toThrow('O identificador do evento de comunicação é obrigatório')
     await expect(
       captured.handler({
         event: {

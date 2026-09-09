@@ -159,7 +159,7 @@ export class DrizzleResaleConfigurationsRepository
 
   private toConflictError(error: unknown): unknown {
     if (this.isIntegrityConstraintError(error)) {
-      return new ConflictError('Database operation conflicted')
+      return new ConflictError('A operação no banco de dados entrou em conflito.')
     }
     return error
   }

@@ -173,8 +173,8 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
     expect(unknownField.status).toBe(422)
     expect(invalidProfile.status).toBe(422)
     expect(unknownField.body).toMatchObject({
-      title: 'Invalid request',
-      message: 'Invalid request.',
+      title: 'Requisição inválida',
+      message: 'A requisição é inválida.',
     })
   })
 
@@ -204,7 +204,7 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
     expect(response.status).toBe(404)
     expect(response.body).toMatchObject({
       title: 'Erro de Não Encontrado',
-      message: 'User not found',
+      message: 'Usuário não encontrado.',
     })
     await expect(
       fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users).findById(target.id),

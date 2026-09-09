@@ -116,7 +116,7 @@ describe('SSR authentication response normalization', () => {
       session: null,
     })
     expect(() => normalizeAuthSessionResolution(null)).toThrow(
-      'Authentication session response is invalid',
+      'A resposta da sessão de autenticação é inválida.',
     )
   })
 

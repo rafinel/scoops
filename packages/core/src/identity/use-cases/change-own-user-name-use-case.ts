@@ -45,7 +45,7 @@ export class ChangeOwnUserNameUseCase implements UseCase<Request, Account> {
           !establishment ||
           establishment.id !== request.actor.establishmentId
         ) {
-          throw new NotFoundError('Authenticated account not found')
+          throw new NotFoundError('Conta autenticada não encontrada.')
         }
 
         if (user.name === name) {
@@ -70,7 +70,9 @@ export class ChangeOwnUserNameUseCase implements UseCase<Request, Account> {
         )
         const auditRepository = userAuditRecordsRepository
         if (!auditRepository)
-          throw new AppError('User audit repository is not configured')
+          throw new AppError(
+            'O repositório de auditoria do usuário não está configurado.',
+          )
 
         await auditRepository.add({
           id: `${updatedUser.id}:${updatedAt.toISOString()}:self-name`,

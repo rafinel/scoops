@@ -2,6 +2,6 @@ import { AuthorizationError } from '#shared/domain/errors/authorization-error.ts
 
 export class InvalidCredentialsError extends AuthorizationError {
   constructor() {
-    super('Identifier or password is invalid')
+    super('O e-mail ou a senha são inválidos.')
   }
 }

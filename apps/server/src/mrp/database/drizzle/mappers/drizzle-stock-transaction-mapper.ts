@@ -41,7 +41,7 @@ export class DrizzleStockTransactionMapper {
       case StockTransactionType.SaleCancellation:
         return StockTransactionType.SaleCancellation
       default:
-        throw new ConflictError('Database operation conflicted')
+        throw new ConflictError('A operação no banco de dados entrou em conflito.')
     }
   }
 }

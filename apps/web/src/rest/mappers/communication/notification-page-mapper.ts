@@ -34,17 +34,17 @@ const mapDate = (value: string, errorMessage: string): Date => {
 
 const mapNotification = (notification: NotificationJson): Notification => ({
   ...notification,
-  occurredAt: mapDate(notification.occurredAt, 'Unexpected notification response'),
-  createdAt: mapDate(notification.createdAt, 'Unexpected notification response'),
+  occurredAt: mapDate(notification.occurredAt, 'Resposta inesperada da notificação'),
+  createdAt: mapDate(notification.createdAt, 'Resposta inesperada da notificação'),
   readAt:
     notification.readAt === undefined || notification.readAt === null
       ? undefined
-      : mapDate(notification.readAt, 'Unexpected notification response'),
+      : mapDate(notification.readAt, 'Resposta inesperada da notificação'),
 })
 
 const mapCursor = (cursor: NotificationCursorJson): NotificationCursor => ({
   ...cursor,
-  occurredAt: mapDate(cursor.occurredAt, 'Unexpected notification response'),
+  occurredAt: mapDate(cursor.occurredAt, 'Resposta inesperada da notificação'),
 })
 
 export const NotificationPageMapper = (

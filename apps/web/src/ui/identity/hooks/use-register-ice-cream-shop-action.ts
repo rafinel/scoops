@@ -27,7 +27,7 @@ export const useRegisterIceCreamShopAction = () => {
     try {
       return ensureSuccessfulResponse(await identityService.registerIceCreamShop(input))
     } catch (nextError) {
-      const actionError = toActionError(nextError, 'Registration failed')
+      const actionError = toActionError(nextError, 'Falha ao concluir o cadastro')
       setError(actionError)
       throw actionError
     } finally {

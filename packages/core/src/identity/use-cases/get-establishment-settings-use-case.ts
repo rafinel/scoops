@@ -23,7 +23,7 @@ export class GetEstablishmentSettingsUseCase
         const establishment = await establishmentsRepository.findById(
           request.actor.establishmentId,
         )
-        if (!establishment) throw new NotFoundError('Establishment not found')
+        if (!establishment) throw new NotFoundError('Estabelecimento não encontrado.')
 
         return {
           establishment: {

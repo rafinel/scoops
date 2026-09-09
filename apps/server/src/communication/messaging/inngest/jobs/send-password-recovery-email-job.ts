@@ -32,7 +32,8 @@ export class SendPasswordRecoveryEmailJob extends InngestJob {
         triggers: [sendPasswordRecoveryEmailEvent],
       },
       async ({ event, step }) => {
-        if (!event.id) throw new Error('Communication event id is required')
+        if (!event.id)
+          throw new Error('O identificador do evento de comunicação é obrigatório')
         const data = passwordRecoveryPreparedEventSchema.parse(event.data)
 
         return step.run('send-password-recovery-email', async () => {

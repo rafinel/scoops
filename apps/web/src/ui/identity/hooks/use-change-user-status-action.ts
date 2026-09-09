@@ -26,7 +26,7 @@ export const useChangeUserStatusAction = () => {
           await identityService.changeUserStatus(userId, status),
         )
       } catch (error) {
-        throw toActionError(error, 'Unable to change user status')
+        throw toActionError(error, 'Não foi possível alterar o status do usuário')
       }
     },
     onSuccess: async (_details, input) => {

@@ -228,7 +228,9 @@ export class ExpireIceCreamShopOnboardingsUseCase {
     if (!claimed) return this.createCounts()
 
     try {
-      if (!this.userAccessIdentityProvider) throw new Error('User provider unavailable')
+      if (!this.userAccessIdentityProvider) {
+        throw new Error('O provedor de usuários está indisponível.')
+      }
       await this.userAccessIdentityProvider.removeIdentity(invitation.userId)
       await this.finalizeExpiredInvitation(invitation, operationToken, now)
       return { expired: 1, removed: 1, failed: 0 }

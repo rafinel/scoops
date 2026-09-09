@@ -31,7 +31,7 @@ export const useCorrectIceCreamShopOnboardingEmailAction = () => {
         await identityService.correctIceCreamShopOnboardingEmail(input),
       )
     } catch (nextError) {
-      const actionError = toActionError(nextError, 'Unable to correct email')
+      const actionError = toActionError(nextError, 'Não foi possível corrigir o e-mail')
       setError(actionError)
       throw actionError
     } finally {

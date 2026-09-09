@@ -13,8 +13,9 @@ export class GetUserDetailsUseCase implements UseCase<Request, UserDetails> {
 
   async execute(request: Request): Promise<UserDetails> {
     if (request.actor.profile !== 'manager')
-      throw new AuthorizationError('Manager access required')
-    if (request.actor.id === request.userId) throw new NotFoundError('User not found')
+      throw new AuthorizationError('É necessário ter acesso de gerente.')
+    if (request.actor.id === request.userId)
+      throw new NotFoundError('Usuário não encontrado.')
     return this.database.run(
       async ({
         usersRepository,
@@ -25,7 +26,7 @@ export class GetUserDetailsUseCase implements UseCase<Request, UserDetails> {
           request.userId,
         )
         if (!user || user.establishmentId !== request.actor.establishmentId)
-          throw new NotFoundError('User not found')
+          throw new NotFoundError('Usuário não encontrado.')
         const auditRecords = userAuditRecordsRepository
           ? await userAuditRecordsRepository.findManyByUser({
               establishmentId: request.actor.establishmentId,

@@ -428,7 +428,9 @@ export class BetterAuthFixture implements ServerAuthProvider {
 
   private completeToken(kind: string, token: string) {
     const user = this.inspectToken(kind, token)
-    if (!user) throw new BadRequestError('Authentication token is invalid or expired')
+    if (!user) {
+      throw new BadRequestError('O token de autenticação é inválido ou expirou.')
+    }
     this.tokens.delete(token)
     return user
   }

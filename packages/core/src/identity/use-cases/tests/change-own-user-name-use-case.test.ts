@@ -152,7 +152,7 @@ describe('Change Own User Name Use Case', () => {
     )
 
     await expect(useCase.execute({ actor, name: 'New Name' })).rejects.toMatchObject({
-      message: 'Authenticated account not found',
+      message: 'Conta autenticada não encontrada.',
     })
     expect(usersRepository.replace).not.toHaveBeenCalled()
     expect(userAuditRecordsRepository.add).not.toHaveBeenCalled()

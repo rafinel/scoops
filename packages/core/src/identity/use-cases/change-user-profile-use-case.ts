@@ -39,7 +39,7 @@ export class ChangeUserProfileUseCase implements UseCase<Request, UserDetails> {
           request.userId,
         )
         if (!target || target.establishmentId !== request.actor.establishmentId)
-          throw new NotFoundError('User not found')
+          throw new NotFoundError('Usuário não encontrado.')
         if (target.status !== UserStatus.Active) throw new ProfileChangeNotAllowedError()
         if (target.profile === request.profile)
           return { user: target, changed: false, previousProfile: target.profile }

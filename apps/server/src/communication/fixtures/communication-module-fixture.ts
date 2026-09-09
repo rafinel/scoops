@@ -162,7 +162,7 @@ export class CommunicationModuleFixture {
     if (!restFixture) {
       await inngestFixture.teardown()
       CommunicationModuleFixture.restoreEmailEnvironment(originalEmailEnvironment)
-      throw new Error('The Communication fixture was not registered for Inngest.')
+      throw new Error('O fixture de Comunicação não foi registrado no Inngest.')
     }
 
     return new CommunicationModuleFixture(
@@ -190,7 +190,7 @@ export class CommunicationModuleFixture {
 
   get inngestFunctionOptions(): InngestFunction.Options {
     if (!this.inngestFixture)
-      throw new Error('The Communication fixture has no Inngest job.')
+      throw new Error('O fixture de Comunicação não possui um job do Inngest.')
     return this.inngestFixture.functionOptions
   }
 
@@ -262,7 +262,7 @@ export class CommunicationModuleFixture {
 
   runInngest(event: EventPayload) {
     if (!this.inngestFixture)
-      throw new Error('The Communication fixture has no Inngest job.')
+      throw new Error('O fixture de Comunicação não possui um job do Inngest.')
     return this.inngestFixture.run(event)
   }
 

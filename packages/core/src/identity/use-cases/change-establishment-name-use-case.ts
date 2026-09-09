@@ -39,7 +39,7 @@ export class ChangeEstablishmentNameUseCase
         const establishment = await establishmentsRepository.findById(
           request.actor.establishmentId,
         )
-        if (!establishment) throw new NotFoundError('Establishment not found')
+        if (!establishment) throw new NotFoundError('Estabelecimento não encontrado.')
 
         if (establishment.name === name) {
           return {
@@ -55,7 +55,9 @@ export class ChangeEstablishmentNameUseCase
         )
         const auditRepository = establishmentAuditRecordsRepository
         if (!auditRepository)
-          throw new AppError('Establishment audit repository is not configured')
+          throw new AppError(
+            'O repositório de auditoria do estabelecimento não está configurado.',
+          )
 
         await auditRepository.add({
           id: `${updatedEstablishment.id}:${updatedAt.toISOString()}:name`,

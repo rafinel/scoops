@@ -48,7 +48,8 @@ export class SendInvitationEmailJob extends InngestJob {
   }
 
   private requireEventId(eventId: string | undefined): string {
-    if (!eventId) throw new Error('Communication event id is required')
+    if (!eventId)
+      throw new Error('O identificador do evento de comunicação é obrigatório')
     return eventId
   }
 }

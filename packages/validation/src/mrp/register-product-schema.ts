@@ -32,7 +32,8 @@ export const registerProductSchema = z
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['initialStock'],
-        message: 'Initial stock cannot be negative unless negative stock is enabled.',
+        message:
+          'O estoque inicial não pode ser negativo, a menos que o estoque negativo esteja habilitado.',
       })
     }
 
@@ -42,7 +43,8 @@ export const registerProductSchema = z
           context.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['brands', index, 'initialQuantity'],
-            message: 'Initial stock cannot be negative unless negative stock is enabled.',
+            message:
+              'O estoque inicial não pode ser negativo, a menos que o estoque negativo esteja habilitado.',
           })
         }
       }

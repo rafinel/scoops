@@ -142,7 +142,8 @@ export class DrizzleSalesChannelsRepository
         )
         .returning()
 
-      if (!record) throw new ConflictError('Database operation conflicted')
+      if (!record)
+        throw new ConflictError('A operação no banco de dados entrou em conflito.')
       return DrizzleSalesChannelMapper.toDomain(record)
     } catch (error) {
       throw this.toConflictError(error)
@@ -184,7 +185,7 @@ export class DrizzleSalesChannelsRepository
 
   private toConflictError(error: unknown): unknown {
     if (this.isIntegrityConstraintError(error)) {
-      return new ConflictError('Database operation conflicted')
+      return new ConflictError('A operação no banco de dados entrou em conflito.')
     }
     return error
   }

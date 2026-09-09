@@ -37,7 +37,7 @@ export class InviteUserUseCase implements UseCase<Request, UserDetails> {
 
   async execute(request: Request): Promise<UserDetails> {
     if (request.actor.profile !== UserProfile.Manager)
-      throw new AuthorizationError('Manager access required')
+      throw new AuthorizationError('É necessário ter acesso de gerente.')
     const now = this.datetimeProvider.now()
     const name = request.name.trim()
     const email = request.email.trim().toLowerCase()

@@ -23,7 +23,7 @@ export const useChangeUserProfileAction = () => {
           await identityService.changeUserProfile(userId, profile),
         )
       } catch (error) {
-        throw toActionError(error, 'Unable to change user profile')
+        throw toActionError(error, 'Não foi possível alterar o perfil do usuário')
       }
     },
     onSuccess: async (_details, input) => {

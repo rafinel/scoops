@@ -40,15 +40,15 @@ export class CorrectIceCreamShopOnboardingEmailUseCase {
         const attempt =
           await registrationAttemptsRepository.findPendingByTokenHash(tokenHash)
         if (!attempt || attempt.status !== RegistrationAttemptStatus.Pending)
-          throw new NotFoundError('Onboarding not found')
+          throw new NotFoundError('Cadastro não encontrado.')
         if (now.getTime() >= attempt.expiresAt.getTime())
           throw new OnboardingExpiredError()
         if (attempt.supersededProviderSubject)
-          throw new ConflictError('Onboarding cleanup is pending')
+          throw new ConflictError('A limpeza do cadastro está pendente.')
         const establishment = await establishmentsRepository.findById(
           attempt.establishmentId,
         )
-        if (!establishment) throw new NotFoundError('Onboarding not found')
+        if (!establishment) throw new NotFoundError('Cadastro não encontrado.')
         return { attempt, establishment }
       },
     )
@@ -78,13 +78,13 @@ export class CorrectIceCreamShopOnboardingEmailUseCase {
           const attempt =
             await registrationAttemptsRepository.findPendingByTokenHash(tokenHash)
           if (!attempt || attempt.status !== RegistrationAttemptStatus.Pending)
-            throw new NotFoundError('Onboarding not found')
+            throw new NotFoundError('Cadastro não encontrado.')
           if (attempt.supersededProviderSubject)
-            throw new ConflictError('Onboarding cleanup is pending')
+            throw new ConflictError('A limpeza do cadastro está pendente.')
           if (now.getTime() >= attempt.expiresAt.getTime())
             throw new OnboardingExpiredError()
           const oldUser = await usersRepository.findById(attempt.userId)
-          if (!oldUser) throw new NotFoundError('Onboarding not found')
+          if (!oldUser) throw new NotFoundError('Cadastro não encontrado.')
           const replacement =
             await this.onboardingIdentityProvider.replacePendingIdentity({
               providerSubject: oldUser.id,
@@ -121,7 +121,7 @@ export class CorrectIceCreamShopOnboardingEmailUseCase {
           const establishment = await establishmentsRepository.findById(
             updated.establishmentId,
           )
-          if (!establishment) throw new NotFoundError('Onboarding not found')
+          if (!establishment) throw new NotFoundError('Cadastro não encontrado.')
           await eventsRepository.add(replacement.event)
           return {
             establishmentName: establishment.name,

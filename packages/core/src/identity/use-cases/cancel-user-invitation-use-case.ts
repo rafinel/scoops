@@ -29,7 +29,7 @@ export class CancelUserInvitationUseCase implements UseCase<Request, void> {
 
   async execute(request: Request): Promise<void> {
     if (request.actor.profile !== UserProfile.Manager)
-      throw new AuthorizationError('Manager access required')
+      throw new AuthorizationError('É necessário ter acesso de gerente.')
     const now = this.datetimeProvider.now()
     const pending = await this.database.run(
       async ({
@@ -49,7 +49,7 @@ export class CancelUserInvitationUseCase implements UseCase<Request, void> {
           user.status !== UserStatus.Pending ||
           attempt.status !== RegistrationAttemptStatus.Pending
         )
-          throw new NotFoundError('Invitation not found')
+          throw new NotFoundError('Convite não encontrado.')
         if (now.getTime() >= attempt.expiresAt.getTime())
           throw new UserInvitationNotAllowedError()
         return { user, attempt }
@@ -67,7 +67,7 @@ export class CancelUserInvitationUseCase implements UseCase<Request, void> {
           staleBefore: new Date(now.getTime() - 15 * 60 * 1000),
         }),
     )
-    if (!claimed) throw new ConflictError('Invitation is being changed')
+    if (!claimed) throw new ConflictError('O convite está sendo alterado.')
 
     try {
       await this.provider.removeIdentity(pending.user.id)
@@ -99,7 +99,7 @@ export class CancelUserInvitationUseCase implements UseCase<Request, void> {
             updatedAt: now,
           },
         })
-        if (!attempt) throw new ConflictError('Invitation operation was superseded')
+        if (!attempt) throw new ConflictError('A operação do convite foi substituída.')
         await userAuditRecordsRepository?.add({
           id: `${pending.user.id}:${now.toISOString()}:cancelled`,
           establishmentId: pending.user.establishmentId,

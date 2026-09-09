@@ -23,7 +23,7 @@ export class ConfirmIceCreamShopOnboardingUseCase implements UseCase<Request, Au
     const authUser = await this.onboardingIdentityProvider.inspectOnboardingConfirmation(
       request.confirmationToken,
     )
-    if (!authUser) throw new NotFoundError('Onboarding not found')
+    if (!authUser) throw new NotFoundError('Cadastro não encontrado.')
 
     const now = this.datetimeProvider.now()
     await this.database.run(
@@ -34,19 +34,19 @@ export class ConfirmIceCreamShopOnboardingUseCase implements UseCase<Request, Au
       }: IdentityDatabaseRepositories) => {
         const user = await usersRepository.findByProviderSubject(authUser.id)
         if (!user || user.email !== authUser.email.trim().toLowerCase()) {
-          throw new NotFoundError('Onboarding not found')
+          throw new NotFoundError('Cadastro não encontrado.')
         }
         const attempt = await registrationAttemptsRepository.findByUserId(user.id)
-        if (!attempt) throw new NotFoundError('Onboarding not found')
+        if (!attempt) throw new NotFoundError('Cadastro não encontrado.')
         if (attempt.status === RegistrationAttemptStatus.Confirmed) return
         if (attempt.status !== RegistrationAttemptStatus.Pending)
-          throw new NotFoundError('Onboarding not found')
+          throw new NotFoundError('Cadastro não encontrado.')
         if (now.getTime() >= attempt.expiresAt.getTime())
           throw new OnboardingExpiredError()
         const establishment = await establishmentsRepository.findById(
           attempt.establishmentId,
         )
-        if (!establishment) throw new NotFoundError('Onboarding not found')
+        if (!establishment) throw new NotFoundError('Cadastro não encontrado.')
         await establishmentsRepository.replace(establishment.id, {
           status: EstablishmentStatus.Active,
           activatedAt: now,

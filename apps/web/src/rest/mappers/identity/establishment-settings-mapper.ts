@@ -23,7 +23,7 @@ export const EstablishmentSettingsMapper = (
     typeof response.establishment.status !== 'string' ||
     !response.responsibleManager
   ) {
-    throw new AppError('Unexpected establishment settings response')
+    throw new AppError('Resposta inesperada das configurações do estabelecimento')
   }
 
   return {
@@ -31,11 +31,11 @@ export const EstablishmentSettingsMapper = (
       ...response.establishment,
       createdAt: IdentityDateMapper(
         response.establishment.createdAt,
-        'Unexpected establishment settings response',
+        'Resposta inesperada das configurações do estabelecimento',
       ),
       updatedAt: IdentityDateMapper(
         response.establishment.updatedAt,
-        'Unexpected establishment settings response',
+        'Resposta inesperada das configurações do estabelecimento',
       ),
     },
     responsibleManager: response.responsibleManager,

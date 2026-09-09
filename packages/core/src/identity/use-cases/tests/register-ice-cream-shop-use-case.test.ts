@@ -126,7 +126,7 @@ describe('Register Ice Cream Shop Use Case', () => {
         password: 'password123',
         confirmationRedirectBaseUrl: 'http://localhost/onboarding/confirm',
       }),
-    ).rejects.toThrow('email address is unavailable')
+    ).rejects.toThrow('Este endereço de e-mail não está disponível.')
     expect(provider.registerPendingIdentity).not.toHaveBeenCalled()
   })
 })

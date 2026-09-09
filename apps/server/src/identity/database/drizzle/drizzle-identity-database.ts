@@ -53,7 +53,9 @@ export class DrizzleIdentityDatabase implements IdentityDatabase {
         )
     } catch (error) {
       if (!this.isRetryableTransactionConflict(error)) throw error
-      if (hasRetried) throw new ConflictError('Database operation conflicted')
+      if (hasRetried) {
+        throw new ConflictError('A operação no banco de dados entrou em conflito.')
+      }
 
       return this.runWithRetry(operation, true)
     }

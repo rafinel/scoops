@@ -12,6 +12,6 @@ export const stockTransactionListSchema = z
   })
   .strict()
   .refine(({ from, to }) => !from || !to || from <= to, {
-    message: 'The end date must be equal to or later than the start date.',
+    message: 'A data final deve ser igual ou posterior à data inicial.',
     path: ['to'],
   })

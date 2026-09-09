@@ -22,7 +22,10 @@ export const useConfirmIceCreamShopOnboardingAction = () => {
         await identityService.confirmIceCreamShopOnboarding({ confirmationToken }),
       )
     } catch (nextError) {
-      const actionError = toActionError(nextError, 'Unable to confirm onboarding')
+      const actionError = toActionError(
+        nextError,
+        'Não foi possível confirmar o cadastro',
+      )
       setError(actionError)
       throw actionError
     } finally {

@@ -15,7 +15,7 @@ export const IceCreamShopOnboardingRegistrationMapper = (
   response: IceCreamShopOnboardingRegistrationJson,
 ): IceCreamShopOnboardingRegistration => {
   if (typeof response?.continuationToken !== 'string' || !response.onboarding) {
-    throw new AppError('Unexpected onboarding response')
+    throw new AppError('Resposta inesperada do cadastro')
   }
 
   return {

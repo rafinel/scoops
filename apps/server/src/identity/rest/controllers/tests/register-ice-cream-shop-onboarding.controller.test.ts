@@ -94,7 +94,7 @@ describe('Register Ice Cream Shop Onboarding Controller [POST /registration-atte
 
     expect(malformed.status).toBe(422)
     expect(unknownField.status).toBe(422)
-    expect(malformed.body).toMatchObject({ title: 'Invalid request' })
+    expect(malformed.body).toMatchObject({ title: 'Requisição inválida' })
     expect(betterAuthFixture.getCalls().registerPendingIdentity).toHaveLength(0)
   })
 

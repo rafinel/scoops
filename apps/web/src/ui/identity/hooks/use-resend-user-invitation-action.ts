@@ -18,7 +18,7 @@ export const useResendUserInvitationAction = () => {
           await identityService.resendUserInvitation(userId),
         )
       } catch (error) {
-        throw toActionError(error, 'Unable to resend user invitation')
+        throw toActionError(error, 'Não foi possível reenviar o convite do usuário')
       }
     },
     onSuccess: async (_details, userId) => {

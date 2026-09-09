@@ -2,6 +2,6 @@ import { ServiceUnavailableError } from '#shared/domain/errors/service-unavailab
 
 export class AuthenticationProviderUnavailableError extends ServiceUnavailableError {
   constructor() {
-    super('Authentication service unavailable')
+    super('O serviço de autenticação está indisponível.')
   }
 }

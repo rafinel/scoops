@@ -17,7 +17,11 @@ export const useLoginAction = () => {
     try {
       await signIn(credentials)
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError : new Error('Login failed'))
+      setError(
+        nextError instanceof Error
+          ? nextError
+          : new Error('Não foi possível entrar na conta.'),
+      )
       throw nextError
     } finally {
       setIsPending(false)

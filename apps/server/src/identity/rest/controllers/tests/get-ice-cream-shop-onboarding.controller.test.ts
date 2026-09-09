@@ -58,7 +58,7 @@ describe('Get Ice Cream Shop Onboarding Controller [POST /registration-attempts/
 
     expect(malformed.status).toBe(422)
     expect(unknown.status).toBe(404)
-    expect(malformed.body).toMatchObject({ title: 'Invalid request' })
-    expect(unknown.body).toMatchObject({ message: 'Onboarding not found' })
+    expect(malformed.body).toMatchObject({ title: 'Requisição inválida' })
+    expect(unknown.body).toMatchObject({ message: 'Cadastro não encontrado.' })
   })
 })

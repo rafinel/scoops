@@ -18,7 +18,7 @@ export const useResetPasswordAction = () => {
     try {
       ensureSuccessfulResponse(await identityService.resetPassword(input))
     } catch (nextError) {
-      const actionError = toActionError(nextError, 'Password reset failed')
+      const actionError = toActionError(nextError, 'Não foi possível redefinir a senha')
       setError(actionError)
       throw actionError
     } finally {

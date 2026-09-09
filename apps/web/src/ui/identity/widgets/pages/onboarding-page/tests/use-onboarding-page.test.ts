@@ -145,8 +145,8 @@ describe('useOnboardingPage', () => {
     const continuationToken = 'c'.repeat(43)
     loadSessionMock.mockReturnValue({ version: 1, continuationToken, onboarding })
     getMock.mockImplementation(async () => {
-      actionStates.get.error = new Error('Onboarding not found')
-      throw new Error('Onboarding not found')
+      actionStates.get.error = new Error('Cadastro não encontrado.')
+      throw new Error('Cadastro não encontrado.')
     })
     registerMock.mockResolvedValue({ continuationToken: 'd'.repeat(43), onboarding })
 
@@ -154,7 +154,7 @@ describe('useOnboardingPage', () => {
 
     await waitFor(() => {
       expect(result.current.state).toBe('expired')
-      expect(result.current.error).toBe('Onboarding not found')
+      expect(result.current.error).toBe('Cadastro não encontrado.')
     })
 
     act(() => result.current.handleRestart())

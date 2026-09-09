@@ -61,7 +61,7 @@ describe('Get Establishment Settings Use Case', () => {
     establishmentsRepository.findById.mockResolvedValue(undefined)
 
     await expect(useCase.execute({ actor })).rejects.toMatchObject({
-      message: 'Establishment not found',
+      message: 'Estabelecimento não encontrado.',
     })
     expect(establishmentsRepository.findById).toHaveBeenCalledWith(actor.establishmentId)
   })

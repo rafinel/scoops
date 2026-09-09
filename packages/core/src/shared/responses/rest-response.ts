@@ -27,7 +27,7 @@ export class RestResponse<Body = unknown> {
   }
 
   throwError(): never {
-    const message = this._errorMessage ?? 'Rest Response failed'
+    const message = this._errorMessage ?? 'A resposta REST falhou.'
 
     if (this.statusCode === HTTP_STATUS_CODE.notFound) throw new NotFoundError(message)
 
@@ -60,7 +60,7 @@ export class RestResponse<Body = unknown> {
 
   get body(): Body {
     if (this._errorMessage) {
-      throw new AppError('Rest Response failed')
+      throw new AppError('A resposta REST falhou.')
     }
 
     return this._body as Body
@@ -68,7 +68,7 @@ export class RestResponse<Body = unknown> {
 
   get errorMessage(): string {
     if (!this._errorMessage) {
-      throw new AppError('Rest Response has no error message')
+      throw new AppError('A resposta REST não possui mensagem de erro.')
     }
 
     return this._errorMessage

@@ -46,7 +46,7 @@ export const resolveAuthSession = createServerFn({ method: 'GET' }).handler(
       return { account: null, session: null }
     }
     if (!accountResponse.ok || !providerResponse.ok) {
-      throw new Error('Authentication session is unavailable')
+      throw new Error('A sessão de autenticação está indisponível.')
     }
 
     const accountPayload = (await accountResponse.json()) as unknown
@@ -71,7 +71,7 @@ function resolvePlaywrightAuthSession(): AuthSessionResolution | null {
 
   if (override.status === 401) return { account: null, session: null }
   if (override.status !== 200) {
-    throw new Error('Authentication session is unavailable')
+    throw new Error('A sessão de autenticação está indisponível.')
   }
 
   return normalizeAuthSessionResolution(override.body)
@@ -181,7 +181,7 @@ function getHostname(host: string): string | null {
 
 export function normalizeAuthSessionResolution(payload: unknown): AuthSessionResolution {
   if (!payload || typeof payload !== 'object') {
-    throw new Error('Authentication session response is invalid')
+    throw new Error('A resposta da sessão de autenticação é inválida.')
   }
 
   const record = payload as Record<string, unknown>

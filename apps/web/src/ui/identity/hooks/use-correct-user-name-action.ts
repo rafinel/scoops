@@ -20,7 +20,7 @@ export const useCorrectUserNameAction = () => {
           await identityService.correctUserName(userId, name),
         )
       } catch (error) {
-        throw toActionError(error, 'Unable to correct user name')
+        throw toActionError(error, 'Não foi possível corrigir o nome do usuário')
       }
     },
     onSuccess: async (_details, input) => {

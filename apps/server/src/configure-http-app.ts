@@ -32,7 +32,7 @@ export function configureHttpApp(
   })
   app.use('/api/auth', (request: Request, response: Response, next: NextFunction) => {
     if (!options.isAllowedRoute(request)) {
-      response.status(404).json({ error: 'Not found', message: 'Not found.' })
+      response.status(404).json({ error: 'Não encontrado', message: 'Não encontrado.' })
       return
     }
     void betterAuthHandler(request, response).catch(next)

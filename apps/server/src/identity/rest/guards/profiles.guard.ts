@@ -27,8 +27,8 @@ export class ProfilesGuard implements CanActivate {
     if (requiredProfiles.includes(request.account.profile)) return true
 
     throw new ForbiddenException({
-      error: 'Access denied',
-      message: 'Access denied.',
+      error: 'Acesso negado',
+      message: 'Acesso negado.',
     })
   }
 }

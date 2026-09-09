@@ -25,7 +25,7 @@ export const useGetIceCreamShopOnboardingAction = () => {
         await identityService.getIceCreamShopOnboarding({ continuationToken }),
       )
     } catch (nextError) {
-      const actionError = toActionError(nextError, 'Unable to load onboarding')
+      const actionError = toActionError(nextError, 'Não foi possível carregar o cadastro')
       setError(actionError)
       throw actionError
     } finally {

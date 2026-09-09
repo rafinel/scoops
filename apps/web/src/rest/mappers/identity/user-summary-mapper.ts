@@ -15,10 +15,10 @@ export type UserSummary = Pick<
 export const UserSummaryMapper = (response: UserSummaryJson): UserSummary => {
   return {
     ...response,
-    createdAt: IdentityDateMapper(response.createdAt, 'Unexpected users response'),
+    createdAt: IdentityDateMapper(response.createdAt, 'Resposta inesperada dos usuários'),
     lastAccessAt: OptionalIdentityDateMapper(
       response.lastAccessAt,
-      'Unexpected users response',
+      'Resposta inesperada dos usuários',
     ),
   }
 }

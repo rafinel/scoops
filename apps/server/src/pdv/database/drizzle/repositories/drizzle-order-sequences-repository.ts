@@ -24,7 +24,8 @@ export class DrizzleOrderSequencesRepository
       })
       .returning({ sequenceNumber: orderSequenceModel.lastSequenceNumber })
 
-    if (!record) throw new ConflictError('Database operation conflicted')
+    if (!record)
+      throw new ConflictError('A operação no banco de dados entrou em conflito.')
     return record.sequenceNumber
   }
 
