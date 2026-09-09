@@ -1,4 +1,5 @@
 import request from 'supertest'
+import postgres from 'postgres'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import { OnboardingConfirmationPreparedEvent } from '@scoops/core/identity/domain/events'
@@ -101,6 +102,12 @@ describe('Register Ice Cream Shop Onboarding Controller [POST /registration-atte
     const realFixture = await RestFixture.register({
       imports: [SharedModule, IdentityModule, InngestModule.forRoot({ functions: [] })],
     })
+    const listenerClient = postgres(process.env.DATABASE_URL as string, { max: 1 })
+    let resolveNotifiedEventId: (eventId: string) => void = () => undefined
+    const notifiedEventId = new Promise<string>((resolve) => {
+      resolveNotifiedEventId = resolve
+    })
+    const listener = await listenerClient.listen('scoops_events', resolveNotifiedEventId)
 
     try {
       const app = realFixture.app.getHttpServer()
@@ -134,6 +141,7 @@ describe('Register Ice Cream Shop Onboarding Controller [POST /registration-atte
       })
       expect(outboxEvent).toBeDefined()
       if (!outboxEvent) throw new Error('The registration did not enqueue an event')
+      await expect(notifiedEventId).resolves.toBe(outboxEvent.id)
       expect(outboxEvent?.payload).toMatchObject({
         email: 'real@example.com',
         name: 'Real Manager',
@@ -189,6 +197,8 @@ describe('Register Ice Cream Shop Onboarding Controller [POST /registration-atte
         name: 'Real Manager',
       })
     } finally {
+      await listener.unlisten()
+      await listenerClient.end()
       await realFixture.close()
     }
   })

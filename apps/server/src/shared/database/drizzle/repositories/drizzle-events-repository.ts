@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 
-import { and, asc, eq, inArray, lte, lt } from 'drizzle-orm'
+import { and, asc, eq, inArray, lte, lt, sql } from 'drizzle-orm'
 import type { Event } from '@scoops/core/shared/domain/events'
 import type {
   EventsRepository,
@@ -28,11 +28,12 @@ export class DrizzleEventsRepository implements EventsRepository {
   ) {}
 
   async add(event: Event): Promise<void> {
+    const eventId = randomUUID()
     const occurredAt = new Date()
     const database = this.transaction ?? this.drizzleClient.requireDatabase()
 
     await database.insert(eventModel).values({
-      id: randomUUID(),
+      id: eventId,
       eventName: event.name,
       payload: event.payload as Record<string, unknown>,
       occurredAt,
@@ -40,6 +41,7 @@ export class DrizzleEventsRepository implements EventsRepository {
       createdAt: occurredAt,
       updatedAt: occurredAt,
     })
+    await database.execute(sql`select pg_notify(${EVENTS_CHANNEL}, ${eventId})`)
   }
 
   async subscribe(
