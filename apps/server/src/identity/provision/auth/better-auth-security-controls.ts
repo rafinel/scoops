@@ -14,7 +14,7 @@ import type { DrizzleExecutor } from '@/shared/database/drizzle/drizzle-reposito
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000
 const MESSAGE_WINDOW_MS = 24 * 60 * 60 * 1000
 const MESSAGE_SPACING_MS = 2 * 60 * 1000
-const MESSAGE_LIMIT = 3
+const MESSAGE_LIMIT = 10
 
 @Injectable()
 export class BetterAuthSecurityControls {

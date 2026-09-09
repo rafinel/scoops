@@ -1,0 +1,2 @@
+ALTER TABLE "better_auth"."message_quota" DROP CONSTRAINT "better_auth_message_quota_sent_count_check";--> statement-breakpoint
+ALTER TABLE "better_auth"."message_quota" ADD CONSTRAINT "better_auth_message_quota_sent_count_check" CHECK ("better_auth"."message_quota"."sent_count" between 0 and 10);

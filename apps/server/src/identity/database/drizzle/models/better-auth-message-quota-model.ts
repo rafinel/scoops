@@ -25,7 +25,7 @@ export const betterAuthMessageQuotaModel = betterAuthSchema.table(
     ),
     check(
       'better_auth_message_quota_sent_count_check',
-      sql`${table.sentCount} between 0 and 3`,
+      sql`${table.sentCount} between 0 and 10`,
     ),
     check(
       'better_auth_message_quota_last_kind_check',
