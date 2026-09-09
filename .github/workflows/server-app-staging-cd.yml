@@ -1,21 +1,20 @@
 name: Server Heroku CD
 
-# Staging deployment is intentionally triggered by pushes to main.
 on:
   push:
     branches:
       - main
     paths:
-      - '.dockerignore'
-      - '.github/workflows/server-app-staging-cd.yml'
-      - 'apps/server/**'
-      - 'package.json'
-      - 'packages/core/**'
-      - 'packages/email/**'
-      - 'packages/validation/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'scripts/sync-heroku-env.mjs'
+      - ".dockerignore"
+      - ".github/workflows/server-app-staging-cd.yml"
+      - "apps/server/**"
+      - "package.json"
+      - "packages/core/**"
+      - "packages/email/**"
+      - "packages/validation/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "scripts/sync-heroku-env.mjs"
 
 permissions:
   contents: read
