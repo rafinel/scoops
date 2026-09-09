@@ -169,4 +169,4 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Check complexity
-        run: pnpm check:complexity -- --scope apps/server
+        run: pnpm --filter server check:complexity

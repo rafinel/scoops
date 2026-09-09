@@ -92,4 +92,4 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Check complexity
-        run: pnpm check:complexity -- --scope packages/validation
+        run: pnpm --filter @scoops/validation check:complexity
