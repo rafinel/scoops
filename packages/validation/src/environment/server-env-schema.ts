@@ -28,16 +28,20 @@ const serverEnvObjectSchema = z.object({
 })
 
 type ServerEnvironment = z.infer<typeof serverEnvObjectSchema>
+type EmailProvider = ServerEnvironment['SCOOPS_EMAIL_PROVIDER']
 
-const EMAIL_PROVIDER_BY_MODE = {
-  dev: 'smtp',
-  prod: 'resend',
-  stg: 'resend',
-  test: 'smtp',
+const EMAIL_PROVIDERS_BY_MODE: Record<
+  ServerEnvironment['SCOOPS_SERVER_APP_MODE'],
+  readonly EmailProvider[]
+> = {
+  dev: ['smtp', 'resend'],
+  prod: ['resend'],
+  stg: ['resend'],
+  test: ['smtp'],
 } as const
 
-function getExpectedEmailProvider(mode: ServerEnvironment['SCOOPS_SERVER_APP_MODE']) {
-  return EMAIL_PROVIDER_BY_MODE[mode]
+function getAllowedEmailProviders(mode: ServerEnvironment['SCOOPS_SERVER_APP_MODE']) {
+  return EMAIL_PROVIDERS_BY_MODE[mode]
 }
 
 function addValidationIssue(context: z.RefinementCtx, path: string[], message: string) {
@@ -45,21 +49,18 @@ function addValidationIssue(context: z.RefinementCtx, path: string[], message: s
 }
 
 function validateEmailProvider(environment: ServerEnvironment, context: z.RefinementCtx) {
-  const expectedProvider = getExpectedEmailProvider(environment.SCOOPS_SERVER_APP_MODE)
-  if (environment.SCOOPS_EMAIL_PROVIDER === expectedProvider) return
+  const allowedProviders = getAllowedEmailProviders(environment.SCOOPS_SERVER_APP_MODE)
+  if (allowedProviders.includes(environment.SCOOPS_EMAIL_PROVIDER)) return
 
   addValidationIssue(
     context,
     ['SCOOPS_EMAIL_PROVIDER'],
-    `Email provider must be ${expectedProvider} for this mode`,
+    `Email provider must be one of ${allowedProviders.join(' or ')} for this mode`,
   )
 }
 
 function isMissingResendApiKey(environment: ServerEnvironment) {
-  return (
-    getExpectedEmailProvider(environment.SCOOPS_SERVER_APP_MODE) === 'resend' &&
-    !environment.RESEND_API_KEY
-  )
+  return environment.SCOOPS_EMAIL_PROVIDER === 'resend' && !environment.RESEND_API_KEY
 }
 
 function validateResendApiKey(environment: ServerEnvironment, context: z.RefinementCtx) {
@@ -68,7 +69,7 @@ function validateResendApiKey(environment: ServerEnvironment, context: z.Refinem
   addValidationIssue(
     context,
     ['RESEND_API_KEY'],
-    'Resend API key is required for staging and production',
+    'Resend API key is required when Resend is selected',
   )
 }
 
