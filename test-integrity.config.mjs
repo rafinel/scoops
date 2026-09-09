@@ -77,6 +77,18 @@ export default {
   ],
   testPathRules: [
     {
+      pattern: 'packages/core/src/**/use-cases/**/*.test.ts',
+      requiredDirectory: 'tests',
+    },
+    {
+      pattern: 'apps/server/src/**/rest/controllers/**/*.test.ts',
+      requiredDirectory: 'tests',
+    },
+    {
+      pattern: 'apps/server/src/**/messaging/inngest/jobs/**/*.test.ts',
+      requiredDirectory: 'tests',
+    },
+    {
       pattern: 'apps/web/src/ui/**/widgets/**/*.test.ts',
       requiredDirectory: 'tests',
     },

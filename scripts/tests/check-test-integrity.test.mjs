@@ -20,6 +20,7 @@ async function createRepositoryFixture({
   sourcePolicy,
   boundaryTestPatterns = [],
   testPathRules = [],
+  testContent = "test('keeps the contract', () => expect(true).toBe(true))\n",
 }) {
   const repositoryRoot = await mkdtemp(path.join(tmpdir(), 'scoops-test-integrity-'))
   await runGit(['init', '--initial-branch=main'], repositoryRoot)
@@ -29,10 +30,7 @@ async function createRepositoryFixture({
   await mkdir(path.dirname(path.join(repositoryRoot, testPath)), { recursive: true })
   await writeFile(path.join(repositoryRoot, 'package.json'), '{}\n')
   await writeFile(path.join(repositoryRoot, sourcePath), sourcePolicy)
-  await writeFile(
-    path.join(repositoryRoot, testPath),
-    "test('keeps the contract', () => expect(true).toBe(true))\n",
-  )
+  await writeFile(path.join(repositoryRoot, testPath), testContent)
   await writeFile(
     path.join(repositoryRoot, 'test-integrity.config.mjs'),
     `export default ${JSON.stringify({
@@ -122,6 +120,27 @@ test('fails when a widget test is outside its required tests directory', async (
   }
 })
 
+test('rejects spec files even when their source has a valid direct test boundary', async () => {
+  const repositoryRoot = await createRepositoryFixture({
+    sourcePath: 'apps/example/src/value.ts',
+    sourcePolicy: 'export const value = 1\n',
+    testPath: 'apps/example/src/value.spec.ts',
+  })
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [SCRIPT_PATH, '--json'], { cwd: repositoryRoot }),
+      (error) => {
+        const result = JSON.parse(error.stdout)
+        assert.equal(result.status, 'failed')
+        assert.match(result.errors.join('\n'), /tests must use the \.test\.ts/)
+        return true
+      },
+    )
+  } finally {
+    await rm(repositoryRoot, { force: true, recursive: true })
+  }
+})
+
 test('fails when a forbidden test path exists even without a matching source', async () => {
   const repositoryRoot = await createRepositoryFixture({
     sourcePath: 'apps/example/src/value.ts',
@@ -150,6 +169,31 @@ test('fails when a forbidden test path exists even without a matching source', a
         const result = JSON.parse(error.stdout)
         assert.equal(result.status, 'failed')
         assert.match(result.errors.join('\n'), /direct test path is forbidden/)
+        return true
+      },
+    )
+  } finally {
+    await rm(repositoryRoot, { force: true, recursive: true })
+  }
+})
+
+test('rejects tests that import a provision provider from an allowed widget boundary', async () => {
+  const repositoryRoot = await createRepositoryFixture({
+    sourcePath: 'apps/example/src/value.ts',
+    sourcePolicy: 'export const value = 1\n',
+    testPath:
+      'apps/web/src/ui/identity/widgets/pages/login-page/tests/better-auth-provider.test.ts',
+    boundaryTestPatterns: ['apps/web/src/ui/**/widgets/**/*.test.ts'],
+    testContent:
+      "import { BetterAuthProvider } from '@/provision/auth/better-auth/better-auth-provider'\n",
+  })
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [SCRIPT_PATH, '--json'], { cwd: repositoryRoot }),
+      (error) => {
+        const result = JSON.parse(error.stdout)
+        assert.equal(result.status, 'failed')
+        assert.match(result.errors.join('\n'), /provider tests are forbidden/)
         return true
       },
     )

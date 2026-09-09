@@ -227,7 +227,9 @@ broker, repositories, database adapters, REST services, and query/action hooksâ€
 must be tested through their consumers and cannot have corresponding test files.
 Web UI direct tests are limited to widget folders under `apps/web/src/ui/**/widgets`;
 context, storage, query/action-hook, and provider tests are not direct-test
-boundaries. Browser tests outside widget source folders are limited to the
+boundaries; the integrity checker also rejects tests that import a provision or
+provider implementation, even when the test is placed under an allowed widget
+directory. Browser tests outside widget source folders are limited to the
 explicit route and health smoke-test patterns in the same policy.
 
 Run the check from the repository root:

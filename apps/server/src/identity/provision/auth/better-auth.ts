@@ -99,7 +99,10 @@ export function createBetterAuth(
     session: {
       expiresIn: 1_800,
       updateAge: 300,
-      cookieCache: { enabled: false },
+      cookieCache: {
+        enabled: true,
+        maxAge: 5 * 60,
+      },
     },
     rateLimit: {
       enabled: true,

@@ -115,6 +115,15 @@ The provider should map third-party responses to core structures and preserve th
 core provider contract. The shared auth context consumes the factory result and
 owns only React state and subscription lifecycle.
 
+## Providers are tested through consumers
+
+Provider implementations, provider factories, and external adapters must not
+receive dedicated test files. Their infrastructure behavior is covered through
+the owning consumer boundary: use-case tests mock the provider contract, while
+controller, widget, route, or browser integration tests exercise the observable
+application behavior. Do not place a provider test inside an allowed widget
+directory to bypass this rule.
+
 ## Provider tests use mocks, not fakers
 
 Use-case unit tests must mock provider contracts with

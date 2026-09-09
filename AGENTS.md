@@ -120,6 +120,22 @@ In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the re
 
 If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
 
+## Inngest local MCP
+
+When the local Inngest Dev Server is running through Docker Compose, use the
+project-scoped MCP endpoint configured in `.codex/config.toml`:
+
+```text
+http://localhost:8388/mcp
+```
+
+Use this MCP to inspect local apps, registered functions, events, runs and
+traces, or to send explicitly requested local test events. Confirm that the
+server application and the Inngest Dev Server are running before inspecting a
+workflow. Use the separate Cloud MCP for deployed environments and explicitly
+target the intended environment, such as `staging`; do not send events to a
+deployed environment unless the task requests it.
+
 #### Required Playwright CLI validation workflow
 
 1. Identify the services required by the flow. For full-stack behavior, inspect
@@ -241,5 +257,4 @@ CI configuration, deployment secrets, or environment names from another project.
   shared services unless the user explicitly requests that destructive action.
 - Stop persistent development processes started for a task when validation is
   complete, unless the user asks to leave them running.
-
 

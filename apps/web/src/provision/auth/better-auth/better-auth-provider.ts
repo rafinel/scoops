@@ -69,6 +69,7 @@ export const BetterAuthProvider = (
   browserSessionResolver: SessionResolver = resolveBrowserAuthSession,
 ): AuthProvider => {
   const listeners = new Set<Parameters<AuthProvider['onAuthStateChange']>[0]>()
+  let browserSessionResolution: Promise<AuthSessionResolution> | undefined
 
   function publish(event: AuthStateChange, session: AuthSession | null): void {
     if (!CORE_AUTH_EVENTS.has(event)) return
@@ -108,7 +109,13 @@ export const BetterAuthProvider = (
   }
 
   function resolveSession(): Promise<AuthSessionResolution> {
-    return typeof window === 'undefined' ? sessionResolver() : browserSessionResolver()
+    if (typeof window === 'undefined') return sessionResolver()
+    if (browserSessionResolution) return browserSessionResolution
+
+    browserSessionResolution = browserSessionResolver().finally(() => {
+      browserSessionResolution = undefined
+    })
+    return browserSessionResolution
   }
 }
 

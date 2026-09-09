@@ -230,6 +230,11 @@ For realtime hooks, the hook that owns a provider subscription must cover event
 mapping and cleanup. A higher-level hook consuming it mocks that application hook
 instead of mocking the provider directly.
 
+Provision providers and external adapters do not receive dedicated widget tests,
+even when their test file is placed inside an allowed widget `tests/` directory.
+Mock the provider contract at the owning context or widget boundary and cover
+the provider's observable behavior through the consuming route or browser flow.
+
 ## Hook mock names mirror the hook
 
 Create the typed mock with `vi.mocked` and name it by appending `Mock` to the hook

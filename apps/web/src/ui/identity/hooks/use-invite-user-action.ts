@@ -21,8 +21,8 @@ export const useInviteUserAction = () => {
         throw toActionError(error, 'Unable to invite user')
       }
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: identityQueryKeys.usersRoot() })
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: identityQueryKeys.usersRoot() })
     },
   })
 

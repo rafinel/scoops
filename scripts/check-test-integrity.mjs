@@ -9,6 +9,8 @@ const DEFAULT_BASE = 'main'
 const execFileAsync = promisify(execFile)
 const SOURCE_PATH_PATTERN = /^(?:apps|packages)\/[^/]+\/src\/.*\.[cm]?[jt]sx?$/
 const TEST_PATH_PATTERN = /\.(?:test|spec)\.[cm]?[jt]sx?$/
+const PROVIDER_IMPORT_PATTERN =
+  /(?:\bfrom\s+|\bimport\s*\(\s*)['"]([^'"]*\/(?:provision|providers?)\/[^'"]+)['"]/g
 const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts', '.mjs', '.cjs']
 
 function parseArguments(argumentsList) {
@@ -118,6 +120,21 @@ function isSourcePath(filePath) {
   return SOURCE_PATH_PATTERN.test(filePath) && !isTestPath(filePath)
 }
 
+function testFileConventionError(testPath) {
+  if (/\.spec\.[cm]?[jt]sx?$/.test(testPath)) {
+    return `${testPath}: tests must use the .test.ts or .test.tsx suffix`
+  }
+  return null
+}
+
+function isProviderTest(testPath, content) {
+  const testStem = path.basename(removeTestSuffix(testPath))
+  return [...content.matchAll(PROVIDER_IMPORT_PATTERN)].some(([, importPath]) => {
+    const importStem = path.basename(importPath).replace(/\.[cm]?[jt]sx?$/, '')
+    return importStem === testStem
+  })
+}
+
 function sourcePolicy(filePath, testIntegrityPolicy) {
   const { sourcePatterns } = testIntegrityPolicy
   if (matchesAnyPattern(filePath, sourcePatterns.excluded)) return 'excluded'
@@ -207,13 +224,31 @@ async function loadPolicy(repositoryRoot) {
   return policyModule.default
 }
 
-function checkTestOwnership(testPaths, sourcePaths, testIntegrityPolicy) {
+async function checkTestOwnership(
+  repositoryRoot,
+  testPaths,
+  sourcePaths,
+  testIntegrityPolicy,
+) {
   const errors = []
   const ownedTestPaths = []
   const indirectTestPaths = []
   const unownedTestPaths = []
 
   for (const testPath of testPaths) {
+    const testContent = await readFile(path.join(repositoryRoot, testPath), 'utf8')
+    const conventionError = testFileConventionError(testPath)
+    if (conventionError) {
+      errors.push(conventionError)
+      continue
+    }
+    if (isProviderTest(testPath, testContent)) {
+      errors.push(
+        `${testPath}: provider tests are forbidden; test provider behavior through its consumers`,
+      )
+      continue
+    }
+
     const locationError = testPathLocationError(testPath, testIntegrityPolicy)
     if (locationError) {
       errors.push(locationError)
@@ -284,7 +319,12 @@ async function checkTestIntegrity({ base }) {
   const changedPaths = parseChangedPaths(diffOutput)
   const testPaths = repositoryPaths.filter(isTestPath)
   const sourcePaths = repositoryPaths.filter(isSourcePath)
-  const ownership = checkTestOwnership(testPaths, sourcePaths, testIntegrityPolicy)
+  const ownership = await checkTestOwnership(
+    repositoryRoot,
+    testPaths,
+    sourcePaths,
+    testIntegrityPolicy,
+  )
   const errors = [...ownership.errors]
   const warnings = []
   const changedTestPaths = new Set(
@@ -369,7 +409,7 @@ function printResult(result, shouldPrintJson) {
   console.log(`Changed test files: ${result.changedTestPaths}`)
   for (const error of result.errors) console.error(`ERROR: ${error}`)
   console.log(
-    'Boundary: only required/allowed source policies may own direct tests; indirect and unlisted sources are covered through consumers.',
+    'Boundary: only required/allowed source policies may own direct tests; indirect, unlisted, and provider boundaries are covered through consumers.',
   )
 }
 
