@@ -11,16 +11,32 @@ export type DatabaseListener = {
   unlisten(): Promise<void>
 }
 
+function resolveListenerDatabaseUrl(databaseUrl: string, listenerUrl?: string): string {
+  if (listenerUrl) return listenerUrl
+
+  const url = new URL(databaseUrl)
+  if (url.hostname.endsWith('.neon.tech') && url.hostname.includes('-pooler.')) {
+    url.hostname = url.hostname.replace('-pooler.', '.')
+  }
+
+  return url.toString()
+}
+
 @Injectable()
 export class DrizzleClient implements OnModuleDestroy {
   private readonly client: Sql
   private readonly database: Database
   private readonly databaseUrl: string
+  private readonly listenerDatabaseUrl: string
   private listenerClient: Sql | undefined
   private listenerClosing = false
 
   constructor(@Inject(EnvProvider) envProvider: EnvProvider) {
     this.databaseUrl = envProvider.get('DATABASE_URL')
+    this.listenerDatabaseUrl = resolveListenerDatabaseUrl(
+      this.databaseUrl,
+      envProvider.get('DATABASE_LISTENER_URL'),
+    )
     this.client = postgres(this.databaseUrl, {
       connect_timeout: 5,
       idle_timeout: 10,
@@ -54,7 +70,7 @@ export class DrizzleClient implements OnModuleDestroy {
     }
 
     this.listenerClosing = false
-    const listenerClient = postgres(this.databaseUrl, {
+    const listenerClient = postgres(this.listenerDatabaseUrl, {
       connect_timeout: 5,
       max: 1,
       max_lifetime: null,

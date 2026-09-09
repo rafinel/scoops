@@ -5,6 +5,11 @@ const serverEnvObjectSchema = z.object({
     .string()
     .url()
     .default('postgresql://postgres:postgres@127.0.0.1:54322/postgres'),
+  DATABASE_LISTENER_URL: z
+    .string()
+    .optional()
+    .transform((value) => (value === '' ? undefined : value))
+    .pipe(z.string().url().optional()),
   PORT: z.coerce.number().int().positive().optional(),
   INNGEST_DEV: z.enum(['0', '1']).default('0'),
   INNGEST_BASE_URL: z

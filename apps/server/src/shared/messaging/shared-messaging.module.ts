@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
-import { InngestBroker } from '@/shared/messaging/inngest/jobs/inngest-broker'
+import { InngestBroker } from '@/shared/messaging/inngest/inngest-broker'
 import { CleanupPublishedEventsJob } from '@/shared/messaging/inngest/jobs/cleanup-published-events-job'
 import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
 import { EVENTS_REPOSITORY } from '@/shared/database/drizzle/events/events-repository-token'
