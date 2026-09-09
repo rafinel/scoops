@@ -98,8 +98,8 @@ describe('Change User Profile Controller [PATCH /users/:userId/profile]', () => 
 
     expect(response.status).toBe(403)
     expect(response.body).toMatchObject({
-      title: 'Access denied',
-      message: 'Access denied.',
+      title: 'Acesso negado',
+      message: 'Acesso negado.',
     })
     await expect(
       fixture.get<UsersRepository>(IDENTITY_REPOSITORIES.users).findById(target.id),

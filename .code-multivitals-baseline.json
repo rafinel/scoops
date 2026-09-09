@@ -1,10 +1,10 @@
 {
-  "analysedAt": "2026-09-09T03:09:40.005Z",
+  "analysedAt": "2026-09-09T18:53:28.126Z",
   "totalFiles": 1466,
-  "totalFunctions": 4062,
-  "warnCount": 1121,
+  "totalFunctions": 4087,
+  "warnCount": 1119,
   "errorCount": 223,
-  "averageMI": 51,
+  "averageMI": 51.1,
   "averageHealthScore": 65.5,
   "clones": [
     {
@@ -2086,8 +2086,8 @@
       "blockA": {
         "filePath": "apps/server/src/identity/database/drizzle/drizzle-identity-database.ts",
         "functionName": "createScope",
-        "startLine": 62,
-        "endLine": 87,
+        "startLine": 64,
+        "endLine": 89,
         "lines": 26
       },
       "blockB": {
@@ -2103,15 +2103,15 @@
       "blockA": {
         "filePath": "apps/server/src/identity/database/drizzle/drizzle-identity-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 89,
-        "endLine": 105,
+        "startLine": 91,
+        "endLine": 107,
         "lines": 17
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-pdv-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 86,
-        "endLine": 99,
+        "startLine": 87,
+        "endLine": 100,
         "lines": 14
       }
     },
@@ -2280,8 +2280,8 @@
       "blockB": {
         "filePath": "apps/server/src/identity/provision/auth/better-auth-server-auth-provider.ts",
         "functionName": "prepareInvitation",
-        "startLine": 260,
-        "endLine": 286,
+        "startLine": 262,
+        "endLine": 288,
         "lines": 27
       }
     },
@@ -14565,15 +14565,15 @@
         "filePath": "apps/server/src/communication/messaging/inngest/jobs/send-onboarding-confirmation-email-job.ts",
         "functionName": "constructor",
         "startLine": 22,
-        "endLine": 49,
-        "lines": 28
+        "endLine": 50,
+        "lines": 29
       },
       "blockB": {
         "filePath": "apps/server/src/communication/messaging/inngest/jobs/send-password-recovery-email-job.ts",
         "functionName": "constructor",
         "startLine": 22,
-        "endLine": 49,
-        "lines": 28
+        "endLine": 50,
+        "lines": 29
       }
     },
     {
@@ -15353,8 +15353,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       }
     },
@@ -15574,8 +15574,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipe-ingredients-repository.ts",
         "functionName": "removeByIngredientProductId",
-        "startLine": 146,
-        "endLine": 158,
+        "startLine": 147,
+        "endLine": 159,
         "lines": 13
       }
     },
@@ -15982,8 +15982,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       }
     },
@@ -16169,8 +16169,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "removeByProductId",
-        "startLine": 159,
-        "endLine": 172,
+        "startLine": 160,
+        "endLine": 173,
         "lines": 14
       }
     },
@@ -16186,8 +16186,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "removeByAccompanimentProductId",
-        "startLine": 174,
-        "endLine": 190,
+        "startLine": 175,
+        "endLine": 191,
         "lines": 17
       }
     },
@@ -16220,8 +16220,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "remove",
-        "startLine": 152,
-        "endLine": 165,
+        "startLine": 153,
+        "endLine": 166,
         "lines": 14
       }
     },
@@ -16237,8 +16237,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 265,
-        "endLine": 270,
+        "startLine": 267,
+        "endLine": 272,
         "lines": 6
       }
     },
@@ -16254,8 +16254,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 183,
-        "endLine": 188,
+        "startLine": 185,
+        "endLine": 190,
         "lines": 6
       }
     },
@@ -16288,8 +16288,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 555,
-        "endLine": 560,
+        "startLine": 558,
+        "endLine": 563,
         "lines": 6
       }
     },
@@ -16305,8 +16305,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 185,
-        "endLine": 190,
+        "startLine": 186,
+        "endLine": 191,
         "lines": 6
       }
     },
@@ -16322,8 +16322,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 272,
-        "endLine": 287,
+        "startLine": 274,
+        "endLine": 289,
         "lines": 16
       }
     },
@@ -16339,8 +16339,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 190,
-        "endLine": 205,
+        "startLine": 192,
+        "endLine": 207,
         "lines": 16
       }
     },
@@ -16373,8 +16373,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 538,
-        "endLine": 553,
+        "startLine": 541,
+        "endLine": 556,
         "lines": 16
       }
     },
@@ -16390,8 +16390,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 192,
-        "endLine": 207,
+        "startLine": 193,
+        "endLine": 208,
         "lines": 16
       }
     },
@@ -16417,15 +16417,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-brands-repository.ts",
         "functionName": "productBelongsToEstablishment",
-        "startLine": 254,
-        "endLine": 266,
+        "startLine": 257,
+        "endLine": 269,
         "lines": 13
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "productBelongsToEstablishment",
-        "startLine": 193,
-        "endLine": 205,
+        "startLine": 196,
+        "endLine": 208,
         "lines": 13
       }
     },
@@ -16594,8 +16594,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       }
     },
@@ -17047,15 +17047,15 @@
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "replaceQuantitiesByAccompanimentProductId",
         "startLine": 138,
-        "endLine": 157,
-        "lines": 20
+        "endLine": 158,
+        "lines": 21
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "replaceQuantities",
         "startLine": 106,
-        "endLine": 125,
-        "lines": 20
+        "endLine": 126,
+        "lines": 21
       }
     },
     {
@@ -17064,15 +17064,15 @@
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "replaceQuantitiesByAccompanimentProductId",
         "startLine": 138,
-        "endLine": 157,
-        "lines": 20
+        "endLine": 158,
+        "lines": 21
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipe-ingredients-repository.ts",
         "functionName": "replaceQuantitiesByIngredientProductId",
         "startLine": 125,
-        "endLine": 144,
-        "lines": 20
+        "endLine": 145,
+        "lines": 21
       }
     },
     {
@@ -17080,15 +17080,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "removeByProductId",
-        "startLine": 159,
-        "endLine": 172,
+        "startLine": 160,
+        "endLine": 173,
         "lines": 14
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "removeByAccompanimentProductId",
-        "startLine": 174,
-        "endLine": 190,
+        "startLine": 175,
+        "endLine": 191,
         "lines": 17
       }
     },
@@ -17097,8 +17097,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "removeByProductId",
-        "startLine": 159,
-        "endLine": 172,
+        "startLine": 160,
+        "endLine": 173,
         "lines": 14
       },
       "blockB": {
@@ -17114,15 +17114,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "removeByProductId",
-        "startLine": 159,
-        "endLine": 172,
+        "startLine": 160,
+        "endLine": 173,
         "lines": 14
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "remove",
-        "startLine": 152,
-        "endLine": 165,
+        "startLine": 153,
+        "endLine": 166,
         "lines": 14
       }
     },
@@ -17131,8 +17131,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "removeByAccompanimentProductId",
-        "startLine": 174,
-        "endLine": 190,
+        "startLine": 175,
+        "endLine": 191,
         "lines": 17
       },
       "blockB": {
@@ -17148,15 +17148,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "removeByAccompanimentProductId",
-        "startLine": 174,
-        "endLine": 190,
+        "startLine": 175,
+        "endLine": 191,
         "lines": 17
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "remove",
-        "startLine": 152,
-        "endLine": 165,
+        "startLine": 153,
+        "endLine": 166,
         "lines": 14
       }
     },
@@ -17165,8 +17165,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       },
       "blockB": {
@@ -17182,8 +17182,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       },
       "blockB": {
@@ -17199,8 +17199,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       },
       "blockB": {
@@ -17216,8 +17216,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       },
       "blockB": {
@@ -17233,8 +17233,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       },
       "blockB": {
@@ -17250,8 +17250,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       },
       "blockB": {
@@ -17267,8 +17267,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       },
       "blockB": {
@@ -17284,8 +17284,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       },
       "blockB": {
@@ -17301,8 +17301,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "replace",
-        "startLine": 211,
-        "endLine": 237,
+        "startLine": 212,
+        "endLine": 238,
         "lines": 27
       },
       "blockB": {
@@ -17318,16 +17318,16 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "remove",
-        "startLine": 239,
-        "endLine": 259,
-        "lines": 21
+        "startLine": 240,
+        "endLine": 261,
+        "lines": 22
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "remove",
-        "startLine": 157,
-        "endLine": 177,
-        "lines": 21
+        "startLine": 158,
+        "endLine": 179,
+        "lines": 22
       }
     },
     {
@@ -17335,15 +17335,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 265,
-        "endLine": 270,
+        "startLine": 267,
+        "endLine": 272,
         "lines": 6
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 183,
-        "endLine": 188,
+        "startLine": 185,
+        "endLine": 190,
         "lines": 6
       }
     },
@@ -17352,8 +17352,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 265,
-        "endLine": 270,
+        "startLine": 267,
+        "endLine": 272,
         "lines": 6
       },
       "blockB": {
@@ -17369,15 +17369,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 265,
-        "endLine": 270,
+        "startLine": 267,
+        "endLine": 272,
         "lines": 6
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 555,
-        "endLine": 560,
+        "startLine": 558,
+        "endLine": 563,
         "lines": 6
       }
     },
@@ -17386,15 +17386,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 265,
-        "endLine": 270,
+        "startLine": 267,
+        "endLine": 272,
         "lines": 6
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 185,
-        "endLine": 190,
+        "startLine": 186,
+        "endLine": 191,
         "lines": 6
       }
     },
@@ -17403,15 +17403,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 272,
-        "endLine": 287,
+        "startLine": 274,
+        "endLine": 289,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 190,
-        "endLine": 205,
+        "startLine": 192,
+        "endLine": 207,
         "lines": 16
       }
     },
@@ -17420,8 +17420,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 272,
-        "endLine": 287,
+        "startLine": 274,
+        "endLine": 289,
         "lines": 16
       },
       "blockB": {
@@ -17437,15 +17437,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 272,
-        "endLine": 287,
+        "startLine": 274,
+        "endLine": 289,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 538,
-        "endLine": 553,
+        "startLine": 541,
+        "endLine": 556,
         "lines": 16
       }
     },
@@ -17454,15 +17454,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 272,
-        "endLine": 287,
+        "startLine": 274,
+        "endLine": 289,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 192,
-        "endLine": 207,
+        "startLine": 193,
+        "endLine": 208,
         "lines": 16
       }
     },
@@ -17693,15 +17693,15 @@
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "replaceQuantities",
         "startLine": 106,
-        "endLine": 125,
-        "lines": 20
+        "endLine": 126,
+        "lines": 21
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipe-ingredients-repository.ts",
         "functionName": "replaceQuantitiesByIngredientProductId",
         "startLine": 125,
-        "endLine": 144,
-        "lines": 20
+        "endLine": 145,
+        "lines": 21
       }
     },
     {
@@ -17709,8 +17709,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 183,
-        "endLine": 188,
+        "startLine": 185,
+        "endLine": 190,
         "lines": 6
       },
       "blockB": {
@@ -17726,15 +17726,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 183,
-        "endLine": 188,
+        "startLine": 185,
+        "endLine": 190,
         "lines": 6
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 555,
-        "endLine": 560,
+        "startLine": 558,
+        "endLine": 563,
         "lines": 6
       }
     },
@@ -17743,15 +17743,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 183,
-        "endLine": 188,
+        "startLine": 185,
+        "endLine": 190,
         "lines": 6
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 185,
-        "endLine": 190,
+        "startLine": 186,
+        "endLine": 191,
         "lines": 6
       }
     },
@@ -17760,8 +17760,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 190,
-        "endLine": 205,
+        "startLine": 192,
+        "endLine": 207,
         "lines": 16
       },
       "blockB": {
@@ -17777,15 +17777,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 190,
-        "endLine": 205,
+        "startLine": 192,
+        "endLine": 207,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 538,
-        "endLine": 553,
+        "startLine": 541,
+        "endLine": 556,
         "lines": 16
       }
     },
@@ -17794,15 +17794,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 190,
-        "endLine": 205,
+        "startLine": 192,
+        "endLine": 207,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 192,
-        "endLine": 207,
+        "startLine": 193,
+        "endLine": 208,
         "lines": 16
       }
     },
@@ -18219,16 +18219,16 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipe-ingredients-repository.ts",
         "functionName": "remove",
-        "startLine": 185,
-        "endLine": 197,
-        "lines": 13
+        "startLine": 186,
+        "endLine": 199,
+        "lines": 14
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipes-repository.ts",
         "functionName": "remove",
-        "startLine": 118,
-        "endLine": 129,
-        "lines": 12
+        "startLine": 119,
+        "endLine": 131,
+        "lines": 13
       }
     },
     {
@@ -18396,8 +18396,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "remove",
-        "startLine": 152,
-        "endLine": 165,
+        "startLine": 153,
+        "endLine": 166,
         "lines": 14
       }
     },
@@ -18413,8 +18413,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 555,
-        "endLine": 560,
+        "startLine": 558,
+        "endLine": 563,
         "lines": 6
       }
     },
@@ -18430,8 +18430,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 185,
-        "endLine": 190,
+        "startLine": 186,
+        "endLine": 191,
         "lines": 6
       }
     },
@@ -18447,8 +18447,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 538,
-        "endLine": 553,
+        "startLine": 541,
+        "endLine": 556,
         "lines": 16
       }
     },
@@ -18464,8 +18464,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 192,
-        "endLine": 207,
+        "startLine": 193,
+        "endLine": 208,
         "lines": 16
       }
     },
@@ -18644,15 +18644,15 @@
       "blockA": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 538,
-        "endLine": 553,
+        "startLine": 541,
+        "endLine": 556,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 192,
-        "endLine": 207,
+        "startLine": 193,
+        "endLine": 208,
         "lines": 16
       }
     },
@@ -18661,15 +18661,15 @@
       "blockA": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 555,
-        "endLine": 560,
+        "startLine": 558,
+        "endLine": 563,
         "lines": 6
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "toConflictError",
-        "startLine": 185,
-        "endLine": 190,
+        "startLine": 186,
+        "endLine": 191,
         "lines": 6
       }
     },
@@ -18678,15 +18678,15 @@
       "blockA": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "findById",
-        "startLine": 191,
-        "endLine": 201,
+        "startLine": 192,
+        "endLine": 202,
         "lines": 11
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "findByIdempotencyKey",
-        "startLine": 219,
-        "endLine": 235,
+        "startLine": 220,
+        "endLine": 236,
         "lines": 17
       }
     },
@@ -18722,6 +18722,57 @@
         "startLine": 14,
         "endLine": 24,
         "lines": 11
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/web/src/middlewares/auth-route-unavailable-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/domain/errors/authentication-message-rate-limited-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/web/src/middlewares/auth-route-unavailable-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/domain/errors/onboarding-confirmation-rate-limited-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/web/src/middlewares/auth-route-unavailable-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/domain/errors/user-invitation-rate-limited-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
       }
     },
     {
@@ -25544,17 +25595,17 @@
     {
       "similarity": 1,
       "blockA": {
-        "filePath": "apps/web/src/rest/mappers/identity/date-mapper.ts",
-        "functionName": "IdentityDateMapper",
-        "startLine": 3,
-        "endLine": 10,
-        "lines": 8
-      },
-      "blockB": {
         "filePath": "apps/web/src/rest/mappers/communication/notification-page-mapper.ts",
         "functionName": "mapDate",
         "startLine": 26,
         "endLine": 33,
+        "lines": 8
+      },
+      "blockB": {
+        "filePath": "apps/web/src/rest/mappers/identity/date-mapper.ts",
+        "functionName": "IdentityDateMapper",
+        "startLine": 3,
+        "endLine": 10,
         "lines": 8
       }
     },
@@ -25673,8 +25724,8 @@
         "filePath": "apps/web/src/ui/identity/hooks/use-resend-ice-cream-shop-confirmation-action.ts",
         "functionName": "useResendIceCreamShopConfirmationAction",
         "startLine": 10,
-        "endLine": 38,
-        "lines": 29
+        "endLine": 41,
+        "lines": 32
       }
     },
     {
@@ -28086,8 +28137,8 @@
       "blockB": {
         "filePath": "packages/core/src/identity/use-cases/expire-ice-cream-shop-onboardings-use-case.ts",
         "functionName": "processCleanupClaims",
-        "startLine": 283,
-        "endLine": 293,
+        "startLine": 285,
+        "endLine": 295,
         "lines": 11
       }
     },
@@ -28732,8 +28783,8 @@
       "blockB": {
         "filePath": "packages/core/src/mrp/use-cases/list-products-use-case.ts",
         "functionName": "normalizePage",
-        "startLine": 46,
-        "endLine": 52,
+        "startLine": 48,
+        "endLine": 54,
         "lines": 7
       }
     },
@@ -28749,8 +28800,25 @@
       "blockB": {
         "filePath": "packages/core/src/mrp/use-cases/list-products-use-case.ts",
         "functionName": "normalizePageSize",
-        "startLine": 54,
-        "endLine": 60,
+        "startLine": 56,
+        "endLine": 62,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/list-products-use-case.ts",
+        "functionName": "validateActor",
+        "startLine": 40,
+        "endLine": 46,
+        "lines": 7
+      },
+      "blockB": {
+        "filePath": "packages/core/src/pdv/use-cases/list-active-sales-channels-use-case.ts",
+        "functionName": "validateActor",
+        "startLine": 32,
+        "endLine": 38,
         "lines": 7
       }
     },
@@ -29199,6 +29267,57 @@
     {
       "similarity": 1,
       "blockA": {
+        "filePath": "packages/core/src/identity/domain/errors/authentication-message-rate-limited-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/domain/errors/onboarding-confirmation-rate-limited-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/identity/domain/errors/authentication-message-rate-limited-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/domain/errors/user-invitation-rate-limited-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/identity/domain/errors/onboarding-confirmation-rate-limited-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/domain/errors/user-invitation-rate-limited-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
         "filePath": "packages/core/src/communication/domain/entities/fakers/notification-faker.ts",
         "functionName": "fake",
         "startLine": 7,
@@ -29497,8 +29616,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "replace",
-        "startLine": 211,
-        "endLine": 237,
+        "startLine": 212,
+        "endLine": 238,
         "lines": 27
       }
     },
@@ -29881,15 +30000,15 @@
       "blockA": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "findById",
-        "startLine": 191,
-        "endLine": 201,
+        "startLine": 192,
+        "endLine": 202,
         "lines": 11
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "findByIdForUpdate",
-        "startLine": 203,
-        "endLine": 217,
+        "startLine": 204,
+        "endLine": 218,
         "lines": 15
       }
     },
@@ -29898,15 +30017,15 @@
       "blockA": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "findByIdForUpdate",
-        "startLine": 203,
-        "endLine": 217,
+        "startLine": 204,
+        "endLine": 218,
         "lines": 15
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "findByIdempotencyKey",
-        "startLine": 219,
-        "endLine": 235,
+        "startLine": 220,
+        "endLine": 236,
         "lines": 17
       }
     },
@@ -29983,8 +30102,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       },
       "blockB": {
@@ -30136,15 +30255,15 @@
       "blockA": {
         "filePath": "packages/core/src/identity/use-cases/expire-ice-cream-shop-onboardings-use-case.ts",
         "functionName": "tryClearInvitationOperationByToken",
-        "startLine": 267,
-        "endLine": 281,
+        "startLine": 269,
+        "endLine": 283,
         "lines": 15
       },
       "blockB": {
         "filePath": "packages/core/src/identity/use-cases/expire-ice-cream-shop-onboardings-use-case.ts",
         "functionName": "tryClearCleanupClaim",
-        "startLine": 380,
-        "endLine": 394,
+        "startLine": 382,
+        "endLine": 396,
         "lines": 15
       }
     },
@@ -30527,8 +30646,8 @@
       "blockA": {
         "filePath": "apps/server/src/identity/database/drizzle/drizzle-identity-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 89,
-        "endLine": 105,
+        "startLine": 91,
+        "endLine": 107,
         "lines": 17
       },
       "blockB": {
@@ -30544,15 +30663,15 @@
       "blockA": {
         "filePath": "apps/server/src/identity/database/drizzle/drizzle-identity-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 89,
-        "endLine": 105,
+        "startLine": 91,
+        "endLine": 107,
         "lines": 17
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 272,
-        "endLine": 287,
+        "startLine": 274,
+        "endLine": 289,
         "lines": 16
       }
     },
@@ -30561,15 +30680,15 @@
       "blockA": {
         "filePath": "apps/server/src/identity/database/drizzle/drizzle-identity-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 89,
-        "endLine": 105,
+        "startLine": 91,
+        "endLine": 107,
         "lines": 17
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 190,
-        "endLine": 205,
+        "startLine": 192,
+        "endLine": 207,
         "lines": 16
       }
     },
@@ -30578,8 +30697,8 @@
       "blockA": {
         "filePath": "apps/server/src/identity/database/drizzle/drizzle-identity-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 89,
-        "endLine": 105,
+        "startLine": 91,
+        "endLine": 107,
         "lines": 17
       },
       "blockB": {
@@ -30595,15 +30714,15 @@
       "blockA": {
         "filePath": "apps/server/src/identity/database/drizzle/drizzle-identity-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 89,
-        "endLine": 105,
+        "startLine": 91,
+        "endLine": 107,
         "lines": 17
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 538,
-        "endLine": 553,
+        "startLine": 541,
+        "endLine": 556,
         "lines": 16
       }
     },
@@ -30612,15 +30731,15 @@
       "blockA": {
         "filePath": "apps/server/src/identity/database/drizzle/drizzle-identity-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 89,
-        "endLine": 105,
+        "startLine": 91,
+        "endLine": 107,
         "lines": 17
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 192,
-        "endLine": 207,
+        "startLine": 193,
+        "endLine": 208,
         "lines": 16
       }
     },
@@ -30636,8 +30755,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-pdv-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 86,
-        "endLine": 99,
+        "startLine": 87,
+        "endLine": 100,
         "lines": 14
       }
     },
@@ -30646,15 +30765,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 272,
-        "endLine": 287,
+        "startLine": 274,
+        "endLine": 289,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-pdv-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 86,
-        "endLine": 99,
+        "startLine": 87,
+        "endLine": 100,
         "lines": 14
       }
     },
@@ -30663,15 +30782,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 190,
-        "endLine": 205,
+        "startLine": 192,
+        "endLine": 207,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-pdv-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 86,
-        "endLine": 99,
+        "startLine": 87,
+        "endLine": 100,
         "lines": 14
       }
     },
@@ -30687,8 +30806,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-pdv-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 86,
-        "endLine": 99,
+        "startLine": 87,
+        "endLine": 100,
         "lines": 14
       }
     },
@@ -30697,15 +30816,15 @@
       "blockA": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 538,
-        "endLine": 553,
+        "startLine": 541,
+        "endLine": 556,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-pdv-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 86,
-        "endLine": 99,
+        "startLine": 87,
+        "endLine": 100,
         "lines": 14
       }
     },
@@ -30714,15 +30833,15 @@
       "blockA": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-pdv-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 86,
-        "endLine": 99,
+        "startLine": 87,
+        "endLine": 100,
         "lines": 14
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 192,
-        "endLine": 207,
+        "startLine": 193,
+        "endLine": 208,
         "lines": 16
       }
     },
@@ -30731,15 +30850,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-mrp-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 101,
-        "endLine": 113,
+        "startLine": 102,
+        "endLine": 114,
         "lines": 13
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 583,
-        "endLine": 597,
+        "startLine": 586,
+        "endLine": 600,
         "lines": 15
       }
     },
@@ -31003,15 +31122,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipe-ingredients-repository.ts",
         "functionName": "replace",
-        "startLine": 160,
-        "endLine": 183,
+        "startLine": 161,
+        "endLine": 184,
         "lines": 24
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipes-repository.ts",
         "functionName": "replace",
-        "startLine": 96,
-        "endLine": 116,
+        "startLine": 97,
+        "endLine": 117,
         "lines": 21
       }
     },
@@ -31802,15 +31921,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "findByProductId",
-        "startLine": 46,
-        "endLine": 66,
+        "startLine": 47,
+        "endLine": 67,
         "lines": 21
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "findByProductAndBrand",
-        "startLine": 77,
-        "endLine": 99,
+        "startLine": 78,
+        "endLine": 100,
         "lines": 23
       }
     },
@@ -32016,23 +32135,6 @@
         "startLine": 25,
         "endLine": 75,
         "lines": 51
-      }
-    },
-    {
-      "similarity": 0.931,
-      "blockA": {
-        "filePath": "apps/web/src/ui/identity/hooks/use-invite-user-action.ts",
-        "functionName": "useInviteUserAction",
-        "startLine": 12,
-        "endLine": 34,
-        "lines": 23
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/identity/hooks/use-resend-user-invitation-action.ts",
-        "functionName": "useResendUserInvitationAction",
-        "startLine": 10,
-        "endLine": 39,
-        "lines": 30
       }
     },
     {
@@ -32405,8 +32507,8 @@
         "filePath": "apps/web/src/ui/identity/hooks/use-resend-ice-cream-shop-confirmation-action.ts",
         "functionName": "useResendIceCreamShopConfirmationAction",
         "startLine": 10,
-        "endLine": 38,
-        "lines": 29
+        "endLine": 41,
+        "lines": 32
       }
     },
     {
@@ -32439,8 +32541,8 @@
         "filePath": "apps/web/src/ui/identity/hooks/use-resend-ice-cream-shop-confirmation-action.ts",
         "functionName": "useResendIceCreamShopConfirmationAction",
         "startLine": 10,
-        "endLine": 38,
-        "lines": 29
+        "endLine": 41,
+        "lines": 32
       }
     },
     {
@@ -32506,8 +32608,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 583,
-        "endLine": 597,
+        "startLine": 586,
+        "endLine": 600,
         "lines": 15
       }
     },
@@ -32516,15 +32618,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 272,
-        "endLine": 287,
+        "startLine": 274,
+        "endLine": 289,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 583,
-        "endLine": 597,
+        "startLine": 586,
+        "endLine": 600,
         "lines": 15
       }
     },
@@ -32533,15 +32635,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 190,
-        "endLine": 205,
+        "startLine": 192,
+        "endLine": 207,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 583,
-        "endLine": 597,
+        "startLine": 586,
+        "endLine": 600,
         "lines": 15
       }
     },
@@ -32557,8 +32659,8 @@
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 583,
-        "endLine": 597,
+        "startLine": 586,
+        "endLine": 600,
         "lines": 15
       }
     },
@@ -32567,15 +32669,15 @@
       "blockA": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 538,
-        "endLine": 553,
+        "startLine": 541,
+        "endLine": 556,
         "lines": 16
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 583,
-        "endLine": 597,
+        "startLine": 586,
+        "endLine": 600,
         "lines": 15
       }
     },
@@ -32584,15 +32686,15 @@
       "blockA": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 583,
-        "endLine": 597,
+        "startLine": 586,
+        "endLine": 600,
         "lines": 15
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 192,
-        "endLine": 207,
+        "startLine": 193,
+        "endLine": 208,
         "lines": 16
       }
     },
@@ -32635,15 +32737,15 @@
       "blockA": {
         "filePath": "apps/server/src/identity/database/drizzle/drizzle-identity-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 89,
-        "endLine": 105,
+        "startLine": 91,
+        "endLine": 107,
         "lines": 17
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-mrp-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 101,
-        "endLine": 113,
+        "startLine": 102,
+        "endLine": 114,
         "lines": 13
       }
     },
@@ -32652,15 +32754,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-mrp-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 101,
-        "endLine": 113,
+        "startLine": 102,
+        "endLine": 114,
         "lines": 13
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-pdv-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 86,
-        "endLine": 99,
+        "startLine": 87,
+        "endLine": 100,
         "lines": 14
       }
     },
@@ -32676,8 +32778,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "countByProductId",
-        "startLine": 124,
-        "endLine": 135,
+        "startLine": 125,
+        "endLine": 136,
         "lines": 12
       }
     },
@@ -32693,8 +32795,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "countByProductId",
-        "startLine": 124,
-        "endLine": 135,
+        "startLine": 125,
+        "endLine": 136,
         "lines": 12
       }
     },
@@ -32710,8 +32812,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "countByProductId",
-        "startLine": 124,
-        "endLine": 135,
+        "startLine": 125,
+        "endLine": 136,
         "lines": 12
       }
     },
@@ -32727,8 +32829,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "countByProductId",
-        "startLine": 124,
-        "endLine": 135,
+        "startLine": 125,
+        "endLine": 136,
         "lines": 12
       }
     },
@@ -32744,8 +32846,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "countByProductId",
-        "startLine": 124,
-        "endLine": 135,
+        "startLine": 125,
+        "endLine": 136,
         "lines": 12
       }
     },
@@ -32761,8 +32863,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "countByProductId",
-        "startLine": 124,
-        "endLine": 135,
+        "startLine": 125,
+        "endLine": 136,
         "lines": 12
       }
     },
@@ -32778,8 +32880,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "countByProductId",
-        "startLine": 124,
-        "endLine": 135,
+        "startLine": 125,
+        "endLine": 136,
         "lines": 12
       }
     },
@@ -32795,8 +32897,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "countByProductId",
-        "startLine": 124,
-        "endLine": 135,
+        "startLine": 125,
+        "endLine": 136,
         "lines": 12
       }
     },
@@ -32805,8 +32907,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "countByProductId",
-        "startLine": 124,
-        "endLine": 135,
+        "startLine": 125,
+        "endLine": 136,
         "lines": 12
       },
       "blockB": {
@@ -32840,8 +32942,8 @@
         "filePath": "apps/web/src/ui/identity/hooks/use-request-password-recovery-action.ts",
         "functionName": "useRequestPasswordRecoveryAction",
         "startLine": 6,
-        "endLine": 28,
-        "lines": 23
+        "endLine": 31,
+        "lines": 26
       },
       "blockB": {
         "filePath": "apps/web/src/ui/identity/hooks/use-reset-password-action.ts",
@@ -32880,8 +32982,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "findByProductAndBrand",
-        "startLine": 77,
-        "endLine": 99,
+        "startLine": 78,
+        "endLine": 100,
         "lines": 23
       }
     },
@@ -32891,8 +32993,8 @@
         "filePath": "apps/web/src/rest/mappers/identity/user-audit-record-mapper.ts",
         "functionName": "UserAuditRecordMapper",
         "startLine": 9,
-        "endLine": 14,
-        "lines": 6
+        "endLine": 17,
+        "lines": 9
       },
       "blockB": {
         "filePath": "apps/web/src/rest/mappers/identity/user-mapper.ts",
@@ -32908,8 +33010,8 @@
         "filePath": "apps/web/src/rest/mappers/identity/user-audit-record-mapper.ts",
         "functionName": "UserAuditRecordMapper",
         "startLine": 9,
-        "endLine": 14,
-        "lines": 6
+        "endLine": 17,
+        "lines": 9
       },
       "blockB": {
         "filePath": "apps/web/src/rest/mappers/identity/user-summary-mapper.ts",
@@ -34478,8 +34580,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       }
     },
@@ -34682,8 +34784,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       }
     },
@@ -34886,8 +34988,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       }
     },
@@ -35090,8 +35192,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       }
     },
@@ -35294,8 +35396,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       }
     },
@@ -35498,8 +35600,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       }
     },
@@ -36246,8 +36348,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "countByProductId",
-        "startLine": 124,
-        "endLine": 135,
+        "startLine": 125,
+        "endLine": 136,
         "lines": 12
       }
     },
@@ -36263,8 +36365,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "countByProductId",
-        "startLine": 124,
-        "endLine": 135,
+        "startLine": 125,
+        "endLine": 136,
         "lines": 12
       }
     },
@@ -41040,8 +41142,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "toDomain",
-        "startLine": 221,
-        "endLine": 230,
+        "startLine": 224,
+        "endLine": 233,
         "lines": 10
       }
     },
@@ -41084,15 +41186,15 @@
       "blockA": {
         "filePath": "apps/server/src/identity/database/drizzle/drizzle-identity-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 89,
-        "endLine": 105,
+        "startLine": 91,
+        "endLine": 107,
         "lines": 17
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 583,
-        "endLine": 597,
+        "startLine": 586,
+        "endLine": 600,
         "lines": 15
       }
     },
@@ -41125,8 +41227,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-mrp-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 101,
-        "endLine": 113,
+        "startLine": 102,
+        "endLine": 114,
         "lines": 13
       }
     },
@@ -41135,15 +41237,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-mrp-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 101,
-        "endLine": 113,
+        "startLine": 102,
+        "endLine": 114,
         "lines": 13
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 272,
-        "endLine": 287,
+        "startLine": 274,
+        "endLine": 289,
         "lines": 16
       }
     },
@@ -41152,15 +41254,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-mrp-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 101,
-        "endLine": 113,
+        "startLine": 102,
+        "endLine": 114,
         "lines": 13
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 190,
-        "endLine": 205,
+        "startLine": 192,
+        "endLine": 207,
         "lines": 16
       }
     },
@@ -41169,8 +41271,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-mrp-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 101,
-        "endLine": 113,
+        "startLine": 102,
+        "endLine": 114,
         "lines": 13
       },
       "blockB": {
@@ -41186,15 +41288,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-mrp-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 101,
-        "endLine": 113,
+        "startLine": 102,
+        "endLine": 114,
         "lines": 13
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-discounts-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 538,
-        "endLine": 553,
+        "startLine": 541,
+        "endLine": 556,
         "lines": 16
       }
     },
@@ -41203,15 +41305,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-mrp-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 101,
-        "endLine": 113,
+        "startLine": 102,
+        "endLine": 114,
         "lines": 13
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-sales-channels-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 192,
-        "endLine": 207,
+        "startLine": 193,
+        "endLine": 208,
         "lines": 16
       }
     },
@@ -41220,15 +41322,15 @@
       "blockA": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-orders-repository.ts",
         "functionName": "isIntegrityConstraintError",
-        "startLine": 583,
-        "endLine": 597,
+        "startLine": 586,
+        "endLine": 600,
         "lines": 15
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/database/drizzle/repositories/drizzle-pdv-database.ts",
         "functionName": "isRetryableTransactionConflict",
-        "startLine": 86,
-        "endLine": 99,
+        "startLine": 87,
+        "endLine": 100,
         "lines": 14
       }
     },
@@ -41357,15 +41459,15 @@
         "filePath": "apps/web/src/ui/identity/hooks/use-confirm-ice-cream-shop-onboarding-action.ts",
         "functionName": "useConfirmIceCreamShopOnboardingAction",
         "startLine": 8,
-        "endLine": 34,
-        "lines": 27
+        "endLine": 37,
+        "lines": 30
       },
       "blockB": {
         "filePath": "apps/web/src/ui/identity/hooks/use-request-password-recovery-action.ts",
         "functionName": "useRequestPasswordRecoveryAction",
         "startLine": 6,
-        "endLine": 28,
-        "lines": 23
+        "endLine": 31,
+        "lines": 26
       }
     },
     {
@@ -41924,8 +42026,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-stock-balances-repository.ts",
         "functionName": "findByProductId",
-        "startLine": 46,
-        "endLine": 66,
+        "startLine": 47,
+        "endLine": 67,
         "lines": 21
       }
     },
@@ -42536,8 +42638,8 @@
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "replace",
-        "startLine": 127,
-        "endLine": 155,
+        "startLine": 128,
+        "endLine": 156,
         "lines": 29
       }
     },
@@ -43270,6 +43372,23 @@
         "startLine": 38,
         "endLine": 82,
         "lines": 45
+      }
+    },
+    {
+      "similarity": 0.852,
+      "blockA": {
+        "filePath": "apps/web/src/ui/identity/hooks/use-invite-user-action.ts",
+        "functionName": "useInviteUserAction",
+        "startLine": 12,
+        "endLine": 34,
+        "lines": 23
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/identity/hooks/use-resend-user-invitation-action.ts",
+        "functionName": "useResendUserInvitationAction",
+        "startLine": 10,
+        "endLine": 39,
+        "lines": 30
       }
     },
     {
@@ -44060,15 +44179,15 @@
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "replaceQuantitiesByAccompanimentProductId",
         "startLine": 138,
-        "endLine": 157,
-        "lines": 20
+        "endLine": 158,
+        "lines": 21
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipes-repository.ts",
         "functionName": "replaceYieldQuantity",
         "startLine": 78,
-        "endLine": 94,
-        "lines": 17
+        "endLine": 95,
+        "lines": 18
       }
     },
     {
@@ -44076,15 +44195,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "replace",
-        "startLine": 211,
-        "endLine": 237,
+        "startLine": 212,
+        "endLine": 238,
         "lines": 27
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "replace",
-        "startLine": 127,
-        "endLine": 155,
+        "startLine": 128,
+        "endLine": 156,
         "lines": 29
       }
     },
@@ -44094,15 +44213,15 @@
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "replaceQuantities",
         "startLine": 106,
-        "endLine": 125,
-        "lines": 20
+        "endLine": 126,
+        "lines": 21
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipes-repository.ts",
         "functionName": "replaceYieldQuantity",
         "startLine": 78,
-        "endLine": 94,
-        "lines": 17
+        "endLine": 95,
+        "lines": 18
       }
     },
     {
@@ -44110,8 +44229,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "replace",
-        "startLine": 127,
-        "endLine": 155,
+        "startLine": 128,
+        "endLine": 156,
         "lines": 29
       },
       "blockB": {
@@ -44128,15 +44247,15 @@
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipe-ingredients-repository.ts",
         "functionName": "replaceQuantitiesByIngredientProductId",
         "startLine": 125,
-        "endLine": 144,
-        "lines": 20
+        "endLine": 145,
+        "lines": 21
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipes-repository.ts",
         "functionName": "replaceYieldQuantity",
         "startLine": 78,
-        "endLine": 94,
-        "lines": 17
+        "endLine": 95,
+        "lines": 18
       }
     },
     {
@@ -44460,57 +44579,6 @@
         "startLine": 13,
         "endLine": 19,
         "lines": 7
-      }
-    },
-    {
-      "similarity": 0.841,
-      "blockA": {
-        "filePath": "apps/web/src/ui/identity/hooks/use-change-user-profile-action.ts",
-        "functionName": "useChangeUserProfileAction",
-        "startLine": 12,
-        "endLine": 44,
-        "lines": 33
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/identity/hooks/use-invite-user-action.ts",
-        "functionName": "useInviteUserAction",
-        "startLine": 12,
-        "endLine": 34,
-        "lines": 23
-      }
-    },
-    {
-      "similarity": 0.841,
-      "blockA": {
-        "filePath": "apps/web/src/ui/identity/hooks/use-change-user-status-action.ts",
-        "functionName": "useChangeUserStatusAction",
-        "startLine": 15,
-        "endLine": 47,
-        "lines": 33
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/identity/hooks/use-invite-user-action.ts",
-        "functionName": "useInviteUserAction",
-        "startLine": 12,
-        "endLine": 34,
-        "lines": 23
-      }
-    },
-    {
-      "similarity": 0.841,
-      "blockA": {
-        "filePath": "apps/web/src/ui/identity/hooks/use-correct-user-name-action.ts",
-        "functionName": "useCorrectUserNameAction",
-        "startLine": 12,
-        "endLine": 41,
-        "lines": 30
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/identity/hooks/use-invite-user-action.ts",
-        "functionName": "useInviteUserAction",
-        "startLine": 12,
-        "endLine": 34,
-        "lines": 23
       }
     },
     {
@@ -44926,8 +44994,8 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "findByProductAndAccompaniment",
-        "startLine": 192,
-        "endLine": 209,
+        "startLine": 193,
+        "endLine": 210,
         "lines": 18
       },
       "blockB": {
@@ -45137,8 +45205,8 @@
       "blockB": {
         "filePath": "packages/core/src/identity/use-cases/expire-ice-cream-shop-onboardings-use-case.ts",
         "functionName": "finalizeExpiredInvitation",
-        "startLine": 241,
-        "endLine": 265,
+        "startLine": 243,
+        "endLine": 267,
         "lines": 25
       }
     },
@@ -45199,15 +45267,15 @@
         "filePath": "packages/core/src/identity/use-cases/change-establishment-name-use-case.ts",
         "functionName": "execute",
         "startLine": 25,
-        "endLine": 92,
-        "lines": 68
+        "endLine": 94,
+        "lines": 70
       },
       "blockB": {
         "filePath": "packages/core/src/identity/use-cases/change-own-user-name-use-case.ts",
         "functionName": "execute",
         "startLine": 22,
-        "endLine": 116,
-        "lines": 95
+        "endLine": 118,
+        "lines": 97
       }
     },
     {
@@ -47154,8 +47222,8 @@
         "filePath": "apps/web/src/ui/identity/hooks/use-confirm-ice-cream-shop-onboarding-action.ts",
         "functionName": "useConfirmIceCreamShopOnboardingAction",
         "startLine": 8,
-        "endLine": 34,
-        "lines": 27
+        "endLine": 37,
+        "lines": 30
       },
       "blockB": {
         "filePath": "apps/web/src/ui/identity/hooks/use-get-ice-cream-shop-onboarding-action.ts",
@@ -47171,15 +47239,15 @@
         "filePath": "apps/web/src/ui/identity/hooks/use-confirm-ice-cream-shop-onboarding-action.ts",
         "functionName": "useConfirmIceCreamShopOnboardingAction",
         "startLine": 8,
-        "endLine": 34,
-        "lines": 27
+        "endLine": 37,
+        "lines": 30
       },
       "blockB": {
         "filePath": "apps/web/src/ui/identity/hooks/use-resend-ice-cream-shop-confirmation-action.ts",
         "functionName": "useResendIceCreamShopConfirmationAction",
         "startLine": 10,
-        "endLine": 38,
-        "lines": 29
+        "endLine": 41,
+        "lines": 32
       }
     },
     {
@@ -48283,8 +48351,8 @@
         "filePath": "apps/web/src/ui/identity/hooks/use-request-password-recovery-action.ts",
         "functionName": "useRequestPasswordRecoveryAction",
         "startLine": 6,
-        "endLine": 28,
-        "lines": 23
+        "endLine": 31,
+        "lines": 26
       }
     },
     {
@@ -48293,15 +48361,15 @@
         "filePath": "apps/web/src/ui/identity/hooks/use-request-password-recovery-action.ts",
         "functionName": "useRequestPasswordRecoveryAction",
         "startLine": 6,
-        "endLine": 28,
-        "lines": 23
+        "endLine": 31,
+        "lines": 26
       },
       "blockB": {
         "filePath": "apps/web/src/ui/identity/hooks/use-resend-ice-cream-shop-confirmation-action.ts",
         "functionName": "useResendIceCreamShopConfirmationAction",
         "startLine": 10,
-        "endLine": 38,
-        "lines": 29
+        "endLine": 41,
+        "lines": 32
       }
     },
     {
@@ -48598,15 +48666,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "replace",
-        "startLine": 127,
-        "endLine": 155,
+        "startLine": 128,
+        "endLine": 156,
         "lines": 29
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipes-repository.ts",
         "functionName": "replace",
-        "startLine": 96,
-        "endLine": 116,
+        "startLine": 97,
+        "endLine": 117,
         "lines": 21
       }
     },
@@ -50570,16 +50638,16 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "remove",
-        "startLine": 239,
-        "endLine": 259,
-        "lines": 21
+        "startLine": 240,
+        "endLine": 261,
+        "lines": 22
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipe-ingredients-repository.ts",
         "functionName": "remove",
-        "startLine": 185,
-        "endLine": 197,
-        "lines": 13
+        "startLine": 186,
+        "endLine": 199,
+        "lines": 14
       }
     },
     {
@@ -50587,32 +50655,15 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-accompaniments-repository.ts",
         "functionName": "remove",
-        "startLine": 239,
-        "endLine": 259,
-        "lines": 21
+        "startLine": 240,
+        "endLine": 261,
+        "lines": 22
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipes-repository.ts",
         "functionName": "remove",
-        "startLine": 118,
-        "endLine": 129,
-        "lines": 12
-      }
-    },
-    {
-      "similarity": 0.81,
-      "blockA": {
-        "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
-        "functionName": "remove",
-        "startLine": 157,
-        "endLine": 177,
-        "lines": 21
-      },
-      "blockB": {
-        "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipe-ingredients-repository.ts",
-        "functionName": "remove",
-        "startLine": 185,
-        "endLine": 197,
+        "startLine": 119,
+        "endLine": 131,
         "lines": 13
       }
     },
@@ -50621,16 +50672,33 @@
       "blockA": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
         "functionName": "remove",
-        "startLine": 157,
-        "endLine": 177,
-        "lines": 21
+        "startLine": 158,
+        "endLine": 179,
+        "lines": 22
+      },
+      "blockB": {
+        "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipe-ingredients-repository.ts",
+        "functionName": "remove",
+        "startLine": 186,
+        "endLine": 199,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.81,
+      "blockA": {
+        "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-product-sizes-repository.ts",
+        "functionName": "remove",
+        "startLine": 158,
+        "endLine": 179,
+        "lines": 22
       },
       "blockB": {
         "filePath": "apps/server/src/mrp/database/drizzle/repositories/drizzle-recipes-repository.ts",
         "functionName": "remove",
-        "startLine": 118,
-        "endLine": 129,
-        "lines": 12
+        "startLine": 119,
+        "endLine": 131,
+        "lines": 13
       }
     },
     {
@@ -50758,8 +50826,8 @@
         "filePath": "apps/web/src/ui/identity/hooks/use-confirm-ice-cream-shop-onboarding-action.ts",
         "functionName": "useConfirmIceCreamShopOnboardingAction",
         "startLine": 8,
-        "endLine": 34,
-        "lines": 27
+        "endLine": 37,
+        "lines": 30
       },
       "blockB": {
         "filePath": "apps/web/src/ui/identity/hooks/use-reset-password-action.ts",
@@ -51003,8 +51071,8 @@
         "filePath": "apps/server/src/communication/messaging/inngest/jobs/send-onboarding-confirmation-email-job.ts",
         "functionName": "constructor",
         "startLine": 22,
-        "endLine": 49,
-        "lines": 28
+        "endLine": 50,
+        "lines": 29
       }
     },
     {
@@ -51020,8 +51088,8 @@
         "filePath": "apps/server/src/communication/messaging/inngest/jobs/send-password-recovery-email-job.ts",
         "functionName": "constructor",
         "startLine": 22,
-        "endLine": 49,
-        "lines": 28
+        "endLine": 50,
+        "lines": 29
       }
     },
     {
@@ -51979,6 +52047,23 @@
     {
       "similarity": 0.8,
       "blockA": {
+        "filePath": "apps/server/src/pdv/provision/mrp/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 17,
+        "endLine": 42,
+        "lines": 26
+      },
+      "blockB": {
+        "filePath": "packages/core/src/shared/domain/errors/too-many-requests-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 0.8,
+      "blockA": {
         "filePath": "apps/server/src/identity/database/drizzle/models/better-auth-session-model.ts",
         "functionName": "<anonymous>",
         "startLine": 25,
@@ -52107,8 +52192,8 @@
       "blockB": {
         "filePath": "packages/core/src/identity/use-cases/change-establishment-name-use-case.ts",
         "functionName": "toSettings",
-        "startLine": 94,
-        "endLine": 114,
+        "startLine": 96,
+        "endLine": 116,
         "lines": 21
       }
     },
@@ -52277,9 +52362,26 @@
       "blockB": {
         "filePath": "packages/core/src/identity/use-cases/change-establishment-name-use-case.ts",
         "functionName": "toSettings",
-        "startLine": 94,
-        "endLine": 114,
+        "startLine": 96,
+        "endLine": 116,
         "lines": 21
+      }
+    },
+    {
+      "similarity": 0.8,
+      "blockA": {
+        "filePath": "packages/core/src/identity/domain/structures/users-page.ts",
+        "functionName": "constructor",
+        "startLine": 5,
+        "endLine": 14,
+        "lines": 10
+      },
+      "blockB": {
+        "filePath": "packages/core/src/shared/domain/errors/too-many-requests-error.ts",
+        "functionName": "constructor",
+        "startLine": 4,
+        "endLine": 9,
+        "lines": 6
       }
     }
   ],
@@ -53323,7 +53425,7 @@
         }
       ],
       "summary": {
-        "totalLines": 450,
+        "totalLines": 452,
         "weightedMI": 60.1,
         "weightedHealthScore": 81.5,
         "worstSeverity": "warn",
@@ -55221,7 +55323,7 @@
         {
           "name": "runWithRetry",
           "startLine": 37,
-          "endLine": 60,
+          "endLine": 62,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -55237,7 +55339,7 @@
             },
             {
               "name": "functionLength",
-              "value": 21,
+              "value": 23,
               "threshold": 70,
               "severity": "ok"
             },
@@ -55254,15 +55356,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 55.1,
+          "maintainabilityIndex": 54.2,
           "maintainabilityRating": "warn",
           "healthScore": 66,
           "smells": []
         },
         {
           "name": "createScope",
-          "startLine": 62,
-          "endLine": 87,
+          "startLine": 64,
+          "endLine": 89,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -55302,8 +55404,8 @@
         },
         {
           "name": "isRetryableTransactionConflict",
-          "startLine": 89,
-          "endLine": 105,
+          "startLine": 91,
+          "endLine": 107,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -55343,9 +55445,9 @@
         }
       ],
       "summary": {
-        "totalLines": 107,
-        "weightedMI": 61.2,
-        "weightedHealthScore": 75.9,
+        "totalLines": 109,
+        "weightedMI": 60.8,
+        "weightedHealthScore": 75.7,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -55935,7 +56037,7 @@
         {
           "name": "resetPassword",
           "startLine": 221,
-          "endLine": 236,
+          "endLine": 238,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -55951,7 +56053,7 @@
             },
             {
               "name": "functionLength",
-              "value": 16,
+              "value": 18,
               "threshold": 70,
               "severity": "ok"
             },
@@ -55968,15 +56070,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 55.7,
+          "maintainabilityIndex": 54.5,
           "maintainabilityRating": "warn",
-          "healthScore": 79,
+          "healthScore": 78,
           "smells": []
         },
         {
           "name": "createCredentialIdentity",
-          "startLine": 238,
-          "endLine": 258,
+          "startLine": 240,
+          "endLine": 260,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -56016,8 +56118,8 @@
         },
         {
           "name": "prepareInvitation",
-          "startLine": 260,
-          "endLine": 286,
+          "startLine": 262,
+          "endLine": 288,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -56057,8 +56159,8 @@
         },
         {
           "name": "inspectToken",
-          "startLine": 297,
-          "endLine": 308,
+          "startLine": 299,
+          "endLine": 310,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -56098,8 +56200,8 @@
         },
         {
           "name": "completeToken",
-          "startLine": 310,
-          "endLine": 321,
+          "startLine": 312,
+          "endLine": 323,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -56139,8 +56241,8 @@
         },
         {
           "name": "storeToken",
-          "startLine": 323,
-          "endLine": 342,
+          "startLine": 325,
+          "endLine": 344,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -56180,9 +56282,9 @@
         }
       ],
       "summary": {
-        "totalLines": 356,
-        "weightedMI": 60.2,
-        "weightedHealthScore": 83.2,
+        "totalLines": 358,
+        "weightedMI": 60.1,
+        "weightedHealthScore": 83.1,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -56689,7 +56791,7 @@
         {
           "name": "createBetterAuth",
           "startLine": 50,
-          "endLine": 151,
+          "endLine": 154,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -56705,7 +56807,7 @@
             },
             {
               "name": "functionLength",
-              "value": 97,
+              "value": 100,
               "threshold": 70,
               "severity": "error"
             },
@@ -56717,20 +56819,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 867.55,
+              "value": 902.37,
               "threshold": 800,
               "severity": "error"
             }
           ],
-          "maintainabilityIndex": 34.9,
+          "maintainabilityIndex": 34.5,
           "maintainabilityRating": "warn",
           "healthScore": 51,
           "smells": []
         },
         {
           "name": "before",
-          "startLine": 129,
-          "endLine": 138,
+          "startLine": 132,
+          "endLine": 141,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -56770,9 +56872,9 @@
         }
       ],
       "summary": {
-        "totalLines": 158,
-        "weightedMI": 44.8,
-        "weightedHealthScore": 60.8,
+        "totalLines": 161,
+        "weightedMI": 44.4,
+        "weightedHealthScore": 60.6,
         "worstSeverity": "error",
         "smellIds": []
       }
@@ -60504,8 +60606,8 @@
         },
         {
           "name": "toFact",
-          "startLine": 100,
-          "endLine": 168,
+          "startLine": 101,
+          "endLine": 169,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -60545,9 +60647,9 @@
         }
       ],
       "summary": {
-        "totalLines": 170,
-        "weightedMI": 46.3,
-        "weightedHealthScore": 62.2,
+        "totalLines": 171,
+        "weightedMI": 46.5,
+        "weightedHealthScore": 62.4,
         "worstSeverity": "error",
         "smellIds": []
       }
@@ -60639,9 +60741,9 @@
         }
       ],
       "summary": {
-        "totalLines": 55,
-        "weightedMI": 60.7,
-        "weightedHealthScore": 85.9,
+        "totalLines": 56,
+        "weightedMI": 60.8,
+        "weightedHealthScore": 85.8,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -60652,7 +60754,7 @@
         {
           "name": "constructor",
           "startLine": 22,
-          "endLine": 49,
+          "endLine": 50,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -60668,7 +60770,7 @@
             },
             {
               "name": "functionLength",
-              "value": 25,
+              "value": 26,
               "threshold": 70,
               "severity": "ok"
             },
@@ -60685,7 +60787,7 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 56.5,
+          "maintainabilityIndex": 56.1,
           "maintainabilityRating": "warn",
           "healthScore": 82,
           "smells": []
@@ -60693,7 +60795,7 @@
         {
           "name": "<anonymous>",
           "startLine": 34,
-          "endLine": 47,
+          "endLine": 48,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -60709,7 +60811,7 @@
             },
             {
               "name": "functionLength",
-              "value": 14,
+              "value": 15,
               "threshold": 70,
               "severity": "ok"
             },
@@ -60726,15 +60828,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 60.9,
+          "maintainabilityIndex": 60.3,
           "maintainabilityRating": "warn",
           "healthScore": 82,
           "smells": []
         },
         {
           "name": "<anonymous>",
-          "startLine": 38,
-          "endLine": 46,
+          "startLine": 39,
+          "endLine": 47,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -60774,8 +60876,8 @@
         }
       ],
       "summary": {
-        "totalLines": 51,
-        "weightedMI": 59.2,
+        "totalLines": 52,
+        "weightedMI": 58.8,
         "weightedHealthScore": 83.2,
         "worstSeverity": "warn",
         "smellIds": []
@@ -60787,7 +60889,7 @@
         {
           "name": "constructor",
           "startLine": 22,
-          "endLine": 49,
+          "endLine": 50,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -60803,7 +60905,7 @@
             },
             {
               "name": "functionLength",
-              "value": 25,
+              "value": 26,
               "threshold": 70,
               "severity": "ok"
             },
@@ -60820,7 +60922,7 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 56.5,
+          "maintainabilityIndex": 56.1,
           "maintainabilityRating": "warn",
           "healthScore": 82,
           "smells": []
@@ -60828,7 +60930,7 @@
         {
           "name": "<anonymous>",
           "startLine": 34,
-          "endLine": 47,
+          "endLine": 48,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -60844,7 +60946,7 @@
             },
             {
               "name": "functionLength",
-              "value": 14,
+              "value": 15,
               "threshold": 70,
               "severity": "ok"
             },
@@ -60861,15 +60963,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 60.9,
+          "maintainabilityIndex": 60.3,
           "maintainabilityRating": "warn",
           "healthScore": 82,
           "smells": []
         },
         {
           "name": "<anonymous>",
-          "startLine": 38,
-          "endLine": 46,
+          "startLine": 39,
+          "endLine": 47,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -60909,8 +61011,8 @@
         }
       ],
       "summary": {
-        "totalLines": 51,
-        "weightedMI": 59.2,
+        "totalLines": 52,
+        "weightedMI": 58.8,
         "weightedHealthScore": 83.2,
         "worstSeverity": "warn",
         "smellIds": []
@@ -60921,8 +61023,8 @@
       "functions": [
         {
           "name": "send",
-          "startLine": 30,
-          "endLine": 50,
+          "startLine": 31,
+          "endLine": 52,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -60938,7 +61040,7 @@
             },
             {
               "name": "functionLength",
-              "value": 21,
+              "value": 22,
               "threshold": 70,
               "severity": "ok"
             },
@@ -60950,23 +61052,113 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 264.4,
+              "value": 286.62,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 53.5,
+          "maintainabilityIndex": 52.8,
           "maintainabilityRating": "warn",
           "healthScore": 67,
           "smells": []
+        },
+        {
+          "name": "logDeliveryFailure",
+          "startLine": 54,
+          "endLine": 67,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 14,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 151.27,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 59.6,
+          "maintainabilityRating": "warn",
+          "healthScore": 86,
+          "smells": []
+        },
+        {
+          "name": "getErrorDetails",
+          "startLine": 69,
+          "endLine": 94,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 8,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 3,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 26,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 380.74,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 50,
+          "maintainabilityRating": "warn",
+          "healthScore": 63,
+          "smells": [
+            {
+              "id": "fragile",
+              "label": "Fragile",
+              "reason": "High cyclomatic complexity (8) with low MI (50) — many branches and hard to maintain safely."
+            }
+          ]
         }
       ],
       "summary": {
-        "totalLines": 52,
-        "weightedMI": 58.1,
-        "weightedHealthScore": 72.8,
+        "totalLines": 96,
+        "weightedMI": 55.2,
+        "weightedHealthScore": 71.8,
         "worstSeverity": "warn",
-        "smellIds": []
+        "smellIds": [
+          "fragile"
+        ]
       }
     },
     {
@@ -63877,7 +64069,7 @@
         {
           "name": "replace",
           "startLine": 150,
-          "endLine": 189,
+          "endLine": 190,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -63893,9 +64085,9 @@
             },
             {
               "name": "functionLength",
-              "value": 35,
+              "value": 36,
               "threshold": 70,
-              "severity": "ok"
+              "severity": "warn"
             },
             {
               "name": "nestingDepth",
@@ -63910,15 +64102,15 @@
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 45,
+          "maintainabilityIndex": 44.7,
           "maintainabilityRating": "warn",
           "healthScore": 54,
           "smells": []
         },
         {
           "name": "setPrimary",
-          "startLine": 197,
-          "endLine": 222,
+          "startLine": 198,
+          "endLine": 224,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -63934,7 +64126,7 @@
             },
             {
               "name": "functionLength",
-              "value": 22,
+              "value": 23,
               "threshold": 70,
               "severity": "ok"
             },
@@ -63951,15 +64143,15 @@
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 51,
+          "maintainabilityIndex": 50.6,
           "maintainabilityRating": "warn",
-          "healthScore": 69,
+          "healthScore": 68,
           "smells": []
         },
         {
           "name": "remove",
-          "startLine": 226,
-          "endLine": 248,
+          "startLine": 228,
+          "endLine": 251,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -63975,7 +64167,7 @@
             },
             {
               "name": "functionLength",
-              "value": 19,
+              "value": 20,
               "threshold": 70,
               "severity": "ok"
             },
@@ -63992,15 +64184,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 53.7,
+          "maintainabilityIndex": 53.2,
           "maintainabilityRating": "warn",
-          "healthScore": 71,
+          "healthScore": 70,
           "smells": []
         },
         {
           "name": "productBelongsToEstablishment",
-          "startLine": 254,
-          "endLine": 266,
+          "startLine": 257,
+          "endLine": 269,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -64040,9 +64232,9 @@
         }
       ],
       "summary": {
-        "totalLines": 268,
-        "weightedMI": 53.2,
-        "weightedHealthScore": 70.5,
+        "totalLines": 271,
+        "weightedMI": 52.9,
+        "weightedHealthScore": 70.2,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -64053,7 +64245,7 @@
         {
           "name": "runWithRetry",
           "startLine": 31,
-          "endLine": 99,
+          "endLine": 100,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -64069,7 +64261,7 @@
             },
             {
               "name": "functionLength",
-              "value": 66,
+              "value": 67,
               "threshold": 70,
               "severity": "warn"
             },
@@ -64086,15 +64278,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 44.2,
+          "maintainabilityIndex": 44.1,
           "maintainabilityRating": "warn",
           "healthScore": 54,
           "smells": []
         },
         {
           "name": "isRetryableTransactionConflict",
-          "startLine": 101,
-          "endLine": 113,
+          "startLine": 102,
+          "endLine": 114,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -64134,9 +64326,9 @@
         }
       ],
       "summary": {
-        "totalLines": 115,
-        "weightedMI": 61.6,
-        "weightedHealthScore": 71.1,
+        "totalLines": 116,
+        "weightedMI": 61.4,
+        "weightedHealthScore": 71,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -64434,7 +64626,7 @@
         {
           "name": "replaceQuantitiesByAccompanimentProductId",
           "startLine": 138,
-          "endLine": 157,
+          "endLine": 158,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -64450,7 +64642,7 @@
             },
             {
               "name": "functionLength",
-              "value": 16,
+              "value": 17,
               "threshold": 70,
               "severity": "ok"
             },
@@ -64467,15 +64659,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 55.8,
+          "maintainabilityIndex": 55.3,
           "maintainabilityRating": "warn",
-          "healthScore": 73,
+          "healthScore": 72,
           "smells": []
         },
         {
           "name": "removeByProductId",
-          "startLine": 159,
-          "endLine": 172,
+          "startLine": 160,
+          "endLine": 173,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -64515,8 +64707,8 @@
         },
         {
           "name": "removeByAccompanimentProductId",
-          "startLine": 174,
-          "endLine": 190,
+          "startLine": 175,
+          "endLine": 191,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -64556,8 +64748,8 @@
         },
         {
           "name": "findByProductAndAccompaniment",
-          "startLine": 192,
-          "endLine": 209,
+          "startLine": 193,
+          "endLine": 210,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -64597,8 +64789,8 @@
         },
         {
           "name": "replace",
-          "startLine": 211,
-          "endLine": 237,
+          "startLine": 212,
+          "endLine": 238,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -64638,8 +64830,8 @@
         },
         {
           "name": "remove",
-          "startLine": 239,
-          "endLine": 259,
+          "startLine": 240,
+          "endLine": 261,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -64655,7 +64847,7 @@
             },
             {
               "name": "functionLength",
-              "value": 17,
+              "value": 18,
               "threshold": 70,
               "severity": "ok"
             },
@@ -64672,15 +64864,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 56,
+          "maintainabilityIndex": 55.4,
           "maintainabilityRating": "warn",
           "healthScore": 74,
           "smells": []
         },
         {
           "name": "isIntegrityConstraintError",
-          "startLine": 272,
-          "endLine": 287,
+          "startLine": 274,
+          "endLine": 289,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -64726,9 +64918,9 @@
         }
       ],
       "summary": {
-        "totalLines": 289,
-        "weightedMI": 58.2,
-        "weightedHealthScore": 78.8,
+        "totalLines": 291,
+        "weightedMI": 58.1,
+        "weightedHealthScore": 78.7,
         "worstSeverity": "warn",
         "smellIds": [
           "fragile"
@@ -64946,7 +65138,7 @@
         {
           "name": "replaceQuantities",
           "startLine": 106,
-          "endLine": 125,
+          "endLine": 126,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -64962,7 +65154,7 @@
             },
             {
               "name": "functionLength",
-              "value": 16,
+              "value": 17,
               "threshold": 70,
               "severity": "ok"
             },
@@ -64979,15 +65171,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 55.8,
+          "maintainabilityIndex": 55.3,
           "maintainabilityRating": "warn",
-          "healthScore": 73,
+          "healthScore": 72,
           "smells": []
         },
         {
           "name": "replace",
-          "startLine": 127,
-          "endLine": 155,
+          "startLine": 128,
+          "endLine": 156,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -65027,8 +65219,8 @@
         },
         {
           "name": "remove",
-          "startLine": 157,
-          "endLine": 177,
+          "startLine": 158,
+          "endLine": 179,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -65044,7 +65236,7 @@
             },
             {
               "name": "functionLength",
-              "value": 17,
+              "value": 18,
               "threshold": 70,
               "severity": "ok"
             },
@@ -65061,15 +65253,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 56,
+          "maintainabilityIndex": 55.4,
           "maintainabilityRating": "warn",
           "healthScore": 74,
           "smells": []
         },
         {
           "name": "isIntegrityConstraintError",
-          "startLine": 190,
-          "endLine": 205,
+          "startLine": 192,
+          "endLine": 207,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -65115,9 +65307,9 @@
         }
       ],
       "summary": {
-        "totalLines": 207,
-        "weightedMI": 56.8,
-        "weightedHealthScore": 76.3,
+        "totalLines": 209,
+        "weightedMI": 56.7,
+        "weightedHealthScore": 76.1,
         "worstSeverity": "warn",
         "smellIds": [
           "fragile"
@@ -65564,7 +65756,7 @@
         {
           "name": "replace",
           "startLine": 250,
-          "endLine": 281,
+          "endLine": 283,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -65580,7 +65772,7 @@
             },
             {
               "name": "functionLength",
-              "value": 28,
+              "value": 30,
               "threshold": 70,
               "severity": "ok"
             },
@@ -65597,21 +65789,21 @@
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 47.7,
+          "maintainabilityIndex": 47.1,
           "maintainabilityRating": "warn",
-          "healthScore": 62,
+          "healthScore": 61,
           "smells": [
             {
               "id": "fragile",
               "label": "Fragile",
-              "reason": "High cyclomatic complexity (8) with low MI (47.7) — many branches and hard to maintain safely."
+              "reason": "High cyclomatic complexity (8) with low MI (47.1) — many branches and hard to maintain safely."
             }
           ]
         },
         {
           "name": "remove",
-          "startLine": 285,
-          "endLine": 302,
+          "startLine": 287,
+          "endLine": 305,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -65627,7 +65819,7 @@
             },
             {
               "name": "functionLength",
-              "value": 15,
+              "value": 16,
               "threshold": 70,
               "severity": "ok"
             },
@@ -65644,15 +65836,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 56.5,
+          "maintainabilityIndex": 55.9,
           "maintainabilityRating": "warn",
           "healthScore": 75,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 313,
-        "weightedMI": 45.1,
+        "totalLines": 316,
+        "weightedMI": 45,
         "weightedHealthScore": 55.6,
         "worstSeverity": "error",
         "smellIds": [
@@ -65912,7 +66104,7 @@
         {
           "name": "replaceQuantitiesByIngredientProductId",
           "startLine": 125,
-          "endLine": 144,
+          "endLine": 145,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -65928,7 +66120,7 @@
             },
             {
               "name": "functionLength",
-              "value": 16,
+              "value": 17,
               "threshold": 70,
               "severity": "ok"
             },
@@ -65945,15 +66137,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 55.8,
+          "maintainabilityIndex": 55.3,
           "maintainabilityRating": "warn",
-          "healthScore": 73,
+          "healthScore": 72,
           "smells": []
         },
         {
           "name": "removeByIngredientProductId",
-          "startLine": 146,
-          "endLine": 158,
+          "startLine": 147,
+          "endLine": 159,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -65993,8 +66185,8 @@
         },
         {
           "name": "replace",
-          "startLine": 160,
-          "endLine": 183,
+          "startLine": 161,
+          "endLine": 184,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66034,8 +66226,8 @@
         },
         {
           "name": "remove",
-          "startLine": 185,
-          "endLine": 197,
+          "startLine": 186,
+          "endLine": 199,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66051,7 +66243,7 @@
             },
             {
               "name": "functionLength",
-              "value": 13,
+              "value": 14,
               "threshold": 70,
               "severity": "ok"
             },
@@ -66068,16 +66260,16 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 59.2,
+          "maintainabilityIndex": 58.5,
           "maintainabilityRating": "warn",
           "healthScore": 81,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 203,
-        "weightedMI": 58.8,
-        "weightedHealthScore": 82.8,
+        "totalLines": 205,
+        "weightedMI": 58.7,
+        "weightedHealthScore": 82.6,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -66252,7 +66444,7 @@
         {
           "name": "replaceYieldQuantity",
           "startLine": 78,
-          "endLine": 94,
+          "endLine": 95,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66268,7 +66460,7 @@
             },
             {
               "name": "functionLength",
-              "value": 13,
+              "value": 14,
               "threshold": 70,
               "severity": "ok"
             },
@@ -66285,15 +66477,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 58.7,
+          "maintainabilityIndex": 58,
           "maintainabilityRating": "warn",
-          "healthScore": 81,
+          "healthScore": 80,
           "smells": []
         },
         {
           "name": "replace",
-          "startLine": 96,
-          "endLine": 116,
+          "startLine": 97,
+          "endLine": 117,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66333,8 +66525,8 @@
         },
         {
           "name": "remove",
-          "startLine": 118,
-          "endLine": 129,
+          "startLine": 119,
+          "endLine": 131,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66350,7 +66542,7 @@
             },
             {
               "name": "functionLength",
-              "value": 12,
+              "value": 13,
               "threshold": 70,
               "severity": "ok"
             },
@@ -66367,16 +66559,16 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 60.4,
+          "maintainabilityIndex": 59.6,
           "maintainabilityRating": "warn",
-          "healthScore": 82,
+          "healthScore": 81,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 135,
-        "weightedMI": 59.4,
-        "weightedHealthScore": 83.8,
+        "totalLines": 137,
+        "weightedMI": 59.2,
+        "weightedHealthScore": 83.5,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -66735,7 +66927,7 @@
         {
           "name": "initialize",
           "startLine": 23,
-          "endLine": 39,
+          "endLine": 40,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66751,7 +66943,7 @@
             },
             {
               "name": "functionLength",
-              "value": 13,
+              "value": 14,
               "threshold": 70,
               "severity": "ok"
             },
@@ -66768,15 +66960,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 57.8,
+          "maintainabilityIndex": 57.1,
           "maintainabilityRating": "warn",
-          "healthScore": 72,
+          "healthScore": 71,
           "smells": []
         },
         {
           "name": "findByProductId",
-          "startLine": 46,
-          "endLine": 66,
+          "startLine": 47,
+          "endLine": 67,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66816,8 +67008,8 @@
         },
         {
           "name": "findByProductAndBrand",
-          "startLine": 77,
-          "endLine": 99,
+          "startLine": 78,
+          "endLine": 100,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66857,8 +67049,8 @@
         },
         {
           "name": "findManyByProductId",
-          "startLine": 106,
-          "endLine": 122,
+          "startLine": 107,
+          "endLine": 123,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66898,8 +67090,8 @@
         },
         {
           "name": "countByProductId",
-          "startLine": 124,
-          "endLine": 135,
+          "startLine": 125,
+          "endLine": 136,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66939,8 +67131,8 @@
         },
         {
           "name": "replaceQuantity",
-          "startLine": 137,
-          "endLine": 159,
+          "startLine": 138,
+          "endLine": 161,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66956,7 +67148,7 @@
             },
             {
               "name": "functionLength",
-              "value": 18,
+              "value": 19,
               "threshold": 70,
               "severity": "ok"
             },
@@ -66973,15 +67165,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 54.7,
+          "maintainabilityIndex": 54.2,
           "maintainabilityRating": "warn",
-          "healthScore": 77,
+          "healthScore": 76,
           "smells": []
         },
         {
           "name": "add",
-          "startLine": 161,
-          "endLine": 187,
+          "startLine": 163,
+          "endLine": 190,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -66997,7 +67189,7 @@
             },
             {
               "name": "functionLength",
-              "value": 23,
+              "value": 24,
               "threshold": 70,
               "severity": "ok"
             },
@@ -67014,15 +67206,15 @@
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 50.8,
+          "maintainabilityIndex": 50.4,
           "maintainabilityRating": "warn",
           "healthScore": 72,
           "smells": []
         },
         {
           "name": "productBelongsToEstablishment",
-          "startLine": 193,
-          "endLine": 205,
+          "startLine": 196,
+          "endLine": 208,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -67062,8 +67254,8 @@
         },
         {
           "name": "hasProduct",
-          "startLine": 207,
-          "endLine": 219,
+          "startLine": 210,
+          "endLine": 222,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -67103,8 +67295,8 @@
         },
         {
           "name": "toDomain",
-          "startLine": 221,
-          "endLine": 230,
+          "startLine": 224,
+          "endLine": 233,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -67144,9 +67336,9 @@
         }
       ],
       "summary": {
-        "totalLines": 232,
-        "weightedMI": 56.9,
-        "weightedHealthScore": 77.5,
+        "totalLines": 235,
+        "weightedMI": 56.7,
+        "weightedHealthScore": 77.2,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -68199,7 +68391,7 @@
         {
           "name": "replace",
           "startLine": 299,
-          "endLine": 329,
+          "endLine": 330,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68215,7 +68407,7 @@
             },
             {
               "name": "functionLength",
-              "value": 27,
+              "value": 28,
               "threshold": 70,
               "severity": "ok"
             },
@@ -68232,15 +68424,15 @@
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 49.6,
+          "maintainabilityIndex": 49.3,
           "maintainabilityRating": "warn",
           "healthScore": 69,
           "smells": []
         },
         {
           "name": "setStatus",
-          "startLine": 331,
-          "endLine": 356,
+          "startLine": 332,
+          "endLine": 358,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68256,7 +68448,7 @@
             },
             {
               "name": "functionLength",
-              "value": 21,
+              "value": 22,
               "threshold": 70,
               "severity": "ok"
             },
@@ -68273,15 +68465,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 53.1,
+          "maintainabilityIndex": 52.6,
           "maintainabilityRating": "warn",
           "healthScore": 72,
           "smells": []
         },
         {
           "name": "remove",
-          "startLine": 358,
-          "endLine": 379,
+          "startLine": 360,
+          "endLine": 382,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68297,7 +68489,7 @@
             },
             {
               "name": "functionLength",
-              "value": 18,
+              "value": 19,
               "threshold": 70,
               "severity": "ok"
             },
@@ -68314,15 +68506,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 54.9,
+          "maintainabilityIndex": 54.4,
           "maintainabilityRating": "warn",
           "healthScore": 73,
           "smells": []
         },
         {
           "name": "toCreateRows",
-          "startLine": 387,
-          "endLine": 429,
+          "startLine": 390,
+          "endLine": 432,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68362,8 +68554,8 @@
         },
         {
           "name": "replaceComponents",
-          "startLine": 431,
-          "endLine": 464,
+          "startLine": 434,
+          "endLine": 467,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68403,8 +68595,8 @@
         },
         {
           "name": "findRequired",
-          "startLine": 466,
-          "endLine": 476,
+          "startLine": 469,
+          "endLine": 479,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68444,8 +68636,8 @@
         },
         {
           "name": "findAggregateRows",
-          "startLine": 478,
-          "endLine": 519,
+          "startLine": 481,
+          "endLine": 522,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68491,8 +68683,8 @@
         },
         {
           "name": "selectAggregateRows",
-          "startLine": 521,
-          "endLine": 536,
+          "startLine": 524,
+          "endLine": 539,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68532,8 +68724,8 @@
         },
         {
           "name": "isIntegrityConstraintError",
-          "startLine": 538,
-          "endLine": 553,
+          "startLine": 541,
+          "endLine": 556,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68579,9 +68771,9 @@
         }
       ],
       "summary": {
-        "totalLines": 562,
-        "weightedMI": 53.6,
-        "weightedHealthScore": 69.5,
+        "totalLines": 565,
+        "weightedMI": 53.5,
+        "weightedHealthScore": 69.6,
         "worstSeverity": "error",
         "smellIds": [
           "bloated",
@@ -68595,7 +68787,7 @@
         {
           "name": "next",
           "startLine": 15,
-          "endLine": 29,
+          "endLine": 30,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68611,7 +68803,7 @@
             },
             {
               "name": "functionLength",
-              "value": 15,
+              "value": 16,
               "threshold": 70,
               "severity": "ok"
             },
@@ -68628,16 +68820,16 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 57.8,
+          "maintainabilityIndex": 57.2,
           "maintainabilityRating": "warn",
           "healthScore": 80,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 35,
-        "weightedMI": 61.6,
-        "weightedHealthScore": 82.3,
+        "totalLines": 36,
+        "weightedMI": 60.9,
+        "weightedHealthScore": 82.2,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -68648,7 +68840,7 @@
         {
           "name": "add",
           "startLine": 55,
-          "endLine": 189,
+          "endLine": 190,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68664,7 +68856,7 @@
             },
             {
               "name": "functionLength",
-              "value": 135,
+              "value": 136,
               "threshold": 70,
               "severity": "error"
             },
@@ -68688,8 +68880,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 98,
-          "endLine": 111,
+          "startLine": 99,
+          "endLine": 112,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68729,8 +68921,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 119,
-          "endLine": 129,
+          "startLine": 120,
+          "endLine": 130,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68770,8 +68962,8 @@
         },
         {
           "name": "findById",
-          "startLine": 191,
-          "endLine": 201,
+          "startLine": 192,
+          "endLine": 202,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68811,8 +69003,8 @@
         },
         {
           "name": "findByIdForUpdate",
-          "startLine": 203,
-          "endLine": 217,
+          "startLine": 204,
+          "endLine": 218,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68852,8 +69044,8 @@
         },
         {
           "name": "findByIdempotencyKey",
-          "startLine": 219,
-          "endLine": 235,
+          "startLine": 220,
+          "endLine": 236,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68893,8 +69085,8 @@
         },
         {
           "name": "findMany",
-          "startLine": 237,
-          "endLine": 273,
+          "startLine": 238,
+          "endLine": 274,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68934,8 +69126,8 @@
         },
         {
           "name": "cancel",
-          "startLine": 275,
-          "endLine": 315,
+          "startLine": 276,
+          "endLine": 316,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -68981,8 +69173,8 @@
         },
         {
           "name": "removeAll",
-          "startLine": 317,
-          "endLine": 327,
+          "startLine": 318,
+          "endLine": 328,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69022,8 +69214,8 @@
         },
         {
           "name": "findReservedSequenceNumber",
-          "startLine": 329,
-          "endLine": 337,
+          "startLine": 330,
+          "endLine": 339,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69039,7 +69231,7 @@
             },
             {
               "name": "functionLength",
-              "value": 9,
+              "value": 10,
               "threshold": 70,
               "severity": "ok"
             },
@@ -69056,15 +69248,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 63.2,
+          "maintainabilityIndex": 62.2,
           "maintainabilityRating": "warn",
-          "healthScore": 83,
+          "healthScore": 82,
           "smells": []
         },
         {
           "name": "toLineRow",
-          "startLine": 339,
-          "endLine": 357,
+          "startLine": 341,
+          "endLine": 359,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69104,8 +69296,8 @@
         },
         {
           "name": "toDiscountRows",
-          "startLine": 359,
-          "endLine": 430,
+          "startLine": 361,
+          "endLine": 432,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69145,8 +69337,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 369,
-          "endLine": 391,
+          "startLine": 371,
+          "endLine": 393,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69186,8 +69378,8 @@
         },
         {
           "name": "toDomain",
-          "startLine": 439,
-          "endLine": 457,
+          "startLine": 441,
+          "endLine": 460,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69203,7 +69395,7 @@
             },
             {
               "name": "functionLength",
-              "value": 16,
+              "value": 17,
               "threshold": 70,
               "severity": "ok"
             },
@@ -69220,15 +69412,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 56.5,
+          "maintainabilityIndex": 55.9,
           "maintainabilityRating": "warn",
           "healthScore": 77,
           "smells": []
         },
         {
           "name": "searchFilter",
-          "startLine": 459,
-          "endLine": 474,
+          "startLine": 462,
+          "endLine": 477,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69268,8 +69460,8 @@
         },
         {
           "name": "findAggregateRows",
-          "startLine": 476,
-          "endLine": 574,
+          "startLine": 479,
+          "endLine": 577,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69309,8 +69501,8 @@
         },
         {
           "name": "isIntegrityConstraintError",
-          "startLine": 583,
-          "endLine": 597,
+          "startLine": 586,
+          "endLine": 600,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69356,7 +69548,7 @@
         }
       ],
       "summary": {
-        "totalLines": 599,
+        "totalLines": 602,
         "weightedMI": 48.9,
         "weightedHealthScore": 61.7,
         "worstSeverity": "error",
@@ -69372,7 +69564,7 @@
         {
           "name": "runWithRetry",
           "startLine": 42,
-          "endLine": 84,
+          "endLine": 85,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69388,7 +69580,7 @@
             },
             {
               "name": "functionLength",
-              "value": 40,
+              "value": 41,
               "threshold": 70,
               "severity": "warn"
             },
@@ -69405,7 +69597,7 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 49,
+          "maintainabilityIndex": 48.8,
           "maintainabilityRating": "warn",
           "healthScore": 61,
           "smells": []
@@ -69453,8 +69645,8 @@
         },
         {
           "name": "isRetryableTransactionConflict",
-          "startLine": 86,
-          "endLine": 99,
+          "startLine": 87,
+          "endLine": 100,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69494,9 +69686,9 @@
         }
       ],
       "summary": {
-        "totalLines": 101,
-        "weightedMI": 55.4,
-        "weightedHealthScore": 71,
+        "totalLines": 102,
+        "weightedMI": 55.2,
+        "weightedHealthScore": 70.9,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -69753,7 +69945,7 @@
         {
           "name": "replace",
           "startLine": 120,
-          "endLine": 150,
+          "endLine": 151,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69769,7 +69961,7 @@
             },
             {
               "name": "functionLength",
-              "value": 27,
+              "value": 28,
               "threshold": 70,
               "severity": "ok"
             },
@@ -69786,15 +69978,15 @@
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 50,
+          "maintainabilityIndex": 49.7,
           "maintainabilityRating": "warn",
           "healthScore": 68,
           "smells": []
         },
         {
           "name": "remove",
-          "startLine": 152,
-          "endLine": 165,
+          "startLine": 153,
+          "endLine": 166,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69834,8 +70026,8 @@
         },
         {
           "name": "toPersistence",
-          "startLine": 171,
-          "endLine": 183,
+          "startLine": 172,
+          "endLine": 184,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69875,8 +70067,8 @@
         },
         {
           "name": "isIntegrityConstraintError",
-          "startLine": 192,
-          "endLine": 207,
+          "startLine": 193,
+          "endLine": 208,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -69922,8 +70114,8 @@
         }
       ],
       "summary": {
-        "totalLines": 209,
-        "weightedMI": 58.4,
+        "totalLines": 210,
+        "weightedMI": 58.3,
         "weightedHealthScore": 78.3,
         "worstSeverity": "warn",
         "smellIds": [
@@ -74394,190 +74586,6 @@
       }
     },
     {
-      "filePath": "apps/web/src/provision/auth/better-auth/better-auth-provider.ts",
-      "functions": [
-        {
-          "name": "resolveBrowserAuthSession",
-          "startLine": 41,
-          "endLine": 57,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 5,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 4,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 17,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 388.42,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 54.4,
-          "maintainabilityRating": "warn",
-          "healthScore": 70,
-          "smells": []
-        },
-        {
-          "name": "BetterAuthProvider",
-          "startLine": 66,
-          "endLine": 113,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 7,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 44,
-              "threshold": 70,
-              "severity": "warn"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 43.02,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 51.8,
-          "maintainabilityRating": "warn",
-          "healthScore": 69,
-          "smells": []
-        },
-        {
-          "name": "signIn",
-          "startLine": 79,
-          "endLine": 90,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 3,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 2,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 12,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 196.21,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 60,
-          "maintainabilityRating": "warn",
-          "healthScore": 79,
-          "smells": []
-        },
-        {
-          "name": "throwDomainAuthError",
-          "startLine": 115,
-          "endLine": 134,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 9,
-              "threshold": 15,
-              "severity": "warn"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 8,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 20,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 277.33,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 53.3,
-          "maintainabilityRating": "warn",
-          "healthScore": 59,
-          "smells": [
-            {
-              "id": "fragile",
-              "label": "Fragile",
-              "reason": "High cyclomatic complexity (9) with low MI (53.3) — many branches and hard to maintain safely."
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "totalLines": 135,
-        "weightedMI": 57.6,
-        "weightedHealthScore": 72.3,
-        "worstSeverity": "warn",
-        "smellIds": [
-          "fragile"
-        ]
-      }
-    },
-    {
       "filePath": "apps/web/src/rest/axios/utils/get-error-message.ts",
       "functions": [
         {
@@ -74689,7 +74697,7 @@
         {
           "name": "request",
           "startLine": 8,
-          "endLine": 35,
+          "endLine": 36,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -74705,7 +74713,7 @@
             },
             {
               "name": "functionLength",
-              "value": 25,
+              "value": 26,
               "threshold": 70,
               "severity": "ok"
             },
@@ -74722,15 +74730,15 @@
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 50.4,
+          "maintainabilityIndex": 50,
           "maintainabilityRating": "warn",
           "healthScore": 62,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 36,
-        "weightedMI": 50.4,
+        "totalLines": 37,
+        "weightedMI": 50,
         "weightedHealthScore": 62,
         "worstSeverity": "warn",
         "smellIds": []
@@ -75909,7 +75917,7 @@
         {
           "name": "useConfirmIceCreamShopOnboardingAction",
           "startLine": 8,
-          "endLine": 34,
+          "endLine": 37,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -75925,7 +75933,7 @@
             },
             {
               "name": "functionLength",
-              "value": 27,
+              "value": 30,
               "threshold": 70,
               "severity": "ok"
             },
@@ -75942,15 +75950,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 53.6,
+          "maintainabilityIndex": 52.6,
           "maintainabilityRating": "warn",
-          "healthScore": 81,
+          "healthScore": 80,
           "smells": []
         },
         {
           "name": "confirmIceCreamShopOnboarding",
           "startLine": 16,
-          "endLine": 31,
+          "endLine": 34,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -75966,7 +75974,7 @@
             },
             {
               "name": "functionLength",
-              "value": 16,
+              "value": 19,
               "threshold": 70,
               "severity": "ok"
             },
@@ -75983,16 +75991,16 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 58.8,
+          "maintainabilityIndex": 57.2,
           "maintainabilityRating": "warn",
-          "healthScore": 78,
+          "healthScore": 77,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 35,
-        "weightedMI": 55.5,
-        "weightedHealthScore": 79.9,
+        "totalLines": 38,
+        "weightedMI": 54.4,
+        "weightedHealthScore": 78.8,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -76444,7 +76452,7 @@
         {
           "name": "useLoginAction",
           "startLine": 7,
-          "endLine": 28,
+          "endLine": 32,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -76460,7 +76468,7 @@
             },
             {
               "name": "functionLength",
-              "value": 22,
+              "value": 26,
               "threshold": 70,
               "severity": "ok"
             },
@@ -76477,15 +76485,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 56.9,
+          "maintainabilityIndex": 55.4,
           "maintainabilityRating": "warn",
-          "healthScore": 81,
+          "healthScore": 80,
           "smells": []
         },
         {
           "name": "login",
           "startLine": 13,
-          "endLine": 25,
+          "endLine": 29,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -76501,7 +76509,7 @@
             },
             {
               "name": "functionLength",
-              "value": 13,
+              "value": 17,
               "threshold": 70,
               "severity": "ok"
             },
@@ -76518,16 +76526,16 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 61,
+          "maintainabilityIndex": 58.5,
           "maintainabilityRating": "warn",
-          "healthScore": 78,
+          "healthScore": 77,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 29,
-        "weightedMI": 58.4,
-        "weightedHealthScore": 79.9,
+        "totalLines": 33,
+        "weightedMI": 56.6,
+        "weightedHealthScore": 78.8,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -76538,7 +76546,7 @@
         {
           "name": "useLogoutAction",
           "startLine": 5,
-          "endLine": 37,
+          "endLine": 41,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -76554,9 +76562,9 @@
             },
             {
               "name": "functionLength",
-              "value": 33,
+              "value": 37,
               "threshold": 70,
-              "severity": "ok"
+              "severity": "warn"
             },
             {
               "name": "nestingDepth",
@@ -76571,15 +76579,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 51.7,
+          "maintainabilityIndex": 50.6,
           "maintainabilityRating": "warn",
-          "healthScore": 73,
+          "healthScore": 72,
           "smells": []
         },
         {
           "name": "logout",
           "startLine": 18,
-          "endLine": 34,
+          "endLine": 38,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -76595,7 +76603,7 @@
             },
             {
               "name": "functionLength",
-              "value": 17,
+              "value": 21,
               "threshold": 70,
               "severity": "ok"
             },
@@ -76612,16 +76620,16 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 56.8,
+          "maintainabilityIndex": 54.8,
           "maintainabilityRating": "warn",
-          "healthScore": 64,
+          "healthScore": 63,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 38,
-        "weightedMI": 57.6,
-        "weightedHealthScore": 73.3,
+        "totalLines": 42,
+        "weightedMI": 55.9,
+        "weightedHealthScore": 71.8,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -76726,7 +76734,7 @@
         {
           "name": "useRequestPasswordRecoveryAction",
           "startLine": 6,
-          "endLine": 28,
+          "endLine": 31,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -76742,7 +76750,7 @@
             },
             {
               "name": "functionLength",
-              "value": 23,
+              "value": 26,
               "threshold": 70,
               "severity": "ok"
             },
@@ -76759,7 +76767,7 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 55.7,
+          "maintainabilityIndex": 54.5,
           "maintainabilityRating": "warn",
           "healthScore": 82,
           "smells": []
@@ -76767,7 +76775,7 @@
         {
           "name": "requestRecovery",
           "startLine": 12,
-          "endLine": 25,
+          "endLine": 28,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -76783,7 +76791,7 @@
             },
             {
               "name": "functionLength",
-              "value": 14,
+              "value": 17,
               "threshold": 70,
               "severity": "ok"
             },
@@ -76800,16 +76808,16 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 60,
+          "maintainabilityIndex": 58.2,
           "maintainabilityRating": "warn",
-          "healthScore": 79,
+          "healthScore": 78,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 29,
-        "weightedMI": 57.3,
-        "weightedHealthScore": 80.9,
+        "totalLines": 32,
+        "weightedMI": 56,
+        "weightedHealthScore": 80.4,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -76820,7 +76828,7 @@
         {
           "name": "useResendIceCreamShopConfirmationAction",
           "startLine": 10,
-          "endLine": 38,
+          "endLine": 41,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -76836,7 +76844,7 @@
             },
             {
               "name": "functionLength",
-              "value": 29,
+              "value": 32,
               "threshold": 70,
               "severity": "ok"
             },
@@ -76853,15 +76861,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 52.9,
+          "maintainabilityIndex": 52,
           "maintainabilityRating": "warn",
-          "healthScore": 80,
+          "healthScore": 79,
           "smells": []
         },
         {
           "name": "resendIceCreamShopConfirmation",
           "startLine": 18,
-          "endLine": 35,
+          "endLine": 38,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -76877,7 +76885,7 @@
             },
             {
               "name": "functionLength",
-              "value": 16,
+              "value": 19,
               "threshold": 70,
               "severity": "ok"
             },
@@ -76894,16 +76902,16 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 58.6,
+          "maintainabilityIndex": 57,
           "maintainabilityRating": "warn",
-          "healthScore": 78,
+          "healthScore": 77,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 39,
-        "weightedMI": 55.1,
-        "weightedHealthScore": 79.2,
+        "totalLines": 42,
+        "weightedMI": 54,
+        "weightedHealthScore": 78.2,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -89202,59 +89210,6 @@
       }
     },
     {
-      "filePath": "apps/web/src/ui/identity/widgets/pages/users-page/user-actions-menu/index.tsx",
-      "functions": [
-        {
-          "name": "UserActionsMenu",
-          "startLine": 19,
-          "endLine": 64,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 4,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 41,
-              "threshold": 70,
-              "severity": "warn"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 64,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 51.6,
-          "maintainabilityRating": "warn",
-          "healthScore": 74,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 65,
-        "weightedMI": 60.5,
-        "weightedHealthScore": 77.9,
-        "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
       "filePath": "apps/web/src/ui/identity/widgets/pages/onboarding-page/onboarding-registration-form/index.tsx",
       "functions": [
         {
@@ -89346,6 +89301,120 @@
         "weightedHealthScore": 61.4,
         "worstSeverity": "error",
         "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/identity/widgets/pages/users-page/user-actions-menu/index.tsx",
+      "functions": [
+        {
+          "name": "UserActionsMenu",
+          "startLine": 19,
+          "endLine": 64,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 4,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 41,
+              "threshold": 70,
+              "severity": "warn"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 64,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 51.6,
+          "maintainabilityRating": "warn",
+          "healthScore": 74,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 65,
+        "weightedMI": 60.5,
+        "weightedHealthScore": 77.9,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/identity/widgets/pages/users-page/user-card/index.tsx",
+      "functions": [
+        {
+          "name": "UserCard",
+          "startLine": 20,
+          "endLine": 90,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 4,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 71,
+              "threshold": 70,
+              "severity": "error"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 507.73,
+              "threshold": 800,
+              "severity": "warn"
+            }
+          ],
+          "maintainabilityIndex": 40.1,
+          "maintainabilityRating": "warn",
+          "healthScore": 63,
+          "smells": [
+            {
+              "id": "bloated",
+              "label": "Bloated",
+              "reason": "Large function (71 lines) with high vocabulary (Halstead volume 507.73) but low branching — consider extracting helpers."
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalLines": 91,
+        "weightedMI": 41.5,
+        "weightedHealthScore": 63.9,
+        "worstSeverity": "error",
+        "smellIds": [
+          "bloated"
+        ]
       }
     },
     {
@@ -89493,67 +89562,6 @@
         "weightedHealthScore": 81.3,
         "worstSeverity": "warn",
         "smellIds": []
-      }
-    },
-    {
-      "filePath": "apps/web/src/ui/identity/widgets/pages/users-page/user-card/index.tsx",
-      "functions": [
-        {
-          "name": "UserCard",
-          "startLine": 20,
-          "endLine": 90,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 4,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 71,
-              "threshold": 70,
-              "severity": "error"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 507.73,
-              "threshold": 800,
-              "severity": "warn"
-            }
-          ],
-          "maintainabilityIndex": 40.1,
-          "maintainabilityRating": "warn",
-          "healthScore": 63,
-          "smells": [
-            {
-              "id": "bloated",
-              "label": "Bloated",
-              "reason": "Large function (71 lines) with high vocabulary (Halstead volume 507.73) but low branching — consider extracting helpers."
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "totalLines": 91,
-        "weightedMI": 41.5,
-        "weightedHealthScore": 63.9,
-        "worstSeverity": "error",
-        "smellIds": [
-          "bloated"
-        ]
       }
     },
     {
@@ -100387,7 +100395,7 @@
         {
           "name": "execute",
           "startLine": 25,
-          "endLine": 92,
+          "endLine": 94,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -100403,7 +100411,7 @@
             },
             {
               "name": "functionLength",
-              "value": 68,
+              "value": 70,
               "threshold": 70,
               "severity": "warn"
             },
@@ -100420,7 +100428,7 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 43.2,
+          "maintainabilityIndex": 42.9,
           "maintainabilityRating": "warn",
           "healthScore": 58,
           "smells": []
@@ -100428,7 +100436,7 @@
         {
           "name": "<anonymous>",
           "startLine": 34,
-          "endLine": 88,
+          "endLine": 90,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -100444,7 +100452,7 @@
             },
             {
               "name": "functionLength",
-              "value": 51,
+              "value": 53,
               "threshold": 70,
               "severity": "warn"
             },
@@ -100461,21 +100469,21 @@
               "severity": "error"
             }
           ],
-          "maintainabilityIndex": 41.6,
+          "maintainabilityIndex": 41.3,
           "maintainabilityRating": "warn",
           "healthScore": 60,
           "smells": [
             {
               "id": "bloated",
               "label": "Bloated",
-              "reason": "Large function (51 lines) with high vocabulary (Halstead volume 871.25) but low branching — consider extracting helpers."
+              "reason": "Large function (53 lines) with high vocabulary (Halstead volume 871.25) but low branching — consider extracting helpers."
             }
           ]
         },
         {
           "name": "toSettings",
-          "startLine": 94,
-          "endLine": 114,
+          "startLine": 96,
+          "endLine": 116,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -100515,9 +100523,9 @@
         }
       ],
       "summary": {
-        "totalLines": 116,
-        "weightedMI": 46.8,
-        "weightedHealthScore": 63.9,
+        "totalLines": 118,
+        "weightedMI": 46.5,
+        "weightedHealthScore": 63.8,
         "worstSeverity": "error",
         "smellIds": [
           "bloated"
@@ -100530,7 +100538,7 @@
         {
           "name": "execute",
           "startLine": 22,
-          "endLine": 116,
+          "endLine": 118,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -100546,7 +100554,7 @@
             },
             {
               "name": "functionLength",
-              "value": 95,
+              "value": 97,
               "threshold": 70,
               "severity": "error"
             },
@@ -100563,7 +100571,7 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 41,
+          "maintainabilityIndex": 40.8,
           "maintainabilityRating": "warn",
           "healthScore": 56,
           "smells": []
@@ -100571,7 +100579,7 @@
         {
           "name": "<anonymous>",
           "startLine": 28,
-          "endLine": 112,
+          "endLine": 114,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -100587,7 +100595,7 @@
             },
             {
               "name": "functionLength",
-              "value": 80,
+              "value": 82,
               "threshold": 70,
               "severity": "error"
             },
@@ -100604,21 +100612,21 @@
               "severity": "error"
             }
           ],
-          "maintainabilityIndex": 35.6,
+          "maintainabilityIndex": 35.3,
           "maintainabilityRating": "warn",
           "healthScore": 47,
           "smells": [
             {
               "id": "bloated",
               "label": "Bloated",
-              "reason": "Large function (80 lines) with high vocabulary (Halstead volume 1382.21) but low branching — consider extracting helpers."
+              "reason": "Large function (82 lines) with high vocabulary (Halstead volume 1382.21) but low branching — consider extracting helpers."
             }
           ]
         }
       ],
       "summary": {
-        "totalLines": 129,
-        "weightedMI": 41.8,
+        "totalLines": 131,
+        "weightedMI": 41.5,
         "weightedHealthScore": 54.8,
         "worstSeverity": "error",
         "smellIds": [
@@ -101476,7 +101484,7 @@
         {
           "name": "expireInvitation",
           "startLine": 210,
-          "endLine": 239,
+          "endLine": 241,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -101492,7 +101500,7 @@
             },
             {
               "name": "functionLength",
-              "value": 25,
+              "value": 27,
               "threshold": 70,
               "severity": "ok"
             },
@@ -101509,15 +101517,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 51.2,
+          "maintainabilityIndex": 50.5,
           "maintainabilityRating": "warn",
-          "healthScore": 68,
+          "healthScore": 67,
           "smells": []
         },
         {
           "name": "finalizeExpiredInvitation",
-          "startLine": 241,
-          "endLine": 265,
+          "startLine": 243,
+          "endLine": 267,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -101557,8 +101565,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 247,
-          "endLine": 263,
+          "startLine": 249,
+          "endLine": 265,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -101598,8 +101606,8 @@
         },
         {
           "name": "removeSupersededIdentity",
-          "startLine": 306,
-          "endLine": 329,
+          "startLine": 308,
+          "endLine": 331,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -101639,8 +101647,8 @@
         },
         {
           "name": "removeExpiredClaim",
-          "startLine": 331,
-          "endLine": 346,
+          "startLine": 333,
+          "endLine": 348,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -101680,9 +101688,9 @@
         }
       ],
       "summary": {
-        "totalLines": 406,
-        "weightedMI": 66.6,
-        "weightedHealthScore": 84.2,
+        "totalLines": 408,
+        "weightedMI": 66.5,
+        "weightedHealthScore": 84.1,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -101881,7 +101889,7 @@
         {
           "name": "execute",
           "startLine": 14,
-          "endLine": 43,
+          "endLine": 44,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -101897,7 +101905,7 @@
             },
             {
               "name": "functionLength",
-              "value": 30,
+              "value": 31,
               "threshold": 70,
               "severity": "ok"
             },
@@ -101914,15 +101922,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 52,
+          "maintainabilityIndex": 51.7,
           "maintainabilityRating": "warn",
-          "healthScore": 69,
+          "healthScore": 68,
           "smells": []
         },
         {
           "name": "<anonymous>",
-          "startLine": 19,
-          "endLine": 41,
+          "startLine": 20,
+          "endLine": 42,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -101962,9 +101970,9 @@
         }
       ],
       "summary": {
-        "totalLines": 45,
-        "weightedMI": 54.4,
-        "weightedHealthScore": 71.7,
+        "totalLines": 46,
+        "weightedMI": 54.2,
+        "weightedHealthScore": 71.1,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -105523,9 +105531,9 @@
         }
       ],
       "summary": {
-        "totalLines": 62,
-        "weightedMI": 63.1,
-        "weightedHealthScore": 77.5,
+        "totalLines": 64,
+        "weightedMI": 62.7,
+        "weightedHealthScore": 77.1,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -114680,7 +114688,7 @@
         {
           "name": "<anonymous>",
           "startLine": 26,
-          "endLine": 74,
+          "endLine": 76,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -114696,7 +114704,7 @@
             },
             {
               "name": "functionLength",
-              "value": 49,
+              "value": 51,
               "threshold": 70,
               "severity": "warn"
             },
@@ -114713,27 +114721,27 @@
               "severity": "error"
             }
           ],
-          "maintainabilityIndex": 41,
+          "maintainabilityIndex": 40.6,
           "maintainabilityRating": "warn",
           "healthScore": 24,
           "smells": [
             {
               "id": "god-function",
               "label": "God Function",
-              "reason": "High cyclomatic complexity (13), long body (49 lines), and deep nesting (3) — likely doing too many things."
+              "reason": "High cyclomatic complexity (13), long body (51 lines), and deep nesting (3) — likely doing too many things."
             },
             {
               "id": "incomprehensible",
               "label": "Incomprehensible",
-              "reason": "High cognitive complexity (19) and Halstead volume (808.85) with low MI (41) — very hard to understand."
+              "reason": "High cognitive complexity (19) and Halstead volume (808.85) with low MI (40.6) — very hard to understand."
             }
           ]
         }
       ],
       "summary": {
-        "totalLines": 80,
-        "weightedMI": 44,
-        "weightedHealthScore": 29.3,
+        "totalLines": 82,
+        "weightedMI": 43.6,
+        "weightedHealthScore": 29.1,
         "worstSeverity": "error",
         "smellIds": [
           "god-function",

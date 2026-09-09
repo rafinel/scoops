@@ -85,7 +85,7 @@ describe('Change Own User Name Controller [PATCH /auth/session/name]', () => {
     expect(response.status).toBe(401)
     expect(response.body).toMatchObject({
       title: 'Erro de Autorização',
-      message: 'The request origin is not trusted',
+      message: 'A origem da solicitação não é confiável.',
     })
   })
 })

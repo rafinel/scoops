@@ -83,6 +83,6 @@ describe('Get Establishment Settings Controller [GET /establishments/current]', 
       .set('Cookie', betterAuthFixture.cookieFor())
 
     expect(response.status).toBe(403)
-    expect(response.body).toMatchObject({ title: 'Access denied' })
+    expect(response.body).toMatchObject({ title: 'Acesso negado' })
   })
 })
