@@ -42,7 +42,7 @@ const SEED_PASSWORD = '12345678'
 const SEED_USERS = {
   manager: {
     id: '3d2396d2-b747-45cb-bb4a-89b25ed6b457',
-    email: 'manager.seed@scoops.com',
+    email: 'scoops.app.team@gmail.com',
     name: 'Scoops Manager',
     profile: UserProfile.Manager,
   },
