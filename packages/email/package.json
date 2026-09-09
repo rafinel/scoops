@@ -7,7 +7,8 @@
     "dev": "email dev --dir templates --port 3000",
     "format": "biome format templates --write",
     "check:code": "biome check templates",
-    "check:types": "tsc --noEmit"
+    "check:types": "tsc --noEmit",
+    "check:complexity": "node ../../scripts/check-complexity.mjs --scope packages/email"
   },
   "exports": {
     "./templates": "./templates/index.ts"

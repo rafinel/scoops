@@ -185,6 +185,16 @@ Run the local quality gate:
 pnpm check:complexity
 ```
 
+Run the same gate for one workspace:
+
+```bash
+pnpm --filter @scoops/core check:complexity
+pnpm --filter @scoops/validation check:complexity
+pnpm --filter server check:complexity
+pnpm --filter web check:complexity
+pnpm --filter @scoops/email check:complexity
+```
+
 The committed `.code-multivitals-baseline.json` records existing violations so
 legacy complexity does not block unrelated work. New violations and worsened
 existing violation severities fail the check. The baseline stores
