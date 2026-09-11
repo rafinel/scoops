@@ -24,6 +24,7 @@ export default {
       'apps/web/src/server/**/*.ts',
       'apps/web/src/ui/**/widgets/**/*.ts',
       'apps/web/src/ui/**/widgets/**/*.tsx',
+      'apps/web/src/ui/communication/contexts/notification-shell-context/use-notification-shell-provider.ts',
     ],
     indirect: [
       'apps/server/src/shared/messaging/inngest/inngest-broker.ts',
@@ -65,12 +66,14 @@ export default {
   boundaryTestPatterns: [
     'apps/web/tests/routes/**/*.test.ts',
     'apps/web/tests/routes/**/*.test.tsx',
+    'apps/web/tests/communication/notification-toast.test.tsx',
     'apps/web/tests/health/*.test.ts',
     'apps/server/src/**/messaging/**/jobs/**/*.test.ts',
     'apps/server/src/**/templates/**/*.test.ts',
     'apps/server/src/**/templates/**/*.test.tsx',
     'apps/web/src/ui/**/widgets/**/*.test.ts',
     'apps/web/src/ui/**/widgets/**/*.test.tsx',
+    'apps/web/src/ui/communication/contexts/notification-shell-context/tests/use-notification-shell-provider.test.ts',
     'apps/web/src/middlewares/tests/*.test.ts',
     'apps/web/src/server/**/tests/*.test.ts',
     'apps/web/src/rest/axios/**/tests/*.test.ts',
@@ -94,6 +97,11 @@ export default {
     },
     {
       pattern: 'apps/web/src/ui/**/widgets/**/*.test.tsx',
+      requiredDirectory: 'tests',
+    },
+    {
+      pattern:
+        'apps/web/src/ui/communication/contexts/notification-shell-context/tests/use-notification-shell-provider.test.ts',
       requiredDirectory: 'tests',
     },
   ],
