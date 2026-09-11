@@ -1,6 +1,6 @@
 ---
 title: Realtime in-product notification toast — implementation plan
-status: ready
+status: completed
 spec: ./spec.md
 spec_revision: 7
 evaluation: ./evaluation.md
@@ -10,10 +10,10 @@ updated_at: 2026-09-11
 
 # Execution status
 
-- **Spec:** [`spec.md`](./spec.md), revision `7`, `ready`.
+- **Spec:** [`spec.md`](./spec.md), revision `7`, `completed`.
 - **Rationale:** Plan-backed execution is required because this delivery crosses Core, Validation, server persistence/REST, Web provision/UI, a generated PostgreSQL migration, cross-tab concurrency, and complex real-runtime and visual validation.
 - **Current phase:** `F7` — Final delivery closure after integrated quality-gate correction.
-- **Next action:** Run the final PR CI quality gate on the republished head, then mark the Spec, Plan and Evaluation complete and close the SDD artifacts.
+- **Next action:** None; final PR CI passed on the delivery head and the SDD artifacts are closed.
 - **Active blockers:** None known; external Vercel staging failures are documented as deployment-environment issues outside the repository CI gate.
 - **Active Builders:** None. The direct `AppLayout` composition and all scoped Core/Server/Web quality corrections are integrated and locally verified.
 - **Shared coordination:** The Orchestrator owns `evaluation.md`, generated `0024_notification_realtime.sql` and `_journal.json`, package/lockfile or root configuration changes, transient Playwright evidence, integrated sensors, and final evidence/review. `Builder Server` must hand off migration inputs and must not edit the generated migration artifacts in parallel with the Orchestrator.
@@ -28,7 +28,7 @@ updated_at: 2026-09-11
 | 3 | `Orchestrator` | F4 | Generated transactional notification trigger | F3 | F5 | `completed` | The next custom migration and journal entry exist, contain only the approved trigger/function work, and pass generated-artifact review. |
 | 3 | `Builder Web` | F5 | Browser realtime shell and toast experience | F2 | F4 | `completed` | Provision, shell/listener, toast, shared presentation, dropdown integration, layout composition, widget tests and fresh mocked-browser evidence satisfy the UI Contract. |
 | 4 | `Builder Server` | F6 | Authenticated SSE route and composition | F2, F3, F4 | F5 | `completed` | SSE framing, auth/isolation/capacity behavior, module wiring, controller integration coverage and route-complete REST examples are ready for integrated validation. |
-| 5 | `Orchestrator` | F7 | Integrated validation and handoff | F5, F6 | — | `ready` | Path conformance, package/build/architecture/test-integrity/complexity gates, real focused SSE evidence, visual comparisons, one Implementation Reviewer and aggregate coverage are complete; final PR CI quality-gate confirmation remains. |
+| 5 | `Orchestrator` | F7 | Integrated validation and handoff | F5, F6 | — | `completed` | Path conformance, package/build/architecture/test-integrity/complexity gates, real focused SSE evidence, visual comparisons, one Implementation Reviewer, aggregate coverage and final PR CI quality-gate confirmation are complete. |
 
 ### F1 — Core realtime contracts and stream policy
 
@@ -156,7 +156,7 @@ updated_at: 2026-09-11
 
 #### F7-T1 — Run complete conformance, runtime, visual and independent review gates
 
-- **Status/owner:** `ready` — Orchestrator; local correction and validation are complete, final PR CI quality-gate confirmation remains
+- **Status/owner:** `completed` — Orchestrator; local correction, validation and final PR CI quality-gate confirmation are complete
 - **Depends/parallel:** Depends on all Builder tasks and F4 generated-artifact review; no parallel implementation work remains. Corrections resume the responsible Builder and invalidate affected evidence.
 - **Paths:** `documentation/features/communication/notification-toast/evaluation.md` (created by `implement-spec` at kickoff); ignored `apps/web/test-results/communication/` Playwright artifacts; integrated candidate paths from F1–F6 are reviewed but remain owned by their assigned Builders.
 - **Contract:** All Spec `FR-01`–`FR-08`, `AC-01`–`AC-12`, `MV-01`–`MV-03`, Design Contract and Validation Contract.

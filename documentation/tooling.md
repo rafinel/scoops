@@ -271,7 +271,7 @@ pnpm --filter web test
 ### Web browser tests
 
 Playwright runs browser integration tests from `apps/web/tests`. Route suites
-under `apps/web/tests/routes` use mocked transport and the shared fixture factory;
+under `apps/web/tests` use mocked transport and the shared fixture factory;
 the repository does not permit committed suites under `apps/web/tests/integration`;
 real-service scenarios are manual Playwright CLI evidence and require their
 documented Server/PostgreSQL prerequisites. The committed route suite starts an isolated
@@ -291,7 +291,7 @@ pnpm --filter web test:integration:ui
 The checked-in Web CI workflow runs only the mocked route suite:
 
 ```bash
-pnpm --filter web exec playwright test tests/routes --workers=1
+pnpm --filter web exec playwright test tests --workers=1
 ```
 
 Run a real-service scenario explicitly only after starting the required Server,
