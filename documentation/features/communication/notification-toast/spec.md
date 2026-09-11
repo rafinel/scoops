@@ -1,6 +1,6 @@
 ---
 title: Realtime in-product notification toast
-status: in_progress
+status: ready
 revision: 7
 source:
   type: issue

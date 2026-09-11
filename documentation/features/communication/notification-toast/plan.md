@@ -1,6 +1,6 @@
 ---
 title: Realtime in-product notification toast — implementation plan
-status: completed
+status: ready
 spec: ./spec.md
 spec_revision: 7
 evaluation: ./evaluation.md
@@ -10,12 +10,12 @@ updated_at: 2026-09-11
 
 # Execution status
 
-- **Spec:** [`spec.md`](./spec.md), revision `7`, `in_progress`.
+- **Spec:** [`spec.md`](./spec.md), revision `7`, `ready`.
 - **Rationale:** Plan-backed execution is required because this delivery crosses Core, Validation, server persistence/REST, Web provision/UI, a generated PostgreSQL migration, cross-tab concurrency, and complex real-runtime and visual validation.
-- **Current phase:** `F7` — Integrated validation and handoff complete for revision 7.
-- **Next action:** Route to `conclude-spec` when delivery publication is requested.
-- **Active blockers:** None.
-- **Active Builders:** None. Builder Web `01a090f2-a632-76d0-9825-c9f7d2735507` completed the direct `AppLayout` composition and wrapper removal; the orchestrator owns final delivery publication.
+- **Current phase:** `F7` — Final delivery closure after integrated quality-gate correction.
+- **Next action:** Run the final PR CI quality gate on the republished head, then mark the Spec, Plan and Evaluation complete and close the SDD artifacts.
+- **Active blockers:** None known; external Vercel staging failures are documented as deployment-environment issues outside the repository CI gate.
+- **Active Builders:** None. The direct `AppLayout` composition and all scoped Core/Server/Web quality corrections are integrated and locally verified.
 - **Shared coordination:** The Orchestrator owns `evaluation.md`, generated `0024_notification_realtime.sql` and `_journal.json`, package/lockfile or root configuration changes, transient Playwright evidence, integrated sensors, and final evidence/review. `Builder Server` must hand off migration inputs and must not edit the generated migration artifacts in parallel with the Orchestrator.
 
 # Execution ledger
@@ -28,7 +28,7 @@ updated_at: 2026-09-11
 | 3 | `Orchestrator` | F4 | Generated transactional notification trigger | F3 | F5 | `completed` | The next custom migration and journal entry exist, contain only the approved trigger/function work, and pass generated-artifact review. |
 | 3 | `Builder Web` | F5 | Browser realtime shell and toast experience | F2 | F4 | `completed` | Provision, shell/listener, toast, shared presentation, dropdown integration, layout composition, widget tests and fresh mocked-browser evidence satisfy the UI Contract. |
 | 4 | `Builder Server` | F6 | Authenticated SSE route and composition | F2, F3, F4 | F5 | `completed` | SSE framing, auth/isolation/capacity behavior, module wiring, controller integration coverage and route-complete REST examples are ready for integrated validation. |
-| 5 | `Orchestrator` | F7 | Integrated validation and handoff | F5, F6 | — | `completed` | Path conformance, package/build/architecture/test-integrity gates, real focused SSE evidence, visual comparisons, one Implementation Reviewer and aggregate coverage are complete with no active feature finding. |
+| 5 | `Orchestrator` | F7 | Integrated validation and handoff | F5, F6 | — | `ready` | Path conformance, package/build/architecture/test-integrity/complexity gates, real focused SSE evidence, visual comparisons, one Implementation Reviewer and aggregate coverage are complete; final PR CI quality-gate confirmation remains. |
 
 ### F1 — Core realtime contracts and stream policy
 
@@ -156,13 +156,13 @@ updated_at: 2026-09-11
 
 #### F7-T1 — Run complete conformance, runtime, visual and independent review gates
 
-- **Status/owner:** `completed` — Orchestrator; implementation corrections, single required review and aggregate coverage gate are complete
+- **Status/owner:** `ready` — Orchestrator; local correction and validation are complete, final PR CI quality-gate confirmation remains
 - **Depends/parallel:** Depends on all Builder tasks and F4 generated-artifact review; no parallel implementation work remains. Corrections resume the responsible Builder and invalidate affected evidence.
 - **Paths:** `documentation/features/communication/notification-toast/evaluation.md` (created by `implement-spec` at kickoff); ignored `apps/web/test-results/communication/` Playwright artifacts; integrated candidate paths from F1–F6 are reviewed but remain owned by their assigned Builders.
 - **Contract:** All Spec `FR-01`–`FR-08`, `AC-01`–`AC-12`, `MV-01`–`MV-03`, Design Contract and Validation Contract.
 - **Outcome:** The integrated candidate has current structural conformance, package/architecture/type/code/coverage/build evidence, real authenticated commit/rollback/isolation/capacity proof, mocked route proof, exact REST parity, independent final visual comparisons and one completed Implementation Reviewer with every verified finding resolved.
 - **Rules:** [`documentation/sdd.md`](../../../sdd.md) (package gate, evidence freshness, correction routing and one Reviewer); [`documentation/tooling.md`](../../../tooling.md) (workspace, Docker, migration, coverage and Playwright commands); [`widget-testing-rules.md`](../../../rules/widget-testing-rules.md) (route evidence and complete widget coverage); [`controllers-testing-rules.md`](../../../rules/controllers-testing-rules.md) (real server-backed evidence); [`rest-layer-rules.md`](../../../rules/rest-layer-rules.md) (final route parity); [`database-layer-rules.md`](../../../rules/database-layer-rules.md) (generated artifact review). No dedicated `Antipatterns to Avoid` subsection applies beyond the UI rule already scheduled in F5.
-- **Exit:** After integration run `pnpm check:spec-implementation -- documentation/features/communication/notification-toast/spec.md` before integrated sensors and record the result. Then run every applicable Spec command, inspect Docker health and required seeded accounts, execute real Playwright CLI `MV-01`–`MV-03` with fresh evidence, inspect URL/DOM/network/console/focus/persistence, compare every required visual state against the manifest at its exact viewport, and verify the latest path sensor is rerun after every contracted-path correction. Schedule exactly one read-only [`Implementation Reviewer`](../../../agents/implementation-reviewer-agent.md) across Core, Validation, Server persistence/REST/composition, Web provision/UI/layout, migration, REST parity and all final visual comparisons; verify and resolve findings, then route directly to `conclude-spec`.
+- **Exit:** After integration run `pnpm check:spec-implementation -- documentation/features/communication/notification-toast/spec.md` before integrated sensors and record the result. Then run every applicable Spec command, inspect Docker health and required seeded accounts, execute real Playwright CLI `MV-01`–`MV-03` with fresh evidence, inspect URL/DOM/network/console/focus/persistence, compare every required visual state against the manifest at its exact viewport, and verify the latest path sensor is rerun after every contracted-path correction. Schedule exactly one read-only [`Implementation Reviewer`](../../../agents/implementation-reviewer-agent.md) across Core, Validation, Server persistence/REST/composition, Web provision/UI/layout, migration, REST parity and all final visual comparisons; verify and resolve findings, pass the final PR CI quality gate, then close the Spec, Plan and Evaluation.
 
 # Validation and handoff
 
