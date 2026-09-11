@@ -50,7 +50,6 @@ type MailpitMessage = MailpitSummary & {
 type MailpitListResponse = {
   readonly messages: readonly MailpitSummary[]
 }
-
 type IdProvider = {
   generate(): string
 }
