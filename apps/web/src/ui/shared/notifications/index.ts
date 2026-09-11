@@ -34,16 +34,27 @@ export function showNotificationToast(
   if (typeof window === 'undefined') return null
 
   return toast.custom(
-    (toastId) =>
-      createElement(NotificationToast, {
-        notification,
-        onDismiss: () => toast.dismiss(toastId),
-        onOpen,
-      }),
-    {
-      duration: Number.POSITIVE_INFINITY,
-      id: `notification-${notification.id}`,
-      onDismiss,
-    },
+    createNotificationToast(notification, onOpen),
+    createNotificationToastOptions(notification, onDismiss),
   )
+}
+
+function createNotificationToast(notification: Notification, onOpen: () => void) {
+  return (toastId: string | number) =>
+    createElement(NotificationToast, {
+      notification,
+      onDismiss: () => toast.dismiss(toastId),
+      onOpen,
+    })
+}
+
+function createNotificationToastOptions(
+  notification: Notification,
+  onDismiss: (() => void) | undefined,
+) {
+  return {
+    duration: Number.POSITIVE_INFINITY,
+    id: `notification-${notification.id}`,
+    onDismiss,
+  }
 }

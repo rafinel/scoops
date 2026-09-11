@@ -25,6 +25,10 @@ function handleNotification(event: Event) {
   const notification = parseNotification(event)
   if (notification === null) return
 
+  notifyListeners(notification)
+}
+
+function notifyListeners(notification: Notification) {
   for (const listener of listeners) {
     void Promise.resolve()
       .then(() => listener(notification))
@@ -44,32 +48,42 @@ function handleError() {
 }
 
 function connect() {
-  if (listeners.size === 0 || client !== null || retryTimer !== null) return
+  if (!canConnect()) return
 
   try {
-    const nextClient = createNotificationRealtimeClient()
-    client = nextClient
-    nextClient.addEventListener(NOTIFICATION_CREATED_EVENT, handleNotification)
-    nextClient.onopen = handleOpen
-    nextClient.onerror = handleError
+    client = createClient()
   } catch {
     scheduleRetry()
   }
 }
 
+function canConnect() {
+  return listeners.size !== 0 && client === null && retryTimer === null
+}
+
+function createClient(): NotificationEventSource {
+  const nextClient = createNotificationRealtimeClient()
+  nextClient.addEventListener(NOTIFICATION_CREATED_EVENT, handleNotification)
+  nextClient.onopen = handleOpen
+  nextClient.onerror = handleError
+  return nextClient
+}
+
 function scheduleRetry() {
   if (listeners.size === 0 || retryTimer !== null) return
 
+  retryTimer = window.setTimeout(retry, getRetryDelay())
+}
+
+function getRetryDelay() {
   const baseDelay = RETRY_DELAYS_MS[Math.min(retryAttempt, RETRY_DELAYS_MS.length - 1)]
   retryAttempt += 1
-  const jitter = 0.8 + Math.random() * 0.4
-  retryTimer = window.setTimeout(
-    () => {
-      retryTimer = null
-      connect()
-    },
-    Math.round(baseDelay * jitter),
-  )
+  return Math.round(baseDelay * (0.8 + Math.random() * 0.4))
+}
+
+function retry() {
+  retryTimer = null
+  connect()
 }
 
 function clearRetry() {
@@ -84,6 +98,10 @@ function closeClient() {
   client = null
   if (currentClient === null) return
 
+  detachClient(currentClient)
+}
+
+function detachClient(currentClient: NotificationEventSource) {
   currentClient.removeEventListener(NOTIFICATION_CREATED_EVENT, handleNotification)
   currentClient.onopen = null
   currentClient.onerror = null
@@ -91,17 +109,24 @@ function closeClient() {
 }
 
 function parseNotification(event: Event): Notification | null {
+  const eventData = getEventData(event)
+  if (eventData === null) return null
+
   try {
-    const eventData = (event as MessageEvent).data
-    if (typeof eventData !== 'string') return null
-
-    const parsed = notificationRealtimeEventSchema.safeParse(JSON.parse(eventData))
-    if (!parsed.success) return null
-
-    return mapNotification(parsed.data.notification)
+    return parseNotificationData(eventData)
   } catch {
     return null
   }
+}
+
+function getEventData(event: Event): string | null {
+  const eventData = (event as MessageEvent).data
+  return typeof eventData === 'string' ? eventData : null
+}
+
+function parseNotificationData(eventData: string): Notification {
+  const parsed = notificationRealtimeEventSchema.parse(JSON.parse(eventData))
+  return mapNotification(parsed.notification)
 }
 
 function mapNotification(
