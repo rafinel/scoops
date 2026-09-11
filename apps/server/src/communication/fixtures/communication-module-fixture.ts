@@ -23,6 +23,7 @@ import { CommunicationSeeder } from '@/communication/database/communication-seed
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
 import { IdentityModule } from '@/identity/identity.module'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { BetterAuthSessionIssuer } from '@/identity/provision/auth'
 import { NotificationAudienceCompositionModule } from '@/composition/communication-identity'
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
@@ -347,9 +348,6 @@ export class CommunicationModuleFixture {
   }
 
   static async prepare() {
-    const { BetterAuthFixture } = await import(
-      '@/identity/fixtures/better-auth-fixture'
-    )
     const auth = new BetterAuthFixture()
     const fixture = await CommunicationModuleFixture.register(auth)
     return { auth, fixture }
