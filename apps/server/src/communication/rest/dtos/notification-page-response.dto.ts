@@ -14,10 +14,14 @@ export class NotificationPageResponseDto {
   static from(page: NotificationPage): NotificationPageResponseDto {
     return Object.assign(new NotificationPageResponseDto(), {
       items: page.items.map(NotificationResponseDto.from),
-      ...(page.nextCursor === undefined
-        ? {}
-        : { nextCursor: NotificationCursorResponseDto.from(page.nextCursor) }),
       unreadCount: page.unreadCount,
+      ...notificationPageCursor(page.nextCursor),
     })
   }
+}
+
+function notificationPageCursor(cursor: NotificationPage['nextCursor']) {
+  return cursor
+    ? { nextCursor: NotificationCursorResponseDto.from(cursor) }
+    : {}
 }

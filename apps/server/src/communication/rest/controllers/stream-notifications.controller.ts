@@ -23,48 +23,44 @@ type AuthenticatedCommunicationRequest = Request & {
   revalidateAuthSession: SessionRevalidation
 }
 
-type NotificationStreamLifecycle = {
+class NotificationStreamLifecycle {
   readonly stream: NotificationStream
-  readonly abortController: AbortController
-  readonly isClosed: boolean
-  readonly cleanup: (() => Promise<void>) | undefined
-  close(): Promise<void>
-  setCleanup(cleanup: () => Promise<void>): void
-  setHeartbeat(heartbeat: ReturnType<typeof setInterval>): void
-}
+  readonly abortController = new AbortController()
+  private closed = false
+  private cleanupCallback: (() => Promise<void>) | undefined
+  private heartbeat: ReturnType<typeof setInterval> | undefined
 
-function createNotificationStreamLifecycle(
-  response: Response,
-): NotificationStreamLifecycle {
-  const stream = new NotificationStream(response)
-  const abortController = new AbortController()
-  let closed = false
-  let cleanup: (() => Promise<void>) | undefined
-  let heartbeat: ReturnType<typeof setInterval> | undefined
+  constructor(response: Response) {
+    this.stream = new NotificationStream(response)
+  }
 
-  return {
-    stream,
-    abortController,
-    get isClosed() {
-      return closed
-    },
-    get cleanup() {
-      return cleanup
-    },
-    setCleanup(value) {
-      cleanup = value
-    },
-    setHeartbeat(value) {
-      heartbeat = value
-    },
-    close: async () => {
-      if (closed) return
-      closed = true
-      if (heartbeat) clearInterval(heartbeat)
-      abortController.abort()
-      await cleanup?.()
-      stream.close()
-    },
+  get isClosed(): boolean {
+    return this.closed
+  }
+
+  get cleanup(): (() => Promise<void>) | undefined {
+    return this.cleanupCallback
+  }
+
+  setCleanup(cleanup: () => Promise<void>): void {
+    this.cleanupCallback = cleanup
+  }
+
+  setHeartbeat(heartbeat: ReturnType<typeof setInterval>): void {
+    this.heartbeat = heartbeat
+  }
+
+  abort(): void {
+    this.stream.abort()
+  }
+
+  async close(): Promise<void> {
+    if (this.closed) return
+    this.closed = true
+    if (this.heartbeat) clearInterval(this.heartbeat)
+    this.abortController.abort()
+    await this.cleanupCallback?.()
+    this.stream.close()
   }
 }
 
@@ -98,27 +94,39 @@ export class StreamNotificationsController {
     @Req() request: AuthenticatedCommunicationRequest,
     @Res() response: Response,
   ): Promise<void> {
-    const lifecycle = createNotificationStreamLifecycle(response)
+    const lifecycle = new NotificationStreamLifecycle(response)
     const onRequestClose = () => void lifecycle.close()
     request.once('close', onRequestClose)
 
-    try {
-      lifecycle.setCleanup(await this.executeStream(request, lifecycle))
+    return this.openStream(request, lifecycle).catch((error: unknown) =>
+      this.handleStreamError(lifecycle, request, onRequestClose, error),
+    )
+  }
 
-      if (lifecycle.isClosed) {
-        await lifecycle.cleanup?.()
-        lifecycle.stream.abort()
-        return
-      }
+  private async handleStreamError(
+    lifecycle: NotificationStreamLifecycle,
+    request: AuthenticatedCommunicationRequest,
+    onRequestClose: () => void,
+    error: unknown,
+  ): Promise<never> {
+    await this.abortStream(lifecycle)
+    request.off('close', onRequestClose)
+    throw error
+  }
 
-      lifecycle.stream.start()
-      lifecycle.setHeartbeat(this.startHeartbeat(request, lifecycle))
-    } catch (error) {
-      await lifecycle.cleanup?.()
-      lifecycle.stream.abort()
-      request.off('close', onRequestClose)
-      throw error
-    }
+  private async openStream(
+    request: AuthenticatedCommunicationRequest,
+    lifecycle: NotificationStreamLifecycle,
+  ): Promise<void> {
+    lifecycle.setCleanup(await this.executeStream(request, lifecycle))
+    if (lifecycle.isClosed) return this.abortStream(lifecycle)
+    lifecycle.stream.start()
+    lifecycle.setHeartbeat(this.startHeartbeat(request, lifecycle))
+  }
+
+  private async abortStream(lifecycle: NotificationStreamLifecycle): Promise<void> {
+    await lifecycle.cleanup?.()
+    lifecycle.abort()
   }
 
   private executeStream(

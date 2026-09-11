@@ -27,14 +27,16 @@ type NotificationWakeUp = {
 }
 
 function isNotificationWakeUp(value: unknown): value is NotificationWakeUp {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
-
-  const wakeUp = value as Record<string, unknown>
+  if (!isRecord(value)) return false
   return (
-    isUuid(wakeUp.notificationId) &&
-    isUuid(wakeUp.recipientUserId) &&
-    isUuid(wakeUp.establishmentId)
+    isUuid(value.notificationId) &&
+    isUuid(value.recipientUserId) &&
+    isUuid(value.establishmentId)
   )
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function isUuid(value: unknown): value is string {
@@ -91,35 +93,48 @@ export class PostgresNotificationRealtimeSubscriber
   private async handlePayload(payload: string): Promise<void> {
     const wakeUp = this.parseWakeUp(payload)
     if (!wakeUp || this.isShuttingDown) return
+    return this.processWakeUp(wakeUp)
+  }
 
+  private async processWakeUp(wakeUp: NotificationWakeUp): Promise<void> {
     try {
       const notification = await this.notificationsRepository.findByIdForRecipient(wakeUp)
-      if (!notification) return
-
-      await Promise.all(
-        [...this.listeners].map((listener) =>
-          Promise.resolve(listener(notification)).catch((error: unknown) => {
-            this.logInfrastructureError(error)
-          }),
-        ),
-      )
+      if (notification) await this.notifyListeners(notification)
     } catch (error) {
       this.logInfrastructureError(error)
     }
   }
 
+  private notifyListeners(notification: Notification): Promise<void[]> {
+    return Promise.all(
+      [...this.listeners].map((listener) =>
+        this.notifyListener(listener, notification),
+      ),
+    )
+  }
+
+  private async notifyListener(
+    listener: (notification: Notification) => Promise<void> | void,
+    notification: Notification,
+  ): Promise<void> {
+    await Promise.resolve(listener(notification)).catch((error: unknown) => {
+      this.logInfrastructureError(error)
+    })
+  }
+
   private parseWakeUp(payload: string): NotificationWakeUp | null {
     try {
-      const value: unknown = JSON.parse(payload)
-      if (!isNotificationWakeUp(value)) return null
-      return {
-        notificationId: value.notificationId,
-        recipientUserId: value.recipientUserId,
-        establishmentId: value.establishmentId,
-      }
+      return parseNotificationWakeUp(JSON.parse(payload))
     } catch {
       return null
     }
+  }
+
+  private createInfrastructureErrorMessage(error: unknown): string {
+    return JSON.stringify({
+      signal: 'communication_notification_listener_error',
+      errorCode: error instanceof Error ? error.name : 'unknown_error',
+    })
   }
 
   private logReady(): void {
@@ -131,11 +146,10 @@ export class PostgresNotificationRealtimeSubscriber
   }
 
   private logInfrastructureError(error: unknown): void {
-    this.logger.warn(
-      JSON.stringify({
-        signal: 'communication_notification_listener_error',
-        errorCode: error instanceof Error ? error.name : 'unknown_error',
-      }),
-    )
+    this.logger.warn(this.createInfrastructureErrorMessage(error))
   }
+}
+
+function parseNotificationWakeUp(value: unknown): NotificationWakeUp | null {
+  return isNotificationWakeUp(value) ? value : null
 }

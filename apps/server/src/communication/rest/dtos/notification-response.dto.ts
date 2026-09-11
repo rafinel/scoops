@@ -15,17 +15,6 @@ export class NotificationResponseDto {
   @ApiPropertyOptional({ format: 'date-time' }) readAt?: Date
 
   static from(notification: Notification): NotificationResponseDto {
-    return Object.assign(new NotificationResponseDto(), {
-      id: notification.id,
-      sourceEventId: notification.sourceEventId,
-      establishmentId: notification.establishmentId,
-      recipientUserId: notification.recipientUserId,
-      kind: notification.kind,
-      title: notification.title,
-      message: notification.message,
-      occurredAt: notification.occurredAt,
-      createdAt: notification.createdAt,
-      ...(notification.readAt === undefined ? {} : { readAt: notification.readAt }),
-    })
+    return Object.assign(new NotificationResponseDto(), notification)
   }
 }

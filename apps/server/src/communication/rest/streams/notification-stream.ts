@@ -5,6 +5,41 @@ import { NotificationRealtimeEventResponseDto } from '@/communication/rest/dtos/
 
 const NOTIFICATION_EVENT_NAME = 'notification.created'
 
+class ResponseDrainWaiter {
+  private readonly onDrain = () => this.resolve()
+  private readonly onClose = () => this.reject('A conexão SSE foi encerrada.')
+  private readonly onError = () =>
+    this.reject('A conexão SSE encontrou um erro.')
+
+  constructor(
+    private readonly response: Response,
+    private readonly resolvePromise: () => void,
+    private readonly rejectPromise: (reason: Error) => void,
+  ) {}
+
+  attach(): void {
+    this.response.once('drain', this.onDrain)
+    this.response.once('close', this.onClose)
+    this.response.once('error', this.onError)
+  }
+
+  private resolve(): void {
+    this.cleanup()
+    this.resolvePromise()
+  }
+
+  private reject(message: string): void {
+    this.cleanup()
+    this.rejectPromise(new Error(message))
+  }
+
+  private cleanup(): void {
+    this.response.off('drain', this.onDrain)
+    this.response.off('close', this.onClose)
+    this.response.off('error', this.onError)
+  }
+}
+
 export class NotificationStream {
   private readonly startedPromise: Promise<void>
   private resolveStarted!: () => void
@@ -21,12 +56,7 @@ export class NotificationStream {
   start(): void {
     if (this.closed || this.started) return
 
-    this.response.statusCode = 200
-    this.response.setHeader('Content-Type', 'text/event-stream')
-    this.response.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
-    this.response.setHeader('Connection', 'keep-alive')
-    this.response.setHeader('X-Accel-Buffering', 'no')
-    this.response.flushHeaders()
+    this.configureResponse()
     this.started = true
     this.resolveStarted()
     this.response.write('\n')
@@ -57,41 +87,35 @@ export class NotificationStream {
   }
 
   private enqueue(payload: string): Promise<void> {
-    const write = this.writeTail.then(async () => {
-      await this.startedPromise
-      if (this.closed || !this.started || this.response.writableEnded) return
-
-      if (this.response.write(payload)) return
-      await this.waitForDrain()
-    })
+    const write = this.writeTail.then(() => this.writePayload(payload))
 
     this.writeTail = write.catch(() => undefined)
     return write
   }
 
+  private async writePayload(payload: string): Promise<void> {
+    await this.startedPromise
+    if (this.closed || !this.started || this.response.writableEnded) return
+    if (this.response.write(payload)) return
+    await this.waitForDrain()
+  }
+
   private waitForDrain(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const cleanup = () => {
-        this.response.off('drain', onDrain)
-        this.response.off('close', onClose)
-        this.response.off('error', onError)
-      }
-      const onDrain = () => {
-        cleanup()
-        resolve()
-      }
-      const onClose = () => {
-        cleanup()
-        reject(new Error('A conexão SSE foi encerrada.'))
-      }
-      const onError = () => {
-        cleanup()
-        reject(new Error('A conexão SSE encontrou um erro.'))
-      }
-
-      this.response.once('drain', onDrain)
-      this.response.once('close', onClose)
-      this.response.once('error', onError)
+      new ResponseDrainWaiter(this.response, resolve, reject).attach()
     })
   }
+
+  private configureResponse(): void {
+    this.response.statusCode = 200
+    this.response.set(NOTIFICATION_STREAM_HEADERS)
+    this.response.flushHeaders()
+  }
+}
+
+const NOTIFICATION_STREAM_HEADERS = {
+  'Content-Type': 'text/event-stream',
+  'Cache-Control': 'no-cache, no-store, must-revalidate',
+  Connection: 'keep-alive',
+  'X-Accel-Buffering': 'no',
 }

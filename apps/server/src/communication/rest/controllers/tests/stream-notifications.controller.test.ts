@@ -7,13 +7,6 @@ import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
 
 import { CommunicationModuleFixture } from '@/communication/fixtures/communication-module-fixture'
 
-import {
-  managerRequestAuthorization,
-  notificationInput,
-  prepareCommunicationFixture,
-  resetCommunicationFixture,
-} from './communication-controller-test-helpers'
-
 type StreamResponse = {
   readonly body: string
   close: () => void
@@ -82,7 +75,7 @@ async function closeStream(stream: StreamResponse | undefined): Promise<void> {
 
 function installSessionRevalidation(
   fixture: CommunicationModuleFixture,
-  auth: Awaited<ReturnType<typeof prepareCommunicationFixture>>['auth'],
+  auth: Awaited<ReturnType<typeof CommunicationModuleFixture.prepare>>['auth'],
 ): void {
   const server = fixture.app.getHttpServer()
   const [originalListener] = server.listeners('request')
@@ -106,13 +99,13 @@ function installSessionRevalidation(
 
 describe('Stream Notifications Controller [GET /notifications/stream]', () => {
   let fixture: CommunicationModuleFixture
-  let auth: Awaited<ReturnType<typeof prepareCommunicationFixture>>['auth']
+  let auth: Awaited<ReturnType<typeof CommunicationModuleFixture.prepare>>['auth']
 
   beforeAll(async () => {
-    ;({ fixture, auth } = await prepareCommunicationFixture())
+    ;({ fixture, auth } = await CommunicationModuleFixture.prepare())
     installSessionRevalidation(fixture, auth)
   })
-  beforeEach(async () => resetCommunicationFixture(fixture, auth))
+  beforeEach(async () => fixture.reset(auth))
   afterAll(async () => fixture?.close())
 
   it('rejects anonymous requests and does not replay committed or rolled-back history', async () => {
@@ -123,7 +116,9 @@ describe('Stream Notifications Controller [GET /notifications/stream]', () => {
     expect(anonymous.status).toBe(401)
 
     await fixture.seedNotifications([
-      notificationInput({ sourceEventId: 'stream-before-connection' }),
+      CommunicationModuleFixture.notificationInput({
+        sourceEventId: 'stream-before-connection',
+      }),
     ])
 
     const database = fixture.get(DrizzleClient).requireDatabase()
@@ -131,7 +126,11 @@ describe('Stream Notifications Controller [GET /notifications/stream]', () => {
       database.transaction(async (transaction) => {
         await transaction
           .insert(notificationModel)
-          .values(notificationInput({ sourceEventId: 'stream-rolled-back' }))
+          .values(
+            CommunicationModuleFixture.notificationInput({
+              sourceEventId: 'stream-rolled-back',
+            }),
+          )
         throw new Error('rollback stream fixture')
       }),
     ).rejects.toThrow('rollback stream fixture')
@@ -139,7 +138,7 @@ describe('Stream Notifications Controller [GET /notifications/stream]', () => {
     let stream: StreamResponse | undefined
     try {
       stream = await connectToStream(fixture, {
-        Cookie: managerRequestAuthorization(),
+        Cookie: fixture.managerRequestAuthorization(),
         'Last-Event-ID': 'stream-before-connection',
       })
 
@@ -157,11 +156,11 @@ describe('Stream Notifications Controller [GET /notifications/stream]', () => {
     let stream: StreamResponse | undefined
     try {
       stream = await connectToStream(fixture, {
-        Cookie: managerRequestAuthorization(),
+        Cookie: fixture.managerRequestAuthorization(),
         Accept: 'text/event-stream',
       })
 
-      const notification = notificationInput({
+      const notification = CommunicationModuleFixture.notificationInput({
         sourceEventId: 'stream-after-connection',
       })
       await fixture.seedNotifications([notification])
@@ -182,17 +181,19 @@ describe('Stream Notifications Controller [GET /notifications/stream]', () => {
     let stream: StreamResponse | undefined
     try {
       stream = await connectToStream(fixture, {
-        Cookie: managerRequestAuthorization(),
+        Cookie: fixture.managerRequestAuthorization(),
         Accept: 'text/event-stream',
       })
 
       await fixture.seedNotifications([
-        notificationInput({ sourceEventId: 'stream-matching-scope' }),
+        CommunicationModuleFixture.notificationInput({
+          sourceEventId: 'stream-matching-scope',
+        }),
       ])
       await waitForBody(stream, 'stream-matching-scope')
 
       await fixture.seedNotifications([
-        notificationInput({
+        CommunicationModuleFixture.notificationInput({
           sourceEventId: 'stream-foreign-user',
           recipientUserId: CommunicationModuleFixture.accounts.foreignManagerId,
           establishmentId: CommunicationModuleFixture.accounts.foreignEstablishmentId,
@@ -211,7 +212,7 @@ describe('Stream Notifications Controller [GET /notifications/stream]', () => {
 
     try {
       stream = await connectToStream(fixture, {
-        Cookie: managerRequestAuthorization(),
+        Cookie: fixture.managerRequestAuthorization(),
         Accept: 'text/event-stream',
       })
 
@@ -224,7 +225,9 @@ describe('Stream Notifications Controller [GET /notifications/stream]', () => {
 
       await auth.revokeSessions(CommunicationModuleFixture.accounts.managerId)
       await fixture.seedNotifications([
-        notificationInput({ sourceEventId: 'stream-after-revocation' }),
+        CommunicationModuleFixture.notificationInput({
+          sourceEventId: 'stream-after-revocation',
+        }),
       ])
 
       await new Promise((resolve) => setTimeout(resolve, 50))
@@ -243,13 +246,15 @@ describe('Stream Notifications Controller [GET /notifications/stream]', () => {
       streams.push(
         ...(await Promise.all(
           Array.from({ length: 5 }, () =>
-            connectToStream(fixture, { Cookie: managerRequestAuthorization() }),
+            connectToStream(fixture, {
+              Cookie: fixture.managerRequestAuthorization(),
+            }),
           ),
         )),
       )
 
       sixth = await connectToStream(fixture, {
-        Cookie: managerRequestAuthorization(),
+        Cookie: fixture.managerRequestAuthorization(),
       })
 
       expect(streams.every((stream) => stream.status === 200)).toBe(true)
@@ -258,7 +263,7 @@ describe('Stream Notifications Controller [GET /notifications/stream]', () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
 
       replacement = await connectToStream(fixture, {
-        Cookie: managerRequestAuthorization(),
+        Cookie: fixture.managerRequestAuthorization(),
       })
       expect(replacement.status).toBe(200)
     } finally {

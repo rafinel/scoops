@@ -1,30 +1,21 @@
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { CommunicationModuleFixture } from '@/communication/fixtures/communication-module-fixture'
-
-import {
-  foreignManagerRequestAuthorization,
-  managerRequestAuthorization,
-  notificationInput,
-  prepareCommunicationFixture,
-  resetCommunicationFixture,
-} from './communication-controller-test-helpers'
 
 describe('Mark Notifications Read Controller [PATCH /notifications/read]', () => {
   let fixture: CommunicationModuleFixture
-  let auth: BetterAuthFixture
+  let auth: Awaited<ReturnType<typeof CommunicationModuleFixture.prepare>>['auth']
 
-  beforeAll(async () => ({ fixture, auth } = await prepareCommunicationFixture()))
-  beforeEach(async () => resetCommunicationFixture(fixture, auth))
+  beforeAll(async () => ({ fixture, auth } = await CommunicationModuleFixture.prepare()))
+  beforeEach(async () => fixture.reset(auth))
   afterAll(async () => fixture?.close())
 
   it('marks only owned rows, coalesces duplicates, and returns a neutral owned result', async () => {
     await fixture.seedNotifications([
-      notificationInput({ sourceEventId: 'source-own-1' }),
-      notificationInput({ sourceEventId: 'source-own-2' }),
-      notificationInput({
+      CommunicationModuleFixture.notificationInput({ sourceEventId: 'source-own-1' }),
+      CommunicationModuleFixture.notificationInput({ sourceEventId: 'source-own-2' }),
+      CommunicationModuleFixture.notificationInput({
         sourceEventId: 'source-foreign',
         establishmentId: CommunicationModuleFixture.accounts.foreignEstablishmentId,
         recipientUserId: CommunicationModuleFixture.accounts.foreignManagerId,
@@ -52,7 +43,7 @@ describe('Mark Notifications Read Controller [PATCH /notifications/read]', () =>
 
     const response = await request(fixture.app.getHttpServer())
       .patch('/notifications/read')
-      .set('Cookie', managerRequestAuthorization())
+      .set('Cookie', fixture.managerRequestAuthorization())
       .send({ notificationIds: [ownId, ownId, foreignId] })
 
     expect(response.status).toBe(200)
@@ -75,7 +66,7 @@ describe('Mark Notifications Read Controller [PATCH /notifications/read]', () =>
   it('rejects invalid bodies and anonymous access', async () => {
     const invalid = await request(fixture.app.getHttpServer())
       .patch('/notifications/read')
-      .set('Cookie', managerRequestAuthorization())
+      .set('Cookie', fixture.managerRequestAuthorization())
       .send({ notificationIds: [] })
     expect(invalid.status).toBe(422)
 
@@ -86,7 +77,7 @@ describe('Mark Notifications Read Controller [PATCH /notifications/read]', () =>
 
     const foreign = await request(fixture.app.getHttpServer())
       .patch('/notifications/read')
-      .set('Cookie', foreignManagerRequestAuthorization())
+      .set('Cookie', fixture.foreignManagerRequestAuthorization())
       .send({ notificationIds: ['55000000-0000-4000-8000-000000000004'] })
     expect(foreign.status).toBe(200)
     expect(foreign.body).toEqual({ notificationIds: [] })
