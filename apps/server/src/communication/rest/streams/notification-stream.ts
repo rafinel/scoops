@@ -8,8 +8,7 @@ const NOTIFICATION_EVENT_NAME = 'notification.created'
 class ResponseDrainWaiter {
   private readonly onDrain = () => this.resolve()
   private readonly onClose = () => this.reject('A conexão SSE foi encerrada.')
-  private readonly onError = () =>
-    this.reject('A conexão SSE encontrou um erro.')
+  private readonly onError = () => this.reject('A conexão SSE encontrou um erro.')
 
   constructor(
     private readonly response: Response,

@@ -101,10 +101,7 @@ export class DrizzleClient implements OnModuleDestroy {
     }
   }
 
-  private handleListenerClose(
-    channel: string,
-    onError: (error: unknown) => void,
-  ): void {
+  private handleListenerClose(channel: string, onError: (error: unknown) => void): void {
     const registration = this.listenerRegistrations.get(channel)
     if (!registration?.isClosing) onError({ code: 'DATABASE_LISTENER_CLOSED' })
   }
@@ -118,10 +115,7 @@ export class DrizzleClient implements OnModuleDestroy {
     await this.stopListener(registration)
   }
 
-  private markListenerClosing(
-    channel: string,
-    registration: ListenerRegistration,
-  ): void {
+  private markListenerClosing(channel: string, registration: ListenerRegistration): void {
     registration.isClosing = true
     this.listenerRegistrations.delete(channel)
   }

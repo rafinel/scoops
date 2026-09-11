@@ -105,11 +105,9 @@ export class PostgresNotificationRealtimeSubscriber
     }
   }
 
-  private notifyListeners(notification: Notification): Promise<void[]> {
+  private notifyListeners(notification: Notification) {
     return Promise.all(
-      [...this.listeners].map((listener) =>
-        this.notifyListener(listener, notification),
-      ),
+      [...this.listeners].map((listener) => this.notifyListener(listener, notification)),
     )
   }
 

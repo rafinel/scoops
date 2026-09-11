@@ -21,7 +21,5 @@ export class NotificationPageResponseDto {
 }
 
 function notificationPageCursor(cursor: NotificationPage['nextCursor']) {
-  return cursor
-    ? { nextCursor: NotificationCursorResponseDto.from(cursor) }
-    : {}
+  return cursor ? { nextCursor: NotificationCursorResponseDto.from(cursor) } : {}
 }

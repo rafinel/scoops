@@ -124,13 +124,11 @@ describe('Stream Notifications Controller [GET /notifications/stream]', () => {
     const database = fixture.get(DrizzleClient).requireDatabase()
     await expect(
       database.transaction(async (transaction) => {
-        await transaction
-          .insert(notificationModel)
-          .values(
-            CommunicationModuleFixture.notificationInput({
-              sourceEventId: 'stream-rolled-back',
-            }),
-          )
+        await transaction.insert(notificationModel).values(
+          CommunicationModuleFixture.notificationInput({
+            sourceEventId: 'stream-rolled-back',
+          }),
+        )
         throw new Error('rollback stream fixture')
       }),
     ).rejects.toThrow('rollback stream fixture')
