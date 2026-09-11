@@ -5,4 +5,5 @@ import type { Request } from 'express'
 export type AuthenticatedRequest = Request & {
   account: Account
   authSession: AuthSession
+  revalidateAuthSession?: () => Promise<boolean>
 }

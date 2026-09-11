@@ -22,10 +22,23 @@ vi.mock('@/ui/communication/widgets/components/notification-dropdown', () => ({
   NotificationDropdown: () => <button type='button'>Notificações</button>,
 }))
 
+vi.mock(
+  '@/ui/communication/contexts/notification-shell-context/use-notification-shell-provider',
+  () => ({
+    useNotificationShellProvider: vi.fn(),
+  }),
+)
+
+vi.mock('@/ui/communication/hooks/use-notification-realtime', () => ({
+  useNotificationRealtime: vi.fn(),
+}))
+
 import { AppLayout } from '../index'
 import { useAppLayout } from '../use-app-layout'
+import { useNotificationShellProvider } from '@/ui/communication/contexts/notification-shell-context/use-notification-shell-provider'
 
 const useAppLayoutMock = vi.mocked(useAppLayout)
+const useNotificationShellProviderMock = vi.mocked(useNotificationShellProvider)
 
 describe('AppLayout sidebar profile configuration', () => {
   beforeEach(() => {
@@ -36,6 +49,22 @@ describe('AppLayout sidebar profile configuration', () => {
       isPending: false,
       primaryItems: [],
       secondaryItems: [],
+    })
+    useNotificationShellProviderMock.mockReturnValue({
+      account: null,
+      clearSelectedNotification: vi.fn(),
+      closeNotifications: vi.fn(),
+      dismissNotification: vi.fn(),
+      isEligible: false,
+      isLeader: false,
+      isNotificationsOpen: false,
+      notificationChannel: null,
+      onNotification: vi.fn(),
+      openNotification: vi.fn(),
+      openNotifications: vi.fn(),
+      queuedNotifications: [],
+      selectedNotification: null,
+      visibleNotifications: [],
     })
   })
 

@@ -54,6 +54,12 @@ export class AuthenticationGuard implements CanActivate {
 
       request.account = account
       request.authSession = verified.session
+      request.revalidateAuthSession = () =>
+        this.revalidateAuthSession(
+          request,
+          verified.session.sessionId,
+          verified.session.user.id,
+        )
       return true
     } catch (error) {
       if (error instanceof AuthenticationProviderUnavailableError) {
@@ -76,5 +82,20 @@ export class AuthenticationGuard implements CanActivate {
       error: 'Autenticação necessária',
       message: 'A autenticação é necessária.',
     })
+  }
+
+  private revalidateAuthSession(
+    request: AuthenticatedRequest,
+    sessionId: string,
+    userId: string,
+  ): Promise<boolean> {
+    return this.sessionVerifier.verify(request.headers).then(
+      (current) =>
+        current.session.sessionId === sessionId && current.session.user.id === userId,
+      (error: unknown) => {
+        if (error instanceof AuthenticationSessionExpiredError) return false
+        throw error
+      },
+    )
   }
 }

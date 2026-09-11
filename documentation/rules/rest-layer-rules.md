@@ -72,6 +72,42 @@ interface. Never inject a concrete infrastructure implementation into a
 controller. Shared providers such as `DatetimeProvider` are regular constructor
 dependencies.
 
+## SSE routes are REST adapter boundaries
+
+Server-Sent Events remain a REST boundary. An SSE controller must adapt the
+authenticated HTTP request, disconnect signal, and response sink to the stream
+use case. It may construct the use case and translate its result or expected
+failures into HTTP/SSE behavior, but it must not own realtime business logic.
+
+The stream use case owns authorization, current-session and audience
+revalidation, recipient and tenant filtering, subscription capacity, queueing,
+and subscription cleanup policy. Database listeners and committed-row lookup
+remain infrastructure concerns. The controller must not implement those rules,
+read persistence directly, or filter events itself.
+
+Keep stream framing in a REST transport adapter such as `NotificationStream`:
+
+- emit the named event and versioned envelope defined by the REST contract;
+- write comment heartbeats every 20 seconds and handle response backpressure;
+- observe disconnect and terminal response signals and invoke the cleanup
+  returned by the stream use case exactly once;
+- translate authentication, authorization, capacity, and unexpected failures
+  into the documented `401`, `403`, `429`, and `500` responses without exposing
+  implementation details.
+
+An SSE endpoint is future-only and has no replay cursor. Capacity limits and
+queue overflow are decided by the use case; the REST boundary documents and
+translates those outcomes rather than reimplementing them.
+
+The realtime contract must be aligned end to end. The database trigger's
+`pg_notify` channel, the server database subscriber, the stream adapter's event
+name, and the versioned payload consumed by the web client are one integration
+contract. When any of these values changes, update every producer and consumer
+in the same change and verify a fresh committed database insert through an
+authenticated SSE connection. Controller tests alone are insufficient because
+they cannot detect a trigger/subscriber channel mismatch or a stale installed
+function from an already-applied migration.
+
 ## Request body types come from the use case
 
 When a controller receives a body, declare only a local `RequestBody` type and
@@ -124,6 +160,47 @@ handle() {
 Keep the documented statuses synchronized with the global REST error handler and
 the use case behavior. Responses without a body may omit `type`; all other
 successful and error responses must describe their payload explicitly.
+
+## Response DTOs have one primary declaration per file
+
+Every response DTO class under a module's `rest/dtos` directory must have its own
+file. The file name must describe the resource and response shape, for example:
+
+```text
+notification-response.dto.ts
+notification-page-response.dto.ts
+notification-realtime-event-response.dto.ts
+```
+
+Do not group an entity response, pagination response, cursor response, command
+result, or transport envelope in one DTO file. A DTO may reference other DTOs,
+but each referenced DTO remains declared in its own file and is imported directly
+from that file. Keep `index.ts` barrels limited to re-exporting the individual
+DTO files.
+
+Response DTOs own the HTTP serialization shape, Swagger metadata, and the narrow
+domain-to-transport projection. When a response needs conversion from a domain
+value, expose a `static from` or similarly named factory on the DTO. That factory
+must only copy and format values for transport; authorization, persistence,
+validation, and business decisions remain outside the DTO.
+
+Nested response DTOs must be used for nested JSON objects and arrays. Do not
+return a domain entity directly merely to avoid creating a response DTO, and do
+not make controllers assemble ad hoc JSON objects that bypass the documented
+DTO shape. Date values must declare their `date-time` representation and be
+serialized consistently at the REST boundary.
+
+For event-stream responses, serialize the canonical notification DTO inside a
+versioned envelope, for example `{ version: 1, notification }`. Reuse the
+canonical notification response projection for REST and SSE; do not create an
+alternate realtime notification shape. `static from` (or an equivalent DTO
+factory) is only a transport projection: it may copy and format domain values,
+but it must not authorize, validate business rules, query persistence, or make
+delivery decisions.
+
+Keep the current DTO boundary in force. A future decision to return domain
+objects from REST and eliminate mappers is not adopted by this rule; it requires
+its own approved change to the REST contract and implementation rules.
 
 ## Routes reflect resource ownership
 
@@ -216,6 +293,13 @@ The service method names and signatures must remain aligned with the core
 interface. Changes to a controller route or payload require updating the core
 contract and its application adapter together.
 
+Web REST services and transport adapters remain factory functions. A web
+service factory receives the shared `RestClient`, and a transport factory owns
+construction of its client (for example, a credentialed `EventSource`) without
+leaking transport controls into controllers or UI consumers. Keep construction
+at the application boundary so each dependency can be replaced or configured
+without changing the core contract.
+
 ## Web REST transport owns cookie transport
 
 `apps/web/src/rest/axios/axios-rest-client.ts` is the web transport boundary. It
@@ -241,12 +325,14 @@ replacement for origin validation or application authorization.
 When a service factory is added or changed, verify its HTTP mapping at the
 appropriate REST boundary with the existing workspace validation commands.
 
-Web module services do not receive dedicated test files. Verify their observable
-method, path, query, body, response and failure behavior through the consuming
-widget/page tests and Playwright route integration suite. Server controller tests
-remain the authoritative backend HTTP contract boundary. Do not create or retain
-`apps/web/src/rest/services/tests/<module>-service.test.ts` merely to mock
-`RestClient` and restate delegation calls.
+Web module services and web transport adapters do not receive dedicated test
+files. Verify their observable method, path, query, body, response, failure,
+connection, and cleanup behavior through consuming widget/page tests and the
+Playwright route integration suite. Server controller tests remain the
+authoritative backend HTTP contract boundary. Do not create or retain
+`apps/web/src/rest/services/tests/<module>-service.test.ts` or an equivalent
+transport-adapter test merely to mock `RestClient`/`EventSource` and restate
+delegation or construction calls.
 
 ## Server imports use aliases
 

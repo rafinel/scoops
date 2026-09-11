@@ -5,6 +5,7 @@ import { CommunicationMessagingModule } from '@/communication/messaging/communic
 import {
   ListNotificationsController,
   MarkNotificationsReadController,
+  StreamNotificationsController,
 } from '@/communication/rest/controllers'
 import { CommunicationProvisionModule } from '@/communication/provision/communication-provision.module'
 import { ProvisionModule } from '@/shared/provision/provision.module'
@@ -16,6 +17,10 @@ import { ProvisionModule } from '@/shared/provision/provision.module'
     CommunicationMessagingModule,
     ProvisionModule,
   ],
-  controllers: [ListNotificationsController, MarkNotificationsReadController],
+  controllers: [
+    ListNotificationsController,
+    MarkNotificationsReadController,
+    StreamNotificationsController,
+  ],
 })
 export class CommunicationModule {}

@@ -22,7 +22,13 @@ export const RootLayout = ({ children }: RootLayoutProps) => {
             </head>
             <body className='antialiased [overflow-wrap:anywhere]'>
               <ClientOnly fallback={null}>{children}</ClientOnly>
-              <Toaster position='top-right' richColors />
+              <Toaster
+                containerAriaLabel='Notificações do Scoops'
+                expand
+                position='top-right'
+                richColors
+                visibleToasts={3}
+              />
               <Scripts />
             </body>
           </html>

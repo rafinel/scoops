@@ -48,6 +48,22 @@ export const CommunicationModuleFixture = (page: Page): CommunicationModuleFixtu
       await page.route('**/notifications**', async (route) => {
         if (
           route.request().method() === 'GET' &&
+          route.request().resourceType() === 'eventsource'
+        ) {
+          await route.fulfill({
+            headers: {
+              'access-control-allow-credentials': 'true',
+              'access-control-allow-origin': 'http://localhost:4001',
+              'cache-control': 'no-cache',
+              'content-type': 'text/event-stream',
+            },
+            body: ': connected\n\n',
+            status: 200,
+          })
+          return
+        }
+        if (
+          route.request().method() === 'GET' &&
           !['fetch', 'xhr'].includes(route.request().resourceType())
         ) {
           await route.continue()

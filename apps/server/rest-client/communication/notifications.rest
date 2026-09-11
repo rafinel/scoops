@@ -1,5 +1,6 @@
 @baseUrl = http://localhost:3336
 @sessionCookie = scoops.session_token=replace-with-local-session
+@lastEventId = 55000000-0000-4000-8000-000000000004
 
 ### List notifications with defaults
 GET {{baseUrl}}/notifications
@@ -36,3 +37,9 @@ Cookie: {{sessionCookie}}
 {
   "notificationIds": []
 }
+
+### Stream newly committed notifications (future-only reconnect)
+GET {{baseUrl}}/notifications/stream
+Accept: text/event-stream
+Cookie: {{sessionCookie}}
+Last-Event-ID: {{lastEventId}}

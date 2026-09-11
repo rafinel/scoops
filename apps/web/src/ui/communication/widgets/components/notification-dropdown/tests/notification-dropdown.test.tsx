@@ -66,9 +66,12 @@ describe('NotificationDropdown', () => {
     useNotificationDropdownMock.mockReturnValue(createDropdownState() as never)
   })
 
-  it('renders the unread indicator, populated row, close action, and footer navigation', () => {
+  it('renders the unread count chip, populated row, close action, and footer navigation', () => {
     render(<NotificationDropdown />)
 
+    expect(screen.getByText('1', { exact: true }).getAttribute('aria-hidden')).toBe(
+      'true',
+    )
     expect(
       screen
         .getByRole('button', { name: 'Notificações, 1 não lidas' })
@@ -83,6 +86,20 @@ describe('NotificationDropdown', () => {
         .getByRole('link', { name: 'Ver todas as notificações' })
         .getAttribute('href'),
     ).toBe(ROUTES.notifications)
+  })
+
+  it('hides the unread count chip when there are no unread notifications', () => {
+    useNotificationDropdownMock.mockReturnValueOnce({
+      ...createDropdownState(),
+      unreadCount: 0,
+    } as never)
+
+    render(<NotificationDropdown />)
+
+    expect(screen.queryByText('0', { exact: true })).toBeNull()
+    expect(
+      screen.getByRole('button', { name: 'Notificações, nenhuma não lida' }),
+    ).not.toBeNull()
   })
 
   it('exposes loading, empty, and retryable error states without hiding dismissal controls', () => {
@@ -115,5 +132,32 @@ describe('NotificationDropdown', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }))
     expect(errorState.refetchRecentNotifications).toBeDefined()
     expect(screen.getByRole('button', { name: 'Fechar notificações' })).not.toBeNull()
+  })
+
+  it('pins the selected notification first without duplicating it', () => {
+    const selected = NotificationFaker.fake({
+      id: 'selected-notification',
+      title: 'Usuário promovido',
+      message: 'A promoção foi concluída.',
+    })
+    const recent = NotificationFaker.fake({
+      id: 'recent-notification',
+      title: 'Estoque abaixo do ideal',
+    })
+    useNotificationDropdownMock.mockReturnValueOnce({
+      ...createDropdownState(),
+      recentNotifications: [selected, recent],
+      displayedNotifications: [selected, recent],
+      unreadCount: 2,
+    } as never)
+
+    render(<NotificationDropdown />)
+
+    const rows = screen.getAllByRole('listitem')
+    expect(rows.map((row) => row.getAttribute('data-notification-id'))).toEqual([
+      'selected-notification',
+      'recent-notification',
+    ])
+    expect(screen.getAllByText('Usuário promovido')).toHaveLength(1)
   })
 })

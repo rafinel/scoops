@@ -112,6 +112,10 @@ export {
   type NotificationListQuery,
 } from './communication/notification-list-query-schema.ts'
 export {
+  notificationRealtimeEventSchema,
+  type NotificationRealtimeEvent,
+} from './communication/notification-realtime-event-schema.ts'
+export {
   markNotificationsReadSchema,
   type MarkNotificationsReadInput,
 } from './communication/mark-notifications-read-schema.ts'

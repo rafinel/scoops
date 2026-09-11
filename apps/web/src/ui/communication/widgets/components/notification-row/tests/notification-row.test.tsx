@@ -4,6 +4,8 @@ import { cleanup, render, screen } from '@testing-library/react'
 import { NotificationFaker } from '@scoops/core/communication/domain/entities/fakers'
 import { NotificationKind } from '@scoops/core/communication/domain/structures'
 
+import { NOTIFICATION_PRESENTATION } from '@/ui/communication/constants'
+
 import { NotificationRow } from '../index'
 
 describe('NotificationRow', () => {
@@ -56,5 +58,23 @@ describe('NotificationRow', () => {
     expect(screen.getAllByRole('status', { name: 'Não lida' })).toHaveLength(1)
     expect(screen.getByText('Estoque zerado').className).toContain('font-extrabold')
     expect(screen.getByText('Usuário reativado').className).toContain('font-semibold')
+  })
+
+  it('uses the shared danger presentation for zero-stock notifications', () => {
+    const kind = NotificationKind.StockZero
+    const presentation = NOTIFICATION_PRESENTATION[kind]
+
+    render(
+      <ul>
+        <NotificationRow notification={NotificationFaker.fake({ kind })} />
+      </ul>,
+    )
+
+    const row = screen.getByRole('listitem')
+    const iconContainer = row.querySelector('span[aria-hidden="true"]')
+    const icon = iconContainer?.querySelector('svg')
+
+    expect(iconContainer?.className).toContain(presentation.iconContainerClassName)
+    expect(icon?.getAttribute('class')).toContain(presentation.iconClassName)
   })
 })

@@ -1,4 +1,5 @@
 export * from '#communication/interfaces/email-provider.ts'
 export * from '#communication/interfaces/communication-service.ts'
 export * from '#communication/interfaces/notification-audience-provider.ts'
+export * from '#communication/interfaces/notification-realtime-subscriber.ts'
 export * from '#communication/interfaces/notifications-repository.ts'

@@ -23,6 +23,7 @@ import { CommunicationSeeder } from '@/communication/database/communication-seed
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
 import { IdentityModule } from '@/identity/identity.module'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
+import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { BetterAuthSessionIssuer } from '@/identity/provision/auth'
 import { NotificationAudienceCompositionModule } from '@/composition/communication-identity'
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
@@ -49,7 +50,6 @@ type MailpitMessage = MailpitSummary & {
 type MailpitListResponse = {
   readonly messages: readonly MailpitSummary[]
 }
-
 type IdProvider = {
   generate(): string
 }
@@ -345,4 +345,54 @@ export class CommunicationModuleFixture {
     if (value === undefined) delete process.env[key]
     else process.env[key] = value
   }
+
+  static async prepare() {
+    const auth = new BetterAuthFixture()
+    const fixture = await CommunicationModuleFixture.register(auth)
+    return { auth, fixture }
+  }
+
+  static notificationInput(
+    overrides: Partial<
+      Parameters<CommunicationModuleFixture['seedNotifications']>[0][number]
+    > = {},
+  ) {
+    return {
+      sourceEventId: `source-${randomUUID()}`,
+      ...NOTIFICATION_INPUT_DEFAULTS,
+      occurredAt: new Date(NOTIFICATION_TIMESTAMP),
+      createdAt: new Date(NOTIFICATION_TIMESTAMP),
+      ...overrides,
+    }
+  }
+
+  async reset(auth: CommunicationAuthFixture): Promise<void> {
+    await auth.clear()
+    await this.resetDatabase()
+    await this.seedAccounts()
+    this.authenticate(auth.setUser.bind(auth))
+  }
+
+  managerRequestAuthorization(): string {
+    return `scoops.session_token=${CommunicationModuleFixture.accounts.managerToken}`
+  }
+
+  foreignManagerRequestAuthorization(): string {
+    return `scoops.session_token=${CommunicationModuleFixture.accounts.foreignManagerToken}`
+  }
+}
+
+type CommunicationAuthFixture = {
+  clear(): void
+  setUser(token: string, user: { id: string; email: string }): void
+}
+
+const NOTIFICATION_TIMESTAMP = '2026-09-05T12:00:00.000Z'
+const NOTIFICATION_KIND: NotificationCreate['kind'] = 'stock-below-ideal'
+const NOTIFICATION_INPUT_DEFAULTS = {
+  establishmentId: CommunicationModuleFixture.accounts.establishmentId,
+  recipientUserId: CommunicationModuleFixture.accounts.managerId,
+  kind: NOTIFICATION_KIND,
+  title: 'Estoque abaixo do ideal',
+  message: 'Chocolate está com 2 kg disponíveis. Ideal: 10 kg.',
 }
