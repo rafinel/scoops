@@ -4,7 +4,7 @@ import { serverEnvSchema } from '@scoops/validation'
 import { BillingModule } from '@/billing/billing.module'
 import { CommunicationModule } from '@/communication/communication.module'
 import { CreateInProductNotificationsJob } from '@/communication/messaging/inngest/jobs'
-import { NotificationAudienceCompositionModule } from '@/composition/communication-identity'
+import { CommunicationIdentityCompositionModule } from '@/compositions/communication-identity/communication-identity-composition.module'
 import { IdentityModule } from '@/identity/identity.module'
 import { MrpModule } from '@/mrp/mrp.module'
 import { PdvModule } from '@/pdv/pdv.module'
@@ -29,16 +29,7 @@ const appMode = serverEnvSchema.shape.SCOOPS_SERVER_APP_MODE.parse(
 
 export type ServerAppMode = 'dev' | 'test' | 'stg' | 'prod'
 
-export function createOutboxMessagingComposition(appMode: ServerAppMode) {
-  const isRecoveryEnvironment = appMode === 'dev' || appMode === 'test'
-
-  return {
-    providers: isRecoveryEnvironment ? [ReprocessEventsJob] : [],
-    functions: isRecoveryEnvironment ? [ReprocessEventsJob] : [],
-  }
-}
-
-const outboxMessagingComposition = createOutboxMessagingComposition(appMode)
+const isRecoveryEnvironment = appMode === 'dev' || appMode === 'test'
 
 @Module({
   imports: [
@@ -51,20 +42,20 @@ const outboxMessagingComposition = createOutboxMessagingComposition(appMode)
     MrpModule,
     PdvModule,
     CommunicationModule,
-    NotificationAudienceCompositionModule,
+    CommunicationIdentityCompositionModule,
     InngestModule.forRoot({
       functions: [
         SendInvitationEmailJob,
         SendOnboardingConfirmationEmailJob,
         SendPasswordRecoveryEmailJob,
         CreateInProductNotificationsJob,
-        ...outboxMessagingComposition.functions,
         CleanupPublishedEventsJob,
         ExpireIceCreamShopOnboardingsJob,
         RevalidateCombosForProductJob,
+        ...(isRecoveryEnvironment ? [ReprocessEventsJob] : []),
       ],
     }),
   ],
-  providers: outboxMessagingComposition.providers,
+  providers: isRecoveryEnvironment ? [ReprocessEventsJob] : [],
 })
 export class AppModule {}

@@ -1,7 +1,3 @@
----
-description: Detailed architectural view of the Scoops product, its runtime components, layers, boundaries, data flows, and evolution constraints.
----
-
 # Scoops Architecture
 
 This document describes the system-level architecture of Scoops: the runtime

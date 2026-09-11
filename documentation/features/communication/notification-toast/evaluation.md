@@ -3,7 +3,7 @@ feature: "communication/notification-toast"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 7
-status: ready
+status: completed
 updated_at: 2026-09-11
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-09-11
 
 Evaluation of Spec revision `7` against the current implementation.
 
-Current result: Revision 7 is integrated and ready for delivery closure. Functional, runtime, visual, focused contract, route-regression and package-quality evidence is current. `useNotificationRealtime` remains the sole notification realtime boundary and owns the complete transport lifecycle. `useNotificationShellProvider` is located in the notification context directory with its provider-hook test colocated there. The redundant notification layout wrapper is removed, so `AppLayout` owns the context/realtime composition directly. Realtime hook behavior remains verified through the notification context consumer and browser route coverage rather than a dedicated realtime-hook test. The live database trigger is aligned with the subscriber channel, and a fresh authenticated database insert was manually verified through SSE to the rendered toast.
+Current result: Revision 7 is complete. Functional, runtime, visual, focused contract, route-regression, package-quality and final PR CI evidence is current. `useNotificationRealtime` remains the sole notification realtime boundary and owns the complete transport lifecycle. `useNotificationShellProvider` is located in the notification context directory with its provider-hook test colocated there. The redundant notification layout wrapper is removed, so `AppLayout` owns the context/realtime composition directly. Realtime hook behavior remains verified through the notification context consumer and browser route coverage rather than a dedicated realtime-hook test. The live database trigger is aligned with the subscriber channel, and a fresh authenticated database insert was manually verified through SSE to the rendered toast.
 
 ## Acceptance matrix
 
@@ -171,6 +171,14 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| CI-SUPERSEDED-COMPLEXITY | Initial package Complexity workflows | `04da6b583e7dba00aa3452f550e0cbf869198643` | failed; superseded by scoped corrections | [Core CI](https://github.com/rafinel/scoops/actions/runs/34623209749), [Server CI](https://github.com/rafinel/scoops/actions/runs/34623209756), [Web CI](https://github.com/rafinel/scoops/actions/runs/34623209754) |
+| CI-FINAL-CORE | Core CI | `0951dc7de38566ff14a46bef516808d9709c7227` | passed | [Core CI](https://github.com/rafinel/scoops/actions/runs/34641370574) |
+| CI-FINAL-VALIDATION | Validation CI | `0951dc7de38566ff14a46bef516808d9709c7227` | passed | [Validation CI](https://github.com/rafinel/scoops/actions/runs/34641370572) |
+| CI-FINAL-SERVER | Server CI | `0951dc7de38566ff14a46bef516808d9709c7227` | passed | [Server CI](https://github.com/rafinel/scoops/actions/runs/34641370561) |
+| CI-FINAL-WEB | Web CI | `0951dc7de38566ff14a46bef516808d9709c7227` | passed | [Web CI](https://github.com/rafinel/scoops/actions/runs/34641370534) |
+| CI-FINAL-COMPLEXITY | Complexity jobs in Core, Validation, Server and Web CI | `0951dc7de38566ff14a46bef516808d9709c7227` | passed | [Core](https://github.com/rafinel/scoops/actions/runs/34641370574), [Validation](https://github.com/rafinel/scoops/actions/runs/34641370572), [Server](https://github.com/rafinel/scoops/actions/runs/34641370561), [Web](https://github.com/rafinel/scoops/actions/runs/34641370534) |
+| CI-FINAL-VERCEL-WEB | Vercel Web staging | `0951dc7de38566ff14a46bef516808d9709c7227` | external failure: preview dependency proxy returned `ERR_INVALID_THIS`; repository CI passed | [Vercel deployment](https://vercel.com/johnpetros-projects/scoops-web-staging/Ho4cSSH8FbeYiq98QhY5E8KwGSa7) |
+| CI-FINAL-VERCEL-SERVER | Vercel Server staging | `0951dc7de38566ff14a46bef516808d9709c7227` | external failure: deployment database URL was empty after successful compilation; repository CI passed | [Vercel deployment](https://vercel.com/johnpetros-projects/scoops-server-staging/3g2n3gMn4BQzw1Uhzww1a8877GkE) |
 
 ## History
 
@@ -220,3 +228,5 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | 2026-09-11 | REST-layer rules updated: documented the end-to-end realtime contract between the database trigger, PostgreSQL subscriber, SSE stream adapter and web payload, including the required authenticated fresh-insert verification for trigger/subscriber alignment. |
 | 2026-09-11 | Delivery candidate closure checks: clean isolated candidate passed code, types, architecture, Server/Web builds, Spec conformance 52/52, test integrity, focused Core 10/10, focused Web 23/23, focused Server 5/5 and Playwright route 10/10. Complexity retains the four known error-threshold findings documented in EV-COMPLEXITY. |
 | 2026-09-11 | First PR CI quality gate: the published head passed Core, Validation and Vercel preview comment checks but failed the package Complexity workflows; Core reported warning-level findings in the new stream use case, Web reported four error-level UI function-length findings, and Server/Web functional checks remained pending at first inspection. EV-COMPLEXITY is stale and F7 is reopened for scoped correction. |
+| 2026-09-11 | F7 correction and final local validation completed: all five controller-test helper functions were moved onto `CommunicationModuleFixture`, the legacy helper was removed, the communication SSE fixture now returns a completed `200 text/event-stream` response, and focused Server plus existing route-regression suites passed 10/10 and 13/13. Clean candidate code, types, build, architecture, test-integrity, Spec conformance and complexity gates passed; fresh desktop and narrow keyboard-focused captures were inspected. |
+| 2026-09-11 | Final PR CI quality gate passed on delivery head `0951dc7de38566ff14a46bef516808d9709c7227` for Core, Validation, Server, Web and all four Complexity jobs. Vercel Web and Server staging failures were classified as external deployment-environment failures. Spec revision 7, Plan and Evaluation are now closed. |

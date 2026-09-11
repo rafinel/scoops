@@ -214,14 +214,14 @@ and isolate it from the feature change.
 Route behavior is tested with Playwright under:
 
 ```text
-apps/web/tests/routes/
+apps/web/tests/
 ```
 
 Organize route suites by bounded module, then name the file after the feature or
 route behavior:
 
 ```text
-apps/web/tests/routes/
+apps/web/tests/
 ├── identity/
 │   ├── colaboradores.index.test.tsx
 │   └── colaboradores.$colaboradorId.test.tsx
@@ -244,11 +244,11 @@ These are browser integration tests, not backend end-to-end tests. Web route tes
 must never start, call, or depend on a real backend, database, authentication
 service, or external service. Use `page.route` or the shared browser fixtures to
 provide deterministic mocked transport. All browser tests under
-`apps/web/tests/routes/` use this mocked boundary; there is no real-service
+`apps/web/tests/` use this mocked boundary; there is no real-service
 Playwright suite in the web application. When transport is mocked, the test must
 model the relevant response state instead of returning the same fixture forever.
 Real server persistence, authorization, and cross-tenant behavior belong in the
-server/Core integration suites, not under `apps/web/tests/routes/`.
+server/Core integration suites, not under `apps/web/tests/`.
 
 Every feature route, whether public or protected, should cover the applicable cases:
 
@@ -412,7 +412,7 @@ For route, authentication, form, search, or REST changes, also run the focused
 browser integration suite:
 
 ```bash
-pnpm --filter web test:integration tests/routes/<module>/<feature>.test.tsx
+pnpm --filter web test:integration tests/<module>/<feature>.test.tsx
 ```
 
 Do not skip the focused browser suite merely because unit tests pass. Record

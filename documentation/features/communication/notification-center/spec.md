@@ -11,7 +11,7 @@ scope:
   - packages/core/src/mrp
   - packages/validation/src
   - apps/server/src/communication
-  - apps/server/src/composition
+  - apps/server/src/compositions
   - apps/server/src/identity
   - apps/server/src/mrp
   - apps/server/src/pdv
@@ -692,11 +692,11 @@ delete prior migration history.
 
 | Capability | Core contract | Adapter | Runtime/provider | Registration | Consumers |
 | --- | --- | --- | --- | --- | --- |
-| Active notification audience | `NotificationAudienceProvider` | `IdentityNotificationAudienceProvider` | Identity `UsersRepository` supplied only at application composition | `NotificationAudienceCompositionModule` binds `COMMUNICATION_PROVIDERS.notificationAudience` | Communication create use case inside Inngest job |
+| Active notification audience | `NotificationAudienceProvider` | `IdentityNotificationAudienceProvider` | Identity `UsersRepository` supplied only at application composition | `CommunicationIdentityCompositionModule` binds `COMMUNICATION_PROVIDERS.notificationAudience` | Communication create use case inside Inngest job |
 
 | Path | Change | Adapter/signature | Contract mapping/config | Failure/retry/secret boundary | Lifecycle/registration | Consumers/tests |
 | --- | --- | --- | --- | --- | --- | --- |
-| `apps/server/src/composition/communication-identity/identity-notification-audience-provider.ts` | Create | `IdentityNotificationAudienceProvider implements NotificationAudienceProvider` | Maps `UsersRepository.findManyActiveByEstablishment` users to `{ userId, profile }` only | No provider/network/secrets; database error propagates to Inngest retry; no cache or policy | Singleton provider constructed by composition module | Communication job through token; core use-case/job tests, no direct provision test |
+| `apps/server/src/compositions/communication-identity/provision/notification-audience/identity-notification-audience-provider.ts` | Create | `IdentityNotificationAudienceProvider implements NotificationAudienceProvider` | Maps `UsersRepository.findManyActiveByEstablishment` users to `{ userId, profile }` only | No provider/network/secrets; database error propagates to Inngest retry; no cache or policy | Singleton provider constructed by composition module | Communication job through token; core use-case/job tests, no direct provision test |
 
 ### `apps/server` — REST
 
@@ -742,17 +742,17 @@ delete prior migration history.
 
 | Composition boundary | Kind/scope | Imports/dependencies | Provides/exports | Consumers | Lifecycle/order |
 | --- | --- | --- | --- | --- | --- |
-| `NotificationAudienceCompositionModule` | Global cross-feature app composition | Identity database token/module, Communication provider contract/token, composition adapter | `COMMUNICATION_PROVIDERS.notificationAudience` | Communication job | Imported once by `AppModule`; provider exists before job execution |
+| `CommunicationIdentityCompositionModule` | Global cross-feature app composition | Identity database token/module, Communication provider contract/token, composition adapter | `COMMUNICATION_PROVIDERS.notificationAudience` | Communication job | Imported once by `AppModule`; provider exists before job execution |
 | `CommunicationDatabaseModule` | Feature database module | Shared database, repository, seeder | Notifications repository token/seeder | Communication root, REST, messaging, seed | Singleton application lifecycle |
 | `CommunicationModule` | Feature root | Database, provision, messaging; REST controllers | Feature runtime | App root | No feature implementation import into another feature |
 | `AppModule` | Application root/Inngest registry | All feature modules, audience composition, exported jobs | One server graph and one `/api/inngest` function set | Nest bootstrap | Audience composition imported before Communication; job registered exactly once |
 
 | Path | Change | Declaration | Wiring/configuration | Lifecycle/order | Connected contracts | Generation/consumers |
 | --- | --- | --- | --- | --- | --- | --- |
-| `apps/server/src/composition/communication-identity/notification-audience-composition.module.ts` | Create | `NotificationAudienceCompositionModule` | `@Global`; imports `IdentityDatabaseModule`; provides `IdentityNotificationAudienceProvider`; binds/exports Communication audience Symbol with `useExisting` | Singleton app composition; no reverse feature import | Identity users token → Communication audience port | AppModule/Communication job |
+| `apps/server/src/compositions/communication-identity/communication-identity-composition.module.ts` | Create | `CommunicationIdentityCompositionModule` | `@Global`; imports `IdentityDatabaseModule`; provides `IdentityNotificationAudienceProvider`; binds/exports Communication audience Symbol with `useExisting` | Singleton app composition; no reverse feature import | Identity users token → Communication audience port | AppModule/Communication job |
 | `apps/server/src/communication/constants/communication-providers.ts` | Modify | `COMMUNICATION_PROVIDERS` | Add Symbol `notificationAudience`; retain `email` | Single token identity | Composition module/job | Constants barrel |
 | `apps/server/src/communication/communication.module.ts` | Modify | `CommunicationModule` | Import database, provision, messaging; register two REST controllers | Feature root does not directly register jobs/providers owned by layers | Communication contracts | AppModule |
-| `apps/server/src/app.module.ts` | Modify | `AppModule` | Import `NotificationAudienceCompositionModule`; include `CreateInProductNotificationsJob` in `InngestModule.forRoot.functions` | Exactly one provider/exported job and function registration; existing recovery gating unchanged | Identity/Communication bridge and Inngest job | Nest bootstrap |
+| `apps/server/src/app.module.ts` | Modify | `AppModule` | Import `CommunicationIdentityCompositionModule`; include `CreateInProductNotificationsJob` in `InngestModule.forRoot.functions` | Exactly one provider/exported job and function registration; existing recovery gating unchanged | Identity/Communication bridge and Inngest job | Nest bootstrap |
 
 ### `apps/server` — Provision
 
@@ -880,7 +880,8 @@ apps/server/src/communication/
 ├── messaging/inngest/jobs/{create-in-product-notifications-job.ts,index.ts}
 │   └── tests/create-in-product-notifications-job.test.ts
 └── rest/{controllers/{list-notifications.controller.ts,mark-notifications-read.controller.ts,tests/*.test.ts,index.ts},dtos/{notification-response.dto.ts,index.ts}}
-apps/server/src/composition/communication-identity/{identity-notification-audience-provider.ts,notification-audience-composition.module.ts}
+apps/server/src/compositions/communication-identity/communication-identity-composition.module.ts
+apps/server/src/compositions/communication-identity/provision/notification-audience/{identity-notification-audience-provider.ts,index.ts}
 apps/server/rest-client/communication/notifications.rest
 apps/web/src/routes/_authenticated/notifications/index.tsx
 apps/web/src/ui/communication/

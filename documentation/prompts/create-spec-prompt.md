@@ -82,7 +82,10 @@ Map unresolved choices as a design tree: every decision branches into decisions 
 it. Work the tree in rounds:
 
 - The frontier is every decision whose prerequisites are already settled.
-- Ask the whole frontier in one round, numbering each question and giving a recommendation.
+- Keep one monotonically increasing question sequence across all rounds; never restart numbering.
+- Ask the whole frontier in one round, numbering each question and giving repository evidence,
+  materially different choices, a recommendation and the consequence of accepting it. When a
+  choice depends on an earlier answer, defer it instead of embedding a speculative default.
 - Use this format for every round:
 
   ```yaml
@@ -98,11 +101,73 @@ it. Work the tree in rounds:
   ```
 
 - Wait for the user's answers before recomputing the next frontier.
+- Maintain a decision ledger after every answer round. Reconcile each answer to its question,
+  record accepted recommendations and explicit alternatives, call out contradictions, and carry
+  only unanswered or newly unlocked choices into the next frontier. Do not silently interpret a
+  partial answer as acceptance of every recommendation.
+- When the client supplies response annotations, treat an annotation such as `ok`, `accepted` or
+  an equivalent confirmation as acceptance of that selected question's recommendation. Treat an
+  annotation naming an alternative as selection of that alternative. A later explicit annotation
+  overrides an earlier unannotated selection of the same question. Repeated selections without a
+  comment provide context but do not override an explicit annotated answer. Address every supplied
+  annotation using the client-required inline annotation directive in the next response.
 - Research repository facts directly; do not ask the user for facts that can be inspected.
 - Keep product, technical, design and validation decisions with the user unless repository
   authority already fixes them. Record decisions, dependencies and assumptions.
 - Challenge contradictions and risks. When the frontier is empty, present the shared
   understanding and request explicit confirmation before authoring or amending `spec.md`.
+
+#### Exhaustive questionnaire mode
+
+When the user asks to decide, question or approve **every technical decision**, make the grilling
+protocol exhaustive rather than collapsing several decisions into a generic architecture choice.
+Research first, then continue dependency-ordered rounds until every consequential
+implementation-shaping alternative is settled. Cover each applicable branch below:
+
+- owning module, application, layer, declaration and composition boundary;
+- technology, protocol, dependency and provider/client abstraction;
+- API route, method, authentication, authorization lifetime, payload, serialization, validation,
+  versioning and compatibility;
+- source of truth, transaction/commit boundary, persistence model, migration generation,
+  indexing, tenancy and historical-value behavior;
+- synchronous/asynchronous flow, publication timing, delivery guarantee, idempotency,
+  deduplication, ordering, concurrency, buffering, backpressure and capacity limits;
+- connection/subscription lifecycle, retries, timeouts, heartbeat, reconnect, offline/hidden
+  behavior, replay and cleanup;
+- multi-process, multi-tab, multi-device or multi-tenant coordination and degraded fallbacks;
+- UI state ownership, component/widget boundaries, interaction semantics, exact copy/timing,
+  focus, keyboard, announcement, responsive behavior, stacking and design-reference gaps;
+- error translation, user-visible failure behavior, observability, privacy and secret handling;
+- automated test ownership, indirect versus direct boundaries, manual fixtures/services,
+  viewports, screenshots and evidence targets.
+
+Ask about exact operational values when they affect the Contract—for example duration, retry
+schedule, heartbeat interval, connection cap, queue size, viewport or concurrency limit. Continue
+from broad prerequisites to their dependent concrete choices: selecting SSE, for example, may
+unlock route, authentication, payload, heartbeat, reconnection, authorization-lifetime,
+backpressure and browser-ownership decisions.
+
+Exhaustive does not mean asking the user to restate repository facts or approve conventions with
+only one legal answer. Resolve those directly from authority and include them in the final shared
+understanding. Do not ask about incidental implementation syntax or algorithms that cannot alter
+observable behavior, architecture, ownership, operability, security, validation or the Builder's
+contract.
+
+Before declaring the frontier empty in exhaustive mode:
+
+1. replay the decision ledger against every affected runtime boundary and Rule-selected layer;
+2. inspect the chosen combination for newly exposed decisions and contradictions;
+3. state any authority correction or design artifact required before authoring;
+4. present one consolidated shared-understanding summary containing the resolved product,
+   technical, design and validation decisions; and
+5. request explicit confirmation. A typo-tolerant unambiguous confirmation such as `confirmed`
+   or `comfirmed` passes this final gate.
+
+Do not create or modify the Spec before that confirmation. After confirmation, apply approved
+authority changes first, create the artifacts, run integrity checks and the applicable independent
+Spec review. If authoring or review exposes a genuinely material unasked choice, return to the
+questionnaire with the next question number; otherwise resolve repository-fixed compatibility
+corrections directly and resume the same Reviewer.
 
 | Area | Clarify when unresolved |
 | --- | --- |

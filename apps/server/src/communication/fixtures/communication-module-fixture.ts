@@ -25,7 +25,7 @@ import { IdentityModule } from '@/identity/identity.module'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { BetterAuthSessionIssuer } from '@/identity/provision/auth'
-import { NotificationAudienceCompositionModule } from '@/composition/communication-identity'
+import { CommunicationIdentityCompositionModule } from '@/compositions/communication-identity/communication-identity-composition.module'
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
 import { InngestFixture } from '@/shared/messaging/inngest/inngest-fixture'
 import { InngestModule } from '@/shared/messaging/inngest/inngest.module'
@@ -50,6 +50,7 @@ type MailpitMessage = MailpitSummary & {
 type MailpitListResponse = {
   readonly messages: readonly MailpitSummary[]
 }
+
 type IdProvider = {
   generate(): string
 }
@@ -95,7 +96,7 @@ export class CommunicationModuleFixture {
       {
         imports: [
           SharedModule,
-          NotificationAudienceCompositionModule,
+          CommunicationIdentityCompositionModule,
           IdentityModule,
           CommunicationModule,
           InngestModule.forRoot({ functions: [] }),
@@ -136,7 +137,7 @@ export class CommunicationModuleFixture {
           {
             imports: [
               SharedModule,
-              NotificationAudienceCompositionModule,
+              CommunicationIdentityCompositionModule,
               IdentityModule,
               CommunicationModule,
               InngestModule.forRoot({ functions: [] }),

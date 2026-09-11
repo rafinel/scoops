@@ -1,11 +1,43 @@
 ---
-description: NestJS layer-module boundaries for feature-owned provision, messaging, and AI adapters.
+description: NestJS application and layer-module boundaries for feature-owned provision, messaging, and AI adapters.
 ---
 
 # Server App Layer Rules
 
-These rules apply to technical layers owned by feature modules under
-`apps/server/src/<module>`.
+These rules apply to the NestJS application bootstrap and to technical layers
+owned by feature modules under `apps/server/src/<module>`.
+
+## Application bootstrap belongs to `App`
+
+The server bootstrap must use the application wrapper at:
+
+```text
+apps/server/src/app.ts
+```
+
+`App` owns the configured `INestApplication` instance and all HTTP application
+configuration methods. The class must contain the behavior for:
+
+- trusted-origin CORS configuration with credentials;
+- Better Auth's `/api/auth` adapter and allowed-route guard;
+- Better Auth response sanitization before a response is returned;
+- raw-body parser registration required by Better Auth; and
+- the single global `GlobalErrorHandler` registration.
+
+Keep helpers that exist only to configure or sanitize this application as
+class-owned methods. Make implementation-only helpers private; do not leave a
+parallel `configure-*.ts` function module beside `app.ts`.
+
+`main.ts` is the composition entry point only. It may create `App` around the
+Nest instance, configure Swagger, resolve application dependencies, call the
+`App` HTTP configuration method, initialize the wrapped instance, and start
+listening. It must not duplicate CORS, Better Auth, parser, sanitization, or
+global-filter logic.
+
+The bootstrap sequence must preserve `bodyParser: false` during
+`NestFactory.create`, configure Better Auth before Nest body parsers are
+installed, initialize the application once, and return/use the wrapped
+`INestApplication` instance for `listen` and test consumers.
 
 ## Technical layer directories own Nest modules
 
