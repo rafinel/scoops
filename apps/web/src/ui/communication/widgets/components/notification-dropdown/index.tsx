@@ -1,4 +1,5 @@
 import { Anchor } from '@/ui/shared/widgets/components/anchor'
+import { Badge } from '@/ui/shadcn/badge'
 import { Button } from '@/ui/shadcn/button'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
@@ -17,6 +18,7 @@ export const NotificationDropdown = (_props: NotificationDropdownProps) => {
     isOpen,
     panelRef,
     recentNotifications,
+    displayedNotifications = recentNotifications,
     recentNotificationsError,
     refetchRecentNotifications,
     triggerRef,
@@ -42,10 +44,12 @@ export const NotificationDropdown = (_props: NotificationDropdownProps) => {
       >
         <Icon name='bell' className='size-[18px]' />
         {unreadCount > 0 ? (
-          <span
+          <Badge
             aria-hidden='true'
-            className='absolute right-2 top-2 size-2 rounded-full bg-danger ring-2 ring-card'
-          />
+            className='absolute top-1 right-1 h-4 min-w-4 rounded-full bg-danger px-1 text-[10px] font-extrabold leading-none text-white ring-2 ring-card'
+          >
+            {unreadCount}
+          </Badge>
         ) : null}
       </Button>
       {isOpen ? (
@@ -77,13 +81,13 @@ export const NotificationDropdown = (_props: NotificationDropdownProps) => {
                 onRetry={() => void refetchRecentNotifications()}
                 state='first-error'
               />
-            ) : recentNotifications.length === 0 ? (
+            ) : displayedNotifications.length === 0 ? (
               <NotificationListState state='empty' />
             ) : (
               <NotificationList
                 compact
                 isObservationEnabled
-                notifications={recentNotifications}
+                notifications={displayedNotifications}
                 showDateHeadings={false}
               />
             )}

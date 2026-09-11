@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 
 import { useRecentNotificationsQuery } from '@/ui/communication/hooks/use-recent-notifications-query'
+import { useOptionalNotificationShellContext } from '@/ui/communication/hooks/use-notification-shell-context'
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
 
 export function useNotificationDropdown() {
@@ -8,6 +9,7 @@ export function useNotificationDropdown() {
   const triggerRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const { navigateTo } = useNavigation()
+  const shell = useOptionalNotificationShellContext()
   const {
     isLoadingRecentNotifications,
     recentNotifications,
@@ -16,35 +18,89 @@ export function useNotificationDropdown() {
     unreadCount,
   } = useRecentNotificationsQuery()
 
-  const handleClose = useCallback((restoreFocus = true) => {
-    setOpen(false)
-    if (restoreFocus) window.setTimeout(() => triggerRef.current?.focus(), 0)
-  }, [])
+  const displayedNotifications = useMemo(() => {
+    const selected = shell?.selectedNotification
+    if (!selected) return recentNotifications
+    return [
+      selected,
+      ...recentNotifications.filter((notification) => notification.id !== selected.id),
+    ]
+  }, [recentNotifications, shell?.selectedNotification])
+  const effectiveIsOpen = shell?.isNotificationsOpen ?? isOpen
+  useSelectedNotificationLifecycle(shell, recentNotifications)
+
+  const handleClose = useCallback(
+    (restoreFocus = true) => {
+      if (shell) shell.closeNotifications()
+      else setOpen(false)
+      if (restoreFocus) window.setTimeout(() => triggerRef.current?.focus(), 0)
+    },
+    [shell],
+  )
 
   const handleToggle = useCallback(() => {
-    if (isOpen) {
+    if (effectiveIsOpen) {
       handleClose()
       return
     }
-    setOpen(true)
-  }, [handleClose, isOpen])
+    if (shell) shell.openNotifications()
+    else setOpen(true)
+  }, [effectiveIsOpen, handleClose, shell])
 
   function handleOpenAll() {
     handleClose()
     void navigateTo('notifications')
   }
 
+  useDropdownDismissal(effectiveIsOpen, handleClose, triggerRef, panelRef)
+
+  return {
+    handleClose,
+    handleOpenAll,
+    handleToggle,
+    isLoadingRecentNotifications,
+    isOpen: effectiveIsOpen,
+    panelRef,
+    recentNotifications,
+    displayedNotifications,
+    recentNotificationsError,
+    refetchRecentNotifications,
+    triggerRef,
+    unreadCount,
+  }
+}
+
+function useSelectedNotificationLifecycle(
+  shell: ReturnType<typeof useOptionalNotificationShellContext>,
+  recentNotifications: ReturnType<
+    typeof useRecentNotificationsQuery
+  >['recentNotifications'],
+) {
+  useEffect(() => {
+    const selected = shell?.selectedNotification
+    if (!selected) return
+    const refreshed = recentNotifications.find(
+      (notification) => notification.id === selected.id,
+    )
+    if (refreshed?.readAt) shell.clearSelectedNotification()
+  }, [recentNotifications, shell])
+}
+
+function useDropdownDismissal(
+  isOpen: boolean,
+  handleClose: () => void,
+  triggerRef: RefObject<HTMLButtonElement | null>,
+  panelRef: RefObject<HTMLDivElement | null>,
+) {
   useEffect(() => {
     if (!isOpen) return
 
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        handleClose()
-      }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      handleClose()
     }
-
-    function handlePointerDown(event: PointerEvent) {
+    const handlePointerDown = (event: PointerEvent) => {
       const target = event.target
       if (
         target instanceof Node &&
@@ -61,19 +117,5 @@ export function useNotificationDropdown() {
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('pointerdown', handlePointerDown)
     }
-  }, [handleClose, isOpen])
-
-  return {
-    handleClose,
-    handleOpenAll,
-    handleToggle,
-    isLoadingRecentNotifications,
-    isOpen,
-    panelRef,
-    recentNotifications,
-    recentNotificationsError,
-    refetchRecentNotifications,
-    triggerRef,
-    unreadCount,
-  }
+  }, [handleClose, isOpen, panelRef, triggerRef])
 }

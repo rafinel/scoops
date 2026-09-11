@@ -247,7 +247,7 @@ PRQ-04.
 
 ### PRQ-06 — Notification Center
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
 **Outcome:** an authenticated user can privately consult and navigate their complete in-product
 notification history from the Header.
@@ -287,13 +287,14 @@ PRQ-09.
   and must not steal focus. Selecting the toast may open the Header notification dropdown.
 - A notification missed while the user is offline or returning to the tab must remain available in
   notification history without being replayed as a new toast.
-- Design reference: supplied notification-toast screenshot, Pencil Node ID `n5xnGg`.
+- Design references: finalized realtime-notification toast component at Pencil Node ID `nfjNn`;
+  Header notification dropdown at Pencil Node ID `n5xnGg`.
 
 ---
 
 ### PRQ-07 — Individual Notification Reading
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
 **Outcome:** each authenticated user's read state reflects only the notifications that have become
 visible to that user.

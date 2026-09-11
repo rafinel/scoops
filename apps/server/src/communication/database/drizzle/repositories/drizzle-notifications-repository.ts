@@ -111,4 +111,24 @@ export class DrizzleNotificationsRepository
   async removeAll(): Promise<void> {
     await this.database.delete(notificationModel)
   }
+
+  async findByIdForRecipient(input: {
+    notificationId: string
+    recipientUserId: string
+    establishmentId: string
+  }) {
+    const [record] = await this.database
+      .select()
+      .from(notificationModel)
+      .where(
+        and(
+          eq(notificationModel.id, input.notificationId),
+          eq(notificationModel.recipientUserId, input.recipientUserId),
+          eq(notificationModel.establishmentId, input.establishmentId),
+        ),
+      )
+      .limit(1)
+
+    return record ? DrizzleNotificationMapper.toDomain(record) : null
+  }
 }

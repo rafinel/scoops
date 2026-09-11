@@ -1,6 +1,7 @@
 import { Inject, Injectable, type OnModuleDestroy } from '@nestjs/common'
 import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import postgres, { type Sql } from 'postgres'
+import { AppError } from '@scoops/core/shared/domain/errors'
 
 import { EnvProvider } from '@/shared/provision/env/env-provider'
 import * as schema from '@/shared/database/drizzle/schema'
@@ -9,6 +10,12 @@ export type Database = PostgresJsDatabase<typeof schema>
 
 export type DatabaseListener = {
   unlisten(): Promise<void>
+}
+
+type ListenerRegistration = {
+  client: Sql
+  close(): Promise<void>
+  isClosing: boolean
 }
 
 function resolveListenerDatabaseUrl(databaseUrl: string, listenerUrl?: string): string {
@@ -28,8 +35,7 @@ export class DrizzleClient implements OnModuleDestroy {
   private readonly database: Database
   private readonly databaseUrl: string
   private readonly listenerDatabaseUrl: string
-  private listenerClient: Sql | undefined
-  private listenerClosing = false
+  private readonly listenerRegistrations = new Map<string, ListenerRegistration>()
 
   constructor(@Inject(EnvProvider) envProvider: EnvProvider) {
     this.databaseUrl = envProvider.get('DATABASE_URL')
@@ -64,11 +70,11 @@ export class DrizzleClient implements OnModuleDestroy {
     onReady: () => void,
     onError: (error: unknown) => void,
   ): Promise<DatabaseListener> {
-    if (this.listenerClient) {
-      throw new Error('O listener do banco de dados já foi registrado.')
+    if (this.listenerRegistrations.has(channel)) {
+      throw new AppError('O listener do banco de dados já foi registrado.')
     }
 
-    this.listenerClosing = false
+    let listenResult: Awaited<ReturnType<Sql['listen']>> | undefined
     const listenerClient = postgres(this.listenerDatabaseUrl, {
       connect_timeout: 5,
       max: 1,
@@ -76,29 +82,39 @@ export class DrizzleClient implements OnModuleDestroy {
       fetch_types: false,
       prepare: false,
       onclose: () => {
-        if (!this.listenerClosing) onError({ code: 'DATABASE_LISTENER_CLOSED' })
+        const registration = this.listenerRegistrations.get(channel)
+        if (!registration?.isClosing) onError({ code: 'DATABASE_LISTENER_CLOSED' })
       },
     })
-    this.listenerClient = listenerClient
+
+    const registration: ListenerRegistration = {
+      client: listenerClient,
+      isClosing: false,
+      close: async () => {
+        if (registration.isClosing) return
+        registration.isClosing = true
+        this.listenerRegistrations.delete(channel)
+
+        try {
+          await listenResult?.unlisten()
+        } finally {
+          await listenerClient.end({ timeout: 5 })
+        }
+      },
+    }
+    this.listenerRegistrations.set(channel, registration)
 
     try {
       const request = listenerClient.listen(channel, onEvent, onReady)
-      const result = await request
+      listenResult = await request
 
       return {
-        unlisten: async () => {
-          if (this.listenerClient !== listenerClient) return
-          this.listenerClosing = true
-          await result.unlisten()
-          await listenerClient.end({ timeout: 5 })
-          this.listenerClient = undefined
-        },
+        unlisten: () => registration.close(),
       }
     } catch (error) {
-      this.listenerClosing = true
-      this.listenerClient = undefined
-      await listenerClient.end({ timeout: 5 }).catch(() => undefined)
-      onError(error)
+      const didStartClosing = registration.isClosing
+      await registration.close().catch(() => undefined)
+      if (!didStartClosing) onError(error)
       throw error
     }
   }
@@ -108,9 +124,8 @@ export class DrizzleClient implements OnModuleDestroy {
   }
 
   async onModuleDestroy() {
-    this.listenerClosing = true
-    await this.listenerClient?.end({ timeout: 5 })
-    this.listenerClient = undefined
+    const registrations = [...this.listenerRegistrations.values()]
+    await Promise.all(registrations.map((registration) => registration.close()))
     await this.client.end({ timeout: 5 })
   }
 }

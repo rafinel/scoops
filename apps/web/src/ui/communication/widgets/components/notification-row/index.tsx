@@ -1,49 +1,8 @@
 import type { Notification } from '@scoops/core/communication/domain/entities'
-import { NotificationKind } from '@scoops/core/communication/domain/structures'
 
-import { Icon, type IconName } from '@/ui/shared/widgets/components/icon'
+import { NOTIFICATION_PRESENTATION } from '@/ui/communication/constants'
+import { Icon } from '@/ui/shared/widgets/components/icon'
 import { cn } from '@/ui/shared/lib/utils'
-
-const NOTIFICATION_PRESENTATION: Record<
-  Notification['kind'],
-  { icon: IconName; iconClassName: string; iconContainerClassName: string }
-> = {
-  [NotificationKind.StockBelowIdeal]: {
-    icon: 'package',
-    iconClassName: 'text-warning',
-    iconContainerClassName: 'bg-warning-soft',
-  },
-  [NotificationKind.StockZero]: {
-    icon: 'triangle-alert',
-    iconClassName: 'text-danger',
-    iconContainerClassName: 'bg-danger-soft',
-  },
-  [NotificationKind.UserAdded]: {
-    icon: 'user-plus',
-    iconClassName: 'text-primary',
-    iconContainerClassName: 'bg-accent',
-  },
-  [NotificationKind.UserPromoted]: {
-    icon: 'shield-check',
-    iconClassName: 'text-success',
-    iconContainerClassName: 'bg-success-soft',
-  },
-  [NotificationKind.UserDemoted]: {
-    icon: 'shield',
-    iconClassName: 'text-warning',
-    iconContainerClassName: 'bg-warning-soft',
-  },
-  [NotificationKind.UserInactivated]: {
-    icon: 'shield-alert',
-    iconClassName: 'text-muted-foreground',
-    iconContainerClassName: 'bg-muted',
-  },
-  [NotificationKind.UserReactivated]: {
-    icon: 'user-check',
-    iconClassName: 'text-success',
-    iconContainerClassName: 'bg-success-soft',
-  },
-}
 
 export type NotificationRowProps = {
   compact?: boolean

@@ -54,6 +54,18 @@ export class AuthenticationGuard implements CanActivate {
 
       request.account = account
       request.authSession = verified.session
+      request.revalidateAuthSession = async () => {
+        try {
+          const current = await this.sessionVerifier.verify(request.headers)
+          return (
+            current.session.sessionId === verified.session.sessionId &&
+            current.session.user.id === verified.session.user.id
+          )
+        } catch (error) {
+          if (error instanceof AuthenticationSessionExpiredError) return false
+          throw error
+        }
+      }
       return true
     } catch (error) {
       if (error instanceof AuthenticationProviderUnavailableError) {

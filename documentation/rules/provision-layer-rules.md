@@ -75,19 +75,20 @@ rules or orchestrate module use cases.
 Environment access must be wrapped by the shared environment provider instead of
 reading `process.env` throughout feature modules.
 
-## Web integrations use a client plus a factory
+## Web integrations use a client plus an owning adapter
 
 Web integrations with third-party services use this shape:
 
 ```text
 apps/web/src/provision/<concern>/<provider>/
 ├── <provider>-client.ts
-└── <provider>-provider.ts
+└── <provider>-provider.ts or the owning realtime channel
 ```
 
-The client file creates the configured singleton client. The provider file is a
-factory that receives an optional client dependency, defaulting to that singleton,
-and returns the application or core contract implemented by the integration:
+The client file creates the configured singleton client. A provider factory or
+owning realtime channel receives an optional client dependency, defaulting to
+that singleton, and exposes the application contract implemented by the
+integration:
 
 ```ts
 export const CookieAuthProvider = (
@@ -99,8 +100,11 @@ export const CookieAuthProvider = (
 }
 ```
 
-This keeps the provider replaceable in tests and keeps third-party calls out of
-contexts, widgets, route middleware, and services. Web authentication uses
+This keeps the integration replaceable in tests and keeps third-party calls out
+of contexts, widgets, route middleware, and services. A realtime channel may
+also own the shared EventSource lifecycle, validation, retry, fan-out and
+cleanup when direct channel subscriptions are the intended application boundary.
+Web authentication uses
 credentialed requests and an `HttpOnly` cookie issued by the server; browser
 code must not read, persist, or synthesize session tokens. Better Auth secrets
 and email-provider credentials belong to server infrastructure and must never be
@@ -111,18 +115,19 @@ Communication-owned `EmailProvider` contract may have a Resend implementation
 for staging/production and an SMTP implementation for local Mailpit. Identity
 publishes its facts through domain events and must not depend on either adapter.
 
-The provider should map third-party responses to core structures and preserve the
-core provider contract. The shared auth context consumes the factory result and
-owns only React state and subscription lifecycle.
+The provider or channel should map third-party responses to core structures and
+preserve the owning application contract. The shared auth context or realtime
+shell consumes the adapter result and owns only React state and subscription
+lifecycle.
 
-## Providers are tested through consumers
+## Providers and channels are tested through consumers
 
-Provider implementations, provider factories, and external adapters must not
-receive dedicated test files. Their infrastructure behavior is covered through
-the owning consumer boundary: use-case tests mock the provider contract, while
-controller, widget, route, or browser integration tests exercise the observable
-application behavior. Do not place a provider test inside an allowed widget
-directory to bypass this rule.
+Provider implementations, provider factories, realtime channels and external
+adapters must not receive dedicated test files. Their infrastructure behavior is
+covered through the owning consumer boundary: use-case tests mock provider
+contracts, while controller, widget, route, or browser integration tests
+exercise observable application behavior. Do not place a provider or channel
+test inside an allowed widget directory to bypass this rule.
 
 ## Provider tests use mocks, not fakers
 

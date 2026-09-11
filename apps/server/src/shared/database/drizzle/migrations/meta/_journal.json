@@ -169,6 +169,13 @@
       "when": 1788969710138,
       "tag": "0023_colossal_karen_page",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1788991888185,
+      "tag": "0024_notification_realtime",
+      "breakpoints": true
     }
   ]
 }

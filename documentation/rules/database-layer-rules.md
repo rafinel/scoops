@@ -190,6 +190,48 @@ domain, and implement exactly the semantics declared by the core contract.
 Repositories may compose queries and enforce persistence concerns such as
 optimistic version matching, but they must not decide business policy.
 
+## PostgreSQL realtime wake-ups belong to infrastructure
+
+PostgreSQL `LISTEN/NOTIFY` is a post-commit wake-up mechanism, not a second
+source of truth. A trigger may publish only the minimum identifiers needed to
+locate a committed record, such as the notification, recipient, and
+establishment IDs. The durable row in PostgreSQL remains authoritative;
+notifications that roll back must not produce a delivery, and the wake-up
+payload must never be treated as the complete domain object.
+
+The process-level Communication subscriber must use a dedicated `LISTEN`
+connection. It must validate the wake-up payload before querying, perform a
+committed-row lookup scoped by the notification, recipient, and establishment
+identifiers, and fan out the resulting complete domain notification to its
+subscribers. A subscriber must not emit an unscoped row, reconstruct a domain
+notification from the wake-up payload, or replay missed records.
+
+The subscription port belongs to Core. Database infrastructure implements that
+port and exposes complete domain notifications to the owning use case. The
+repository capability used to resolve a wake-up must remain recipient- and
+establishment-scoped and return no record when any scope identifier does not
+match. Do not widen a lookup-by-ID for realtime delivery merely because the
+event originated inside the database.
+
+Subscriber lifecycle, reconnect, shutdown, malformed-payload handling and
+diagnostic error handling belong to the infrastructure adapter. These concerns
+must not leak into Core repository contracts or use cases. A process subscriber
+must be registered as a singleton for its Communication channel and clean up
+its listener and callbacks during application shutdown.
+
+Migration files own PostgreSQL trigger and function definitions, including the
+canonical `pg_notify` channel name. Keep channel naming in the migration and
+the corresponding infrastructure registration aligned; do not create trigger
+definitions from application startup code or feature repositories. Migrations
+must preserve the transaction boundary: the trigger publishes only after a
+successful commit and does not provide rollback or replay behavior.
+
+Database adapters may enforce persistence integrity and query scope, but they
+must not apply business filtering such as actor eligibility, current-session
+validation, subscription capacity, queue limits, or delivery policy. Those
+decisions belong to Core use cases after the adapter has resolved the scoped
+committed domain record.
+
 ## Repositories do not receive tests
 
 Do not create test files for repository implementations, mappers, Drizzle models,
