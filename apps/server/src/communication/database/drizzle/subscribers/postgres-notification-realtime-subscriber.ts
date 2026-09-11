@@ -26,6 +26,21 @@ type NotificationWakeUp = {
   establishmentId: string
 }
 
+function isNotificationWakeUp(value: unknown): value is NotificationWakeUp {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+
+  const wakeUp = value as Record<string, unknown>
+  return (
+    isUuid(wakeUp.notificationId) &&
+    isUuid(wakeUp.recipientUserId) &&
+    isUuid(wakeUp.establishmentId)
+  )
+}
+
+function isUuid(value: unknown): value is string {
+  return typeof value === 'string' && UUID_PATTERN.test(value)
+}
+
 @Injectable()
 export class PostgresNotificationRealtimeSubscriber
   implements NotificationRealtimeSubscriber, OnModuleInit, OnModuleDestroy
@@ -96,24 +111,11 @@ export class PostgresNotificationRealtimeSubscriber
   private parseWakeUp(payload: string): NotificationWakeUp | null {
     try {
       const value: unknown = JSON.parse(payload)
-      if (!value || typeof value !== 'object' || Array.isArray(value)) return null
-
-      const wakeUp = value as Record<string, unknown>
-      if (
-        typeof wakeUp.notificationId !== 'string' ||
-        typeof wakeUp.recipientUserId !== 'string' ||
-        typeof wakeUp.establishmentId !== 'string' ||
-        !UUID_PATTERN.test(wakeUp.notificationId) ||
-        !UUID_PATTERN.test(wakeUp.recipientUserId) ||
-        !UUID_PATTERN.test(wakeUp.establishmentId)
-      ) {
-        return null
-      }
-
+      if (!isNotificationWakeUp(value)) return null
       return {
-        notificationId: wakeUp.notificationId,
-        recipientUserId: wakeUp.recipientUserId,
-        establishmentId: wakeUp.establishmentId,
+        notificationId: value.notificationId,
+        recipientUserId: value.recipientUserId,
+        establishmentId: value.establishmentId,
       }
     } catch {
       return null

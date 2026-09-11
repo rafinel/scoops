@@ -3,6 +3,7 @@ import {
   NotificationActorProfile,
   type NotificationActor,
 } from '#communication/domain/structures/notification-actor.ts'
+import type { NotificationAudienceMember } from '#communication/domain/structures/notification-audience-member.ts'
 import type { NotificationAudienceProvider } from '#communication/interfaces/notification-audience-provider.ts'
 import type { NotificationRealtimeSubscriber } from '#communication/interfaces/notification-realtime-subscriber.ts'
 import {
@@ -15,17 +16,33 @@ import type { UseCase } from '#shared/interfaces/use-case.ts'
 
 const MAX_ACTIVE_SUBSCRIPTIONS = 5
 const MAX_QUEUE_SIZE = 100
+const SUPPORTED_ACTOR_PROFILES = new Set([
+  NotificationActorProfile.Manager,
+  NotificationActorProfile.Operator,
+])
 
-type StreamNotificationsState = {
-  readonly abortHandler: () => void
-  readonly request: StreamNotificationsRequest
-  candidateTail: Promise<void>
-  cleanupPromise?: Promise<void>
-  isClosed: boolean
-  isDraining: boolean
-  isReserved: boolean
-  notifications: Notification[]
-  unsubscribe?: () => Promise<void>
+function isSupportedActorProfile(profile: NotificationActor['profile']): boolean {
+  return SUPPORTED_ACTOR_PROFILES.has(profile)
+}
+
+function isActiveAudienceMember(
+  actor: NotificationActor,
+  audience: readonly NotificationAudienceMember[],
+): boolean {
+  return audience.some(
+    (member) => member.userId === actor.id && member.profile === actor.profile,
+  )
+}
+
+function matchesNotificationActor(
+  actor: NotificationActor,
+  notification?: Notification,
+): boolean {
+  return (
+    notification === undefined ||
+    (notification.recipientUserId === actor.id &&
+      notification.establishmentId === actor.establishmentId)
+  )
 }
 
 export type StreamNotificationsRequest = {
@@ -33,6 +50,24 @@ export type StreamNotificationsRequest = {
   readonly isSessionActive: () => Promise<boolean>
   readonly notificationSink: (notification: Notification) => Promise<void> | void
   readonly signal: AbortSignal
+}
+
+class StreamNotificationsState {
+  readonly abortHandler: () => void
+  candidateTail = Promise.resolve()
+  cleanupPromise?: Promise<void>
+  isClosed = false
+  isDraining = false
+  isReserved = false
+  notifications: Notification[] = []
+  unsubscribe?: () => Promise<void>
+
+  constructor(
+    readonly request: StreamNotificationsRequest,
+    cleanup: (state: StreamNotificationsState) => Promise<void>,
+  ) {
+    this.abortHandler = () => void cleanup(this)
+  }
 }
 
 export class StreamNotificationsUseCase
@@ -48,49 +83,71 @@ export class StreamNotificationsUseCase
   async execute(request: StreamNotificationsRequest): Promise<() => Promise<void>> {
     this.validateActor(request.actor)
 
-    const state: StreamNotificationsState = {
-      abortHandler: () => void this.cleanup(state),
-      request,
-      candidateTail: Promise.resolve(),
-      isClosed: false,
-      isDraining: false,
-      isReserved: false,
-      notifications: [],
-    }
-
+    const state = this.createState(request)
     this.reserveSubscription(state)
-    request.signal.addEventListener('abort', state.abortHandler, { once: true })
+    this.listenForAbort(state)
+    return this.openStreamSafely(state)
+  }
 
+  private listenForAbort(state: StreamNotificationsState): void {
+    state.request.signal.addEventListener('abort', state.abortHandler, { once: true })
+  }
+
+  private async openStreamSafely(
+    state: StreamNotificationsState,
+  ): Promise<() => Promise<void>> {
     try {
-      if (request.signal.aborted) {
-        await this.cleanup(state)
-        return () => this.cleanup(state)
-      }
-
-      await this.ensureOpeningEligibility(request)
-      if (request.signal.aborted) {
-        await this.cleanup(state)
-        return () => this.cleanup(state)
-      }
-
-      const unsubscribe = await this.realtimeSubscriber.subscribe((notification) =>
-        this.handleCandidate(state, notification),
-      )
-
-      if (state.isClosed) {
-        await this.disposeSubscription(unsubscribe)
-      } else {
-        state.unsubscribe = unsubscribe
-      }
+      await this.openStream(state)
     } catch (error) {
-      await this.cleanup(state)
-      if (error instanceof AppError) throw error
-      throw new ServiceUnavailableError(
-        'O fluxo de notificações está indisponível no momento.',
-      )
+      await this.handleStreamFailure(state, error)
     }
 
     return () => this.cleanup(state)
+  }
+
+  private createState(request: StreamNotificationsRequest): StreamNotificationsState {
+    return new StreamNotificationsState(request, (state) => this.cleanup(state))
+  }
+
+  private async openStream(state: StreamNotificationsState): Promise<void> {
+    if (await this.closeIfAborted(state)) return
+
+    await this.ensureOpeningEligibility(state.request)
+    if (await this.closeIfAborted(state)) return
+
+    await this.subscribe(state)
+  }
+
+  private async subscribe(state: StreamNotificationsState): Promise<void> {
+    const unsubscribe = await this.realtimeSubscriber.subscribe((notification) =>
+      this.handleCandidate(state, notification),
+    )
+    await this.storeSubscription(state, unsubscribe)
+  }
+
+  private async storeSubscription(
+    state: StreamNotificationsState,
+    unsubscribe: () => Promise<void>,
+  ): Promise<void> {
+    if (state.isClosed) return this.disposeSubscription(unsubscribe)
+    state.unsubscribe = unsubscribe
+  }
+
+  private async closeIfAborted(state: StreamNotificationsState): Promise<boolean> {
+    if (!state.request.signal.aborted) return false
+    await this.cleanup(state)
+    return true
+  }
+
+  private async handleStreamFailure(
+    state: StreamNotificationsState,
+    error: unknown,
+  ): Promise<never> {
+    await this.cleanup(state)
+    if (error instanceof AppError) throw error
+    throw new ServiceUnavailableError(
+      'O fluxo de notificações está indisponível no momento.',
+    )
   }
 
   private async ensureOpeningEligibility(
@@ -106,45 +163,51 @@ export class StreamNotificationsUseCase
     state: StreamNotificationsState,
     notification: Notification,
   ): Promise<void> {
-    const candidate = state.candidateTail.then(async () => {
-      if (state.isClosed) return
-
-      try {
-        if (!(await this.isEligible(state.request, notification))) {
-          await this.cleanup(state)
-          return
-        }
-
-        await this.enqueue(state, notification)
-      } catch {
-        await this.cleanup(state)
-      }
-    })
+    const candidate = state.candidateTail.then(() =>
+      this.processCandidate(state, notification),
+    )
 
     state.candidateTail = candidate.catch(() => undefined)
     await candidate
+  }
+
+  private async processCandidate(
+    state: StreamNotificationsState,
+    notification: Notification,
+  ): Promise<void> {
+    if (state.isClosed) return
+
+    try {
+      await this.enqueueEligibleCandidate(state, notification)
+    } catch {
+      await this.cleanup(state)
+    }
+  }
+
+  private async enqueueEligibleCandidate(
+    state: StreamNotificationsState,
+    notification: Notification,
+  ): Promise<void> {
+    if (!(await this.isEligible(state.request, notification))) return this.cleanup(state)
+    await this.enqueue(state, notification)
   }
 
   private async isEligible(
     request: StreamNotificationsRequest,
     notification?: Notification,
   ): Promise<boolean> {
-    if (!(await request.isSessionActive())) return false
-
-    const audience = await this.audienceProvider.findManyActiveByEstablishment(
-      request.actor.establishmentId,
-    )
-    const actorIsActiveAudienceMember = audience.some(
-      (member) =>
-        member.userId === request.actor.id && member.profile === request.actor.profile,
-    )
-    if (!actorIsActiveAudienceMember) return false
-
     return (
-      notification === undefined ||
-      (notification.recipientUserId === request.actor.id &&
-        notification.establishmentId === request.actor.establishmentId)
+      (await request.isSessionActive()) &&
+      (await this.isActiveAudienceMember(request.actor)) &&
+      matchesNotificationActor(request.actor, notification)
     )
+  }
+
+  private async isActiveAudienceMember(actor: NotificationActor): Promise<boolean> {
+    const audience = await this.audienceProvider.findManyActiveByEstablishment(
+      actor.establishmentId,
+    )
+    return isActiveAudienceMember(actor, audience)
   }
 
   private async enqueue(
@@ -153,62 +216,93 @@ export class StreamNotificationsUseCase
   ): Promise<void> {
     if (state.isClosed) return
 
-    if (state.notifications.length >= MAX_QUEUE_SIZE) {
-      await this.cleanup(state)
-      return
-    }
+    if (!this.hasQueueCapacity(state)) return this.cleanup(state)
 
     state.notifications.push(notification)
-    void this.drain(state)
+    this.drain(state)
   }
 
-  private async drain(state: StreamNotificationsState): Promise<void> {
+  private hasQueueCapacity(state: StreamNotificationsState): boolean {
+    return state.notifications.length < MAX_QUEUE_SIZE
+  }
+
+  private drain(state: StreamNotificationsState): void {
     if (state.isDraining) return
     state.isDraining = true
+    void this.runDrain(state)
+  }
 
+  private async runDrain(state: StreamNotificationsState): Promise<void> {
     try {
-      while (!state.isClosed && state.notifications.length > 0) {
-        const notification = state.notifications.shift()
-        if (notification === undefined) continue
-        await state.request.notificationSink(notification)
-      }
+      await this.drainQueue(state)
     } catch {
       await this.cleanup(state)
     } finally {
       state.isDraining = false
-      if (!state.isClosed && state.notifications.length > 0) void this.drain(state)
+      this.restartDrain(state)
     }
+  }
+
+  private async drainQueue(state: StreamNotificationsState): Promise<void> {
+    while (!state.isClosed && state.notifications.length > 0) {
+      const notification = state.notifications.shift()
+      if (notification === undefined) continue
+      await state.request.notificationSink(notification)
+    }
+  }
+
+  private restartDrain(state: StreamNotificationsState): void {
+    if (!state.isClosed && state.notifications.length > 0) this.drain(state)
   }
 
   private reserveSubscription(state: StreamNotificationsState): void {
     const key = this.getSubscriptionKey(state.request.actor)
-    const activeSubscriptions =
-      StreamNotificationsUseCase.activeSubscriptions.get(key) ?? 0
+    const activeSubscriptions = this.getActiveSubscriptionCount(key)
 
+    this.reserveSubscriptionSlot(key, activeSubscriptions)
+    state.isReserved = true
+  }
+
+  private reserveSubscriptionSlot(key: string, activeSubscriptions: number): void {
+    this.ensureSubscriptionCapacity(activeSubscriptions)
+    this.setActiveSubscriptionCount(key, activeSubscriptions + 1)
+  }
+
+  private getActiveSubscriptionCount(key: string): number {
+    return StreamNotificationsUseCase.activeSubscriptions.get(key) ?? 0
+  }
+
+  private setActiveSubscriptionCount(key: string, count: number): void {
+    StreamNotificationsUseCase.activeSubscriptions.set(key, count)
+  }
+
+  private ensureSubscriptionCapacity(activeSubscriptions: number): void {
     if (activeSubscriptions >= MAX_ACTIVE_SUBSCRIPTIONS)
       throw new TooManyRequestsError(
         'O limite de conexões de notificações em tempo real foi atingido.',
       )
-
-    StreamNotificationsUseCase.activeSubscriptions.set(key, activeSubscriptions + 1)
-    state.isReserved = true
   }
 
   private async cleanup(state: StreamNotificationsState): Promise<void> {
     if (state.cleanupPromise) return state.cleanupPromise
 
+    this.closeState(state)
+    state.cleanupPromise = this.disposeStateSubscription(state)
+
+    return state.cleanupPromise
+  }
+
+  private closeState(state: StreamNotificationsState): void {
     state.isClosed = true
     state.notifications.length = 0
     state.request.signal.removeEventListener('abort', state.abortHandler)
     this.releaseSubscription(state)
+  }
 
+  private async disposeStateSubscription(state: StreamNotificationsState): Promise<void> {
     const unsubscribe = state.unsubscribe
     state.unsubscribe = undefined
-    state.cleanupPromise = unsubscribe
-      ? this.disposeSubscription(unsubscribe)
-      : Promise.resolve()
-
-    return state.cleanupPromise
+    if (unsubscribe) await this.disposeSubscription(unsubscribe)
   }
 
   private async disposeSubscription(unsubscribe: () => Promise<void>): Promise<void> {
@@ -223,14 +317,18 @@ export class StreamNotificationsUseCase
     if (!state.isReserved) return
     state.isReserved = false
 
-    const key = this.getSubscriptionKey(state.request.actor)
-    const activeSubscriptions =
-      StreamNotificationsUseCase.activeSubscriptions.get(key) ?? 0
-    if (activeSubscriptions <= 1) {
+    this.decrementSubscription(this.getSubscriptionKey(state.request.actor))
+  }
+
+  private decrementSubscription(key: string): void {
+    const activeSubscriptions = this.getActiveSubscriptionCount(key)
+    this.updateSubscriptionCount(key, activeSubscriptions)
+  }
+
+  private updateSubscriptionCount(key: string, activeSubscriptions: number): void {
+    if (activeSubscriptions <= 1)
       StreamNotificationsUseCase.activeSubscriptions.delete(key)
-      return
-    }
-    StreamNotificationsUseCase.activeSubscriptions.set(key, activeSubscriptions - 1)
+    else this.setActiveSubscriptionCount(key, activeSubscriptions - 1)
   }
 
   private getSubscriptionKey(actor: NotificationActor): string {
@@ -238,12 +336,9 @@ export class StreamNotificationsUseCase
   }
 
   private validateActor(actor: NotificationActor): void {
-    if (
-      actor.profile !== NotificationActorProfile.Manager &&
-      actor.profile !== NotificationActorProfile.Operator
+    if (isSupportedActorProfile(actor.profile)) return
+    throw new AuthorizationError(
+      'Somente gestores e operadores podem receber notificações em tempo real.',
     )
-      throw new AuthorizationError(
-        'Somente gestores e operadores podem receber notificações em tempo real.',
-      )
   }
 }

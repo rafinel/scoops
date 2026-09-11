@@ -23,6 +23,51 @@ type AuthenticatedCommunicationRequest = Request & {
   revalidateAuthSession: SessionRevalidation
 }
 
+type NotificationStreamLifecycle = {
+  readonly stream: NotificationStream
+  readonly abortController: AbortController
+  readonly isClosed: boolean
+  readonly cleanup: (() => Promise<void>) | undefined
+  close(): Promise<void>
+  setCleanup(cleanup: () => Promise<void>): void
+  setHeartbeat(heartbeat: ReturnType<typeof setInterval>): void
+}
+
+function createNotificationStreamLifecycle(
+  response: Response,
+): NotificationStreamLifecycle {
+  const stream = new NotificationStream(response)
+  const abortController = new AbortController()
+  let closed = false
+  let cleanup: (() => Promise<void>) | undefined
+  let heartbeat: ReturnType<typeof setInterval> | undefined
+
+  return {
+    stream,
+    abortController,
+    get isClosed() {
+      return closed
+    },
+    get cleanup() {
+      return cleanup
+    },
+    setCleanup(value) {
+      cleanup = value
+    },
+    setHeartbeat(value) {
+      heartbeat = value
+    },
+    close: async () => {
+      if (closed) return
+      closed = true
+      if (heartbeat) clearInterval(heartbeat)
+      abortController.abort()
+      await cleanup?.()
+      stream.close()
+    },
+  }
+}
+
 @NotificationsController()
 export class StreamNotificationsController {
   private readonly useCase: StreamNotificationsUseCase
@@ -53,52 +98,54 @@ export class StreamNotificationsController {
     @Req() request: AuthenticatedCommunicationRequest,
     @Res() response: Response,
   ): Promise<void> {
-    const stream = new NotificationStream(response)
-    const abortController = new AbortController()
-    let closed = false
-    let cleanup: (() => Promise<void>) | undefined
-    let heartbeat: ReturnType<typeof setInterval> | undefined
-
-    const close = async () => {
-      if (closed) return
-      closed = true
-      if (heartbeat) clearInterval(heartbeat)
-      abortController.abort()
-      await cleanup?.()
-      stream.close()
-    }
-    const onRequestClose = () => void close()
+    const lifecycle = createNotificationStreamLifecycle(response)
+    const onRequestClose = () => void lifecycle.close()
     request.once('close', onRequestClose)
 
     try {
-      cleanup = await this.useCase.execute({
-        actor: request.account,
-        isSessionActive: () => this.isSessionActive(request),
-        notificationSink: (notification) => stream.writeNotification(notification),
-        signal: abortController.signal,
-      })
+      lifecycle.setCleanup(await this.executeStream(request, lifecycle))
 
-      if (closed) {
-        await cleanup()
-        stream.abort()
+      if (lifecycle.isClosed) {
+        await lifecycle.cleanup?.()
+        lifecycle.stream.abort()
         return
       }
 
-      stream.start()
-      heartbeat = setInterval(() => {
-        void this.isSessionActive(request)
-          .then((active) => {
-            if (!active) return close()
-            return stream.writeHeartbeat()
-          })
-          .catch(() => close())
-      }, HEARTBEAT_INTERVAL_MS)
+      lifecycle.stream.start()
+      lifecycle.setHeartbeat(this.startHeartbeat(request, lifecycle))
     } catch (error) {
-      await cleanup?.()
-      stream.abort()
+      await lifecycle.cleanup?.()
+      lifecycle.stream.abort()
       request.off('close', onRequestClose)
       throw error
     }
+  }
+
+  private executeStream(
+    request: AuthenticatedCommunicationRequest,
+    lifecycle: NotificationStreamLifecycle,
+  ): Promise<() => Promise<void>> {
+    return this.useCase.execute({
+      actor: request.account,
+      isSessionActive: () => this.isSessionActive(request),
+      notificationSink: (notification) =>
+        lifecycle.stream.writeNotification(notification),
+      signal: lifecycle.abortController.signal,
+    })
+  }
+
+  private startHeartbeat(
+    request: AuthenticatedCommunicationRequest,
+    lifecycle: NotificationStreamLifecycle,
+  ): ReturnType<typeof setInterval> {
+    return setInterval(() => {
+      void this.isSessionActive(request)
+        .then((active) => {
+          if (!active) return lifecycle.close()
+          return lifecycle.stream.writeHeartbeat()
+        })
+        .catch(() => lifecycle.close())
+    }, HEARTBEAT_INTERVAL_MS)
   }
 
   private async isSessionActive(

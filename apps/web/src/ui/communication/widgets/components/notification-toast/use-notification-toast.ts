@@ -20,6 +20,36 @@ export type NotificationToastController = {
 }
 
 export function useNotificationToast(onDismiss: () => void): NotificationToastController {
+  const { dismiss, isPaused, pause, resume } = useNotificationToastTimer(onDismiss)
+  const handleBlur = useCallback(
+    (event: FocusEvent<HTMLElement>) => {
+      if (isFocusWithinToast(event)) return
+      resume()
+    },
+    [resume],
+  )
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      event.stopPropagation()
+      dismiss()
+    },
+    [dismiss],
+  )
+
+  return {
+    handleBlur,
+    handleDismiss: dismiss,
+    handleFocus: pause,
+    handleKeyDown,
+    handleMouseEnter: pause,
+    handleMouseLeave: resume,
+    isPaused,
+  }
+}
+
+function useNotificationToastTimer(onDismiss: () => void) {
   const [isPaused, setIsPaused] = useState(false)
   const remainingMsRef = useRef(ACTIVE_DURATION_MS)
   const startedAtRef = useRef<number | null>(null)
@@ -80,23 +110,14 @@ export function useNotificationToast(onDismiss: () => void): NotificationToastCo
   }, [clearTimer, dismiss, isPaused])
 
   return {
-    handleBlur(event) {
-      const relatedTarget = event.relatedTarget
-      if (relatedTarget instanceof Node && event.currentTarget.contains(relatedTarget)) {
-        return
-      }
-      resume()
-    },
-    handleDismiss: dismiss,
-    handleFocus: pause,
-    handleKeyDown(event) {
-      if (event.key !== 'Escape') return
-      event.preventDefault()
-      event.stopPropagation()
-      dismiss()
-    },
-    handleMouseEnter: pause,
-    handleMouseLeave: resume,
     isPaused,
+    dismiss,
+    pause,
+    resume,
   }
+}
+
+function isFocusWithinToast(event: FocusEvent<HTMLElement>) {
+  const relatedTarget = event.relatedTarget
+  return relatedTarget instanceof Node && event.currentTarget.contains(relatedTarget)
 }

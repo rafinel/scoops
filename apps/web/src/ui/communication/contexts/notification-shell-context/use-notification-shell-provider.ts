@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -17,6 +25,23 @@ const LEASE_RENEWAL_MS = 3_000
 const INVALIDATION_MESSAGE_VERSION = 1
 
 type NotificationLease = { expiresAt: number; ownerId: string }
+
+type NotificationShellValueInput = {
+  account: ReturnType<typeof useAuthContext>['account']
+  clearSelectedNotification: () => void
+  closeNotifications: () => void
+  dismissNotification: (notificationId: string) => void
+  isEligible: boolean
+  isLeader: boolean
+  isNotificationsOpen: boolean
+  notificationChannel: BroadcastChannel | null
+  onNotification: (notification: Notification) => Promise<void> | void
+  openNotification: (notification: Notification) => void
+  openNotifications: () => void
+  queuedNotifications: Notification[]
+  selectedNotification: Notification | null
+  visibleNotifications: Notification[]
+}
 
 export function useNotificationShellProvider() {
   const { account, status } = useAuthContext()
@@ -50,50 +75,92 @@ export function useNotificationShellProvider() {
     openNotification,
   )
 
-  const identityKey = `${account?.id ?? ''}:${account?.establishmentId ?? ''}`
-  const previousIdentityKeyRef = useRef(identityKey)
-  useEffect(() => {
-    if (previousIdentityKeyRef.current === identityKey) return
-    previousIdentityKeyRef.current = identityKey
-    setNotificationsOpen(false)
-    setSelectedNotification(null)
-    queue.clearNotifications()
-  }, [identityKey, queue.clearNotifications])
+  useNotificationIdentityReset(account, closeNotifications, queue.clearNotifications)
 
+  return useNotificationShellValue({
+    account,
+    clearSelectedNotification,
+    closeNotifications,
+    dismissNotification: queue.dismissNotification,
+    isEligible,
+    isLeader: leadership.isLeader,
+    isNotificationsOpen,
+    notificationChannel: leadership.channel,
+    onNotification: queue.handleNotification,
+    openNotification,
+    openNotifications,
+    queuedNotifications: queue.queuedNotifications,
+    selectedNotification,
+    visibleNotifications: queue.visibleNotifications,
+  })
+}
+
+function useNotificationShellValue({
+  account,
+  clearSelectedNotification,
+  closeNotifications,
+  dismissNotification,
+  isEligible,
+  isLeader,
+  isNotificationsOpen,
+  notificationChannel,
+  onNotification,
+  openNotification,
+  openNotifications,
+  queuedNotifications,
+  selectedNotification,
+  visibleNotifications,
+}: NotificationShellValueInput) {
   return useMemo(
     () => ({
       account,
       clearSelectedNotification,
       closeNotifications,
-      dismissNotification: queue.dismissNotification,
+      dismissNotification,
       isEligible,
-      isLeader: leadership.isLeader,
+      isLeader,
       isNotificationsOpen,
-      notificationChannel: leadership.channel,
-      onNotification: queue.handleNotification,
+      notificationChannel,
+      onNotification,
       openNotification,
       openNotifications,
-      queuedNotifications: queue.queuedNotifications,
+      queuedNotifications,
       selectedNotification,
-      visibleNotifications: queue.visibleNotifications,
+      visibleNotifications,
     }),
     [
       account,
       clearSelectedNotification,
       closeNotifications,
-      leadership.channel,
-      leadership.isLeader,
-      queue.dismissNotification,
-      queue.handleNotification,
-      queue.queuedNotifications,
-      queue.visibleNotifications,
+      dismissNotification,
       isEligible,
+      isLeader,
       isNotificationsOpen,
+      notificationChannel,
+      onNotification,
       openNotification,
       openNotifications,
+      queuedNotifications,
       selectedNotification,
+      visibleNotifications,
     ],
   )
+}
+
+function useNotificationIdentityReset(
+  account: ReturnType<typeof useAuthContext>['account'],
+  closeNotifications: () => void,
+  clearNotifications: () => void,
+) {
+  const identityKey = `${account?.id ?? ''}:${account?.establishmentId ?? ''}`
+  const previousIdentityKeyRef = useRef(identityKey)
+
+  useEffect(() => {
+    if (previousIdentityKeyRef.current === identityKey) return
+    previousIdentityKeyRef.current = identityKey
+    closeNotifications()
+    clearNotifications()
+  }, [clearNotifications, closeNotifications, identityKey])
 }
 
 function useNotificationLeadership(
@@ -167,6 +234,30 @@ function useNotificationQueue(
   channel: BroadcastChannel | null,
   onOpen: (notification: Notification) => void,
 ) {
+  const identityKey = `${account?.id ?? ''}:${account?.establishmentId ?? ''}`
+  const queue = useNotificationQueueState(onOpen)
+  const handleNotification = useNotificationQueueHandler(
+    account,
+    queryClient,
+    channel,
+    identityKey,
+    queue,
+  )
+
+  useEffect(() => {
+    return () => queue.clearNotifications()
+  }, [queue.clearNotifications])
+
+  return {
+    clearNotifications: queue.clearNotifications,
+    dismissNotification: queue.dismissNotification,
+    handleNotification,
+    queuedNotifications: queue.queuedNotifications,
+    visibleNotifications: queue.visibleNotifications,
+  }
+}
+
+function useNotificationQueueState(onOpen: (notification: Notification) => void) {
   const [visibleNotifications, setVisibleNotifications] = useState<Notification[]>([])
   const [queuedNotifications, setQueuedNotifications] = useState<Notification[]>([])
   const visibleIdsRef = useRef(new Set<string>())
@@ -175,7 +266,6 @@ function useNotificationQueue(
   const toastIdsRef = useRef(new Map<string, string | number>())
   const processingRef = useRef(Promise.resolve())
   const generationRef = useRef(0)
-  const identityKey = `${account?.id ?? ''}:${account?.establishmentId ?? ''}`
 
   const dismissNotification = useCallback((notificationId: string) => {
     visibleIdsRef.current.delete(notificationId)
@@ -204,7 +294,47 @@ function useNotificationQueue(
     setQueuedNotifications([])
   }, [])
 
-  const presentNotification = useCallback(
+  const presentNotification = useNotificationPresenter(
+    visibleIdsRef,
+    setVisibleNotifications,
+    toastIdsRef,
+    dismissNotification,
+    onOpen,
+  )
+
+  useNotificationQueueDrain(
+    visibleNotifications.length,
+    visibleIdsRef,
+    queuedRef,
+    setQueuedNotifications,
+    presentNotification,
+  )
+
+  return {
+    clearNotifications,
+    dismissNotification,
+    presentNotification,
+    generationRef,
+    processingRef,
+    queuedNotifications,
+    queuedRef,
+    seenIdsRef,
+    setQueuedNotifications,
+    visibleIdsRef,
+    visibleNotifications,
+  }
+}
+
+type NotificationQueueState = ReturnType<typeof useNotificationQueueState>
+
+function useNotificationPresenter(
+  visibleIdsRef: { current: Set<string> },
+  setVisibleNotifications: Dispatch<SetStateAction<Notification[]>>,
+  toastIdsRef: { current: Map<string, string | number> },
+  dismissNotification: (notificationId: string) => void,
+  onOpen: (notification: Notification) => void,
+) {
+  return useCallback(
     (notification: Notification) => {
       visibleIdsRef.current.add(notification.id)
       setVisibleNotifications((current) => [notification, ...current])
@@ -216,24 +346,28 @@ function useNotificationQueue(
         toastIdsRef.current.set(notification.id, toastId)
       }
     },
-    [dismissNotification, onOpen],
+    [dismissNotification, onOpen, setVisibleNotifications, toastIdsRef, visibleIdsRef],
   )
+}
 
-  useEffect(() => {
-    const hasVisibleCapacity = visibleNotifications.length < 3
-    if (
-      !hasVisibleCapacity ||
-      visibleIdsRef.current.size >= 3 ||
-      queuedRef.current.length === 0
-    )
-      return
-    const [next, ...rest] = queuedRef.current
-    queuedRef.current = rest
-    setQueuedNotifications(rest)
-    if (next) presentNotification(next)
-  }, [presentNotification, visibleNotifications.length])
+function useNotificationQueueHandler(
+  account: ReturnType<typeof useAuthContext>['account'],
+  queryClient: ReturnType<typeof useQueryClient>,
+  channel: BroadcastChannel | null,
+  identityKey: string,
+  queue: NotificationQueueState,
+) {
+  const {
+    generationRef,
+    presentNotification,
+    processingRef,
+    queuedRef,
+    seenIdsRef,
+    setQueuedNotifications,
+    visibleIdsRef,
+  } = queue
 
-  const handleNotification = useCallback(
+  return useCallback(
     (notification: Notification) => {
       if (seenIdsRef.current.has(notification.id)) return processingRef.current
       seenIdsRef.current.add(notification.id)
@@ -260,20 +394,48 @@ function useNotificationQueue(
       processingRef.current = next.catch(() => undefined)
       return next
     },
-    [account, channel, identityKey, presentNotification, queryClient],
+    [
+      account,
+      channel,
+      generationRef,
+      identityKey,
+      presentNotification,
+      processingRef,
+      queryClient,
+      queuedRef,
+      seenIdsRef,
+      setQueuedNotifications,
+      visibleIdsRef,
+    ],
   )
+}
 
+function useNotificationQueueDrain(
+  visibleNotificationsLength: number,
+  visibleIdsRef: { current: Set<string> },
+  queuedRef: { current: Notification[] },
+  setQueuedNotifications: Dispatch<SetStateAction<Notification[]>>,
+  presentNotification: (notification: Notification) => void,
+) {
   useEffect(() => {
-    return () => clearNotifications()
-  }, [clearNotifications])
-
-  return {
-    clearNotifications,
-    dismissNotification,
-    handleNotification,
-    queuedNotifications,
-    visibleNotifications,
-  }
+    const hasVisibleCapacity = visibleNotificationsLength < 3
+    if (
+      !hasVisibleCapacity ||
+      visibleIdsRef.current.size >= 3 ||
+      queuedRef.current.length === 0
+    )
+      return
+    const [next, ...rest] = queuedRef.current
+    queuedRef.current = rest
+    setQueuedNotifications(rest)
+    if (next) presentNotification(next)
+  }, [
+    presentNotification,
+    queuedRef,
+    setQueuedNotifications,
+    visibleIdsRef,
+    visibleNotificationsLength,
+  ])
 }
 
 function isNotificationForAccount(
