@@ -45,18 +45,21 @@ export const CommunicationModuleFixture = (page: Page): CommunicationModuleFixtu
       managerNotifications = [...(options.managerNotifications ?? [])]
       operatorNotifications = [...(options.operatorNotifications ?? [])]
 
-      await page.route('**/notifications/stream', async (route) => {
-        await route.fulfill({
-          headers: {
-            'access-control-allow-credentials': 'true',
-            'access-control-allow-origin': 'http://localhost:4001',
-            'cache-control': 'no-cache',
-          },
-          status: 204,
-        })
-      })
-
       await page.route('**/notifications**', async (route) => {
+        if (
+          route.request().method() === 'GET' &&
+          route.request().resourceType() === 'eventsource'
+        ) {
+          await route.fulfill({
+            headers: {
+              'access-control-allow-credentials': 'true',
+              'access-control-allow-origin': 'http://localhost:4001',
+              'cache-control': 'no-cache',
+            },
+            status: 204,
+          })
+          return
+        }
         if (
           route.request().method() === 'GET' &&
           !['fetch', 'xhr'].includes(route.request().resourceType())
