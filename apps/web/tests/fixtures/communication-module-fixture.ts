@@ -55,8 +55,10 @@ export const CommunicationModuleFixture = (page: Page): CommunicationModuleFixtu
               'access-control-allow-credentials': 'true',
               'access-control-allow-origin': 'http://localhost:4001',
               'cache-control': 'no-cache',
+              'content-type': 'text/event-stream',
             },
-            status: 204,
+            body: ': connected\n\n',
+            status: 200,
           })
           return
         }
