@@ -7,6 +7,7 @@ source:
   ref: https://github.com/rafinel/scoops/issues/36
 scope:
   - apps/web
+  - .github/workflows/web-app-ci.yml
   - documentation/features/shared/transition-animations
 last_updated_at: 2026-09-12
 ---
@@ -466,6 +467,12 @@ apps/web/src/ui/shared/widgets/layouts/root-layout/
 | `apps/web/src/router.tsx` | Modify | `getRouter` | Adds path-change-gated `defaultViewTransition` with the `scoops-route` type; does not add a pending component that would replace visible content | Router remains application singleton factory | TanStack Router and global CSS | Path-changing navigations only; no route-tree generation required |
 | `apps/web/package.json` | Modify | Web dependency manifest | Adds `@lottiefiles/dotlottie-react` compatible with React 19, pinned through the workspace range convention | Browser-only declarative player | `RouteTransitionStatus` | Installed with `pnpm --filter web add @lottiefiles/dotlottie-react@^0.19.16` |
 | `pnpm-lock.yaml` | Generate | pnpm resolution graph | Records dotLottie React 0.19.16 and its web runtime dependency from `apps/web/package.json` | Standard pnpm lock lifecycle | Web dependency manifest | Generate with `pnpm --filter web add @lottiefiles/dotlottie-react@^0.19.16`; never edit manually |
+
+## CI validation
+
+| Path | Change | Declaration | Wiring/configuration | Lifecycle/order | Connected contracts | Generation/consumers |
+| --- | --- | --- | --- | --- | --- | --- |
+| `.github/workflows/web-app-ci.yml` | Modify | Web CI workflow | Runs the current fixture-backed Web browser integration suite with one worker after static checks and before the production build | Uses the existing 30-minute job budget and preserves coverage, complexity, and build ordering | Validates the shared route and query-loading feedback contract in the PR quality gate | `apps/web/test:integration` |
 
 ## Technical decisions
 
