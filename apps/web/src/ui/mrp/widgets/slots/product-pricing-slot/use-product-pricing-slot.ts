@@ -12,7 +12,7 @@ export type ProductPricingAction =
   | { kind: 'remove'; size: ProductSizePricing }
 
 export function useProductPricingSlot(productId: string) {
-  const { pricing, pricingError, isLoadingPricing, retryPricing } =
+  const { pricing, pricingError, isLoadingPricing, isRefreshingPricing, retryPricing } =
     useProductPricingQuery(productId)
   const { navigateTo, navigateToPath } = useNavigation()
   const [selectedAction, setSelectedAction] = useState<ProductPricingAction>()
@@ -75,6 +75,7 @@ export function useProductPricingSlot(productId: string) {
   return {
     pricingError,
     isLoadingPricing,
+    isRefreshingPricing,
     pricing,
     selectedAction,
     handleActionOpenChange,

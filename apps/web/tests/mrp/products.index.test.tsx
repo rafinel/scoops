@@ -214,7 +214,7 @@ test.describe('Products route', () => {
     })
 
     const navigation = page.goto('/products', { waitUntil: 'commit' })
-    await expect(page.getByText('Carregando produtos...')).toBeVisible()
+    await expect(page.getByRole('status', { name: 'Carregando produtos' })).toBeVisible()
     releaseRequest()
     await navigation
     await expect(page.getByText('Leite integral')).toBeVisible()

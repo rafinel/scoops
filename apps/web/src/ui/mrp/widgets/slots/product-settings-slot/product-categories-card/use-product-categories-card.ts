@@ -122,6 +122,7 @@ export function useProductCategoriesCard(
     isChangingCategories: changeAction.isChangingProductCategories,
     isLoadingImpact: impactQuery.isLoadingCategoryRemovalImpact,
     isPendingImpact: impactQuery.isPendingCategoryRemovalImpact,
+    isRefreshingImpact: impactQuery.isRefreshingCategoryRemovalImpact,
     isSelected: (category: ProductCategory) => selectedCategory === category,
     retryImpact: impactQuery.retryCategoryRemovalImpact,
     selectedCategory,

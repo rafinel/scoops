@@ -15,6 +15,7 @@ export type SalesChannelsAction =
 export function useSalesChannelsPage() {
   const {
     isLoadingSalesChannels,
+    isRefreshingSalesChannels,
     isSalesChannelsError,
     refetchSalesChannels,
     salesChannels,
@@ -83,6 +84,7 @@ export function useSalesChannelsPage() {
     actionError,
     announcement,
     isLoadingSalesChannels,
+    isRefreshingSalesChannels,
     isReactivating,
     isSalesChannelsError,
     handleCreate,

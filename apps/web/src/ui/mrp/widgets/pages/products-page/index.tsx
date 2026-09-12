@@ -20,7 +20,9 @@ export const ProductsPage = ({ search, onSearchChange }: ProductsPageProps) => {
     hasFilters,
     isFilterOpen,
     isLoadingProducts,
+    isPageLoadingProducts,
     isPendingProducts,
+    isRefreshingProducts,
     productsPage,
     handleEmptyStateClear,
     handleFilterOpenChange,
@@ -47,13 +49,15 @@ export const ProductsPage = ({ search, onSearchChange }: ProductsPageProps) => {
         </div>
       </div>
 
-      <ProductsKpiCards page={productsPage} isLoading={isLoadingProducts} />
+      <ProductsKpiCards isLoading={isLoadingProducts} page={productsPage} />
       <ProductsListCard
         emptyState={
           <ProductsEmptyState hasFilters={hasFilters} onClear={handleEmptyStateClear} />
         }
         isError={hasProductsError}
         isPending={isPendingProducts}
+        isPageLoading={isPageLoadingProducts}
+        isRefreshing={isRefreshingProducts}
         canManageProducts={canManageProducts}
         onFilterOpen={handleOpenFilter}
         onRefetch={() => refetchProducts()}

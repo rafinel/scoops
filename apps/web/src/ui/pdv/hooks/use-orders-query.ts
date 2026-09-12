@@ -28,9 +28,12 @@ export const useOrdersQuery = ({ isPeriodReady, ...input }: OrdersQueryInput) =>
   })
 
   return {
-    isLoadingOrders: query.isPending,
+    isLoadingOrders: query.isPending && query.data === undefined,
     ordersError: query.error,
     ordersPage: query.data,
     refetchOrders: query.refetch,
+    isPageLoadingOrders: query.isFetching && query.isPlaceholderData,
+    isRefreshingOrders:
+      query.isFetching && query.data !== undefined && !query.isPlaceholderData,
   }
 }

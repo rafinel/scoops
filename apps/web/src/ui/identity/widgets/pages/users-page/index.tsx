@@ -5,6 +5,7 @@ import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures
 import { ROUTES } from '@/constants/routes'
 import { Avatar } from '@/ui/shared/widgets/components/avatar'
 import { Button } from '@/ui/shadcn/button'
+import { Skeleton } from '@/ui/shadcn/skeleton'
 import {
   Select,
   SelectContent,
@@ -27,7 +28,28 @@ import {
 import { UserCard } from './user-card'
 import { UserActionsMenu } from './user-actions-menu'
 import { UserInviteDialog } from './user-invite-dialog'
+import { UsersPageIntro } from './users-page-intro'
 import { useUsersPage } from './use-users-page'
+
+const usersLoading = (
+  <div
+    aria-label='Carregando usuários'
+    aria-live='polite'
+    className='space-y-3 p-5'
+    role='status'
+  >
+    {['one', 'two', 'three', 'four'].map((item) => (
+      <div className='flex items-center gap-3 py-2' key={item}>
+        <Skeleton className='size-10 shrink-0 rounded-full' />
+        <div className='min-w-0 flex-1 space-y-2'>
+          <Skeleton className='h-4 w-2/5' />
+          <Skeleton className='h-3 w-3/5' />
+        </div>
+        <Skeleton className='hidden h-6 w-20 rounded-full sm:block' />
+      </div>
+    ))}
+  </div>
+)
 
 export const UsersPage = () => {
   const {
@@ -48,6 +70,8 @@ export const UsersPage = () => {
     isInviteOpen,
     isMobileLayout,
     isLoading,
+    isPageLoading,
+    isRefreshing,
     page,
     pagination,
     profile,
@@ -66,17 +90,7 @@ export const UsersPage = () => {
   return (
     <section className='min-w-0 space-y-5'>
       <header className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
-        <div>
-          <h1 className='mt-2 text-[28px] font-extrabold tracking-tight'>
-            Usuários{' '}
-            <span className='text-lg font-semibold text-muted-foreground'>
-              ({summary?.total ?? 0})
-            </span>
-          </h1>
-          <p className='mt-1 text-sm font-medium text-muted-foreground'>
-            Cadastre pessoas e gerencie quem pode operar ou administrar a sorveteria.
-          </p>
-        </div>
+        <UsersPageIntro isRefreshing={isRefreshing} total={summary?.total ?? 0} />
         <Button
           className='min-h-11 rounded-[10px] px-4 text-sm font-extrabold shadow-primary hover:brightness-105'
           onClick={() => handleInviteOpenChange(true)}
@@ -177,12 +191,7 @@ export const UsersPage = () => {
         </div>
 
         {isLoading ? (
-          <div
-            aria-live='polite'
-            className='py-16 text-center text-sm text-muted-foreground'
-          >
-            Carregando usuários…
-          </div>
+          usersLoading
         ) : isError ? (
           <div className='py-16 text-center'>
             <p className='font-bold'>Não foi possível carregar os usuários.</p>
@@ -304,8 +313,10 @@ export const UsersPage = () => {
         )}
 
         <footer className='flex flex-col gap-3 border-t border-border-soft bg-muted px-5 py-3.5 text-xs font-semibold text-muted-foreground sm:flex-row sm:items-center sm:justify-between'>
-          <span>
-            Mostrando {users.length} de {pagination?.total ?? 0} usuários
+          <span aria-live='polite'>
+            {isPageLoading
+              ? 'Carregando página…'
+              : `Mostrando ${users.length} de ${pagination?.total ?? 0} usuários`}
           </span>
           <span className='flex items-center gap-2'>
             <Icon name='shield-alert' className='size-[14px]' />
@@ -316,7 +327,7 @@ export const UsersPage = () => {
               <Button
                 variant='outline'
                 className='rounded-lg bg-card px-3 py-1.5 font-bold disabled:opacity-40'
-                disabled={page === 1}
+                disabled={isPageLoading || page === 1}
                 onClick={() => setPage(page - 1)}
                 type='button'
               >
@@ -325,7 +336,7 @@ export const UsersPage = () => {
               <Button
                 variant='outline'
                 className='rounded-lg bg-card px-3 py-1.5 font-bold disabled:opacity-40'
-                disabled={page === pagination.totalPages}
+                disabled={isPageLoading || page === pagination.totalPages}
                 onClick={() => setPage(page + 1)}
                 type='button'
               >

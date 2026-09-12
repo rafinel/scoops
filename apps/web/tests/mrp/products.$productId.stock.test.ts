@@ -578,7 +578,9 @@ test.describe('Product stock route with mocked transport', () => {
     })
     releaseDetail()
     await navigation
-    await expect(page.getByText('Carregando histórico…')).toBeVisible()
+    await expect(
+      page.getByRole('status', { name: 'Carregando histórico de movimentações' }),
+    ).toBeVisible()
     await page.screenshot({
       path: path.join(
         SCREENSHOT_DIRECTORY,

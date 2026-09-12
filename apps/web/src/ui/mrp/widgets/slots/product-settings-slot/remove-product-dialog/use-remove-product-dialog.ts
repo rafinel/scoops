@@ -17,6 +17,7 @@ export function useRemoveProductDialog({
 }: RemoveProductDialogProps) {
   const impact = useProductRemovalImpactQuery(product.id, open)
   const action = useRemoveProductAction(product.id)
+  const isRemovingProduct = action.isRemovingProduct
 
   async function handleConfirm() {
     try {
@@ -27,7 +28,7 @@ export function useRemoveProductDialog({
   }
 
   function handleOpenChange(nextOpen: boolean) {
-    if (action.isRemovingProduct) return
+    if (isRemovingProduct) return
     onOpenChange(nextOpen)
   }
 
@@ -35,7 +36,7 @@ export function useRemoveProductDialog({
     ...impact,
     handleConfirm,
     handleOpenChange,
-    isRemovingProduct: action.isRemovingProduct,
+    isRemovingProduct,
     removeProductError: action.removeProductError,
   }
 }

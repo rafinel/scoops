@@ -32,6 +32,7 @@ export const usePreviewProductUnitChangeQuery = (
     hasUnitChangePreviewError: query.isError,
     isLoadingUnitChangePreview: query.isLoading,
     isPendingUnitChangePreview: query.isPending,
+    isRefreshingUnitChangePreview: query.isFetching && Boolean(query.data),
     retryUnitChangePreview: query.refetch,
   }
 }

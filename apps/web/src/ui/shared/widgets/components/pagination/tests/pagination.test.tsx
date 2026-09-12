@@ -54,4 +54,30 @@ describe('Pagination', () => {
 
     expect(container.innerHTML).toBe('')
   })
+
+  it('announces page loading and disables navigation while the next page is fetching', () => {
+    render(
+      <Pagination
+        currentPage={2}
+        isLoading
+        pageSize={5}
+        totalItems={47}
+        onPageChange={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('navigation').getAttribute('aria-busy')).toBe('true')
+    expect(screen.getByText('Carregando página…')).not.toBeNull()
+    expect(
+      (screen.getByRole('button', { name: 'Página anterior' }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true)
+    expect(
+      (screen.getByRole('button', { name: 'Próxima página' }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true)
+    expect(
+      (screen.getByRole('button', { name: 'Página 3' }) as HTMLButtonElement).disabled,
+    ).toBe(true)
+  })
 })

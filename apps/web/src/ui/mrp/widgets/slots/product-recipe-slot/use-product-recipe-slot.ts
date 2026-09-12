@@ -9,14 +9,18 @@ export type RecipeSlotAction =
   | { kind: 'edit' | 'remove'; ingredient: RecipeIngredientDetails }
 
 export function useProductRecipeSlot(productId: string) {
-  const { data: productStock, isPending: isProductPending } =
-    useProductStockQuery(productId)
+  const {
+    data: productStock,
+    isFetching: isProductFetching,
+    isPending: isProductPending,
+  } = useProductStockQuery(productId)
   const isManufacturable =
     productStock?.product.categories.includes('manufacturable') ?? false
   const {
     data: recipeDetails,
     isError: hasRecipeError,
     isPending: isRecipePending,
+    isFetching: isRecipeFetching,
     refetch: refetchRecipe,
   } = useProductRecipeQuery(productId, isManufacturable)
   const { navigateTo, navigateToPath } = useNavigation()
@@ -54,6 +58,9 @@ export function useProductRecipeSlot(productId: string) {
     details: recipeDetails,
     isError: hasRecipeError,
     isLoading: isProductPending || (isManufacturable && isRecipePending),
+    isRefreshing:
+      (isProductFetching && Boolean(productStock)) ||
+      (isManufacturable && isRecipeFetching && Boolean(recipeDetails)),
     isUnsupported: Boolean(productStock && !isManufacturable),
     product: productStock?.product ?? recipeDetails?.product,
     selectedAction,

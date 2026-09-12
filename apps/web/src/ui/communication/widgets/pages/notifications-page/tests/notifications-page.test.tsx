@@ -43,6 +43,7 @@ const basePageState = {
   bounds: {},
   isLoadingNextNotifications: false,
   isLoadingNotifications: false,
+  isRefreshingNotifications: false,
   isNextNotificationsError: false,
   notifications: [
     NotificationFaker.fake({

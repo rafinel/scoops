@@ -58,6 +58,7 @@ vi.mock('@/ui/identity/hooks/use-users-query', () => ({
   useUsersQuery: () => ({
     isError: false,
     isLoading: false,
+    isRefreshing: false,
     pagination: undefined,
     summary: undefined,
     refetch: vi.fn(),
@@ -88,6 +89,7 @@ describe('useUsersPage', () => {
       page: 1,
       profile: UserProfile.Manager,
     })
+    expect(result.current.isRefreshing).toBe(false)
   })
 
   it('keeps self-protection in the page-owned action state', () => {

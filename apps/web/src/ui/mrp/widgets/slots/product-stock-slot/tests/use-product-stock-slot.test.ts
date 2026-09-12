@@ -63,6 +63,7 @@ describe('useProductStockSlot', () => {
     useProductStockQueryMock.mockReturnValue({
       data: productStock,
       isError: false,
+      isFetching: true,
       isPending: false,
       refetch: refetchMock,
     } as never)
@@ -81,6 +82,7 @@ describe('useProductStockSlot', () => {
     expect(result.current.isBrandActionPending).toBe(false)
     expect(result.current.isError).toBe(false)
     expect(result.current.isLoading).toBe(false)
+    expect(result.current.isRefreshing).toBe(true)
   })
 
   it('selects every stock action and closes or refreshes them through its handlers', () => {
@@ -155,6 +157,7 @@ describe('useProductStockSlot', () => {
     useProductStockQueryMock.mockReturnValue({
       data: undefined,
       isError: true,
+      isFetching: false,
       isPending: true,
       refetch: refetchMock,
     } as never)

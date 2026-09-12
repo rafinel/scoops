@@ -30,6 +30,8 @@ const createView = () => ({
   data: undefined,
   isError: false,
   isLoading: false,
+  isPageLoading: false,
+  isRefreshing: false,
   handleActionOpenChange: vi.fn(),
   handleActionSuccess: vi.fn(),
   handleBack: vi.fn(),

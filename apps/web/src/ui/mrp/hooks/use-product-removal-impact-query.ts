@@ -24,6 +24,7 @@ export const useProductRemovalImpactQuery = (productId: string, enabled = false)
     hasProductRemovalImpactError: query.isError,
     isLoadingProductRemovalImpact: query.isLoading,
     isPendingProductRemovalImpact: query.isPending,
+    isRefreshingProductRemovalImpact: query.isFetching && Boolean(query.data),
     retryProductRemovalImpact: query.refetch,
   }
 }

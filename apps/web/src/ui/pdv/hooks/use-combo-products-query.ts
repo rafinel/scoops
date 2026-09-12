@@ -37,6 +37,7 @@ export const useComboProductsQuery = (
     catalogError: query.error,
     catalogPage: query.data,
     isCatalogError: query.isError,
-    isLoadingCatalog: query.isPending,
+    isLoadingCatalog: query.isPending && query.data === undefined,
+    isRefreshingCatalog: query.isFetching && query.data !== undefined,
   }
 }

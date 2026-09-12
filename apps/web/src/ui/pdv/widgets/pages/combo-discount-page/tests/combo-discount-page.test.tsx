@@ -44,6 +44,7 @@ function createView() {
     isComboDetailsError: false,
     isDeleteOpen: false,
     isLoadingComboDetails: false,
+    isRefreshingComboDetails: false,
     isPending: false,
     statusTarget: undefined,
     submitError: null,

@@ -7,9 +7,10 @@ import { salesChannelQueryKeys } from './sales-channel-query-keys'
 export const useActiveSalesChannelsQuery = () => {
   const { pdvService } = useRestContext()
   const {
-    data: activeSalesChannels = [],
+    data: activeSalesChannelsData,
     error: activeSalesChannelsError,
     isError: isActiveSalesChannelsError,
+    isFetching: isFetchingActiveSalesChannels,
     isPending: isLoadingActiveSalesChannels,
     refetch: refetchActiveSalesChannels,
   } = useQuery({
@@ -23,10 +24,12 @@ export const useActiveSalesChannelsQuery = () => {
   })
 
   return {
-    activeSalesChannels,
     activeSalesChannelsError,
     isActiveSalesChannelsError,
+    isRefreshingActiveSalesChannels:
+      isFetchingActiveSalesChannels && activeSalesChannelsData !== undefined,
     isLoadingActiveSalesChannels,
     refetchActiveSalesChannels,
+    activeSalesChannels: activeSalesChannelsData ?? [],
   }
 }

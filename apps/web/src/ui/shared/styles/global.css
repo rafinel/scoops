@@ -148,6 +148,18 @@
   border-color: var(--border);
 }
 
+main {
+  view-transition-name: main-content;
+}
+
+::view-transition-old(main-content) {
+  animation: route-transition-fade-out 180ms ease-out both;
+}
+
+::view-transition-new(main-content) {
+  animation: route-transition-fade-in 180ms ease-out both;
+}
+
 html {
   min-width: 320px;
   background: var(--background);
@@ -202,6 +214,31 @@ button:disabled,
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  ::view-transition-old(main-content),
+  ::view-transition-new(main-content) {
+    animation: none;
+  }
+}
+
+@keyframes route-transition-fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes route-transition-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 

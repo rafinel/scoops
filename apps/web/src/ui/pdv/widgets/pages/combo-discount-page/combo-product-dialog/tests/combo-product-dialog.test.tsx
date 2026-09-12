@@ -24,6 +24,7 @@ function createView() {
     handleSelectProduct: vi.fn(),
     isCatalogError: false,
     isLoadingCatalog: false,
+    isRefreshingCatalog: false,
     isValidConfiguration: false,
     kind: undefined,
     products: [portionProduct, resaleProduct],

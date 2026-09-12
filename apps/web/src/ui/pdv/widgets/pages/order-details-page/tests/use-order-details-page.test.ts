@@ -21,6 +21,7 @@ describe('useOrderDetailsPage', () => {
     vi.clearAllMocks()
     useOrderQueryMock.mockReturnValue({
       isLoadingOrder: false,
+      isRefreshingOrder: false,
       order: { id: 'order-1', status: 'registered' } as never,
       orderError: null,
       refetchOrder: vi.fn(),

@@ -22,6 +22,7 @@ export const useProductPricingQuery = (productId: string) => {
     pricing: query.data,
     pricingError: query.isError,
     isLoadingPricing: query.isPending,
+    isRefreshingPricing: query.isFetching && Boolean(query.data),
     retryPricing: query.refetch,
   }
 }

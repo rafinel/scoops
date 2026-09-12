@@ -1,4 +1,5 @@
 import { ProductDetailsPage } from '@/ui/mrp/widgets/pages/product-details-page'
+import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
 
 import { ProductPricingError } from './product-pricing-error'
 import { ProductPricingLoading } from './product-pricing-loading'
@@ -23,6 +24,7 @@ export const ProductPricingSlot = ({ productId }: ProductPricingSlotProps) => {
     handleRetry,
     pricingError,
     isLoadingPricing,
+    isRefreshingPricing,
     pricing,
     selectedAction,
   } = useProductPricingSlot(productId)
@@ -33,6 +35,7 @@ export const ProductPricingSlot = ({ productId }: ProductPricingSlotProps) => {
       product={pricing?.product}
       selectedTab='prices'
     >
+      <QueryRefreshStatus isRefreshing={isRefreshingPricing} />
       {isLoadingPricing ? <ProductPricingLoading /> : null}
       {pricingError ? <ProductPricingError onRetry={handleRetry} /> : null}
       {pricing && !isLoadingPricing && !pricingError ? (

@@ -1,3 +1,5 @@
+import { Skeleton } from '@/ui/shadcn/skeleton'
+
 export const RecipeLoading = () => (
   <div
     aria-busy='true'
@@ -5,7 +7,7 @@ export const RecipeLoading = () => (
     className='space-y-4'
     role='status'
   >
-    <div className='h-36 animate-pulse rounded-2xl bg-muted' />
-    <div className='h-96 animate-pulse rounded-2xl bg-muted' />
+    <Skeleton className='h-36 rounded-2xl' />
+    <Skeleton className='h-96 rounded-2xl' />
   </div>
 )

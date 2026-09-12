@@ -15,8 +15,15 @@ export function useNewSaleCatalog({ onSelectProduct }: UseNewSaleCatalogProps) {
   const [search, setSearch] = useState('')
   const [kind, setKind] = useState<SaleItemKind>()
   const [page, setPage] = useState(1)
-  const { catalogError, catalogPage, isCatalogError, isLoadingCatalog, refetchCatalog } =
-    useOrderCatalogQuery(search, kind, page)
+  const {
+    catalogError,
+    catalogPage,
+    isCatalogError,
+    isLoadingCatalog,
+    isPageLoadingCatalog,
+    isRefreshingCatalog,
+    refetchCatalog,
+  } = useOrderCatalogQuery(search, kind, page)
 
   function handleSearchChange(value: string) {
     setSearch(value)
@@ -53,6 +60,8 @@ export function useNewSaleCatalog({ onSelectProduct }: UseNewSaleCatalogProps) {
     handleSelectProduct,
     isCatalogError,
     isLoadingCatalog,
+    isPageLoadingCatalog,
+    isRefreshingCatalog,
     kind,
     page,
     refetchCatalog,

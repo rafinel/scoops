@@ -15,6 +15,7 @@ export function useShopSettingsPage() {
     settings,
     error: queryError,
     isLoading,
+    isRefreshing,
     refetch,
   } = useEstablishmentSettingsQuery()
   const {
@@ -81,6 +82,7 @@ export function useShopSettingsPage() {
     handleNameSubmit: submitForm(handleNameSubmit),
     handleOpenNameDialog,
     isLoading,
+    isRefreshing,
     isNameDialogOpen,
     isPending,
     queryError,

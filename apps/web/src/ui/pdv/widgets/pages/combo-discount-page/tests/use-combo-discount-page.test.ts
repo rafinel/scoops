@@ -31,6 +31,7 @@ describe('useComboDiscountPage', () => {
       comboDetailsError: null,
       isComboDetailsError: false,
       isLoadingComboDetails: false,
+      isRefreshingComboDetails: false,
       refetchComboDetails: vi.fn().mockResolvedValue(undefined),
     })
     vi.mocked(useCreateComboAction).mockReturnValue({
@@ -70,6 +71,7 @@ describe('useComboDiscountPage', () => {
       comboDetailsError: null,
       isComboDetailsError: false,
       isLoadingComboDetails: false,
+      isRefreshingComboDetails: false,
       refetchComboDetails,
     })
     vi.mocked(useUpdateComboAction).mockReturnValue({ isPending: false, updateCombo })

@@ -48,6 +48,8 @@ describe('useProduceProductDialog', () => {
     registerProductionMock.mockResolvedValue(undefined)
     useProductionPreviewQueryMock.mockReturnValue({
       data: produciblePreview,
+      isFetching: true,
+      isRefreshing: true,
       isPending: false,
       isError: false,
       refetch: vi.fn(),
@@ -177,6 +179,8 @@ describe('useProduceProductDialog', () => {
   it('does not register production when the preview blocks it', async () => {
     useProductionPreviewQueryMock.mockReturnValue({
       data: blockedPreview,
+      isFetching: false,
+      isRefreshing: false,
       isPending: false,
       isError: false,
       refetch: vi.fn(),

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 
@@ -13,12 +13,14 @@ export const useRecentNotificationsQuery = () => {
       if (response.isFailure) response.throwError()
       return response.body
     },
+    placeholderData: keepPreviousData,
     retry: false,
   })
 
   return {
     ...query,
     isLoadingRecentNotifications: query.isLoading,
+    isRefreshingRecentNotifications: query.isFetching && Boolean(query.data),
     recentNotifications: query.data?.items ?? [],
     recentNotificationsError: query.error,
     unreadCount: query.data?.unreadCount ?? 0,

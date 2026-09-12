@@ -1,6 +1,7 @@
 import type { ProductCatalogPage } from '@scoops/core/mrp/domain/structures'
 
 import { Card } from '@/ui/shadcn/card'
+import { Skeleton } from '@/ui/shadcn/skeleton'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import { useProductsKpiCards } from './use-products-kpi-cards'
@@ -32,9 +33,13 @@ export const ProductsKpiCards = ({ page, isLoading }: ProductsKpiCardsProps) => 
                 <p className='text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground'>
                   {label}
                 </p>
-                <p className={`mt-0.5 text-2xl font-extrabold ${valueTone}`}>
-                  {displayValue}
-                </p>
+                {isLoading && !page ? (
+                  <Skeleton aria-label='Carregando indicador' className='mt-2 h-8 w-24' />
+                ) : (
+                  <p className={`mt-0.5 text-2xl font-extrabold ${valueTone}`}>
+                    {displayValue}
+                  </p>
+                )}
                 <p className='text-xs text-muted-foreground'>{detail}</p>
               </div>
             </div>

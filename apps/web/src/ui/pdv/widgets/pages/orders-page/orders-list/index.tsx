@@ -9,6 +9,7 @@ import { Pagination } from '@/ui/shared/widgets/components/pagination'
 import { useOrdersList } from './use-orders-list'
 
 export type OrdersListProps = {
+  isPageLoading?: boolean
   onOpenOrder: (orderId: string) => void
   onPageChange: (page: number) => void
   ordersPage: {
@@ -20,6 +21,7 @@ export type OrdersListProps = {
 }
 
 export const OrdersList = ({
+  isPageLoading = false,
   onOpenOrder,
   onPageChange,
   ordersPage,
@@ -141,6 +143,7 @@ export const OrdersList = ({
       </div>
       <Pagination
         currentPage={ordersPage.page}
+        isLoading={isPageLoading}
         itemLabel='pedidos'
         onPageChange={onPageChange}
         pageSize={ordersPage.pageSize}

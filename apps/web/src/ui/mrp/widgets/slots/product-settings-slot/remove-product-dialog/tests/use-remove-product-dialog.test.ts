@@ -27,6 +27,7 @@ const impact = {
   hasProductRemovalImpactError: false,
   isLoadingProductRemovalImpact: false,
   isPendingProductRemovalImpact: false,
+  isRefreshingProductRemovalImpact: true,
   retryProductRemovalImpact: vi.fn(),
 }
 
@@ -60,6 +61,7 @@ describe('useRemoveProductDialog', () => {
     expect(removeProduct).toHaveBeenCalledOnce()
     expect(onOpenChange).toHaveBeenCalledWith(false)
     expect(result.current.productRemovalImpact).toBeUndefined()
+    expect(result.current.isRefreshingProductRemovalImpact).toBe(true)
   })
 
   it('blocks closing while removing and reports removal failures', async () => {

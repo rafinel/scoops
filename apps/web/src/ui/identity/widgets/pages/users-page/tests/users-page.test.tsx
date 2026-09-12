@@ -22,6 +22,7 @@ const { pageState } = vi.hoisted(() => ({
     isInviteOpen: false,
     isMobileLayout: true,
     isLoading: false,
+    isRefreshing: false,
     page: 1,
     pagination: { total: 1, totalPages: 1 },
     profile: undefined,
@@ -109,5 +110,17 @@ describe('UsersPage', () => {
     expect(card.className).toContain('min-w-0')
     expect(card.className).toContain('overflow-hidden')
     expect(card.textContent).toContain('marina@example.com')
+  })
+
+  it('keeps the user content visible while announcing a refresh', () => {
+    useUsersPageMock.mockReturnValueOnce({
+      ...pageState,
+      isRefreshing: true,
+    } as never)
+
+    render(<UsersPage />)
+
+    expect(screen.getByRole('status', { name: 'Atualizando…' })).not.toBeNull()
+    expect(screen.getByRole('article', { name: 'Usuário Marina Alves' })).not.toBeNull()
   })
 })

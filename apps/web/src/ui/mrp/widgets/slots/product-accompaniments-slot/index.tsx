@@ -1,4 +1,5 @@
 import { ProductDetailsPage } from '@/ui/mrp/widgets/pages/product-details-page'
+import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
 
 import { ProductAccompanimentsCard } from './product-accompaniments-card'
 import { AccompanimentsEmptyState } from './accompaniments-empty-state'
@@ -26,6 +27,7 @@ export const ProductAccompanimentsSlot = ({
     handleRetry,
     isError,
     isLoading,
+    isRefreshing,
     product,
     selectedAction,
   } = useProductAccompanimentsSlot(productId)
@@ -35,6 +37,7 @@ export const ProductAccompanimentsSlot = ({
       product={product}
       selectedTab='accompaniments'
     >
+      <QueryRefreshStatus isRefreshing={isRefreshing} />
       {isLoading ? <ProductAccompanimentsLoading /> : null}
       {isError ? <ProductAccompanimentsError onRetry={handleRetry} /> : null}
       {details && !isLoading && !isError ? (
