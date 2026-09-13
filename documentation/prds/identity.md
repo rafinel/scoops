@@ -351,7 +351,6 @@ PRQ-07, and PRQ-08; administrative history from PRQ-10.
 
 ### PRQ-07 — Promotion and Demotion
 
-- [ ] **Implemented**
 
 **Outcome:** A Manager can align another active user's fixed profile with their current
 responsibility without losing historical authorship or the final active Manager.
@@ -460,7 +459,6 @@ and end the current session without changing immutable access attributes.
 
 ### PRQ-10 — Administrative Audit
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can reconstruct identity and access changes from an immutable,
 establishment-scoped administrative history that excludes secrets.
@@ -503,7 +501,6 @@ consumed by PRQ-14.
 
 ### PRQ-11 — Establishment Management
 
-- [ ] **Implemented**
 
 **Outcome:** A Manager can inspect and change the name and business timezone of
 their own establishment without changing its identity, membership, data ownership,
@@ -546,7 +543,6 @@ or historical snapshots.
 
 ### PRQ-12 — Customer-Initiated Establishment Deletion Removed
 
-- [ ] **Implemented**
 
 **Outcome:** Customers cannot initiate establishment deletion through Identity, while
 historical and policy-governed data lifecycles remain outside this product surface.
@@ -609,7 +605,6 @@ change facts from PRQ-07; active and inactive states from PRQ-08.
 
 ### PRQ-14 — Outcome Measurement
 
-- [ ] **Implemented**
 
 **Outcome:** Identity performance can be evaluated against the approved activation,
 administrative-autonomy, audit, and authorization success metrics.

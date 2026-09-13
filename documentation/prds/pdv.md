@@ -544,7 +544,6 @@ by PRQ-08.
 
 ### PRQ-08 — Order Confirmation and Registration
 
-- [ ] **Implemented**
 
 **Outcome:** The Operator explicitly confirms a definitive order that is created exactly once
 with all stock consumption in one atomic transaction.
@@ -605,7 +604,6 @@ registration-time cost facts consumed by PRQ-09.
 
 ### PRQ-09 — Order Snapshot
 
-- [ ] **Implemented**
 
 **Outcome:** Authorized users can rely on immutable commercial and operational facts preserved
 at the time an order is registered.
@@ -736,7 +734,6 @@ PRQ-09 and establishment access from the Identity module.
 
 ### PRQ-11 — Permissions, Navigation and Isolation
 
-- [ ] **Implemented**
 
 **Outcome:** Operators and Managers see only the PDV navigation and actions authorized for their
 profiles, with all data isolated to the current establishment.
@@ -778,7 +775,6 @@ module.
 
 ### PRQ-12 — Performance, Responsiveness and Accessibility
 
-- [ ] **Implemented**
 
 **Outcome:** Operators and Managers can use all four PDV areas quickly and accessibly on priority
 devices while receiving consistent server-backed results.

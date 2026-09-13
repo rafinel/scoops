@@ -85,7 +85,6 @@ Success is measured by:
 
 ### PRQ-01 — Product Registration and Categories
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can register an establishment-scoped product with valid categories, unit,
 stock control, status, and optional operational settings that determine its later MRP behavior.
@@ -144,7 +143,6 @@ unit cost for PRQ-02, PRQ-03, PRQ-04, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09, PR
 
 ### PRQ-02 — Brand Management and Main Brand
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can maintain product-specific brands, packaging economics, brand balances,
 and exactly one main brand for future automatic write-offs.
@@ -194,7 +192,6 @@ for PRQ-03, PRQ-06, PRQ-07, PRQ-08, PRQ-09, and PRQ-10.
 
 ### PRQ-03 — Inventory Control and Stock History
 
-- [ ] **Implemented**
 
 **Outcome:** Authorized users can understand current stock and its attributable history, while
 Managers can apply valid entries and write-offs without leaving balances and transactions
@@ -276,7 +273,6 @@ Communication; and current stock-attention facts for Analytics.
 
 ### PRQ-04 — Product Listing
 
-- [ ] **Implemented**
 
 **Outcome:** Authorized users can find, compare, and open products using establishment-wide
 operational context and predictable filters, sorting, and pagination.
@@ -313,7 +309,6 @@ balances and stock status from PRQ-03; production capacity from PRQ-06.
 
 ### PRQ-05 — Dedicated Product Page and Settings
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can inspect and maintain each product through one category-aware page while
 understanding the impact of category, unit, and deletion changes.
@@ -418,7 +413,6 @@ Analytics.
 
 ### PRQ-07 — Production Record
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can record a Manufacturable production quantity with projected ingredient
 consumption and atomic stock updates, while invalid or failed production leaves stock unchanged.
@@ -469,7 +463,6 @@ for PRQ-03.
 
 ### PRQ-08 — Accompaniments and Accompaniment Types
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can maintain establishment-scoped accompaniment types and link eligible
 Accompaniment products to Portions with the quantity and brand context needed for sale.
@@ -525,7 +518,6 @@ context for PRQ-09, PRQ-10, and PDV.
 
 ### PRQ-09 — Integrated Commercial Settings
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can maintain the Portion and Resale settings that determine future PDV
 availability without duplicating cart, sale, or historical-order rules in MRP.
@@ -576,7 +568,6 @@ product-size-accompaniment prices, and current operating-cost facts for PRQ-10, 
 
 ### PRQ-10 — Navigation, States, and High-Impact Changes
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can navigate MRP and complete or recover from destructive and high-impact
 product changes with clear dependency, loading, success, and error feedback.
