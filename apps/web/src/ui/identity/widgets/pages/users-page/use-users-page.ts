@@ -256,6 +256,7 @@ export function useUsersPage() {
 
   return {
     ...usersQuery,
+    isRefreshing: usersQuery.isRefreshing,
     search,
     setSearch,
     status,

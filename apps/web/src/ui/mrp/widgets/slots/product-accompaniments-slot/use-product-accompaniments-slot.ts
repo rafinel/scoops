@@ -42,6 +42,9 @@ export function useProductAccompanimentsSlot(productId: string) {
     details: query.data,
     isError: stockQuery.isError || query.isError,
     isLoading: stockQuery.isPending || query.isPending,
+    isRefreshing:
+      (stockQuery.isFetching && Boolean(stockQuery.data)) ||
+      (query.isFetching && Boolean(query.data)),
     product: stockQuery.data?.product ?? query.data?.product,
     selectedAction,
     handleActionOpenChange,

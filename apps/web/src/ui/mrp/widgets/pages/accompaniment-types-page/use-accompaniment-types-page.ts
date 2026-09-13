@@ -40,6 +40,8 @@ export function useAccompanimentTypesPage(
     data: query.data,
     isError: query.isError,
     isLoading: query.isPending,
+    isPageLoading: query.isFetching && query.isPlaceholderData,
+    isRefreshing: query.isFetching && Boolean(query.data) && !query.isPlaceholderData,
     handleActionOpenChange,
     handleActionSuccess,
     handleBack,

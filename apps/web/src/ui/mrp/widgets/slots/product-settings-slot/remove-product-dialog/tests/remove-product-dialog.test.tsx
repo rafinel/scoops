@@ -19,6 +19,7 @@ describe('RemoveProductDialog', () => {
       handleOpenChange: vi.fn(),
       isLoadingProductRemovalImpact: false,
       isPendingProductRemovalImpact: false,
+      isRefreshingProductRemovalImpact: false,
       hasProductRemovalImpactError: false,
       productRemovalImpactError: null,
       retryProductRemovalImpact: vi.fn(),

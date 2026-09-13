@@ -212,11 +212,22 @@ client-register-dialog/
         └── use-client-identification.ts
 ```
 
-This is mandatory: do not define a nested component as a local component inside
-its parent's `index.tsx`. Every internal component must be promoted to an
-internal widget with its own widget directory and `index.tsx` entry point. Give
-it an exported widget-specific prop type and a colocated hook when it owns
-behavior, even when the widget is not reused outside its parent.
+This is mandatory and has no size, reuse, or visibility exception: do not define
+a nested component as a local component inside its parent's `index.tsx` (or any
+other parent widget module). Every internal component must be promoted to an
+internal child widget with its own widget directory and `index.tsx` entry point.
+This includes private headers, loading/error/status renderers, control groups,
+dialog compositions, rows, cards, and other JSX-returning helpers. A child
+widget may remain private to its parent; privacy does not make local declaration
+acceptable.
+
+Give every child widget an exported widget-specific prop type and a colocated
+`use-<widget-name>.ts` hook when it owns behavior, even when it is not reused
+outside its parent. Keep only non-component helpers local, such as constants,
+formatters, type guards, and data-mapping functions that do not return JSX.
+When a parent needs a child, import it from the child widget's entry point and
+render it through the parent's composition boundary. Do not merge a child back
+into the parent merely to reduce file count or avoid creating a directory.
 
 ### Keep UI logic inside the owning widget hook
 

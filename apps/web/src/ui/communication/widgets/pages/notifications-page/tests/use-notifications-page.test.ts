@@ -48,6 +48,7 @@ describe('useNotificationsPage', () => {
       notifications: [],
       notificationsError: null,
       refetchNotifications: vi.fn(),
+      isRefreshingNotifications: false,
       unreadCount: 0,
     } as never)
   })
@@ -63,6 +64,7 @@ describe('useNotificationsPage', () => {
       expect.objectContaining({ enabled: true, limit: 20 }),
     )
     expect(useNotificationsQueryMock).toHaveBeenCalledWith({ enabled: true, limit: 1 })
+    expect(result.current.isRefreshingNotifications).toBe(false)
   })
 
   it('changes the URL period and resets to the documented default', () => {

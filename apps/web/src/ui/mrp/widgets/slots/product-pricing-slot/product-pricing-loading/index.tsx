@@ -1,3 +1,5 @@
+import { Skeleton } from '@/ui/shadcn/skeleton'
+
 export const ProductPricingLoading = () => (
   <div
     aria-busy='true'
@@ -5,7 +7,7 @@ export const ProductPricingLoading = () => (
     className='space-y-4'
     role='status'
   >
-    <div className='h-56 animate-pulse rounded-2xl bg-muted motion-reduce:animate-none' />
-    <div className='h-64 animate-pulse rounded-2xl bg-muted motion-reduce:animate-none' />
+    <Skeleton className='h-56 rounded-2xl' />
+    <Skeleton className='h-64 rounded-2xl' />
   </div>
 )

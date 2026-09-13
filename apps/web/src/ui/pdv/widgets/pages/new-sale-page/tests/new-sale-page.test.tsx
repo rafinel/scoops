@@ -58,6 +58,7 @@ function pageState() {
     idempotencyKey: undefined,
     isActiveSalesChannelsError: false,
     isLoadingActiveSalesChannels: false,
+    isRefreshingActiveSalesChannels: false,
     isPreviewPending: false,
     isRegistrationOpen: false,
     isRegistrationPending: false,

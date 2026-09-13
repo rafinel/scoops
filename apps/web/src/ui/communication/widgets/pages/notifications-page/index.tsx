@@ -1,12 +1,10 @@
 import { Button } from '@/ui/shadcn/button'
-import { BackLink } from '@/ui/shared/widgets/components/back-link'
+import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
 
 import { NotificationList } from '../../components/notification-list'
 import { NotificationListState } from '../../components/notification-list-state'
-import {
-  NotificationPeriodFilter,
-  type NotificationPeriod,
-} from '../../components/notification-period-filter'
+import type { NotificationPeriod } from '../../components/notification-period-filter'
+import { NotificationsPageHeader } from './notifications-page-header'
 import { useNotificationsPage } from './use-notifications-page'
 
 export const NotificationsPage = () => {
@@ -16,6 +14,7 @@ export const NotificationsPage = () => {
     hasNextPage,
     isLoadingNextNotifications,
     isLoadingNotifications,
+    isRefreshingNotifications,
     isNextNotificationsError,
     notifications,
     notificationsError,
@@ -32,26 +31,11 @@ export const NotificationsPage = () => {
 
   return (
     <section className='min-w-0 space-y-5'>
-      <header className='flex flex-col gap-4'>
-        <div>
-          <BackLink
-            aria-label='Voltar para página anterior'
-            className='-ml-2 mb-3'
-            onClick={handleBack}
-            route='app'
-          >
-            Voltar
-          </BackLink>
-          <h1 className='mt-2 text-[28px] font-extrabold tracking-tight'>Notificações</h1>
-          <p className='mt-1 text-sm font-medium text-muted-foreground'>
-            Acompanhe alertas e atualizações importantes da sua operação.
-          </p>
-        </div>
-        <NotificationPeriodFilter
-          onChange={handlePeriodChange}
-          period={period as NotificationPeriod}
-        />
-      </header>
+      <NotificationsPageHeader
+        handleBack={handleBack}
+        handlePeriodChange={handlePeriodChange}
+        period={period as NotificationPeriod}
+      />
 
       <section
         aria-labelledby='all-notifications-heading'
@@ -61,6 +45,7 @@ export const NotificationsPage = () => {
           <h2 className='text-base font-extrabold' id='all-notifications-heading'>
             Todas as notificações
           </h2>
+          <QueryRefreshStatus isRefreshing={isRefreshingNotifications} />
         </header>
 
         {isLoadingNotifications ? (

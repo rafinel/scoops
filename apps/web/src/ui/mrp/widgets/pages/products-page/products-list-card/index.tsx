@@ -10,9 +10,11 @@ import { Label } from '@/ui/shadcn/label'
 import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { Pagination } from '@/ui/shared/widgets/components/pagination'
+import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
 import { cn } from '@/ui/shared/lib/utils'
 
 import type { ProductsSearch } from '@/ui/mrp/hooks/use-products-query'
+import { ProductsListLoading } from './products-list-loading'
 import { ProductTable } from './product-table'
 import { useProductsListCard } from './use-products-list-card'
 
@@ -20,6 +22,8 @@ export type ProductsListCardProps = {
   canManageProducts: boolean
   isError: boolean
   isPending: boolean
+  isPageLoading?: boolean
+  isRefreshing?: boolean
   emptyState: ReactNode
   onFilterOpen: () => void
   onRefetch: () => void
@@ -32,6 +36,8 @@ export const ProductsListCard = ({
   canManageProducts,
   isError,
   isPending,
+  isPageLoading = false,
+  isRefreshing = false,
   emptyState,
   onFilterOpen,
   onRefetch,
@@ -48,7 +54,10 @@ export const ProductsListCard = ({
   return (
     <Card className='min-w-0 overflow-hidden'>
       <CardHeader className='flex flex-col border-b border-border-soft p-5 sm:flex-row sm:items-center sm:justify-between'>
-        <CardTitle className='text-lg font-extrabold'>Lista de produtos</CardTitle>
+        <div className='flex items-center gap-3'>
+          <CardTitle className='text-lg font-extrabold'>Lista de produtos</CardTitle>
+          <QueryRefreshStatus isRefreshing={isRefreshing} />
+        </div>
         {canManageProducts ? (
           <Anchor
             className={cn(
@@ -85,11 +94,7 @@ export const ProductsListCard = ({
           </Button>
         </div>
 
-        {isPending ? (
-          <p className='py-10 text-center text-muted-foreground'>
-            Carregando produtos...
-          </p>
-        ) : null}
+        {isPending ? <ProductsListLoading /> : null}
         {isError ? (
           <div className='m-4 rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center'>
             <p className='font-bold'>Não foi possível carregar os produtos.</p>
@@ -109,6 +114,7 @@ export const ProductsListCard = ({
         ) : null}
         <Pagination
           currentPage={search.page}
+          isLoading={isPageLoading}
           itemLabel='produtos'
           onPageChange={handlePageChange}
           pageSize={10}

@@ -37,6 +37,8 @@ function createView() {
     isDiscountsError: false,
     isFetchingDiscounts: false,
     isLoadingDiscounts: false,
+    isPageLoadingDiscounts: false,
+    isRefreshingDiscounts: false,
     isTypeDialogOpen: false,
     search: { page: 1, pageSize: 10 },
     handleClearFilters: vi.fn(),

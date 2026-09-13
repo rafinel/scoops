@@ -1,4 +1,5 @@
 import { Button } from '@/ui/shadcn/button'
+import { Skeleton } from '@/ui/shadcn/skeleton'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 export type NotificationListStateName =
@@ -29,15 +30,12 @@ export const NotificationListState = ({
         role='status'
       >
         {['one', 'two', 'three'].map((skeleton) => (
-          <div
-            className='flex animate-pulse gap-4 py-3 motion-reduce:animate-none'
-            key={skeleton}
-          >
-            <span className='size-10 shrink-0 rounded-full bg-muted' />
+          <div className='flex gap-4 py-3' key={skeleton}>
+            <Skeleton className='size-10 shrink-0 rounded-full' />
             <div className='min-w-0 flex-1 space-y-2'>
-              <span className='block h-4 w-2/5 rounded bg-muted' />
-              <span className='block h-3 w-4/5 rounded bg-muted' />
-              <span className='block h-3 w-1/5 rounded bg-muted' />
+              <Skeleton className='h-4 w-2/5' />
+              <Skeleton className='h-3 w-4/5' />
+              <Skeleton className='h-3 w-1/5' />
             </div>
           </div>
         ))}

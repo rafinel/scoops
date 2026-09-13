@@ -25,6 +25,7 @@ describe('useAccompanimentTypesPage', () => {
     useAccompanimentTypesQueryMock.mockReturnValue({
       data: { items: [item], page: 1, pageSize: 10, total: 1, totalPages: 1 },
       isError: false,
+      isFetching: true,
       isPending: false,
       refetch,
     } as never)
@@ -38,6 +39,7 @@ describe('useAccompanimentTypesPage', () => {
     act(() => result.current.handleActionSuccess())
     expect(refetch).toHaveBeenCalledTimes(1)
     expect(result.current.isLoading).toBe(false)
+    expect(result.current.isRefreshing).toBe(true)
     act(() => result.current.handleRetry())
     expect(refetch).toHaveBeenCalledTimes(2)
     const preventDefault = vi.fn()

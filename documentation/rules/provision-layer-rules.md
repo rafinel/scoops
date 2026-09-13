@@ -27,11 +27,17 @@ Do not create one copy of the same provider inside each feature module.
 Module-specific gateways and integrations remain owned by their module unless the
 capability is intentionally shared.
 
+Cross-module infrastructure adapters also live under shared provision. They implement an explicit
+contract owned by the consuming core module and may depend only on contracts and registrations
+exported by the authoritative provider module. They translate facts without moving business rules,
+repositories, controllers, or policy into shared code. Do not create a separate root composition
+module or `apps/server/src/compositions` tree for this wiring.
+
 ## Core declares the contract
 
-The infrastructure-independent contract belongs in
-`packages/core/src/shared/interfaces`. The server provider implements that
-contract.
+The infrastructure-independent contract belongs in `packages/core/src/shared/interfaces` for a
+general technical capability, or in the consuming core module when the capability serves one
+module. The server provider implements that contract.
 
 ```ts
 @Injectable()
@@ -53,6 +59,12 @@ and time, use `now(): Date`; do not expose an entire third-party date library.
 The shared `ProvisionModule` must register and export shared provider
 implementations. Feature modules import `ProvisionModule` to make them available
 to controllers and other server adapters.
+
+When a shared provider implements a module-owned contract, a focused shared provision module binds
+the provider to the consuming module's injection token and imports only the provider module required
+to resolve its exported dependency. The consuming feature modules import that focused shared module;
+the base `ProvisionModule` remains limited to providers that are generally available without a
+feature dependency.
 
 Do not register duplicate provider implementations in feature modules and do not
 instantiate providers manually in controllers.

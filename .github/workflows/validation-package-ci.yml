@@ -2,6 +2,8 @@ name: Validation CI
 
 on:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/validation-package-ci.yml'
       - 'biome.json'

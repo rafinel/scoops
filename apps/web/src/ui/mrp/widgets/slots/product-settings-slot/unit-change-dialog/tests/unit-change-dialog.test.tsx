@@ -15,6 +15,7 @@ const baseState = {
   isChangingProductUnit: false,
   isLoadingUnitChangePreview: false,
   isPendingUnitChangePreview: false,
+  isRefreshingUnitChangePreview: false,
   retryUnitChangePreview: vi.fn(),
   handleOpenChange: vi.fn(),
   handleConfirm: vi.fn(),

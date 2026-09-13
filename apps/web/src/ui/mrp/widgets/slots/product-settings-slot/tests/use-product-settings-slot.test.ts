@@ -24,6 +24,7 @@ describe('useProductSettingsSlot', () => {
       hasSettingsError: false,
       isLoadingSettings: false,
       isPendingSettings: false,
+      isRefreshingSettings: false,
       retrySettings: vi.fn(),
     })
     navigationMock.mockReturnValue({ navigateTo: vi.fn(), navigateToPath: vi.fn() })
@@ -58,6 +59,7 @@ describe('useProductSettingsSlot', () => {
       hasSettingsError: true,
       isLoadingSettings: false,
       isPendingSettings: false,
+      isRefreshingSettings: false,
       retrySettings,
     })
     const { result } = renderHook(() =>

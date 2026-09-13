@@ -1,5 +1,6 @@
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { Button } from '@/ui/shadcn/button'
+import { Skeleton } from '@/ui/shadcn/skeleton'
 import {
   Dialog,
   DialogContent,
@@ -10,8 +11,48 @@ import {
 } from '@/ui/shadcn/dialog'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
+import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
 
 import { useShopSettingsPage } from './use-shop-settings-page'
+
+const shopSettingsLoading = (
+  <section
+    aria-label='Carregando configurações da loja'
+    aria-live='polite'
+    className='space-y-4'
+    role='status'
+  >
+    <div className='space-y-2'>
+      <Skeleton className='h-8 w-48' />
+      <Skeleton className='h-4 w-full max-w-xl' />
+    </div>
+    <div className='overflow-hidden rounded-2xl border bg-card shadow-card'>
+      <div className='flex items-start justify-between gap-4 border-b border-border-soft px-6 py-5'>
+        <div className='w-full max-w-sm space-y-2'>
+          <Skeleton className='h-5 w-52' />
+          <Skeleton className='h-4 w-64' />
+        </div>
+        <Skeleton className='h-9 w-32 rounded-lg' />
+      </div>
+      <div className='flex items-center gap-4 border-b border-border-soft p-6'>
+        <Skeleton className='size-12 shrink-0 rounded-xl' />
+        <div className='flex-1 space-y-2'>
+          <Skeleton className='h-5 w-48' />
+          <Skeleton className='h-3 w-72 max-w-full' />
+        </div>
+        <Skeleton className='h-6 w-20 rounded-full' />
+      </div>
+      <div className='grid gap-5 px-6 py-5 sm:grid-cols-2'>
+        {['manager', 'created'].map((item) => (
+          <div className='space-y-2' key={item}>
+            <Skeleton className='h-3 w-32' />
+            <Skeleton className='h-4 w-40' />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)
 
 export const ShopSettingsPage = () => {
   const {
@@ -22,24 +63,17 @@ export const ShopSettingsPage = () => {
     handleNameSubmit,
     handleOpenNameDialog,
     isLoading,
+    isRefreshing,
     isNameDialogOpen,
     isPending,
     register,
-    queryError,
     refetch,
     settings,
   } = useShopSettingsPage()
 
-  if (isLoading)
-    return (
-      <section className='grid min-h-40 place-items-center rounded-2xl border bg-card p-6 shadow-card'>
-        <p className='text-sm font-semibold text-muted-foreground'>
-          Carregando configurações…
-        </p>
-      </section>
-    )
+  if (isLoading) return shopSettingsLoading
 
-  if (queryError || !settings)
+  if (!settings)
     return (
       <section
         className='rounded-2xl border border-danger/30 bg-danger-soft p-6 text-sm font-semibold text-danger'
@@ -72,6 +106,7 @@ export const ShopSettingsPage = () => {
           Consulte a identidade da {settings.establishment.name} e atualize as
           configurações disponíveis.
         </p>
+        <QueryRefreshStatus isRefreshing={isRefreshing} />
       </header>
       <section className='overflow-hidden rounded-2xl border bg-card shadow-card'>
         <header className='flex flex-col gap-4 border-b border-border-soft px-6 py-5 sm:flex-row sm:items-start sm:justify-between'>

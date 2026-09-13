@@ -27,6 +27,7 @@ describe('OrderDetailsPage', () => {
       canCancel: true,
       isCancelOpen: false,
       isLoadingOrder: false,
+      isRefreshingOrder: false,
       order: { id: 'order-1', sequenceNumber: 124, status: 'registered' } as never,
       orderError: null,
       handleBack: vi.fn(),

@@ -6,12 +6,12 @@ describe('browser environment', () => {
   it('builds a same-origin server REST URL when a proxy prefix is configured', () => {
     expect(
       parseBrowserEnv({
-        scoopsServerAppUrl: 'https://scoops-web-blond.vercel.app/',
+        scoopsServerAppUrl: 'https://scoops-web.example.test/',
         scoopsServerApiPrefix: '/api/server',
       }),
     ).toEqual({
-      scoopsServerAppUrl: 'https://scoops-web-blond.vercel.app',
-      scoopsServerRestUrl: 'https://scoops-web-blond.vercel.app/api/server',
+      scoopsServerAppUrl: 'https://scoops-web.example.test',
+      scoopsServerRestUrl: 'https://scoops-web.example.test/api/server',
     })
   })
 

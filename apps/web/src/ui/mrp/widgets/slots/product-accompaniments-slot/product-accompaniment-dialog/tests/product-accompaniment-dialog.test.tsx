@@ -110,6 +110,31 @@ describe('ProductAccompanimentDialog', () => {
     expect(screen.getByDisplayValue('Granola').getAttribute('disabled')).not.toBeNull()
   })
 
+  it('reports background query refresh without replacing the form', () => {
+    useProductAccompanimentDialogMock.mockReturnValue({
+      ...createForm(),
+      isRefreshing: true,
+    } as never)
+
+    render(
+      <ProductAccompanimentDialog
+        onOpenChange={vi.fn()}
+        onSuccess={vi.fn()}
+        open
+        productId='product-1'
+      />,
+    )
+
+    expect(screen.getByRole('status', { name: 'Atualizando…' }).textContent).toBe(
+      'Atualizando…',
+    )
+    expect(
+      screen
+        .getByRole('combobox', { name: 'Acompanhamento' })
+        .getAttribute('aria-expanded'),
+    ).toBe('false')
+  })
+
   it('keeps the quantity contract strict for submitted links', () => {
     const result = productAccompanimentFormSchema.safeParse({
       accompanimentProductId: candidate.id,

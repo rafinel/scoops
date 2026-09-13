@@ -20,6 +20,7 @@ export function useUnitChangeDialog(props: UnitChangeDialogProps) {
     props.open,
   )
   const action = useChangeProductUnitAction(props.product.id)
+  const isChangingProductUnit = action.isChangingProductUnit
 
   async function handleConfirm() {
     if (!preview.unitChangePreview) return
@@ -35,7 +36,7 @@ export function useUnitChangeDialog(props: UnitChangeDialogProps) {
   }
 
   function handleOpenChange(open: boolean) {
-    if (action.isChangingProductUnit) return
+    if (isChangingProductUnit) return
     props.onOpenChange(open)
   }
 
@@ -44,6 +45,6 @@ export function useUnitChangeDialog(props: UnitChangeDialogProps) {
     changeProductUnitError: action.changeProductUnitError,
     handleConfirm,
     handleOpenChange,
-    isChangingProductUnit: action.isChangingProductUnit,
+    isChangingProductUnit,
   }
 }

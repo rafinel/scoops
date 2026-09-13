@@ -31,6 +31,7 @@ describe('useComboProductDialog', () => {
       },
       isCatalogError: false,
       isLoadingCatalog: false,
+      isRefreshingCatalog: false,
     } as never)
   })
 
@@ -95,6 +96,7 @@ describe('useComboProductDialog', () => {
       catalogPage: { items: [product], page: 1, pageSize: 20, total: 1, totalPages: 1 },
       isCatalogError: false,
       isLoadingCatalog: false,
+      isRefreshingCatalog: false,
     } as never)
     const onAdd = vi.fn()
     const { result } = renderHook(() =>
@@ -160,6 +162,7 @@ describe('useComboProductDialog', () => {
       catalogPage: { items: [product], page: 1, pageSize: 20, total: 1, totalPages: 1 },
       isCatalogError: false,
       isLoadingCatalog: false,
+      isRefreshingCatalog: false,
     } as never)
     const onOpenChange = vi.fn()
     const { result, rerender } = renderHook(

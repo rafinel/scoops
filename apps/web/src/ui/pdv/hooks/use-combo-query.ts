@@ -21,6 +21,7 @@ export const useComboQuery = (comboId: string | undefined) => {
     comboDetailsError: query.error,
     isComboDetailsError: query.isError,
     isLoadingComboDetails: Boolean(comboId) && query.isPending,
+    isRefreshingComboDetails: query.isFetching && query.data !== undefined,
     refetchComboDetails: query.refetch,
   }
 }

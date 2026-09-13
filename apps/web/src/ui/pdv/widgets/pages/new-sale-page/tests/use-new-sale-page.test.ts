@@ -71,6 +71,7 @@ describe('useNewSalePage', () => {
       activeSalesChannels: [],
       isActiveSalesChannelsError: false,
       isLoadingActiveSalesChannels: false,
+      isRefreshingActiveSalesChannels: false,
     } as never)
     usePreviewOrderActionMock.mockReturnValue({
       error: null,
@@ -137,6 +138,7 @@ describe('useNewSalePage', () => {
       activeSalesChannels: [],
       isActiveSalesChannelsError: false,
       isLoadingActiveSalesChannels: false,
+      isRefreshingActiveSalesChannels: false,
     } as never)
     usePreviewOrderActionMock.mockReturnValue({
       error: null,
@@ -165,6 +167,7 @@ describe('useNewSalePage', () => {
       activeSalesChannels: [],
       isActiveSalesChannelsError: false,
       isLoadingActiveSalesChannels: false,
+      isRefreshingActiveSalesChannels: false,
     } as never)
     usePreviewOrderActionMock.mockReturnValue({
       error: null,
@@ -222,6 +225,7 @@ describe('useNewSalePage', () => {
       activeSalesChannels: [],
       isActiveSalesChannelsError: false,
       isLoadingActiveSalesChannels: false,
+      isRefreshingActiveSalesChannels: false,
     } as never)
     usePreviewOrderActionMock.mockReturnValue({
       error: null,
@@ -288,6 +292,7 @@ describe('useNewSalePage', () => {
       activeSalesChannels: [],
       isActiveSalesChannelsError: false,
       isLoadingActiveSalesChannels: false,
+      isRefreshingActiveSalesChannels: false,
     } as never)
     usePreviewOrderActionMock.mockReturnValue({
       error: null,
@@ -352,6 +357,7 @@ describe('useNewSalePage', () => {
       activeSalesChannels: [],
       isActiveSalesChannelsError: false,
       isLoadingActiveSalesChannels: false,
+      isRefreshingActiveSalesChannels: false,
     } as never)
     usePreviewOrderActionMock.mockReturnValue({
       error: null,
@@ -386,6 +392,7 @@ describe('useNewSalePage', () => {
       activeSalesChannels: [],
       isActiveSalesChannelsError: false,
       isLoadingActiveSalesChannels: false,
+      isRefreshingActiveSalesChannels: false,
     } as never)
     usePreviewOrderActionMock.mockReturnValue({
       error: null,
@@ -448,6 +455,7 @@ describe('useNewSalePage', () => {
       activeSalesChannels: [],
       isActiveSalesChannelsError: false,
       isLoadingActiveSalesChannels: false,
+      isRefreshingActiveSalesChannels: false,
     } as never)
     usePreviewOrderActionMock.mockReturnValue({
       error: null,
@@ -537,6 +545,7 @@ describe('useNewSalePage', () => {
       activeSalesChannels: [],
       isActiveSalesChannelsError: false,
       isLoadingActiveSalesChannels: false,
+      isRefreshingActiveSalesChannels: false,
     } as never)
     usePreviewOrderActionMock.mockReturnValue({
       error: null,

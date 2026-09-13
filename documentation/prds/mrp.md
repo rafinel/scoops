@@ -85,7 +85,6 @@ Success is measured by:
 
 ### PRQ-01 — Product Registration and Categories
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can register an establishment-scoped product with valid categories, unit,
 stock control, status, and optional operational settings that determine its later MRP behavior.
@@ -144,7 +143,6 @@ unit cost for PRQ-02, PRQ-03, PRQ-04, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09, PR
 
 ### PRQ-02 — Brand Management and Main Brand
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can maintain product-specific brands, packaging economics, brand balances,
 and exactly one main brand for future automatic write-offs.
@@ -194,7 +192,6 @@ for PRQ-03, PRQ-06, PRQ-07, PRQ-08, PRQ-09, and PRQ-10.
 
 ### PRQ-03 — Inventory Control and Stock History
 
-- [ ] **Implemented**
 
 **Outcome:** Authorized users can understand current stock and its attributable history, while
 Managers can apply valid entries and write-offs without leaving balances and transactions
@@ -208,8 +205,8 @@ identity and establishment authorization from Identity; production stock changes
 sales-consumption facts from PDV.
 
 **Provides:** Current product and brand balances, stock status, immutable stock-transaction history
-for PRQ-04, PRQ-06, PRQ-07, and PDV, and authoritative product-total stock-threshold facts for
-Communication.
+for PRQ-04, PRQ-06, PRQ-07, PDV, and Analytics; authoritative product-total stock-threshold facts for
+Communication; and current stock-attention facts for Analytics.
 
 #### Capabilities
 
@@ -276,7 +273,6 @@ Communication.
 
 ### PRQ-04 — Product Listing
 
-- [ ] **Implemented**
 
 **Outcome:** Authorized users can find, compare, and open products using establishment-wide
 operational context and predictable filters, sorting, and pagination.
@@ -313,7 +309,6 @@ balances and stock status from PRQ-03; production capacity from PRQ-06.
 
 ### PRQ-05 — Dedicated Product Page and Settings
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can inspect and maintain each product through one category-aware page while
 understanding the impact of category, unit, and deletion changes.
@@ -371,7 +366,8 @@ stock constraints, and maximum producible quantity before recording production.
 and brand-price facts from PRQ-02; current balances from PRQ-03; product-page context from PRQ-05.
 
 **Provides:** Persisted recipe, reference yield, current COGS, unit cost, ingredient projections,
-and maximum producible quantity for PRQ-04, PRQ-07, and PRQ-10.
+limiting-ingredient facts, and maximum producible quantity for PRQ-04, PRQ-07, PRQ-10, PDV, and
+Analytics.
 
 #### Capabilities
 
@@ -417,7 +413,6 @@ and maximum producible quantity for PRQ-04, PRQ-07, and PRQ-10.
 
 ### PRQ-07 — Production Record
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can record a Manufacturable production quantity with projected ingredient
 consumption and atomic stock updates, while invalid or failed production leaves stock unchanged.
@@ -468,7 +463,6 @@ for PRQ-03.
 
 ### PRQ-08 — Accompaniments and Accompaniment Types
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can maintain establishment-scoped accompaniment types and link eligible
 Accompaniment products to Portions with the quantity and brand context needed for sale.
@@ -524,7 +518,6 @@ context for PRQ-09, PRQ-10, and PDV.
 
 ### PRQ-09 — Integrated Commercial Settings
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can maintain the Portion and Resale settings that determine future PDV
 availability without duplicating cart, sale, or historical-order rules in MRP.
@@ -534,8 +527,8 @@ availability without duplicating cart, sale, or historical-order rules in MRP.
 **Consumes:** Product categories, units, and status from PRQ-01; brand facts from PRQ-02;
 product-page context from PRQ-05; accompaniment links from PRQ-08.
 
-**Provides:** Active Portion sizes, Resale packaging and brand availability, and
-product-size-accompaniment prices for PRQ-10 and PDV.
+**Provides:** Active Portion sizes, Resale packaging and brand availability,
+product-size-accompaniment prices, and current operating-cost facts for PRQ-10, PDV, and Analytics.
 
 #### Capabilities
 
@@ -575,7 +568,6 @@ product-size-accompaniment prices for PRQ-10 and PDV.
 
 ### PRQ-10 — Navigation, States, and High-Impact Changes
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can navigate MRP and complete or recover from destructive and high-impact
 product changes with clear dependency, loading, success, and error feedback.
@@ -634,6 +626,7 @@ authoritative fact.
 flowchart LR
     ID[Identity]
     PDV[PDV]
+    Analytics[Analytics]
     R1[PRQ-01 Product Registration]
     R2[PRQ-02 Brand Management]
     R3[PRQ-03 Inventory Control]
@@ -664,15 +657,18 @@ flowchart LR
     R3 --> R6
     R3 --> R7
     R3 --> PDV
+    R3 --> Analytics
     R5 --> R6
     R5 --> R8
     R5 --> R9
     R6 --> R4
     R6 --> R7
+    R6 --> Analytics
     R7 --> R3
     R8 --> R9
     R8 --> PDV
     R9 --> PDV
+    R9 --> Analytics
     ID --> R3
     ID --> R10
     PDV --> R3
@@ -816,7 +812,8 @@ flowchart LR
 - Multi-store and multiple operational units.
 - Authentication, users, profiles, and permissions.
 - Billing, plans, and subscriptions.
-- Management dashboard and BI.
+- Dashboard and BI calculations or presentation; Analytics consumes MRP-owned current cost, stock,
+  and production facts without moving their authority out of MRP.
 - Automatic composition of cups, lids, spoons, and disposables.
 - Monitoring of Resale products.
 - Accompaniment type `Base`; the Portion is already the order base.

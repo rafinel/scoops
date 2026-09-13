@@ -15,6 +15,7 @@ const { accountState, navigateMock, queryState } = vi.hoisted(() => ({
   queryState: {
     isError: false,
     isLoading: false,
+    isRefreshing: false,
     refetch: vi.fn(),
     userDetails: undefined as UserDetails | undefined,
   },
@@ -62,6 +63,7 @@ describe('useUserDetailsPage', () => {
   afterEach(() => {
     cleanup()
     queryState.userDetails = undefined
+    queryState.isRefreshing = false
     vi.clearAllMocks()
   })
 

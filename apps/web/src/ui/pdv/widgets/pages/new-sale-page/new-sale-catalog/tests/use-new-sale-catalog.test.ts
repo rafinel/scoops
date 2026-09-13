@@ -19,6 +19,7 @@ describe('useNewSaleCatalog', () => {
       catalogPage: undefined,
       isCatalogError: false,
       isLoadingCatalog: false,
+      isRefreshingCatalog: false,
       refetchCatalog: vi.fn(),
     } as never)
     const { result } = renderHook(() => useNewSaleCatalog({ onSelectProduct }))
@@ -30,6 +31,7 @@ describe('useNewSaleCatalog', () => {
     expect(result.current.page).toBe(1)
     expect(result.current.search).toBe('baunilha')
     expect(result.current.kind).toBe('resale')
+    expect(result.current.isRefreshingCatalog).toBe(false)
 
     act(() => result.current.handleSelectProduct({ isAvailable: false } as never))
     expect(onSelectProduct).not.toHaveBeenCalled()

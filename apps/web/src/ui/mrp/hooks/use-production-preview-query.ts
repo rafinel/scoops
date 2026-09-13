@@ -8,7 +8,7 @@ export const useProductionPreviewQuery = (
   isInputValid = true,
 ) => {
   const { mrpService } = useRestContext()
-  return useQuery({
+  const query = useQuery({
     queryKey: mrpQueryKeys.productionPreview(productId, quantity),
     queryFn: async () => {
       const response = await mrpService.previewProduction(productId, { quantity })
@@ -16,6 +16,12 @@ export const useProductionPreviewQuery = (
       return response.body
     },
     enabled: isInputValid && quantity > 0,
+    placeholderData: (previousData) => previousData,
     retry: false,
   })
+
+  return {
+    ...query,
+    isRefreshing: query.isFetching && Boolean(query.data),
+  }
 }

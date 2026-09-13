@@ -58,6 +58,7 @@ const createNotificationDropdownController = ({
   ReturnType<typeof useNotificationDropdownControls>) => {
   return Object.assign(controller, {
     isLoadingRecentNotifications: query.isLoadingRecentNotifications,
+    isRefreshingRecentNotifications: query.isRefreshingRecentNotifications,
     recentNotifications: query.recentNotifications,
     recentNotificationsError: query.recentNotificationsError,
     refetchRecentNotifications: query.refetchRecentNotifications,

@@ -42,12 +42,14 @@ describe('useProductAccompanimentsSlot', () => {
     useProductAccompanimentsQueryMock.mockReturnValue({
       data: details,
       isError: false,
+      isFetching: true,
       isPending: false,
       refetch: refetchAccompaniments,
     } as never)
     useProductStockQueryMock.mockReturnValue({
       data: { product },
       isError: false,
+      isFetching: true,
       isPending: false,
       refetch: refetchStock,
     } as never)
@@ -59,6 +61,7 @@ describe('useProductAccompanimentsSlot', () => {
     expect(result.current.selectedAction).toEqual({ kind: 'add' })
     act(() => result.current.handleActionOpenChange(false))
     expect(result.current.selectedAction).toBeUndefined()
+    expect(result.current.isRefreshing).toBe(true)
     act(() => result.current.handleBack())
     expect(navigateTo).toHaveBeenCalledWith('products')
 
@@ -73,12 +76,14 @@ describe('useProductAccompanimentsSlot', () => {
     useProductAccompanimentsQueryMock.mockReturnValue({
       data: undefined,
       isError: true,
+      isFetching: false,
       isPending: false,
       refetch: vi.fn(),
     } as never)
     useProductStockQueryMock.mockReturnValue({
       data: undefined,
       isError: false,
+      isFetching: false,
       isPending: true,
       refetch: vi.fn(),
     } as never)

@@ -32,6 +32,7 @@ export function useAccompanimentCandidatesQuery(productId: string, enabled = tru
         .filter((product) => product.id !== productId)
     },
     enabled: enabled && Boolean(productId),
+    placeholderData: (previousData) => previousData,
     retry: false,
   })
 }

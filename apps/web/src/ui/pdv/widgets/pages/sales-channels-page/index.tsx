@@ -9,6 +9,7 @@ import { DeleteSalesChannelDialog } from './delete-sales-channel-dialog'
 import { SalesChannelDialog } from './sales-channel-dialog'
 import { SalesChannelsEmptyState } from './sales-channels-empty-state'
 import { SalesChannelsError } from './sales-channels-error'
+import { SalesChannelsFeedback } from './sales-channels-feedback'
 import { SalesChannelsList } from './sales-channels-list'
 import { SalesChannelsLoading } from './sales-channels-loading'
 import { useSalesChannelsPage } from './use-sales-channels-page'
@@ -26,6 +27,7 @@ export const SalesChannelsPage = ({
     actionError,
     announcement,
     isLoadingSalesChannels,
+    isRefreshingSalesChannels,
     isReactivating,
     isSalesChannelsError,
     handleCreate,
@@ -76,18 +78,11 @@ export const SalesChannelsPage = ({
           </div>
         </CardContent>
       </Card>
-      {actionError ? (
-        <p
-          aria-live='assertive'
-          className='rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm font-semibold text-destructive'
-          role='alert'
-        >
-          {actionError}
-        </p>
-      ) : null}
-      <div aria-live='polite' className='sr-only' role='status'>
-        {announcement}
-      </div>
+      <SalesChannelsFeedback
+        actionError={actionError}
+        announcement={announcement}
+        isRefreshing={isRefreshingSalesChannels}
+      />
       {isLoadingSalesChannels ? (
         <SalesChannelsLoading />
       ) : isSalesChannelsError ? (

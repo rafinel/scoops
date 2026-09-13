@@ -11,7 +11,8 @@ export type OrderDetailsPageProps = { orderId: string }
 export function useOrderDetailsPage(orderId: string) {
   const { account } = useAuthContext()
   const { navigateTo } = useNavigation()
-  const { isLoadingOrder, order, orderError, refetchOrder } = useOrderQuery(orderId)
+  const { isLoadingOrder, isRefreshingOrder, order, orderError, refetchOrder } =
+    useOrderQuery(orderId)
   const [isCancelOpen, setCancelOpen] = useState(false)
 
   function handleBack() {
@@ -37,6 +38,7 @@ export function useOrderDetailsPage(orderId: string) {
     canCancel,
     isCancelOpen,
     isLoadingOrder,
+    isRefreshingOrder,
     order,
     orderError,
     handleBack,

@@ -15,6 +15,7 @@ export const useProductStockQuery = (productId: string) => {
       return response.body
     },
     enabled: Boolean(productId),
+    placeholderData: (previousData) => previousData,
     retry: false,
   })
 }

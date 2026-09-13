@@ -30,6 +30,8 @@ export function useDiscountsPage() {
     isDiscountsError,
     isFetchingDiscounts,
     isLoadingDiscounts,
+    isPageLoadingDiscounts,
+    isRefreshingDiscounts,
     refetchDiscounts,
   } = useDiscountsQuery(search)
   const [isTypeDialogOpen, setTypeDialogOpen] = useState(false)
@@ -99,6 +101,8 @@ export function useDiscountsPage() {
     isDiscountsError,
     isFetchingDiscounts,
     isLoadingDiscounts,
+    isRefreshingDiscounts,
+    isPageLoadingDiscounts,
     isTypeDialogOpen,
     search,
     handleClearFilters,

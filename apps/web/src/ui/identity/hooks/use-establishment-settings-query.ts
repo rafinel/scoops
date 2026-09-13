@@ -34,6 +34,7 @@ export const useEstablishmentSettingsQuery = () => {
     settings: query.data,
     error: query.error,
     isLoading: query.isLoading,
+    isRefreshing: query.isFetching && Boolean(query.data),
     refetch: query.refetch,
   }
 }

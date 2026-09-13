@@ -46,6 +46,7 @@ export const ProductCategoriesCard = ({
     isChangingCategories,
     isLoadingImpact,
     isPendingImpact,
+    isRefreshingImpact,
     retryImpact,
     selectedCategory,
   } = useProductCategoriesCard(product, retrySearch)
@@ -143,6 +144,7 @@ export const ProductCategoriesCard = ({
               : undefined
           }
           isLoading={isLoadingImpact || isPendingImpact}
+          isRefreshing={isRefreshingImpact}
           isPending={isChangingCategories}
           onConfirm={() => void handleConfirmRemoval()}
           onOpenChange={handleDialogOpenChange}

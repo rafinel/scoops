@@ -31,12 +31,15 @@ describe('useOrdersPage', () => {
     vi.clearAllMocks()
     useOrdersQueryMock.mockReturnValue({
       isLoadingOrders: false,
+      isPageLoadingOrders: false,
+      isRefreshingOrders: false,
       ordersError: null,
       ordersPage: undefined,
       refetchOrders: vi.fn(),
     })
     useSalesChannelsQueryMock.mockReturnValue({
       isLoadingSalesChannels: false,
+      isRefreshingSalesChannels: false,
       isSalesChannelsError: false,
       refetchSalesChannels: vi.fn(),
       salesChannels: [],

@@ -6,12 +6,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/ui/shadcn/dialog'
-import { Alert, AlertDescription, AlertTitle } from '@/ui/shadcn/alert'
 import { Button } from '@/ui/shadcn/button'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import { NewSaleCatalog } from './new-sale-catalog'
 import { NewSaleCart } from './new-sale-cart'
+import { NewSaleFeedback } from './new-sale-feedback'
 import { OrderConfirmation } from './order-confirmation'
 import { OrderRegistrationDialog } from './order-registration-dialog'
 import { OrderVerificationState } from './order-verification-state'
@@ -41,6 +41,7 @@ export const NewSalePage = () => {
     handleSelectProduct,
     isActiveSalesChannelsError,
     isLoadingActiveSalesChannels,
+    isRefreshingActiveSalesChannels,
     isPreviewPending,
     isRegistrationOpen,
     isRegistrationPending,
@@ -77,49 +78,14 @@ export const NewSalePage = () => {
           </span>
         </div>
 
-        {isActiveSalesChannelsError ? (
-          <Alert className='mb-4' variant='destructive'>
-            <Icon name='triangle-alert' />
-            <AlertTitle>Canais de venda indisponíveis</AlertTitle>
-            <AlertDescription>
-              O pedido pode continuar sem canal de venda.
-            </AlertDescription>
-          </Alert>
-        ) : null}
-        {previewError ? (
-          <Alert className='mb-4' variant='destructive'>
-            <Icon name='triangle-alert' />
-            <AlertTitle>Não foi possível atualizar os valores</AlertTitle>
-            <AlertDescription>
-              <span>{previewError}</span>{' '}
-              <Button
-                className='h-auto p-0 font-bold'
-                onClick={handleRefreshPreview}
-                type='button'
-                variant='link'
-              >
-                Tentar novamente
-              </Button>
-            </AlertDescription>
-          </Alert>
-        ) : null}
-        {registrationError ? (
-          <Alert className='mb-4' variant='destructive'>
-            <Icon name='triangle-alert' />
-            <AlertTitle>Não foi possível registrar o pedido</AlertTitle>
-            <AlertDescription>
-              <span>{registrationError}</span>{' '}
-              <Button
-                className='h-auto p-0 font-bold'
-                onClick={handleRetryRegistration}
-                type='button'
-                variant='link'
-              >
-                Tentar novamente
-              </Button>
-            </AlertDescription>
-          </Alert>
-        ) : null}
+        <NewSaleFeedback
+          isActiveSalesChannelsError={isActiveSalesChannelsError}
+          isRefreshingActiveSalesChannels={isRefreshingActiveSalesChannels}
+          onRefreshPreview={handleRefreshPreview}
+          onRetryRegistration={handleRetryRegistration}
+          previewError={previewError}
+          registrationError={registrationError}
+        />
 
         <div className='grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_390px]'>
           <NewSaleCatalog

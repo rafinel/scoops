@@ -66,8 +66,8 @@ CLAUDE.md
 GEMINI.md
 AGENTS.local.md
 
-# MCP's
-.playwright-mcp
+# CLI's
+.playwright-cli
 apps/web/.playwright-cli
 
 # env files

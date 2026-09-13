@@ -119,30 +119,28 @@ export function useRecipeIngredientDialog({
       ),
     [baseCandidates, candidateStocks, ingredientBrandId],
   )
-  const selectedProduct = useMemo(() => {
-    if (ingredient) {
-      const stock = existingStock.data
-      if (!stock) return undefined
-      return buildCandidate(
-        toCatalogRow(stock),
-        stock,
-        existingStock.isError,
-        existingStock.isPending,
+  const selectedProduct = useMemo(
+    () =>
+      getSelectedProduct({
+        candidates,
+        existingStock,
+        ingredient,
         ingredientBrandId,
-      )
-    }
-    return candidates.find(({ product }) => product.id === ingredientProductId)
-  }, [
-    candidates,
-    ingredient,
-    ingredientBrandId,
-    ingredientProductId,
-    existingStock.data,
-    existingStock.isError,
-    existingStock.isPending,
-  ])
+        ingredientProductId,
+      }),
+    [
+      candidates,
+      ingredient,
+      ingredientBrandId,
+      ingredientProductId,
+      existingStock.data,
+      existingStock.isError,
+      existingStock.isPending,
+    ],
+  )
   const selectedSource = selectedProduct?.source
   const availableBrands = selectedSource?.brands ?? []
+  const isRefreshing = [catalog, existingStock].some(hasRefreshableData)
   useEffect(() => {
     if (
       !selectedProduct ||
@@ -238,6 +236,7 @@ export function useRecipeIngredientDialog({
     ingredientProductId,
     ingredientBrandId,
     isPending: addAction.isPending || updateAction.isPending,
+    isRefreshing,
     quantity,
     selectedProduct,
     selectedSource,
@@ -257,6 +256,41 @@ function getDefaultValues(
         quantity: ingredient.quantity,
       }
     : { ingredientProductId: '' }
+}
+
+function getSelectedProduct({
+  candidates,
+  existingStock,
+  ingredient,
+  ingredientBrandId,
+  ingredientProductId,
+}: {
+  candidates: readonly IngredientCandidate[]
+  existingStock: {
+    data?: ProductStockDetails
+    isError: boolean
+    isPending: boolean
+  }
+  ingredient?: RecipeIngredientDetails
+  ingredientBrandId?: string
+  ingredientProductId: string
+}) {
+  if (ingredient) {
+    const stock = existingStock.data
+    if (!stock) return undefined
+    return buildCandidate(
+      toCatalogRow(stock),
+      stock,
+      existingStock.isError,
+      existingStock.isPending,
+      ingredientBrandId,
+    )
+  }
+  return candidates.find(({ product }) => product.id === ingredientProductId)
+}
+
+function hasRefreshableData(query: { data: unknown; isFetching: boolean }) {
+  return query.isFetching && query.data != null
 }
 
 function buildCandidate(

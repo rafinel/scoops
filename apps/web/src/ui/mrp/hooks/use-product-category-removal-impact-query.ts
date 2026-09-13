@@ -38,6 +38,7 @@ export const useProductCategoryRemovalImpactQuery = (
     hasCategoryRemovalImpactError: query.isError,
     isLoadingCategoryRemovalImpact: query.isLoading,
     isPendingCategoryRemovalImpact: query.isPending,
+    isRefreshingCategoryRemovalImpact: query.isFetching && Boolean(query.data),
     retryCategoryRemovalImpact: query.refetch,
   }
 }

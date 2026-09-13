@@ -35,8 +35,13 @@ export function useComboProductDialog({
   const [accompanimentIds, setAccompanimentIds] = useState<string[]>([])
   const [quantity, setQuantity] = useState(1)
   const [configurationError, setConfigurationError] = useState<string | null>(null)
-  const { catalogError, catalogPage, isCatalogError, isLoadingCatalog } =
-    useComboProductsQuery(debouncedSearch, kind, open)
+  const {
+    catalogError,
+    catalogPage,
+    isCatalogError,
+    isLoadingCatalog,
+    isRefreshingCatalog,
+  } = useComboProductsQuery(debouncedSearch, kind, open)
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearch(search.trim()), 250)
@@ -173,6 +178,7 @@ export function useComboProductDialog({
     configurationError,
     isCatalogError,
     isLoadingCatalog,
+    isRefreshingCatalog,
     isValidConfiguration,
     kind,
     products,

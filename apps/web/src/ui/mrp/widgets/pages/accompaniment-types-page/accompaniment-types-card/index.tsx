@@ -8,6 +8,7 @@ import { AccompanimentTypesTable } from '../accompaniment-types-table'
 
 export type AccompanimentTypesCardProps = {
   page: AccompanimentTypePage
+  isPageLoading?: boolean
   onEdit: (item: AccompanimentTypeListItem) => void
   onPageChange: (page: number) => void
   onRemove: (item: AccompanimentTypeListItem) => void
@@ -15,6 +16,7 @@ export type AccompanimentTypesCardProps = {
 
 export const AccompanimentTypesCard = ({
   page,
+  isPageLoading = false,
   onEdit,
   onPageChange,
   onRemove,
@@ -33,6 +35,7 @@ export const AccompanimentTypesCard = ({
     <AccompanimentTypesTable items={page.items} onEdit={onEdit} onRemove={onRemove} />
     <Pagination
       currentPage={page.page}
+      isLoading={isPageLoading}
       pageSize={page.pageSize}
       onPageChange={onPageChange}
       totalItems={page.total}

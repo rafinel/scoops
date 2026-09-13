@@ -31,6 +31,7 @@ function createView() {
     actionError: null,
     announcement: '',
     isLoadingSalesChannels: false,
+    isRefreshingSalesChannels: false,
     isReactivating: false,
     isSalesChannelsError: false,
     handleCreate: vi.fn(),

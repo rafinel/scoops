@@ -55,6 +55,8 @@ describe('StockTransactionHistoryCard', () => {
       hasFilters: false,
       isError: false,
       isLoading: false,
+      isPageLoading: false,
+      isRefreshing: false,
       refetch: refetchMock,
       selectedBrandName: undefined,
       to: '',
@@ -106,7 +108,9 @@ describe('StockTransactionHistoryCard', () => {
       createState({ isLoading: true, transactionsPage: undefined }),
     )
     const { rerender } = renderHistory()
-    expect(screen.getByRole('status').textContent).toContain('Carregando histórico')
+    expect(
+      screen.getByRole('status', { name: 'Carregando histórico de movimentações' }),
+    ).not.toBeNull()
 
     useStockTransactionHistoryCardMock.mockReturnValue(
       createState({ isLoading: false, isError: true, transactionsPage: undefined }),

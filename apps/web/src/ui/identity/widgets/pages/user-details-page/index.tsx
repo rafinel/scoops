@@ -1,9 +1,4 @@
 import { Link } from '@tanstack/react-router'
-import { useEffect } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { invitationCorrectionFormSchema } from '@scoops/validation'
-import { useForm } from 'react-hook-form'
-import type { z } from 'zod'
 
 import { UserProfile, UserStatus } from '@scoops/core/identity/domain/structures'
 
@@ -12,16 +7,7 @@ import { Avatar } from '@/ui/shared/widgets/components/avatar'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { Pagination } from '@/ui/shared/widgets/components/pagination'
 import { Button } from '@/ui/shadcn/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/ui/shadcn/dialog'
-import { Input } from '@/ui/shadcn/input'
-import { Label } from '@/ui/shadcn/label'
+import { Skeleton } from '@/ui/shadcn/skeleton'
 import { ActionDialog, CorrectNameDialog } from './action-dialog'
 import {
   actionDescription,
@@ -35,9 +21,37 @@ import {
   shortDateTimeLabel,
   statusLabel,
 } from './formatters'
+import { UserDetailsIntro } from './user-details-intro'
+import { InvitationCorrectionDialog } from './invitation-correction-dialog'
 import { useUserDetailsPage } from './use-user-details-page'
 
-type InvitationCorrectionFormValues = z.infer<typeof invitationCorrectionFormSchema>
+const userDetailsLoading = (
+  <div
+    aria-label='Carregando usuário'
+    aria-live='polite'
+    className='space-y-5'
+    role='status'
+  >
+    <Skeleton className='h-4 w-24' />
+    <div className='space-y-2'>
+      <Skeleton className='h-8 w-56' />
+      <Skeleton className='h-4 w-80 max-w-full' />
+    </div>
+    <div className='rounded-2xl border bg-card p-5 shadow-card'>
+      <div className='flex items-center gap-3'>
+        <Skeleton className='size-12 rounded-full' />
+        <div className='flex-1 space-y-2'>
+          <Skeleton className='h-5 w-52' />
+          <Skeleton className='h-4 w-64 max-w-full' />
+        </div>
+      </div>
+    </div>
+    <div className='grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_minmax(300px,0.8fr)]'>
+      <Skeleton className='h-72 rounded-2xl' />
+      <Skeleton className='h-72 rounded-2xl' />
+    </div>
+  </div>
+)
 
 export const UserDetailsPage = ({ userId }: { userId: string }) => {
   const {
@@ -56,6 +70,7 @@ export const UserDetailsPage = ({ userId }: { userId: string }) => {
     historyTotal,
     isError,
     isLoading,
+    isRefreshing,
     isSelf,
     invitationRemainingDays,
     invitationSentAt,
@@ -68,12 +83,7 @@ export const UserDetailsPage = ({ userId }: { userId: string }) => {
     userDetails,
   } = useUserDetailsPage({ userId })
 
-  if (isLoading)
-    return (
-      <div aria-live='polite' className='py-16 text-center text-sm text-muted-foreground'>
-        Carregando usuário…
-      </div>
-    )
+  if (isLoading) return userDetailsLoading
   if (isError || !user || !userDetails)
     return (
       <div className='py-16 text-center'>
@@ -100,14 +110,7 @@ export const UserDetailsPage = ({ userId }: { userId: string }) => {
         Usuários
       </Link>
       <header className='flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between'>
-        <div>
-          <h1 className='text-[26px] font-extrabold tracking-tight sm:text-[28px]'>
-            Detalhe do usuário
-          </h1>
-          <p className='mt-1 text-sm font-medium text-muted-foreground'>
-            Consulte dados, permissões e alterações desta conta.
-          </p>
-        </div>
+        <UserDetailsIntro isRefreshing={isRefreshing} />
         <div className='flex flex-wrap gap-2'>
           {user.status === UserStatus.Pending ? (
             <>
@@ -502,105 +505,5 @@ export const UserDetailsPage = ({ userId }: { userId: string }) => {
         />
       ) : null}
     </section>
-  )
-}
-
-function InvitationCorrectionDialog({
-  name,
-  email,
-  pending,
-  error,
-  onClose,
-  onSubmit,
-}: {
-  name: string
-  email: string
-  pending: boolean
-  error: Error | null
-  onClose: () => void
-  onSubmit: (input: { name: string; email: string }) => Promise<void>
-}) {
-  const {
-    register,
-    reset,
-    handleSubmit: submitForm,
-    formState: { errors },
-  } = useForm<InvitationCorrectionFormValues>({
-    defaultValues: { email, name },
-    resolver: zodResolver(invitationCorrectionFormSchema),
-  })
-
-  useEffect(() => {
-    reset({ email, name })
-  }, [email, name, reset])
-
-  async function handleSubmit(values: InvitationCorrectionFormValues) {
-    await onSubmit({ email: values.email.trim(), name: values.name.trim() })
-  }
-
-  return (
-    <Dialog open onOpenChange={(nextOpen) => !nextOpen && onClose()}>
-      <DialogContent className='max-w-md'>
-        <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft p-6 pr-14'>
-          <span className='grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-primary'>
-            <Icon name='mail-check' className='size-5' />
-          </span>
-          <div className='min-w-0'>
-            <DialogTitle>Corrigir convite</DialogTitle>
-            <DialogDescription className='mt-1 leading-5'>
-              Atualize os dados antes de reenviar o convite.
-            </DialogDescription>
-          </div>
-        </DialogHeader>
-        <form className='p-6' onSubmit={submitForm(handleSubmit)} noValidate>
-          <div className='grid gap-4'>
-            <Label className='grid gap-1.5 text-sm font-bold'>
-              Nome
-              <Input
-                {...register('name')}
-                aria-invalid={Boolean(errors.name)}
-                className='min-h-11 rounded-lg bg-card px-3'
-              />
-            </Label>
-            <Label className='grid gap-1.5 text-sm font-bold'>
-              E-mail
-              <Input
-                {...register('email')}
-                aria-invalid={Boolean(errors.email)}
-                className='min-h-11 rounded-lg bg-card px-3'
-                type='email'
-              />
-            </Label>
-            {errors.name?.message || errors.email?.message ? (
-              <p className='text-sm text-destructive' role='alert'>
-                {errors.name?.message ?? errors.email?.message}
-              </p>
-            ) : null}
-          </div>
-          {error ? (
-            <p className='mt-4 text-sm text-destructive' role='alert'>
-              {error.message}
-            </p>
-          ) : null}
-          <DialogFooter className='mt-6 -mx-6 -mb-6 sm:flex-row sm:justify-end'>
-            <Button
-              variant='outline'
-              className='min-h-10 rounded-lg px-4 font-bold'
-              onClick={onClose}
-              type='button'
-            >
-              Cancelar
-            </Button>
-            <Button
-              className='min-h-10 rounded-lg px-4 font-bold'
-              disabled={pending}
-              type='submit'
-            >
-              Salvar
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
   )
 }

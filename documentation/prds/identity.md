@@ -351,7 +351,6 @@ PRQ-07, and PRQ-08; administrative history from PRQ-10.
 
 ### PRQ-07 — Promotion and Demotion
 
-- [ ] **Implemented**
 
 **Outcome:** A Manager can align another active user's fixed profile with their current
 responsibility without losing historical authorship or the final active Manager.
@@ -460,7 +459,6 @@ and end the current session without changing immutable access attributes.
 
 ### PRQ-10 — Administrative Audit
 
-- [ ] **Implemented**
 
 **Outcome:** Managers can reconstruct identity and access changes from an immutable,
 establishment-scoped administrative history that excludes secrets.
@@ -503,31 +501,39 @@ consumed by PRQ-14.
 
 ### PRQ-11 — Establishment Management
 
-- [ ] **Implemented**
 
-**Outcome:** A Manager can inspect and change the name of their own establishment
-without changing its identity, membership, data ownership, or historical snapshots.
+**Outcome:** A Manager can inspect and change the name and business timezone of
+their own establishment without changing its identity, membership, data ownership,
+or historical snapshots.
 
 **Actors:** Manager
 
 **Consumes:** Manager authorization and establishment-isolation facts from PRQ-04.
 
-**Provides:** Establishment-name change facts consumed by PRQ-10.
+**Provides:** Establishment-name and timezone facts consumed by PRQ-10 and Analytics.
 
 #### Capabilities
 
-- The MVP establishment record contains only the establishment name.
+- The MVP establishment record contains the establishment name and one business timezone.
 - Any Manager may change the name, and the name may duplicate another establishment's
   name.
+- The business timezone is mandatory and uses a supported IANA timezone identifier.
+- Existing and new establishments default to `America/Sao_Paulo`; a Manager may select
+  another supported Brazilian timezone.
+- The business timezone defines Analytics local-day, period, comparison, and display
+  boundaries consistently across devices. A viewer's device timezone does not redefine
+  establishment reporting dates.
 - A name change must not move users or data to another establishment.
-- The change must preserve the previous name, new name, responsible actor, and moment
-  for audit.
+- A name or timezone change must preserve the previous value, new value, responsible
+  actor, and moment for audit.
 - Operators may not consult or change this configuration.
 
 #### Experience
 
-- Display the current name and a clear edit action with loading, success, and error
-  feedback.
+- Display the current name and business timezone with clear editing controls and
+  loading, success, and error feedback.
+- The timezone selector uses readable Brazilian location labels while preserving the
+  authoritative IANA timezone value.
 - The name has no empty state because onboarding requires it.
 - Operators must not see `Ice Cream Parlor` in navigation.
 - Editing and feedback must work on mobile phones and preserve labels, instructions,
@@ -537,7 +543,6 @@ without changing its identity, membership, data ownership, or historical snapsho
 
 ### PRQ-12 — Customer-Initiated Establishment Deletion Removed
 
-- [ ] **Implemented**
 
 **Outcome:** Customers cannot initiate establishment deletion through Identity, while
 historical and policy-governed data lifecycles remain outside this product surface.
@@ -600,7 +605,6 @@ change facts from PRQ-07; active and inactive states from PRQ-08.
 
 ### PRQ-14 — Outcome Measurement
 
-- [ ] **Implemented**
 
 **Outcome:** Identity performance can be evaluated against the approved activation,
 administrative-autonomy, audit, and authorization success metrics.
@@ -675,6 +679,7 @@ flowchart LR
     PRQ10 --> PRQ06
     PRQ10 --> PRQ14
     PRQ11 --> PRQ10
+    PRQ11 --> Analytics["Analytics module"]
 ```
 
 ## 7. User Journeys
@@ -790,13 +795,17 @@ flowchart LR
 4. If no event exists beyond creation, the system explains that only the initial
    registration is available.
 
-### Journey K — Change the establishment name
+### Journey K — Change establishment settings
 
-1. The Manager opens `Ice Cream Parlor`, changes the name, and confirms.
-2. The system validates that the name is not empty.
-3. The system saves the change and records the previous name, new name, responsible
-   Manager, and moment.
-4. The new name appears in future product surfaces without rewriting history.
+1. The Manager opens `Ice Cream Parlor` and reviews the current name and business timezone.
+2. The Manager changes one setting.
+3. The system validates:
+   - Name: it must not be empty.
+   - Timezone: it must be one of the supported Brazilian IANA timezones.
+4. A successful change preserves the previous value, new value, responsible actor, and
+   moment; a failure preserves the previous setting and allows retry.
+5. Name changes affect current labels, and timezone changes affect future Analytics period
+   boundaries without rewriting stored event instants.
 
 ### Journey L — Change your own name and exit
 
@@ -819,7 +828,7 @@ flowchart LR
 - Direct password change within `My Account`.
 - A manual action to terminate all sessions.
 - Individual deletion of users with history.
-- Establishment information beyond its name.
+- Establishment information beyond its name and business timezone.
 - Super administrator, impersonation, or global establishment access.
 - Customer-initiated establishment deletion.
 - The operational deletion and retention lifecycle, including a future automatic

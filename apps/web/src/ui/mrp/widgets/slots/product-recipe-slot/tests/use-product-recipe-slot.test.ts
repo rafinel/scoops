@@ -27,10 +27,15 @@ describe('useProductRecipeSlot', () => {
     const navigateTo = vi.fn()
     const navigateToPath = vi.fn()
     mockedNavigation.mockReturnValue({ navigateTo, navigateToPath } as never)
-    mockedStock.mockReturnValue({ data: { product }, isPending: false } as never)
+    mockedStock.mockReturnValue({
+      data: { product },
+      isFetching: true,
+      isPending: false,
+    } as never)
     mockedRecipe.mockReturnValue({
       data: details,
       isError: false,
+      isFetching: true,
       isPending: false,
       refetch,
     } as never)
@@ -48,6 +53,7 @@ describe('useProductRecipeSlot', () => {
     act(() => result.current.handleActionSuccess())
     await waitFor(() => expect(refetch).toHaveBeenCalledTimes(2))
     expect(navigateToPath).not.toHaveBeenCalled()
+    expect(result.current.isRefreshing).toBe(true)
   })
 
   it('redirects products without the manufacturable category to stock', async () => {
@@ -55,11 +61,13 @@ describe('useProductRecipeSlot', () => {
     mockedNavigation.mockReturnValue({ navigateTo: vi.fn(), navigateToPath } as never)
     mockedStock.mockReturnValue({
       data: { product: ProductFaker.fake({ id: 'product-1', categories: [] }) },
+      isFetching: false,
       isPending: false,
     } as never)
     mockedRecipe.mockReturnValue({
       data: undefined,
       isError: false,
+      isFetching: false,
       isPending: true,
       refetch: vi.fn(),
     } as never)

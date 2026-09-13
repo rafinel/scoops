@@ -9,6 +9,7 @@ import {
 } from '@/communication/rest/controllers'
 import { CommunicationProvisionModule } from '@/communication/provision/communication-provision.module'
 import { ProvisionModule } from '@/shared/provision/provision.module'
+import { NotificationAudienceModule } from '@/shared/provision/notification-audience'
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ProvisionModule } from '@/shared/provision/provision.module'
     CommunicationProvisionModule,
     CommunicationMessagingModule,
     ProvisionModule,
+    NotificationAudienceModule,
   ],
   controllers: [
     ListNotificationsController,

@@ -25,6 +25,7 @@ export function useComboDiscountPage({ comboId, mode }: ComboDiscountPageProps) 
     comboDetailsError,
     isComboDetailsError,
     isLoadingComboDetails,
+    isRefreshingComboDetails,
     refetchComboDetails,
   } = useComboQuery(mode === 'edit' ? comboId : undefined)
   const { createCombo, isPending: isCreating } = useCreateComboAction()
@@ -120,6 +121,7 @@ export function useComboDiscountPage({ comboId, mode }: ComboDiscountPageProps) 
     isComboDetailsError,
     isDeleteOpen,
     isLoadingComboDetails,
+    isRefreshingComboDetails,
     isPending,
     statusTarget,
     submitError,

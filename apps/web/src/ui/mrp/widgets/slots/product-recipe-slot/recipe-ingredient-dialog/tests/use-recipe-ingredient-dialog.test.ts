@@ -57,7 +57,7 @@ describe('useRecipeIngredientDialog', () => {
       updateRecipeIngredient: vi.fn().mockResolvedValue(undefined),
       isPending: false,
     } as never)
-    mockedProducts.mockReturnValue({ data: { items: [] } } as never)
+    mockedProducts.mockReturnValue({ data: { items: [] }, isFetching: true } as never)
     mockedStock.mockReturnValue({
       data: undefined,
       isError: false,
@@ -71,7 +71,7 @@ describe('useRecipeIngredientDialog', () => {
     const updateRecipeIngredient = vi.fn().mockResolvedValue(undefined)
     mockedAdd.mockReturnValue({ addRecipeIngredient: vi.fn(), isPending: false } as never)
     mockedUpdate.mockReturnValue({ updateRecipeIngredient, isPending: false } as never)
-    mockedProducts.mockReturnValue({ data: { items: [] } } as never)
+    mockedProducts.mockReturnValue({ data: { items: [] }, isFetching: true } as never)
     mockedContext.mockReturnValue({ mrpService: {} } as never)
     const onSuccess = vi.fn()
     const { result } = renderHook(() =>
@@ -84,6 +84,8 @@ describe('useRecipeIngredientDialog', () => {
         recipeTotalCost: 9,
       }),
     )
+
+    expect(result.current.isRefreshing).toBe(true)
 
     const registered = result.current.register('quantity')
     const field = document.createElement('input')

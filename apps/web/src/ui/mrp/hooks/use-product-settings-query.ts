@@ -27,6 +27,7 @@ export const useProductSettingsQuery = (productId: string) => {
     hasSettingsError: query.isError,
     isLoadingSettings: query.isLoading,
     isPendingSettings: query.isPending,
+    isRefreshingSettings: query.isFetching && Boolean(query.data),
     retrySettings: query.refetch,
   }
 }

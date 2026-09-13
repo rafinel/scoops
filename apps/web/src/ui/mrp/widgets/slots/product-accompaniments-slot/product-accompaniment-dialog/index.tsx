@@ -2,14 +2,7 @@ import type { ProductAccompanimentDetails } from '@scoops/core/mrp/domain/struct
 
 import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Button } from '@/ui/shadcn/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/ui/shadcn/dialog'
+import { Dialog, DialogContent, DialogFooter } from '@/ui/shadcn/dialog'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
 import {
@@ -22,6 +15,7 @@ import {
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
+import { ProductAccompanimentDialogHeader } from './product-accompaniment-dialog-header'
 import { useProductAccompanimentDialog } from './use-product-accompaniment-dialog'
 
 export type ProductAccompanimentDialogProps = {
@@ -49,6 +43,7 @@ export const ProductAccompanimentDialog = ({
     handleSubmit,
     handleValueChange,
     isEdit,
+    isRefreshing,
     isPending,
     productIdValue,
     register,
@@ -68,19 +63,7 @@ export const ProductAccompanimentDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
-        <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft p-6 pr-14'>
-          <span className='grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary'>
-            <Icon name={isEdit ? 'pencil' : 'plus'} />
-          </span>
-          <div>
-            <DialogTitle>
-              {isEdit ? 'Editar acompanhamento' : 'Vincular acompanhamento'}
-            </DialogTitle>
-            <DialogDescription className='mt-1'>
-              Configure como este item aparece no PDV.
-            </DialogDescription>
-          </div>
-        </DialogHeader>
+        <ProductAccompanimentDialogHeader isEdit={isEdit} isRefreshing={isRefreshing} />
         <form className='grid gap-5 p-6' onSubmit={handleSubmit}>
           <Label className='grid gap-2 font-bold'>
             Acompanhamento

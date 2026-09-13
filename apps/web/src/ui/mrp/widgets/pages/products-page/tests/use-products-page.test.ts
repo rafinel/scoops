@@ -28,6 +28,7 @@ describe('useProductsPage', () => {
     useProductsQueryMock.mockReturnValue({
       data: undefined,
       isError: true,
+      isFetching: false,
       isLoading: false,
       isPending: false,
       refetch: refetchProducts,
@@ -59,6 +60,7 @@ describe('useProductsPage', () => {
     useProductsQueryMock.mockReturnValue({
       data: undefined,
       isError: false,
+      isFetching: false,
       isLoading: true,
       isPending: true,
       refetch: vi.fn(),
@@ -79,6 +81,7 @@ describe('useProductsPage', () => {
     useProductsQueryMock.mockReturnValue({
       data: undefined,
       isError: false,
+      isFetching: false,
       isLoading: false,
       isPending: false,
       refetch: vi.fn(),
@@ -104,5 +107,25 @@ describe('useProductsPage', () => {
       stockSituation: undefined,
       page: 1,
     })
+  })
+
+  it('marks populated results as refreshing while a new page is fetched', () => {
+    useAuthContextMock.mockReturnValue({
+      account: { profile: UserProfile.Manager },
+    } as never)
+    useProductsQueryMock.mockReturnValue({
+      data: { items: [], page: 1, pageSize: 10, total: 0, totalPages: 0 },
+      isError: false,
+      isFetching: true,
+      isLoading: false,
+      isPending: false,
+      refetch: vi.fn(),
+    } as never)
+
+    const { result } = renderHook(() =>
+      useProductsPage({ onSearchChange: vi.fn(), search }),
+    )
+
+    expect(result.current.isRefreshingProducts).toBe(true)
   })
 })

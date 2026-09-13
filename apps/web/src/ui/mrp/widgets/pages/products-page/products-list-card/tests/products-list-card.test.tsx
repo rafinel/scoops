@@ -102,7 +102,11 @@ describe('ProductsListCard', () => {
         search={search}
       />,
     )
-    expect(screen.getByText('Carregando produtos...')).toBeTruthy()
+    expect(
+      screen
+        .getByRole('status', { name: 'Carregando produtos' })
+        .getAttribute('aria-busy'),
+    ).toBe('true')
     rerender(
       <ProductsListCard
         emptyState={<p>empty</p>}

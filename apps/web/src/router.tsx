@@ -5,6 +5,10 @@ export function getRouter() {
   const router = createTanStackRouter({
     routeTree,
     scrollRestoration: true,
+    defaultViewTransition: {
+      types: ({ fromLocation, pathChanged }) =>
+        fromLocation && pathChanged ? ['scoops-route'] : false,
+    },
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
   })

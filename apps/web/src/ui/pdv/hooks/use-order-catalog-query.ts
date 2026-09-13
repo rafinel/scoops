@@ -37,7 +37,10 @@ export const useOrderCatalogQuery = (
     catalogError: query.error,
     catalogPage: query.data,
     isCatalogError: query.isError,
-    isLoadingCatalog: query.isPending,
+    isLoadingCatalog: query.isPending && query.data === undefined,
+    isPageLoadingCatalog: query.isFetching && query.isPlaceholderData,
+    isRefreshingCatalog:
+      query.isFetching && query.data !== undefined && !query.isPlaceholderData,
     refetchCatalog: query.refetch,
   }
 }

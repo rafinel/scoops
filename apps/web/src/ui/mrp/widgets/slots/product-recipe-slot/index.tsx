@@ -1,4 +1,5 @@
 import { ProductDetailsPage } from '@/ui/mrp/widgets/pages/product-details-page'
+import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
 import { ProductRecipeCard } from './product-recipe-card'
 import { ProduceProductDialog } from './produce-product-dialog'
 import { RecipeError } from './recipe-error'
@@ -21,12 +22,14 @@ export const ProductRecipeSlot = ({ productId }: ProductRecipeSlotProps) => {
     handleRetry,
     isError,
     isLoading,
+    isRefreshing,
     isUnsupported,
     product,
     selectedAction,
   } = useProductRecipeSlot(productId)
   return (
     <ProductDetailsPage onBack={handleBack} product={product} selectedTab='recipe'>
+      <QueryRefreshStatus isRefreshing={isRefreshing} />
       {isLoading && !isUnsupported ? <RecipeLoading /> : null}
       {isError && !isUnsupported ? <RecipeError onRetry={handleRetry} /> : null}
       {details && !isLoading && !isError && !isUnsupported ? (

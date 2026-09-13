@@ -1,4 +1,5 @@
 import { ProductDetailsPage } from '@/ui/mrp/widgets/pages/product-details-page'
+import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
 
 import { BasicInformationCard } from './basic-information-card'
 import { ProductCategoriesCard } from './product-categories-card'
@@ -24,6 +25,7 @@ export const ProductSettingsSlot = ({
     settings,
     hasSettingsError,
     isLoadingSettings,
+    isRefreshingSettings,
     targetUnit,
     isUnitDialogOpen,
     isRemovalDialogOpen,
@@ -39,6 +41,7 @@ export const ProductSettingsSlot = ({
 
   return (
     <ProductDetailsPage onBack={handleBack} product={product} selectedTab='settings'>
+      <QueryRefreshStatus isRefreshing={isRefreshingSettings} />
       {isLoadingSettings && !settings ? <ProductSettingsLoading /> : null}
       {hasSettingsError && !settings ? (
         <ProductSettingsError onRetry={handleRetry} />

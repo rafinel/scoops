@@ -21,9 +21,10 @@ export const useOrderQuery = (orderId: string) => {
   })
 
   return {
-    isLoadingOrder: query.isPending,
+    isLoadingOrder: query.isPending && query.data === undefined,
     order: query.data,
     orderError: query.error,
     refetchOrder: query.refetch,
+    isRefreshingOrder: query.isFetching && query.data !== undefined,
   }
 }

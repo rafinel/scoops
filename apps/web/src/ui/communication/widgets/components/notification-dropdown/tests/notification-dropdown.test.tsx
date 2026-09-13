@@ -46,6 +46,7 @@ describe('NotificationDropdown', () => {
     handleOpenAll: vi.fn(),
     handleToggle: vi.fn(),
     isLoadingRecentNotifications: false,
+    isRefreshingRecentNotifications: false,
     isOpen: true,
     panelRef: createRef<HTMLDivElement>(),
     recentNotifications: [
@@ -159,5 +160,17 @@ describe('NotificationDropdown', () => {
       'recent-notification',
     ])
     expect(screen.getAllByText('Usuário promovido')).toHaveLength(1)
+  })
+
+  it('keeps recent notifications visible while announcing a refresh', () => {
+    useNotificationDropdownMock.mockReturnValueOnce({
+      ...createDropdownState(),
+      isRefreshingRecentNotifications: true,
+    } as never)
+
+    render(<NotificationDropdown />)
+
+    expect(screen.getByRole('status', { name: 'Atualizando…' })).not.toBeNull()
+    expect(screen.getByText('Estoque abaixo do ideal')).not.toBeNull()
   })
 })

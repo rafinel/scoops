@@ -76,6 +76,13 @@ export function useStockTransactionHistoryCard(
     hasFilters,
     isError: transactionsQuery.isError,
     isLoading: transactionsQuery.isPending,
+    isPageLoading: Boolean(
+      transactionsQuery.isFetching && transactionsQuery.isPlaceholderData,
+    ),
+    isRefreshing:
+      transactionsQuery.isFetching &&
+      Boolean(transactionsQuery.data) &&
+      !transactionsQuery.isPlaceholderData,
     refetch: transactionsQuery.refetch,
     selectedBrandName,
     to,

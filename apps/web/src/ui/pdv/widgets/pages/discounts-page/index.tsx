@@ -1,5 +1,6 @@
 import { Button } from '@/ui/shadcn/button'
 import { Icon } from '@/ui/shared/widgets/components/icon'
+import { PageRefreshStatus } from '@/ui/pdv/widgets/pages/query-refresh-status'
 
 import { DiscountTypeDialog } from './discount-type-dialog'
 import { DiscountsEmptyState } from './discounts-empty-state'
@@ -13,8 +14,9 @@ export const DiscountsPage = () => {
     discountsPage,
     hasFilters,
     isDiscountsError,
-    isFetchingDiscounts,
     isLoadingDiscounts,
+    isPageLoadingDiscounts,
+    isRefreshingDiscounts,
     isTypeDialogOpen,
     search,
     handleClearFilters,
@@ -48,9 +50,10 @@ export const DiscountsPage = () => {
         </Button>
       </header>
 
-      <div aria-live='polite' className='sr-only'>
-        {isFetchingDiscounts ? 'Atualizando descontos.' : ''}
-      </div>
+      <PageRefreshStatus
+        isRefreshing={isRefreshingDiscounts}
+        label='Atualizando descontos…'
+      />
 
       {isLoadingDiscounts ? <DiscountsLoading /> : null}
       {!isLoadingDiscounts && isDiscountsError ? (
@@ -62,7 +65,6 @@ export const DiscountsPage = () => {
       {!isLoadingDiscounts && !isDiscountsError && !isEmpty ? (
         <DiscountsList
           hasFilters={hasFilters}
-          isFetching={isFetchingDiscounts}
           onClearFilters={handleClearFilters}
           onDetails={handleDetails}
           onPageChange={handlePageChange}
@@ -70,6 +72,7 @@ export const DiscountsPage = () => {
           onStatusChange={handleStatusChange}
           onTypeChange={handleTypeChange}
           page={discountsPage}
+          isPageLoading={isPageLoadingDiscounts}
           search={search}
         />
       ) : null}

@@ -16,6 +16,8 @@ export function useProductsPage({ search, onSearchChange }: ProductsPageHookProp
     isError: hasProductsError,
     isLoading: isLoadingProducts,
     isPending: isPendingProducts,
+    isFetching: isFetchingProducts,
+    isPlaceholderData: isPlaceholderProducts,
     refetch: refetchProducts,
   } = useProductsQuery(search)
   const [isFilterOpen, setFilterOpen] = useState(false)
@@ -55,6 +57,9 @@ export function useProductsPage({ search, onSearchChange }: ProductsPageHookProp
     isFilterOpen,
     isLoadingProducts,
     isPendingProducts,
+    isPageLoadingProducts: isFetchingProducts && isPlaceholderProducts,
+    isRefreshingProducts:
+      isFetchingProducts && Boolean(productsPage) && !isPlaceholderProducts,
     productsPage,
     handleEmptyStateClear,
     handleFilterOpenChange,

@@ -29,6 +29,7 @@ describe('useStockTransactionHistoryCard', () => {
     useStockTransactionsQueryMock.mockReturnValue({
       data: transactionsPage,
       isError: false,
+      isFetching: true,
       isPending: true,
       refetch,
     } as never)
@@ -61,6 +62,7 @@ describe('useStockTransactionHistoryCard', () => {
       to: '',
       transactionsPage,
       type: '',
+      isRefreshing: true,
     })
     expect(useStockTransactionsQueryMock).toHaveBeenLastCalledWith('product-1', {
       brandId: undefined,
@@ -91,6 +93,7 @@ describe('useStockTransactionHistoryCard', () => {
     useStockTransactionsQueryMock.mockReturnValue({
       data: transactionsPage,
       isError: false,
+      isFetching: false,
       isPending: false,
       refetch: vi.fn(),
     } as never)
@@ -140,6 +143,7 @@ describe('useStockTransactionHistoryCard', () => {
     useStockTransactionsQueryMock.mockReturnValue({
       data: transactionsPage,
       isError: false,
+      isFetching: false,
       isPending: false,
       refetch: vi.fn(),
     } as never)
@@ -209,6 +213,7 @@ describe('useStockTransactionHistoryCard', () => {
     useStockTransactionsQueryMock.mockReturnValue({
       data: undefined,
       isError: true,
+      isFetching: false,
       isPending: false,
       refetch,
     } as never)

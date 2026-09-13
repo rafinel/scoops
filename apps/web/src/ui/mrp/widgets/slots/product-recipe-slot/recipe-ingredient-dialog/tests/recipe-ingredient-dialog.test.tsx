@@ -36,6 +36,7 @@ describe('RecipeIngredientDialog', () => {
       handleQuantityChange,
       handleSubmit,
       ingredientProductId: '',
+      isRefreshing: true,
       isPending: false,
       quantity: 2,
       selectedProduct: undefined,
@@ -60,6 +61,9 @@ describe('RecipeIngredientDialog', () => {
       />,
     )
     expect(screen.getByRole('heading', { name: 'Adicionar ingrediente' })).toBeTruthy()
+    expect(screen.getByRole('status', { name: 'Atualizando…' }).textContent).toBe(
+      'Atualizando…',
+    )
     expect(
       screen.getByText('Não há ingredientes elegíveis com custo ou fonte atual.'),
     ).toBeTruthy()
@@ -75,6 +79,7 @@ describe('RecipeIngredientDialog', () => {
       handleQuantityChange,
       handleSubmit,
       ingredientProductId: 'ingredient-1',
+      isRefreshing: false,
       isPending: false,
       quantity: 2,
       selectedProduct: undefined,
@@ -134,6 +139,7 @@ describe('RecipeIngredientDialog', () => {
       handleSubmit: vi.fn((event) => event.preventDefault()),
       ingredientBrandId: 'brand-primary',
       ingredientProductId: 'ingredient-1',
+      isRefreshing: false,
       isPending: false,
       quantity: 2,
       selectedProduct: undefined,

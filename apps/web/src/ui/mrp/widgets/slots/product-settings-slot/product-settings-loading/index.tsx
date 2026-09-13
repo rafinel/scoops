@@ -1,3 +1,5 @@
+import { Skeleton } from '@/ui/shadcn/skeleton'
+
 export type ProductSettingsLoadingProps = {
   className?: string
 }
@@ -9,9 +11,9 @@ export const ProductSettingsLoading = ({ className }: ProductSettingsLoadingProp
     className={`grid gap-5 ${className ?? ''}`}
     role='status'
   >
-    <div className='h-64 animate-pulse rounded-2xl bg-muted motion-reduce:animate-none' />
-    <div className='h-52 animate-pulse rounded-2xl bg-muted motion-reduce:animate-none' />
-    <div className='h-44 animate-pulse rounded-2xl bg-muted motion-reduce:animate-none' />
-    <div className='h-48 animate-pulse rounded-2xl bg-muted motion-reduce:animate-none' />
+    <Skeleton className='h-64 rounded-2xl' />
+    <Skeleton className='h-52 rounded-2xl' />
+    <Skeleton className='h-44 rounded-2xl' />
+    <Skeleton className='h-48 rounded-2xl' />
   </div>
 )

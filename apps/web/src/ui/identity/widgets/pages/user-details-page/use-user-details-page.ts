@@ -169,8 +169,10 @@ export function useUserDetailsPage({ userId }: UserDetailsPageProps) {
     handleCorrectName,
     handleOpenDialog,
     setHistoryPage: setHistoryPageWithinBounds,
-    isError: query.isError || (!query.isLoading && !query.userDetails),
+    isError:
+      (query.isError && !query.userDetails) || (!query.isLoading && !query.userDetails),
     isLoading: query.isLoading,
+    isRefreshing: query.isRefreshing,
     isSelf,
     nameError: name.error as Error | null,
     namePending: name.isPending,

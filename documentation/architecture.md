@@ -161,10 +161,11 @@ flowchart TB
   coreFeature --> core
 ```
 
-Features may use shared infrastructure, but shared directories cannot import
-feature jobs, controllers, repositories, or policy. Root composition modules are
-the only places that combine independent feature and infrastructure
-registrations. Ownership is defined in [`modules.md`](modules.md).
+Features may use shared infrastructure, but shared directories cannot own feature
+jobs, controllers, repositories, or policy. Cross-module infrastructure adapters
+live under shared provision, implement an explicit consumer contract, and depend
+only on exported provider-module capabilities. Ownership is defined in
+[`modules.md`](modules.md).
 
 ## 7. Layer responsibilities
 

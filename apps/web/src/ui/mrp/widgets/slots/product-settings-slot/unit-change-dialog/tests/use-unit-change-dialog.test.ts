@@ -30,6 +30,7 @@ const preview = {
   hasUnitChangePreviewError: false,
   isLoadingUnitChangePreview: false,
   isPendingUnitChangePreview: false,
+  isRefreshingUnitChangePreview: true,
   retryUnitChangePreview: vi.fn(),
 }
 
@@ -69,6 +70,7 @@ describe('useUnitChangeDialog', () => {
       expectedUpdatedAt: product.updatedAt,
     })
     expect(onOpenChange).toHaveBeenCalledWith(false)
+    expect(result.current.isRefreshingUnitChangePreview).toBe(true)
   })
 
   it('allows cross-dimension changes, blocks pending close, and reports failures', async () => {

@@ -16,6 +16,7 @@ export type CategoryDependencyDialogProps = {
   productName: string
   canRemove: boolean
   isLoading: boolean
+  isRefreshing?: boolean
   onRetry: () => void
 }
 

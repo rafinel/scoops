@@ -4,6 +4,7 @@ import { cn } from '@/ui/shared/lib/utils'
 
 export type PaginationProps = {
   currentPage: number
+  isLoading?: boolean
   pageSize: number
   totalItems: number
   onPageChange: (page: number) => void
@@ -13,6 +14,7 @@ export type PaginationProps = {
 
 export const Pagination = ({
   currentPage,
+  isLoading = false,
   pageSize,
   totalItems,
   onPageChange,
@@ -38,6 +40,7 @@ export const Pagination = ({
 
   return (
     <nav
+      aria-busy={isLoading}
       aria-label='Paginação'
       className={cn(
         'flex items-center justify-between gap-4 overflow-x-auto border-t border-border-soft bg-card px-5 py-4 sm:px-6',
@@ -48,13 +51,13 @@ export const Pagination = ({
         aria-live='polite'
         className='shrink-0 text-sm font-normal text-muted-foreground'
       >
-        {summary}
+        {isLoading ? 'Carregando página…' : summary}
       </span>
       <div className='flex shrink-0 items-center gap-1'>
         <Button
           aria-label='Página anterior'
           className='size-9 rounded-lg bg-card p-0 text-foreground hover:bg-muted disabled:opacity-50'
-          disabled={safeCurrentPage === 1}
+          disabled={isLoading || safeCurrentPage === 1}
           onClick={() => onPageChange(safeCurrentPage - 1)}
           size='icon'
           type='button'
@@ -73,6 +76,7 @@ export const Pagination = ({
                 : 'bg-card text-foreground hover:bg-muted',
             )}
             key={page}
+            disabled={isLoading}
             onClick={() => onPageChange(page)}
             size='icon'
             type='button'
@@ -84,7 +88,7 @@ export const Pagination = ({
         <Button
           aria-label='Próxima página'
           className='size-9 rounded-lg bg-card p-0 text-foreground hover:bg-muted disabled:opacity-50'
-          disabled={safeCurrentPage === totalPages}
+          disabled={isLoading || safeCurrentPage === totalPages}
           onClick={() => onPageChange(safeCurrentPage + 1)}
           size='icon'
           type='button'

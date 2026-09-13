@@ -28,6 +28,7 @@ describe('ProductPricingSlot', () => {
       handleRetry: vi.fn(),
       pricingError: false,
       isLoadingPricing: false,
+      isRefreshingPricing: false,
       pricing: {
         mode: 'portion',
         product: ProductFaker.fake({ categories: ['portion'], name: 'Açaí' }),
@@ -50,6 +51,7 @@ describe('ProductPricingSlot', () => {
       handleRetry: vi.fn(),
       pricingError: false,
       isLoadingPricing: true,
+      isRefreshingPricing: false,
       pricing: undefined,
       selectedAction: undefined,
     })
