@@ -11,7 +11,7 @@ updated_at: 2026-09-12
 # Execution status
 
 - **Spec:** [`spec.md`](./spec.md), revision `1`, completed.
-- **Rationale:** Plan-backed execution was required because the Spec spans 227 exact Web and CI delivery paths across shared composition and four feature modules, has a dependency/lockfile handoff, requires three independent ownership streams, and has complex responsive, reduced-motion, keyboard, route, console/network, and screenshot validation.
+- **Rationale:** Plan-backed execution was required because the Spec spans 227 exact Web and CI contract paths across shared composition and four feature modules, has a dependency/lockfile handoff, requires three independent ownership streams, and has complex responsive, reduced-motion, keyboard, route, console/network, and screenshot validation. The delivery also includes 14 explicitly user-authorized supplemental workspace paths outside that transition contract.
 - **Current phase:** `F6` — integrated validation, publication, and handoff complete.
 - **Next action:** Review and merge PR #39; no implementation work remains.
 - **Active blockers:** None in the implementation or local validation. The delayed route status is centered on desktop and responsively bottom-anchored at 320px so it does not obscure controls; this accepted responsive treatment is recorded in Evaluation. No production route loader, REST route, generated route tree, design screenshot, or feature-local design manifest is required by this Spec.
