@@ -5,6 +5,7 @@ import { ClientOnly, HeadContent, Scripts } from '@tanstack/react-router'
 
 import { AuthContextProvider } from '@/ui/shared/contexts/auth-context'
 import { RestContextProvider } from '@/ui/shared/contexts/rest-context'
+import { RouteTransitionStatus } from '@/ui/shared/widgets/components/route-transition-status'
 import { Toaster } from 'sonner'
 
 const queryClient = new QueryClient()
@@ -21,7 +22,10 @@ export const RootLayout = ({ children }: RootLayoutProps) => {
               <HeadContent />
             </head>
             <body className='antialiased [overflow-wrap:anywhere]'>
-              <ClientOnly fallback={null}>{children}</ClientOnly>
+              <ClientOnly fallback={null}>
+                {children}
+                <RouteTransitionStatus />
+              </ClientOnly>
               <Toaster
                 containerAriaLabel='Notificações do Scoops'
                 expand

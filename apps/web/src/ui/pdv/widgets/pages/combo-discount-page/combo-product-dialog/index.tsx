@@ -9,11 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/ui/shadcn/dialog'
-import { Input } from '@/ui/shadcn/input'
 import { CATEGORY_ICONS } from '@/constants/product-category-icons'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 
+import { ComboProductSearch } from './combo-product-search'
 import {
   useComboProductDialog,
   type ComboProductDialogProps,
@@ -38,6 +38,7 @@ export const ComboProductDialog = (props: ComboProductDialogProps) => {
     handleSelectSize,
     isCatalogError,
     isLoadingCatalog,
+    isRefreshingCatalog,
     isValidConfiguration,
     kind,
     products,
@@ -66,45 +67,15 @@ export const ComboProductDialog = (props: ComboProductDialogProps) => {
 
         <div className='grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(260px,0.8fr)_minmax(300px,1.2fr)]'>
           <section aria-label='Produtos disponíveis' className='min-w-0 space-y-3'>
-            <div className='flex gap-2'>
-              {(['all', 'portion', 'resale'] as const).map((filter) => {
-                const filterKind = filter === 'all' ? undefined : filter
-                return (
-                  <Button
-                    aria-pressed={kind === filterKind}
-                    key={filter}
-                    onClick={() => handleFilterChange(filterKind)}
-                    size='sm'
-                    type='button'
-                    variant={kind === filterKind ? 'default' : 'outline'}
-                  >
-                    {filter === 'all'
-                      ? 'Todos'
-                      : filter === 'portion'
-                        ? 'Porções'
-                        : 'Revendas'}
-                  </Button>
-                )
-              })}
-            </div>
-            <label
-              className='flex items-center gap-2 rounded-lg border bg-card px-3'
-              htmlFor='combo-product-search'
-            >
-              <Icon name='search' className='size-4 text-muted-foreground' />
-              <Input
-                aria-label='Buscar produtos'
-                className='h-10 border-0 px-0 shadow-none focus-visible:ring-0'
-                id='combo-product-search'
-                onChange={(event) => handleSearchChange(event.target.value)}
-                placeholder='Buscar produto…'
-                value={search}
-              />
-            </label>
+            <ComboProductSearch
+              isLoading={isLoadingCatalog}
+              isRefreshing={isRefreshingCatalog}
+              kind={kind}
+              onFilterChange={handleFilterChange}
+              onSearchChange={handleSearchChange}
+              search={search}
+            />
             <div className='max-h-[360px] space-y-2 overflow-y-auto pr-1'>
-              {isLoadingCatalog ? (
-                <p className='p-4 text-sm text-muted-foreground'>Carregando produtos…</p>
-              ) : null}
               {isCatalogError ? (
                 <p className='p-4 text-sm text-destructive' role='alert'>
                   {catalogError instanceof Error

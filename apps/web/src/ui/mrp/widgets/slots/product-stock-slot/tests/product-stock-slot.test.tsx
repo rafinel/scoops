@@ -50,6 +50,7 @@ describe('ProductStockSlot', () => {
       isBrandActionPending: false,
       isError: false,
       isLoading: false,
+      isRefreshing: false,
       handleAddBrand: vi.fn(),
       handleActionOpenChange: vi.fn(),
       handleActionSuccess: vi.fn(),

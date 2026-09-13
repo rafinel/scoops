@@ -40,6 +40,7 @@ describe('useNotificationDropdown', () => {
     useOptionalNotificationShellContextMock.mockReturnValue(null)
     useRecentNotificationsQueryMock.mockReturnValue({
       isLoadingRecentNotifications: false,
+      isRefreshingRecentNotifications: false,
       recentNotifications: [NotificationFaker.fake()],
       recentNotificationsError: null,
       refetchRecentNotifications: vi.fn(),
@@ -115,5 +116,20 @@ describe('useNotificationDropdown', () => {
     renderHook(() => useNotificationDropdown())
 
     expect(clearSelectedNotification).toHaveBeenCalledOnce()
+  })
+
+  it('exposes recent notification refresh state to the dropdown consumer', () => {
+    useRecentNotificationsQueryMock.mockReturnValueOnce({
+      isLoadingRecentNotifications: false,
+      isRefreshingRecentNotifications: true,
+      recentNotifications: [NotificationFaker.fake()],
+      recentNotificationsError: null,
+      refetchRecentNotifications: vi.fn(),
+      unreadCount: 1,
+    } as never)
+
+    const { result } = renderHook(() => useNotificationDropdown())
+
+    expect(result.current.isRefreshingRecentNotifications).toBe(true)
   })
 })

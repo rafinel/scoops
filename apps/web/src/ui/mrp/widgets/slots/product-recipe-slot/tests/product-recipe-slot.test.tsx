@@ -25,6 +25,7 @@ const baseSlot = () => ({
   details,
   isError: false,
   isLoading: false,
+  isRefreshing: false,
   isUnsupported: false,
   product: details.product,
   selectedAction: undefined,

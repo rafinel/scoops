@@ -49,4 +49,18 @@ describe('ProductsKpiCards', () => {
     expect(screen.getByText('4')).toBeTruthy()
     expect(screen.getByText('2')).toBeTruthy()
   })
+
+  it('uses the shared skeleton contract for an initial empty load', () => {
+    useProductsKpiCardsMock.mockReturnValue({
+      cards: [
+        { label: 'Produtos', displayValue: 0, detail: '', icon: 'package' },
+        { label: 'Marcas', displayValue: 0, detail: '', icon: 'tags' },
+        { label: 'Estoque baixo', displayValue: 0, detail: '', icon: 'triangle-alert' },
+      ],
+    } as never)
+
+    render(<ProductsKpiCards isLoading page={undefined} />)
+
+    expect(screen.getAllByLabelText('Carregando indicador')).toHaveLength(3)
+  })
 })

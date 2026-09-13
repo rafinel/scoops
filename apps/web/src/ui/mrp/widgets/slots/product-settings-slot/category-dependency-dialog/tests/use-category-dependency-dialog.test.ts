@@ -22,6 +22,7 @@ const baseProps = {
   productName: 'Açaí',
   canRemove: false,
   isLoading: false,
+  isRefreshing: true,
   onRetry: vi.fn(),
 }
 

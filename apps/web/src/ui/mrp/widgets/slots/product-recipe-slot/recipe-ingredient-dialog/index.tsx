@@ -1,14 +1,6 @@
 import type { RecipeIngredientDetails } from '@scoops/core/mrp/domain/structures'
 import { Button } from '@/ui/shadcn/button'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/ui/shadcn/dialog'
+import { Dialog, DialogClose, DialogContent, DialogFooter } from '@/ui/shadcn/dialog'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
 import {
@@ -21,7 +13,7 @@ import {
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { useFormatDecimal } from '@/ui/shared/hooks/use-format-decimal'
 import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
-import { Icon } from '@/ui/shared/widgets/components/icon'
+import { RecipeIngredientDialogHeader } from './recipe-ingredient-dialog-header'
 import { useRecipeIngredientDialog } from './use-recipe-ingredient-dialog'
 
 export type RecipeIngredientDialogProps = {
@@ -59,6 +51,7 @@ export const RecipeIngredientDialog = ({
     ingredientProductId,
     ingredientBrandId,
     isPending,
+    isRefreshing,
     previewCogsPercentage,
     previewLineCost,
     register,
@@ -85,21 +78,7 @@ export const RecipeIngredientDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-lg'>
-        <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft p-6 pr-14'>
-          <span className='grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary'>
-            <Icon name={isEdit ? 'pencil' : 'plus'} />
-          </span>
-          <div className='min-w-0'>
-            <DialogTitle>
-              {isEdit ? 'Editar ingrediente' : 'Adicionar ingrediente'}
-            </DialogTitle>
-            <DialogDescription className='mt-1'>
-              {isEdit
-                ? 'Trocar o insumo? Remova esta linha e adicione outra.'
-                : 'Compõe a receita e afeta CMV, custo unitário e máximo produzível.'}
-            </DialogDescription>
-          </div>
-        </DialogHeader>
+        <RecipeIngredientDialogHeader isEdit={isEdit} isRefreshing={isRefreshing} />
         <form className='grid gap-5' onSubmit={handleSubmit}>
           <div className='grid gap-5 p-6'>
             {isEdit ? (

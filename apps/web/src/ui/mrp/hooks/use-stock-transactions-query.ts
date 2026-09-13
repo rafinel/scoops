@@ -20,7 +20,7 @@ export const useStockTransactionsQuery = (
       return response.body
     },
     enabled: Boolean(productId),
-    placeholderData: (previousData) => previousData,
+    placeholderData: (previousData) => previousData ?? undefined,
     retry: false,
   })
 }

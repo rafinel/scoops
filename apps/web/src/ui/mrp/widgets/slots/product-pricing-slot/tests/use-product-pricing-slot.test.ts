@@ -55,4 +55,18 @@ describe('useProductPricingSlot', () => {
     act(() => result.current.handleActionOpenChange(false))
     expect(result.current.selectedAction).toBeUndefined()
   })
+
+  it('exposes the pricing refresh state from the query boundary', () => {
+    useProductPricingQueryMock.mockReturnValue({
+      pricing: undefined,
+      pricingError: false,
+      isLoadingPricing: false,
+      isRefreshingPricing: true,
+      retryPricing: vi.fn(),
+    } as never)
+
+    const { result } = renderHook(() => useProductPricingSlot('product-1'))
+
+    expect(result.current.isRefreshingPricing).toBe(true)
+  })
 })

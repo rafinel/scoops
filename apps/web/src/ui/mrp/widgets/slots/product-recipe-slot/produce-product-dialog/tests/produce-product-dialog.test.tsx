@@ -286,6 +286,7 @@ function createPreviewQuery(
   return {
     data: preview,
     isError: false,
+    isRefreshing: false,
     isPending: false,
     refetch: vi.fn(),
     ...overrides,

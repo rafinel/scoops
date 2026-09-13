@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 
 import type { NotificationCursor } from '@scoops/core/communication/domain/structures'
 
@@ -36,6 +36,7 @@ export const useNotificationsQuery = ({
     },
     initialPageParam: undefined as NotificationCursor | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
+    placeholderData: keepPreviousData,
     enabled,
     retry: false,
   })
@@ -51,6 +52,8 @@ export const useNotificationsQuery = ({
     hasLoadedNotifications: Boolean(query.data),
     isLoadingNotifications: query.isLoading,
     isLoadingNextNotifications: query.isFetchingNextPage,
+    isRefreshingNotifications:
+      query.isFetching && !query.isFetchingNextPage && Boolean(query.data),
     notifications: notifications ?? [],
     notificationsError: query.error,
     unreadCount: query.data?.pages.at(-1)?.unreadCount ?? 0,

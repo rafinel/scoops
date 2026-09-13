@@ -14,6 +14,7 @@ export function useDiscountsQuery(search: DiscountsSearch) {
     error: discountsError,
     isError: isDiscountsError,
     isFetching: isFetchingDiscounts,
+    isPlaceholderData: isPlaceholderDiscounts,
     isPending: isLoadingDiscounts,
     refetch: refetchDiscounts,
   } = useQuery({
@@ -33,6 +34,9 @@ export function useDiscountsQuery(search: DiscountsSearch) {
     isDiscountsError,
     isFetchingDiscounts,
     isLoadingDiscounts,
+    isPageLoadingDiscounts: isFetchingDiscounts && isPlaceholderDiscounts,
+    isRefreshingDiscounts:
+      isFetchingDiscounts && discountsPage !== undefined && !isPlaceholderDiscounts,
     refetchDiscounts,
   }
 }

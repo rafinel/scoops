@@ -8,11 +8,13 @@ import { Badge } from '@/ui/shadcn/badge'
 import { Button } from '@/ui/shadcn/button'
 import { Card, CardContent } from '@/ui/shadcn/card'
 import { Input } from '@/ui/shadcn/input'
+import { PageRefreshStatus } from '@/ui/pdv/widgets/pages/query-refresh-status'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { Pagination } from '@/ui/shared/widgets/components/pagination'
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { cn } from '@/ui/shared/lib/utils'
 
+import { NewSaleCatalogLoading } from './new-sale-catalog-loading'
 import { useNewSaleCatalog } from './use-new-sale-catalog'
 
 export type NewSaleCatalogProps = {
@@ -37,6 +39,8 @@ export const NewSaleCatalog = (props: NewSaleCatalogProps) => {
     handleSelectProduct,
     isCatalogError,
     isLoadingCatalog,
+    isPageLoadingCatalog,
+    isRefreshingCatalog,
     kind,
     refetchCatalog,
     search,
@@ -90,31 +94,12 @@ export const NewSaleCatalog = (props: NewSaleCatalogProps) => {
         />
       </label>
 
-      {isLoadingCatalog && !catalogPage ? (
-        <div
-          aria-label='Carregando produtos'
-          className='mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3'
-          role='status'
-        >
-          {[1, 2, 3, 4].map((item) => (
-            <Card aria-hidden='true' className='rounded-2xl' key={item}>
-              <CardContent className='flex min-h-44 flex-col p-4'>
-                <div className='flex items-start justify-between gap-3'>
-                  <span className='size-10 animate-pulse rounded-xl bg-muted motion-reduce:animate-none' />
-                  <span className='h-6 w-16 animate-pulse rounded-full bg-muted motion-reduce:animate-none' />
-                </div>
-                <span className='mt-4 h-5 w-3/5 animate-pulse rounded bg-muted motion-reduce:animate-none' />
-                <span className='mt-2 h-5 w-full animate-pulse rounded bg-muted motion-reduce:animate-none' />
-                <div className='mt-auto flex items-end justify-between gap-2 pt-4'>
-                  <span className='h-5 w-28 animate-pulse rounded bg-muted motion-reduce:animate-none' />
-                  <span className='h-6 w-20 animate-pulse rounded-full bg-muted motion-reduce:animate-none' />
-                </div>
-                <span className='mt-3 h-10 w-full animate-pulse rounded-lg bg-muted motion-reduce:animate-none' />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : null}
+      <PageRefreshStatus
+        isRefreshing={isRefreshingCatalog}
+        label='Atualizando produtos…'
+      />
+
+      {isLoadingCatalog && !catalogPage ? <NewSaleCatalogLoading /> : null}
 
       {isCatalogError ? (
         <div
@@ -262,6 +247,7 @@ export const NewSaleCatalog = (props: NewSaleCatalogProps) => {
           <Pagination
             className='mt-4 rounded-xl border'
             currentPage={catalogPage.page}
+            isLoading={isPageLoadingCatalog}
             itemLabel='produtos'
             onPageChange={handlePageChange}
             pageSize={catalogPage.pageSize}

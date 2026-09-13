@@ -14,6 +14,7 @@ const { actionState, queryState, showErrorToastMock } = vi.hoisted(() => ({
   queryState: {
     error: null as Error | null,
     isLoading: false,
+    isRefreshing: false,
     refetch: vi.fn(),
     settings: null as EstablishmentSettings | null,
   },
@@ -38,6 +39,7 @@ describe('useShopSettingsPage', () => {
     actionState.isPending = false
     queryState.error = null
     queryState.isLoading = false
+    queryState.isRefreshing = false
     queryState.settings = {
       establishment: {
         id: 'establishment-id',

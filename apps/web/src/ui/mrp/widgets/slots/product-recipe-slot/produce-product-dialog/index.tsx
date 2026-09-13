@@ -1,15 +1,7 @@
 import type { Product } from '@scoops/core/mrp/domain/entities'
 import type { RecipeDetails } from '@scoops/core/mrp/domain/structures'
 import { Button } from '@/ui/shadcn/button'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/ui/shadcn/dialog'
+import { Dialog, DialogClose, DialogContent, DialogFooter } from '@/ui/shadcn/dialog'
 import { Input } from '@/ui/shadcn/input'
 import {
   Table,
@@ -22,7 +14,7 @@ import {
 } from '@/ui/shadcn/table'
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
-import { Icon } from '@/ui/shared/widgets/components/icon'
+import { ProduceProductDialogHeader } from './produce-product-dialog-header'
 import { useProduceProductDialog } from './use-produce-product-dialog'
 
 export type ProduceProductDialogProps = {
@@ -58,17 +50,11 @@ export const ProduceProductDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='min-w-0 max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-2xl'>
-        <DialogHeader className='min-w-0 flex-row items-start gap-3 border-b border-border-soft p-6 pr-14'>
-          <span className='grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary'>
-            <Icon name='chef-hat' />
-          </span>
-          <div className='min-w-0'>
-            <DialogTitle>Registrar produção</DialogTitle>
-            <DialogDescription className='mt-1'>
-              {product.name} · receita de {recipe.yieldQuantity} {product.unit}
-            </DialogDescription>
-          </div>
-        </DialogHeader>
+        <ProduceProductDialogHeader
+          isRefreshing={previewQuery.isRefreshing}
+          product={product}
+          recipe={recipe}
+        />
         <div className='grid min-w-0 gap-5 p-6'>
           <p className='font-bold'>Quantidade a produzir</p>
           <div className='grid gap-3 sm:grid-cols-[1fr_auto]'>

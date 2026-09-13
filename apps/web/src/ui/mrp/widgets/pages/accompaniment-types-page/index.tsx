@@ -1,13 +1,13 @@
 import { Button } from '@/ui/shadcn/button'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { BackLink } from '@/ui/shared/widgets/components/back-link'
+import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
 
-import { AccompanimentTypeDialog } from './accompaniment-type-dialog'
 import { AccompanimentTypesCard } from './accompaniment-types-card'
+import { AccompanimentTypesDialogs } from './accompaniment-types-dialogs'
 import { AccompanimentTypesEmptyState } from './accompaniment-types-empty-state'
 import { AccompanimentTypesError } from './accompaniment-types-error'
 import { AccompanimentTypesLoading } from './accompaniment-types-loading'
-import { RemoveAccompanimentTypeDialog } from './remove-accompaniment-type-dialog'
 import { useAccompanimentTypesPage } from './use-accompaniment-types-page'
 
 export type AccompanimentTypesPageProps = {
@@ -30,6 +30,8 @@ export const AccompanimentTypesPage = ({
     handleRetry,
     isError,
     isLoading,
+    isPageLoading,
+    isRefreshing,
     onPageChange: changePage,
     selectedAction,
   } = useAccompanimentTypesPage(page, onPageChange)
@@ -38,9 +40,12 @@ export const AccompanimentTypesPage = ({
       <header className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
         <div>
           <BackLink onClick={handleBack} route='products' />
-          <h1 className='text-[28px] font-extrabold tracking-tight'>
-            Tipos de acompanhamento
-          </h1>
+          <div className='flex items-center gap-3'>
+            <h1 className='text-[28px] font-extrabold tracking-tight'>
+              Tipos de acompanhamento
+            </h1>
+            <QueryRefreshStatus isRefreshing={isRefreshing} />
+          </div>
           <p className='mt-1 text-sm font-medium text-muted-foreground'>
             Organize as opções usadas ao vincular acompanhamentos aos produtos porção.
           </p>
@@ -63,26 +68,16 @@ export const AccompanimentTypesPage = ({
           onPageChange={changePage}
           onRemove={handleRemoveAction}
           page={data}
+          isPageLoading={isPageLoading}
         />
       ) : (
         <AccompanimentTypesEmptyState onAdd={handleCreateAction} />
       )}
-      {selectedAction?.kind === 'create' || selectedAction?.kind === 'edit' ? (
-        <AccompanimentTypeDialog
-          item={selectedAction.kind === 'edit' ? selectedAction.item : undefined}
-          onOpenChange={handleActionOpenChange}
-          onSuccess={handleActionSuccess}
-          open
-        />
-      ) : null}
-      {selectedAction?.kind === 'remove' ? (
-        <RemoveAccompanimentTypeDialog
-          item={selectedAction.item}
-          onOpenChange={handleActionOpenChange}
-          onSuccess={handleActionSuccess}
-          open
-        />
-      ) : null}
+      <AccompanimentTypesDialogs
+        onOpenChange={handleActionOpenChange}
+        onSuccess={handleActionSuccess}
+        selectedAction={selectedAction}
+      />
     </section>
   )
 }

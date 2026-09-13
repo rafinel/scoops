@@ -1,14 +1,8 @@
 import type { ProductCategory } from '@scoops/core/mrp/domain/structures'
 
 import { Button } from '@/ui/shadcn/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/ui/shadcn/dialog'
+import { Skeleton } from '@/ui/shadcn/skeleton'
+import { Dialog, DialogContent, DialogFooter } from '@/ui/shadcn/dialog'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import {
@@ -16,6 +10,7 @@ import {
   type CategoryDependencyDialogProps,
 } from './use-category-dependency-dialog'
 import { DependencyItem } from './dependency-item'
+import { CategoryDependencyDialogHeader } from './category-dependency-dialog-header'
 
 const CATEGORY_LABELS: Record<ProductCategory, string> = {
   ingredient: 'Ingrediente',
@@ -34,27 +29,7 @@ export const CategoryDependencyDialog = (props: CategoryDependencyDialogProps) =
   return (
     <Dialog open={props.open} onOpenChange={handleOpenChange}>
       <DialogContent className='max-h-[calc(100vh-1rem)] overflow-y-auto data-open:animate-none sm:max-w-[560px]'>
-        <DialogHeader className='grid gap-3 border-b border-border-soft p-4 pr-14 sm:p-6 sm:pr-14'>
-          <span className='grid size-11 place-items-center rounded-xl bg-warning/10 text-warning'>
-            <Icon className='size-5' name='link' />
-          </span>
-          <div>
-            <DialogTitle>
-              {props.isLoading
-                ? 'Verificando vínculos…'
-                : props.canRemove
-                  ? `Remover categoria ${label}?`
-                  : `${label} em uso`}
-            </DialogTitle>
-            <DialogDescription className='mt-1'>
-              {props.isLoading
-                ? 'Estamos verificando se existem cadastros que precisam de atenção.'
-                : props.canRemove
-                  ? `A categoria será removida de ${props.productName}.`
-                  : `Revise os cadastros relacionados antes de remover ${label} deste produto.`}
-            </DialogDescription>
-          </div>
-        </DialogHeader>
+        <CategoryDependencyDialogHeader label={label} {...props} />
 
         <div className='grid gap-4 p-4 sm:p-6'>
           {props.isLoading ? (
@@ -63,8 +38,8 @@ export const CategoryDependencyDialog = (props: CategoryDependencyDialogProps) =
               className='grid gap-3'
               role='status'
             >
-              <div className='h-12 animate-pulse rounded-xl bg-muted motion-reduce:animate-none' />
-              <div className='h-12 animate-pulse rounded-xl bg-muted motion-reduce:animate-none' />
+              <Skeleton className='h-12 rounded-xl' />
+              <Skeleton className='h-12 rounded-xl' />
             </div>
           ) : null}
           {props.error ? (

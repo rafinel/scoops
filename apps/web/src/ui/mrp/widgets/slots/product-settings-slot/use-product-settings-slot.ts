@@ -72,6 +72,7 @@ export function useProductSettingsSlot(
     settingsError: query.settingsError,
     hasSettingsError: query.hasSettingsError,
     isLoadingSettings: query.isLoadingSettings,
+    isRefreshingSettings: query.isRefreshingSettings,
     targetUnit,
     isUnitDialogOpen,
     isRemovalDialogOpen,

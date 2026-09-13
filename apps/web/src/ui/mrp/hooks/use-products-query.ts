@@ -30,6 +30,7 @@ export function useProductsQuery(search: ProductsSearch) {
       if (response.isFailure) response.throwError()
       return response.body
     },
+    placeholderData: (previousData) => previousData,
     retry: false,
   })
 }

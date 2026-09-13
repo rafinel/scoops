@@ -18,5 +18,9 @@ export const useUserDetailsQuery = (userId: string) => {
     retry: false,
   })
 
-  return { ...query, userDetails: query.data as UserDetails | undefined }
+  return {
+    ...query,
+    isRefreshing: query.isFetching && Boolean(query.data),
+    userDetails: query.data as UserDetails | undefined,
+  }
 }

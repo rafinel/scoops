@@ -208,8 +208,8 @@ identity and establishment authorization from Identity; production stock changes
 sales-consumption facts from PDV.
 
 **Provides:** Current product and brand balances, stock status, immutable stock-transaction history
-for PRQ-04, PRQ-06, PRQ-07, and PDV, and authoritative product-total stock-threshold facts for
-Communication.
+for PRQ-04, PRQ-06, PRQ-07, PDV, and Analytics; authoritative product-total stock-threshold facts for
+Communication; and current stock-attention facts for Analytics.
 
 #### Capabilities
 
@@ -371,7 +371,8 @@ stock constraints, and maximum producible quantity before recording production.
 and brand-price facts from PRQ-02; current balances from PRQ-03; product-page context from PRQ-05.
 
 **Provides:** Persisted recipe, reference yield, current COGS, unit cost, ingredient projections,
-and maximum producible quantity for PRQ-04, PRQ-07, and PRQ-10.
+limiting-ingredient facts, and maximum producible quantity for PRQ-04, PRQ-07, PRQ-10, PDV, and
+Analytics.
 
 #### Capabilities
 
@@ -534,8 +535,8 @@ availability without duplicating cart, sale, or historical-order rules in MRP.
 **Consumes:** Product categories, units, and status from PRQ-01; brand facts from PRQ-02;
 product-page context from PRQ-05; accompaniment links from PRQ-08.
 
-**Provides:** Active Portion sizes, Resale packaging and brand availability, and
-product-size-accompaniment prices for PRQ-10 and PDV.
+**Provides:** Active Portion sizes, Resale packaging and brand availability,
+product-size-accompaniment prices, and current operating-cost facts for PRQ-10, PDV, and Analytics.
 
 #### Capabilities
 
@@ -634,6 +635,7 @@ authoritative fact.
 flowchart LR
     ID[Identity]
     PDV[PDV]
+    Analytics[Analytics]
     R1[PRQ-01 Product Registration]
     R2[PRQ-02 Brand Management]
     R3[PRQ-03 Inventory Control]
@@ -664,15 +666,18 @@ flowchart LR
     R3 --> R6
     R3 --> R7
     R3 --> PDV
+    R3 --> Analytics
     R5 --> R6
     R5 --> R8
     R5 --> R9
     R6 --> R4
     R6 --> R7
+    R6 --> Analytics
     R7 --> R3
     R8 --> R9
     R8 --> PDV
     R9 --> PDV
+    R9 --> Analytics
     ID --> R3
     ID --> R10
     PDV --> R3
@@ -816,7 +821,8 @@ flowchart LR
 - Multi-store and multiple operational units.
 - Authentication, users, profiles, and permissions.
 - Billing, plans, and subscriptions.
-- Management dashboard and BI.
+- Dashboard and BI calculations or presentation; Analytics consumes MRP-owned current cost, stock,
+  and production facts without moving their authority out of MRP.
 - Automatic composition of cups, lids, spoons, and disposables.
 - Monitoring of Resale products.
 - Accompaniment type `Base`; the Portion is already the order base.

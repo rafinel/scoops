@@ -79,6 +79,7 @@ describe('CategoryDependencyDialog', () => {
         category='ingredient'
         dependencies={dependencies}
         isLoading={false}
+        isRefreshing
         isPending={false}
         onConfirm={vi.fn()}
         onOpenChange={vi.fn()}
@@ -90,6 +91,7 @@ describe('CategoryDependencyDialog', () => {
     )
 
     expect(screen.getByRole('dialog')).not.toBeNull()
+    expect(screen.getByRole('status', { name: 'Atualizando…' })).not.toBeNull()
     expect(screen.getByText('Usado em receita')).not.toBeNull()
     expect(screen.getAllByText('Receita própria')).toHaveLength(2)
     expect(screen.getByText('2 tamanho(s) configurado(s)')).not.toBeNull()

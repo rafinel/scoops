@@ -30,6 +30,7 @@ export type DiscountsListProps = {
   onClearFilters: () => void
   onDetails: (discountId: string) => void
   onPageChange: (page: number) => void
+  isPageLoading?: boolean
   onSearchChange: (search: string) => void
   onStatusChange: (status: DiscountStatus | undefined) => void
   onTypeChange: (type: DiscountType | undefined) => void
@@ -58,6 +59,7 @@ export const DiscountsList = ({
   onClearFilters,
   onDetails,
   onPageChange,
+  isPageLoading = false,
   onSearchChange,
   onStatusChange,
   onTypeChange,
@@ -315,6 +317,7 @@ export const DiscountsList = ({
             {pageCount > 1 ? (
               <Pagination
                 currentPage={pageNumber}
+                isLoading={isPageLoading}
                 itemLabel='descontos'
                 onPageChange={onPageChange}
                 pageSize={pageSize}

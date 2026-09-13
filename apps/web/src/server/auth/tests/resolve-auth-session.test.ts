@@ -11,8 +11,8 @@ const LOOPBACK_CONTEXT = {
   requestHost: '127.0.0.1:4000',
 }
 const DEPLOYED_CONTEXT = {
-  apiOrigin: 'https://scoops-web-blond.vercel.app',
-  requestHost: 'scoops-web-blond.vercel.app',
+  apiOrigin: 'https://scoops-web.example.test',
+  requestHost: 'scoops-web.example.test',
 }
 
 describe('SSR session cookie validation', () => {
@@ -39,8 +39,8 @@ describe('SSR session cookie validation', () => {
       isAllowedSessionCookie(
         'scoops.session_token=session; Path=/; HttpOnly; SameSite=Lax; Secure',
         {
-          apiOrigin: 'https://scoops-web-blond.vercel.app',
-          requestHost: 'scoops-web-blond.vercel.app',
+          apiOrigin: 'https://scoops-web.example.test',
+          requestHost: 'scoops-web.example.test',
         },
       ),
     ).toBe(true)

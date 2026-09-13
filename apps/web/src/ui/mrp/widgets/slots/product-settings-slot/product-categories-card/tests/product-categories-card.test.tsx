@@ -24,6 +24,7 @@ describe('ProductCategoriesCard', () => {
       isChangingCategories: false,
       isLoadingImpact: false,
       isPendingImpact: false,
+      isRefreshingImpact: false,
       isSelected: () => false,
       retryImpact: vi.fn(),
       selectedCategory: undefined,

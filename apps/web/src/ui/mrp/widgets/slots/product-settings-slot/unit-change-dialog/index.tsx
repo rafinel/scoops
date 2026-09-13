@@ -1,15 +1,10 @@
 import { Button } from '@/ui/shadcn/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/ui/shadcn/dialog'
+import { Skeleton } from '@/ui/shadcn/skeleton'
+import { Dialog, DialogContent, DialogFooter } from '@/ui/shadcn/dialog'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import { ImpactRow } from './impact-row'
+import { UnitChangeDialogHeader } from './unit-change-dialog-header'
 import { useUnitChangeDialog, type UnitChangeDialogProps } from './use-unit-change-dialog'
 
 export type { UnitChangeDialogProps }
@@ -23,6 +18,7 @@ export const UnitChangeDialog = (props: UnitChangeDialogProps) => {
     isChangingProductUnit,
     isLoadingUnitChangePreview,
     isPendingUnitChangePreview,
+    isRefreshingUnitChangePreview,
     retryUnitChangePreview,
     unitChangePreview,
   } = useUnitChangeDialog(props)
@@ -30,17 +26,7 @@ export const UnitChangeDialog = (props: UnitChangeDialogProps) => {
   return (
     <Dialog open={props.open} onOpenChange={handleOpenChange}>
       <DialogContent className='max-h-[calc(100vh-1rem)] overflow-y-auto data-open:animate-none sm:max-w-[520px]'>
-        <DialogHeader className='grid gap-3 border-b border-border-soft p-4 pr-14 sm:p-6 sm:pr-14'>
-          <span className='grid size-11 place-items-center rounded-xl bg-warning/10 text-warning'>
-            <Icon className='size-5' name='arrow-down-up' />
-          </span>
-          <div>
-            <DialogTitle>Alterar unidade de estoque</DialogTitle>
-            <DialogDescription className='mt-1'>
-              A nova unidade será aplicada sem alterar os valores numéricos existentes.
-            </DialogDescription>
-          </div>
-        </DialogHeader>
+        <UnitChangeDialogHeader isRefreshing={isRefreshingUnitChangePreview} />
         <div className='grid gap-4 p-4 sm:p-6'>
           <div className='flex items-center justify-center gap-3 rounded-xl bg-muted p-4 text-center font-extrabold'>
             <span>{props.currentUnit}</span>
@@ -53,8 +39,8 @@ export const UnitChangeDialog = (props: UnitChangeDialogProps) => {
               className='grid gap-3'
               role='status'
             >
-              <div className='h-11 animate-pulse rounded-xl bg-muted motion-reduce:animate-none' />
-              <div className='h-11 animate-pulse rounded-xl bg-muted motion-reduce:animate-none' />
+              <Skeleton className='h-11 rounded-xl' />
+              <Skeleton className='h-11 rounded-xl' />
             </div>
           ) : null}
           {hasUnitChangePreviewError ? (

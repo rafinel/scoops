@@ -57,24 +57,20 @@ export function useProductAccompanimentDialog({
   const selectedBrand = selectedStockQuery.data?.brands.find(
     ({ brand }) => brand.isPrimary,
   )
-  const source = item
-    ? { name: item.brandName, unitCost: item.unitCost }
-    : selectedBrand?.unitPrice !== undefined
-      ? {
-          name: selectedBrand.brand.name,
-          unitCost: selectedBrand.unitPrice,
-        }
-      : selectedProduct?.currentUnitCost !== undefined
-        ? {
-            name: selectedStockQuery.data ? 'Estoque único' : undefined,
-            unitCost: selectedProduct.currentUnitCost,
-          }
-        : undefined
+  const source = getAccompanimentSource({
+    item,
+    selectedBrand,
+    selectedProduct,
+    hasSelectedStock: selectedStockQuery.data !== undefined,
+  })
   const numericQuantity = Number(String(quantity ?? '').replace(',', '.'))
   const estimatedCost =
     source?.unitCost !== undefined && numericQuantity > 0
       ? source.unitCost * numericQuantity
       : undefined
+  const isRefreshing = [candidatesQuery, typesQuery, selectedStockQuery].some(
+    hasRefreshableData,
+  )
 
   function handleValueChange(
     name: 'accompanimentProductId' | 'accompanimentTypeId',
@@ -130,6 +126,7 @@ export function useProductAccompanimentDialog({
     types: typesQuery.data?.items ?? [],
     typesError: typesQuery.isError,
     typesLoading: typesQuery.isPending,
+    isRefreshing,
     register: form.register,
   }
 }
@@ -140,4 +137,32 @@ function getDefaultValues(item?: ProductAccompanimentDetails): FormValues {
     accompanimentTypeId: item?.accompanimentTypeId ?? '',
     quantityPerPortion: item ? String(item.quantityPerPortion) : '',
   }
+}
+
+function getAccompanimentSource({
+  hasSelectedStock,
+  item,
+  selectedBrand,
+  selectedProduct,
+}: {
+  hasSelectedStock: boolean
+  item?: Pick<ProductAccompanimentDetails, 'brandName' | 'unitCost'>
+  selectedBrand?: { brand: { name: string }; unitPrice?: number }
+  selectedProduct?: { currentUnitCost?: number }
+}) {
+  if (item) return { name: item.brandName, unitCost: item.unitCost }
+  if (selectedBrand?.unitPrice !== undefined) {
+    return { name: selectedBrand.brand.name, unitCost: selectedBrand.unitPrice }
+  }
+  if (selectedProduct?.currentUnitCost !== undefined) {
+    return {
+      name: hasSelectedStock ? 'Estoque único' : undefined,
+      unitCost: selectedProduct.currentUnitCost,
+    }
+  }
+  return undefined
+}
+
+function hasRefreshableData(query: { data: unknown; isFetching: boolean }) {
+  return query.isFetching && query.data != null
 }

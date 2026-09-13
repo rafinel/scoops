@@ -14,6 +14,7 @@ export const useProductRecipeQuery = (productId: string, enabled = true) => {
       return response.body
     },
     enabled: Boolean(productId) && enabled,
+    placeholderData: (previousData) => previousData,
     retry: false,
   })
 }

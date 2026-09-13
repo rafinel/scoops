@@ -30,6 +30,7 @@ export function useProduceProductDialog({
     : mode === 'batches'
       ? 'Informe um número inteiro positivo de lotes.'
       : 'Informe uma quantidade positiva com até três casas decimais.'
+  // The preview query retains prior data and owns its refresh indicator.
   const preview = useProductionPreviewQuery(
     productId,
     Number.isFinite(quantity) ? quantity : 0,

@@ -41,6 +41,8 @@ const createPageState = (canManageTypes: boolean) => ({
   isLoadingProducts: false,
   canManageProducts: canManageTypes,
   isPendingProducts: false,
+  isPageLoadingProducts: false,
+  isRefreshingProducts: false,
   productsPage: undefined,
   handleEmptyStateClear: vi.fn(),
   handleFilterOpenChange: vi.fn(),

@@ -32,8 +32,16 @@ describe('useProductCategoriesCard', () => {
       categoryRemovalImpactError: null,
       isLoadingCategoryRemovalImpact: false,
       isPendingCategoryRemovalImpact: false,
+      isRefreshingCategoryRemovalImpact: true,
       retryCategoryRemovalImpact: vi.fn(),
     } as never)
+  })
+
+  it('exposes category impact refresh state while retaining the action boundary', () => {
+    const product = ProductFaker.fake({ categories: ['ingredient'] })
+    const { result } = renderHook(() => useProductCategoriesCard(product, {}))
+
+    expect(result.current.isRefreshingImpact).toBe(true)
   })
 
   it('adds a non-conflicting category and clears the request after success', async () => {

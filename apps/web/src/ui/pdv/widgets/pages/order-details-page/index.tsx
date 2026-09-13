@@ -1,11 +1,6 @@
-import { OrderStatus } from '@scoops/core/pdv/domain/structures'
-
-import { Button } from '@/ui/shadcn/button'
-import { BackLink } from '@/ui/shared/widgets/components/back-link'
-import { Icon } from '@/ui/shared/widgets/components/icon'
-
 import { CancelOrderDialog } from './cancel-order-dialog'
 import { OrderDetailsError } from './order-details-error'
+import { OrderDetailsHeader } from './order-details-header'
 import { OrderDetailsLoading } from './order-details-loading'
 import { OrderItems } from './order-items'
 import { OrderSummary } from './order-summary'
@@ -19,6 +14,7 @@ export const OrderDetailsPage = ({ orderId }: OrderDetailsPageProps) => {
     canCancel,
     isCancelOpen,
     isLoadingOrder,
+    isRefreshingOrder,
     order,
     orderError,
     handleBack,
@@ -33,47 +29,16 @@ export const OrderDetailsPage = ({ orderId }: OrderDetailsPageProps) => {
 
   return (
     <section className='min-w-0 space-y-5'>
-      <header className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
-        <div>
-          <BackLink
-            aria-label='Voltar para pedidos'
-            onClick={handleBack}
-            route='orders'
-          />
-          <h1 className='mt-2 text-[28px] font-extrabold tracking-tight'>
-            Pedido #{String(order.sequenceNumber).padStart(5, '0')}
-          </h1>
-        </div>
-        <div className='flex flex-col items-start gap-2 sm:items-end'>
-          {order.status === OrderStatus.Canceled ? (
-            <p className='text-sm font-bold text-danger'>
-              Cancelado em{' '}
-              {new Intl.DateTimeFormat('pt-BR', {
-                dateStyle: 'short',
-                timeStyle: 'short',
-              }).format(order.cancellation?.canceledAt)}
-            </p>
-          ) : (
-            <p className='text-sm text-muted-foreground'>
-              {new Intl.DateTimeFormat('pt-BR', {
-                dateStyle: 'short',
-                timeStyle: 'short',
-              }).format(order.createdAt)}
-            </p>
-          )}
-          {canCancel ? (
-            <Button
-              color='danger'
-              className='bg-danger text-white hover:bg-danger/80'
-              onClick={handleOpenCancel}
-              type='button'
-              variant='destructive'
-            >
-              <Icon name='x' /> Cancelar pedido
-            </Button>
-          ) : null}
-        </div>
-      </header>
+      <OrderDetailsHeader
+        canCancel={canCancel}
+        canceledAt={order.cancellation?.canceledAt}
+        createdAt={order.createdAt}
+        isRefreshing={isRefreshingOrder}
+        onBack={handleBack}
+        onOpenCancel={handleOpenCancel}
+        sequenceNumber={order.sequenceNumber}
+        status={order.status}
+      />
       <div className='grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_330px]'>
         <div className='min-w-0 xl:col-start-2 xl:row-start-1'>
           <OrderSummary order={order} />

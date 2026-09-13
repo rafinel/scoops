@@ -60,17 +60,20 @@ describe('useProductAccompanimentDialog', () => {
     useAccompanimentCandidatesQueryMock.mockReturnValue({
       data: [candidate],
       isError: false,
+      isFetching: true,
       isPending: false,
       refetch: vi.fn(),
     } as never)
     useAccompanimentTypesQueryMock.mockReturnValue({
       data: { items: [{ type, usageCount: 0 }] },
       isError: false,
+      isFetching: true,
       isPending: false,
     } as never)
     useProductStockQueryMock.mockReturnValue({
       data: { brands: [] },
       isError: false,
+      isFetching: true,
       isPending: false,
       refetch: vi.fn(),
     } as never)
@@ -103,6 +106,9 @@ describe('useProductAccompanimentDialog', () => {
         productId: 'product-1',
       }),
     )
+
+    expect(result.current.isRefreshing).toBe(true)
+
     const quantity = result.current.register('quantityPerPortion')
     const quantityField = document.createElement('input')
     quantityField.name = quantity.name

@@ -1,15 +1,9 @@
 import { Button } from '@/ui/shadcn/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/ui/shadcn/dialog'
-import { Icon } from '@/ui/shared/widgets/components/icon'
+import { Skeleton } from '@/ui/shadcn/skeleton'
+import { Dialog, DialogContent, DialogFooter } from '@/ui/shadcn/dialog'
 
 import { ImpactRow } from './impact-row'
+import { RemoveProductDialogHeader } from './remove-product-dialog-header'
 import {
   useRemoveProductDialog,
   type RemoveProductDialogProps,
@@ -24,6 +18,7 @@ export const RemoveProductDialog = (props: RemoveProductDialogProps) => {
     hasProductRemovalImpactError,
     isLoadingProductRemovalImpact,
     isPendingProductRemovalImpact,
+    isRefreshingProductRemovalImpact,
     isRemovingProduct,
     productRemovalImpact,
     removeProductError,
@@ -34,17 +29,11 @@ export const RemoveProductDialog = (props: RemoveProductDialogProps) => {
   return (
     <Dialog open={props.open} onOpenChange={handleOpenChange}>
       <DialogContent className='max-h-[calc(100vh-1rem)] overflow-y-auto data-open:animate-none sm:max-w-[560px]'>
-        <DialogHeader className='grid gap-3 border-b border-border-soft p-4 pr-14 sm:p-6 sm:pr-14'>
-          <span className='grid size-11 place-items-center rounded-xl bg-danger/10 text-danger'>
-            <Icon className='size-5' name='trash-2' />
-          </span>
-          <div>
-            <DialogTitle>Remover produto?</DialogTitle>
-            <DialogDescription className='mt-1'>
-              {impact?.productName ?? props.product.name} será removido do catálogo.
-            </DialogDescription>
-          </div>
-        </DialogHeader>
+        <RemoveProductDialogHeader
+          impact={impact}
+          isRefreshing={isRefreshingProductRemovalImpact}
+          product={props.product}
+        />
         <div className='grid gap-4 p-4 sm:p-6'>
           {isLoadingProductRemovalImpact || isPendingProductRemovalImpact ? (
             <div
@@ -52,8 +41,8 @@ export const RemoveProductDialog = (props: RemoveProductDialogProps) => {
               className='grid gap-3'
               role='status'
             >
-              <div className='h-12 animate-pulse rounded-xl bg-muted motion-reduce:animate-none' />
-              <div className='h-12 animate-pulse rounded-xl bg-muted motion-reduce:animate-none' />
+              <Skeleton className='h-12 rounded-xl' />
+              <Skeleton className='h-12 rounded-xl' />
             </div>
           ) : null}
           {hasProductRemovalImpactError ? (

@@ -47,6 +47,7 @@ export function useNewSalePage() {
     activeSalesChannels,
     isActiveSalesChannelsError,
     isLoadingActiveSalesChannels,
+    isRefreshingActiveSalesChannels,
   } = useActiveSalesChannelsQuery()
   const previewAction = usePreviewOrderAction()
   const registrationAction = useRegisterOrderAction()
@@ -403,6 +404,7 @@ export function useNewSalePage() {
     idempotencyKey,
     isActiveSalesChannelsError,
     isLoadingActiveSalesChannels,
+    isRefreshingActiveSalesChannels,
     isPreviewPending: previewAction.isPending,
     isRegistrationOpen,
     isRegistrationPending: registrationAction.isPending,

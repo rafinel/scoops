@@ -28,6 +28,7 @@ describe('useSalesChannelsPage', () => {
     vi.clearAllMocks()
     useSalesChannelsQueryMock.mockReturnValue({
       isLoadingSalesChannels: false,
+      isRefreshingSalesChannels: false,
       isSalesChannelsError: false,
       refetchSalesChannels: vi.fn().mockResolvedValue(undefined),
       salesChannels: [channel],

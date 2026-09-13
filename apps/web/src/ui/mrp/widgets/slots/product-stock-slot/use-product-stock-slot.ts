@@ -18,13 +18,9 @@ export function useProductStockSlot(productId: string) {
   const { navigateTo } = useNavigation()
   const [selectedAction, setSelectedAction] = useState<ProductStockAction>()
 
-  function handleBack() {
-    void navigateTo('products')
-  }
+  const handleBack = () => void navigateTo('products')
 
-  function handleRetry() {
-    void query.refetch()
-  }
+  const handleRetry = () => void query.refetch()
 
   function handleAddBrand() {
     setSelectedAction({ kind: 'add-brand' })
@@ -70,6 +66,7 @@ export function useProductStockSlot(productId: string) {
     isBrandActionPending: setPrimaryAction.isPending,
     isError: query.isError,
     isLoading: query.isPending,
+    isRefreshing: query.isFetching && Boolean(query.data),
     handleAddBrand,
     handleActionOpenChange,
     handleActionSuccess,

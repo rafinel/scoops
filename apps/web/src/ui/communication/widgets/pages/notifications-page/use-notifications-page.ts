@@ -69,10 +69,8 @@ export function useNotificationsPage() {
     hasNextPage: notificationsQuery.hasNextPage,
     bounds,
     isLoadingNextNotifications: notificationsQuery.isLoadingNextNotifications,
-    isLoadingNotifications:
-      !isPeriodReady ||
-      notificationsQuery.isLoadingNotifications ||
-      (period !== 'all' && historyQuery.isLoadingNotifications),
+    isLoadingNotifications: !isPeriodReady || notificationsQuery.isLoadingNotifications,
+    isRefreshingNotifications: notificationsQuery.isRefreshingNotifications,
     isNextNotificationsError: Boolean(
       notificationsQuery.isError && notificationsQuery.hasLoadedNotifications,
     ),

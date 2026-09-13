@@ -46,6 +46,7 @@ const fakeSlotState = () => ({
   handleRetry: vi.fn(),
   isError: false,
   isLoading: false,
+  isRefreshing: false,
   product,
   selectedAction: undefined,
 })
@@ -100,5 +101,19 @@ describe('ProductAccompanimentsSlot', () => {
     expect(
       screen.getAllByRole('button', { name: 'Vincular acompanhamento' }),
     ).toHaveLength(2)
+  })
+
+  it('keeps populated content visible while reporting a refresh', () => {
+    useProductAccompanimentsSlotMock.mockReturnValue({
+      ...fakeSlotState(),
+      isRefreshing: true,
+    } as never)
+
+    render(<ProductAccompanimentsSlot productId='product-1' />)
+
+    expect(screen.getByRole('status', { name: 'Atualizando…' }).textContent).toBe(
+      'Atualizando…',
+    )
+    expect(screen.getAllByText('Granola')).not.toHaveLength(0)
   })
 })

@@ -544,7 +544,7 @@ by PRQ-08.
 
 ### PRQ-08 — Order Confirmation and Registration
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
 **Outcome:** The Operator explicitly confirms a definitive order that is created exactly once
 with all stock consumption in one atomic transaction.
@@ -552,10 +552,11 @@ with all stock consumption in one atomic transaction.
 **Actors:** Operator, Manager
 
 **Consumes:** the current cart from PRQ-05, channel-adjusted prices from PRQ-06, the current
-registration decision from PRQ-07 and applied Combo facts from PRQ-14.
+registration decision from PRQ-07, applied Combo facts from PRQ-14, and current component-level
+operating-cost facts from MRP.
 
-**Provides:** completed, numbered order facts and atomic stock-consumption facts consumed by
-PRQ-09.
+**Provides:** completed, numbered order facts, atomic stock-consumption facts, and the
+registration-time cost facts consumed by PRQ-09.
 
 #### Capabilities
 
@@ -567,6 +568,11 @@ PRQ-09.
 - **No payment:** there is no payment step, cashier or change.
 - **Atomic transaction:** order creation and stock issues occur at the same time
   transaction.
+- **Cost capture:** the final registration captures the current known MRP operating cost of every
+  sold Portion base, Resale product or brand, and accompaniment component. A missing cost remains
+  explicitly unknown and never becomes zero.
+- **Cost consistency:** cost facts used by the order snapshot are captured as part of the same
+  authoritative registration decision and cannot be replaced by a later product or recipe value.
 - **Idempotence:** repeated clicks, resends or delayed responses cannot
   duplicate order or stock.
 - **Numbering:** each ice cream shop has its own increasing sequence.
@@ -599,7 +605,7 @@ PRQ-09.
 
 ### PRQ-09 — Order Snapshot
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
 **Outcome:** Authorized users can rely on immutable commercial and operational facts preserved
 at the time an order is registered.
@@ -610,7 +616,8 @@ at the time an order is registered.
 consumption facts from PRQ-08, applied Combo facts from PRQ-14 and product configuration facts
 from the MRP module.
 
-**Provides:** immutable order snapshots consumed by PRQ-10.
+**Provides:** immutable order snapshots consumed by PRQ-10 and Analytics, including reconciled
+commercial, cancellation, cost, and cost-completeness facts.
 
 #### Capabilities
 
@@ -630,6 +637,17 @@ from the MRP module.
   links to order lines.
 - **Prices:** each line preserves base price, final unit price, quantity and
   subtotal.
+- **Operating-cost snapshot:** each sold configuration preserves the known cost of its Portion base,
+  Resale product or brand, and accompaniment components at registration time, together with explicit
+  known or unknown completeness for every required component.
+- **Historical COGS:** component costs are multiplied by sold quantity and retained without later
+  reconstruction from current MRP values. Missing cost is never stored or interpreted as zero.
+- **Combo allocation:** Combo savings are allocated proportionally across participating sold
+  configurations using their pre-Combo sales values. Cent rounding is deterministic, and any
+  residual is assigned deterministically so allocated line values reconcile exactly with the order
+  total.
+- **Product attribution:** paid accompaniment revenue and operating cost are attributed to the
+  parent Portion for Analytics while the accompaniment snapshot remains independently readable.
 - **Consumptions:** the quantities of stock calculated for the
   sale.
 - **Cancellation snapshot:** when canceled, the order preserves status,
@@ -690,7 +708,8 @@ PRQ-09 and establishment access from the Identity module.
   filter by status.
 - **No edit/reversal/deletion:** there are no edit, reverse or delete actions;
   a Manager can cancel a registered order according to PRQ-15.
-- **No reports:** metrics, dashboards and exports do not belong to MVP.
+- **Analytics boundary:** order history does not embed reports or duplicate the Dashboard;
+  establishment indicators belong to Analytics, and exports remain outside the MVP.
 - **Multi-tenancy:** orders from other ice cream shops can never be returned.
 
 #### Experience
@@ -1041,6 +1060,7 @@ An edge `A --> B` means B consumes a product capability or authoritative fact pr
 flowchart LR
     Identity["Identity module"]
     MRP["MRP module"]
+    Analytics["Analytics module"]
     R01["PRQ-01 Sales channels"]
     R02["PRQ-02 Sale catalog"]
     R03["PRQ-03 Portion configuration"]
@@ -1091,6 +1111,7 @@ flowchart LR
     R07 --> R08
     R08 --> R09
     R09 --> R10
+    R09 --> Analytics
     R13 --> R07
     R13 --> R14
     R14 --> R07
@@ -1100,6 +1121,7 @@ flowchart LR
     R09 --> R15
     R11 --> R15
     R15 --> R10
+    R15 --> Analytics
 ```
 
 ## 7. User Journeys
@@ -1354,7 +1376,7 @@ flowchart LR
 - Specific price or percentage per `product + channel`.
 - More than one channel or modifier in the same order.
 - Separate manual channel changer.
-- Reports, dashboards, indicators and exports.
+- Reports and indicators outside the Analytics Dashboard, and every export format.
 - Persistent order drafts.
 - Stock reservation when adding to cart.
 - Configuration of products, sizes, brands, accompaniments or stock within

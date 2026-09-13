@@ -72,6 +72,10 @@ Conclusion requires authorization to create commits, push the delivery branch an
 update its pull request. If that authority is not explicit or already in scope, ask once and
 keep the Spec `in_progress`. Do not silently publish, merge or deploy.
 
+Delivery branch naming is mandatory: when creating or renaming a delivery branch, use exactly
+one of `feat/<name>`, `fix/<name>`, or `chore/<name>` according to the change. Never create or
+rename a delivery branch with a `codex/` prefix or any other prefix.
+
 All pull requests opened or updated by this workflow must be ready for review, never draft.
 The mandatory `create-pr` publication step must create or convert the delivery PR with
 `draft: false`; verify `isDraft: false` before the conclusion summary.
