@@ -14,6 +14,9 @@ current authoritative MRP facts.
 
 The dashboard is an operational sales view, not an accounting, cash-flow, or payment-reconciliation
 surface. Profitability is presented only as estimated gross margin with explicit cost coverage.
+Incomplete operating-cost registration does not interrupt PDV sales; Analytics keeps those sales
+visible while excluding their unknown costs from margin and directing the Manager to the affected
+current product configuration.
 
 ## 2. Problem and Opportunity
 
@@ -113,7 +116,6 @@ operational model and does not introduce a new audience, commercial offer, or co
 
 ### PRQ-01 — Manager Access, Period, and Business Time
 
-- [ ] **Implemented**
 
 **Outcome:** A Manager can open one establishment-scoped dashboard with predictable period boundaries
 and comparisons, while an Operator cannot access its navigation or data.
@@ -147,6 +149,8 @@ and PRQ-06.
 - The Dashboard explicitly displays the selected local-date interval and the immediately preceding
   comparison interval using readable localized dates, and updates both whenever the period changes.
 - The period control remains keyboard-operable and understandable at narrow widths.
+- Desktop presents the four period presets directly. Narrow widths may consolidate the same presets
+  into one labeled selector without changing their meaning or default.
 - The dashboard displays the last successful update time in the establishment timezone.
 - An Operator does not see the Dashboard navigation item and receives no dashboard data through a
   direct request.
@@ -155,7 +159,6 @@ and PRQ-06.
 
 ### PRQ-02 — Sales and Order Summary
 
-- [ ] **Implemented**
 
 **Outcome:** A Manager can understand reconciled net operational sales, valid order volume, average
 ticket, and cancellations for the selected period and compare them with the preceding period.
@@ -186,6 +189,9 @@ by PRQ-03, PRQ-04, PRQ-05, PRQ-06, PRQ-08, and PRQ-09.
 - Every primary value includes an absolute comparison difference and, when the comparison value is
   nonzero, a percentage difference.
 - A zero comparison value produces `No comparison basis` instead of an infinite percentage.
+- When the comparison value is nonzero, equal current and comparison values produce a neutral `0.0%`
+  variation with `No change from the preceding period`. A zero comparison value still produces `No
+  comparison basis`; both states remain distinct from an unavailable value.
 - Currency calculations use integer minor units or an equivalent exact decimal representation and
   display Brazilian Real with two decimal places.
 
@@ -195,7 +201,10 @@ by PRQ-03, PRQ-04, PRQ-05, PRQ-06, PRQ-08, and PRQ-09.
   margin` as four visually prioritized indicators; PRQ-03 supplies the margin content.
 - Supporting content discloses registered and canceled values without competing with the primary
   metrics.
+- Cancellation supporting content explicitly states that its count and value refer to cancellations
+  performed during the selected period and may include orders registered in an earlier period.
 - Positive and negative variations include text or icon meaning and never depend on color alone.
+- A zero variation uses neutral visual semantics rather than positive or negative emphasis.
 - Values unavailable because no valid order exists are presented as unavailable, not as misleading
   zero performance.
 
@@ -203,7 +212,6 @@ by PRQ-03, PRQ-04, PRQ-05, PRQ-06, PRQ-08, and PRQ-09.
 
 ### PRQ-03 — Estimated Gross Margin and Cost Coverage
 
-- [ ] **Implemented**
 
 **Outcome:** A Manager can evaluate estimated gross margin without treating incomplete product costs
 as zero or as confirmed accounting profit.
@@ -219,8 +227,13 @@ consumed by PRQ-05, PRQ-08, and PRQ-09.
 
 #### Capabilities
 
+- A missing current MRP operating cost does not block cart completion or order registration. The
+  order remains valid for every sales and order indicator while preserving that component's cost as
+  unknown for margin purposes.
 - An order component is cost-covered only when every operating-cost component required for that sold
   configuration was known and snapshotted when the order was registered.
+- An explicitly configured and snapshotted zero cost is a known cost. An absent or unresolved cost is
+  unknown and must remain distinguishable from that legitimate zero value.
 - Eligible net sales is the reconciled net-sale value of non-canceled components with complete cost
   snapshots.
 - Snapshotted COGS is the sum of immutable component costs for those eligible sold configurations and
@@ -238,18 +251,24 @@ consumed by PRQ-05, PRQ-08, and PRQ-09.
 
 #### Experience
 
-- The margin card displays amount, percentage, and cost coverage together.
-- Incomplete coverage includes concise guidance and a path to the affected product cost
-  configuration.
+- The compact margin card displays estimated margin amount, margin percentage, period variation, and
+  cost coverage together without adding the uncovered-sales amount or a separate repair action to
+  the primary summary row.
+- Cost coverage is an interactive disclosure. It opens detail for covered net sales, snapshotted
+  COGS, estimated gross margin, net sales without a complete cost snapshot, and the affected
+  snapshotted products.
+- Each affected product links to its current cost configuration when that destination still exists.
+  A deleted product remains identifiable from its snapshot without a broken link.
 - No cost coverage presents an unavailable margin state while the remaining sales indicators remain
   usable.
 - Supporting language explains that the estimate uses operating costs captured at sale time.
+- Supporting language distinguishes estimated gross margin from net profit and explains that rent,
+  payroll, utilities, taxes, and other operating expenses are not included.
 
 ---
 
 ### PRQ-04 — Sales Evolution
 
-- [ ] **Implemented**
 
 **Outcome:** A Manager can recognize the selected period's sales and order pattern without manually
 reading order history.
@@ -280,7 +299,6 @@ reading order history.
 
 ### PRQ-05 — Product Performance Ranking
 
-- [ ] **Implemented**
 
 **Outcome:** A Manager can identify which products contribute most to valid sales and inspect quantity
 and estimated-margin context without fragmenting the primary ranking by configuration.
@@ -323,7 +341,6 @@ and cost snapshots from PDV.
 
 ### PRQ-06 — Sales Channel Performance
 
-- [ ] **Implemented**
 
 **Outcome:** A Manager can understand how valid sales are distributed across configured sales
 channels and orders registered without a channel.
@@ -357,7 +374,6 @@ snapshots from PDV.
 
 ### PRQ-07 — Current Stock Attention
 
-- [ ] **Implemented**
 
 **Outcome:** A Manager can see the five most urgent current stock or production constraints and open
 the owning product surface without confusing current state with period analytics.
@@ -396,7 +412,6 @@ from Identity.
 
 ### PRQ-08 — Dashboard Navigation, States, and Quality
 
-- [ ] **Implemented**
 
 **Outcome:** A Manager can understand, navigate, refresh, and recover each dashboard area across
 supported viewport and assistive-technology contexts.
@@ -429,12 +444,15 @@ from PRQ-04; product and channel rankings from PRQ-05 and PRQ-06; stock attentio
 
 - With no orders, the page explains that indicators will appear after the first sale and links to
   `New sale`.
-- Missing costs retain sales content and link affected products to cost configuration.
+- Missing costs retain sales content; cost-coverage detail links affected products to cost
+  configuration.
 - Initial loading uses stable placeholders that preserve the page hierarchy.
 - First-load failure, stale-data refresh failure, no orders, no stock attention, and missing costs are
   distinct states with specific recovery guidance.
 - Desktop may use a disciplined two-column analysis layout; narrow widths use one content column in
   decision priority order without mandatory horizontal scrolling.
+- At narrow widths, `Stock now` follows the summary and cancellation context before the sales chart,
+  so urgent operational action remains visible without a long analytical scroll.
 - Tables or rankings adapt to compact rows rather than clipping required values.
 - The page works from 320 px, maintains suitable touch targets, and meets WCAG 2.2 Level AA for
   contrast, keyboard access, visible focus, semantic headings, status announcements, and non-color
@@ -445,7 +463,6 @@ from PRQ-04; product and channel rankings from PRQ-05 and PRQ-06; stock attentio
 
 ### PRQ-09 — Analytics Outcome Measurement
 
-- [ ] **Implemented**
 
 **Outcome:** Scoops can evaluate whether the dashboard helps Managers reach the approved decisions
 quickly and whether its data remains complete and reconciled.
@@ -538,9 +555,11 @@ flowchart LR
 
 1. The Manager selects Today, 7 days, 30 days, or 90 days.
 2. The system applies establishment-time boundaries and an equal preceding comparison period.
-3. Summary, chart, products, and channels update together; Stock now does not change.
+3. The system displays both concrete date intervals, and summary, chart, products, and channels
+   update together; Stock now does not change.
 4. The system validates:
    - Success: totals, group series, and rankings reconcile for the new period.
+   - No change: the current value displays a neutral zero variation.
    - No comparison basis: absolute context remains and no infinite percentage is shown.
    - Failure: the previous successful state remains labeled outdated with a targeted retry.
 5. The selected period remains visible throughout the review.
@@ -549,11 +568,14 @@ flowchart LR
 
 1. The Manager reads estimated gross margin and cost coverage.
 2. The system separates covered from missing-cost sales without assigning zero cost.
-3. The Manager opens the missing-cost guidance when coverage is below 100%.
+3. The Manager opens cost coverage and sees covered net sales, snapshotted COGS, estimated gross
+   margin, sales without complete cost, and affected products.
 4. The system validates:
    - Success: the affected existing product cost configuration opens when available.
    - Deleted or unavailable product: its snapshot remains explained without a broken destination.
-5. Later cost changes affect future orders only.
+5. A sale with an unknown component cost remains registered and included in sales indicators but is
+   excluded from margin eligibility.
+6. Later cost changes affect future orders only.
 
 ### Journey D — Investigate a leading product or channel
 
@@ -607,6 +629,8 @@ flowchart LR
 - **Current-cost reconstruction of historical margin:** rejected because later cost changes would
   silently rewrite historical performance.
 - **Missing cost treated as zero:** rejected because it would overstate margin.
+- **Blocking a sale until every cost is known:** rejected because cost completeness must not stop the
+  establishment's PDV operation; the dashboard exposes incomplete coverage and the repair path.
 - **Operator dashboard access:** rejected to preserve the approved Identity role boundary.
 - **Realtime updates:** deferred because opening, focus refresh, and manual refresh are sufficient for
   the first management workflow.
