@@ -70,9 +70,27 @@ const workspaceRules = {
         pathNot: [
           '^src/shared/database/drizzle/schema\\.ts$',
           '^src/shared/database/seed\\.ts$',
+          '^src/shared/provision/notification-audience/notification-audience\\.module\\.ts$',
         ],
       },
       to: { path: '^src/(?:billing|communication|identity|mrp|pdv)/' },
+    },
+    {
+      name: 'server-shared-notification-audience-boundary',
+      severity: 'error',
+      comment:
+        'The shared notification audience adapter may use only its explicit Communication and Identity wiring.',
+      from: {
+        path: '^src/shared/provision/notification-audience/notification-audience\\.module\\.ts$',
+      },
+      to: {
+        path: '^src/(?:billing|communication|identity|mrp|pdv)/',
+        pathNot: [
+          '^src/communication/constants(?:/|\\.ts$)',
+          '^src/identity/constants(?:/|\\.ts$)',
+          '^src/identity/database/identity-database\\.module\\.ts$',
+        ],
+      },
     },
     {
       name: 'server-mrp-module-boundary',

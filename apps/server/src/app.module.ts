@@ -4,7 +4,6 @@ import { serverEnvSchema } from '@scoops/validation'
 import { BillingModule } from '@/billing/billing.module'
 import { CommunicationModule } from '@/communication/communication.module'
 import { CreateInProductNotificationsJob } from '@/communication/messaging/inngest/jobs'
-import { CommunicationIdentityCompositionModule } from '@/compositions/communication-identity/communication-identity-composition.module'
 import { IdentityModule } from '@/identity/identity.module'
 import { MrpModule } from '@/mrp/mrp.module'
 import { PdvModule } from '@/pdv/pdv.module'
@@ -42,7 +41,6 @@ const isRecoveryEnvironment = appMode === 'dev' || appMode === 'test'
     MrpModule,
     PdvModule,
     CommunicationModule,
-    CommunicationIdentityCompositionModule,
     InngestModule.forRoot({
       functions: [
         SendInvitationEmailJob,

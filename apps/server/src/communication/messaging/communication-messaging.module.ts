@@ -9,6 +9,7 @@ import {
 import { CommunicationDatabaseModule } from '@/communication/database'
 import { CommunicationProvisionModule } from '@/communication/provision/communication-provision.module'
 import { ProvisionModule } from '@/shared/provision/provision.module'
+import { NotificationAudienceModule } from '@/shared/provision/notification-audience'
 import { SharedMessagingModule } from '@/shared/messaging/shared-messaging.module'
 
 @Module({
@@ -16,6 +17,7 @@ import { SharedMessagingModule } from '@/shared/messaging/shared-messaging.modul
     CommunicationDatabaseModule,
     CommunicationProvisionModule,
     ProvisionModule,
+    NotificationAudienceModule,
     SharedMessagingModule,
   ],
   providers: [

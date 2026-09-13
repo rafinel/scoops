@@ -1,17 +1,12 @@
 import type { NotificationAudienceProvider } from '@scoops/core/communication/interfaces'
 import type { UsersRepository } from '@scoops/core/identity/interfaces'
-import { Inject, Injectable } from '@nestjs/common'
-
-import { IDENTITY_REPOSITORIES } from '@/identity/constants'
+import { Injectable } from '@nestjs/common'
 
 @Injectable()
 export class IdentityNotificationAudienceProvider
   implements NotificationAudienceProvider
 {
-  constructor(
-    @Inject(IDENTITY_REPOSITORIES.users)
-    private readonly usersRepository: UsersRepository,
-  ) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   async findManyActiveByEstablishment(establishmentId: string) {
     const users =
