@@ -56,6 +56,20 @@ ownership of MRP's catalog, recipe, production, or stock rules.
 
 Product requirements are documented in [`prds/pdv.md`](prds/pdv.md).
 
+## Analytics
+
+Analytics owns establishment-scoped operational indicators, period comparisons,
+sales and margin aggregation, product and channel performance rankings, and the
+Manager Dashboard experience.
+
+It consumes immutable commercial facts from PDV and current authoritative cost,
+stock, and production facts from MRP. Analytics must not rewrite those facts,
+reproduce their business rules, or present operational estimates as accounting,
+cash-flow, or customer-payment results.
+
+Product requirements are documented in
+[`prds/analytics.md`](prds/analytics.md).
+
 ## Communication
 
 Communication owns notifications and communications originating from other

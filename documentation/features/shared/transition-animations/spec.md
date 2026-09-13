@@ -1,6 +1,6 @@
 ---
 title: Consistent page and route loading feedback
-status: in_progress
+status: completed
 revision: 1
 source:
   type: issue

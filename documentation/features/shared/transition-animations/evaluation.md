@@ -3,7 +3,7 @@ feature: "shared/transition-animations"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 1
-status: in_progress
+status: completed
 updated_at: 2026-09-12
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-09-12
 
 Evaluation of Spec revision `1` against the current implementation.
 
-Current result: `ready`; the implementation, current evidence, and one required read-only review are complete for Spec revision `1`. The candidate is ready for PR publication and the final CI quality gate.
+Current result: `complete`; the implementation, current evidence, one required read-only review, PR publication, and the final applicable PR CI quality gate are complete for Spec revision `1`.
 
 ## Acceptance matrix
 
@@ -61,7 +61,7 @@ Current result: `ready`; the implementation, current evidence, and one required 
 | `EV-037` | delayed route evidence | `PLAYWRIGHT_PORT=4001 pnpm --filter web test:integration tests/shared/route-transition-feedback.test.tsx --workers=1` | Final focused route suite passed 11/11. Normal and reduced-motion delayed flows at 1440×900 and 320×800 verify the 300 ms status, artwork/static fallback, pointer transparency, no modal/focusable descendants, keyboard focus retention, no overflow or control obstruction, final app-shell banner, idle removal, clean diagnostics, and fresh screenshots. | passed |
 | `EV-038` | Web integration | `PLAYWRIGHT_PORT=4001 pnpm --filter web test:integration --workers=1` | Final clean serial browser gate passed 222/222 in 17.0 minutes against the fixture-compatible port, including all shared route-transition cases. The suite covered route, accessibility, console/network, HTTP, responsive, keyboard, reduced-motion, and screenshot assertions; malformed-route boundary logs and canonical dotLottie cancellation logs were classified by the affected tests. | passed |
 | `EV-039` | Web coverage | `pnpm --filter web test:coverage` | Final standalone run passed 191 files / 532 tests: statements 60.99%, branches 59.46%, functions 59.11%, lines 62.73%. Configured thresholds were preserved; the prior concurrent-run scheduler error did not reproduce when coverage ran alone. | passed |
-| `EV-040` | final static/conformance/build sensors | Exact Spec path gate; test-integrity; Web code/types/architecture/complexity; Web build; `git diff --check` | Final post-correction sensors passed: exact path gate 226 contracted paths (64 Create, 160 Modify, 2 Generate, 0 Remove) with 11 non-contract paths ignored; test-integrity 404 tracked test files / 58 changed; code passed with six non-blocking warnings; TypeScript passed; architecture passed 751 modules / 2,576 dependencies; complexity passed 513 files / 2,172 functions with zero warnings/errors; production build and diff check passed. | passed |
+| `EV-040` | final static/conformance/build sensors | Exact Spec path gate; test-integrity; Web code/types/architecture/complexity; Web build; `git diff --check` | Final post-correction sensors passed: exact path gate 227 contracted paths (64 Create, 161 Modify, 2 Generate, 0 Remove) with 11 non-contract paths ignored; test-integrity 404 tracked test files / 58 changed; code passed with six non-blocking warnings; TypeScript passed; architecture passed 751 modules / 2,576 dependencies; complexity passed 513 files / 2,172 functions with zero warnings/errors; production build and diff check passed. | passed |
 | `EV-041` | Implementation Reviewer | Required independent read-only review, agent `01a0977e-0aee-7981-bb9e-6c0b6b32b131` (`Parfit`) | The single reviewer completed and its findings were used to drive the final correction wave. Responsive status placement, nested widget boundaries, route evidence breadth, semantic MRP assertions, invitation-dialog behavior coverage, pagination feedback, and evidence reconciliation were verified through the current focused/static/browser evidence; no second reviewer was created. | passed |
 | `EV-042` | pagination correction | Affected Web Vitest suites plus shared Pagination test; final static gates | Added distinct retained-page `isPageLoading` feedback, `aria-busy`, localized `Carregando página…` copy, and disabled page controls across Identity, MRP, and PDV pagination owners. Focused affected tests passed 8 files / 19 tests; TypeScript, architecture, complexity, code, and diff checks passed. | passed |
 
@@ -111,8 +111,8 @@ changed and no requirement checkbox was marked Implemented.
 | Dimension | Current record |
 | --- | --- |
 | Spec/Plan revision | Spec revision `1`; implementation and evidence are evaluated against the frozen contract. `defaultViewTransition` wording was reconciled to the implemented path-change-gated `scoops-route` configuration without changing the product outcome. |
-| Exact implementation paths | Final `pnpm check:spec-implementation -- documentation/features/shared/transition-animations/spec.md` passed with 226 contracted paths: 64 Create, 160 Modify, 2 Generate, 0 Remove. |
-| Supplemental delivery paths | The explicit supplemental rows include the shared Pagination correction, 14 extracted/typed child-widget entry points across Identity, MRP, PDV, and Communication, two existing MRP browser test corrections, and three wildcard child entry points (`AccompanimentTypesCard`, `DiscountsList`, and `OrdersList`). They are mapped to `FR-01`–`FR-03`, `FR-07`, `AC-01`–`AC-03`, and `AC-08`. |
+| Exact implementation paths | Final `pnpm check:spec-implementation -- documentation/features/shared/transition-animations/spec.md` passed with 227 contracted paths: 64 Create, 161 Modify, 2 Generate, 0 Remove. |
+| Supplemental delivery paths | The explicit supplemental rows include the shared Pagination correction, 14 extracted/typed child-widget entry points across Identity, MRP, PDV, and Communication, two existing MRP browser test corrections, three wildcard child entry points (`AccompanimentTypesCard`, `DiscountsList`, and `OrdersList`), and the Web CI workflow correction. They are mapped to `FR-01`–`FR-03`, `FR-07`, `AC-01`–`AC-03`, and `AC-08`. |
 | Generated artifact | `.code-multivitals-baseline.json` is included as the Orchestrator-owned output of the documented complexity-baseline command and is required for the current zero-error complexity gate. |
 | SDD artifacts | `spec.md`, `plan.md`, and `evaluation.md` are the feature's traceability artifacts. Their closure status is recorded here; no separate closure-only implementation commit is required. |
 | Unrelated inherited work | The exact path sensor reports 11 non-contract paths: `.gitignore`, `design/onoreo.pen`, `documentation/modules.md`, `documentation/prds/analytics.md`, `documentation/prds/identity.md`, `documentation/prds/mrp.md`, `documentation/prds/pdv.md`, and `documentation/rules/ui-layer-rules.md` are inherited user work; `spec.md`, `plan.md`, and `evaluation.md` are the intended SDD ledger artifacts. The inherited paths remain untouched and excluded from the delivery commit. |
@@ -126,8 +126,8 @@ changed and no requirement checkbox was marked Implemented.
 
 | Authority | Reference | Result | Notes |
 | --- | --- | --- | --- |
-| Spec | `documentation/features/shared/transition-animations/spec.md` revision `1` | in_progress | Revision frozen; status set to `in_progress`; exact path and contract inventory remains authoritative. |
-| Plan | `documentation/features/shared/transition-animations/plan.md` revision `1` | in_progress | Four-wave execution active; F1 Orchestrator assignment is active and later Web ownership Builders are dependency-gated. |
+| Spec | `documentation/features/shared/transition-animations/spec.md` revision `1` | completed | Revision frozen; all contracted implementation paths, validation evidence, and final applicable PR CI are complete. |
+| Plan | `documentation/features/shared/transition-animations/plan.md` revision `1` | completed | Four-wave execution, integrated validation, PR publication, and applicable CI quality gate are complete. |
 | Repository SDD | `documentation/sdd.md` | passed | Canonical Evaluation shape, Plan-backed sequencing, and PRD checkbox lifecycle applied. |
 | Repository Rules | `documentation/rules.md`; `documentation/rules/code-conventions-rules.md`; `documentation/rules/ui-layer-rules.md`; `documentation/rules/web-app-routing-rules.md`; `documentation/rules/widget-testing-rules.md` | passed | Rule Pack selected for Web UI, routes, shared widgets, and tests; no REST, server, Core, Validation, database, or provider change is in scope. |
 | Design | `documentation/design.md` | passed | No supplied design screenshots or Pencil frames; implementation must use existing tokens and fresh runtime captures. |
@@ -153,7 +153,7 @@ changed and no requirement checkbox was marked Implemented.
 | `FND-013` | route evidence completeness | Latest Implementation Reviewer route-suite audit | `FR-04`, `FR-06`, `AC-04`, `AC-06`, `MV-03` | resolved | The shared route suite now covers authenticated Products start, authenticated-to-public exit, unsupported View Transitions, delayed keyboard traversal, final destination shell, and diagnostics at both required viewports. No production route loader or route-tree change was needed. |
 | `FND-014` | test assertion quality | Latest Implementation Reviewer test audit | `AC-01`–`AC-03`, `EV-033`, `EV-035` | resolved | Feature-added MRP browser assertions now use semantic status roles and meaningful state/property checks. The current route suites pass; the repository test rules already require accessible assertions, so no durable rule update was needed. |
 | `FND-015` | behavior coverage | Latest Implementation Reviewer test audit | `AC-03`, `AC-08`, `EV-033`, `EV-035` | resolved | Invitation-correction dialog validation, pending/action errors, Escape/close/reset behavior, trimming, and normalized submit mapping are covered through the owning widget and hook suites. Existing widget-testing guidance was sufficient; no durable rule update was warranted. |
-| `FND-016` | evidence inventory | Latest Implementation Reviewer scope audit | `EV-003`, `EV-005`, `EV-035`, `MV-01`–`MV-04` | resolved_by_reconciliation | Reconciled the final exact count to 226 paths with 11 ignored paths, explicitly contracted the three wildcard child entry points, superseded stale 167/215 records, and listed all current route-status destination screenshots. |
+| `FND-016` | evidence inventory | Latest Implementation Reviewer scope audit | `EV-003`, `EV-005`, `EV-035`, `MV-01`–`MV-04` | resolved_by_reconciliation | Reconciled the final exact count to 227 paths with 11 ignored paths, explicitly contracted the three wildcard child entry points and Web CI workflow, superseded stale 167/215 records, and listed all current route-status destination screenshots. |
 | `FND-017` | pagination feedback | Final correction review against the Pagination contract | `FR-03`, `AC-02`, `AC-08`, `EV-042` | resolved | Page fetches now expose a distinct `isPageLoading` state, localized live feedback, `aria-busy`, and disabled page controls across the affected Identity, MRP, and PDV owners, while background refresh excludes placeholder fetches. Focused tests and final static gates pass. |
 
 ## Lessons learned
@@ -179,6 +179,15 @@ is not SDD current-implementation metadata. Retain failed and superseded-head ru
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| `PR-CI-00` | Web CI (superseded head) | `c1a71313d3357882ec72b467e8e93e0d0a39600f` | failed: stale `tests/routes` selector reported no tests; superseded by the CI workflow correction in `155a7121` | [run 34724715209](https://github.com/rafinel/scoops/actions/runs/34724715209) |
+| `PR-CI-01` | Core CI | `155a7121b1791f8bcb73a0467edad0e94d4bdfe3` | passed | [run 34725018587](https://github.com/rafinel/scoops/actions/runs/34725018587) |
+| `PR-CI-02` | Server CI | `155a7121b1791f8bcb73a0467edad0e94d4bdfe3` | passed | [run 34725018577](https://github.com/rafinel/scoops/actions/runs/34725018577) |
+| `PR-CI-03` | Validation CI | `155a7121b1791f8bcb73a0467edad0e94d4bdfe3` | passed | [run 34725018580](https://github.com/rafinel/scoops/actions/runs/34725018580) |
+| `PR-CI-04` | Web CI | `155a7121b1791f8bcb73a0467edad0e94d4bdfe3` | passed | [run 34725018602](https://github.com/rafinel/scoops/actions/runs/34725018602) |
+
+The separate Vercel `scoops-server-staging` preview context remains failed and is
+non-applicable to this Web-only delivery: it is not a checked-in Scoops workflow,
+and no server or deployment path changed in this Spec.
 
 ## History
 
@@ -198,6 +207,8 @@ is not SDD current-implementation metadata. Retain failed and superseded-head ru
 | 2026-09-11 | Final integrated sensors passed: 167-path conformance, test-integrity, code, types, architecture, complexity, coverage, and production build. MV-01 and MV-02 passed; MV-03 delayed and MV-04 delayed reduced-motion browser evidence remained to be reviewed. |
 | 2026-09-11 | The required read-only Implementation Reviewer completed. It found no cross-module, ownership, path, dependency, or production behavior defect, but confirmed blocking browser evidence findings `FND-007` and `FND-008` for delayed normal/reduced-motion route status. Two bounded test-only seam attempts were made and removed after failing to hold Router pending; candidate remains in progress and is not ready for `conclude-spec`. |
 | 2026-09-12 | Nested-widget correction promoted the newly introduced local MRP, Identity, and Communication components into typed child-widget directories, including the Product Stock Slot composition and invitation-correction form. `EV-033` passed path conformance, TypeScript, Biome, and 25 focused Vitest files / 82 tests; route-evidence blockers `FND-007` and `FND-008` remain unchanged. |
-| 2026-09-12 | Final correction wave resolved reviewer findings: narrow route status is bottom-anchored at 320×800 to preserve controls; remaining MRP/Communication/PDV/Identity child entry points and invitation-dialog coverage are present; MRP route assertions are semantic; Pagination exposes distinct retained-page loading feedback. The exact path gate passed 226 contracted paths with 11 ignored paths, and focused route evidence passed 11/11. |
+| 2026-09-12 | Final correction wave resolved reviewer findings: narrow route status is bottom-anchored at 320×800 to preserve controls; remaining MRP/Communication/PDV/Identity child entry points and invitation-dialog coverage are present; MRP route assertions are semantic; Pagination exposes distinct retained-page loading feedback. The exact path gate passed 227 contracted paths with 11 ignored paths, and focused route evidence passed 11/11. |
 | 2026-09-12 | Standalone Web coverage passed 191 files / 532 tests at 60.99% statements, 59.46% branches, 59.11% functions, and 62.73% lines. Web TypeScript, architecture (751/2,576), complexity (513/2,172, zero warnings/errors), code, build, test-integrity, and diff checks passed; six existing/intentional Biome warnings remain documented. |
 | 2026-09-12 | Final clean serial Playwright run passed 222/222 in 17.0 minutes on `PLAYWRIGHT_PORT=4001` with no retries. The two earlier long-run flakes passed in isolation and the current no-retry run completed cleanly after route diagnostics classified expected dotLottie cancellation errors. |
+| 2026-09-12 | Initial PR-event Web CI for superseded head `c1a71313` failed because its stale `tests/routes` selector matched no checked-in tests. Updated `.github/workflows/web-app-ci.yml` to run the current fixture-backed `test:integration` suite with one worker, added the path to the Spec contract, committed as `155a7121`, and pushed. |
+| 2026-09-12 | Final PR CI quality gate passed on head `155a7121b1791f8bcb73a0467edad0e94d4bdfe3`: Core, Server, Validation, and Web CI all passed. The external Vercel server-staging preview context remains non-applicable and is recorded above. Spec, Plan, and Evaluation are now closed for revision `1`; PR #38 remains open for review/merge. |
