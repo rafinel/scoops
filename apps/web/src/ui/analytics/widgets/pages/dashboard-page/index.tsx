@@ -79,7 +79,7 @@ export const DashboardPage = () => {
   const salesLoading = page.sales.isLoading && !page.sales.data
   const stockLoading = page.stock.isLoading && !page.stock.data
   return (
-    <main
+    <section
       className='flex w-full min-w-0 flex-1 flex-col space-y-5 px-4'
       aria-labelledby='dashboard-heading'
     >
@@ -384,6 +384,6 @@ export const DashboardPage = () => {
         onClose={() => setCoverageOpen(false)}
         analytics={page.sales.data}
       />
-    </main>
+    </section>
   )
 }

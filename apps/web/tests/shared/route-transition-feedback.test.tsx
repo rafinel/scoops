@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
 
 import { ROUTES } from '../../src/constants/routes'
+import { mockAnalytics } from '../fixtures/analytics-module-fixture'
 import { expect, test } from '../playwright'
 
 const VIEWPORTS = [
@@ -186,6 +187,7 @@ async function holdAuthenticatedRouteNavigation(
   let releaseServerFunction = () => {}
 
   await identityFixture.mockManagerAccount()
+  await mockAnalytics(page)
   await page.route('**/api/auth/sign-in/email*', async (route) => {
     await route.fulfill({
       contentType: 'application/json',
