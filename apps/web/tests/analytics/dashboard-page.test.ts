@@ -16,7 +16,13 @@ test.describe('DashboardPage', () => {
       page.getByRole('heading', { name: 'Dashboard', exact: true }),
     ).toBeVisible()
     await expect(page.getByText('15 de ago.–13 de set.', { exact: true })).toBeVisible()
-    await expect(page.getByText('Atualizado em 10:00', { exact: true })).toBeVisible()
+    const updatedAt = await page.evaluate(() =>
+      new Intl.DateTimeFormat('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(new Date('2026-09-13T13:00:00.000Z')),
+    )
+    await expect(page.getByText(`Atualizado em ${updatedAt}`, { exact: true })).toBeVisible()
     await expect(page.getByText('R$ 1.250,00', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Estoque agora' })).toBeVisible()
     await expect(page.getByRole('listitem').locator('svg')).toHaveCount(1)

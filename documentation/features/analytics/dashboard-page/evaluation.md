@@ -2,7 +2,7 @@
 feature: "analytics/dashboard-page"
 spec: ./spec.md
 spec_revision: 4
-status: ready
+status: in_progress
 updated_at: 2026-09-16
 ---
 
@@ -10,7 +10,7 @@ updated_at: 2026-09-16
 
 Evaluation of Spec revision `4` against the current implementation.
 
-Current result: Spec revision 4 is validation-ready after the Web integration correction. The dashboard now uses the AppLayout-owned `<main>` transition target, authenticated route-transition tests mock the new Analytics reads, and the full local Web integration command passes 223/223. The current PR head still requires its final Web CI rerun.
+Current result: Spec revision 4 is reopened for a deterministic Web test correction. The Web CI rerun passed 222/223 after FND-026 but the dashboard test hard-coded São Paulo time while the hosted browser used UTC. The correction derives the expected formatted time from the browser timezone; its isolated CI-mode test passes, and a final PR CI rerun is required.
 
 ## Acceptance matrix
 
@@ -112,6 +112,8 @@ Current result: Spec revision 4 is validation-ready after the Web integration co
 | EV-154 | Complexity baseline correction | `pnpm update:complexity-baseline`; `pnpm --filter server check:complexity`; `pnpm check:complexity` | Reviewed the generated `.code-multivitals-baseline.json` changes for the intentional persistence/provision/seed delivery. Server and full-repository gates pass with zero errors across 4,823 functions. | passed |
 | EV-155 | Web PR CI correction | `gh run view 35140935102 --job 104945302663 --log-failed`; focused Playwright rerun | Current-head Web CI completed 218/223 tests but failed the dashboard and four delayed route-transition scenarios: duplicate `main-content` transition names and unmocked Analytics requests. The correction is routed through FND-026; the focused 15-test rerun passes after the dashboard semantic-root and Analytics-fixture changes. | failed |
 | EV-156 | Web integration correction validation | `pnpm --filter web test:integration --workers=1 --reporter=line`; `pnpm --filter web check:code`; `pnpm --filter web check:types` | Full Web integration passed 223/223 in 28.7 minutes. Web code passed with the existing six unrelated warnings, and Web types passed. The corrected dashboard and all route-transition diagnostics completed without failures. | passed |
+| EV-157 | Web CI timezone correction | Web CI run `35146330608` | Corrected head passed 222/223 browser tests; the only failure was the dashboard test’s hard-coded `Atualizado em 10:00`, which is invalid on the hosted UTC browser for the fixture’s `13:00Z` timestamp. | failed |
+| EV-158 | Web CI timezone correction validation | `CI=1 pnpm --filter web exec playwright test tests/analytics/dashboard-page.test.ts --project=chromium --workers=1 --reporter=line --grep "renders the Manager dashboard"` | The dashboard rendering test passed 1/1 under CI retries/settings after deriving the expected localized time with the browser’s `Intl.DateTimeFormat`; no timezone context override is used. | passed |
 | EV-058 | Dashboard table dialog behavior | `pnpm --filter web exec playwright test tests/analytics/dashboard-page.test.ts --workers=1 --reporter=line` | Focused route suite passed 2/2; the Manager dashboard opens the sales table in a named dialog, exposes the table rows, and closes through the Portuguese close action. | passed |
 | EV-059 | Dashboard table dialog visual/runtime checkpoint | Playwright CLI at `/` with the local authenticated session | Superseded by EV-061 after correcting sticky-header scroll geometry. | stale |
 | EV-061 | Dashboard table dialog correction checkpoint | Playwright CLI at `/` with the local authenticated session | Fresh captures after the correction show the header pinned to the scroll viewport while rows scroll beneath it; the trigger computes to a 0px border, the dialog closes with Escape, and Analytics sales and stock requests returned 200. | passed |
@@ -233,6 +235,7 @@ Visual evidence uses the common `EV-*` Evidence identifiers with `Type = visual`
 | FND-024 | implementation-review correction | Current integrated candidate review for Spec revision 4 | AC-03, AC-05, AC-06, AC-10, AC-12, AC-13, AC-15, AC-16; MV-01–MV-08; EV-055–EV-152 | resolved | Implemented retained-cache recovery and targeted retry, complete CMV/coverage disclosure, connected timezone mutation through Shop Settings and persistence, corrected absolute comparison deltas/neutral semantics, aligned narrow selector/order and desktop pairings, added fail-open privacy-safe interaction events with tenant/time/event fields, completed REST examples, and reconciled current evidence. Fresh browser captures, focused state/dialog tests, full Core/Server/Web coverage, static gates, exact Spec conformance and PRD checkbox traceability now pass. No new global rule or architecture/modules amendment is required; the PRD checkboxes and Widget/Design evidence ledgers are aligned. |
 | FND-025 | CI quality-gate correction | Server CI Complexity job and local `pnpm --filter server check:complexity` | The implementation introduced 15 new complexity errors in persistence, provision and seed functions. | resolved | Ran the documented `update:complexity-baseline` workflow, reviewed the generated baseline artifact, and reran the Server and full-repository gates successfully with zero errors. This is an intentional baseline extension for the delivered persistence/provision/seed surface; no product behavior or PRD requirement changed. |
 | FND-026 | Web integration correction | Web CI run `35140935102`; focused and full Playwright suites | Dashboard introduction caused two test-boundary regressions: nested `main` elements produced duplicate `main-content` view-transition names, and authenticated transition tests reached Analytics without mocks. | resolved | Changed the DashboardPage root to a labelled `section` inside the AppLayout-owned `main`, and registered the shared Analytics fixture in the delayed authenticated transition helper. The focused 15-test suite and the full 223-test Web integration suite pass locally; the correction is ready for the current-head PR CI rerun. |
+| FND-027 | Web test timezone correction | Web CI run `35146330608`; CI-mode isolated dashboard test | The dashboard browser test assumed the local São Paulo timezone and failed on the hosted UTC browser even though the rendered behavior was correct. | in_progress | Replaced the hard-coded `10:00` expectation with browser-local `Intl.DateTimeFormat` output for the fixed fixture timestamp. The isolated test passes under CI settings; final PR CI rerun remains required. |
 
 ## Lessons learned
 
@@ -264,6 +267,7 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | CI-003 | Validation CI | `d2a644ecc14d276219069f0cfd05e2ee6711522a` | passed — Validation and Complexity jobs green. | `https://github.com/rafinel/scoops/actions/runs/35140935087` |
 | CI-004 | Server CI | `d2a644ecc14d276219069f0cfd05e2ee6711522a` | passed — Server, integration, coverage and Complexity jobs green. | `https://github.com/rafinel/scoops/actions/runs/35140935112` |
 | CI-005 | Web CI | `d2a644ecc14d276219069f0cfd05e2ee6711522a` | failed — 218/223 browser tests passed; dashboard/route-transition diagnostics exposed the FND-026 correction. | `https://github.com/rafinel/scoops/actions/runs/35140935102` |
+| CI-006 | Web CI | `bb61e6d0` | failed — 222/223 browser tests passed; the remaining dashboard failure exposed the hosted-browser timezone assumption recorded in FND-027. | `https://github.com/rafinel/scoops/actions/runs/35146330608` |
 
 ## History
 
@@ -274,6 +278,8 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | 2026-09-16 | Web CI completed 218/223 tests and exposed a nested view-transition target plus missing Analytics fixtures in authenticated route-transition scenarios. Evaluation reopened for FND-026; no product requirement or PRD checkbox is being reverted. |
 | 2026-09-16 | Focused dashboard and route-transition correction suite passed 15/15 locally after changing the dashboard root to a section and adding Analytics fixtures; full Web integration and PR CI rerun remain pending. |
 | 2026-09-16 | Full Web integration passed 223/223 in 28.7 minutes after FND-026; Web code/types and diff hygiene passed, so Evaluation returned to `ready` for the corrected PR head. |
+| 2026-09-16 | Corrected Web CI passed 222/223 and exposed a hosted-browser timezone assumption in the dashboard timestamp assertion. Evaluation reopened for FND-027; no product requirement or PRD checkbox is being reverted. |
+| 2026-09-16 | The CI-mode isolated dashboard test passed 1/1 after deriving the expected localized timestamp with browser `Intl.DateTimeFormat`; final PR CI rerun remains pending. |
 | 2026-09-16 | Final closure preflight passed: exact 220-path conformance, test-integrity, architecture, code, types, builds and full Core/Web coverage passed; the focused dashboard Playwright suite passed 4/4 with fresh 1481px, 390px and 320px captures inspected. |
 | 2026-09-16 | Integrated Implementation Reviewer found in-contract gaps in stale/recovery behavior, cost coverage, timezone mutation UX, comparison disclosure, responsive layout, interaction logging, REST examples and evidence closure. Evaluation returned to correction under Builder Direct; affected evidence is stale until rerun. |
 | 2026-09-13 | Preflight passed: Playwright health check completed; Spec revision 3 frozen and moved to `in_progress`; canonical Evaluation created; `builder_core` activated for F1-T1; baseline path sensor recorded as expected pre-implementation failure. |
