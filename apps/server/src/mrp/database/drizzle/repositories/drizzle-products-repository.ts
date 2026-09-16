@@ -10,7 +10,18 @@ import type { ProductListParams } from '@scoops/core/mrp/domain/structures'
 import type { ProductCreate, ProductUpdate } from '@scoops/core/mrp/domain/structures'
 import type { ProductsRepository } from '@scoops/core/mrp/interfaces'
 import { ConflictError } from '@scoops/core/shared/domain/errors'
-import { and, arrayOverlaps, asc, count, desc, eq, exists, ilike, sql } from 'drizzle-orm'
+import {
+  and,
+  arrayOverlaps,
+  asc,
+  count,
+  desc,
+  eq,
+  exists,
+  ilike,
+  inArray,
+  sql,
+} from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
@@ -89,6 +100,23 @@ export class DrizzleProductsRepository
       )
       .limit(1)
     return record ? DrizzleProductMapper.toDomain(record) : undefined
+  }
+
+  async findManyByIds(
+    establishmentId: string,
+    productIds: readonly string[],
+  ): Promise<readonly Product[]> {
+    if (productIds.length === 0) return []
+    const records = await this.database
+      .select()
+      .from(productModel)
+      .where(
+        and(
+          eq(productModel.establishmentId, establishmentId),
+          inArray(productModel.id, [...new Set(productIds)].slice(0, 500)),
+        ),
+      )
+    return records.map(DrizzleProductMapper.toDomain)
   }
 
   async findMany(input: ProductListParams): Promise<ProductCatalogPage> {

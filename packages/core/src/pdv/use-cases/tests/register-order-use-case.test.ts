@@ -12,8 +12,7 @@ import type { OrderSequencesRepository } from '#pdv/interfaces/order-sequences-r
 import type { OrderPreviewTokenService } from '#pdv/interfaces/order-preview-token-service.ts'
 import type { SalesCatalogProvider } from '#pdv/interfaces/sales-catalog-provider.ts'
 import type { SalesChannelsRepository } from '#pdv/interfaces/sales-channels-repository.ts'
-import type { StockConsumer } from '#pdv/interfaces/stock-consumer.ts'
-import type { StockRestorer } from '#pdv/interfaces/stock-restorer.ts'
+import type { StockProvider } from '#pdv/interfaces/stock-provider.ts'
 import { BadRequestError, ConflictError } from '#shared/domain/errors/index.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
@@ -59,7 +58,7 @@ const product = {
 
 describe('Register Order Use Case', () => {
   let database: MockProxy<PdvDatabase>
-  let scope: PdvDatabaseRepositories
+  let repositories: PdvDatabaseRepositories
   let catalog: MockProxy<SalesCatalogProvider>
   let datetime: MockProxy<DatetimeProvider>
   let orders: MockProxy<OrdersRepository>
@@ -67,8 +66,7 @@ describe('Register Order Use Case', () => {
   let tokenService: MockProxy<OrderPreviewTokenService>
   let discounts: MockProxy<DiscountsRepository>
   let salesChannels: MockProxy<SalesChannelsRepository>
-  let stockConsumer: MockProxy<StockConsumer>
-  let stockRestorer: MockProxy<StockRestorer>
+  let stockProvider: MockProxy<StockProvider>
   let useCase: RegisterOrderUseCase
 
   beforeEach(() => {
@@ -79,16 +77,14 @@ describe('Register Order Use Case', () => {
     tokenService = mock<OrderPreviewTokenService>()
     discounts = mock<DiscountsRepository>()
     salesChannels = mock<SalesChannelsRepository>()
-    stockConsumer = mock<StockConsumer>()
-    stockRestorer = mock<StockRestorer>()
-    scope = {
+    stockProvider = mock<StockProvider>()
+    repositories = {
       salesCatalogProvider: catalog,
       salesChannelsRepository: salesChannels,
       discountsRepository: discounts,
       ordersRepository: orders,
       orderSequencesRepository: orderSequences,
-      stockConsumer,
-      stockRestorer,
+      stockProvider,
       eventsRepository: mock<EventsRepository>(),
     }
     orders.findByIdempotencyKey.mockResolvedValue(undefined)
@@ -106,7 +102,7 @@ describe('Register Order Use Case', () => {
     datetime = mock<DatetimeProvider>()
     datetime.now.mockReturnValue(new Date('2026-01-02T00:00:00.000Z'))
     database = mock<PdvDatabase>()
-    database.run.mockImplementation(async (operation) => operation(scope))
+    database.run.mockImplementation(async (operation) => operation(repositories))
     useCase = new RegisterOrderUseCase(database, datetime, tokenService)
   })
 
@@ -116,13 +112,16 @@ describe('Register Order Use Case', () => {
       replayed: false,
     })
 
-    expect(scope.salesCatalogProvider.findByProductIds).toHaveBeenCalledWith(
+    const salesCatalogProvider = repositories.salesCatalogProvider
+    if (!salesCatalogProvider)
+      throw new Error('Sales catalog provider was not configured.')
+    expect(salesCatalogProvider.findByProductIds).toHaveBeenCalledWith(
       'establishment-1',
       ['product-1'],
     )
     expect(orderSequences.next).toHaveBeenCalledWith('establishment-1')
-    expect(stockConsumer.consume).toHaveBeenCalledWith(expect.any(OrderRegisteredEvent))
-    expect(stockConsumer.consume.mock.calls[0][0].payload).toMatchObject({
+    expect(stockProvider.consume).toHaveBeenCalledWith(expect.any(OrderRegisteredEvent))
+    expect(stockProvider.consume.mock.calls[0][0].payload).toMatchObject({
       actorId: 'operator-1',
       actorName: 'Operator',
       sequenceNumber: 7,
@@ -151,6 +150,9 @@ describe('Register Order Use Case', () => {
           baseUnitPrice: 12.5,
           finalUnitPrice: 12.5,
           subtotal: 12.5,
+          allocatedNetSalesCents: 1250,
+          costComponents: [],
+          cogsCents: null,
           consumptions: [{ productId: 'product-1', quantity: 1 }],
         },
       ],
@@ -164,7 +166,7 @@ describe('Register Order Use Case', () => {
     })
     expect(catalog.findByProductIds).not.toHaveBeenCalled()
     expect(orderSequences.next).not.toHaveBeenCalled()
-    expect(stockConsumer.consume).not.toHaveBeenCalled()
+    expect(stockProvider.consume).not.toHaveBeenCalled()
   })
 
   it('rejects a conflicting idempotency key without replaying the stored order', async () => {
@@ -177,7 +179,7 @@ describe('Register Order Use Case', () => {
 
     await expect(useCase.execute(request)).rejects.toBeInstanceOf(ConflictError)
     expect(catalog.findByProductIds).not.toHaveBeenCalled()
-    expect(stockConsumer.consume).not.toHaveBeenCalled()
+    expect(stockProvider.consume).not.toHaveBeenCalled()
   })
 
   it('returns corrective state before reserving or writing when current configuration is invalid', async () => {
@@ -189,7 +191,7 @@ describe('Register Order Use Case', () => {
     })
     expect(orderSequences.next).not.toHaveBeenCalled()
     expect(orders.add).not.toHaveBeenCalled()
-    expect(stockConsumer.consume).not.toHaveBeenCalled()
+    expect(stockProvider.consume).not.toHaveBeenCalled()
   })
 
   it('rejects an invalid preview token without disclosing the rebuilt cart', async () => {
@@ -231,7 +233,7 @@ describe('Register Order Use Case', () => {
     expect(tokenService.issue.mock.calls[0][0]).not.toHaveProperty('idempotencyKey')
     expect(orderSequences.next).not.toHaveBeenCalled()
     expect(orders.add).not.toHaveBeenCalled()
-    expect(stockConsumer.consume).not.toHaveBeenCalled()
+    expect(stockProvider.consume).not.toHaveBeenCalled()
   })
 
   it('reports actual previous and current channel and Combo monetary facts when stale', async () => {
@@ -295,9 +297,9 @@ describe('Register Order Use Case', () => {
   })
 
   it('lets event failures escape so the transaction boundary can roll back all writes', async () => {
-    stockConsumer.consume.mockRejectedValue(new Error('consumer failed'))
+    stockProvider.consume.mockRejectedValue(new Error('provider failed'))
 
-    await expect(useCase.execute(request)).rejects.toThrow('consumer failed')
+    await expect(useCase.execute(request)).rejects.toThrow('provider failed')
     expect(orders.add).toHaveBeenCalledTimes(1)
   })
 })

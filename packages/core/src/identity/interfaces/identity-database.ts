@@ -18,6 +18,6 @@ export type IdentityDatabaseRepositories = {
 
 export interface IdentityDatabase {
   run<Result>(
-    operation: (scope: IdentityDatabaseRepositories) => Promise<Result>,
+    operation: (repositories: IdentityDatabaseRepositories) => Promise<Result>,
   ): Promise<Result>
 }

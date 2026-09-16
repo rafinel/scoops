@@ -13,7 +13,12 @@ export type SidebarItem = {
 }
 
 export const SIDEBAR_ITEMS: readonly SidebarItem[] = [
-  { icon: 'layout-dashboard', label: 'Dashboard', route: 'app' },
+  {
+    icon: 'layout-dashboard',
+    label: 'Dashboard',
+    route: 'app',
+    profiles: [UserProfile.Manager],
+  },
   {
     icon: 'package',
     label: 'Produtos',

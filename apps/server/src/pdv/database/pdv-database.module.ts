@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
 
-import { MrpProvisionModule } from '@/mrp/provision/mrp-provision.module'
 import { PDV_REPOSITORIES } from '@/pdv/constants'
 import {
   DrizzleDiscountsRepository,
@@ -13,7 +12,7 @@ import { PdvSeeder } from '@/pdv/database/pdv-seeder'
 import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
 
 @Module({
-  imports: [SharedDatabaseModule, MrpProvisionModule],
+  imports: [SharedDatabaseModule],
   providers: [
     DrizzleDiscountsRepository,
     DrizzleOrderSequencesRepository,
@@ -48,6 +47,7 @@ import { SharedDatabaseModule } from '@/shared/database/drizzle/database.module'
     PDV_REPOSITORIES.orders,
     PDV_REPOSITORIES.orderSequences,
     PDV_REPOSITORIES.database,
+    DrizzlePdvDatabase,
     PdvSeeder,
   ],
 })

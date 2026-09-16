@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker'
 import type { Establishment } from '#identity/domain/entities/establishment.ts'
 import { EstablishmentStatus } from '#identity/domain/structures/establishment-status.ts'
+import { EstablishmentTimezone } from '#identity/domain/structures/establishment-timezone.ts'
 
 export class EstablishmentFaker {
   static fake(overrides: Partial<Establishment> = {}): Establishment {
@@ -10,6 +11,7 @@ export class EstablishmentFaker {
       id: faker.string.uuid(),
       name: faker.company.name(),
       status: EstablishmentStatus.Active,
+      timeZone: EstablishmentTimezone.SaoPaulo,
       createdAt: now,
       updatedAt: now,
       ...overrides,

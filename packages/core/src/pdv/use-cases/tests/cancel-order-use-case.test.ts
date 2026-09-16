@@ -13,8 +13,7 @@ import type { OrdersRepository } from '#pdv/interfaces/orders-repository.ts'
 import type { OrderSequencesRepository } from '#pdv/interfaces/order-sequences-repository.ts'
 import type { SalesCatalogProvider } from '#pdv/interfaces/sales-catalog-provider.ts'
 import type { SalesChannelsRepository } from '#pdv/interfaces/sales-channels-repository.ts'
-import type { StockRestorer } from '#pdv/interfaces/stock-restorer.ts'
-import type { StockConsumer } from '#pdv/interfaces/stock-consumer.ts'
+import type { StockProvider } from '#pdv/interfaces/stock-provider.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -36,13 +35,13 @@ describe('Cancel Order Use Case', () => {
   let database: MockProxy<PdvDatabase>
   let scope: PdvDatabaseRepositories
   let orders: MockProxy<OrdersRepository>
-  let restorer: MockProxy<StockRestorer>
+  let stockProvider: MockProxy<StockProvider>
   let datetime: MockProxy<DatetimeProvider>
   let useCase: CancelOrderUseCase
 
   beforeEach(() => {
     orders = mock<OrdersRepository>()
-    restorer = mock<StockRestorer>()
+    stockProvider = mock<StockProvider>()
     datetime = mock<DatetimeProvider>()
     datetime.now.mockReturnValue(new Date('2026-01-02T03:04:05.000Z'))
     scope = {
@@ -51,8 +50,7 @@ describe('Cancel Order Use Case', () => {
       discountsRepository: mock<DiscountsRepository>(),
       ordersRepository: orders,
       orderSequencesRepository: mock<OrderSequencesRepository>(),
-      stockConsumer: mock<StockConsumer>(),
-      stockRestorer: restorer,
+      stockProvider,
       eventsRepository: mock<EventsRepository>(),
     }
     database = mock<PdvDatabase>()
@@ -73,6 +71,9 @@ describe('Cancel Order Use Case', () => {
           baseUnitPrice: 10,
           finalUnitPrice: 10,
           subtotal: 20,
+          allocatedNetSalesCents: 2000,
+          costComponents: [],
+          cogsCents: null,
           consumptions: [
             { productId: 'p1', brandId: 'b1', quantity: 1 },
             { productId: 'p1', brandId: 'b1', quantity: 2 },
@@ -83,7 +84,7 @@ describe('Cancel Order Use Case', () => {
     })
     const canceled = { ...order, status: OrderStatus.Canceled }
     orders.findByIdForUpdate.mockResolvedValue(order)
-    restorer.restore.mockResolvedValue([
+    stockProvider.restore.mockResolvedValue([
       {
         productId: 'p1',
         productName: 'Chocolate',
@@ -104,7 +105,7 @@ describe('Cancel Order Use Case', () => {
     await expect(
       useCase.execute({ actor, orderId: order.id, reason: '  Ajuste solicitado  ' }),
     ).resolves.toBe(canceled)
-    expect(restorer.restore).toHaveBeenCalledWith({
+    expect(stockProvider.restore).toHaveBeenCalledWith({
       establishmentId: actor.establishmentId,
       orderId: order.id,
       performedBy: actor.id,
@@ -146,6 +147,9 @@ describe('Cancel Order Use Case', () => {
           baseUnitPrice: 10,
           finalUnitPrice: 10,
           subtotal: 10,
+          allocatedNetSalesCents: 1000,
+          costComponents: [],
+          cogsCents: null,
           consumptions: [
             {
               productId: 'ingredient-1',
@@ -160,12 +164,12 @@ describe('Cancel Order Use Case', () => {
       ],
     })
     orders.findByIdForUpdate.mockResolvedValue(order)
-    restorer.restore.mockResolvedValue([])
+    stockProvider.restore.mockResolvedValue([])
     orders.cancel.mockResolvedValue({ ...order, status: OrderStatus.Canceled })
 
     await useCase.execute({ actor, orderId: order.id })
 
-    expect(restorer.restore).toHaveBeenCalledWith(
+    expect(stockProvider.restore).toHaveBeenCalledWith(
       expect.objectContaining({
         targets: [
           {
@@ -184,13 +188,13 @@ describe('Cancel Order Use Case', () => {
   it('preserves rollback ownership when restoration or cancellation fails', async () => {
     const order = OrderFaker.fake({ establishmentId: actor.establishmentId })
     orders.findByIdForUpdate.mockResolvedValue(order)
-    restorer.restore.mockRejectedValue(new Error('restore failed'))
+    stockProvider.restore.mockRejectedValue(new Error('restore failed'))
     await expect(useCase.execute({ actor, orderId: order.id })).rejects.toThrow(
       'restore failed',
     )
     expect(orders.cancel).not.toHaveBeenCalled()
 
-    restorer.restore.mockResolvedValue([])
+    stockProvider.restore.mockResolvedValue([])
     orders.cancel.mockRejectedValue(new Error('cancel failed'))
     await expect(useCase.execute({ actor, orderId: order.id })).rejects.toThrow(
       'cancel failed',
@@ -221,13 +225,13 @@ describe('Cancel Order Use Case', () => {
     await expect(
       useCase.execute({ actor, orderId: 'order-1', reason: 'x'.repeat(501) }),
     ).rejects.toBeInstanceOf(BadRequestError)
-    expect(restorer.restore).not.toHaveBeenCalled()
+    expect(stockProvider.restore).not.toHaveBeenCalled()
   })
 
   it('uses the locked tenant read and one deterministic clock value', async () => {
     const order = OrderFaker.fake({ establishmentId: actor.establishmentId })
     orders.findByIdForUpdate.mockResolvedValue(order)
-    restorer.restore.mockResolvedValue([])
+    stockProvider.restore.mockResolvedValue([])
     orders.cancel.mockResolvedValue({ ...order, status: OrderStatus.Canceled })
     await useCase.execute({ actor, orderId: order.id })
     expect(orders.findByIdForUpdate).toHaveBeenCalledWith(actor.establishmentId, order.id)

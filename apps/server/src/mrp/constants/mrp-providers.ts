@@ -1,3 +1,4 @@
 export const MRP_PROVIDERS = {
-  orderRegistrationDependencies: Symbol('MRP_PROVIDERS.orderRegistrationDependencies'),
+  consumeOrderStock: Symbol('MRP_PROVIDERS.consumeOrderStock'),
+  restoreOrderStock: Symbol('MRP_PROVIDERS.restoreOrderStock'),
 } as const

@@ -11,4 +11,5 @@ export const MRP_REPOSITORIES = {
   recipes: Symbol('MRP_REPOSITORIES.recipes'),
   resaleConfigurations: Symbol('MRP_REPOSITORIES.resaleConfigurations'),
   stockBalances: Symbol('MRP_REPOSITORIES.stockBalances'),
+  stockAttentionFacts: Symbol('MRP_REPOSITORIES.stockAttentionFacts'),
 } as const

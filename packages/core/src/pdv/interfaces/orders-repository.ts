@@ -12,6 +12,15 @@ export interface OrdersRepository {
     idempotencyKey: string,
   ): Promise<Order | undefined>
   findMany(input: OrderListParams): Promise<PaginationResponse<Order>>
+  findActivityBatch(input: {
+    establishmentId: string
+    registrationStartAt: Date
+    registrationEndAt: Date
+    cancellationStartAt: Date
+    cancellationEndAt: Date
+    cursor?: string
+    limit: number
+  }): Promise<{ orders: readonly Order[]; nextCursor?: string }>
   cancel(
     establishmentId: string,
     orderId: string,

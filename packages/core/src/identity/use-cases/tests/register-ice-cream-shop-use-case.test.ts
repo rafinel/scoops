@@ -112,6 +112,9 @@ describe('Register Ice Cream Shop Use Case', () => {
         tokenHash: 'continuation-hash',
       }),
     )
+    expect(establishmentsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({ timeZone: 'America/Sao_Paulo' }),
+    )
   })
 
   it('rejects an email already used locally before calling the provider', async () => {

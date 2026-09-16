@@ -6,6 +6,7 @@ import { createCommunicationService } from '@/rest/services/communication-servic
 import { IdentityService } from '@/rest/services/identity-service'
 import { MrpService } from '@/rest/services/mrp-service'
 import { PdvService } from '@/rest/services/pdv-service'
+import { AnalyticsService } from '@/rest/services/analytics-service'
 
 import type { RestContextValue } from './types'
 
@@ -19,6 +20,7 @@ export function useRestContextProvider(): RestContextValue {
       mrpService: MrpService(restClient),
       pdvService: PdvService(restClient),
       communicationService: createCommunicationService(restClient),
+      analyticsService: AnalyticsService(restClient),
     }),
     [restClient],
   )

@@ -12,6 +12,7 @@
     "paths": {
       "#communication/*": ["./src/communication/*"],
       "#billing/*": ["./src/billing/*"],
+      "#analytics/*": ["./src/analytics/*"],
       "#consultation/*": ["./src/consultation/*"],
       "#document-engine/*": ["./src/document-engine/*"],
       "#document-production/*": ["./src/document-production/*"],

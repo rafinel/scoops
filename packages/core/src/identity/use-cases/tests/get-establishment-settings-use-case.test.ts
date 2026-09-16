@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { AccountFaker } from '#identity/domain/entities/fakers/index.ts'
 import { ProfileChangeNotAllowedError } from '#identity/domain/errors/profile-change-not-allowed-error.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
+import { EstablishmentTimezone } from '#identity/domain/structures/establishment-timezone.ts'
 import type {
   EstablishmentsRepository,
   IdentityDatabase,
@@ -35,6 +36,7 @@ describe('Get Establishment Settings Use Case', () => {
       id: actor.establishmentId,
       name: 'Scoops Centro',
       status: 'active' as const,
+      timeZone: EstablishmentTimezone.SaoPaulo,
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
       updatedAt: new Date('2026-08-01T00:00:00.000Z'),
     }

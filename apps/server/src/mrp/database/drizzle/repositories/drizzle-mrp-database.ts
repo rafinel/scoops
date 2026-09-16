@@ -3,6 +3,8 @@ import { ConflictError } from '@scoops/core/shared/domain/errors'
 import { Inject, Injectable } from '@nestjs/common'
 
 import { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
+import { DatabaseTransactionContext } from '@/shared/database/drizzle/database-transaction-context'
+import type { DrizzleExecutor } from '@/shared/database/drizzle/drizzle-repository'
 
 import { DrizzleAccompanimentTypesRepository } from './drizzle-accompaniment-types-repository'
 import { DrizzleProductsRepository } from './drizzle-products-repository'
@@ -17,85 +19,108 @@ import { DrizzleResaleConfigurationsRepository } from './drizzle-resale-configur
 import { DrizzleStockBalancesRepository } from './drizzle-stock-balances-repository'
 import { DrizzleStockTransactionsRepository } from './drizzle-stock-transactions-repository'
 import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
+import { DrizzleStockAttentionFactsRepository } from './drizzle-stock-attention-facts-repository'
 
 @Injectable()
 export class DrizzleMrpDatabase implements MrpDatabase {
-  constructor(@Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient) {}
+  constructor(
+    @Inject(DrizzleClient) private readonly drizzleClient: DrizzleClient,
+    private readonly transactionContext: DatabaseTransactionContext,
+  ) {}
 
   run<Result>(
-    operation: (scope: MrpDatabaseRepositories) => Promise<Result>,
+    operation: (repositories: MrpDatabaseRepositories) => Promise<Result>,
   ): Promise<Result> {
+    const activeTransaction = this.transactionContext.get()
+    if (activeTransaction) return operation(this.createRepositories(activeTransaction))
     return this.runWithRetry(operation, false)
   }
 
+  async readSnapshot<Result>(
+    operation: (
+      repositories: Pick<MrpDatabaseRepositories, 'stockAttentionFactsRepository'>,
+    ) => Promise<Result>,
+  ): Promise<Result> {
+    return this.drizzleClient.requireDatabase().transaction(
+      (transaction) =>
+        operation({
+          stockAttentionFactsRepository: new DrizzleStockAttentionFactsRepository(
+            this.drizzleClient,
+            transaction,
+          ),
+        }),
+      { isolationLevel: 'repeatable read', accessMode: 'read only' },
+    )
+  }
+
   private async runWithRetry<Result>(
-    operation: (scope: MrpDatabaseRepositories) => Promise<Result>,
+    operation: (repositories: MrpDatabaseRepositories) => Promise<Result>,
     hasRetried: boolean,
   ): Promise<Result> {
     try {
-      return await this.drizzleClient.requireDatabase().transaction(
-        async (transaction) =>
-          operation({
-            productsRepository: new DrizzleProductsRepository(
-              this.drizzleClient,
-              transaction,
+      return await this.drizzleClient
+        .requireDatabase()
+        .transaction(
+          async (transaction) =>
+            this.transactionContext.run(transaction, () =>
+              operation(this.createRepositories(transaction)),
             ),
-            brandsRepository: new DrizzleBrandsRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-            stockBalancesRepository: new DrizzleStockBalancesRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-            stockTransactionsRepository: new DrizzleStockTransactionsRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-            recipesRepository: new DrizzleRecipesRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-            recipeIngredientsRepository: new DrizzleRecipeIngredientsRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-            productionsRepository: new DrizzleProductionsRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-            productionIngredientsRepository: new DrizzleProductionIngredientsRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-            productSizesRepository: new DrizzleProductSizesRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-            accompanimentTypesRepository: new DrizzleAccompanimentTypesRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-            productAccompanimentsRepository: new DrizzleProductAccompanimentsRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-            resaleConfigurationsRepository: new DrizzleResaleConfigurationsRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-            eventsRepository: new DrizzleEventsRepository(
-              this.drizzleClient,
-              transaction,
-            ),
-          }),
-        { isolationLevel: 'serializable', accessMode: 'read write' },
-      )
+          { isolationLevel: 'serializable', accessMode: 'read write' },
+        )
     } catch (error) {
       if (!this.isRetryableTransactionConflict(error)) throw error
       if (hasRetried)
         throw new ConflictError('A operação no banco de dados entrou em conflito.')
       return this.runWithRetry(operation, true)
+    }
+  }
+
+  private createRepositories(executor: DrizzleExecutor): MrpDatabaseRepositories {
+    return {
+      productsRepository: new DrizzleProductsRepository(this.drizzleClient, executor),
+      brandsRepository: new DrizzleBrandsRepository(this.drizzleClient, executor),
+      stockBalancesRepository: new DrizzleStockBalancesRepository(
+        this.drizzleClient,
+        executor,
+      ),
+      stockTransactionsRepository: new DrizzleStockTransactionsRepository(
+        this.drizzleClient,
+        executor,
+      ),
+      recipesRepository: new DrizzleRecipesRepository(this.drizzleClient, executor),
+      recipeIngredientsRepository: new DrizzleRecipeIngredientsRepository(
+        this.drizzleClient,
+        executor,
+      ),
+      productionsRepository: new DrizzleProductionsRepository(
+        this.drizzleClient,
+        executor,
+      ),
+      productionIngredientsRepository: new DrizzleProductionIngredientsRepository(
+        this.drizzleClient,
+        executor,
+      ),
+      productSizesRepository: new DrizzleProductSizesRepository(
+        this.drizzleClient,
+        executor,
+      ),
+      accompanimentTypesRepository: new DrizzleAccompanimentTypesRepository(
+        this.drizzleClient,
+        executor,
+      ),
+      productAccompanimentsRepository: new DrizzleProductAccompanimentsRepository(
+        this.drizzleClient,
+        executor,
+      ),
+      resaleConfigurationsRepository: new DrizzleResaleConfigurationsRepository(
+        this.drizzleClient,
+        executor,
+      ),
+      eventsRepository: new DrizzleEventsRepository(this.drizzleClient, executor),
+      stockAttentionFactsRepository: new DrizzleStockAttentionFactsRepository(
+        this.drizzleClient,
+        executor,
+      ),
     }
   }
 

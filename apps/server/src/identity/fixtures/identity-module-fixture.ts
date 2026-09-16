@@ -131,7 +131,11 @@ export class IdentityModuleFixture {
     const establishmentIds = [...new Set(users.map((user) => user.establishmentId))]
     await this.seeder.run({
       establishments: establishmentIds.map((establishmentId) =>
-        EstablishmentFaker.fake({ id: establishmentId, name: 'Users Establishment' }),
+        EstablishmentFaker.fake({
+          id: establishmentId,
+          name: 'Users Establishment',
+          timeZone: 'America/Sao_Paulo',
+        }),
       ),
       users,
       registrationAttempts,

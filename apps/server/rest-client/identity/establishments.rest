@@ -14,3 +14,20 @@ Content-Type: application/json
 {
   "name": "Scoops Centro"
 }
+### Change establishment timezone
+PATCH {{baseUrl}}/establishments/current/timezone
+Content-Type: application/json
+Cookie: {{sessionCookie}}
+
+{
+  "timeZone": "America/Sao_Paulo"
+}
+
+### Change current establishment timezone (invalid value)
+PATCH {{baseUrl}}/establishments/current/timezone
+Content-Type: application/json
+Cookie: {{sessionCookie}}
+
+{
+  "timeZone": "Europe/Lisbon"
+}

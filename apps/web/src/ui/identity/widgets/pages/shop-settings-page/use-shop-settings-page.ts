@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import type { z } from 'zod'
 
 import { useChangeEstablishmentNameAction } from '@/ui/identity/hooks/use-change-establishment-name-action'
+import { useChangeEstablishmentTimezoneAction } from '@/ui/identity/hooks/use-change-establishment-timezone-action'
 import { useEstablishmentSettingsQuery } from '@/ui/identity/hooks/use-establishment-settings-query'
 import { showErrorToast } from '@/ui/shared/notifications'
 
@@ -23,7 +24,9 @@ export function useShopSettingsPage() {
     error: actionError,
     isPending,
   } = useChangeEstablishmentNameAction()
+  const timezoneAction = useChangeEstablishmentTimezoneAction()
   const [isNameDialogOpen, setIsNameDialogOpen] = useState(false)
+  const [isTimezoneDialogOpen, setIsTimezoneDialogOpen] = useState(false)
   const [announcement, setAnnouncement] = useState('')
   const feedbackRef = useRef<HTMLParagraphElement>(null)
   const {
@@ -52,6 +55,22 @@ export function useShopSettingsPage() {
 
   function handleNameDialogOpenChange(isOpen: boolean) {
     setIsNameDialogOpen(isOpen)
+  }
+
+  async function handleTimezoneSubmit(
+    timeZone: Parameters<typeof timezoneAction.mutateAsync>[0],
+  ) {
+    try {
+      await timezoneAction.mutateAsync(timeZone)
+      setAnnouncement('Fuso horário atualizado com sucesso.')
+      setIsTimezoneDialogOpen(false)
+    } catch (caught) {
+      showErrorToast(
+        caught instanceof Error
+          ? caught.message
+          : 'Não foi possível atualizar o fuso horário.',
+      )
+    }
   }
 
   function handleNameChange(value: string) {
@@ -84,10 +103,17 @@ export function useShopSettingsPage() {
     isLoading,
     isRefreshing,
     isNameDialogOpen,
+    isTimezoneDialogOpen,
     isPending,
+    isTimezonePending: timezoneAction.isPending,
+    timezoneError: timezoneAction.error?.message ?? null,
     queryError,
     refetch,
     settings,
+    timeZone: settings?.establishment.timeZone ?? null,
+    handleOpenTimezoneDialog: () => setIsTimezoneDialogOpen(true),
+    handleTimezoneDialogOpenChange: setIsTimezoneDialogOpen,
+    handleTimezoneSubmit,
     register,
     name: watch('name'),
   }

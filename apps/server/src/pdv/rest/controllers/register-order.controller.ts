@@ -1,4 +1,4 @@
-import { Body, HttpStatus, Inject, Post, Res } from '@nestjs/common'
+import { Body, HttpStatus, Inject, Optional, Post, Res } from '@nestjs/common'
 import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger'
 import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
@@ -39,8 +39,24 @@ export class RegisterOrderController {
     @Inject(PDV_REPOSITORIES.database) database: PdvDatabase,
     @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
     @Inject(PDV_PROVIDERS.previewToken) tokenService: OrderPreviewTokenService,
+    @Optional()
+    @Inject(PDV_PROVIDERS.salesCatalog)
+    salesCatalogProvider?: import('@scoops/core/pdv/interfaces').SalesCatalogProvider,
+    @Optional()
+    @Inject(PDV_PROVIDERS.orderCost)
+    orderCostProvider?: import('@scoops/core/pdv/interfaces').OrderCostProvider,
+    @Optional()
+    @Inject(PDV_PROVIDERS.stockProvider)
+    stockProvider?: import('@scoops/core/pdv/interfaces').StockProvider,
   ) {
-    this.useCase = new RegisterOrderUseCase(database, datetimeProvider, tokenService)
+    this.useCase = new RegisterOrderUseCase(
+      database,
+      datetimeProvider,
+      tokenService,
+      salesCatalogProvider,
+      orderCostProvider,
+      stockProvider,
+    )
   }
 
   @Post()

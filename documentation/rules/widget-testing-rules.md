@@ -235,6 +235,18 @@ even when their test file is placed inside an allowed widget `tests/` directory.
 Mock the provider contract at the owning context or widget boundary and cover
 the provider's observable behavior through the consuming route or browser flow.
 
+## Antipatterns to Avoid
+
+- Do not create a standalone test for a shared hook that has no owning widget
+  boundary, such as a hook under `apps/web/src/ui/shared/hooks/`. Cover its
+  observable behavior through the consuming page, layout, or widget test that
+  renders the user-visible result. Validation proof is the consumer test and
+  the applicable focused type/code checks; a dedicated shared-hook test is not
+  required.
+- Do not move a shared hook into a widget directory merely to justify a
+  dedicated test. A hook receives a dedicated test only when it is colocated
+  with and owns substantial behavior for a specific widget, as defined above.
+
 ## Hook mock names mirror the hook
 
 Create the typed mock with `vi.mocked` and name it by appending `Mock` to the hook

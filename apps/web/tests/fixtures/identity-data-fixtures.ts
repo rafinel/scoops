@@ -24,12 +24,15 @@ export function accountResponse(overrides: Partial<Account> = {}) {
   })
 }
 
-export function establishmentSettingsJson(overrides: { name?: string } = {}) {
+export function establishmentSettingsJson(
+  overrides: { name?: string; timeZone?: string } = {},
+) {
   return {
     establishment: {
       id: 'browser-establishment-id',
       name: overrides.name ?? 'Scoops Central',
       status: 'active',
+      timeZone: overrides.timeZone ?? 'America/Sao_Paulo',
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
     },

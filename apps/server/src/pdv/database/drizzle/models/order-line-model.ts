@@ -33,6 +33,8 @@ export const orderLineModel = pgTable(
     baseUnitPrice: numeric('base_unit_price', { precision: 18, scale: 2 }).notNull(),
     finalUnitPrice: numeric('final_unit_price', { precision: 18, scale: 2 }).notNull(),
     subtotal: numeric('subtotal', { precision: 18, scale: 2 }).notNull(),
+    allocatedNetSalesCents: integer('allocated_net_sales_cents').notNull().default(0),
+    cogsCents: integer('cogs_cents'),
   },
   (table) => [
     index('pdv_order_lines_order_position_idx').on(table.orderId, table.position),
@@ -49,6 +51,14 @@ export const orderLineModel = pgTable(
     check('pdv_order_lines_base_price_non_negative', sql`${table.baseUnitPrice} >= 0`),
     check('pdv_order_lines_final_price_non_negative', sql`${table.finalUnitPrice} >= 0`),
     check('pdv_order_lines_subtotal_non_negative', sql`${table.subtotal} >= 0`),
+    check(
+      'pdv_order_lines_allocated_net_sales_cents_non_negative',
+      sql`${table.allocatedNetSalesCents} >= 0`,
+    ),
+    check(
+      'pdv_order_lines_cogs_non_negative',
+      sql`${table.cogsCents} is null or ${table.cogsCents} >= 0`,
+    ),
     check(
       'pdv_order_lines_kind_fields_valid',
       sql`(${table.kind} = 'portion' and ${table.sizeId} is not null and ${table.sizeName} is not null and ${table.sizeQuantity} is not null and ${table.brandId} is null and ${table.brandName} is null) or (${table.kind} = 'resale' and ${table.sizeId} is null and ${table.sizeName} is null and ${table.sizeQuantity} is null and ((${table.brandId} is null and ${table.brandName} is null) or (${table.brandId} is not null and ${table.brandName} is not null)))`,

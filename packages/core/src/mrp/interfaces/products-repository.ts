@@ -14,6 +14,10 @@ export interface ProductsRepository {
   ): Promise<Product | undefined>
   findByName(establishmentId: string, name: string): Promise<Product | undefined>
   findMany(input: ProductListParams): Promise<ProductCatalogPage>
+  findManyByIds(
+    establishmentId: string,
+    productIds: readonly string[],
+  ): Promise<readonly Product[]>
   replace(
     establishmentId: string,
     productId: string,

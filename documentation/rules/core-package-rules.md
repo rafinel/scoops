@@ -124,6 +124,23 @@ Use cases may coordinate entities, structures, interfaces, errors, and events wh
 enforcing the rules required by one application action. Keep one exported use case
 class per file and use a verb-led name that describes the action.
 
+### Use cases own their internal decomposition
+
+Keep `execute()` focused on the application action's high-level flow. Authorization,
+loading, calculation, aggregation, mapping, and other steps used only by that use case
+belong in private methods on the use case class. Do not move class-owned behavior to
+loose functions merely to shorten the class body, and do not call another use case as
+an internal helper.
+
+Give a non-trivial data shape a named type when it crosses private-method boundaries,
+contains several related fields, or would otherwise be repeated as an anonymous object
+type. Keep the type local to the use-case file when it represents mutable aggregation,
+calendar parts, intermediate calculation state, or another implementation detail.
+
+Create an exported domain structure only when the shape has stable domain meaning and
+is intentionally shared across files or boundaries. Do not promote implementation-only
+state into `domain/structures` solely to reduce the size of a use-case file.
+
 ## Contracts belong to interfaces directories
 
 Every contract exposed by `packages/core` must live in an `interfaces` directory

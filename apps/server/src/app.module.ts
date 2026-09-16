@@ -21,6 +21,7 @@ import { RevalidateCombosForProductJob } from '@/pdv/messaging/inngest/jobs'
 import { CleanupPublishedEventsJob } from '@/shared/messaging/inngest/jobs/cleanup-published-events-job'
 import { ReprocessEventsJob } from '@/shared/messaging/inngest/jobs/reprocess-events-job'
 import { SharedMessagingModule } from '@/shared/messaging/shared-messaging.module'
+import { AnalyticsModule } from '@/analytics/analytics.module'
 
 const appMode = serverEnvSchema.shape.SCOOPS_SERVER_APP_MODE.parse(
   process.env.SCOOPS_SERVER_APP_MODE,
@@ -41,6 +42,7 @@ const isRecoveryEnvironment = appMode === 'dev' || appMode === 'test'
     MrpModule,
     PdvModule,
     CommunicationModule,
+    AnalyticsModule,
     InngestModule.forRoot({
       functions: [
         SendInvitationEmailJob,

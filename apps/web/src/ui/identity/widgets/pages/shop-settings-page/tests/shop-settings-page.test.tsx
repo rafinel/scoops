@@ -29,6 +29,7 @@ function createPageState() {
         id: 'establishment-id',
         name: 'Scoops Central',
         status: 'active',
+        timeZone: 'America/Sao_Paulo',
         createdAt: new Date('2026-01-01T00:00:00.000Z'),
         updatedAt: new Date('2026-01-01T00:00:00.000Z'),
       },

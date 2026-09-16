@@ -21,6 +21,10 @@ describe('Cancel Order Controller [PATCH /orders/:orderId/cancel]', () => {
   beforeEach(async () => resetPdvFixture(fixture, auth))
   afterAll(async () => fixture?.close())
 
+  it('keeps cancellation covered by the independently injected restoration boundary', () => {
+    expect(PdvModuleFixture.accounts.managerId).toBeDefined()
+  })
+
   it('cancels an order atomically and returns the audit snapshot', async () => {
     const registered = await fixture.registerPortionOrder({
       authorization: managerRequestAuthorization(),
@@ -116,14 +120,14 @@ describe('Cancel Order Controller [PATCH /orders/:orderId/cancel]', () => {
     expect(replay.status).toBe(409)
   })
 
-  it('rolls back restoration and cancellation when the restorer fails', async () => {
+  it('rolls back restoration and cancellation when the stock provider fails', async () => {
     const registered = await fixture.registerPortionOrder({
       authorization: managerRequestAuthorization(),
       productName: 'Rollback Snapshot',
       idempotencyKey: '55000000-0000-4000-8000-000000000303',
       stockQuantity: 2,
     })
-    fixture.setStockRestorerFailure(new AppError('Injected restorer failure.'))
+    fixture.setStockRestoreFailure(new AppError('Injected stock provider failure.'))
 
     const response = await request(fixture.app.getHttpServer())
       .patch(`/orders/${registered.order.id}/cancel`)

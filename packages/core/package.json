@@ -13,6 +13,9 @@
     "test:coverage": "vitest run --coverage"
   },
   "exports": {
+    "./analytics/domain/structures": "./src/analytics/domain/structures/index.ts",
+    "./analytics/interfaces": "./src/analytics/interfaces/index.ts",
+    "./analytics/use-cases": "./src/analytics/use-cases/index.ts",
     "./identity/domain/entities": "./src/identity/domain/entities/index.ts",
     "./identity/domain/entities/fakers": "./src/identity/domain/entities/fakers/index.ts",
     "./identity/domain/errors": "./src/identity/domain/errors/index.ts",
@@ -52,6 +55,7 @@
     "./shared/constants": "./src/shared/constants/index.ts"
   },
   "imports": {
+    "#analytics/*": "./src/analytics/*",
     "#billing/*": "./src/billing/*",
     "#communication/*": "./src/communication/*",
     "#identity/*": "./src/identity/*",

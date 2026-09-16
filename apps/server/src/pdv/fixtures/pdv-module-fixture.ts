@@ -59,15 +59,15 @@ import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { BetterAuthSessionIssuer } from '@/identity/provision/auth'
 import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { IdentityModule } from '@/identity/identity.module'
-import { MRP_PROVIDERS, MRP_REPOSITORIES } from '@/mrp/constants'
+import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MRP_STOCK_TRANSACTIONS_REPOSITORY } from '@/mrp/database/mrp-repositories'
 import { MrpSeeder } from '@/mrp/database/mrp-seeder'
 import { MrpModule } from '@/mrp/mrp.module'
-import { TransactionBoundOrderRegistrationDependenciesFactory } from '@/mrp/provision/pdv/transaction-bound-order-registration-dependencies-factory'
-import { PDV_REPOSITORIES } from '@/pdv/constants'
+import { PDV_PROVIDERS, PDV_REPOSITORIES } from '@/pdv/constants'
 import { PdvSeeder } from '@/pdv/database/pdv-seeder'
 import { DrizzlePdvDatabase } from '@/pdv/database/drizzle/repositories/drizzle-pdv-database'
 import { PdvModule } from '@/pdv/pdv.module'
+import { MrpStockProvider } from '@/shared/provision/pdv-order-registration/mrp-stock-provider'
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
 import { InngestFixture } from '@/shared/messaging/inngest/inngest-fixture'
 import type { InngestJob } from '@/shared/messaging/inngest/inngest-job'
@@ -118,8 +118,8 @@ export class PdvModuleFixture {
   private constructor(
     private readonly restFixture: RestFixture,
     private readonly originalPreviewTokenSecret: string | undefined,
-    private readonly stockConsumerFailure: { error?: AppError },
-    private readonly stockRestorerFailure: { error?: AppError },
+    private readonly stockConsumeFailure: { error?: AppError },
+    private readonly stockRestoreFailure: { error?: AppError },
     private readonly databaseFailure: { error?: AppError },
     private readonly inngestFixture: InngestFixture | undefined,
     private readonly eventsRepository: CapturedEventsRepository,
@@ -155,8 +155,8 @@ export class PdvModuleFixture {
     const originalPreviewTokenSecret = process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET
     process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET ??=
       'pdv-test-preview-token-secret-0123456789'
-    const stockConsumerFailure: { error?: AppError } = {}
-    const stockRestorerFailure: { error?: AppError } = {}
+    const stockConsumeFailure: { error?: AppError } = {}
+    const stockRestoreFailure: { error?: AppError } = {}
     const databaseFailure: { error?: AppError } = {}
     const events: Event[] = []
     const eventsRepository: CapturedEventsRepository = {
@@ -193,34 +193,18 @@ export class PdvModuleFixture {
           .useValue(authProvider)
           .overrideProvider(BetterAuthSessionIssuer)
           .useValue(authProvider)
-          .overrideProvider(MRP_PROVIDERS.orderRegistrationDependencies)
+          .overrideProvider(PDV_PROVIDERS.stockProvider)
           .useFactory({
-            inject: [TransactionBoundOrderRegistrationDependenciesFactory],
-            factory: (factory: TransactionBoundOrderRegistrationDependenciesFactory) => ({
-              forExecutor: (executor: Parameters<typeof factory.forExecutor>[0]) => {
-                const dependencies = factory.forExecutor(executor)
-                return {
-                  ...dependencies,
-                  stockConsumer: {
-                    consume: async (
-                      ...args: Parameters<typeof dependencies.stockConsumer.consume>
-                    ) => {
-                      if (stockConsumerFailure.error) throw stockConsumerFailure.error
-                      return dependencies.stockConsumer.consume(...args)
-                    },
-                  },
-                  stockRestorer: {
-                    restore: async (
-                      ...args: Parameters<typeof dependencies.stockRestorer.restore>
-                    ) => {
-                      const restorations = await dependencies.stockRestorer.restore(
-                        ...args,
-                      )
-                      if (stockRestorerFailure.error) throw stockRestorerFailure.error
-                      return restorations
-                    },
-                  },
-                }
+            inject: [MrpStockProvider],
+            factory: (provider: MrpStockProvider) => ({
+              consume: async (...args: Parameters<typeof provider.consume>) => {
+                if (stockConsumeFailure.error) throw stockConsumeFailure.error
+                return provider.consume(...args)
+              },
+              restore: async (...args: Parameters<typeof provider.restore>) => {
+                const restorations = await provider.restore(...args)
+                if (stockRestoreFailure.error) throw stockRestoreFailure.error
+                return restorations
               },
             }),
           })
@@ -229,10 +213,10 @@ export class PdvModuleFixture {
             inject: [DrizzlePdvDatabase],
             factory: (database: DrizzlePdvDatabase): PdvDatabase => ({
               run<Result>(
-                operation: (scope: PdvDatabaseRepositories) => Promise<Result>,
+                operation: (repositories: PdvDatabaseRepositories) => Promise<Result>,
               ) {
-                return database.run(async (scope) => {
-                  const result = await operation({ ...scope, eventsRepository })
+                return database.run(async (repositories) => {
+                  const result = await operation({ ...repositories, eventsRepository })
                   if (databaseFailure.error) throw databaseFailure.error
                   return result
                 })
@@ -246,8 +230,8 @@ export class PdvModuleFixture {
       databaseFailure,
       originalPreviewTokenSecret,
       restFixture,
-      stockConsumerFailure,
-      stockRestorerFailure,
+      stockConsumeFailure,
+      stockRestoreFailure,
       eventsRepository,
     }
   }
@@ -259,8 +243,8 @@ export class PdvModuleFixture {
     return new PdvModuleFixture(
       context.restFixture,
       context.originalPreviewTokenSecret,
-      context.stockConsumerFailure,
-      context.stockRestorerFailure,
+      context.stockConsumeFailure,
+      context.stockRestoreFailure,
       context.databaseFailure,
       inngestFixture,
       context.eventsRepository,
@@ -327,6 +311,10 @@ export class PdvModuleFixture {
 
   get broker(): CapturedEventsRepository {
     return this.eventsRepository
+  }
+
+  get supportsImmutableCostSnapshots(): true {
+    return true
   }
 
   get inngestFunctionOptions(): InngestFunction.Options {
@@ -415,12 +403,12 @@ export class PdvModuleFixture {
       .where(eq(orderModel.id, orderId))
   }
 
-  setStockConsumerFailure(error?: AppError) {
-    this.stockConsumerFailure.error = error
+  setStockConsumeFailure(error?: AppError) {
+    this.stockConsumeFailure.error = error
   }
 
-  setStockRestorerFailure(error?: AppError) {
-    this.stockRestorerFailure.error = error
+  setStockRestoreFailure(error?: AppError) {
+    this.stockRestoreFailure.error = error
   }
 
   setDatabaseFailure(error?: AppError) {
@@ -612,8 +600,8 @@ export async function resetPdvFixture(
   await fixture.resetDatabase()
   await fixture.seedAccounts()
   fixture.broker.events.length = 0
-  fixture.setStockConsumerFailure()
-  fixture.setStockRestorerFailure()
+  fixture.setStockConsumeFailure()
+  fixture.setStockRestoreFailure()
   fixture.setDatabaseFailure()
   fixture.authenticate(auth.setUser.bind(auth))
 }

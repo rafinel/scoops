@@ -55,6 +55,11 @@ export const orderModel = pgTable(
       table.createdAt.desc(),
       table.id.desc(),
     ),
+    index('pdv_orders_establishment_cancellation_activity_idx').on(
+      table.establishmentId,
+      table.canceledAt,
+      table.id,
+    ),
     check('pdv_orders_sequence_positive', sql`${table.sequenceNumber} > 0`),
     check(
       'pdv_orders_created_by_name_non_blank',

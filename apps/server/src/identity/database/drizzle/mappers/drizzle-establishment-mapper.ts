@@ -1,6 +1,9 @@
 import type { Establishment } from '@scoops/core/identity/domain/entities'
 
-import type { DrizzleEstablishment } from '@/identity/database/drizzle/types/entities'
+import {
+  toEstablishmentTimezone,
+  type DrizzleEstablishment,
+} from '@/identity/database/drizzle/types/entities'
 
 export class DrizzleEstablishmentMapper {
   static toDomain(record: DrizzleEstablishment): Establishment {
@@ -8,6 +11,7 @@ export class DrizzleEstablishmentMapper {
       id: record.id,
       name: record.name,
       status: record.status,
+      timeZone: toEstablishmentTimezone(record.timeZone),
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
       activatedAt: record.activatedAt ?? undefined,

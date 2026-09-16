@@ -116,6 +116,8 @@ operational model and does not introduce a new audience, commercial offer, or co
 
 ### PRQ-01 — Manager Access, Period, and Business Time
 
+- [x] **Implemented**
+
 
 **Outcome:** A Manager can open one establishment-scoped dashboard with predictable period boundaries
 and comparisons, while an Operator cannot access its navigation or data.
@@ -158,6 +160,8 @@ and PRQ-06.
 ---
 
 ### PRQ-02 — Sales and Order Summary
+
+- [x] **Implemented**
 
 
 **Outcome:** A Manager can understand reconciled net operational sales, valid order volume, average
@@ -211,6 +215,8 @@ by PRQ-03, PRQ-04, PRQ-05, PRQ-06, PRQ-08, and PRQ-09.
 ---
 
 ### PRQ-03 — Estimated Gross Margin and Cost Coverage
+
+- [x] **Implemented**
 
 
 **Outcome:** A Manager can evaluate estimated gross margin without treating incomplete product costs
@@ -269,6 +275,8 @@ consumed by PRQ-05, PRQ-08, and PRQ-09.
 
 ### PRQ-04 — Sales Evolution
 
+- [x] **Implemented**
+
 
 **Outcome:** A Manager can recognize the selected period's sales and order pattern without manually
 reading order history.
@@ -298,6 +306,8 @@ reading order history.
 ---
 
 ### PRQ-05 — Product Performance Ranking
+
+- [x] **Implemented**
 
 
 **Outcome:** A Manager can identify which products contribute most to valid sales and inspect quantity
@@ -341,6 +351,8 @@ and cost snapshots from PDV.
 
 ### PRQ-06 — Sales Channel Performance
 
+- [x] **Implemented**
+
 
 **Outcome:** A Manager can understand how valid sales are distributed across configured sales
 channels and orders registered without a channel.
@@ -373,6 +385,8 @@ snapshots from PDV.
 ---
 
 ### PRQ-07 — Current Stock Attention
+
+- [x] **Implemented**
 
 
 **Outcome:** A Manager can see the five most urgent current stock or production constraints and open
@@ -411,6 +425,8 @@ from Identity.
 ---
 
 ### PRQ-08 — Dashboard Navigation, States, and Quality
+
+- [x] **Implemented**
 
 
 **Outcome:** A Manager can understand, navigate, refresh, and recover each dashboard area across
@@ -462,6 +478,8 @@ from PRQ-04; product and channel rankings from PRQ-05 and PRQ-06; stock attentio
 ---
 
 ### PRQ-09 — Analytics Outcome Measurement
+
+- [x] **Implemented**
 
 
 **Outcome:** Scoops can evaluate whether the dashboard helps Managers reach the approved decisions

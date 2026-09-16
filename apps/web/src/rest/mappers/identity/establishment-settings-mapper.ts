@@ -21,6 +21,7 @@ export const EstablishmentSettingsMapper = (
     typeof response.establishment.id !== 'string' ||
     typeof response.establishment.name !== 'string' ||
     typeof response.establishment.status !== 'string' ||
+    typeof response.establishment.timeZone !== 'string' ||
     !response.responsibleManager
   ) {
     throw new AppError('Resposta inesperada das configurações do estabelecimento')

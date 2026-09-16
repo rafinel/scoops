@@ -20,6 +20,6 @@ export type BillingDatabaseRepositories = {
 
 export interface BillingDatabase {
   run<Result>(
-    operation: (scope: BillingDatabaseRepositories) => Promise<Result>,
+    operation: (repositories: BillingDatabaseRepositories) => Promise<Result>,
   ): Promise<Result>
 }
