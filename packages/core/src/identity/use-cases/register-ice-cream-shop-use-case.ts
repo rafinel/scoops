@@ -1,5 +1,6 @@
 import type { IdentityDatabaseRepositories } from '#identity/interfaces/identity-database.ts'
 import type { Establishment } from '#identity/domain/entities/establishment.ts'
+import { DEFAULT_ESTABLISHMENT_TIMEZONE } from '#identity/domain/structures/establishment-timezone.ts'
 import type { UserRegistrationAttempt } from '#identity/domain/entities/user-registration-attempt.ts'
 import type { User } from '#identity/domain/entities/user.ts'
 import { OnboardingEmailUnavailableError } from '#identity/domain/errors/onboarding-email-unavailable-error.ts'
@@ -82,6 +83,7 @@ export class RegisterIceCreamShopUseCase {
             id: establishmentId,
             name: establishmentName,
             status: EstablishmentStatus.Pending,
+            timeZone: DEFAULT_ESTABLISHMENT_TIMEZONE,
             createdAt: now,
             updatedAt: now,
           })

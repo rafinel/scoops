@@ -58,7 +58,9 @@ export class RegisterProductionUseCase implements UseCase<Request, Production> {
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    return this.database.run((scope) => this.registerProduction(request, scope))
+    return this.database.run((repositories) =>
+      this.registerProduction(request, repositories),
+    )
   }
 
   private async registerProduction(

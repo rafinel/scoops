@@ -10,12 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetPasswordIndexRouteImport } from './routes/reset-password/index'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as ForgotPasswordIndexRouteImport } from './routes/forgot-password/index'
 import { Route as AccessDeniedIndexRouteImport } from './routes/access-denied/index'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as OnboardingConfirmRouteImport } from './routes/onboarding/confirm'
 import { Route as InvitationAcceptRouteImport } from './routes/invitation/accept'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
@@ -46,11 +46,6 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ResetPasswordIndexRoute = ResetPasswordIndexRouteImport.update({
   id: '/reset-password/',
   path: '/reset-password/',
@@ -75,6 +70,11 @@ const AccessDeniedIndexRoute = AccessDeniedIndexRouteImport.update({
   id: '/access-denied/',
   path: '/access-denied/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const OnboardingConfirmRoute = OnboardingConfirmRouteImport.update({
   id: '/onboarding/confirm',
@@ -224,7 +224,7 @@ const AuthenticatedProductsProductIdAccompanimentsRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedIndexRoute
   '/invitation/accept': typeof InvitationAcceptRoute
   '/onboarding/confirm': typeof OnboardingConfirmRoute
   '/access-denied/': typeof AccessDeniedIndexRoute
@@ -257,9 +257,9 @@ export interface FileRoutesByFullPath {
   '/products/$productId/': typeof AuthenticatedProductsProductIdIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/invitation/accept': typeof InvitationAcceptRoute
   '/onboarding/confirm': typeof OnboardingConfirmRoute
+  '/': typeof AuthenticatedIndexRoute
   '/access-denied': typeof AccessDeniedIndexRoute
   '/forgot-password': typeof ForgotPasswordIndexRoute
   '/login': typeof LoginIndexRoute
@@ -290,10 +290,10 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/invitation/accept': typeof InvitationAcceptRoute
   '/onboarding/confirm': typeof OnboardingConfirmRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
   '/access-denied/': typeof AccessDeniedIndexRoute
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
@@ -359,9 +359,9 @@ export interface FileRouteTypes {
     | '/products/$productId/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/invitation/accept'
     | '/onboarding/confirm'
+    | '/'
     | '/access-denied'
     | '/forgot-password'
     | '/login'
@@ -391,10 +391,10 @@ export interface FileRouteTypes {
     | '/products/$productId'
   id:
     | '__root__'
-    | '/'
     | '/_authenticated'
     | '/invitation/accept'
     | '/onboarding/confirm'
+    | '/_authenticated/'
     | '/access-denied/'
     | '/forgot-password/'
     | '/login/'
@@ -426,7 +426,6 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   InvitationAcceptRoute: typeof InvitationAcceptRoute
   OnboardingConfirmRoute: typeof OnboardingConfirmRoute
@@ -444,13 +443,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password/': {
@@ -487,6 +479,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/access-denied/'
       preLoaderRoute: typeof AccessDeniedIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/onboarding/confirm': {
       id: '/onboarding/confirm'
@@ -697,6 +696,7 @@ const AuthenticatedProductsProductIdRouteRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedProductsProductIdRouteRoute: typeof AuthenticatedProductsProductIdRouteRouteWithChildren
   AuthenticatedDiscountsDiscountIdRoute: typeof AuthenticatedDiscountsDiscountIdRoute
   AuthenticatedDiscountsNewRoute: typeof AuthenticatedDiscountsNewRoute
@@ -717,6 +717,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedProductsProductIdRouteRoute:
     AuthenticatedProductsProductIdRouteRouteWithChildren,
   AuthenticatedDiscountsDiscountIdRoute: AuthenticatedDiscountsDiscountIdRoute,
@@ -742,7 +743,6 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   InvitationAcceptRoute: InvitationAcceptRoute,
   OnboardingConfirmRoute: OnboardingConfirmRoute,

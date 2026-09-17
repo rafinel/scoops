@@ -24,9 +24,16 @@ import type {
   ProductsRepository,
   ProductSizesRepository,
 } from '@scoops/core/mrp/interfaces'
-import type { ComboCreate } from '@scoops/core/pdv/domain/structures'
+import type { OrderCreate } from '@scoops/core/pdv/domain/entities'
+import { SaleItemKind, type ComboCreate } from '@scoops/core/pdv/domain/structures'
+import type { SalesChannelsRepository } from '@scoops/core/pdv/interfaces'
 
 import { AppModule } from '@/app.module'
+import {
+  BillingPlanCode,
+  SubscriptionStatus,
+} from '@scoops/core/billing/domain/structures'
+import { BillingSeeder } from '@/billing/database/billing-seeder'
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
 import type { BetterAuthInstance } from '@/identity/provision/auth'
 import { IdentitySeeder } from '@/identity/database/identity-seeder'
@@ -35,6 +42,7 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
 import { PdvSeeder } from '@/pdv/database/pdv-seeder'
 import { CommunicationSeeder } from '@/communication/database/communication-seeder'
 import { parseSeedEnv } from '@/shared/database/seed-env'
+import { PDV_REPOSITORIES } from '@/pdv/constants'
 
 const SEED_ESTABLISHMENT_ID = '00000000-0000-4000-8000-000000000001'
 const SEED_TIMESTAMP = new Date('2026-01-01T00:00:00.000Z')
@@ -417,10 +425,37 @@ const SEED_BRANDS = [
   },
 ] as const
 
+const SEED_SALES_CHANNELS = [
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Balcão',
+    percentage: 0,
+    status: 'active',
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'Delivery próprio',
+    percentage: 10,
+    status: 'active',
+  },
+  {
+    establishmentId: SEED_ESTABLISHMENT_ID,
+    name: 'iFood',
+    percentage: 20,
+    status: 'active',
+  },
+] satisfies {
+  establishmentId: string
+  name: string
+  percentage: number
+  status: 'active'
+}[]
+
 const SEED_COMBO_DEFINITIONS = [
   {
     name: 'Combo Açaí Clássico',
     status: 'active',
+    timeZone: 'America/Sao_Paulo',
     fixedPrice: 32.5,
     components: [
       {
@@ -536,6 +571,195 @@ async function buildSeedCombos(app: INestApplicationContext): Promise<ComboCreat
   )
 }
 
+async function buildSeedOrders(
+  app: INestApplicationContext,
+  salesChannels: Awaited<ReturnType<SalesChannelsRepository['findMany']>>,
+): Promise<readonly (OrderCreate & { createdAt: Date })[]> {
+  const productsRepository = app.get<ProductsRepository>(MRP_REPOSITORIES.products)
+  const productSizesRepository = app.get<ProductSizesRepository>(
+    MRP_REPOSITORIES.productSizes,
+  )
+
+  async function findProduct(name: string) {
+    const product = await productsRepository.findByName(SEED_ESTABLISHMENT_ID, name)
+    if (!product) {
+      throw new AppError(
+        `O produto do pedido seed ${name} não foi encontrado.`,
+        'Seed PDV inválido',
+      )
+    }
+    return product
+  }
+
+  async function findSize(productId: string, productName: string, name: string) {
+    const size = (
+      await productSizesRepository.findManyByProductId(SEED_ESTABLISHMENT_ID, productId)
+    ).find((candidate) => candidate.name === name && candidate.isActive)
+    if (!size) {
+      throw new AppError(
+        `O tamanho ${name} do pedido seed ${productName} não foi encontrado.`,
+        'Seed PDV inválido',
+      )
+    }
+    return size
+  }
+
+  async function portionLine(
+    productName: string,
+    sizeName: string,
+    costPerUnit: number,
+    quantity = 1,
+  ) {
+    const product = await findProduct(productName)
+    const size = await findSize(product.id, productName, sizeName)
+    const subtotal = size.price * quantity
+    const costQuantity = size.quantity * quantity
+    const extendedCostCents = Math.round(costQuantity * costPerUnit * 100)
+
+    return {
+      product: { productId: product.id, name: product.name, kind: SaleItemKind.Portion },
+      size: { sizeId: size.id, name: size.name, quantity: size.quantity },
+      accompaniments: [],
+      quantity,
+      baseUnitPrice: size.price,
+      finalUnitPrice: size.price,
+      subtotal,
+      allocatedNetSalesCents: Math.round(subtotal * 100),
+      costComponents: [
+        {
+          kind: 'portion-base' as const,
+          productId: product.id,
+          quantity: costQuantity,
+          unitCost: costPerUnit,
+          extendedCostCents,
+        },
+      ],
+      cogsCents: extendedCostCents,
+      consumptions: [],
+    }
+  }
+
+  async function resaleLine(
+    productName: string,
+    unitPrice: number,
+    costPerUnit: number,
+    quantity = 1,
+  ) {
+    const product = await findProduct(productName)
+    const subtotal = unitPrice * quantity
+    const extendedCostCents = Math.round(quantity * costPerUnit * 100)
+
+    return {
+      product: { productId: product.id, name: product.name, kind: SaleItemKind.Resale },
+      accompaniments: [],
+      quantity,
+      baseUnitPrice: unitPrice,
+      finalUnitPrice: unitPrice,
+      subtotal,
+      allocatedNetSalesCents: Math.round(subtotal * 100),
+      costComponents: [
+        {
+          kind: 'resale-product' as const,
+          productId: product.id,
+          quantity,
+          unitCost: costPerUnit,
+          extendedCostCents,
+        },
+      ],
+      cogsCents: extendedCostCents,
+      consumptions: [],
+    }
+  }
+
+  const channelByName = new Map(salesChannels.map((channel) => [channel.name, channel]))
+  const channel = (name: string) => {
+    const value = channelByName.get(name)
+    if (!value)
+      throw new AppError(
+        `O canal do pedido seed ${name} não foi encontrado.`,
+        'Seed PDV inválido',
+      )
+    return { channelId: value.id, name: value.name, percentage: value.percentage }
+  }
+
+  const orderTemplates = [
+    {
+      channel: channel('Balcão'),
+      lines: [
+        await portionLine('Açaí tradicional', '300 g', 2.4, 2),
+        await resaleLine('Água mineral 500 ml', 3.5, 1.2),
+      ],
+    },
+    {
+      channel: channel('Delivery próprio'),
+      lines: [
+        await portionLine('Açaí tropical', '500 g', 2.8),
+        await resaleLine('Copo 300 ml', 4.5, 0.8),
+      ],
+    },
+    {
+      channel: channel('iFood'),
+      lines: [
+        await portionLine('Açaí tradicional', '500 g', 2.4),
+        await resaleLine('Água mineral 500 ml', 3.5, 1.2, 2),
+      ],
+    },
+    {
+      channel: channel('Balcão'),
+      lines: [
+        await portionLine('Açaí kids', '300 g', 2),
+        await portionLine('Açaí tradicional', '300 g', 2.4),
+      ],
+    },
+  ]
+
+  const now = new Date()
+  const dateParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(now)
+  const datePart = (type: string) =>
+    Number(dateParts.find((part) => part.type === type)?.value)
+  const currentYear = datePart('year')
+  const currentMonth = datePart('month')
+  const currentDay = datePart('day')
+  const ordersPerDay = [
+    2, 3, 1, 4, 2, 3, 1, 2, 4, 1, 3, 2, 4, 2, 3, 1, 2, 3, 4, 1, 3, 2, 4, 2, 3, 1, 2, 4, 3,
+    2, 4,
+  ]
+
+  return Array.from({ length: currentDay }, (_, dayIndex) => {
+    const day = dayIndex + 1
+    const createdAt =
+      day === currentDay
+        ? new Date(now.getTime() - 60_000)
+        : new Date(Date.UTC(currentYear, currentMonth - 1, day, 14))
+    const ordersCount = ordersPerDay[dayIndex % ordersPerDay.length] ?? 1
+
+    return Array.from({ length: ordersCount }, (_, orderIndex) => {
+      const template = orderTemplates[(dayIndex + orderIndex) % orderTemplates.length]
+      const idempotencyKey = `00000000-0000-4000-8000-${String(300 + day * 10 + orderIndex).padStart(12, '0')}`
+      const subtotal = template.lines.reduce((sum, line) => sum + line.subtotal, 0)
+
+      return {
+        establishmentId: SEED_ESTABLISHMENT_ID,
+        idempotencyKey,
+        createdBy: SEED_USERS.manager.id,
+        createdByName: SEED_USERS.manager.name,
+        channel: template.channel,
+        lines: template.lines,
+        discounts: [],
+        subtotal,
+        totalDiscount: 0,
+        total: subtotal,
+        createdAt,
+      }
+    })
+  }).flat()
+}
+
 async function seedDatabase() {
   let app: INestApplicationContext | undefined
 
@@ -546,12 +770,14 @@ async function seedDatabase() {
     parseSeedEnv()
     const auth = app.get<BetterAuthInstance>(IDENTITY_PROVIDERS.betterAuth)
     const identitySeeder = app.get(IdentitySeeder)
+    const billingSeeder = app.get(BillingSeeder)
     const mrpSeeder = app.get(MrpSeeder)
     const pdvSeeder = app.get(PdvSeeder)
     const communicationSeeder = app.get(CommunicationSeeder)
 
     await resetSeedUsers(auth)
     await communicationSeeder.clear()
+    await billingSeeder.clear()
     await identitySeeder.clear()
     await mrpSeeder.clear()
     await pdvSeeder.clear()
@@ -561,6 +787,7 @@ async function seedDatabase() {
           id: SEED_ESTABLISHMENT_ID,
           name: 'Scoops Seed Establishment',
           status: EstablishmentStatus.Active,
+          timeZone: 'America/Sao_Paulo',
           createdAt: SEED_TIMESTAMP,
           updatedAt: SEED_TIMESTAMP,
         },
@@ -588,6 +815,15 @@ async function seedDatabase() {
         },
       ],
       registrationAttempts: [],
+    })
+    await billingSeeder.run({
+      subscriptions: [
+        {
+          establishmentId: SEED_ESTABLISHMENT_ID,
+          planCode: BillingPlanCode.Complete,
+          status: SubscriptionStatus.Active,
+        },
+      ],
     })
     await communicationSeeder.run({ notifications: SEED_NOTIFICATIONS })
     await verifySeedUsers(auth)
@@ -679,7 +915,20 @@ async function seedDatabase() {
       ],
       productAccompaniments: [...SEED_PRODUCT_ACCOMPANIMENTS],
     })
-    await pdvSeeder.run({ combos: await buildSeedCombos(app) })
+    await pdvSeeder.run({
+      salesChannels: [...SEED_SALES_CHANNELS],
+      combos: await buildSeedCombos(app),
+    })
+
+    const salesChannelsRepository = app.get<SalesChannelsRepository>(
+      PDV_REPOSITORIES.salesChannels,
+    )
+    await pdvSeeder.run({
+      orders: await buildSeedOrders(
+        app,
+        await salesChannelsRepository.findMany(SEED_ESTABLISHMENT_ID),
+      ),
+    })
   } finally {
     await app?.close()
   }

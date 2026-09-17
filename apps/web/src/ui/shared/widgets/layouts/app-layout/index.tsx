@@ -7,12 +7,14 @@ import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { ROUTES } from '@/constants/routes'
 import type { SidebarItem } from '@/constants/sidebar-items'
+import { Button } from '@/ui/shadcn/button'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
 import { NotificationShellContextProvider } from '@/ui/communication/contexts/notification-shell-context'
 import { useNotificationShellProvider } from '@/ui/communication/contexts/notification-shell-context/use-notification-shell-provider'
 import { useNotificationRealtime } from '@/ui/communication/hooks/use-notification-realtime'
 import { NotificationDropdown } from '@/ui/communication/widgets/components/notification-dropdown'
+import { MobileSidebar } from './mobile-sidebar'
 
 import { UserMenu } from './user-menu'
 import { useAppLayout } from './use-app-layout'
@@ -59,6 +61,17 @@ const createAppLayoutFrameProps = (
   locationPathname,
   layout,
   shell,
+  mobileSidebar: createElement(MobileSidebar, {
+    children: createAppLayoutSidebarChildren({
+      mobile: true,
+      pathname: locationPathname,
+      primaryItems: layout.primaryItems,
+      secondaryItems: layout.secondaryItems,
+      onNavigate: layout.handleMobileSidebarNavigate,
+    }),
+    onOpenChange: layout.handleMobileSidebarOpenChange,
+    open: layout.isMobileSidebarOpen,
+  }),
   userMenu: createAppLayoutUserMenu(layout),
 })
 
@@ -87,12 +100,14 @@ const AppLayoutFrame = ({
   locationPathname,
   layout,
   shell,
+  mobileSidebar,
   userMenu,
 }: {
   children: ReactNode
   locationPathname: string
   layout: ReturnType<typeof useAppLayout>
   shell: ReturnType<typeof useNotificationShellProvider>
+  mobileSidebar: ReactNode
   userMenu: ReactNode
 }) =>
   createElement(
@@ -109,12 +124,15 @@ const AppLayoutFrame = ({
           primaryItems: layout.primaryItems,
           secondaryItems: layout.secondaryItems,
         }),
-        createElement(AppLayoutContent, { children, userMenu }),
+        createElement(AppLayoutContent, { children, layout, userMenu }),
+        mobileSidebar,
       ),
     ),
   )
 
 type AppLayoutSidebarProps = {
+  mobile?: boolean
+  onNavigate?: () => void
   pathname: string
   primaryItems: readonly SidebarItem[]
   secondaryItems: readonly SidebarItem[]
@@ -133,6 +151,8 @@ const AppLayoutSidebar = (props: AppLayoutSidebarProps) =>
   )
 
 const createAppLayoutSidebarChildren = ({
+  mobile = false,
+  onNavigate,
   pathname,
   primaryItems,
   secondaryItems,
@@ -142,12 +162,15 @@ const createAppLayoutSidebarChildren = ({
     ariaLabel: 'Navegação principal',
     items: primaryItems,
     pathname,
+    onNavigate,
+    className: mobile ? 'mt-8 space-y-1' : undefined,
     key: 'primary',
   }),
   createElement(SidebarNavigation, {
     className: 'mt-auto space-y-1 border-t border-border-soft pt-5',
     items: secondaryItems,
     pathname,
+    onNavigate,
     key: 'secondary',
   }),
 ]
@@ -175,34 +198,45 @@ function SidebarNavigation({
   ariaLabel,
   className = 'mt-14 space-y-1',
   items,
+  onNavigate,
   pathname,
 }: {
   ariaLabel?: string
   className?: string
   items: readonly SidebarItem[]
+  onNavigate?: () => void
   pathname: string
 }) {
   return createElement(
     'nav',
     { 'aria-label': ariaLabel, className },
-    items.map((item) => createSidebarLink(pathname, item)),
+    items.map((item) => createSidebarLink(pathname, item, onNavigate)),
   )
 }
 
-const createSidebarLink = (pathname: string, item: SidebarItem) =>
+const createSidebarLink = (
+  pathname: string,
+  item: SidebarItem,
+  onNavigate?: () => void,
+) =>
   createElement(
     Anchor,
-    createSidebarLinkAttributes(pathname, item),
+    createSidebarLinkAttributes(pathname, item, onNavigate),
     createElement(Icon, { className: 'size-[18px]', name: item.icon }),
     item.label,
   )
 
-const createSidebarLinkAttributes = (pathname: string, item: SidebarItem) => {
+const createSidebarLinkAttributes = (
+  pathname: string,
+  item: SidebarItem,
+  onNavigate?: () => void,
+) => {
   const { isActive, className } = getSidebarLinkState(pathname, item)
   return {
     'aria-current': isActive ? ('page' as const) : undefined,
     className,
     key: item.route,
+    onClick: onNavigate,
     route: item.route,
   }
 }
@@ -217,15 +251,17 @@ const getSidebarLinkState = (pathname: string, item: SidebarItem) => {
 
 function AppLayoutContent({
   children,
+  layout,
   userMenu,
 }: {
   children: ReactNode
+  layout: ReturnType<typeof useAppLayout>
   userMenu: ReactNode
 }) {
   return createElement(
     'div',
     { className: 'flex min-w-0 flex-1 flex-col' },
-    createElement(AppLayoutHeader, { userMenu }),
+    createElement(AppLayoutHeader, { layout, userMenu }),
     createElement(AppLayoutMain, { children }),
   )
 }
@@ -240,7 +276,13 @@ const AppLayoutMain = ({ children }: { children: ReactNode }) =>
     children,
   )
 
-const AppLayoutHeader = ({ userMenu }: { userMenu: ReactNode }) =>
+const AppLayoutHeader = ({
+  layout,
+  userMenu,
+}: {
+  layout: ReturnType<typeof useAppLayout>
+  userMenu: ReactNode
+}) =>
   createElement(
     'header',
     { className: 'border-b bg-card' },
@@ -248,13 +290,13 @@ const AppLayoutHeader = ({ userMenu }: { userMenu: ReactNode }) =>
       'div',
       {
         className:
-          'mx-auto flex min-h-[72px] w-full items-center gap-3 px-4 sm:gap-5 sm:px-6',
+          'mx-auto flex min-h-[72px] w-full flex-wrap items-center gap-2 px-4 py-2 sm:flex-nowrap sm:gap-5 sm:px-6 sm:py-0',
       },
       createElement(
         Label,
         {
           className:
-            'flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-border bg-card px-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20',
+            'order-1 flex min-w-0 basis-full items-center gap-3 rounded-xl border border-border bg-card px-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/20 sm:order-none sm:flex-1 sm:basis-auto',
         },
         createElement(Icon, {
           className: 'size-[18px] shrink-0 text-muted-foreground',
@@ -267,8 +309,28 @@ const AppLayoutHeader = ({ userMenu }: { userMenu: ReactNode }) =>
           placeholder: 'Buscar no Scoops...',
         }),
       ),
-      createElement(NotificationDropdown),
-      userMenu,
+      createElement(
+        'div',
+        {
+          className:
+            'order-2 flex min-w-0 flex-1 items-center justify-start gap-2 sm:contents',
+        },
+        createElement(
+          Button,
+          {
+            'aria-expanded': layout.isMobileSidebarOpen,
+            'aria-label': 'Abrir menu',
+            className: 'size-10 rounded-lg border text-muted-foreground lg:hidden',
+            onClick: () => layout.handleMobileSidebarOpenChange(true),
+            size: 'icon',
+            type: 'button',
+            variant: 'outline',
+          },
+          createElement(Icon, { className: 'size-[18px]', name: 'menu' }),
+        ),
+        createElement(NotificationDropdown),
+        userMenu,
+      ),
     ),
   )
 

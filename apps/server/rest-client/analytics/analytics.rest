@@ -1,0 +1,26 @@
+@baseUrl = http://localhost:3336
+@sessionCookie = replace-with-manager-session-cookie
+
+### Sales analytics (today)
+GET {{baseUrl}}/analytics/sales?period=today
+Cookie: {{sessionCookie}}
+
+### Sales analytics (last 7 days)
+GET {{baseUrl}}/analytics/sales?period=last-7-days
+Cookie: {{sessionCookie}}
+
+### Sales analytics (last 30 days)
+GET {{baseUrl}}/analytics/sales
+Cookie: {{sessionCookie}}
+
+### Sales analytics (explicit last 30 days)
+GET {{baseUrl}}/analytics/sales?period=last-30-days
+Cookie: {{sessionCookie}}
+
+### Sales analytics (90 days)
+GET {{baseUrl}}/analytics/sales?period=last-90-days
+Cookie: {{sessionCookie}}
+
+### Current stock attention
+GET {{baseUrl}}/analytics/stock-attention
+Cookie: {{sessionCookie}}

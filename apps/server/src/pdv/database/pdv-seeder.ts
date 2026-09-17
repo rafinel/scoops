@@ -1,4 +1,9 @@
-import type { SalesChannel, SalesChannelCreate } from '@scoops/core/pdv/domain/entities'
+import type {
+  Order,
+  OrderCreate,
+  SalesChannel,
+  SalesChannelCreate,
+} from '@scoops/core/pdv/domain/entities'
 import type { Combo } from '@scoops/core/pdv/domain/entities'
 import type { ComboCreate } from '@scoops/core/pdv/domain/structures'
 import type {
@@ -21,6 +26,7 @@ type DiscountsSeedRepository = DiscountsRepository & {
 }
 
 type OrdersSeedRepository = OrdersRepository & {
+  addSeed(input: OrderCreate, createdAt: Date): Promise<Order>
   removeAll(): Promise<void>
 }
 
@@ -31,6 +37,7 @@ type OrderSequencesSeedRepository = OrderSequencesRepository & {
 export type PdvSeed = {
   salesChannels?: SalesChannelCreate[]
   combos?: ComboCreate[]
+  orders?: readonly (OrderCreate & { createdAt: Date })[]
 }
 
 @Injectable()
@@ -59,6 +66,10 @@ export class PdvSeeder {
     }
     if (seed.combos?.length) {
       await this.discountsRepository.addMany(seed.combos)
+    }
+    for (const order of seed.orders ?? []) {
+      await this.orderSequencesRepository.next(order.establishmentId)
+      await this.ordersRepository.addSeed(order, order.createdAt)
     }
   }
 }

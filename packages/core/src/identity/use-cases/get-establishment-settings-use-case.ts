@@ -30,6 +30,7 @@ export class GetEstablishmentSettingsUseCase
             id: establishment.id,
             name: establishment.name,
             status: establishment.status,
+            timeZone: establishment.timeZone,
             createdAt: establishment.createdAt,
             updatedAt: establishment.updatedAt,
           },

@@ -19,6 +19,9 @@ export class OrderFaker {
       baseUnitPrice: 10,
       finalUnitPrice: 10,
       subtotal: 10,
+      allocatedNetSalesCents: 1000,
+      costComponents: [],
+      cogsCents: null,
       consumptions: [{ productId, quantity: 1 }],
     }
 

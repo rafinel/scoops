@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { AccountFaker, UserFaker } from '#identity/domain/entities/fakers/index.ts'
 import { UserNameChangeNotAllowedError } from '#identity/domain/errors/user-name-change-not-allowed-error.ts'
 import { UserStatus } from '#identity/domain/structures/user-status.ts'
+import { EstablishmentTimezone } from '#identity/domain/structures/establishment-timezone.ts'
 import type {
   IdentityDatabase,
   IdentityDatabaseRepositories,
@@ -63,6 +64,7 @@ describe('Change Own User Name Use Case', () => {
         id: actor.establishmentId,
         name: 'Scoops Centro',
         status: 'active' as const,
+        timeZone: EstablishmentTimezone.SaoPaulo,
         createdAt: new Date('2026-01-01T00:00:00.000Z'),
         updatedAt: new Date('2026-08-01T00:00:00.000Z'),
       }
@@ -126,6 +128,7 @@ describe('Change Own User Name Use Case', () => {
       id: actor.establishmentId,
       name: 'Current Shop Name',
       status: 'active',
+      timeZone: EstablishmentTimezone.SaoPaulo,
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
       updatedAt: new Date('2026-08-01T00:00:00.000Z'),
     })
@@ -171,6 +174,7 @@ describe('Change Own User Name Use Case', () => {
       id: actor.establishmentId,
       name: 'Scoops',
       status: 'active',
+      timeZone: EstablishmentTimezone.SaoPaulo,
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
       updatedAt: new Date('2026-08-01T00:00:00.000Z'),
     })

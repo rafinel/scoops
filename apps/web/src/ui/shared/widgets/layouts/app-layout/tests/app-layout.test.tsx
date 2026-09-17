@@ -46,7 +46,10 @@ describe('AppLayout sidebar profile configuration', () => {
       account: null,
       error: null,
       handleLogout: vi.fn(),
+      handleMobileSidebarNavigate: vi.fn(),
+      handleMobileSidebarOpenChange: vi.fn(),
       isPending: false,
+      isMobileSidebarOpen: false,
       primaryItems: [],
       secondaryItems: [],
     })
@@ -82,6 +85,12 @@ describe('AppLayout sidebar profile configuration', () => {
     expect(
       getSidebarItems(UserProfile.Manager).some((item) => item.route === 'salesChannels'),
     ).toBe(true)
+    expect(
+      getSidebarItems(UserProfile.Manager).some((item) => item.route === 'app'),
+    ).toBe(true)
+    expect(
+      getSidebarItems(UserProfile.Operator).some((item) => item.route === 'app'),
+    ).toBe(false)
     expect(
       getSidebarItems(UserProfile.Operator).some(
         (item) => item.route === 'salesChannels',

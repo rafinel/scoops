@@ -72,6 +72,7 @@ apps/web/.playwright-cli
 
 # env files
 .env
+.env.local
 .env.development
 .env.testing
 .env.staging

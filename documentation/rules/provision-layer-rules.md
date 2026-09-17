@@ -69,13 +69,21 @@ feature dependency.
 Do not register duplicate provider implementations in feature modules and do not
 instantiate providers manually in controllers.
 
-## Business time comes from DatetimeProvider
+## Current business time comes from DatetimeProvider
 
-Use cases that create or change business timestamps must receive a datetime
-provider through their constructor and call `now()`. Do not call `new Date()` or
-`Date.now()` inside a use case.
+Any use case that needs the current date or time must receive `DatetimeProvider`
+through its constructor and call `now()`. This includes creating or changing business
+timestamps, selecting a current reporting period, evaluating deadlines, comparing
+against today, and deriving date ranges from the current instant. Do not call
+zero-argument `new Date()` or `Date.now()` inside a use case to obtain the current
+time.
 
-This rule makes time explicit, deterministic in unit tests, and replaceable
+Constructing a `Date` from explicit input, a persisted timestamp, or deterministic
+calendar parts remains allowed for parsing, normalization, range calculation, and
+formatting. Such construction must not be used as a hidden replacement for
+provider-backed current time.
+
+This rule makes current time explicit, deterministic in unit tests, and replaceable
 without changing domain behavior.
 
 ## Providers contain infrastructure concerns only

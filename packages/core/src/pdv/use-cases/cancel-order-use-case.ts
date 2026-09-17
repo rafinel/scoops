@@ -31,6 +31,7 @@ export class CancelOrderUseCase implements UseCase<CancelOrderRequest, Order> {
   constructor(
     private readonly database: PdvDatabase,
     private readonly datetimeProvider: DatetimeProvider,
+    private readonly stockProvider?: import('#pdv/interfaces/stock-provider.ts').StockProvider,
   ) {}
 
   async execute(request: CancelOrderRequest): Promise<Order> {
@@ -38,7 +39,13 @@ export class CancelOrderUseCase implements UseCase<CancelOrderRequest, Order> {
     const reason = this.normalizeReason(request.reason)
 
     return this.database.run(
-      async ({ ordersRepository, stockRestorer }: PdvDatabaseRepositories) => {
+      async ({
+        ordersRepository,
+        stockProvider: scopedStockProvider,
+      }: PdvDatabaseRepositories) => {
+        const stockProvider = this.stockProvider ?? scopedStockProvider
+        if (!stockProvider)
+          throw new ConflictError('O restaurador de estoque não está disponível.')
         const order = await ordersRepository.findByIdForUpdate(
           request.actor.establishmentId,
           request.orderId,
@@ -49,7 +56,7 @@ export class CancelOrderUseCase implements UseCase<CancelOrderRequest, Order> {
           throw new ConflictError('O pedido já foi cancelado.')
 
         const occurredAt = this.datetimeProvider.now()
-        const restorations = await stockRestorer.restore({
+        const restorations = await stockProvider.restore({
           establishmentId: request.actor.establishmentId,
           orderId: order.id,
           performedBy: request.actor.id,

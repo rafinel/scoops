@@ -77,6 +77,22 @@ export const IdentityService = (restClient: RestClient): WebIdentityService => {
       })
     },
 
+    async changeEstablishmentTimezone(timeZone: string) {
+      const response = await restClient.patch<EstablishmentSettingsJson>(
+        '/establishments/current/timezone',
+        { timeZone },
+      )
+      if (!response.isSuccessful) {
+        return response as unknown as RestResponse<EstablishmentSettings>
+      }
+
+      return new RestResponse({
+        body: EstablishmentSettingsMapper(response.body),
+        statusCode: response.statusCode,
+        headers: response.headers,
+      })
+    },
+
     async registerIceCreamShop(request: IceCreamShopOnboardingInput) {
       const response = await restClient.post<IceCreamShopOnboardingRegistrationJson>(
         '/registration-attempts/onboarding',

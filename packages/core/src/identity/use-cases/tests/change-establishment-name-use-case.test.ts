@@ -13,6 +13,7 @@ import type {
   UsersRepository,
 } from '#identity/interfaces/index.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
+import { EstablishmentTimezone } from '#identity/domain/structures/establishment-timezone.ts'
 import type { DatetimeProvider } from '#shared/interfaces/datetime-provider.ts'
 import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 import { ChangeEstablishmentNameUseCase } from '#identity/use-cases/change-establishment-name-use-case.ts'
@@ -51,6 +52,7 @@ describe('Change Establishment Name Use Case', () => {
       id: actor.establishmentId,
       name: 'Original Shop',
       status: 'active' as const,
+      timeZone: EstablishmentTimezone.SaoPaulo,
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
       updatedAt: new Date('2026-08-01T00:00:00.000Z'),
     }
@@ -102,6 +104,7 @@ describe('Change Establishment Name Use Case', () => {
       id: actor.establishmentId,
       name: 'Current Shop',
       status: 'active' as const,
+      timeZone: EstablishmentTimezone.SaoPaulo,
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
       updatedAt: new Date('2026-08-01T00:00:00.000Z'),
     }
@@ -123,6 +126,7 @@ describe('Change Establishment Name Use Case', () => {
       id: actor.establishmentId,
       name: 'Original Shop',
       status: 'active' as const,
+      timeZone: EstablishmentTimezone.SaoPaulo,
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
       updatedAt: new Date('2026-08-01T00:00:00.000Z'),
     }

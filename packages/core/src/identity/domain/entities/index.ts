@@ -1,5 +1,7 @@
 export * from '#identity/domain/entities/account.ts'
 export * from '#identity/domain/entities/establishment.ts'
+export * from '#identity/domain/entities/establishment-create.ts'
+export * from '#identity/domain/entities/establishment-update.ts'
 export * from '#identity/domain/entities/user.ts'
 export * from '#identity/domain/entities/user-registration-attempt.ts'
 export * from '#identity/domain/entities/user-audit-record.ts'

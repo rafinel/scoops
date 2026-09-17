@@ -98,6 +98,7 @@ export class ChangeEstablishmentNameUseCase
       id: string
       name: string
       status: EstablishmentSettings['establishment']['status']
+      timeZone: EstablishmentSettings['establishment']['timeZone']
       createdAt: Date
       updatedAt: Date
     },
@@ -108,6 +109,7 @@ export class ChangeEstablishmentNameUseCase
         id: establishment.id,
         name: establishment.name,
         status: establishment.status,
+        timeZone: establishment.timeZone,
         createdAt: establishment.createdAt,
         updatedAt: establishment.updatedAt,
       },

@@ -23,6 +23,9 @@ import type { SalesCatalogProduct } from '#pdv/domain/structures/sales-catalog-p
 import type { PdvDatabase } from '#pdv/interfaces/pdv-database.ts'
 import type { PdvDatabaseRepositories } from '#pdv/interfaces/pdv-database.ts'
 import type { OrderPreviewTokenService } from '#pdv/interfaces/order-preview-token-service.ts'
+import type { OrderCostProvider } from '#pdv/interfaces/order-cost-provider.ts'
+import type { SalesCatalogProvider } from '#pdv/interfaces/sales-catalog-provider.ts'
+import type { StockProvider } from '#pdv/interfaces/stock-provider.ts'
 import { SalesChannelStatus } from '#pdv/domain/structures/sales-channel-status.ts'
 import {
   adjustUnitPrice,
@@ -52,6 +55,9 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
     private readonly database: PdvDatabase,
     private readonly datetimeProvider: DatetimeProvider,
     private readonly tokenService: OrderPreviewTokenService,
+    private readonly salesCatalogProvider?: SalesCatalogProvider,
+    private readonly orderCostProvider?: OrderCostProvider,
+    private readonly stockProvider?: StockProvider,
   ) {}
 
   async execute(request: Request): Promise<OrderRegistrationResult> {
@@ -64,18 +70,24 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
         discountsRepository,
         ordersRepository,
         orderSequencesRepository,
-        stockConsumer,
-        stockRestorer,
+        stockProvider,
+        orderCostProvider: scopedOrderCostProvider,
         eventsRepository,
       }: PdvDatabaseRepositories) => {
+        const catalogProvider = this.salesCatalogProvider ?? salesCatalogProvider
+        const costProvider = this.orderCostProvider ?? scopedOrderCostProvider
+        const provider = this.stockProvider ?? stockProvider
+        if (!catalogProvider || !provider)
+          throw new ConflictError(
+            'As dependências do registro de pedido não estão disponíveis.',
+          )
         const scope = {
           salesCatalogProvider,
           salesChannelsRepository,
           discountsRepository,
           ordersRepository,
           orderSequencesRepository,
-          stockConsumer,
-          stockRestorer,
+          stockProvider,
           eventsRepository,
         }
         const replay = await ordersRepository.findByIdempotencyKey(
@@ -96,7 +108,7 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
             replayed: true,
           }
 
-        const products = await salesCatalogProvider.findByProductIds(
+        const products = await catalogProvider.findByProductIds(
           request.actor.establishmentId,
           request.lines.map((line) => line.productId),
         )
@@ -146,8 +158,14 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
         const sequenceNumber = await orderSequencesRepository.next(
           request.actor.establishmentId,
         )
+        const costs = costProvider
+          ? await costProvider.resolve({
+              establishmentId: request.actor.establishmentId,
+              lines: request.lines,
+            })
+          : []
         const order = await ordersRepository.add(
-          this.toOrderCreate(request, rebuilt.cart, products, channel),
+          this.toOrderCreate(request, rebuilt.cart, products, channel, costs),
         )
         const occurredAt = this.datetimeProvider.now()
         const event = new OrderRegisteredEvent({
@@ -160,7 +178,7 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
           occurredAt,
           consumptions: consolidateConsumptions(rebuilt.cart),
         })
-        await stockConsumer.consume(event)
+        await provider.consume(event)
 
         return {
           kind: 'registered',
@@ -367,6 +385,10 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
     cart: Cart,
     products: readonly SalesCatalogProduct[],
     channel: Awaited<ReturnType<RegisterOrderUseCase['findChannel']>>,
+    costs: readonly {
+      readonly linePosition: number
+      readonly components: readonly import('#pdv/domain/structures/order-cost-component-snapshot.ts').OrderCostComponentSnapshot[]
+    }[],
   ): Omit<Order, 'id' | 'sequenceNumber' | 'status' | 'cancellation' | 'createdAt'> {
     const productsById = new Map(products.map((product) => [product.productId, product]))
     const channelSnapshot: SalesChannelSnapshot | undefined = channel
@@ -382,11 +404,13 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
       createdBy: request.actor.id,
       createdByName: request.actor.name,
       ...(channelSnapshot ? { channel: channelSnapshot } : {}),
-      lines: cart.lines.map((line) =>
+      lines: cart.lines.map((line, index) =>
         this.toOrderLine(
           line,
           productsById.get(line.productId),
           channel?.percentage ?? 0,
+          costs.find((cost) => cost.linePosition === index)?.components ?? [],
+          allocateNetSalesCents(cart.lines, cart.total, index),
         ),
       ),
       discounts: cart.discounts.map((discount) => ({
@@ -410,6 +434,8 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
     line: CartLine,
     product: SalesCatalogProduct | undefined,
     channelPercentage: number,
+    costComponents: readonly import('#pdv/domain/structures/order-cost-component-snapshot.ts').OrderCostComponentSnapshot[],
+    allocatedNetSalesCents: number,
   ): OrderLine {
     const size =
       line.kind === 'portion'
@@ -453,6 +479,14 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
       baseUnitPrice: line.baseUnitPrice,
       finalUnitPrice: line.finalUnitPrice,
       subtotal: line.subtotal,
+      allocatedNetSalesCents,
+      costComponents,
+      cogsCents: costComponents.every((component) => component.extendedCostCents !== null)
+        ? costComponents.reduce(
+            (total, component) => total + (component.extendedCostCents ?? 0),
+            0,
+          )
+        : null,
       consumptions: line.consumptions,
     }
   }
@@ -467,6 +501,26 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
         'Somente gestores e operadores podem registrar pedidos.',
       )
   }
+}
+
+function allocateNetSalesCents(
+  lines: readonly CartLine[],
+  total: number,
+  index: number,
+): number {
+  const totalCents = Math.round(total * 100)
+  const weights = lines.map((line) => Math.max(0, line.subtotal))
+  const weightTotal = weights.reduce((sum, weight) => sum + weight, 0)
+  if (weightTotal === 0) return index === lines.length - 1 ? totalCents : 0
+  const allocatedBefore = lines
+    .slice(0, index)
+    .reduce(
+      (sum, line) =>
+        sum + Math.floor((Math.max(0, line.subtotal) / weightTotal) * totalCents),
+      0,
+    )
+  if (index === lines.length - 1) return totalCents - allocatedBefore
+  return Math.floor((Math.max(0, lines[index].subtotal) / weightTotal) * totalCents)
 }
 
 function consolidateConsumptions(cart: Cart): readonly StockConsumption[] {

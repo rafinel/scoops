@@ -25,17 +25,17 @@ export class DrizzleIdentityDatabase implements IdentityDatabase {
   ) {}
 
   run<Result>(
-    operation: (scope: IdentityDatabaseRepositories) => Promise<Result>,
+    operation: (repositories: IdentityDatabaseRepositories) => Promise<Result>,
   ): Promise<Result> {
     const activeTransaction = this.transactionContext.get()
 
-    if (activeTransaction) return operation(this.createScope(activeTransaction))
+    if (activeTransaction) return operation(this.createRepositories(activeTransaction))
 
     return this.runWithRetry(operation, false)
   }
 
   private async runWithRetry<Result>(
-    operation: (scope: IdentityDatabaseRepositories) => Promise<Result>,
+    operation: (repositories: IdentityDatabaseRepositories) => Promise<Result>,
     hasRetried: boolean,
   ): Promise<Result> {
     try {
@@ -44,7 +44,7 @@ export class DrizzleIdentityDatabase implements IdentityDatabase {
         .transaction(
           async (transaction) =>
             this.transactionContext.run(transaction as DrizzleExecutor, () =>
-              operation(this.createScope(transaction as DrizzleExecutor)),
+              operation(this.createRepositories(transaction as DrizzleExecutor)),
             ),
           {
             isolationLevel: 'serializable',
@@ -61,7 +61,7 @@ export class DrizzleIdentityDatabase implements IdentityDatabase {
     }
   }
 
-  private createScope(transaction: DrizzleExecutor): IdentityDatabaseRepositories {
+  private createRepositories(transaction: DrizzleExecutor): IdentityDatabaseRepositories {
     return {
       establishmentsRepository: new DrizzleEstablishmentsRepository(
         this.drizzleClient,

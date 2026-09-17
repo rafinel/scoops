@@ -19,6 +19,7 @@ import type {
   DrizzleOrderLine,
   DrizzleOrderLineAccompaniment,
   DrizzleOrderLineConsumption,
+  DrizzleOrderLineCostComponent,
   DrizzleOrderStockRestoration,
 } from '@/pdv/database/drizzle/types'
 import { ConflictError } from '@scoops/core/shared/domain/errors'
@@ -34,6 +35,7 @@ export class DrizzleOrderMapper {
     componentAccompaniments: readonly DrizzleOrderDiscountComponentAccompaniment[],
     discountLines: readonly DrizzleOrderDiscountLine[],
     restorations: readonly DrizzleOrderStockRestoration[] = [],
+    lineCostComponents: readonly DrizzleOrderLineCostComponent[] = [],
   ): Order {
     const cancellation = DrizzleOrderMapper.toCancellation(record, restorations)
     const lineAccompanimentsByLineId = DrizzleOrderMapper.groupBy(
@@ -43,6 +45,10 @@ export class DrizzleOrderMapper {
     const lineConsumptionsByLineId = DrizzleOrderMapper.groupBy(
       lineConsumptions,
       (consumption) => consumption.orderLineId,
+    )
+    const lineCostComponentsByLineId = DrizzleOrderMapper.groupBy(
+      lineCostComponents,
+      (component) => component.orderLineId,
     )
     const componentsByDiscountId = DrizzleOrderMapper.groupBy(
       components,
@@ -80,6 +86,7 @@ export class DrizzleOrderMapper {
           line,
           lineAccompanimentsByLineId.get(line.id) ?? [],
           lineConsumptionsByLineId.get(line.id) ?? [],
+          lineCostComponentsByLineId.get(line.id) ?? [],
         ),
       ),
       discounts: DrizzleOrderMapper.sortByPosition(discounts).map((discount) =>
@@ -157,6 +164,7 @@ export class DrizzleOrderMapper {
     record: DrizzleOrderLine,
     lineAccompaniments: readonly DrizzleOrderLineAccompaniment[],
     lineConsumptions: readonly DrizzleOrderLineConsumption[],
+    lineCostComponents: readonly DrizzleOrderLineCostComponent[],
   ): OrderLine {
     const product: ProductSnapshot = {
       productId: record.productId,
@@ -194,6 +202,19 @@ export class DrizzleOrderMapper {
       baseUnitPrice: Number(record.baseUnitPrice),
       finalUnitPrice: Number(record.finalUnitPrice),
       subtotal: Number(record.subtotal),
+      allocatedNetSalesCents: record.allocatedNetSalesCents,
+      cogsCents: record.cogsCents,
+      costComponents: lineCostComponents.map((component) => ({
+        kind: component.kind as OrderLine['costComponents'][number]['kind'],
+        productId: component.productId,
+        ...(component.brandId ? { brandId: component.brandId } : {}),
+        ...(component.accompanimentId
+          ? { accompanimentId: component.accompanimentId }
+          : {}),
+        quantity: Number(component.quantity),
+        unitCost: component.unitCost === null ? null : Number(component.unitCost),
+        extendedCostCents: component.extendedCostCents,
+      })),
       consumptions: DrizzleOrderMapper.sortByPosition(lineConsumptions).map(
         (consumption) => ({
           productId: consumption.productId,

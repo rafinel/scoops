@@ -14,6 +14,7 @@ import { Label } from '@/ui/shadcn/label'
 import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
 
 import { useShopSettingsPage } from './use-shop-settings-page'
+import { TimezoneDialog } from './timezone-dialog'
 
 const shopSettingsLoading = (
   <section
@@ -65,10 +66,16 @@ export const ShopSettingsPage = () => {
     isLoading,
     isRefreshing,
     isNameDialogOpen,
+    isTimezoneDialogOpen,
     isPending,
+    isTimezonePending,
+    timezoneError,
     register,
     refetch,
     settings,
+    handleOpenTimezoneDialog,
+    handleTimezoneDialogOpenChange,
+    handleTimezoneSubmit,
   } = useShopSettingsPage()
 
   if (isLoading) return shopSettingsLoading
@@ -94,7 +101,7 @@ export const ShopSettingsPage = () => {
   const createdAtLabel = new Intl.DateTimeFormat('pt-BR', {
     day: 'numeric',
     month: 'long',
-    timeZone: 'America/Sao_Paulo',
+    timeZone: settings.establishment.timeZone,
     year: 'numeric',
   }).format(settings.establishment.createdAt)
 
@@ -157,6 +164,22 @@ export const ShopSettingsPage = () => {
               Cadastrada em
             </dt>
             <dd className='mt-1 text-sm font-extrabold'>{createdAtLabel}</dd>
+          </div>
+          <div>
+            <dt className='flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.08em] text-muted-foreground'>
+              <Icon name='clock' className='size-3.5' />
+              Fuso horário
+            </dt>
+            <dd className='mt-1 text-sm font-extrabold'>
+              {settings.establishment.timeZone}
+            </dd>
+            <Button
+              variant='outline'
+              className='mt-3 h-9 rounded-lg px-3 font-semibold'
+              onClick={handleOpenTimezoneDialog}
+            >
+              Alterar fuso horário
+            </Button>
           </div>
         </dl>
       </section>
@@ -221,6 +244,14 @@ export const ShopSettingsPage = () => {
           </form>
         </DialogContent>
       </Dialog>
+      <TimezoneDialog
+        open={isTimezoneDialogOpen}
+        onOpenChange={handleTimezoneDialogOpenChange}
+        initial={settings.establishment.timeZone}
+        onSubmit={(timeZone) => void handleTimezoneSubmit(timeZone)}
+        isPending={isTimezonePending}
+        error={timezoneError}
+      />
     </section>
   )
 }

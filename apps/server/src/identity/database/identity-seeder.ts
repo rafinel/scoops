@@ -42,7 +42,12 @@ export class IdentitySeeder {
   }
 
   async run(seed: IdentitySeed): Promise<void> {
-    await this.establishmentsRepository.addMany(seed.establishments)
+    await this.establishmentsRepository.addMany(
+      seed.establishments.map((establishment) => ({
+        ...establishment,
+        timeZone: establishment.timeZone ?? 'America/Sao_Paulo',
+      })),
+    )
     await this.usersRepository.addMany(seed.users)
     await this.registrationAttemptsRepository.addMany(seed.registrationAttempts)
   }

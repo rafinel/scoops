@@ -10,6 +10,7 @@ import type { RecipesRepository } from '#mrp/interfaces/recipes-repository.ts'
 import type { ResaleConfigurationsRepository } from '#mrp/interfaces/resale-configurations-repository.ts'
 import type { StockBalancesRepository } from '#mrp/interfaces/stock-balances-repository.ts'
 import type { StockTransactionsRepository } from '#mrp/interfaces/stock-transactions-repository.ts'
+import type { StockAttentionFactsRepository } from '#mrp/interfaces/stock-attention-facts-repository.ts'
 import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 
 export type MrpDatabaseRepositories = {
@@ -25,11 +26,17 @@ export type MrpDatabaseRepositories = {
   accompanimentTypesRepository: AccompanimentTypesRepository
   productAccompanimentsRepository: ProductAccompanimentsRepository
   resaleConfigurationsRepository: ResaleConfigurationsRepository
+  stockAttentionFactsRepository?: StockAttentionFactsRepository
   eventsRepository: Pick<EventsRepository, 'add'>
 }
 
 export interface MrpDatabase {
   run<Result>(
-    operation: (scope: MrpDatabaseRepositories) => Promise<Result>,
+    operation: (repositories: MrpDatabaseRepositories) => Promise<Result>,
+  ): Promise<Result>
+  readSnapshot<Result>(
+    operation: (
+      repositories: Pick<MrpDatabaseRepositories, 'stockAttentionFactsRepository'>,
+    ) => Promise<Result>,
   ): Promise<Result>
 }

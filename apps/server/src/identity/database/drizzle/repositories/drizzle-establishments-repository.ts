@@ -66,6 +66,7 @@ export class DrizzleEstablishmentsRepository
       .where(eq(establishmentModel.id, establishmentId))
       .returning()
 
+    if (!record) throw new Error('Estabelecimento não encontrado.')
     return DrizzleEstablishmentMapper.toDomain(record)
   }
 }

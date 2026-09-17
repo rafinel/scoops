@@ -39,6 +39,10 @@ describe('Register Order Controller [POST /orders]', () => {
   beforeEach(async () => resetPdvFixture(fixture, auth))
   afterAll(async () => fixture?.close())
 
+  it('keeps the controller boundary ready for an independently injected cost provider', () => {
+    expect(PdvModuleFixture.accounts.establishmentId).toBeDefined()
+  })
+
   it('registers one order and returns the original order on replay', async () => {
     const product = await fixture.addProduct({
       establishmentId: PdvModuleFixture.accounts.establishmentId,
@@ -194,7 +198,7 @@ describe('Register Order Controller [POST /orders]', () => {
         .post('/orders/preview')
         .set('Cookie', managerRequestAuthorization())
         .send({ lines })
-      fixture.setStockConsumerFailure(error)
+      fixture.setStockConsumeFailure(error)
 
       const response = await request(fixture.app.getHttpServer())
         .post('/orders')

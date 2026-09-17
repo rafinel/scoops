@@ -12,4 +12,5 @@ export interface SubscriptionsRepository {
     providerSubscriptionId: string,
   ): Promise<Subscription | undefined>
   replace(establishmentId: string, changes: SubscriptionUpdate): Promise<Subscription>
+  removeAll(): Promise<void>
 }

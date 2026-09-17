@@ -10,12 +10,16 @@ import type { UserStatus } from '#identity/domain/structures/user-status.ts'
 import type { UsersPage } from '#identity/domain/structures/users-page.ts'
 import type { UsersListParams } from '#identity/domain/structures/users-list-params.ts'
 import type { EstablishmentSettings } from '#identity/domain/structures/establishment-settings.ts'
+import type { EstablishmentTimezone } from '#identity/domain/structures/establishment-timezone.ts'
 
 export interface IdentityService {
   getAccount(): Promise<RestResponse<Account>>
   changeOwnUserName(name: string): Promise<RestResponse<Account>>
   getEstablishmentSettings(): Promise<RestResponse<EstablishmentSettings>>
   changeEstablishmentName(name: string): Promise<RestResponse<EstablishmentSettings>>
+  changeEstablishmentTimezone(
+    timeZone: EstablishmentTimezone,
+  ): Promise<RestResponse<EstablishmentSettings>>
   registerIceCreamShop(
     request: IceCreamShopOnboardingInput,
   ): Promise<RestResponse<IceCreamShopOnboardingRegistration>>

@@ -3,23 +3,31 @@ import type { OrderSequencesRepository } from '#pdv/interfaces/order-sequences-r
 import type { OrdersRepository } from '#pdv/interfaces/orders-repository.ts'
 import type { SalesChannelsRepository } from '#pdv/interfaces/sales-channels-repository.ts'
 import type { SalesCatalogProvider } from '#pdv/interfaces/sales-catalog-provider.ts'
-import type { StockConsumer } from '#pdv/interfaces/stock-consumer.ts'
-import type { StockRestorer } from '#pdv/interfaces/stock-restorer.ts'
+import type { StockProvider } from '#pdv/interfaces/stock-provider.ts'
+import type { OrderCostProvider } from '#pdv/interfaces/order-cost-provider.ts'
 import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
 
 export type PdvDatabaseRepositories = {
-  salesCatalogProvider: SalesCatalogProvider
+  salesCatalogProvider?: SalesCatalogProvider
   salesChannelsRepository: SalesChannelsRepository
   discountsRepository: DiscountsRepository
   ordersRepository: OrdersRepository
   orderSequencesRepository: OrderSequencesRepository
-  stockConsumer: StockConsumer
-  stockRestorer: StockRestorer
+  stockProvider?: StockProvider
+  orderCostProvider?: OrderCostProvider
   eventsRepository: Pick<EventsRepository, 'add'>
 }
 
 export interface PdvDatabase {
   run<Result>(
-    operation: (scope: PdvDatabaseRepositories) => Promise<Result>,
+    operation: (repositories: PdvDatabaseRepositories) => Promise<Result>,
+  ): Promise<Result>
+  readSnapshot?<Result>(
+    operation: (
+      repositories: Pick<
+        PdvDatabaseRepositories,
+        'ordersRepository' | 'salesChannelsRepository'
+      >,
+    ) => Promise<Result>,
   ): Promise<Result>
 }

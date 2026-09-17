@@ -15,11 +15,15 @@ import {
   desc,
   eq,
   exists,
+  getTableColumns,
   gte,
   ilike,
   inArray,
   isNull,
   lte,
+  lt,
+  or,
+  sql,
 } from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
@@ -31,6 +35,7 @@ import { orderDiscountLineModel } from '@/pdv/database/drizzle/models/order-disc
 import { orderDiscountModel } from '@/pdv/database/drizzle/models/order-discount-model'
 import { orderLineAccompanimentModel } from '@/pdv/database/drizzle/models/order-line-accompaniment-model'
 import { orderLineConsumptionModel } from '@/pdv/database/drizzle/models/order-line-consumption-model'
+import { orderLineCostComponentModel } from '@/pdv/database/drizzle/models/order-line-cost-component-model'
 import { orderLineModel } from '@/pdv/database/drizzle/models/order-line-model'
 import { orderModel } from '@/pdv/database/drizzle/models/order-model'
 import { orderSequenceModel } from '@/pdv/database/drizzle/models/order-sequence-model'
@@ -40,6 +45,7 @@ type AggregateRows = {
   readonly lines: readonly (typeof orderLineModel.$inferSelect)[]
   readonly lineAccompaniments: readonly (typeof orderLineAccompanimentModel.$inferSelect)[]
   readonly lineConsumptions: readonly (typeof orderLineConsumptionModel.$inferSelect)[]
+  readonly lineCostComponents: readonly (typeof orderLineCostComponentModel.$inferSelect)[]
   readonly discounts: readonly (typeof orderDiscountModel.$inferSelect)[]
   readonly components: readonly (typeof orderDiscountComponentModel.$inferSelect)[]
   readonly componentAccompaniments: readonly (typeof orderDiscountComponentAccompanimentModel.$inferSelect)[]
@@ -53,10 +59,17 @@ export class DrizzleOrdersRepository
   implements OrdersRepository
 {
   async add(input: OrderCreate): Promise<Order> {
+    return this.addWithCreatedAt(input, new Date())
+  }
+
+  async addSeed(input: OrderCreate, createdAt: Date): Promise<Order> {
+    return this.addWithCreatedAt(input, createdAt)
+  }
+
+  private async addWithCreatedAt(input: OrderCreate, createdAt: Date): Promise<Order> {
     try {
       const sequenceNumber = await this.findReservedSequenceNumber(input.establishmentId)
       const orderId = crypto.randomUUID()
-      const createdAt = new Date()
       const [record] = await this.database
         .insert(orderModel)
         .values({
@@ -88,6 +101,28 @@ export class DrizzleOrdersRepository
       )
       const lineRecords = lineRows.length
         ? await this.database.insert(orderLineModel).values(lineRows).returning()
+        : []
+      const costRows = input.lines.flatMap((line, linePosition) => {
+        const orderLineId = lineRecords[linePosition]?.id
+        if (!orderLineId) return []
+        return line.costComponents.map((component, position) => ({
+          id: crypto.randomUUID(),
+          orderLineId,
+          position,
+          kind: component.kind,
+          productId: component.productId,
+          brandId: component.brandId ?? null,
+          accompanimentId: component.accompanimentId ?? null,
+          quantity: String(component.quantity),
+          unitCost: component.unitCost === null ? null : String(component.unitCost),
+          extendedCostCents: component.extendedCostCents,
+        }))
+      })
+      const costRecords = costRows.length
+        ? await this.database
+            .insert(orderLineCostComponentModel)
+            .values(costRows)
+            .returning()
         : []
       const lineIdsByProductId = new Map(
         lineRecords.map((line) => [line.productId, line.id]),
@@ -183,6 +218,8 @@ export class DrizzleOrdersRepository
         componentRecords,
         componentAccompanimentRecords,
         discountLineRecords,
+        [],
+        costRecords,
       )
     } catch (error) {
       throw this.toConflictError(error)
@@ -273,6 +310,63 @@ export class DrizzleOrdersRepository
     )
   }
 
+  async findActivityBatch(input: {
+    establishmentId: string
+    registrationStartAt: Date
+    registrationEndAt: Date
+    cancellationStartAt: Date
+    cancellationEndAt: Date
+    cursor?: string
+    limit: number
+  }): Promise<{ orders: readonly Order[]; nextCursor?: string }> {
+    const registration = and(
+      gte(orderModel.createdAt, input.registrationStartAt),
+      lt(orderModel.createdAt, input.registrationEndAt),
+    )
+    const cancellation = and(
+      eq(orderModel.status, OrderStatus.Canceled),
+      gte(orderModel.canceledAt, input.cancellationStartAt),
+      lt(orderModel.canceledAt, input.cancellationEndAt),
+    )
+    const filters = [
+      eq(orderModel.establishmentId, input.establishmentId),
+      or(registration, cancellation),
+    ]
+    const activitySortAt = sql<Date>`case when ${registration} then ${orderModel.createdAt} else ${orderModel.canceledAt} end`
+    if (input.cursor) {
+      const [sortAt, id] = input.cursor.split('|')
+      if (sortAt && id)
+        filters.push(
+          or(
+            lt(activitySortAt, new Date(sortAt)),
+            and(eq(activitySortAt, new Date(sortAt)), lt(orderModel.id, id)),
+          ),
+        )
+    }
+    const records = await this.database
+      .select({
+        ...getTableColumns(orderModel),
+        activitySortAt,
+      })
+      .from(orderModel)
+      .where(and(...filters))
+      .orderBy(desc(activitySortAt), desc(orderModel.id))
+      .limit(Math.min(input.limit, 500) + 1)
+    const hasNext = records.length > Math.min(input.limit, 500)
+    const page = hasNext ? records.slice(0, -1) : records
+    const aggregates = await this.findAggregateRows(page.map((record) => record.id))
+    const orders = await Promise.all(
+      page.map((record) => this.toDomain(record, aggregates.get(record.id))),
+    )
+    const last = page.at(-1)
+    return {
+      orders,
+      ...(hasNext && last
+        ? { nextCursor: `${last.activitySortAt.toISOString()}|${last.id}` }
+        : {}),
+    }
+  }
+
   async cancel(
     establishmentId: string,
     orderId: string,
@@ -355,6 +449,8 @@ export class DrizzleOrdersRepository
       baseUnitPrice: String(line.baseUnitPrice),
       finalUnitPrice: String(line.finalUnitPrice),
       subtotal: String(line.subtotal),
+      allocatedNetSalesCents: line.allocatedNetSalesCents,
+      cogsCents: line.cogsCents,
     }
   }
 
@@ -456,6 +552,7 @@ export class DrizzleOrdersRepository
       aggregates.componentAccompaniments,
       aggregates.discountLines,
       aggregates.restorations,
+      aggregates.lineCostComponents,
     )
   }
 
@@ -501,6 +598,13 @@ export class DrizzleOrdersRepository
           .from(orderLineConsumptionModel)
           .where(inArray(orderLineConsumptionModel.orderLineId, lineIds))
           .orderBy(asc(orderLineConsumptionModel.position))
+      : []
+    const lineCostComponents = lineIds.length
+      ? await this.database
+          .select()
+          .from(orderLineCostComponentModel)
+          .where(inArray(orderLineCostComponentModel.orderLineId, lineIds))
+          .orderBy(asc(orderLineCostComponentModel.position))
       : []
     const discounts = await this.database
       .select()
@@ -560,6 +664,9 @@ export class DrizzleOrdersRepository
           orderLineIds.has(row.orderLineId),
         ),
         lineConsumptions: lineConsumptions.filter((row) =>
+          orderLineIds.has(row.orderLineId),
+        ),
+        lineCostComponents: lineCostComponents.filter((row) =>
           orderLineIds.has(row.orderLineId),
         ),
         discounts: discounts.filter((discount) => discount.orderId === orderId),

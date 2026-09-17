@@ -8,6 +8,7 @@ export const establishmentModel = pgTable(
     id: uuid('id').primaryKey(),
     name: text('name').notNull(),
     status: establishmentStatusModel('status').notNull(),
+    timeZone: text('time_zone').notNull().default('America/Sao_Paulo'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull(),
     activatedAt: timestamp('activated_at', { withTimezone: true, mode: 'date' }),

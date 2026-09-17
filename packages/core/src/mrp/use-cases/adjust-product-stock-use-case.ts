@@ -33,14 +33,14 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
     this.validateInput(request.input)
     const justification = this.normalizeJustification(request.input.justification)
     const occurredAt = this.datetimeProvider.now()
-    return this.database.run(async (scope: MrpDatabaseRepositories) => {
+    return this.database.run(async (repositories: MrpDatabaseRepositories) => {
       const {
         productsRepository,
         brandsRepository,
         stockBalancesRepository,
         stockTransactionsRepository,
         eventsRepository,
-      } = scope
+      } = repositories
       const product =
         (await productsRepository.findByIdForUpdate(
           request.actor.establishmentId,
@@ -51,7 +51,7 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
           request.productId,
         ))
       if (!product) throw new NotFoundError('Produto não encontrado.')
-      const previousQuantity = await this.findProductQuantity(scope, product.id)
+      const previousQuantity = await this.findProductQuantity(repositories, product.id)
       let brandName: string | undefined
       if (product.stockControl === ProductStockControl.Single && request.input.brandId)
         throw new BadRequestError('Estoque único não aceita uma marca de destino.')
@@ -107,7 +107,7 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
       await new PublishProductStockAlertUseCase(eventsRepository).execute({
         product,
         previousQuantity,
-        availableQuantity: await this.findProductQuantity(scope, product.id),
+        availableQuantity: await this.findProductQuantity(repositories, product.id),
         occurredAt,
       })
       return balance
@@ -144,10 +144,11 @@ export class AdjustProductStockUseCase implements UseCase<Request, StockBalance>
   }
 
   private async findProductQuantity(
-    scope: MrpDatabaseRepositories,
+    repositories: MrpDatabaseRepositories,
     productId: string,
   ): Promise<number> {
-    const balances = await scope.stockBalancesRepository.findManyByProductId(productId)
+    const balances =
+      await repositories.stockBalancesRepository.findManyByProductId(productId)
     return balances.reduce((total, balance) => total + balance.quantity, 0)
   }
 }

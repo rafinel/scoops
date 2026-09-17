@@ -1,4 +1,12 @@
-import { Body, HttpStatus, Inject, Param, ParseUUIDPipe, Patch } from '@nestjs/common'
+import {
+  Body,
+  HttpStatus,
+  Inject,
+  Optional,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+} from '@nestjs/common'
 import { ApiParam, ApiResponse } from '@nestjs/swagger'
 import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
@@ -8,6 +16,7 @@ import { cancelOrderSchema, type CancelOrderInput } from '@scoops/validation'
 
 import { CurrentAccount, RequiredProfiles } from '@/identity/decorators'
 import { PDV_REPOSITORIES } from '@/pdv/constants'
+import { PDV_PROVIDERS } from '@/pdv/constants'
 import { OrdersController } from '@/pdv/decorators'
 import { OrderResponseDto } from '@/pdv/rest/dtos'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
@@ -21,8 +30,11 @@ export class CancelOrderController {
   constructor(
     @Inject(PDV_REPOSITORIES.database) database: PdvDatabase,
     @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
+    @Optional()
+    @Inject(PDV_PROVIDERS.stockProvider)
+    stockProvider?: import('@scoops/core/pdv/interfaces').StockProvider,
   ) {
-    this.useCase = new CancelOrderUseCase(database, datetimeProvider)
+    this.useCase = new CancelOrderUseCase(database, datetimeProvider, stockProvider)
   }
 
   @Patch(':orderId/cancel')

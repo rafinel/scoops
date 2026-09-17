@@ -16,6 +16,7 @@ import {
   DrizzleResaleConfigurationsRepository,
   DrizzleStockBalancesRepository,
   DrizzleStockTransactionsRepository,
+  DrizzleStockAttentionFactsRepository,
 } from '@/mrp/database/drizzle/repositories'
 import { MRP_STOCK_TRANSACTIONS_REPOSITORY } from '@/mrp/database/mrp-repositories'
 import { MrpSeeder } from '@/mrp/database/mrp-seeder'
@@ -30,6 +31,7 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
     DrizzleBrandsRepository,
     DrizzleStockBalancesRepository,
     DrizzleStockTransactionsRepository,
+    DrizzleStockAttentionFactsRepository,
     DrizzleRecipesRepository,
     DrizzleResaleConfigurationsRepository,
     DrizzleRecipeIngredientsRepository,
@@ -74,6 +76,10 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
       useExisting: DrizzleStockTransactionsRepository,
     },
     { provide: MRP_REPOSITORIES.database, useExisting: DrizzleMrpDatabase },
+    {
+      provide: MRP_REPOSITORIES.stockAttentionFacts,
+      useExisting: DrizzleStockAttentionFactsRepository,
+    },
   ],
   exports: [
     MRP_REPOSITORIES.accompanimentTypes,
@@ -89,6 +95,7 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
     MRP_REPOSITORIES.stockBalances,
     MRP_STOCK_TRANSACTIONS_REPOSITORY,
     MRP_REPOSITORIES.database,
+    MRP_REPOSITORIES.stockAttentionFacts,
     MrpSeeder,
   ],
 })

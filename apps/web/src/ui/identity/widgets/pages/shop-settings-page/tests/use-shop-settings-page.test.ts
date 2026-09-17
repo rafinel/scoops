@@ -5,24 +5,34 @@ import type { EstablishmentSettings } from '@scoops/core/identity/domain/structu
 
 import { useShopSettingsPage } from '../use-shop-settings-page'
 
-const { actionState, queryState, showErrorToastMock } = vi.hoisted(() => ({
-  actionState: {
-    actionError: null as Error | null,
-    changeEstablishmentName: vi.fn(),
-    isPending: false,
-  },
-  queryState: {
-    error: null as Error | null,
-    isLoading: false,
-    isRefreshing: false,
-    refetch: vi.fn(),
-    settings: null as EstablishmentSettings | null,
-  },
-  showErrorToastMock: vi.fn(),
-}))
+const { actionState, queryState, showErrorToastMock, timezoneActionState } = vi.hoisted(
+  () => ({
+    actionState: {
+      actionError: null as Error | null,
+      changeEstablishmentName: vi.fn(),
+      isPending: false,
+    },
+    timezoneActionState: {
+      error: null as Error | null,
+      isPending: false,
+      mutateAsync: vi.fn(),
+    },
+    queryState: {
+      error: null as Error | null,
+      isLoading: false,
+      isRefreshing: false,
+      refetch: vi.fn(),
+      settings: null as EstablishmentSettings | null,
+    },
+    showErrorToastMock: vi.fn(),
+  }),
+)
 
 vi.mock('@/ui/identity/hooks/use-change-establishment-name-action', () => ({
   useChangeEstablishmentNameAction: () => actionState,
+}))
+vi.mock('@/ui/identity/hooks/use-change-establishment-timezone-action', () => ({
+  useChangeEstablishmentTimezoneAction: () => timezoneActionState,
 }))
 vi.mock('@/ui/identity/hooks/use-establishment-settings-query', () => ({
   useEstablishmentSettingsQuery: () => queryState,
@@ -37,6 +47,8 @@ describe('useShopSettingsPage', () => {
     vi.clearAllMocks()
     actionState.actionError = null
     actionState.isPending = false
+    timezoneActionState.error = null
+    timezoneActionState.isPending = false
     queryState.error = null
     queryState.isLoading = false
     queryState.isRefreshing = false
@@ -45,6 +57,7 @@ describe('useShopSettingsPage', () => {
         id: 'establishment-id',
         name: 'Scoops Central',
         status: 'active',
+        timeZone: 'America/Sao_Paulo',
         createdAt: new Date('2026-01-01T00:00:00.000Z'),
         updatedAt: new Date('2026-01-01T00:00:00.000Z'),
       },
