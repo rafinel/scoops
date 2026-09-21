@@ -2,7 +2,7 @@
 feature: "analytics/dashboard-page"
 spec: ./spec.md
 spec_revision: 4
-status: in_progress
+status: completed
 updated_at: 2026-09-16
 ---
 
@@ -10,7 +10,7 @@ updated_at: 2026-09-16
 
 Evaluation of Spec revision `4` against the current implementation.
 
-Current result: Spec revision 4 is reopened for a deterministic Web test correction. The Web CI rerun passed 222/223 after FND-026 but the dashboard test hard-coded São Paulo time while the hosted browser used UTC. The correction derives the expected formatted time from the browser timezone; its isolated CI-mode test passes, and a final PR CI rerun is required.
+Current result: Spec revision 4 is complete. The dashboard transition-root and Analytics-fixture correction is validated locally and in the final PR CI matrix; the hosted-browser timezone assertion is now derived through browser `Intl.DateTimeFormat`. All Core, Validation, Server, Web and Complexity checks pass on the final head.
 
 ## Acceptance matrix
 
@@ -235,7 +235,7 @@ Visual evidence uses the common `EV-*` Evidence identifiers with `Type = visual`
 | FND-024 | implementation-review correction | Current integrated candidate review for Spec revision 4 | AC-03, AC-05, AC-06, AC-10, AC-12, AC-13, AC-15, AC-16; MV-01–MV-08; EV-055–EV-152 | resolved | Implemented retained-cache recovery and targeted retry, complete CMV/coverage disclosure, connected timezone mutation through Shop Settings and persistence, corrected absolute comparison deltas/neutral semantics, aligned narrow selector/order and desktop pairings, added fail-open privacy-safe interaction events with tenant/time/event fields, completed REST examples, and reconciled current evidence. Fresh browser captures, focused state/dialog tests, full Core/Server/Web coverage, static gates, exact Spec conformance and PRD checkbox traceability now pass. No new global rule or architecture/modules amendment is required; the PRD checkboxes and Widget/Design evidence ledgers are aligned. |
 | FND-025 | CI quality-gate correction | Server CI Complexity job and local `pnpm --filter server check:complexity` | The implementation introduced 15 new complexity errors in persistence, provision and seed functions. | resolved | Ran the documented `update:complexity-baseline` workflow, reviewed the generated baseline artifact, and reran the Server and full-repository gates successfully with zero errors. This is an intentional baseline extension for the delivered persistence/provision/seed surface; no product behavior or PRD requirement changed. |
 | FND-026 | Web integration correction | Web CI run `35140935102`; focused and full Playwright suites | Dashboard introduction caused two test-boundary regressions: nested `main` elements produced duplicate `main-content` view-transition names, and authenticated transition tests reached Analytics without mocks. | resolved | Changed the DashboardPage root to a labelled `section` inside the AppLayout-owned `main`, and registered the shared Analytics fixture in the delayed authenticated transition helper. The focused 15-test suite and the full 223-test Web integration suite pass locally; the correction is ready for the current-head PR CI rerun. |
-| FND-027 | Web test timezone correction | Web CI run `35146330608`; CI-mode isolated dashboard test | The dashboard browser test assumed the local São Paulo timezone and failed on the hosted UTC browser even though the rendered behavior was correct. | in_progress | Replaced the hard-coded `10:00` expectation with browser-local `Intl.DateTimeFormat` output for the fixed fixture timestamp. The isolated test passes under CI settings; final PR CI rerun remains required. |
+| FND-027 | Web test timezone correction | Web CI run `35146330608`; CI-mode isolated dashboard test | The dashboard browser test assumed the local São Paulo timezone and failed on the hosted UTC browser even though the rendered behavior was correct. | resolved | Replaced the hard-coded `10:00` expectation with browser-local `Intl.DateTimeFormat` output for the fixed fixture timestamp. The isolated test passes under CI settings and the final Web CI matrix is green. |
 
 ## Lessons learned
 
@@ -268,6 +268,7 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | CI-004 | Server CI | `d2a644ecc14d276219069f0cfd05e2ee6711522a` | passed — Server, integration, coverage and Complexity jobs green. | `https://github.com/rafinel/scoops/actions/runs/35140935112` |
 | CI-005 | Web CI | `d2a644ecc14d276219069f0cfd05e2ee6711522a` | failed — 218/223 browser tests passed; dashboard/route-transition diagnostics exposed the FND-026 correction. | `https://github.com/rafinel/scoops/actions/runs/35140935102` |
 | CI-006 | Web CI | `bb61e6d0` | failed — 222/223 browser tests passed; the remaining dashboard failure exposed the hosted-browser timezone assumption recorded in FND-027. | `https://github.com/rafinel/scoops/actions/runs/35146330608` |
+| CI-007 | Final PR CI matrix | `2fd23dd0` | passed — Core, Validation, Server, Web and all Complexity jobs are green; Web browser integration passed and Build completed. | [Core](https://github.com/rafinel/scoops/actions/runs/35148704750), [Validation](https://github.com/rafinel/scoops/actions/runs/35148704753), [Server](https://github.com/rafinel/scoops/actions/runs/35148704751), [Web](https://github.com/rafinel/scoops/actions/runs/35148704772) |
 
 ## History
 
@@ -280,6 +281,7 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | 2026-09-16 | Full Web integration passed 223/223 in 28.7 minutes after FND-026; Web code/types and diff hygiene passed, so Evaluation returned to `ready` for the corrected PR head. |
 | 2026-09-16 | Corrected Web CI passed 222/223 and exposed a hosted-browser timezone assumption in the dashboard timestamp assertion. Evaluation reopened for FND-027; no product requirement or PRD checkbox is being reverted. |
 | 2026-09-16 | The CI-mode isolated dashboard test passed 1/1 after deriving the expected localized timestamp with browser `Intl.DateTimeFormat`; final PR CI rerun remains pending. |
+| 2026-09-16 | Final PR CI matrix for head `2fd23dd0` passed: Core, Validation, Server, Web and all Complexity jobs are green. Evaluation, Plan and Spec are closed as completed; no merge or deployment was performed. |
 | 2026-09-16 | Final closure preflight passed: exact 220-path conformance, test-integrity, architecture, code, types, builds and full Core/Web coverage passed; the focused dashboard Playwright suite passed 4/4 with fresh 1481px, 390px and 320px captures inspected. |
 | 2026-09-16 | Integrated Implementation Reviewer found in-contract gaps in stale/recovery behavior, cost coverage, timezone mutation UX, comparison disclosure, responsive layout, interaction logging, REST examples and evidence closure. Evaluation returned to correction under Builder Direct; affected evidence is stale until rerun. |
 | 2026-09-13 | Preflight passed: Playwright health check completed; Spec revision 3 frozen and moved to `in_progress`; canonical Evaluation created; `builder_core` activated for F1-T1; baseline path sensor recorded as expected pre-implementation failure. |

@@ -1,22 +1,22 @@
 ---
 title: Operational Analytics Dashboard — implementation plan
-status: superseded
+status: completed
 spec: ./spec.md
 spec_revision: 4
 evaluation: ./evaluation.md
 github_issue: https://github.com/rafinel/scoops/issues/40
-updated_at: 2026-09-13
+updated_at: 2026-09-16
 ---
 
 # Execution status
 
-This Plan is superseded by explicit user authorization to continue the current Spec with Builder Direct execution in the current context after repeated Builder runtime non-response. Its ledger and blocker history are retained for traceability; no Plan-backed phase is active. Spec revision 4 retains direct execution for the approved shared-datetime correction.
+This Plan is completed. It retains the historical Builder Direct execution ledger and correction history for traceability; all contracted phases and final validation exits are complete for Spec revision 4.
 
-- **Spec:** [`spec.md`](./spec.md), revision `4`, `in_progress` after the approved technical Contract amendment passed Spec review.
+- **Spec:** [`spec.md`](./spec.md), revision `4`, `completed` after the approved technical Contract amendment and final PR CI matrix passed.
 - **Rationale:** Plan-backed execution is required because this delivery spans Core, Validation, Server, Database, Provision, Web, a migration, cross-module transactions, an external Billing prerequisite and complex manual/visual validation.
-- **Current phase:** superseded; revision 3 continues through Builder Direct execution.
-- **Next action:** Builder Direct implements the complete Spec contract, then runs the integrated path sensor and required validation.
-- **Active blockers:** The Billing prerequisite is now registered through a bounded Billing-owned subscription repository and Analytics composition adapter. Full Web Vitest completion and the remaining `MV-*`/visual evidence are still pending; Analytics continues to fail closed for missing or non-full access.
+- **Current phase:** completed; revision 4 passed the integrated path sensor, local validation, browser evidence and final PR CI matrix.
+- **Next action:** None; merge and deployment remain outside this task.
+- **Active blockers:** None for Spec delivery. Analytics continues to fail closed for missing or non-full access as contracted.
 - **Active Builders:** Builder Direct in the current context, explicitly authorized by the user on 2026-09-13. Previous Builder Core attempts remain historical evidence only.
 - **Shared ownership:** The Orchestrator owns `plan.md`, `evaluation.md`, `apps/web/package.json`, `pnpm-lock.yaml`, `apps/web/src/routeTree.gen.ts`, and generated/reviewed migration artifacts. `Builder Server` owns the Analytics and Identity REST-client examples; active Builder paths do not overlap.
 
@@ -25,13 +25,13 @@ This Plan is superseded by explicit user authorization to continue the current S
 | Wave | Builder | Phase | Name | Depends on | Parallel with | Status | Exit condition |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | `Builder Direct` | F1 | Establish Analytics and Identity core contracts and actions | — | — | `completed` | Core contracts and Analytics/Identity use-case suites pass their focused checks. |
-| 1 | `Builder Core` | F2 | Move PDV/MRP cost, allocation and stock behavior into Core boundaries | F1 | — | `pending` | PDV/MRP Core suites prove immutable costs, exact allocation, stock actions and shared-boundary behavior. |
-| 2 | `Builder Validation` | F3 | Add shared transport, form and interaction schemas | F1, F2 | F4 | `pending` | Validation code, architecture and types checks pass and all schemas are exported from the package root. |
-| 2 | `Builder Server` | F4 | Implement persistence, snapshots, indexes and transaction infrastructure | F2 | F3 | `pending` | Server static checks pass; models, mappers, repositories and transaction context implement the Core contracts without direct repository tests. |
-| 3 | `Builder Server` | F5 | Wire provision, REST controllers, DTOs, fixtures and composition | F3, F4, Billing prerequisite | F6 | `pending` | Server checks/tests pass, both affected REST-client groups are route-complete, and authoritative Billing access is registered. |
-| 3 | `Builder Web` | F6 | Implement Web transport, Dashboard, Settings, routes and browser coverage | F1, F2, F3 | F5 | `pending` | Web checks/tests pass with the complete widget tree, route/auth behavior, responsive states and fresh visual evidence. |
-| 4 | `Orchestrator` | F7 | Generate shared artifacts and run the complete Spec path gate | F5, F6 | — | `pending` | Generated migration, lockfile and route tree are reviewed and `pnpm check:spec-implementation -- documentation/features/analytics/dashboard-page/spec.md` passes. |
-| 5 | `Orchestrator` | F8 | Run integrated validation, one Implementation Reviewer and handoff | F7, Billing prerequisite | — | `pending` | All commands, runtime/manual/visual evidence and review findings are current and the final handoff condition is true. |
+| 1 | `Builder Core` | F2 | Move PDV/MRP cost, allocation and stock behavior into Core boundaries | F1 | — | `completed` | PDV/MRP Core suites prove immutable costs, exact allocation, stock actions and shared-boundary behavior. |
+| 2 | `Builder Validation` | F3 | Add shared transport, form and interaction schemas | F1, F2 | F4 | `completed` | Validation code, architecture and types checks pass and all schemas are exported from the package root. |
+| 2 | `Builder Server` | F4 | Implement persistence, snapshots, indexes and transaction infrastructure | F2 | F3 | `completed` | Server static checks pass; models, mappers, repositories and transaction context implement the Core contracts without direct repository tests. |
+| 3 | `Builder Server` | F5 | Wire provision, REST controllers, DTOs, fixtures and composition | F3, F4, Billing prerequisite | F6 | `completed` | Server checks/tests pass, both affected REST-client groups are route-complete, and authoritative Billing access is registered. |
+| 3 | `Builder Web` | F6 | Implement Web transport, Dashboard, Settings, routes and browser coverage | F1, F2, F3 | F5 | `completed` | Web checks/tests pass with the complete widget tree, route/auth behavior, responsive states and fresh visual evidence. |
+| 4 | `Orchestrator` | F7 | Generate shared artifacts and run the complete Spec path gate | F5, F6 | — | `completed` | Generated migration, lockfile and route tree are reviewed and `pnpm check:spec-implementation -- documentation/features/analytics/dashboard-page/spec.md` passes. |
+| 5 | `Orchestrator` | F8 | Run integrated validation, one Implementation Reviewer and handoff | F7, Billing prerequisite | — | `completed` | All commands, runtime/manual/visual evidence and review findings are current and the final handoff condition is true. |
 
 ### F1 — Core Analytics and Identity foundations
 
@@ -49,7 +49,7 @@ This Plan is superseded by explicit user authorization to continue the current S
 
 #### F2-T1 — Refactor PDV/MRP Core contracts for immutable cost, exact allocation and stock ownership
 
-- **Status/owner:** `pending` — Builder Core
+- **Status/owner:** `completed` — Builder Core
 - **Depends/parallel:** Depends on `F1-T1`; sequential within Builder Core. No parallel edit may touch the listed Core paths.
 - **Paths:** `packages/core/src/pdv/domain/structures/{order-cost-component-snapshot.ts,order-line.ts,index.ts}`; `packages/core/src/pdv/use-cases/{register-order-use-case.ts,tests/register-order-use-case.test.ts,cancel-order-use-case.ts,tests/cancel-order-use-case.test.ts}`; `packages/core/src/pdv/interfaces/{order-cost-provider.ts,orders-repository.ts,pdv-database.ts,index.ts}`; `packages/core/src/mrp/domain/structures/{order-stock-consumption.ts,order-stock-restoration-request.ts,order-stock-restoration.ts,stock-attention-source-fact.ts,stock-attention-fact.ts,index.ts}`; `packages/core/src/mrp/use-cases/{consume-order-stock-use-case.ts,tests/consume-order-stock-use-case.test.ts,restore-order-stock-use-case.ts,tests/restore-order-stock-use-case.test.ts,list-stock-attention-use-case.ts,tests/list-stock-attention-use-case.test.ts,index.ts}`; `packages/core/src/mrp/interfaces/{stock-attention-facts-repository.ts,products-repository.ts,mrp-database.ts,index.ts}`.
 - **Contract:** `FR-05`, `FR-08`, `FR-10`; `AC-04`, `AC-07`, `AC-09`; PDV/MRP Core and transaction contracts in the Spec.
@@ -61,7 +61,7 @@ This Plan is superseded by explicit user authorization to continue the current S
 
 #### F3-T1 — Add Analytics, Identity and Web boundary schemas
 
-- **Status/owner:** `pending` — Builder Validation
+- **Status/owner:** `completed` — Builder Validation
 - **Depends/parallel:** Depends on `F1` and `F2` Core literals/contracts; runs in parallel with `F4` on disjoint `packages/validation` paths.
 - **Paths:** `packages/validation/src/analytics/{analytics-period-query-schema.ts,analytics-interaction-schema.ts}`; `packages/validation/src/identity/establishment-timezone-schema.ts`; `packages/validation/src/web/shop-timezone-form-schema.ts`; `packages/validation/src/index.ts`.
 - **Contract:** `FR-02`, `FR-14`, `FR-15`; `AC-02`, `AC-15`, `AC-16`; Validation Contract schemas and consumer boundaries.
@@ -73,7 +73,7 @@ This Plan is superseded by explicit user authorization to continue the current S
 
 #### F4-T1 — Persist timezone, immutable order facts, stock attention facts and bounded read snapshots
 
-- **Status/owner:** `pending` — Builder Server
+- **Status/owner:** `completed` — Builder Server
 - **Depends/parallel:** Depends on `F2`; runs in parallel with `F3` and remains independent of Web paths. Generated migration files are Orchestrator-owned in `F7`.
 - **Paths:** `apps/server/src/identity/database/drizzle/{models/establishment-model.ts,models/establishment-audit-action-model.ts,types/entities/drizzle-establishment.ts,mappers/drizzle-establishment-mapper.ts,repositories/drizzle-establishments-repository.ts}`; `apps/server/src/identity/database/{identity-seeder.ts}`; `apps/server/src/shared/database/seed.ts`; `apps/server/src/pdv/database/drizzle/{models/order-line-model.ts,models/order-model.ts,models/order-line-cost-component-model.ts,models/index.ts,types/entities/order-line-cost-component.ts,types/entities/order-line.ts,types/entities/index.ts,mappers/drizzle-order-mapper.ts,repositories/drizzle-orders-repository.ts,repositories/drizzle-pdv-database.ts}`; `apps/server/src/pdv/database/pdv-database.module.ts`; `apps/server/src/mrp/database/drizzle/{mappers/drizzle-stock-attention-source-fact-mapper.ts,repositories/drizzle-stock-attention-facts-repository.ts,repositories/drizzle-products-repository.ts,repositories/drizzle-mrp-database.ts,repositories/index.ts}`; `apps/server/src/mrp/database/{mrp-database.module.ts}`; `apps/server/src/mrp/constants/mrp-repositories.ts`; `apps/server/src/shared/database/drizzle/schema.ts`.
 - **Contract:** `FR-03`–`FR-05`, `FR-08`–`FR-10`, `FR-14`; `AC-03`–`AC-05`, `AC-07`–`AC-09`, `AC-15`; Database Contract migration, tenant, keyset and transaction rules.
@@ -85,7 +85,7 @@ This Plan is superseded by explicit user authorization to continue the current S
 
 #### F5-T1 — Replace executor-bound MRP registration wiring with narrow provision adapters
 
-- **Status/owner:** `pending` — Builder Server
+- **Status/owner:** `completed` — Builder Server
 - **Depends/parallel:** Depends on `F3` and `F4`; sequential before `F5-T2`. The external Billing prerequisite must expose authoritative access before this task can complete.
 - **Paths:** `apps/server/src/shared/provision/analytics/{identity-billing-analytics-context-provider.ts,pdv-analytics-sales-facts-provider.ts,mrp-analytics-stock-facts-provider.ts,system-analytics-clock.ts,analytics-provision.module.ts}`; `apps/server/src/shared/provision/pdv-order-registration/{mrp-sales-catalog-provider.ts,mrp-order-cost-provider.ts,mrp-stock-provider.ts,pdv-order-registration-provision.module.ts}`; `apps/server/src/mrp/provision/pdv/{transaction-bound-sales-catalog-provider.ts,transaction-bound-order-registration-dependencies-factory.ts}`; `apps/server/src/mrp/provision/mrp-provision.module.ts`; `apps/server/src/mrp/constants/mrp-providers.ts`; `apps/server/src/pdv/provision/mrp/{mrp-sales-catalog-provider.ts,index.ts}`; `apps/server/src/pdv/provision/{index.ts}`; `apps/server/src/pdv/constants/pdv-providers.ts`; `apps/server/src/pdv/provision/pdv-provision.module.ts`; `apps/server/src/analytics/{analytics.module.ts,constants/analytics-providers.ts,constants/index.ts}`; `apps/server/src/identity/identity.module.ts`; `apps/server/src/app.module.ts`.
 - **Contract:** `FR-01`, `FR-05`, `FR-09`, `FR-10`, `FR-15`; `AC-01`, `AC-04`, `AC-08`, `AC-09`, `AC-16`; Provision and Composition Contracts.
@@ -95,7 +95,7 @@ This Plan is superseded by explicit user authorization to continue the current S
 
 #### F5-T2 — Expose Analytics and timezone REST actions with integration fixtures and route examples
 
-- **Status/owner:** `pending` — Builder Server
+- **Status/owner:** `completed` — Builder Server
 - **Depends/parallel:** Depends on `F5-T1`; may run in parallel with `F6` after the stable Core/Validation contracts. Web does not edit these paths.
 - **Paths:** `apps/server/src/analytics/{decorators/analytics-controller.ts,rest/controllers/get-sales-analytics.controller.ts,rest/controllers/tests/get-sales-analytics.controller.test.ts,rest/controllers/get-stock-attention.controller.ts,rest/controllers/tests/get-stock-attention.controller.test.ts,rest/controllers/index.ts,rest/dtos/**,fixtures/analytics-module-fixture.ts}`; `apps/server/rest-client/analytics/analytics.rest`; `apps/server/src/identity/rest/controllers/{change-establishment-timezone.controller.ts,tests/change-establishment-timezone.controller.test.ts,index.ts}`; `apps/server/src/identity/fixtures/identity-module-fixture.ts`; `apps/server/src/identity/rest/dtos/establishment-settings-response.dto.ts`; `apps/server/rest-client/identity/establishments.rest`; `apps/server/src/pdv/rest/controllers/{register-order.controller.ts,cancel-order.controller.ts,tests/register-order.controller.test.ts,tests/cancel-order.controller.test.ts}`; `apps/server/src/pdv/fixtures/pdv-module-fixture.ts`.
 - **Contract:** `FR-01`–`FR-10`, `FR-14`; `AC-01`–`AC-09`, `AC-15`; REST, DTO, integration-fixture and error contracts.
@@ -107,7 +107,7 @@ This Plan is superseded by explicit user authorization to continue the current S
 
 #### F6-T1 — Wire Web REST adapters, contexts, protected root route and Manager navigation
 
-- **Status/owner:** `pending` — Builder Web
+- **Status/owner:** `completed` — Builder Web
 - **Depends/parallel:** Depends on `F1`, `F2` and `F3`; runs in parallel with `F5-T2` on disjoint Web paths.
 - **Paths:** `apps/web/src/rest/services/{analytics-service.ts,identity-service.ts}`; `apps/web/src/rest/mappers/{analytics/sales-analytics-mapper.ts,analytics/stock-attention-mapper.ts,analytics/index.ts,identity/establishment-settings-mapper.ts}`; `apps/web/src/ui/shared/contexts/rest-context/{types/rest-context-value.ts,use-rest-context-provider.ts}`; `apps/web/src/routes/{index.tsx,_authenticated/index.tsx}`; `apps/web/src/constants/sidebar-items.ts`; `apps/web/src/ui/analytics/hooks/{use-sales-analytics-query.ts,use-stock-attention-query.ts}`; `apps/web/src/ui/identity/hooks/use-change-establishment-timezone-action.ts`; `apps/web/src/server/analytics/log-analytics-interaction.ts`; `apps/web/src/server/analytics/tests/log-analytics-interaction.test.ts`.
 - **Contract:** `FR-01`, `FR-02`, `FR-14`, `FR-15`; `AC-01`, `AC-02`, `AC-10`, `AC-12`, `AC-15`, `AC-16`; Web REST, route, context and server-function contracts.
@@ -117,7 +117,7 @@ This Plan is superseded by explicit user authorization to continue the current S
 
 #### F6-T2 — Build the Dashboard and Shop Settings widget trees, states and browser fixtures
 
-- **Status/owner:** `pending` — Builder Web
+- **Status/owner:** `completed` — Builder Web
 - **Depends/parallel:** Depends on `F6-T1`; sequential within Builder Web. The complete route suite and visual evidence are required before `F7`.
 - **Paths:** `apps/web/src/ui/analytics/widgets/pages/dashboard-page/**`; `apps/web/src/ui/identity/widgets/pages/shop-settings-page/{index.tsx,use-shop-settings-page.ts,tests/shop-settings-page.test.tsx,tests/use-shop-settings-page.test.ts,timezone-dialog/**}`; `apps/web/src/ui/shared/widgets/layouts/app-layout/tests/app-layout.test.tsx`; `apps/web/tests/{analytics/dashboard-page.test.ts,fixtures/analytics-module-fixture.ts,identity/shop-settings-page.test.ts,fixtures/identity-data-fixtures.ts}`; `apps/web/tests/identity/index.test.ts`.
 - **Contract:** `FR-01`–`FR-03`, `FR-06`–`FR-15`; `AC-01`–`AC-17`; the complete Design Contract and manifest widget tree.
@@ -129,7 +129,7 @@ This Plan is superseded by explicit user authorization to continue the current S
 
 #### F7-T1 — Generate migration, lockfile and route metadata and reconcile every contracted path
 
-- **Status/owner:** `pending` — Orchestrator
+- **Status/owner:** `completed` — Orchestrator
 - **Depends/parallel:** Depends on `F5-T2` and `F6-T2`; runs only after the external Billing prerequisite is available for the integrated candidate.
 - **Paths:** `apps/server/src/shared/database/drizzle/migrations/0025_special_famine.sql`; `apps/server/src/shared/database/drizzle/migrations/meta/{0025_snapshot.json,_journal.json}`; `apps/web/package.json`; `pnpm-lock.yaml`; `apps/web/src/routeTree.gen.ts`.
 - **Contract:** All Spec `Create`, `Modify`, `Remove` and `Generate` paths; `FR-01`–`FR-15`; `AC-01`–`AC-16`; migration, generated-file and route-tree contracts.
@@ -141,7 +141,7 @@ This Plan is superseded by explicit user authorization to continue the current S
 
 #### F8-T1 — Execute all integrated sensors, manual/runtime/visual scenarios and the single Implementation Reviewer
 
-- **Status/owner:** `pending` — Orchestrator
+- **Status/owner:** `completed` — Orchestrator
 - **Depends/parallel:** Depends on `F7-T1` passing and Billing access registration being available. Integrated sensors and the Reviewer start only after the path gate; corrections resume the responsible Builder and the same Reviewer.
 - **Paths:** Complete revision-3 candidate across the Spec scope; `./evaluation.md`; transient Playwright `test-results/` artifacts.
 - **Contract:** All `FR-01`–`FR-15`, `AC-01`–`AC-17`, `MV-01`–`MV-08`, Design Contract and Validation Contract.
