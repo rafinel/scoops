@@ -1,6 +1,6 @@
 ---
 title: Operational Analytics Dashboard
-status: in_progress
+status: completed
 revision: 4
 source:
   type: issue
