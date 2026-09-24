@@ -33,7 +33,7 @@ export const NotificationPeriodFilter = ({
   >
     <SelectTrigger
       aria-label='Filtrar por período'
-      className='h-11 w-full rounded-xl bg-card px-3.5 sm:w-[190px]'
+      className='h-10 w-full rounded-xl bg-card px-3.5 sm:w-[190px]'
     >
       <Icon className='size-4 text-muted-foreground' name='calendar' />
       <SelectValue>{NOTIFICATION_PERIOD_LABELS[period]}</SelectValue>

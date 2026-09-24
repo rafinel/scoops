@@ -94,7 +94,7 @@ export const UserInviteDialog = ({
                 <Input
                   {...register('name')}
                   aria-invalid={Boolean(errors.name)}
-                  className='min-h-11 rounded-lg bg-card px-3 font-medium'
+                  className='min-h-10 rounded-lg bg-card px-3 font-medium'
                 />
                 {errors.name ? (
                   <span className='text-xs font-semibold text-danger' role='alert'>
@@ -108,7 +108,7 @@ export const UserInviteDialog = ({
                   {...register('email')}
                   aria-invalid={Boolean(errors.email)}
                   type='email'
-                  className='min-h-11 rounded-lg bg-card px-3 font-medium'
+                  className='min-h-10 rounded-lg bg-card px-3 font-medium'
                 />
                 {errors.email ? (
                   <span className='text-xs font-semibold text-danger' role='alert'>

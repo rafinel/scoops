@@ -97,7 +97,7 @@ export const ResetPasswordPage = ({ token }: { token?: string }) => {
               <Input
                 {...passwordField}
                 autoComplete='new-password'
-                className='min-h-11 rounded-lg bg-background px-3 pr-12 text-sm'
+                className='min-h-10 rounded-lg bg-background px-3 pr-12 text-sm'
                 id='new-password'
                 minLength={MIN_PASSWORD_LENGTH}
                 type={isPasswordVisible ? 'text' : 'password'}
@@ -126,7 +126,7 @@ export const ResetPasswordPage = ({ token }: { token?: string }) => {
               <Input
                 {...confirmationField}
                 autoComplete='new-password'
-                className='min-h-11 rounded-lg bg-background px-3 pr-12 text-sm'
+                className='min-h-10 rounded-lg bg-background px-3 pr-12 text-sm'
                 id='confirm-password'
                 minLength={MIN_PASSWORD_LENGTH}
                 type={isConfirmationVisible ? 'text' : 'password'}
@@ -148,7 +148,7 @@ export const ResetPasswordPage = ({ token }: { token?: string }) => {
             </div>
           </div>
           <Button
-            className='min-h-11 w-full rounded-lg px-4 text-sm font-extrabold shadow-primary'
+            className='min-h-10 w-full rounded-lg px-4 text-sm font-extrabold shadow-primary'
             disabled={isPending}
             type='submit'
           >

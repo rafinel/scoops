@@ -110,7 +110,7 @@ export const SalesChannelsList = ({
           sideOffset={8}
         >
           <DropdownMenuItem
-            className='min-h-11 gap-3 rounded-xl px-3 py-2 text-sm font-bold'
+            className='min-h-10 gap-3 rounded-xl px-3 py-2 text-sm font-bold'
             onClick={() => onEdit(channel)}
           >
             <Icon name='pencil' className='size-5 text-muted-foreground' />
@@ -118,7 +118,7 @@ export const SalesChannelsList = ({
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className='min-h-11 gap-3 rounded-xl px-3 py-2 text-sm font-bold'
+            className='min-h-10 gap-3 rounded-xl px-3 py-2 text-sm font-bold'
             disabled={isReactivatePending}
             onClick={() => {
               if (isActive) onInactivate(channel)
@@ -133,7 +133,7 @@ export const SalesChannelsList = ({
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className='min-h-11 gap-3 rounded-xl px-3 py-2 text-sm font-bold'
+            className='min-h-10 gap-3 rounded-xl px-3 py-2 text-sm font-bold'
             onClick={() => onDelete(channel)}
             variant='destructive'
           >
@@ -236,19 +236,19 @@ export const SalesChannelsList = ({
                 </caption>
                 <TableHeader className='bg-muted/60 [&_tr]:border-0'>
                   <TableRow className='border-0 hover:bg-transparent'>
-                    <TableHead className='h-11 px-4 text-xs text-muted-foreground sm:px-5'>
+                    <TableHead className='h-10 px-4 text-xs text-muted-foreground sm:px-5'>
                       Canal
                     </TableHead>
-                    <TableHead className='h-11 px-4 text-xs text-muted-foreground'>
+                    <TableHead className='h-10 px-4 text-xs text-muted-foreground'>
                       Ajuste
                     </TableHead>
-                    <TableHead className='h-11 px-4 text-xs text-muted-foreground'>
+                    <TableHead className='h-10 px-4 text-xs text-muted-foreground'>
                       Tipo
                     </TableHead>
-                    <TableHead className='h-11 px-4 text-xs text-muted-foreground'>
+                    <TableHead className='h-10 px-4 text-xs text-muted-foreground'>
                       Status
                     </TableHead>
-                    <TableHead className='h-11 px-4 text-right text-xs text-muted-foreground sm:px-5'>
+                    <TableHead className='h-10 px-4 text-right text-xs text-muted-foreground sm:px-5'>
                       Ações
                     </TableHead>
                   </TableRow>

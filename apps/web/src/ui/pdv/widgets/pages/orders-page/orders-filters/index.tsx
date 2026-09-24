@@ -30,7 +30,7 @@ export const OrdersFilters = (props: OrdersFiltersProps) => {
 
   return (
     <div className='grid gap-2 md:grid-cols-2 xl:flex xl:flex-wrap'>
-      <Label className='flex h-11 min-w-0 items-center gap-2 rounded-xl border bg-card px-3.5 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20 xl:min-w-[330px] xl:flex-1'>
+      <Label className='flex h-10 min-w-0 items-center gap-2 rounded-xl border bg-card px-3.5 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20 xl:min-w-[330px] xl:flex-1'>
         <Icon className='size-4 shrink-0 text-muted-foreground' name='search' />
         <Input
           aria-label='Buscar pedidos'
@@ -46,7 +46,7 @@ export const OrdersFilters = (props: OrdersFiltersProps) => {
       >
         <SelectTrigger
           aria-label='Filtrar por canal'
-          className='h-11 rounded-xl px-3.5 xl:w-[170px]'
+          className='h-10 rounded-xl px-3.5 xl:w-[170px]'
         >
           <SelectValue>
             {search.channelId === undefined
@@ -70,7 +70,7 @@ export const OrdersFilters = (props: OrdersFiltersProps) => {
       <Select onValueChange={handleStatusChange} value={search.status ?? 'all'}>
         <SelectTrigger
           aria-label='Filtrar por status'
-          className='h-11 rounded-xl px-3.5 xl:w-[155px]'
+          className='h-10 rounded-xl px-3.5 xl:w-[155px]'
         >
           <SelectValue>
             {search.status === OrderStatus.Registered
@@ -89,7 +89,7 @@ export const OrdersFilters = (props: OrdersFiltersProps) => {
       <Select onValueChange={handlePeriodChange} value={search.period}>
         <SelectTrigger
           aria-label='Filtrar por período'
-          className='h-11 rounded-xl px-3.5 xl:w-[175px]'
+          className='h-10 rounded-xl px-3.5 xl:w-[175px]'
         >
           <SelectValue>
             {search.period === 'custom' ? 'Período personalizado' : 'Últimos 30 dias'}
@@ -102,7 +102,7 @@ export const OrdersFilters = (props: OrdersFiltersProps) => {
       </Select>
       {search.period === 'custom' ? (
         <div className='grid grid-cols-2 gap-2 md:col-span-2 xl:contents'>
-          <Label className='flex h-11 items-center gap-2 rounded-xl border px-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
+          <Label className='flex h-10 items-center gap-2 rounded-xl border px-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
             <span className='text-xs font-bold text-muted-foreground'>De</span>
             <Input
               aria-label='Data inicial'
@@ -113,7 +113,7 @@ export const OrdersFilters = (props: OrdersFiltersProps) => {
               value={search.from ?? ''}
             />
           </Label>
-          <Label className='flex h-11 items-center gap-2 rounded-xl border px-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
+          <Label className='flex h-10 items-center gap-2 rounded-xl border px-3 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20'>
             <span className='text-xs font-bold text-muted-foreground'>Até</span>
             <Input
               aria-label='Data final'

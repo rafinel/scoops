@@ -106,7 +106,7 @@ export const StockAdjustmentDialog = (props: StockAdjustmentDialogProps) => {
                   }
                   aria-invalid={Boolean(errors.quantity)}
                   autoFocus
-                  className='h-11 rounded-none border-0 shadow-none focus-visible:ring-0'
+                  className='h-10 rounded-none border-0 shadow-none focus-visible:ring-0'
                   data-focus-ring='delegated'
                   id='stock-adjustment-quantity'
                   min='0'

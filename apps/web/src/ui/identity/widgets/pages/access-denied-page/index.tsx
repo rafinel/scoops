@@ -13,7 +13,7 @@ export const AccessDeniedPage = () => {
           Você não tem permissão para visualizar este conteúdo.
         </p>
         <Anchor
-          className='mt-6 inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-4 text-sm font-extrabold text-primary-foreground shadow-primary'
+          className='mt-6 inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-extrabold text-primary-foreground shadow-primary'
           route='root'
         >
           Voltar para o início

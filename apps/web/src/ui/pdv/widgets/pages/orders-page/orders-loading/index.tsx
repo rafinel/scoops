@@ -7,7 +7,7 @@ export const OrdersLoading = () => (
     className='grid min-h-[420px] place-items-center rounded-2xl border border-border bg-card'
   >
     <div className='w-full space-y-3 p-5'>
-      <Skeleton className='h-11 w-full' />
+      <Skeleton className='h-10 w-full' />
       <Skeleton className='h-12 w-full' />
       <Skeleton className='h-12 w-full' />
       <Skeleton className='h-12 w-full' />

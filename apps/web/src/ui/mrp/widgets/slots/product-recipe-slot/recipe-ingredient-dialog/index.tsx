@@ -153,7 +153,7 @@ export const RecipeIngredientDialog = ({
                     errors.quantity ? 'recipe-ingredient-quantity-error' : undefined
                   }
                   aria-invalid={Boolean(errors.quantity)}
-                  className='h-11 border-0 shadow-none focus-visible:ring-0'
+                  className='h-10 border-0 shadow-none focus-visible:ring-0'
                   inputMode='decimal'
                   min='0'
                   type='number'

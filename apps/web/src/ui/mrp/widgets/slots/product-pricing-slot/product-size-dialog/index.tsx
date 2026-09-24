@@ -81,7 +81,7 @@ export const ProductSizeDialog = (props: ProductSizeDialogProps) => {
                     errors.quantity ? 'product-size-quantity-error' : undefined
                   }
                   aria-invalid={Boolean(errors.quantity)}
-                  className='h-11 rounded-none border-0 shadow-none focus-visible:ring-0'
+                  className='h-10 rounded-none border-0 shadow-none focus-visible:ring-0'
                   data-focus-ring='delegated'
                   id='product-size-quantity'
                   inputMode='decimal'
@@ -115,7 +115,7 @@ export const ProductSizeDialog = (props: ProductSizeDialogProps) => {
                   {...register('price')}
                   aria-describedby={errors.price ? 'product-size-price-error' : undefined}
                   aria-invalid={Boolean(errors.price)}
-                  className='h-11 rounded-none border-0 shadow-none focus-visible:ring-0'
+                  className='h-10 rounded-none border-0 shadow-none focus-visible:ring-0'
                   data-focus-ring='delegated'
                   id='product-size-price'
                   inputMode='decimal'

@@ -93,7 +93,7 @@ export const ProduceProductDialog = ({
                 }
                 aria-invalid={Boolean(validationError)}
                 aria-label={mode === 'batches' ? 'Lotes' : 'Quantidade'}
-                className='h-11 border-0 shadow-none focus-visible:ring-0'
+                className='h-10 border-0 shadow-none focus-visible:ring-0'
                 inputMode='decimal'
                 min='0'
                 onChange={(event) => setValue(event.target.value)}

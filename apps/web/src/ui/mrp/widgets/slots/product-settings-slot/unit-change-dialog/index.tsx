@@ -39,8 +39,8 @@ export const UnitChangeDialog = (props: UnitChangeDialogProps) => {
               className='grid gap-3'
               role='status'
             >
-              <Skeleton className='h-11 rounded-xl' />
-              <Skeleton className='h-11 rounded-xl' />
+              <Skeleton className='h-10 rounded-xl' />
+              <Skeleton className='h-10 rounded-xl' />
             </div>
           ) : null}
           {hasUnitChangePreviewError ? (

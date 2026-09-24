@@ -57,7 +57,7 @@ export const InvitationCorrectionDialog = ({
               <Input
                 {...register('name')}
                 aria-invalid={Boolean(errors.name)}
-                className='min-h-11 rounded-lg bg-card px-3'
+                className='min-h-10 rounded-lg bg-card px-3'
               />
             </Label>
             <Label className='grid gap-1.5 text-sm font-bold'>
@@ -65,7 +65,7 @@ export const InvitationCorrectionDialog = ({
               <Input
                 {...register('email')}
                 aria-invalid={Boolean(errors.email)}
-                className='min-h-11 rounded-lg bg-card px-3'
+                className='min-h-10 rounded-lg bg-card px-3'
                 type='email'
               />
             </Label>

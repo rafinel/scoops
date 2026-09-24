@@ -121,7 +121,7 @@ export const ComboDiscountForm = (props: ComboDiscountFormProps) => {
               </p>
             </div>
             <Button
-              className='min-h-11'
+              className='min-h-10'
               onClick={handleOpenProductDialog}
               ref={addProductButtonRef}
               type='button'

@@ -109,7 +109,7 @@ export const DiscountsList = ({
   function renderDetailsLink(discountId: string) {
     return (
       <Anchor
-        className='inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-extrabold text-primary hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-ring/40'
+        className='inline-flex min-h-10 items-center gap-1 rounded-lg px-2 text-sm font-extrabold text-primary hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-ring/40'
         onClick={(event) => {
           event.preventDefault()
           onDetails(discountId)
@@ -247,22 +247,22 @@ export const DiscountsList = ({
                 <caption className='sr-only'>Lista de descontos cadastrados</caption>
                 <thead className='bg-muted/60'>
                   <tr className='border-b border-border-soft'>
-                    <th className='h-11 px-4 text-left text-[11px] font-bold uppercase tracking-wide text-muted-foreground sm:px-5'>
+                    <th className='h-10 px-4 text-left text-[11px] font-bold uppercase tracking-wide text-muted-foreground sm:px-5'>
                       Desconto
                     </th>
-                    <th className='h-11 px-4 text-left text-[11px] font-bold uppercase tracking-wide text-muted-foreground'>
+                    <th className='h-10 px-4 text-left text-[11px] font-bold uppercase tracking-wide text-muted-foreground'>
                       Tipo
                     </th>
-                    <th className='h-11 px-4 text-left text-[11px] font-bold uppercase tracking-wide text-muted-foreground'>
+                    <th className='h-10 px-4 text-left text-[11px] font-bold uppercase tracking-wide text-muted-foreground'>
                       Composição
                     </th>
-                    <th className='h-11 px-4 text-left text-[11px] font-bold uppercase tracking-wide text-muted-foreground'>
+                    <th className='h-10 px-4 text-left text-[11px] font-bold uppercase tracking-wide text-muted-foreground'>
                       Valor
                     </th>
-                    <th className='h-11 px-4 text-left text-[11px] font-bold uppercase tracking-wide text-muted-foreground'>
+                    <th className='h-10 px-4 text-left text-[11px] font-bold uppercase tracking-wide text-muted-foreground'>
                       Status
                     </th>
-                    <th className='h-11 px-4 text-right text-[11px] font-bold uppercase tracking-wide text-muted-foreground sm:px-5'>
+                    <th className='h-10 px-4 text-right text-[11px] font-bold uppercase tracking-wide text-muted-foreground sm:px-5'>
                       Ação
                     </th>
                   </tr>

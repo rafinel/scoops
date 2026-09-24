@@ -20,7 +20,7 @@ export const OrdersHeader = (props: OrdersHeaderProps) => (
       </p>
     </div>
     <Button
-      className='min-h-11 rounded-[10px] px-4 font-extrabold shadow-primary'
+      className='min-h-10 rounded-[10px] px-4 font-extrabold shadow-primary'
       onClick={props.onNewSale}
       type='button'
     >

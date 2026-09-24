@@ -92,7 +92,7 @@ export const UsersPage = () => {
       <header className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
         <UsersPageIntro isRefreshing={isRefreshing} total={summary?.total ?? 0} />
         <Button
-          className='min-h-11 rounded-[10px] px-4 text-sm font-extrabold shadow-primary hover:brightness-105'
+          className='min-h-10 rounded-[10px] px-4 text-sm font-extrabold shadow-primary hover:brightness-105'
           onClick={() => handleInviteOpenChange(true)}
           type='button'
         >
@@ -226,7 +226,7 @@ export const UsersPage = () => {
         ) : (
           <div className='overflow-x-auto'>
             <div className='min-w-[720px]'>
-              <div className='grid h-11 grid-cols-[minmax(280px,1.8fr)_180px_210px_170px_minmax(100px,1fr)] items-center gap-4 bg-muted px-5 text-[11px] font-extrabold uppercase tracking-[0.08em] text-text-tertiary'>
+              <div className='grid h-10 grid-cols-[minmax(280px,1.8fr)_180px_210px_170px_minmax(100px,1fr)] items-center gap-4 bg-muted px-5 text-[11px] font-extrabold uppercase tracking-[0.08em] text-text-tertiary'>
                 <span>Usuário</span>
                 <span>Perfil</span>
                 <span>Status</span>

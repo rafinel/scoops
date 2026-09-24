@@ -196,7 +196,7 @@ export const ProductAccompanimentDialog = ({
               <Input
                 {...register('quantityPerPortion')}
                 aria-invalid={Boolean(errors.quantityPerPortion)}
-                className='h-11 border-0 shadow-none focus-visible:ring-0'
+                className='h-10 border-0 shadow-none focus-visible:ring-0'
                 inputMode='decimal'
                 type='text'
               />

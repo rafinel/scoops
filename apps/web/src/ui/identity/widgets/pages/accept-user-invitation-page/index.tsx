@@ -27,7 +27,7 @@ export const AcceptUserInvitationPage = ({
               Sua senha foi criada e seu acesso está ativo.
             </p>
             <Button
-              className='mt-6 min-h-11 w-full rounded-lg px-5 font-bold shadow-primary'
+              className='mt-6 min-h-10 w-full rounded-lg px-5 font-bold shadow-primary'
               onClick={() => void handleGoToApp()}
               type='button'
             >
@@ -51,7 +51,7 @@ export const AcceptUserInvitationPage = ({
                   <Input
                     {...register('password')}
                     autoComplete='new-password'
-                    className='min-h-11 rounded-lg px-3'
+                    className='min-h-10 rounded-lg px-3'
                     minLength={8}
                     maxLength={INVITATION_PASSWORD_MAX_LENGTH}
                     required
@@ -66,7 +66,7 @@ export const AcceptUserInvitationPage = ({
                   </p>
                 ) : null}
                 <Button
-                  className='min-h-11 rounded-lg px-5 font-bold shadow-primary'
+                  className='min-h-10 rounded-lg px-5 font-bold shadow-primary'
                   disabled={state === 'submitting' || password.length < 8}
                   type='submit'
                 >

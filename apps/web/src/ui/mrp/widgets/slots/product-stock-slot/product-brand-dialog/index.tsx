@@ -91,14 +91,14 @@ export const ProductBrandDialog = (props: ProductBrandDialogProps) => {
               {...register('name')}
               aria-invalid={Boolean(errors.name)}
               autoFocus
-              className='h-11 rounded-xl'
+              className='h-10 rounded-xl'
               placeholder='Ex: Frooty'
             />
           </Field>
 
           <Field label='Unidade da marca' error={errors.unit?.message}>
             <Select value={brandUnit} onValueChange={(value) => value && setUnit(value)}>
-              <SelectTrigger aria-label='Unidade da marca' className='h-11 rounded-xl'>
+              <SelectTrigger aria-label='Unidade da marca' className='h-10 rounded-xl'>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -117,7 +117,7 @@ export const ProductBrandDialog = (props: ProductBrandDialogProps) => {
                 <Input
                   {...register('packageQuantity')}
                   aria-invalid={Boolean(errors.packageQuantity)}
-                  className='h-11 rounded-r-none border-0 shadow-none focus-visible:border-transparent focus-visible:ring-0'
+                  className='h-10 rounded-r-none border-0 shadow-none focus-visible:border-transparent focus-visible:ring-0'
                   data-focus-ring='delegated'
                   inputMode='decimal'
                 />
@@ -128,7 +128,7 @@ export const ProductBrandDialog = (props: ProductBrandDialogProps) => {
                 <Input
                   {...register('packageValue')}
                   aria-invalid={Boolean(errors.packageValue)}
-                  className='h-11 rounded-none border-0 shadow-none focus-visible:border-transparent focus-visible:ring-0'
+                  className='h-10 rounded-none border-0 shadow-none focus-visible:border-transparent focus-visible:ring-0'
                   data-focus-ring='delegated'
                   inputMode='decimal'
                 />
@@ -149,7 +149,7 @@ export const ProductBrandDialog = (props: ProductBrandDialogProps) => {
                   aria-invalid={
                     'initialQuantity' in errors && Boolean(errors.initialQuantity)
                   }
-                  className='h-11 rounded-r-none border-0 shadow-none focus-visible:border-transparent focus-visible:ring-0'
+                  className='h-10 rounded-r-none border-0 shadow-none focus-visible:border-transparent focus-visible:ring-0'
                   data-focus-ring='delegated'
                   inputMode='decimal'
                 />

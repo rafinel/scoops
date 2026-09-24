@@ -117,7 +117,7 @@ export const PortionConfigurationDialog = (props: PortionConfigurationDialogProp
                   return (
                     <label
                       className={cn(
-                        'flex min-h-11 items-center gap-3 rounded-xl border px-3 py-2 text-sm font-bold',
+                        'flex min-h-10 items-center gap-3 rounded-xl border px-3 py-2 text-sm font-bold',
                         isSelected && 'border-primary bg-accent text-primary',
                         isDisabled && 'bg-muted text-muted-foreground opacity-60',
                       )}

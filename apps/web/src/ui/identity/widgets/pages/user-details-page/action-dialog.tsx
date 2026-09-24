@@ -146,7 +146,7 @@ export const CorrectNameDialog = ({
             <Input
               {...register('name')}
               aria-invalid={Boolean(errors.name)}
-              className='min-h-11 rounded-lg bg-card px-3'
+              className='min-h-10 rounded-lg bg-card px-3'
             />
           </Label>
           {errors.name ? (

@@ -36,7 +36,7 @@ export const UserActionsMenu = ({
         sideOffset={8}
       >
         <DropdownMenuItem
-          className='min-h-11 gap-3 rounded-xl px-3 py-2 text-sm font-bold'
+          className='min-h-10 gap-3 rounded-xl px-3 py-2 text-sm font-bold'
           onClick={onEdit}
         >
           <Icon name='pencil' className='size-5 text-muted-foreground' />
@@ -48,7 +48,7 @@ export const UserActionsMenu = ({
               <DropdownMenuSeparator />
             ) : null}
             <DropdownMenuItem
-              className='min-h-11 gap-3 rounded-xl px-3 py-2 text-sm font-bold'
+              className='min-h-10 gap-3 rounded-xl px-3 py-2 text-sm font-bold'
               disabled={item.disabled}
               onClick={() => onSelectAction(item.action)}
               variant={item.destructive ? 'destructive' : 'default'}

@@ -16,7 +16,7 @@ export const AuthRouteUnavailableState = ({
         <h1 className='text-xl font-extrabold'>Acesso temporariamente indisponível</h1>
         <p className='mt-3 text-sm text-muted-foreground'>{message}</p>
         <Button
-          className='mt-6 min-h-11 rounded-lg px-5 text-sm font-extrabold shadow-primary'
+          className='mt-6 min-h-10 rounded-lg px-5 text-sm font-extrabold shadow-primary'
           onClick={handleRetry}
           type='button'
         >

@@ -44,7 +44,7 @@ export const DiscountsPage = () => {
             Crie e acompanhe ofertas aplicadas no PDV.
           </p>
         </div>
-        <Button className='min-h-11 shrink-0' onClick={handleCreate}>
+        <Button className='min-h-10 shrink-0' onClick={handleCreate}>
           <Icon name='plus' />
           Criar desconto
         </Button>
