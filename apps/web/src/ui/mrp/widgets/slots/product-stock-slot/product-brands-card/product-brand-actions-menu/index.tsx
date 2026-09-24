@@ -39,7 +39,7 @@ export const ProductBrandActionsMenu = ({
         sideOffset={8}
       >
         <DropdownMenuItem
-          className='min-h-11 gap-3 rounded-lg px-3 text-sm font-semibold'
+          className='min-h-10 gap-3 rounded-lg px-3 text-sm font-semibold'
           onClick={() => onEdit(brand)}
         >
           <Icon className='size-4 text-muted-foreground' name='pencil' />
@@ -47,7 +47,7 @@ export const ProductBrandActionsMenu = ({
         </DropdownMenuItem>
         {!brand.brand.isPrimary ? (
           <DropdownMenuItem
-            className='min-h-11 gap-3 rounded-lg px-3 text-sm font-semibold'
+            className='min-h-10 gap-3 rounded-lg px-3 text-sm font-semibold'
             onClick={() => onSetPrimary(brand)}
           >
             <Icon className='size-4 text-primary' name='check' />
@@ -56,7 +56,7 @@ export const ProductBrandActionsMenu = ({
         ) : null}
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className='min-h-11 gap-3 rounded-lg px-3 text-sm font-semibold'
+          className='min-h-10 gap-3 rounded-lg px-3 text-sm font-semibold'
           onClick={() => onDelete(brand)}
           variant='destructive'
         >
