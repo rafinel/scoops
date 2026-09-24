@@ -1,10 +1,15 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 
 import type { AnchorProps } from '@/ui/shared/widgets/components/anchor'
 import { ROUTES } from '@/constants/routes'
 
 import { UserMenu } from '..'
+import { useUserMenu } from '../use-user-menu'
+
+vi.mock('../use-user-menu', () => ({
+  useUserMenu: vi.fn(),
+}))
 
 vi.mock('@/ui/shared/widgets/components/anchor', () => ({
   Anchor: ({ children, route, ...props }: AnchorProps) => (
@@ -14,10 +19,19 @@ vi.mock('@/ui/shared/widgets/components/anchor', () => ({
   ),
 }))
 
-describe('UserMenu', () => {
-  it('shows the safe account fields and delegates current-device logout', () => {
-    const onLogoutMock = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
+const useUserMenuMock = vi.mocked(useUserMenu)
+const handleLogoutMock = vi.fn()
 
+describe('UserMenu', () => {
+  beforeEach(() => {
+    handleLogoutMock.mockReset()
+    useUserMenuMock.mockReturnValue({
+      profileLabel: 'Operador',
+      handleLogout: handleLogoutMock,
+    })
+  })
+
+  it('shows the safe account fields and delegates current-device logout', () => {
     render(
       <UserMenu
         account={{
@@ -30,7 +44,7 @@ describe('UserMenu', () => {
         }}
         error={null}
         isPending={false}
-        onLogout={onLogoutMock}
+        onLogout={vi.fn<() => Promise<void>>().mockResolvedValue(undefined)}
       />,
     )
 
@@ -44,7 +58,7 @@ describe('UserMenu', () => {
 
     fireEvent.click(screen.getByRole('menuitem', { name: 'Sair deste dispositivo' }))
 
-    expect(onLogoutMock).toHaveBeenCalledOnce()
+    expect(handleLogoutMock).toHaveBeenCalledOnce()
   })
 
   it('disables logout while the current-device request is pending', () => {

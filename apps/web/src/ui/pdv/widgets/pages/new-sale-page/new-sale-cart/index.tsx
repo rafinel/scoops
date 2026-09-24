@@ -51,7 +51,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
   const hasLines = visibleLines.length > 0
 
   return (
-    <Card className='min-w-0 rounded-2xl py-0 shadow-card lg:sticky lg:top-5 lg:flex lg:max-h-[calc(100vh-112px)]'>
+    <Card className='min-w-0 rounded-2xl py-0 shadow-card lg:sticky lg:top-5 lg:flex lg:max-h-[calc(100vh-102px)]'>
       <div className='flex items-center justify-between gap-3 border-b border-border-soft p-5 sm:p-6'>
         <div>
           <h2 className='text-lg font-extrabold'>Pedido atual</h2>

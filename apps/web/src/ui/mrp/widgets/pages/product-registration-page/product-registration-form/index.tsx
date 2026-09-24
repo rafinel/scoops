@@ -120,7 +120,7 @@ export const ProductRegistrationForm = ({
             >
               <SelectTrigger
                 aria-label='Unidade'
-                className='h-10 w-full rounded-xl px-3 text-sm'
+                className='w-full rounded-xl px-3 text-sm'
               >
                 <SelectValue />
               </SelectTrigger>

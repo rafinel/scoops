@@ -3,23 +3,32 @@ import { render, screen } from '@testing-library/react'
 
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 
+import type { AnchorProps } from '@/ui/shared/widgets/components/anchor'
+import type { NotificationDropdownProps } from '@/ui/communication/widgets/components/notification-dropdown'
 import { getSidebarItems } from '@/constants/sidebar-items'
+import { ROUTES } from '@/constants/routes'
 import { isSidebarItemActive } from '../index'
 
-vi.mock('@tanstack/react-router', () => ({
-  useLocation: () => ({ pathname: '/' }),
+vi.mock('@/ui/shared/widgets/components/anchor', () => ({
+  Anchor: ({ children, route, ...props }: AnchorProps) => (
+    <a href={ROUTES[route]} {...props}>
+      {children}
+    </a>
+  ),
+}))
+
+vi.mock('@/ui/shared/hooks/use-url-pathname', () => ({
+  useUrlPathname: vi.fn(),
 }))
 
 vi.mock('../use-app-layout', () => ({
   useAppLayout: vi.fn(),
 }))
 
-vi.mock('../user-menu', () => ({
-  UserMenu: () => null,
-}))
-
 vi.mock('@/ui/communication/widgets/components/notification-dropdown', () => ({
-  NotificationDropdown: () => <button type='button'>Notificações</button>,
+  NotificationDropdown: (_props: NotificationDropdownProps) => (
+    <button type='button'>Notificações</button>
+  ),
 }))
 
 vi.mock(
@@ -35,13 +44,16 @@ vi.mock('@/ui/communication/hooks/use-notification-realtime', () => ({
 
 import { AppLayout } from '../index'
 import { useAppLayout } from '../use-app-layout'
+import { useUrlPathname } from '@/ui/shared/hooks/use-url-pathname'
 import { useNotificationShellProvider } from '@/ui/communication/contexts/notification-shell-context/use-notification-shell-provider'
 
 const useAppLayoutMock = vi.mocked(useAppLayout)
+const useUrlPathnameMock = vi.mocked(useUrlPathname)
 const useNotificationShellProviderMock = vi.mocked(useNotificationShellProvider)
 
-describe('AppLayout sidebar profile configuration', () => {
+describe('AppLayout', () => {
   beforeEach(() => {
+    useUrlPathnameMock.mockReturnValue({ pathname: '/' })
     useAppLayoutMock.mockReturnValue({
       account: null,
       error: null,
@@ -102,12 +114,38 @@ describe('AppLayout sidebar profile configuration', () => {
     expect(products?.activePrefixes).toContain('/products/')
   })
 
-  it('keeps active navigation accessible when routes include trailing slashes', () => {
+  it('marks exact and nested routes active and normalizes trailing slashes', () => {
     const managerItems = getSidebarItems(UserProfile.Manager)
     const products = managerItems.find((item) => item.route === 'products')
+    const home = managerItems.find((item) => item.route === 'app')
 
     expect(products && isSidebarItemActive('/products/portion-1/', products)).toBe(true)
     expect(products && isSidebarItemActive('/products-old/', products)).toBe(false)
+    expect(home && isSidebarItemActive('/', home)).toBe(true)
+    expect(home && isSidebarItemActive('/nested', home)).toBe(false)
+  })
+
+  it('exposes the current route through accessible navigation state', () => {
+    const managerItems = getSidebarItems(UserProfile.Manager)
+    useUrlPathnameMock.mockReturnValue({ pathname: '/products/portion-1/' })
+    useAppLayoutMock.mockReturnValue({
+      account: null,
+      error: null,
+      handleLogout: vi.fn(),
+      handleMobileSidebarNavigate: vi.fn(),
+      handleMobileSidebarOpenChange: vi.fn(),
+      isPending: false,
+      isMobileSidebarOpen: false,
+      primaryItems: managerItems,
+      secondaryItems: [],
+    })
+
+    render(<AppLayout />)
+
+    const productsLinks = screen.getAllByRole('link', { name: 'Produtos' })
+    expect(
+      productsLinks.some((link) => link.getAttribute('aria-current') === 'page'),
+    ).toBe(true)
   })
 
   it('keeps the notification dropdown in the authenticated header composition', () => {
@@ -117,7 +155,7 @@ describe('AppLayout sidebar profile configuration', () => {
       </AppLayout>,
     )
 
-    expect(screen.getByRole('button', { name: 'Notificações' })).not.toBeNull()
+    expect(screen.getAllByRole('button', { name: 'Notificações' })).not.toHaveLength(0)
     expect(screen.getByText('Conteúdo autenticado')).not.toBeNull()
   })
 })

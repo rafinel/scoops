@@ -44,9 +44,6 @@ export const ProductRegistrationPage = () => {
       <BackLink aria-label='Voltar para produtos' />
       <div>
         <h1 className='text-2xl font-black tracking-tight sm:text-3xl'>Novo produto</h1>
-        <p className='mt-1 text-sm text-muted-foreground'>
-          Catálogo e estoque em uma única página.
-        </p>
       </div>
       <ProductRegistrationForm
         categories={categories}

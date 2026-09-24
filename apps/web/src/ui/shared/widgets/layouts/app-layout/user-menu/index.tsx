@@ -1,6 +1,3 @@
-import type { Account } from '@scoops/core/identity/domain/entities'
-import { UserProfile } from '@scoops/core/identity/domain/structures'
-
 import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Avatar } from '@/ui/shared/widgets/components/avatar'
 import { Icon } from '@/ui/shared/widgets/components/icon'
@@ -13,15 +10,14 @@ import {
   DropdownMenuTrigger,
 } from '@/ui/shadcn/dropdown-menu'
 
-export type UserMenuProps = {
-  account: Account
-  error: Error | null
-  isPending: boolean
-  onLogout: () => Promise<void>
-}
+import type { UserMenuProps } from './types/user-menu-props'
+import { useUserMenu } from './use-user-menu'
 
-export const UserMenu = ({ account, error, isPending, onLogout }: UserMenuProps) => {
-  const profileLabel = account.profile === UserProfile.Manager ? 'Gerente' : 'Operador'
+export type { UserMenuProps } from './types/user-menu-props'
+
+export const UserMenu = (props: UserMenuProps) => {
+  const { account, error, isPending } = props
+  const { profileLabel, handleLogout } = useUserMenu(props)
 
   return (
     <DropdownMenu>
@@ -63,7 +59,7 @@ export const UserMenu = ({ account, error, isPending, onLogout }: UserMenuProps)
         <DropdownMenuItem
           className='mt-3 min-h-10 w-full rounded-lg border px-3 text-left text-sm font-bold'
           disabled={isPending}
-          onClick={() => void onLogout()}
+          onClick={handleLogout}
         >
           {isPending ? 'Saindo…' : 'Sair deste dispositivo'}
         </DropdownMenuItem>

@@ -33,11 +33,11 @@ export function useAppLayout() {
     account: account as Account | null,
     error,
     isPending,
-    handleLogout,
-    handleMobileSidebarNavigate,
-    handleMobileSidebarOpenChange,
     isMobileSidebarOpen,
     primaryItems: getSidebarItems(account?.profile ?? null),
     secondaryItems: getSidebarItems(account?.profile ?? null, SIDEBAR_SECONDARY_ITEMS),
+    handleLogout,
+    handleMobileSidebarNavigate,
+    handleMobileSidebarOpenChange,
   }
 }
