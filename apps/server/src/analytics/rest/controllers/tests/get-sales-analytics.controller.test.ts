@@ -363,7 +363,33 @@ describe('GetSalesAnalyticsController', () => {
         establishmentId,
         planCode: BillingPlanCode.Complete,
         status: SubscriptionStatus.Blocked,
+        providerSubscriptionId: 'analytics-blocked-subscription',
       })
+      const subscription = await subscriptions.findByEstablishmentId(establishmentId)
+
+      expect(subscription).toMatchObject({ status: SubscriptionStatus.Blocked })
+      await expect(
+        subscriptions.findById('60000000-0000-0000-0000-000000000099'),
+      ).resolves.toBeUndefined()
+      await expect(
+        subscriptions.findByProviderSubscriptionId('analytics-blocked-subscription'),
+      ).resolves.toMatchObject({ id: subscription?.id })
+      await expect(subscriptions.findById(subscription?.id ?? '')).resolves.toMatchObject(
+        { id: subscription?.id },
+      )
+      await expect(
+        subscriptions.replace(establishmentId, { status: SubscriptionStatus.Blocked }),
+      ).resolves.toMatchObject({ status: SubscriptionStatus.Blocked })
+      await expect(
+        subscriptions.replace('60000000-0000-0000-0000-000000000098', {}),
+      ).rejects.toThrow('A assinatura não foi encontrada.')
+      await expect(
+        subscriptions.add({
+          establishmentId,
+          planCode: BillingPlanCode.Complete,
+          status: SubscriptionStatus.Blocked,
+        }),
+      ).rejects.toThrow('A operação no banco de dados entrou em conflito.')
 
       const sales = await request(fixture.app.getHttpServer())
         .get('/analytics/sales?period=last-30-days')
@@ -376,6 +402,44 @@ describe('GetSalesAnalyticsController', () => {
       expect(sales.body).toHaveProperty('summary')
       expect(stock.status).toBe(200)
       expect(stock.body.items).toEqual(expect.any(Array))
+    })
+
+    it('returns unavailable when the establishment context is missing', async () => {
+      auth.setUser(managerToken, {
+        id: managerId,
+        email: 'analytics.manager@example.com',
+      })
+      const establishments = fixture.app.get<EstablishmentsRepository>(
+        IDENTITY_REPOSITORIES.establishments,
+      )
+      vi.spyOn(establishments, 'findById').mockResolvedValueOnce(undefined)
+
+      const response = await request(fixture.app.getHttpServer())
+        .get('/analytics/stock-attention')
+        .set('Cookie', auth.cookieFor())
+
+      expect(response.status).toBe(503)
+      expect(response.body).toMatchObject({ title: 'Serviço Indisponível' })
+    })
+
+    it('returns unavailable when establishment context lookup fails', async () => {
+      auth.setUser(managerToken, {
+        id: managerId,
+        email: 'analytics.manager@example.com',
+      })
+      const establishments = fixture.app.get<EstablishmentsRepository>(
+        IDENTITY_REPOSITORIES.establishments,
+      )
+      vi.spyOn(establishments, 'findById').mockRejectedValueOnce(
+        new Error('identity database offline'),
+      )
+
+      const response = await request(fixture.app.getHttpServer())
+        .get('/analytics/stock-attention')
+        .set('Cookie', auth.cookieFor())
+
+      expect(response.status).toBe(503)
+      expect(response.body).toMatchObject({ title: 'Serviço Indisponível' })
     })
 
     it('continues to restrict dashboard analytics to Managers', async () => {

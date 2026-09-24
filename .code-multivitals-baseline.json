@@ -1,10 +1,10 @@
 {
-  "analysedAt": "2026-09-16T19:25:44.331Z",
+  "analysedAt": "2026-09-24T12:11:33.306Z",
   "totalFiles": 1650,
   "totalFunctions": 4823,
-  "warnCount": 1207,
+  "warnCount": 1209,
   "errorCount": 227,
-  "averageMI": 52.9,
+  "averageMI": 52.8,
   "averageHealthScore": 67.1,
   "clones": [
     {
@@ -16568,23 +16568,6 @@
     {
       "similarity": 1,
       "blockA": {
-        "filePath": "apps/server/src/communication/messaging/inngest/jobs/send-onboarding-confirmation-email-job.ts",
-        "functionName": "constructor",
-        "startLine": 22,
-        "endLine": 50,
-        "lines": 29
-      },
-      "blockB": {
-        "filePath": "apps/server/src/communication/messaging/inngest/jobs/send-password-recovery-email-job.ts",
-        "functionName": "constructor",
-        "startLine": 22,
-        "endLine": 50,
-        "lines": 29
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
         "filePath": "apps/server/src/communication/database/drizzle/mappers/drizzle-notification-mapper.ts",
         "functionName": "toDomain",
         "startLine": 6,
@@ -16665,6 +16648,23 @@
         "startLine": 36,
         "endLine": 68,
         "lines": 33
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/communication/messaging/inngest/jobs/send-onboarding-confirmation-email-job.ts",
+        "functionName": "constructor",
+        "startLine": 22,
+        "endLine": 50,
+        "lines": 29
+      },
+      "blockB": {
+        "filePath": "apps/server/src/communication/messaging/inngest/jobs/send-password-recovery-email-job.ts",
+        "functionName": "constructor",
+        "startLine": 22,
+        "endLine": 50,
+        "lines": 29
       }
     },
     {
@@ -28543,11 +28543,11 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -28560,11 +28560,11 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -28781,11 +28781,11 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -28798,11 +28798,11 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -28900,11 +28900,11 @@
         "lines": 19
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -28917,11 +28917,11 @@
         "lines": 19
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -29070,11 +29070,11 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -29087,11 +29087,11 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -29206,11 +29206,11 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -29223,11 +29223,11 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -29308,11 +29308,11 @@
         "lines": 17
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -29325,11 +29325,11 @@
         "lines": 17
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -29359,11 +29359,11 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -29376,11 +29376,11 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -29444,11 +29444,11 @@
         "lines": 12
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -29461,11 +29461,11 @@
         "lines": 12
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -29512,8 +29512,8 @@
         "lines": 18
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -29529,8 +29529,8 @@
         "lines": 18
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -29539,15 +29539,15 @@
     {
       "similarity": 1,
       "blockA": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -29573,18 +29573,18 @@
     {
       "similarity": 1,
       "blockA": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
-        "startLine": 8,
-        "endLine": 24,
-        "lines": 17
-      },
-      "blockB": {
         "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
         "functionName": "SalesChannelsError",
         "startLine": 8,
         "endLine": 23,
         "lines": 16
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
+        "startLine": 8,
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -31919,23 +31919,6 @@
     {
       "similarity": 1,
       "blockA": {
-        "filePath": "packages/core/src/communication/domain/structures/fakers/notification-actor-faker.ts",
-        "functionName": "fake",
-        "startLine": 9,
-        "endLine": 16,
-        "lines": 8
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/domain/entities/fakers/account-faker.ts",
-        "functionName": "fake",
-        "startLine": 6,
-        "endLine": 16,
-        "lines": 11
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
         "filePath": "packages/core/src/communication/domain/entities/fakers/notification-faker.ts",
         "functionName": "fake",
         "startLine": 7,
@@ -31948,6 +31931,23 @@
         "startLine": 7,
         "endLine": 20,
         "lines": 14
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/communication/domain/structures/fakers/notification-actor-faker.ts",
+        "functionName": "fake",
+        "startLine": 9,
+        "endLine": 16,
+        "lines": 8
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/domain/entities/fakers/account-faker.ts",
+        "functionName": "fake",
+        "startLine": 6,
+        "endLine": 16,
+        "lines": 11
       }
     },
     {
@@ -36159,8 +36159,8 @@
         "lines": 23
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -36176,8 +36176,8 @@
         "lines": 23
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -36924,11 +36924,11 @@
         "lines": 21
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -36941,11 +36941,11 @@
         "lines": 21
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -36975,8 +36975,8 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -36992,8 +36992,8 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37026,8 +37026,8 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37043,8 +37043,8 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37077,8 +37077,8 @@
         "lines": 19
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37094,8 +37094,8 @@
         "lines": 19
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37162,8 +37162,8 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37179,8 +37179,8 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37213,8 +37213,8 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37230,8 +37230,8 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37264,8 +37264,8 @@
         "lines": 17
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37281,8 +37281,8 @@
         "lines": 17
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37315,8 +37315,8 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37332,8 +37332,8 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37366,8 +37366,8 @@
         "lines": 12
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -37383,11 +37383,28 @@
         "lines": 12
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
+      }
+    },
+    {
+      "similarity": 0.909,
+      "blockA": {
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-empty-state/index.tsx",
+        "functionName": "OrdersEmptyState",
+        "startLine": 6,
+        "endLine": 23,
+        "lines": 18
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
+        "startLine": 8,
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -37410,11 +37427,45 @@
     {
       "similarity": 0.909,
       "blockA": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-empty-state/index.tsx",
-        "functionName": "OrdersEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
+        "endLine": 22,
+        "lines": 17
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
+        "startLine": 8,
         "endLine": 23,
-        "lines": 18
+        "lines": 16
+      }
+    },
+    {
+      "similarity": 0.909,
+      "blockA": {
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
+        "startLine": 6,
+        "endLine": 22,
+        "lines": 17
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
+        "startLine": 8,
+        "endLine": 24,
+        "lines": 17
+      }
+    },
+    {
+      "similarity": 0.909,
+      "blockA": {
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
+        "startLine": 6,
+        "endLine": 22,
+        "lines": 17
       },
       "blockB": {
         "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
@@ -37439,57 +37490,6 @@
         "startLine": 8,
         "endLine": 24,
         "lines": 17
-      }
-    },
-    {
-      "similarity": 0.909,
-      "blockA": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
-        "startLine": 6,
-        "endLine": 22,
-        "lines": 17
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
-        "startLine": 8,
-        "endLine": 23,
-        "lines": 16
-      }
-    },
-    {
-      "similarity": 0.909,
-      "blockA": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
-        "startLine": 6,
-        "endLine": 22,
-        "lines": 17
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
-        "startLine": 8,
-        "endLine": 24,
-        "lines": 17
-      }
-    },
-    {
-      "similarity": 0.909,
-      "blockA": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
-        "startLine": 6,
-        "endLine": 22,
-        "lines": 17
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
-        "startLine": 8,
-        "endLine": 23,
-        "lines": 16
       }
     },
     {
@@ -40052,11 +40052,11 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -40069,11 +40069,11 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -40205,11 +40205,11 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -40222,11 +40222,11 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -49113,11 +49113,11 @@
         "lines": 13
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -49130,11 +49130,11 @@
         "lines": 13
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -49276,23 +49276,6 @@
     {
       "similarity": 0.85,
       "blockA": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
-        "startLine": 8,
-        "endLine": 24,
-        "lines": 17
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/stock-transaction-history-card/justification-button/index.tsx",
-        "functionName": "JustificationButton",
-        "startLine": 8,
-        "endLine": 20,
-        "lines": 13
-      }
-    },
-    {
-      "similarity": 0.85,
-      "blockA": {
         "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
         "functionName": "SalesChannelsError",
         "startLine": 8,
@@ -49310,17 +49293,34 @@
     {
       "similarity": 0.85,
       "blockA": {
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
+        "startLine": 8,
+        "endLine": 24,
+        "lines": 17
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/stock-transaction-history-card/justification-button/index.tsx",
+        "functionName": "JustificationButton",
+        "startLine": 8,
+        "endLine": 20,
+        "lines": 13
+      }
+    },
+    {
+      "similarity": 0.85,
+      "blockA": {
         "filePath": "packages/core/src/analytics/use-cases/get-sales-analytics-use-case.ts",
         "functionName": "buildSalesAnalytics",
-        "startLine": 122,
-        "endLine": 138,
+        "startLine": 121,
+        "endLine": 137,
         "lines": 17
       },
       "blockB": {
         "filePath": "packages/core/src/analytics/use-cases/get-sales-analytics-use-case.ts",
         "functionName": "buildSummary",
-        "startLine": 140,
-        "endLine": 157,
+        "startLine": 139,
+        "endLine": 156,
         "lines": 18
       }
     },
@@ -52700,8 +52700,8 @@
         "lines": 21
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -52717,8 +52717,8 @@
         "lines": 21
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -52870,11 +52870,11 @@
         "lines": 23
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -52887,11 +52887,11 @@
         "lines": 23
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -55437,8 +55437,8 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -55454,8 +55454,8 @@
         "lines": 14
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -55488,8 +55488,8 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
-        "functionName": "OrdersError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
+        "functionName": "OrdersFilteredEmptyState",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -55505,8 +55505,8 @@
         "lines": 15
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-filtered-empty-state/index.tsx",
-        "functionName": "OrdersFilteredEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/orders-page/orders-error/index.tsx",
+        "functionName": "OrdersError",
         "startLine": 6,
         "endLine": 22,
         "lines": 17
@@ -56644,11 +56644,11 @@
         "lines": 10
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
-        "functionName": "SalesChannelsEmptyState",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
+        "functionName": "SalesChannelsError",
         "startLine": 8,
-        "endLine": 24,
-        "lines": 17
+        "endLine": 23,
+        "lines": 16
       }
     },
     {
@@ -56661,11 +56661,11 @@
         "lines": 10
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-error/index.tsx",
-        "functionName": "SalesChannelsError",
+        "filePath": "apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-empty-state/index.tsx",
+        "functionName": "SalesChannelsEmptyState",
         "startLine": 8,
-        "endLine": 23,
-        "lines": 16
+        "endLine": 24,
+        "lines": 17
       }
     },
     {
@@ -58791,6 +58791,100 @@
       "summary": {
         "totalLines": 44,
         "weightedMI": 55.6,
+        "weightedHealthScore": 82.5,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/server/src/analytics/fixtures/analytics-module-fixture.ts",
+      "functions": [
+        {
+          "name": "register",
+          "startLine": 18,
+          "endLine": 45,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 2,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 28,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 131.77,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 53.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 77,
+          "smells": []
+        },
+        {
+          "name": "builderSetup",
+          "startLine": 19,
+          "endLine": 32,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 14,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 232.25,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 58.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 85,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 59,
+        "weightedMI": 60.5,
         "weightedHealthScore": 82.5,
         "worstSeverity": "warn",
         "smellIds": []
@@ -61742,7 +61836,7 @@
         {
           "name": "resetSeedUsers",
           "startLine": 952,
-          "endLine": 973,
+          "endLine": 974,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -61758,7 +61852,7 @@
             },
             {
               "name": "functionLength",
-              "value": 22,
+              "value": 23,
               "threshold": 70,
               "severity": "ok"
             },
@@ -61775,16 +61869,16 @@
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 52,
+          "maintainabilityIndex": 51.6,
           "maintainabilityRating": "warn",
-          "healthScore": 74,
+          "healthScore": 73,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 979,
+        "totalLines": 980,
         "weightedMI": 43,
-        "weightedHealthScore": 68.2,
+        "weightedHealthScore": 68.1,
         "worstSeverity": "error",
         "smellIds": [
           "bloated"
@@ -65716,8 +65810,8 @@
       "functions": [
         {
           "name": "register",
-          "startLine": 14,
-          "endLine": 64,
+          "startLine": 12,
+          "endLine": 49,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -65733,9 +65827,9 @@
             },
             {
               "name": "functionLength",
-              "value": 44,
+              "value": 32,
               "threshold": 70,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "nestingDepth",
@@ -65745,50 +65839,50 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 286.73,
+              "value": 255.41,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 46.8,
+          "maintainabilityIndex": 50.2,
           "maintainabilityRating": "warn",
-          "healthScore": 76,
+          "healthScore": 80,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 66,
-        "weightedMI": 56.7,
-        "weightedHealthScore": 80.4,
+        "totalLines": 51,
+        "weightedMI": 56.2,
+        "weightedHealthScore": 82.3,
         "worstSeverity": "warn",
         "smellIds": []
       }
     },
     {
-      "filePath": "apps/server/src/shared/provision/analytics/identity-billing-analytics-context-provider.ts",
+      "filePath": "apps/server/src/shared/provision/analytics/identity-analytics-context-provider.ts",
       "functions": [
         {
           "name": "resolve",
-          "startLine": 21,
-          "endLine": 61,
+          "startLine": 13,
+          "endLine": 35,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 5,
+              "value": 4,
               "threshold": 15,
               "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 5,
+              "value": 4,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 41,
+              "value": 23,
               "threshold": 70,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "nestingDepth",
@@ -65798,31 +65892,23 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 524.79,
+              "value": 216.22,
               "threshold": 800,
-              "severity": "warn"
+              "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 45.1,
+          "maintainabilityIndex": 53.4,
           "maintainabilityRating": "warn",
-          "healthScore": 56,
-          "smells": [
-            {
-              "id": "bloated",
-              "label": "Bloated",
-              "reason": "Large function (41 lines) with high vocabulary (Halstead volume 524.79) but low branching — consider extracting helpers."
-            }
-          ]
+          "healthScore": 66,
+          "smells": []
         }
       ],
       "summary": {
-        "totalLines": 71,
-        "weightedMI": 53.8,
-        "weightedHealthScore": 63.5,
+        "totalLines": 37,
+        "weightedMI": 55.3,
+        "weightedHealthScore": 67.3,
         "worstSeverity": "warn",
-        "smellIds": [
-          "bloated"
-        ]
+        "smellIds": []
       }
     },
     {
@@ -67546,6 +67632,247 @@
       }
     },
     {
+      "filePath": "apps/server/src/communication/database/drizzle/mappers/drizzle-notification-mapper.ts",
+      "functions": [
+        {
+          "name": "toDomain",
+          "startLine": 6,
+          "endLine": 19,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 2,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 14,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 168,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 59.1,
+          "maintainabilityRating": "warn",
+          "healthScore": 84,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 21,
+        "weightedMI": 59.1,
+        "weightedHealthScore": 84,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/server/src/communication/database/drizzle/models/notification-model.ts",
+      "functions": [
+        {
+          "name": "<anonymous>",
+          "startLine": 28,
+          "endLine": 64,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 1,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 494.51,
+              "threshold": 800,
+              "severity": "warn"
+            }
+          ],
+          "maintainabilityIndex": 81,
+          "maintainabilityRating": "ok",
+          "healthScore": 91,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 66,
+        "weightedMI": 81,
+        "weightedHealthScore": 91,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/server/src/communication/database/drizzle/repositories/drizzle-notifications-repository.ts",
+      "functions": [
+        {
+          "name": "addMany",
+          "startLine": 19,
+          "endLine": 32,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 2,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 14,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 135.93,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 59.8,
+          "maintainabilityRating": "warn",
+          "healthScore": 81,
+          "smells": []
+        },
+        {
+          "name": "findPage",
+          "startLine": 34,
+          "endLine": 84,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 9,
+              "threshold": 15,
+              "severity": "warn"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 7,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 51,
+              "threshold": 70,
+              "severity": "warn"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 2,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 1352.21,
+              "threshold": 800,
+              "severity": "error"
+            }
+          ],
+          "maintainabilityIndex": 39.6,
+          "maintainabilityRating": "warn",
+          "healthScore": 45,
+          "smells": []
+        },
+        {
+          "name": "markRead",
+          "startLine": 86,
+          "endLine": 109,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 2,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 19,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 342.35,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 54.1,
+          "maintainabilityRating": "warn",
+          "healthScore": 78,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 143,
+        "weightedMI": 51.8,
+        "weightedHealthScore": 66,
+        "worstSeverity": "error",
+        "smellIds": []
+      }
+    },
+    {
       "filePath": "apps/server/src/communication/messaging/inngest/jobs/create-in-product-notifications-job.ts",
       "functions": [
         {
@@ -68000,247 +68327,6 @@
         "weightedMI": 58.8,
         "weightedHealthScore": 83.2,
         "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
-      "filePath": "apps/server/src/communication/database/drizzle/mappers/drizzle-notification-mapper.ts",
-      "functions": [
-        {
-          "name": "toDomain",
-          "startLine": 6,
-          "endLine": 19,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 2,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 1,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 14,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 168,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 59.1,
-          "maintainabilityRating": "warn",
-          "healthScore": 84,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 21,
-        "weightedMI": 59.1,
-        "weightedHealthScore": 84,
-        "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
-      "filePath": "apps/server/src/communication/database/drizzle/models/notification-model.ts",
-      "functions": [
-        {
-          "name": "<anonymous>",
-          "startLine": 28,
-          "endLine": 64,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 1,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 1,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 494.51,
-              "threshold": 800,
-              "severity": "warn"
-            }
-          ],
-          "maintainabilityIndex": 81,
-          "maintainabilityRating": "ok",
-          "healthScore": 91,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 66,
-        "weightedMI": 81,
-        "weightedHealthScore": 91,
-        "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
-      "filePath": "apps/server/src/communication/database/drizzle/repositories/drizzle-notifications-repository.ts",
-      "functions": [
-        {
-          "name": "addMany",
-          "startLine": 19,
-          "endLine": 32,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 2,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 1,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 14,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 135.93,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 59.8,
-          "maintainabilityRating": "warn",
-          "healthScore": 81,
-          "smells": []
-        },
-        {
-          "name": "findPage",
-          "startLine": 34,
-          "endLine": 84,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 9,
-              "threshold": 15,
-              "severity": "warn"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 7,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 51,
-              "threshold": 70,
-              "severity": "warn"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 2,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 1352.21,
-              "threshold": 800,
-              "severity": "error"
-            }
-          ],
-          "maintainabilityIndex": 39.6,
-          "maintainabilityRating": "warn",
-          "healthScore": 45,
-          "smells": []
-        },
-        {
-          "name": "markRead",
-          "startLine": 86,
-          "endLine": 109,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 2,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 1,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 19,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 342.35,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 54.1,
-          "maintainabilityRating": "warn",
-          "healthScore": 78,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 143,
-        "weightedMI": 51.8,
-        "weightedHealthScore": 66,
-        "worstSeverity": "error",
         "smellIds": []
       }
     },
@@ -97162,11 +97248,11 @@
         {
           "name": "Comparison",
           "startLine": 102,
-          "endLine": 136,
+          "endLine": 142,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 9,
+              "value": 10,
               "threshold": 15,
               "severity": "warn"
             },
@@ -97178,7 +97264,7 @@
             },
             {
               "name": "functionLength",
-              "value": 29,
+              "value": 35,
               "threshold": 70,
               "severity": "ok"
             },
@@ -97190,31 +97276,23 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 373.29,
+              "value": 454.95,
               "threshold": 800,
-              "severity": "ok"
+              "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 48.9,
+          "maintainabilityIndex": 46.4,
           "maintainabilityRating": "warn",
-          "healthScore": 66,
-          "smells": [
-            {
-              "id": "fragile",
-              "label": "Fragile",
-              "reason": "High cyclomatic complexity (9) with low MI (48.9) — many branches and hard to maintain safely."
-            }
-          ]
+          "healthScore": 62,
+          "smells": []
         }
       ],
       "summary": {
-        "totalLines": 137,
-        "weightedMI": 74.2,
-        "weightedHealthScore": 84.1,
+        "totalLines": 143,
+        "weightedMI": 72.4,
+        "weightedHealthScore": 82.1,
         "worstSeverity": "warn",
-        "smellIds": [
-          "fragile"
-        ]
+        "smellIds": []
       }
     },
     {
@@ -100046,153 +100124,6 @@
       }
     },
     {
-      "filePath": "apps/web/src/ui/mrp/widgets/slots/product-pricing-slot/remove-product-size-dialog/index.tsx",
-      "functions": [
-        {
-          "name": "RemoveProductSizeDialog",
-          "startLine": 24,
-          "endLine": 83,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 3,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 54,
-              "threshold": 70,
-              "severity": "warn"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 267.53,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 44.8,
-          "maintainabilityRating": "warn",
-          "healthScore": 71,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 84,
-        "weightedMI": 46.4,
-        "weightedHealthScore": 71.8,
-        "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
-      "filePath": "apps/web/src/ui/mrp/widgets/slots/product-pricing-slot/remove-product-size-dialog/use-remove-product-size-dialog.ts",
-      "functions": [
-        {
-          "name": "useRemoveProductSizeDialog",
-          "startLine": 13,
-          "endLine": 47,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 5,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 29,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 79.95,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 54.1,
-          "maintainabilityRating": "warn",
-          "healthScore": 76,
-          "smells": []
-        },
-        {
-          "name": "handleConfirm",
-          "startLine": 27,
-          "endLine": 40,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 4,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 2,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 14,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 2,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 131.69,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 59.6,
-          "maintainabilityRating": "warn",
-          "healthScore": 74,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 48,
-        "weightedMI": 57.2,
-        "weightedHealthScore": 76.2,
-        "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
       "filePath": "apps/web/src/ui/mrp/widgets/slots/product-pricing-slot/product-size-dialog/index.tsx",
       "functions": [
         {
@@ -100376,6 +100307,153 @@
         "totalLines": 109,
         "weightedMI": 48.4,
         "weightedHealthScore": 63.7,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/mrp/widgets/slots/product-pricing-slot/remove-product-size-dialog/index.tsx",
+      "functions": [
+        {
+          "name": "RemoveProductSizeDialog",
+          "startLine": 24,
+          "endLine": 83,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 3,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 54,
+              "threshold": 70,
+              "severity": "warn"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 267.53,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 44.8,
+          "maintainabilityRating": "warn",
+          "healthScore": 71,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 84,
+        "weightedMI": 46.4,
+        "weightedHealthScore": 71.8,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/mrp/widgets/slots/product-pricing-slot/remove-product-size-dialog/use-remove-product-size-dialog.ts",
+      "functions": [
+        {
+          "name": "useRemoveProductSizeDialog",
+          "startLine": 13,
+          "endLine": 47,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 5,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 29,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 79.95,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 54.1,
+          "maintainabilityRating": "warn",
+          "healthScore": 76,
+          "smells": []
+        },
+        {
+          "name": "handleConfirm",
+          "startLine": 27,
+          "endLine": 40,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 4,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 2,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 14,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 2,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 131.69,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 59.6,
+          "maintainabilityRating": "warn",
+          "healthScore": 74,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 48,
+        "weightedMI": 57.2,
+        "weightedHealthScore": 76.2,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -102803,59 +102881,6 @@
       }
     },
     {
-      "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/product-stock-summary/index.tsx",
-      "functions": [
-        {
-          "name": "ProductStockSummary",
-          "startLine": 13,
-          "endLine": 51,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 5,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 34,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 209.22,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 49.7,
-          "maintainabilityRating": "warn",
-          "healthScore": 73,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 63,
-        "weightedMI": 53.8,
-        "weightedHealthScore": 76.5,
-        "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
       "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/remove-product-brand-dialog/index.tsx",
       "functions": [
         {
@@ -103264,106 +103289,12 @@
       }
     },
     {
-      "filePath": "apps/web/src/ui/pdv/widgets/pages/combo-discount-page/change-combo-status-dialog/index.tsx",
+      "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/product-stock-summary/index.tsx",
       "functions": [
         {
-          "name": "ChangeComboStatusDialog",
-          "startLine": 29,
-          "endLine": 99,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 10,
-              "threshold": 15,
-              "severity": "warn"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 64,
-              "threshold": 70,
-              "severity": "warn"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 369.87,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 41.3,
-          "maintainabilityRating": "warn",
-          "healthScore": 56,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 100,
-        "weightedMI": 43.3,
-        "weightedHealthScore": 58,
-        "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
-      "filePath": "apps/web/src/ui/pdv/widgets/pages/combo-discount-page/change-combo-status-dialog/use-change-combo-status-dialog.ts",
-      "functions": [
-        {
-          "name": "useChangeComboStatusDialog",
-          "startLine": 16,
-          "endLine": 48,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 6,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 1,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 28,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 109.39,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 53.3,
-          "maintainabilityRating": "warn",
-          "healthScore": 73,
-          "smells": []
-        },
-        {
-          "name": "handleConfirm",
-          "startLine": 27,
-          "endLine": 45,
+          "name": "ProductStockSummary",
+          "startLine": 13,
+          "endLine": 51,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -103373,39 +103304,39 @@
             },
             {
               "name": "cognitiveComplexity",
-              "value": 4,
+              "value": 0,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 19,
+              "value": 34,
               "threshold": 70,
               "severity": "ok"
             },
             {
               "name": "nestingDepth",
-              "value": 2,
+              "value": 0,
               "threshold": 4,
               "severity": "ok"
             },
             {
               "name": "halsteadVolume",
-              "value": 228.23,
+              "value": 209.22,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 54.9,
+          "maintainabilityIndex": 49.7,
           "maintainabilityRating": "warn",
-          "healthScore": 68,
+          "healthScore": 73,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 49,
-        "weightedMI": 53.9,
-        "weightedHealthScore": 71.2,
+        "totalLines": 63,
+        "weightedMI": 53.8,
+        "weightedHealthScore": 76.5,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -103759,6 +103690,153 @@
         "weightedMI": 45.8,
         "weightedHealthScore": 58.2,
         "worstSeverity": "error",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/pdv/widgets/pages/combo-discount-page/change-combo-status-dialog/index.tsx",
+      "functions": [
+        {
+          "name": "ChangeComboStatusDialog",
+          "startLine": 29,
+          "endLine": 99,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 10,
+              "threshold": 15,
+              "severity": "warn"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 64,
+              "threshold": 70,
+              "severity": "warn"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 369.87,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 41.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 56,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 100,
+        "weightedMI": 43.3,
+        "weightedHealthScore": 58,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/pdv/widgets/pages/combo-discount-page/change-combo-status-dialog/use-change-combo-status-dialog.ts",
+      "functions": [
+        {
+          "name": "useChangeComboStatusDialog",
+          "startLine": 16,
+          "endLine": 48,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 6,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 28,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 109.39,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 53.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 73,
+          "smells": []
+        },
+        {
+          "name": "handleConfirm",
+          "startLine": 27,
+          "endLine": 45,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 5,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 4,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 19,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 2,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 228.23,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 54.9,
+          "maintainabilityRating": "warn",
+          "healthScore": 68,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 49,
+        "weightedMI": 53.9,
+        "weightedHealthScore": 71.2,
+        "worstSeverity": "warn",
         "smellIds": []
       }
     },
@@ -104764,6 +104842,67 @@
       }
     },
     {
+      "filePath": "apps/web/src/ui/pdv/widgets/pages/new-sale-page/order-confirmation/index.tsx",
+      "functions": [
+        {
+          "name": "OrderConfirmation",
+          "startLine": 14,
+          "endLine": 107,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 5,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 94,
+              "threshold": 70,
+              "severity": "error"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 600.79,
+              "threshold": 800,
+              "severity": "warn"
+            }
+          ],
+          "maintainabilityIndex": 36.8,
+          "maintainabilityRating": "warn",
+          "healthScore": 60,
+          "smells": [
+            {
+              "id": "bloated",
+              "label": "Bloated",
+              "reason": "Large function (94 lines) with high vocabulary (Halstead volume 600.79) but low branching — consider extracting helpers."
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalLines": 108,
+        "weightedMI": 43.8,
+        "weightedHealthScore": 64.3,
+        "worstSeverity": "error",
+        "smellIds": [
+          "bloated"
+        ]
+      }
+    },
+    {
       "filePath": "apps/web/src/ui/pdv/widgets/pages/new-sale-page/order-registration-dialog/index.tsx",
       "functions": [
         {
@@ -104867,67 +105006,6 @@
         "weightedHealthScore": 76.5,
         "worstSeverity": "warn",
         "smellIds": []
-      }
-    },
-    {
-      "filePath": "apps/web/src/ui/pdv/widgets/pages/new-sale-page/order-confirmation/index.tsx",
-      "functions": [
-        {
-          "name": "OrderConfirmation",
-          "startLine": 14,
-          "endLine": 107,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 5,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 94,
-              "threshold": 70,
-              "severity": "error"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 600.79,
-              "threshold": 800,
-              "severity": "warn"
-            }
-          ],
-          "maintainabilityIndex": 36.8,
-          "maintainabilityRating": "warn",
-          "healthScore": 60,
-          "smells": [
-            {
-              "id": "bloated",
-              "label": "Bloated",
-              "reason": "Large function (94 lines) with high vocabulary (Halstead volume 600.79) but low branching — consider extracting helpers."
-            }
-          ]
-        }
-      ],
-      "summary": {
-        "totalLines": 108,
-        "weightedMI": 43.8,
-        "weightedHealthScore": 64.3,
-        "worstSeverity": "error",
-        "smellIds": [
-          "bloated"
-        ]
       }
     },
     {
@@ -108225,23 +108303,23 @@
         {
           "name": "resolveContext",
           "startLine": 93,
-          "endLine": 106,
+          "endLine": 105,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 5,
+              "value": 4,
               "threshold": 15,
               "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 4,
+              "value": 3,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 14,
+              "value": 13,
               "threshold": 70,
               "severity": "ok"
             },
@@ -108253,20 +108331,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 191.76,
+              "value": 159.91,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 58.3,
+          "maintainabilityIndex": 59.7,
           "maintainabilityRating": "warn",
-          "healthScore": 73,
+          "healthScore": 76,
           "smells": []
         },
         {
           "name": "buildSalesAnalytics",
-          "startLine": 122,
-          "endLine": 138,
+          "startLine": 121,
+          "endLine": 137,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108306,8 +108384,8 @@
         },
         {
           "name": "buildSummary",
-          "startLine": 140,
-          "endLine": 157,
+          "startLine": 139,
+          "endLine": 156,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108347,8 +108425,8 @@
         },
         {
           "name": "buildMargin",
-          "startLine": 159,
-          "endLine": 172,
+          "startLine": 158,
+          "endLine": 171,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108388,8 +108466,8 @@
         },
         {
           "name": "buildCancellations",
-          "startLine": 174,
-          "endLine": 188,
+          "startLine": 173,
+          "endLine": 187,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108429,8 +108507,8 @@
         },
         {
           "name": "buildChannels",
-          "startLine": 190,
-          "endLine": 202,
+          "startLine": 189,
+          "endLine": 201,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108470,8 +108548,8 @@
         },
         {
           "name": "buildProductRows",
-          "startLine": 204,
-          "endLine": 232,
+          "startLine": 203,
+          "endLine": 231,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108511,8 +108589,8 @@
         },
         {
           "name": "aggregate",
-          "startLine": 234,
-          "endLine": 254,
+          "startLine": 233,
+          "endLine": 253,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108552,8 +108630,8 @@
         },
         {
           "name": "aggregateProducts",
-          "startLine": 256,
-          "endLine": 290,
+          "startLine": 255,
+          "endLine": 289,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108593,8 +108671,8 @@
         },
         {
           "name": "aggregateChannel",
-          "startLine": 305,
-          "endLine": 317,
+          "startLine": 304,
+          "endLine": 316,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108634,8 +108712,8 @@
         },
         {
           "name": "createEmptyAggregate",
-          "startLine": 319,
-          "endLine": 331,
+          "startLine": 318,
+          "endLine": 330,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108675,8 +108753,8 @@
         },
         {
           "name": "buildDailyBuckets",
-          "startLine": 371,
-          "endLine": 386,
+          "startLine": 370,
+          "endLine": 385,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108716,8 +108794,8 @@
         },
         {
           "name": "buildWeeklyBuckets",
-          "startLine": 388,
-          "endLine": 412,
+          "startLine": 387,
+          "endLine": 411,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108757,8 +108835,8 @@
         },
         {
           "name": "buildIntervals",
-          "startLine": 414,
-          "endLine": 428,
+          "startLine": 413,
+          "endLine": 427,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108798,8 +108876,8 @@
         },
         {
           "name": "addDays",
-          "startLine": 465,
-          "endLine": 473,
+          "startLine": 464,
+          "endLine": 472,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108839,8 +108917,8 @@
         },
         {
           "name": "getLocalStart",
-          "startLine": 480,
-          "endLine": 486,
+          "startLine": 479,
+          "endLine": 485,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108880,8 +108958,8 @@
         },
         {
           "name": "getPartsAt",
-          "startLine": 488,
-          "endLine": 505,
+          "startLine": 487,
+          "endLine": 504,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108921,9 +108999,9 @@
         }
       ],
       "summary": {
-        "totalLines": 524,
-        "weightedMI": 62.8,
-        "weightedHealthScore": 82,
+        "totalLines": 523,
+        "weightedMI": 62.9,
+        "weightedHealthScore": 82.1,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -108934,23 +109012,23 @@
         {
           "name": "execute",
           "startLine": 24,
-          "endLine": 49,
+          "endLine": 48,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 7,
+              "value": 6,
               "threshold": 15,
               "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 4,
+              "value": 3,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 26,
+              "value": 25,
               "threshold": 70,
               "severity": "ok"
             },
@@ -108962,21 +109040,21 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 361.21,
+              "value": 325,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 50.3,
+          "maintainabilityIndex": 51.1,
           "maintainabilityRating": "warn",
-          "healthScore": 64,
+          "healthScore": 67,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 51,
-        "weightedMI": 59.6,
-        "weightedHealthScore": 71.6,
+        "totalLines": 50,
+        "weightedMI": 60.4,
+        "weightedHealthScore": 73.8,
         "worstSeverity": "warn",
         "smellIds": []
       }
