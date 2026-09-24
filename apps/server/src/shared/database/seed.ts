@@ -962,6 +962,7 @@ async function resetSeedUsers(auth: BetterAuthInstance): Promise<void> {
       name: seedUser.name,
       emailVerified: true,
     })
+
     await context.internalAdapter.createAccount({
       id: randomUUID(),
       accountId: user.id,
