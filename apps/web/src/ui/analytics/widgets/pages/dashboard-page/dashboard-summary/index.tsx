@@ -120,16 +120,22 @@ const Comparison = ({
       : direction === 'up'
         ? 'text-success'
         : 'text-danger'
+  const absoluteDifference =
+    comparison.absolute > 0
+      ? `+${formatAbsolute(comparison.absolute)}`
+      : formatAbsolute(comparison.absolute)
   return (
-    <p className={`mt-3 flex items-center gap-1 text-xs ${tone}`}>
-      <Icon name={icon} className='size-3.5 shrink-0' aria-hidden='true' />
-      <span className='font-bold'>
-        {comparison.percentage === null
-          ? 'Sem base de comparação'
-          : `${comparison.percentage >= 0 ? '+' : ''}${comparison.percentage.toFixed(1)}%`}
+    <p className={`mt-3 space-y-1 text-xs ${tone}`}>
+      <span className='flex items-center gap-1'>
+        <Icon name={icon} className='size-3.5 shrink-0' aria-hidden='true' />
+        <span className='font-bold'>
+          {comparison.percentage === null
+            ? 'Sem base de comparação'
+            : `${comparison.percentage >= 0 ? '+' : ''}${comparison.percentage.toFixed(1)}%`}
+        </span>
       </span>
-      <span className='text-muted-foreground'>
-        ({formatAbsolute(comparison.absolute)}) vs. período anterior
+      <span className='block pl-5 text-muted-foreground'>
+        Diferença: {absoluteDifference}
       </span>
     </p>
   )

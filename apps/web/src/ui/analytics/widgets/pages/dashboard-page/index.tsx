@@ -216,7 +216,7 @@ export const DashboardPage = () => {
         {salesLoading ? (
           <section
             aria-hidden='true'
-            className='order-2 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-start-2 lg:row-start-1'
+            className='order-1 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-span-2'
           >
             <div className='flex items-start justify-between gap-4'>
               <div className='space-y-2'>
@@ -254,7 +254,7 @@ export const DashboardPage = () => {
             <Skeleton className='mt-5 h-4 w-32' />
           </section>
         ) : page.sales.data ? (
-          <div className='order-2 min-w-0 lg:order-none lg:col-start-2 lg:row-start-1'>
+          <div className='order-1 min-w-0 lg:order-none lg:col-span-2'>
             <DashboardSalesStatus hasSalesData={page.sales.data.summary.validOrders > 0}>
               <section className='rounded-2xl border bg-card p-5 shadow-card'>
                 <SalesEvolution analytics={page.sales.data} />
@@ -267,7 +267,7 @@ export const DashboardPage = () => {
             role='status'
             aria-label='Carregando estoque'
             aria-busy='true'
-            className='order-1 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-start-1 lg:row-start-1'
+            className='order-2 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-span-2'
           >
             <div className='flex items-start justify-between gap-4'>
               <div className='space-y-2'>
@@ -306,7 +306,7 @@ export const DashboardPage = () => {
         ) : page.stock.error && !page.stock.data ? (
           <section
             role='alert'
-            className='order-1 rounded-2xl border border-danger/20 bg-card p-5 text-sm text-danger lg:order-none lg:col-start-1 lg:row-start-1'
+            className='order-2 rounded-2xl border border-danger/20 bg-card p-5 text-sm text-danger lg:order-none lg:col-span-2'
           >
             Não foi possível carregar estoque.{' '}
             <button
@@ -318,7 +318,7 @@ export const DashboardPage = () => {
             </button>
           </section>
         ) : page.stock.data ? (
-          <div className='order-1 min-w-0 lg:order-none lg:col-start-1 lg:row-start-1'>
+          <div className='order-2 min-w-0 lg:order-none lg:col-span-2'>
             {page.stock.isStale ? (
               <div
                 role='status'
@@ -340,7 +340,7 @@ export const DashboardPage = () => {
         {salesLoading ? (
           <section
             aria-hidden='true'
-            className='order-3 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-start-1 lg:row-start-2'
+            className='order-3 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-span-2'
           >
             <Skeleton className='h-6 w-44' />
             <Skeleton className='mt-2 h-4 w-56 max-w-full' />
@@ -351,14 +351,14 @@ export const DashboardPage = () => {
             </div>
           </section>
         ) : page.sales.data && page.sales.data.summary.validOrders > 0 ? (
-          <section className='order-3 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-start-1 lg:row-start-2'>
+          <section className='order-3 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-span-2'>
             <ProductPerformance analytics={page.sales.data} />
           </section>
         ) : null}
         {salesLoading ? (
           <section
             aria-hidden='true'
-            className='order-4 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-start-2 lg:row-start-2'
+            className='order-4 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-span-2'
           >
             <div className='flex items-start justify-between gap-4'>
               <div className='space-y-2'>
@@ -374,7 +374,7 @@ export const DashboardPage = () => {
             </div>
           </section>
         ) : page.sales.data && page.sales.data.summary.validOrders > 0 ? (
-          <section className='order-4 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-start-2 lg:row-start-2'>
+          <section className='order-4 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-span-2'>
             <ChannelPerformance analytics={page.sales.data} />
           </section>
         ) : null}
