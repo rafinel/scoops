@@ -21,7 +21,6 @@ describe('GetSalesAnalyticsUseCase', () => {
     contextProvider.resolve.mockResolvedValue({
       establishmentId: 'shop-1',
       establishmentIsActive: true,
-      commercialAccess: 'full',
       timeZone: 'America/Sao_Paulo',
     })
     salesFactsProvider.forEachBatch.mockImplementation(async (_input, consume) => {

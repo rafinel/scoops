@@ -116,7 +116,7 @@ operational model and does not introduce a new audience, commercial offer, or co
 
 ### PRQ-01 — Manager Access, Period, and Business Time
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
 
 **Outcome:** A Manager can open one establishment-scoped dashboard with predictable period boundaries
@@ -124,16 +124,19 @@ and comparisons, while an Operator cannot access its navigation or data.
 
 **Actors:** Manager
 
-**Consumes:** Manager authorization, establishment isolation, and establishment timezone from
-Identity.
+**Consumes:** Manager authorization, active-establishment status, establishment isolation, and
+establishment timezone from Identity.
 
 **Provides:** Selected and comparison period boundaries consumed by PRQ-02, PRQ-03, PRQ-04, PRQ-05,
 and PRQ-06.
 
 #### Capabilities
 
-- Analytics is available only to an active Manager with commercial access to the current
-  establishment.
+- Analytics is available to an active Manager for the active current establishment regardless of
+  Billing subscription status, including `Blocked`; this read-only Dashboard is an explicit
+  exception to Billing's operational-access block.
+- Analytics must not consult Billing subscription state. An inactive establishment, an Operator, or
+  an establishment mismatch remains unauthorized.
 - Server authorization and establishment scoping are mandatory; hidden navigation is not an access
   boundary.
 - Period presets are `Today`, `Last 7 days`, `Last 30 days`, and `Last 90 days`.

@@ -1,11 +1,9 @@
 import { DynamicModule, InjectionToken, Module, Provider, Type } from '@nestjs/common'
 import { ListStockAttentionUseCase } from '@scoops/core/mrp/use-cases'
-import type { DatetimeProvider } from '@scoops/core/shared/interfaces'
 import type { EstablishmentsRepository } from '@scoops/core/identity/interfaces'
-import type { SubscriptionsRepository } from '@scoops/core/billing/interfaces'
 
 import { ANALYTICS_PROVIDERS } from '@/analytics/constants'
-import { IdentityBillingAnalyticsContextProvider } from './identity-billing-analytics-context-provider'
+import { IdentityAnalyticsContextProvider } from './identity-analytics-context-provider'
 import { PdvAnalyticsSalesFactsProvider } from './pdv-analytics-sales-facts-provider'
 import { MrpAnalyticsStockFactsProvider } from './mrp-analytics-stock-facts-provider'
 
@@ -16,27 +14,14 @@ export class AnalyticsProvisionModule {
     pdvDatabaseToken: InjectionToken
     mrpDatabaseToken: InjectionToken
     identityEstablishmentsToken: InjectionToken
-    billingSubscriptionsToken: InjectionToken
     datetimeProviderToken: InjectionToken
   }): DynamicModule {
     const providers: Provider[] = [
       {
         provide: ANALYTICS_PROVIDERS.context,
-        inject: [
-          options.identityEstablishmentsToken,
-          options.billingSubscriptionsToken,
-          options.datetimeProviderToken,
-        ],
-        useFactory: (
-          establishmentsRepository: EstablishmentsRepository,
-          subscriptionsRepository: SubscriptionsRepository,
-          datetimeProvider: DatetimeProvider,
-        ) =>
-          new IdentityBillingAnalyticsContextProvider(
-            establishmentsRepository,
-            subscriptionsRepository,
-            datetimeProvider,
-          ),
+        inject: [options.identityEstablishmentsToken],
+        useFactory: (establishmentsRepository: EstablishmentsRepository) =>
+          new IdentityAnalyticsContextProvider(establishmentsRepository),
       },
       {
         provide: ANALYTICS_PROVIDERS.salesFacts,

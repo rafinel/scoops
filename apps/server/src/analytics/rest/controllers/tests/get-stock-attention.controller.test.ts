@@ -15,7 +15,6 @@ describe('GetStockAttentionController', () => {
       resolve: vi.fn().mockResolvedValue({
         establishmentId: 'establishment-1',
         establishmentIsActive: true,
-        commercialAccess: 'full',
         timeZone: 'America/Sao_Paulo',
       }),
     }

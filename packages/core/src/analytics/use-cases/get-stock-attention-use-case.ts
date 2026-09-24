@@ -28,8 +28,7 @@ export class GetStockAttentionUseCase implements UseCase<Request, StockAttention
     const context = await this.contextProvider.resolve(actor)
     if (
       context.establishmentId !== actor.establishmentId ||
-      !context.establishmentIsActive ||
-      context.commercialAccess !== 'full'
+      !context.establishmentIsActive
     ) {
       throw new AuthorizationError('Acesso não autorizado.')
     }

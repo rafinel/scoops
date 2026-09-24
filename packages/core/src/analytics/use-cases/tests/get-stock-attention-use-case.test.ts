@@ -25,7 +25,7 @@ describe('GetStockAttentionUseCase', () => {
     )
   })
 
-  it('enforces full manager access and returns the five most urgent facts', async () => {
+  it('enforces active manager access and returns the five most urgent facts', async () => {
     const actor: AnalyticsActor = {
       userId: 'user-1',
       establishmentId: 'shop-1',
@@ -34,7 +34,6 @@ describe('GetStockAttentionUseCase', () => {
     contextProvider.resolve.mockResolvedValue({
       establishmentId: actor.establishmentId,
       establishmentIsActive: true,
-      commercialAccess: 'full',
       timeZone: 'America/Sao_Paulo',
     })
     stockFactsProvider.list.mockResolvedValue(
@@ -56,7 +55,7 @@ describe('GetStockAttentionUseCase', () => {
     expect(stockFactsProvider.list).toHaveBeenCalledWith(actor.establishmentId)
   })
 
-  it('fails closed when the context is restricted', async () => {
+  it('fails closed when the establishment is inactive', async () => {
     const actor: AnalyticsActor = {
       userId: 'user-1',
       establishmentId: 'shop-1',
@@ -64,8 +63,7 @@ describe('GetStockAttentionUseCase', () => {
     }
     contextProvider.resolve.mockResolvedValue({
       establishmentId: actor.establishmentId,
-      establishmentIsActive: true,
-      commercialAccess: 'restricted',
+      establishmentIsActive: false,
       timeZone: 'America/Sao_Paulo',
     })
 

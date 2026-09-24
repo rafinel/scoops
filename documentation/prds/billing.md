@@ -367,9 +367,10 @@ to PRQ-05, PRQ-06, PRQ-07, PRQ-09, PRQ-10, PRQ-11 and PRQ-13
 
 ### PRQ-05 — Subscription and Access Control States
 
+- [ ] **Implemented**
 
 **Outcome:** Every establishment has an auditable commercial-access state that
-is enforced consistently across protected routes and actions.
+is enforced consistently across Billing-controlled protected routes and actions.
 
 **Actors:** Manager, Operator, System
 
@@ -389,23 +390,26 @@ PDV operational modules, and to PRQ-17
 | `Active` | Paid period confirmed | Full |
 | `In tolerance` | Renewal failed or chargeback occurred no more than seven days ago | Full |
 | `Scheduled cancellation` | Renewal cancelled, paid period still valid | Full until the end date |
-| `Blocked` | Trial ended, tolerance expired, canceled period ended, or refund was issued | Subscription Only and My Account |
-| `Scheduled disposal` | Block achieved 90-day retention and an operational disposal job is scheduled | Subscription only and My account until operational completion |
+| `Blocked` | Trial ended, tolerance expired, canceled period ended, or refund was issued | Subscription, My Account, and read-only Manager Dashboard; other operational modules blocked |
+| `Scheduled disposal` | Block achieved 90-day retention and an operational disposal job is scheduled | Subscription, My Account, and read-only Manager Dashboard until operational completion; other operational modules blocked |
 | `Disposed` | Operational data removed by the future operational lifecycle | None |
 
 - **Source of financial truth:** events and queries authenticated to Asaas
   determine payments; Scoops determines access from the state
   reconciled.
-- **Authorization:** every protected route and operation must validate the state, without
-  depend only on the interface.
-- **Scope blocked:** a blocked ice cream shop can only access Subscription,
-  My Account and Sign Out. The current product exposes no customer-facing
-  deletion danger zone.
+- **Authorization:** Billing-controlled protected routes and operations must validate subscription
+  state server-side, without depending only on the interface. Analytics Dashboard requests
+  separately authorize an active Manager and active, matching establishment, without consulting
+  Billing state.
+- **Scope blocked:** a blocked ice cream shop can access Subscription, My Account, Sign Out, and the
+  read-only Manager Dashboard. Dashboard access is an explicit exception to the block; all other
+  operational modules remain blocked. The current product exposes no customer-facing deletion
+  danger zone.
 - **Preservation:** blocking should not change or delete operational data.
 - **Application time:** the new state must affect access within 60 seconds
   upon receipt of a valid webhook.
-- **Sessions:** changing to blocked should remove operational access including
-  of sessions already open.
+- **Sessions:** changing to blocked should remove access to blocked operational modules, including
+  from sessions already open. It must not remove an active Manager's read-only Dashboard access.
 - **Reactivation:** payment confirmed during the 90 days must restore
   automatically full access without changing data.
 
@@ -417,9 +421,9 @@ PDV operational modules, and to PRQ-17
   allow updating the query without duplicating charges.
 - **Empty state:** if there is no subscription after trial, present the offer and
   subscription action.
-- **Action blocked:** when trying to open operational module, explain the reason and
-  direct Managers to Subscription; Operators receive guidance to
-  look for a Manager.
+- **Action blocked:** when trying to open a blocked operational module, explain the reason and
+  direct Managers to Subscription; Dashboard remains available to active Managers, and Operators
+  receive guidance to look for a Manager.
 - **Responsiveness:** the lock must keep egress and recovery accessible in
   small screens.
 - **Accessibility:** state, cause and solution must be textual and not depend
@@ -978,8 +982,7 @@ financial history; PRQ-11 — NFS-e state
   payment details, billing data, history and cancellation as per the
   state.
 - **Contextual actions:** only display actions valid for the current state.
-- **Block:** Subscription and My Account must remain accessible when
-  other modules are blocked.
+- **Block:** Subscription and My Account must remain accessible when other modules are blocked.
 - **Accessibility:** comply with WCAG 2.2 level AA.
 - **Responsiveness:** all flows must work from 320 px.
 - **Internationalization:** currency and dates must use Brazilian format; rules
@@ -1172,8 +1175,8 @@ flowchart LR
 ### Journey C — Subscribe after trial expiration
 
 1. The Manager enters Scoops blocked.
-2. The system only allows Subscription, My Account and Logout; no deletion action
-   is shown to the customer.
+2. The system allows the read-only Dashboard, Subscription, My Account and Logout; other
+   operational modules remain blocked and no deletion action is shown to the customer.
 3. The Manager selects the plan and completes the checkout.
 4. While payment is pending, the block remains.
 5. After confirmation, the system reactivates all modules within 60 seconds.
@@ -1259,7 +1262,7 @@ flowchart LR
 
 1. The Manager enters an ice cream shop that has been locked for less than 90 days.
 2. The system shows the preserved data, the future operational-disposal date and
-   the offer.
+   the offer, while keeping the read-only Dashboard available until operational disposal.
 3. The Manager completes a new payment.
 4. After confirmation, the system cancels the scheduled operational disposal and reactivates all
    modules in up to 60 seconds.

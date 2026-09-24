@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common'
 
 import { MRP_REPOSITORIES } from '@/mrp/constants'
 import { MrpDatabaseModule } from '@/mrp/database/mrp-database.module'
-import { BILLING_REPOSITORIES } from '@/billing/constants'
-import { BillingDatabaseModule } from '@/billing/database/billing-database.module'
 import { IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { IdentityDatabaseModule } from '@/identity/database/identity-database.module'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
@@ -24,12 +22,10 @@ import {
         MrpDatabaseModule,
         ProvisionModule,
         IdentityDatabaseModule,
-        BillingDatabaseModule,
       ],
       pdvDatabaseToken: PDV_REPOSITORIES.database,
       mrpDatabaseToken: MRP_REPOSITORIES.database,
       identityEstablishmentsToken: IDENTITY_REPOSITORIES.establishments,
-      billingSubscriptionsToken: BILLING_REPOSITORIES.subscriptions,
       datetimeProviderToken: DatetimeProvider,
     }),
   ],
