@@ -139,7 +139,7 @@ export const ProductStockControlCard = ({
         </Button>
       </div>
     ) : (
-      <div className='mt-3 grid gap-3 sm:grid-cols-2'>
+      <div className='mt-3 grid items-start gap-3 sm:grid-cols-2'>
         <Label className='grid min-w-0 gap-1.5 text-xs font-semibold text-muted-foreground'>
           Estoque inicial
           <Input
@@ -181,7 +181,7 @@ export const ProductStockControlCard = ({
       </div>
     )}
     {stockControl === 'by-brand' ? (
-      <div className='mt-3 grid gap-3 sm:grid-cols-2'>
+      <div className='mt-3 grid items-start gap-3 sm:grid-cols-2'>
         <Label className='grid min-w-0 gap-1.5 text-xs font-semibold text-muted-foreground'>
           Estoque inicial
           <Input
