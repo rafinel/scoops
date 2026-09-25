@@ -58789,8 +58789,8 @@
       "functions": [
         {
           "name": "createApp",
-          "startLine": 16,
-          "endLine": 41,
+          "startLine": 23,
+          "endLine": 39,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -58806,7 +58806,7 @@
             },
             {
               "name": "functionLength",
-              "value": 26,
+              "value": 17,
               "threshold": 70,
               "severity": "ok"
             },
@@ -58818,21 +58818,21 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 589.62,
+              "value": 298.02,
               "threshold": 800,
-              "severity": "warn"
+              "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 49.6,
+          "maintainabilityIndex": 55.7,
           "maintainabilityRating": "warn",
-          "healthScore": 79,
+          "healthScore": 84,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 51,
-        "weightedMI": 53.2,
-        "weightedHealthScore": 80.7,
+        "totalLines": 67,
+        "weightedMI": 64.7,
+        "weightedHealthScore": 87.6,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -127346,8 +127346,8 @@
       "functions": [
         {
           "name": "initializeServerSentry",
-          "startLine": 26,
-          "endLine": 40,
+          "startLine": 29,
+          "endLine": 43,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127387,8 +127387,8 @@
         },
         {
           "name": "createServerSentryOptions",
-          "startLine": 42,
-          "endLine": 69,
+          "startLine": 45,
+          "endLine": 72,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127428,8 +127428,8 @@
         },
         {
           "name": "sanitizeSentryEvent",
-          "startLine": 71,
-          "endLine": 86,
+          "startLine": 74,
+          "endLine": 89,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127469,8 +127469,8 @@
         },
         {
           "name": "sanitizeException",
-          "startLine": 88,
-          "endLine": 97,
+          "startLine": 91,
+          "endLine": 100,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127510,8 +127510,8 @@
         },
         {
           "name": "sanitizeStackFrame",
-          "startLine": 105,
-          "endLine": 114,
+          "startLine": 108,
+          "endLine": 117,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127551,8 +127551,8 @@
         },
         {
           "name": "sanitizeSentryTransaction",
-          "startLine": 116,
-          "endLine": 128,
+          "startLine": 119,
+          "endLine": 131,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127592,8 +127592,8 @@
         },
         {
           "name": "sanitizeSentrySpan",
-          "startLine": 130,
-          "endLine": 149,
+          "startLine": 133,
+          "endLine": 152,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127633,8 +127633,8 @@
         },
         {
           "name": "getSafeTraceContext",
-          "startLine": 160,
-          "endLine": 177,
+          "startLine": 163,
+          "endLine": 180,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127680,8 +127680,8 @@
         },
         {
           "name": "getSafeTags",
-          "startLine": 179,
-          "endLine": 220,
+          "startLine": 182,
+          "endLine": 223,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127732,8 +127732,8 @@
         },
         {
           "name": "getSafeRouteTemplate",
-          "startLine": 222,
-          "endLine": 235,
+          "startLine": 225,
+          "endLine": 238,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127773,7 +127773,7 @@
         }
       ],
       "summary": {
-        "totalLines": 263,
+        "totalLines": 266,
         "weightedMI": 56.8,
         "weightedHealthScore": 68.5,
         "worstSeverity": "warn",

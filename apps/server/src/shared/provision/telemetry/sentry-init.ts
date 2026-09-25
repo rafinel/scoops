@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/nestjs'
 import { serverEnvSchema } from '@scoops/validation'
+import { config as loadEnvironment } from 'dotenv'
 
 type SentryInitOptions = NonNullable<Parameters<typeof Sentry.init>[0]>
 type SentryEvent = Parameters<NonNullable<SentryInitOptions['beforeSend']>>[0]
@@ -20,6 +21,8 @@ const SAFE_ERROR_CLASSES = new Set([
   'NetworkError',
   'SessionProviderError',
 ])
+const SERVER_ENV_FILE_PATHS = ['.env.local', '.env', '../../.env']
+loadEnvironment({ path: SERVER_ENV_FILE_PATHS })
 
 let isInitialized = false
 
