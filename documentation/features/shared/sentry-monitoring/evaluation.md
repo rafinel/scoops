@@ -3,7 +3,7 @@ feature: "shared/sentry-monitoring"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 9
-status: completed
+status: in_progress
 updated_at: 2026-09-25
 ---
 
@@ -11,19 +11,19 @@ updated_at: 2026-09-25
 
 Evaluation of Spec revision `9` against the current implementation.
 
-Current result: Revision 9 is implemented, reviewed and delivered through ready PR #43. The corrected FND-26 parser preserves mode-free caller output while validating against the configured mode; explicit deployed-mode requirements remain strict. Local acceptance evidence, complete-candidate review, and exact-head Validation, Core, Server, Web and Complexity CI all pass. Sentry account verification remains outside acceptance.
+Current result: Revision 9 remains the active contract. FND-27 identified early Sentry schema validation before dotenv loading. The first mapped bootstrap correction loads env files before Sentry and AppModule, and a safe reproduction confirms Nest ConfigModule path/process-env precedence. Code, architecture, types and build passed, but the Server/root complexity checks found `createApp` above the Halstead threshold; the Builder is extracting the dynamic-import composition before integrated checks resume. Prior delivery evidence remains recorded for head `df1724446b169a9e4e8b7367c43aef79092b087c`; PR CI must be refreshed after correction.
 
 ## Acceptance matrix
 
 | Criterion | Evidence | Status |
 | --- | --- | --- |
-| AC-01 | Environment DSN/release selection, schema/build gates and safe boundary tests | passed |
+| AC-01 | Environment DSN/release selection, schema/build gates and safe boundary tests | in_progress; FND-27 bootstrap correction |
 | AC-02 | HTTP/job expected-error and retry boundary tests | passed |
 | AC-03 | HTTP/job safe logging and sanitizer probes | passed |
 | AC-04 | Browser/API origin boundary and job tracing configuration | passed |
 | AC-05 | HTTP/job metric boundary tests and integrated coverage | passed |
 | AC-06 | Browser SDK replay masking configuration | passed |
-| AC-07 | Environment schema, no-export smoke and deployed build gates | passed |
+| AC-07 | Environment schema, no-export smoke and deployed build gates | in_progress; FND-27 bootstrap correction |
 | AC-08 | Controlled source-map build, upload-failure, SHA and image/artifact checks | passed |
 
 ## Automated and runtime evidence
@@ -220,6 +220,11 @@ Current result: Revision 9 is implemented, reviewed and delivered through ready 
 | EV-189 | Final Spec path conformance and whitespace | `pnpm check:spec-implementation -- documentation/features/shared/sentry-monitoring/spec.md`; `git diff --check` | Exit 0; 56 contracted paths pass, with eight unrelated worktree paths ignored by the sensor and preserved. | passed |
 | EV-190 | Final root complexity gate after parser compatibility | `pnpm check:complexity` | Exit 0; 1,665 files / 4,982 functions, zero warnings/errors. Clone report remained informational; generated baseline was not changed. | passed |
 | EV-191 | FND-26 implementation review follow-up | Original Plan-required independent Implementation Reviewer; revised Web parser and EV-184–190 | Pass. Confirmed legacy two-field compatibility, strict explicit deployed mode/DSN/SHA validation, unknown-key rejection, URL behavior and evidence/Plan alignment. No actionable source finding; exact-head CI is the remaining gate. | passed |
+| EV-192 | Server startup env-loading failure report and source trace | User-provided ZodError for `SCOOPS_PDV_PREVIEW_TOKEN_SECRET`, `BETTER_AUTH_SECRET` and `SCOOPS_EMAIL_SENDER`; `main.ts`, `sentry-init.ts`, `ProvisionModule` and `ConfigModule.forRoot` source order | User confirms values are set. Source trace shows `main.ts` imports Sentry initialization before Nest `ProvisionModule` loads `.env.local`, `.env` or `../../.env`; Sentry initialization parses the full server schema directly from `process.env`. This supports FND-27; runtime correction evidence is pending. | active |
+| EV-193 | Resumed Spec path preflight | `pnpm check:spec-implementation -- documentation/features/shared/sentry-monitoring/spec.md`; `git diff -- apps/server/src/main.ts apps/server/src/shared/provision/telemetry/sentry-init.ts apps/server/package.json pnpm-lock.yaml` | Path sensor passes all 56 contracted paths (9 create, 46 modify, 1 generated); nine unrelated worktree paths are ignored. No current worktree diff exists in the assigned Server source/dependency paths before the Builder Fix. | passed |
+| EV-194 | FND-27 initial bootstrap correction | Builder Server Fix `builder_fix_server`; `pnpm --filter server check:code`; `pnpm --filter server check:architecture`; `pnpm --filter server check:types`; `pnpm --filter server build`; temporary `pnpm --filter server exec tsx -e '<dotenv precedence scenario>'` | Env files load before dynamic Sentry/AppModule imports. Code (7 existing warnings), architecture, types, build and a temp-file Zod schema reproduction pass; no test file or dependency was added. The Server and root complexity gates fail on `createApp` (EV-195), so this candidate is superseded by a scoped helper extraction. | correction active |
+| EV-195 | FND-27 initial-candidate complexity | `pnpm --filter server check:complexity`; `pnpm check:complexity` | Both exit 1 only on mapped `createApp` in `apps/server/src/main.ts`, Halstead volume 903.75 vs threshold 800; each reports one complexity error. Builder Server Fix continues a behavior-preserving helper extraction within the same mapped file. | failed; correction active |
+| EV-192 | Server startup env-loading failure report and source trace | User-provided ZodError for `SCOOPS_PDV_PREVIEW_TOKEN_SECRET`, `BETTER_AUTH_SECRET` and `SCOOPS_EMAIL_SENDER`; `main.ts`, `sentry-init.ts`, `ProvisionModule` and `ConfigModule.forRoot` source order | User confirms values are set. Source trace shows `main.ts` imports Sentry initialization before the Nest `ProvisionModule` loads `.env.local`, `.env` or `../../.env`; Sentry initialization parses the full server schema directly from `process.env`. This supports FND-27; runtime correction evidence is pending. | active |
 
 ## Manual evidence
 
@@ -287,6 +292,7 @@ Visual evidence uses the common `EV-*` Evidence identifiers with `Type = visual`
 | FND-24 | CI-enforced complexity gate fails on baseline and feature functions | Final local scoped checks, current base Web CI, and revision 8/9 Spec reviews | EV-129, EV-163, EV-165–167, EV-173–176 | resolved | Mapped feature signatures are recorded, and revision 9 adds exactly the three unchanged Web signatures already failing current base CI. Root, Server and Web complexity gates now pass with no threshold/config/source/clone changes. |
 | FND-25 | Server coverage line floor misses by 0.01 percentage points | Final Server coverage reruns | EV-164, EV-170–172 | resolved | The mapped health integration asserts safe warning attributes through the real fixture-injected Telemetry provider. Full Server coverage passes 258/258 tests and reaches 75.24% lines without changing thresholds. |
 | FND-26 | Browser parser compatibility after adding required app mode | Exact-head Web coverage failure; final source validation and corrected-head PR CI | EV-180, EV-182–189, EV-191, CI-08, AC-01, AC-07 | resolved | Existing parser callers omit the new mode field. The final mapped parser uses the configured mode for validation when callers omit it, preserves the legacy two-field return, and retains strict explicit deployed-mode checks. Focused compatibility, Web coverage/code/types/Playwright/complexity, path conformance, independent candidate review and corrected-head Web CI pass. |
+| FND-27 | Server dotenv values are not loaded before Sentry schema validation | User-reported server startup ZodError; source-order trace | EV-192–193, AC-01, AC-07 | active | `main.ts` imports `sentry-init.ts` before Nest's `ProvisionModule` calls `ConfigModule.forRoot`, while Sentry initialization parses the full schema from `process.env`. Thus dotenv-backed keys can be undefined even when present in the configured env file. Builder Server Fix `builder_fix_server` is assigned only the already-mapped `apps/server/src/main.ts` and `apps/server/src/shared/provision/telemetry/sentry-init.ts`; preserve externally supplied env precedence and initialize Sentry before AppModule evaluation. Do not edit tests, especially constant tests, or add dependencies; report if the mapped paths cannot meet the contract. Re-run affected Server validation and exact-head PR CI. |
 
 ## Lessons learned
 
@@ -433,4 +439,7 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | 2026-09-24 | Evaluation is ready for conclusion. Account-level Sentry project, ingestion, release/map comparison and alert delivery remain explicitly outside acceptance. |
 | 2026-09-25 | Revision 9 final local preflight and complete-candidate review pass. EV-175–179 record path conformance, complexity, Inngest, final code/types/test-integrity checks and independent implementation review. The delivery candidate is staged; unrelated test-policy work remains unstaged. PR publication and exact-head CI are pending. |
 | 2026-09-25 | PR #43 opened ready for review on `main` at head `4f56be6b2d1760c3fc09a6a88065185ce7b63bc9`; `@codex review` requested. Validation, Core, Server and all Complexity jobs passed; Web CI failed on two unchanged browser-env parser tests (EV-180; CI-01–04). Reopened F2-T1 and activated Builder Web for FND-26 on only `apps/web/src/constants/browser-env.ts`; local Playwright health preflight passed 1/1 (EV-181). The first compatibility patch passed its temporary focused probe (EV-182) but exceeded Web complexity (EV-183). The final source now passes exact compatibility probe, Web coverage/code/types/complexity, Playwright health, root complexity and path/whitespace checks (EV-184–190); the same Plan-required Implementation Reviewer passed the correction (EV-191). Refreshed PR CI remains. |
-| 2026-09-25 | Corrected head `df1724446b169a9e4e8b7367c43aef79092b087c` passed PR #43's complete Validation, Core, Server, Web and Complexity quality gate (CI-05–08). PR #43 is ready for review; FND-26 is resolved. Closed F4 and marked the Spec, Plan and Evaluation completed. No PRD checkbox applies; Issue #42 remains partially delivered at repository scope. |
+| 2026-09-25 | Corrected head `df1724446b169a9e4e8b7367c43aef79092b087c` passed PR #43's complete Validation, Core, Server, Web and Complexity quality gate (CI-05–08). PR #43 was ready for review; FND-26 is resolved. |
+| 2026-09-25 | User reported a Server startup ZodError for three configured keys. Source inspection traced FND-27 to Sentry initialization validating `process.env` before Nest ConfigModule loads dotenv files (EV-192). Reopened revision 9 and resumed F3-T1/F4 for an in-contract bootstrap correction; prior CI remains historical to the previously checked head. |
+| 2026-09-25 | Activated Builder Server Fix `builder_fix_server` for FND-27 on Spec revision 9, FR-01/FR-06 and AC-01/AC-07. Source Issue #42; no module PRQ applies. Owns only `apps/server/src/main.ts` and `apps/server/src/shared/provision/telemetry/sentry-init.ts`; all other paths prohibited, especially tests, `apps/server/package.json`, lockfile, SDD/PRD/Rule/Architecture files and the user's separate test-policy cleanup. Required tree is unchanged and already-mapped. Rule Pack: Code Conventions, Provision Layer, Server App Layer; Architecture, Modules, Tooling and SDD apply. No design references. Preserve env precedence and Sentry initialization before AppModule evaluation. Exits: affected Server code/types/architecture/build, safe local env-loading reproduction without a persistent test file, final Spec path sensor, then corrected-head PR CI. Baseline result EV-193. |
+| 2026-09-25 | The first FND-27 correction passes Server code/architecture/types/build and the safe dotenv precedence reproduction, but `createApp` exceeds the Server/root Halstead threshold (EV-194–195). Continued the same Builder Server Fix on only `apps/server/src/main.ts` to extract dynamic-import composition without changing initialization order or behavior. |

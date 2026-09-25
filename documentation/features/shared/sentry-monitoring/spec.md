@@ -1,6 +1,6 @@
 ---
 title: Sentry operational monitoring
-status: completed
+status: in_progress
 revision: 9
 source:
   type: issue

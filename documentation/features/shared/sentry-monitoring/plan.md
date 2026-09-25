@@ -1,6 +1,6 @@
 ---
 title: Sentry operational monitoring — implementation plan
-status: completed
+status: in_progress
 spec: ./spec.md
 spec_revision: 9
 evaluation: ./evaluation.md
@@ -12,8 +12,8 @@ updated_at: 2026-09-25
 
 - **Contract:** [Spec revision 9](./spec.md), compatibility approved; `IdentityModuleFixture` owns real RestFixture/InngestFixture job composition, and the reviewed complexity baseline is limited to feature signatures plus three current base-CI Web layout warnings.
 - **Strategy:** Plan-backed execution because shared contracts preceded parallel Web and Server work, followed by local release integration and review.
-- **Current phase:** Complete. Ready PR #43 at corrected head `df1724446b169a9e4e8b7367c43aef79092b087c` passed exact-head Validation, Core, Server, Web and Complexity CI; final SDD closure is recorded in Evaluation.
-- **Active blockers:** None. Project existence, remote ingestion, deployed release/map alignment and alert/email delivery remain operator-owned account operations outside this Spec's acceptance.
+- **Current phase:** F3-T1 bootstrap correction for FND-27, followed by refreshed integrated evidence and exact-head PR CI.
+- **Active blockers:** The user-reported Server startup ZodError is traced to Sentry schema validation occurring before Nest loads dotenv files. Correction and fresh Server/PR CI evidence remain pending. Project existence, remote ingestion, deployed release/map alignment and alert/email delivery remain operator-owned account operations outside this Spec's acceptance.
 - **Builders:** Builder Contracts completed F1. Builder Web owns only `isAllowedSessionCookie` refactoring in `apps/web/src/server/auth/resolve-auth-session.ts`. Builder Server owns only the three over-threshold helpers in the mapped Identity/PDV fixtures and one mapped health-integration assertion needed to restore the existing Server coverage floor. Both preserve established behavior and test policy.
 - **Shared ownership:** The Orchestrator owns `pnpm-lock.yaml`, dependency installation, cross-app configuration, complete path conformance, integrated validation and handoff. Builder Web owns its app and web staging workflow; Builder Server owns its app and server staging workflow. The existing three Web test deletions and `test-integrity.config.mjs` change are separate test-policy cleanup; preserve them. The Spec implementation path checker reports unrelated changed paths but does not require them in this feature's affected-path table.
 
@@ -23,8 +23,8 @@ updated_at: 2026-09-25
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Builder Contracts | F1 | Shared telemetry and environment contracts | — | — | completed | Core port and both environment schemas typecheck and preserve dev/test no-export behavior |
 | 2 | Builder Web | F2 | Browser, SSR, transport and web release | F1 | F3 | completed | Dependency install, browser/SSR signals, private-map gates and FND-26 compatibility correction pass local and corrected-head PR CI |
-| 2 | Builder Server | F3 | Nest, HTTP, jobs and server release | F1 | F2 | completed | Dependency install, controller/job suites, terminal metrics, private-map build configuration and controlled failure gates pass |
-| 3 | Orchestrator | F4 | Integrated release, evidence and review | F2, F3 | — | completed | Local validations, revision 9 Spec review, complete-candidate implementation review and exact-head PR CI pass; SDD artifacts closed |
+| 2 | Builder Server | F3 | Nest, HTTP, jobs and server release | F1 | F2 | in_progress | FND-27 bootstrap correction preserves early Sentry initialization while loading configured dotenv values before schema validation; affected Server checks pass |
+| 3 | Orchestrator | F4 | Integrated release, evidence and review | F2, F3 | — | in_progress | Refresh affected local evidence and complete-candidate review, publish corrected PR head and obtain green exact-head CI before closing SDD artifacts |
 
 ### F1 — Shared contracts
 
@@ -84,7 +84,7 @@ updated_at: 2026-09-25
 
 #### F3-T1 — Nest telemetry and HTTP boundary
 
-- **Status/owner:** `completed` — real-fixture health route telemetry, handled-error behavior and final types/code checks pass; no F3-T1 behavior correction was needed.
+- **Status/owner:** `in_progress` — Builder Server Fix for FND-27. User reports configured dotenv values are undefined during startup; source trace shows early Sentry validation runs before Nest ConfigModule loads env files. Preserve SDK initialization before AppModule and resume mapped-path checks.
 - **Depends/parallel:** F1 and F3-T3 SDK dependency installation; parallel with F2. Reuse Builder Server for F3-T2 and F3-T4.
 - **Paths:** `apps/server/src/shared/provision/telemetry/sentry-init.ts`; `apps/server/src/shared/provision/telemetry/server-app-telemetry-provider.ts`; `apps/server/src/shared/provision/logger/sentry-logger.ts`; `apps/server/src/shared/provision/provision.module.ts`; `apps/server/src/main.ts`; `apps/server/src/app.ts`; `apps/server/src/shared/rest/filters/global-error-handler.ts`; `apps/server/src/shared/rest/tests/rest-fixture.ts`; `apps/server/src/shared/rest/controllers/tests/check-health.controller.test.ts`.
 - **Contract:** FR-01–04, FR-06; AC-01–05, AC-07.
@@ -126,7 +126,7 @@ updated_at: 2026-09-25
 
 #### F4-T1 — Integrate, validate and review
 
-- **Status/owner:** `completed` — Orchestrator; local path conformance, corrected coverage/complexity gates, candidate review, ready PR #43 and exact-head CI pass.
+- **Status/owner:** `in_progress` — Orchestrator; integrate FND-27 correction, refresh affected checks and review, update ready PR #43, and rerun exact-head CI.
 - **Depends/parallel:** F2 and F3 complete; no parallel Builder edits during final candidate review.
 - **Paths:** `pnpm-lock.yaml`; `.code-multivitals-baseline.json` generated and reviewed under revision 9 with only the current feature signatures and the exact AppLayout/UserMenu/SidebarNavigation records permitted; [evaluation.md](./evaluation.md) at implementation kickoff; Spec/Plan status updates only through their owning workflows. External Sentry project, release and alert configuration is operational evidence, not a repository path.
 - **Contract:** FR-01–07; AC-01–09.
