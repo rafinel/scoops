@@ -12,8 +12,8 @@ updated_at: 2026-09-25
 
 - **Contract:** [Spec revision 9](./spec.md), compatibility approved; `IdentityModuleFixture` owns real RestFixture/InngestFixture job composition, and the reviewed complexity baseline is limited to feature signatures plus three current base-CI Web layout warnings.
 - **Strategy:** Plan-backed execution because shared contracts preceded parallel Web and Server work, followed by local release integration and review.
-- **Current phase:** Local F4 corrections, evidence and implementation review are complete; delivery PR and exact-head CI remain before conclusion.
-- **Active blockers:** No local implementation blockers remain. Project existence, remote ingestion, deployed release/map alignment and alert/email delivery remain operator-owned account operations and do not block this Spec.
+- **Current phase:** F2-T1 compatibility correction and independent candidate review are complete; commit and PR update the corrected candidate, then rerun exact-head CI.
+- **Active blockers:** PR head `4f56be6b2d1760c3fc09a6a88065185ce7b63bc9` has a Web CI failure from before the correction. Current local Web coverage/code/types/complexity, root complexity, Playwright health, focused compatibility and path checks pass; updated PR publication and exact-head CI remain. Project existence, remote ingestion, deployed release/map alignment and alert/email delivery remain operator-owned account operations and do not block this Spec.
 - **Builders:** Builder Contracts completed F1. Builder Web owns only `isAllowedSessionCookie` refactoring in `apps/web/src/server/auth/resolve-auth-session.ts`. Builder Server owns only the three over-threshold helpers in the mapped Identity/PDV fixtures and one mapped health-integration assertion needed to restore the existing Server coverage floor. Both preserve established behavior and test policy.
 - **Shared ownership:** The Orchestrator owns `pnpm-lock.yaml`, dependency installation, cross-app configuration, complete path conformance, integrated validation and handoff. Builder Web owns its app and web staging workflow; Builder Server owns its app and server staging workflow. The existing three Web test deletions and `test-integrity.config.mjs` change are separate test-policy cleanup; preserve them. The Spec implementation path checker reports unrelated changed paths but does not require them in this feature's affected-path table.
 
@@ -22,7 +22,7 @@ updated_at: 2026-09-25
 | Wave | Builder | Phase | Name | Depends on | Parallel with | Status | Exit condition |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Builder Contracts | F1 | Shared telemetry and environment contracts | — | — | completed | Core port and both environment schemas typecheck and preserve dev/test no-export behavior |
-| 2 | Builder Web | F2 | Browser, SSR, transport and web release | F1 | F3 | completed | Dependency install, browser/SSR signals, private-map build configuration and controlled failure gates pass |
+| 2 | Builder Web | F2 | Browser, SSR, transport and web release | F1 | F3 | completed | Dependency install, browser/SSR signals, private-map gates and FND-26 compatibility correction pass local checks; confirm with exact-head PR CI |
 | 2 | Builder Server | F3 | Nest, HTTP, jobs and server release | F1 | F2 | completed | Dependency install, controller/job suites, terminal metrics, private-map build configuration and controlled failure gates pass |
 | 3 | Orchestrator | F4 | Integrated release, evidence and review | F2, F3 | — | in_progress | Local validations, revision 9 Spec review and complete-candidate implementation review pass; create the delivery PR and obtain green Core/Server/Web/Complexity checks on its exact head before closing the SDD artifacts |
 
@@ -52,7 +52,7 @@ updated_at: 2026-09-25
 
 #### F2-T1 — Browser, SSR and web transport signals
 
-- **Status/owner:** `completed` — Web signals and auth-session complexity correction are integrated. Web code, types, coverage and health smoke pass; the one parallel notification pagination failure passes in isolation. Sentry warning behavior and session-cookie acceptance remain unchanged.
+- **Status/owner:** `completed` — Builder Web corrected FND-26 in `apps/web/src/constants/browser-env.ts` only. Missing mode uses the configured mode for schema validation and legacy callers retain the original two-field result; explicit deployed mode remains strict. EV-184–190 pass local focused and integrated checks; exact-head Web CI remains pending after PR update.
 - **Depends/parallel:** F1 and F2-T2 SDK dependency installation; parallel with F3. Reuse Builder Web for F2-T3.
 - **Paths:** `apps/web/src/provision/telemetry/sentry.config.ts`; `apps/web/src/provision/telemetry/sentry-telemetry-provider.ts`; `apps/web/instrument.server.mjs`; `apps/web/src/router.tsx`; `apps/web/src/constants/browser-env.ts`; `apps/web/src/server/auth/resolve-auth-session.ts`; `apps/web/src/rest/axios/utils/request.ts`; `apps/web/tests/health/playwright-cli-health.test.ts`.
 - **Contract:** FR-01–06; AC-01–07.
@@ -138,11 +138,11 @@ updated_at: 2026-09-25
 
 | Type | Scenario/surface | Criteria | Reference | Evidence target | Status |
 | --- | --- | --- | --- | --- | --- |
-| Automated | Core, validation, Web, Server and root commands, including reviewed revision 9 baseline | AC-01–08 | Spec command table | `./evaluation.md` | passed locally; exact-head PR CI pending |
+| Automated | Core, validation, Web, Server and root commands, including reviewed revision 9 baseline | AC-01–08 | Spec command table | `./evaluation.md` | passed locally after FND-26; updated exact-head PR CI pending |
 | Automated | Complete affected-path map after integration and after any correction | AC-01–08 | `pnpm check:spec-implementation -- documentation/features/shared/sentry-monitoring/spec.md` | `./evaluation.md` | passed |
 | Browser | Existing health/login route at 390 × 844, keyboard, URL, network and console | AC-04, AC-07 | Spec MV-03; widget-testing rule | `./evaluation.md`; fresh screenshot only if appearance changes | health smoke passed; one parallel suite case passes in isolation; full PR CI pending |
 | Runtime | MV-03 local/test export and deployment gates | AC-07–08 | Spec MV-03 | `./evaluation.md` | passed locally |
-| Review | One complete-candidate Implementation Reviewer | AC-01–08 | Spec revision 9 integrated implementation candidate | `./evaluation.md` | passed; EV-179 |
+| Review | One complete-candidate Implementation Reviewer | AC-01–08 | Spec revision 9 corrected implementation candidate | `./evaluation.md` | passed; EV-191 |
 | Review | Spec compatibility review for revision 8 complexity-baseline path | Repository-local validation boundary, Architecture, Modules, paths, Rule Pack and test integrity | `./evaluation.md` | passed; EV-167 |
 | Review | Spec compatibility review for revision 9's three base-CI Web layout baseline signatures | Exact baseline-only exception, source paths, thresholds/config and clone guard | `./evaluation.md` | passed; EV-174 |
 
