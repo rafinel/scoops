@@ -3,7 +3,7 @@ feature: "shared/sentry-monitoring"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 9
-status: in_progress
+status: completed
 updated_at: 2026-09-25
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-09-25
 
 Evaluation of Spec revision `9` against the current implementation.
 
-Current result: Revision 9 is locally validated and the corrected FND-26 parser candidate has an independent implementation-review pass. The configured mode is used for schema validation when legacy callers omit it, their prior two-field result is preserved, and explicit deployed-mode requirements remain strict. Web coverage/code/types/complexity, root complexity, Playwright health, focused compatibility and the path sensor pass. Exact-head PR CI remains. Sentry account verification remains outside acceptance.
+Current result: Revision 9 is implemented, reviewed and delivered through ready PR #43. The corrected FND-26 parser preserves mode-free caller output while validating against the configured mode; explicit deployed-mode requirements remain strict. Local acceptance evidence, complete-candidate review, and exact-head Validation, Core, Server, Web and Complexity CI all pass. Sentry account verification remains outside acceptance.
 
 ## Acceptance matrix
 
@@ -286,7 +286,7 @@ Visual evidence uses the common `EV-*` Evidence identifiers with `Type = visual`
 | FND-23 | Parallel Web suite timing contention | Fresh full Web integration rerun | EV-159–160 | accepted_non_blocking | The full suite's unrelated mocked loading/pagination failures are contention-sensitive; the affected notification case passes in isolation, the required Playwright health check passes, and no Sentry path or runtime behavior is involved. |
 | FND-24 | CI-enforced complexity gate fails on baseline and feature functions | Final local scoped checks, current base Web CI, and revision 8/9 Spec reviews | EV-129, EV-163, EV-165–167, EV-173–176 | resolved | Mapped feature signatures are recorded, and revision 9 adds exactly the three unchanged Web signatures already failing current base CI. Root, Server and Web complexity gates now pass with no threshold/config/source/clone changes. |
 | FND-25 | Server coverage line floor misses by 0.01 percentage points | Final Server coverage reruns | EV-164, EV-170–172 | resolved | The mapped health integration asserts safe warning attributes through the real fixture-injected Telemetry provider. Full Server coverage passes 258/258 tests and reaches 75.24% lines without changing thresholds. |
-| FND-26 | Browser parser compatibility after adding required app mode | Exact-head Web coverage failure; final source validation | EV-180, EV-182–189, AC-01, AC-07 | active | Existing parser callers omit the new mode field. The final mapped parser uses the configured mode for validation when callers omit it, preserves the legacy two-field return, and retains strict explicit deployed-mode checks. Web coverage, code/types, Playwright, complexity, path conformance and focused compatibility checks pass; final exact-head CI and candidate review remain. Do not edit or stage test-policy paths. |
+| FND-26 | Browser parser compatibility after adding required app mode | Exact-head Web coverage failure; final source validation and corrected-head PR CI | EV-180, EV-182–189, EV-191, CI-08, AC-01, AC-07 | resolved | Existing parser callers omit the new mode field. The final mapped parser uses the configured mode for validation when callers omit it, preserves the legacy two-field return, and retains strict explicit deployed-mode checks. Focused compatibility, Web coverage/code/types/Playwright/complexity, path conformance, independent candidate review and corrected-head Web CI pass. |
 
 ## Lessons learned
 
@@ -320,7 +320,7 @@ Visual evidence uses the common `EV-*` Evidence identifiers with `Type = visual`
 
 | PRQ | Spec FRs | Acceptance criteria | Current evidence | Disposition |
 | --- | --- | --- | --- | --- |
-| None applies | FR-01–06 implement shared operational infrastructure sourced from Issue #42; no module PRD owns this capability (Spec §1; `documentation/modules.md`). | AC-01–08 cover repository-owned configuration, privacy, traces, metrics, replay and release gates. | EV-01–EV-191 plus final PR CI; complete criterion matrix above. Account resources, live ingestion, alert delivery and deployed alignment are explicitly out of acceptance. | No PRQ is fully, partially or deferred for this change; no PRD checkbox changes. Issue #42 is partially delivered at repository scope as recorded in the Spec, with the excluded account operations left to operators. |
+| None applies | FR-01–06 implement shared operational infrastructure sourced from Issue #42; no module PRD owns this capability (Spec §1; `documentation/modules.md`). | AC-01–08 cover repository-owned configuration, privacy, traces, metrics, replay and release gates. | EV-01–EV-191 plus CI-01–CI-08; complete criterion matrix above. Account resources, live ingestion, alert delivery and deployed alignment are explicitly out of acceptance. | No PRQ is fully, partially or deferred for this change; no PRD checkbox changes. Issue #42 is partially delivered at repository scope as recorded in the Spec, with the excluded account operations left to operators. |
 
 The traceability search found no mapped PRQ in any module PRD. This is the explicit no-PRQ classification, not an unrecorded omission. All eight Spec acceptance criteria have current local evidence; the source Issue outcome remains partial because account-level work is outside this repository Contract.
 
@@ -331,10 +331,14 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
-| CI-01 | Validation + Complexity | `4f56be6b2d1760c3fc09a6a88065185ce7b63bc9` | Passed; code, architecture, types and complexity succeeded. | [36094080547](https://github.com/rafinel/scoops/actions/runs/36094080547) |
-| CI-02 | Core + Complexity | `4f56be6b2d1760c3fc09a6a88065185ce7b63bc9` | Passed; Core code, architecture, types, coverage and complexity succeeded. | [36094080551](https://github.com/rafinel/scoops/actions/runs/36094080551) |
-| CI-03 | Server + Complexity | `4f56be6b2d1760c3fc09a6a88065185ce7b63bc9` | Passed; Server code, architecture, types, Inngest, coverage, build and complexity succeeded. | [36094080574](https://github.com/rafinel/scoops/actions/runs/36094080574) |
-| CI-04 | Web + Complexity | `4f56be6b2d1760c3fc09a6a88065185ce7b63bc9` | Failed; Web coverage test step found two parser-input failures; browser integration and build were skipped. Complexity passed. | [36094080518](https://github.com/rafinel/scoops/actions/runs/36094080518) |
+| CI-01 | Validation + Complexity | `4f56be6b2d1760c3fc09a6a88065185ce7b63bc9` | Passed; code, architecture, types and complexity succeeded on the superseded head. | [36094080547](https://github.com/rafinel/scoops/actions/runs/36094080547) |
+| CI-02 | Core + Complexity | `4f56be6b2d1760c3fc09a6a88065185ce7b63bc9` | Passed; Core code, architecture, types, coverage and complexity succeeded on the superseded head. | [36094080551](https://github.com/rafinel/scoops/actions/runs/36094080551) |
+| CI-03 | Server + Complexity | `4f56be6b2d1760c3fc09a6a88065185ce7b63bc9` | Passed; Server code, architecture, types, Inngest, coverage, build and complexity succeeded on the superseded head. | [36094080574](https://github.com/rafinel/scoops/actions/runs/36094080574) |
+| CI-04 | Web + Complexity | `4f56be6b2d1760c3fc09a6a88065185ce7b63bc9` | Failed; Web coverage found two parser-input failures on the superseded head; browser integration and build were skipped. Complexity passed. Corrected in `df1724446b169a9e4e8b7367c43aef79092b087c`; see CI-08. | [36094080518](https://github.com/rafinel/scoops/actions/runs/36094080518) |
+| CI-05 | Validation + Complexity | `df1724446b169a9e4e8b7367c43aef79092b087c` | Passed; code, architecture, types and complexity succeeded. | [36133770202](https://github.com/rafinel/scoops/actions/runs/36133770202) |
+| CI-06 | Core + Complexity | `df1724446b169a9e4e8b7367c43aef79092b087c` | Passed; Core code, architecture, types, coverage and complexity succeeded. | [36133770298](https://github.com/rafinel/scoops/actions/runs/36133770298) |
+| CI-07 | Server + Complexity | `df1724446b169a9e4e8b7367c43aef79092b087c` | Passed; Server code, architecture, types, Inngest integration, coverage, build and complexity succeeded. | [36133770174](https://github.com/rafinel/scoops/actions/runs/36133770174) |
+| CI-08 | Web + Complexity | `df1724446b169a9e4e8b7367c43aef79092b087c` | Passed; Web code, architecture, types, coverage, browser integration, build and complexity succeeded. | [36133770209](https://github.com/rafinel/scoops/actions/runs/36133770209) |
 
 ## History
 
@@ -429,3 +433,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | 2026-09-24 | Evaluation is ready for conclusion. Account-level Sentry project, ingestion, release/map comparison and alert delivery remain explicitly outside acceptance. |
 | 2026-09-25 | Revision 9 final local preflight and complete-candidate review pass. EV-175–179 record path conformance, complexity, Inngest, final code/types/test-integrity checks and independent implementation review. The delivery candidate is staged; unrelated test-policy work remains unstaged. PR publication and exact-head CI are pending. |
 | 2026-09-25 | PR #43 opened ready for review on `main` at head `4f56be6b2d1760c3fc09a6a88065185ce7b63bc9`; `@codex review` requested. Validation, Core, Server and all Complexity jobs passed; Web CI failed on two unchanged browser-env parser tests (EV-180; CI-01–04). Reopened F2-T1 and activated Builder Web for FND-26 on only `apps/web/src/constants/browser-env.ts`; local Playwright health preflight passed 1/1 (EV-181). The first compatibility patch passed its temporary focused probe (EV-182) but exceeded Web complexity (EV-183). The final source now passes exact compatibility probe, Web coverage/code/types/complexity, Playwright health, root complexity and path/whitespace checks (EV-184–190); the same Plan-required Implementation Reviewer passed the correction (EV-191). Refreshed PR CI remains. |
+| 2026-09-25 | Corrected head `df1724446b169a9e4e8b7367c43aef79092b087c` passed PR #43's complete Validation, Core, Server, Web and Complexity quality gate (CI-05–08). PR #43 is ready for review; FND-26 is resolved. Closed F4 and marked the Spec, Plan and Evaluation completed. No PRD checkbox applies; Issue #42 remains partially delivered at repository scope. |
