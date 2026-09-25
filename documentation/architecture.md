@@ -461,6 +461,7 @@ the technical capability is intentionally shared by several modules.
 | Resend, SMTP/Mailpit, and React Email | Communication | Transactional message delivery and composition behind a Communication-owned email-provider interface. |
 | MinIO/S3 | Shared provision or owning module | Deferred object storage without provider-specific types. |
 | Inngest | Shared messaging plus feature jobs | Event publication and durable function execution. |
+| Sentry | Shared Web/Server telemetry provision | Environment-specific errors, sanitized logs, traces, metrics and browser replay. |
 
 Adapters translate provider responses and errors into core contracts. Webhooks
 require signature verification, runtime validation, deduplication, and an
@@ -490,8 +491,15 @@ smoke endpoint through the server HTTP surface rather than an external dependenc
 health check; Swagger exposes the application REST surface.
 
 Structured logs, correlation IDs, metrics, tracing, alerting, and dashboards are
-evolution requirements. Never hide their absence by discarding errors. Telemetry
-excludes credentials, tokens, full financial identifiers, and unnecessary PII.
+required at their applicable boundaries. The Web and Server applications export
+environment-specific signals to Sentry in staging and production. Browser,
+server-rendering, HTTP and job signals use bounded safe fields; browser replay
+masks text and inputs and blocks media. Web trace propagation is limited to the
+configured API origin. Local and test modes do not export telemetry. Credentials,
+tokens, full financial identifiers, and unnecessary PII are excluded. Private
+source maps are uploaded during configured builds under the deployed Git SHA and
+removed from runtime images. Sentry account setup, alert delivery, and a
+production deployment workflow remain operator/deployment responsibilities.
 
 ## 17. Quality strategy
 
@@ -545,8 +553,9 @@ Environment configuration is separated by boundary:
 Production and staging use managed secrets. Migrations run before dependent code;
 deployments support health verification and rollback or forward repair.
 
-Automated CI/CD is a planned operational capability; the repository's current
-automation status and valid local commands are documented in
+Staging CI/CD workflows build and release the Web and Server applications; the
+repository does not define a production deployment workflow. The repository's
+current automation status and valid local commands are documented in
 [`tooling.md`](tooling.md).
 
 ## 20. Architectural evolution

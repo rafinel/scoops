@@ -4,8 +4,13 @@ test.describe('Playwright CLI health check', () => {
   test('loads the login page through the dev server with stable browser basics', async ({
     page,
   }) => {
+    const apiOrigin = new URL(
+      process.env.VITE_SCOOPS_SERVER_APP_URL ?? 'http://localhost:3336',
+    ).origin
     const consoleErrors: string[] = []
     const failedRequests: string[] = []
+    const sentryRequests: string[] = []
+    const tracePropagationOrigins: string[] = []
     let anonymousSessionProbePending = false
 
     page.on('console', (message) => {
@@ -30,7 +35,20 @@ test.describe('Playwright CLI health check', () => {
     page.on('requestfailed', (request) => {
       failedRequests.push(`${request.method()} ${request.url()}`)
     })
+    page.on('request', (request) => {
+      const requestUrl = new URL(request.url())
+      const headers = request.headers()
+      if (headers['sentry-trace'] || headers.baggage) {
+        tracePropagationOrigins.push(requestUrl.origin)
+      }
+      if (/\/api\/\d+\/envelope(?:\/|$)/.test(requestUrl.pathname)) {
+        sentryRequests.push(
+          `${request.method()} ${requestUrl.origin}${requestUrl.pathname}`,
+        )
+      }
+    })
 
+    await page.setViewportSize({ width: 390, height: 844 })
     const response = await page.goto('/login')
 
     expect(response).not.toBeNull()
@@ -54,5 +72,7 @@ test.describe('Playwright CLI health check', () => {
 
     expect(consoleErrors).toEqual([])
     expect(failedRequests).toEqual([])
+    expect(sentryRequests).toEqual([])
+    expect(tracePropagationOrigins.every((origin) => origin === apiOrigin)).toBe(true)
   })
 })

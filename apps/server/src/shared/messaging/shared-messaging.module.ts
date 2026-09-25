@@ -17,6 +17,12 @@ import { ProvisionModule } from '@/shared/provision/provision.module'
     { provide: EVENTS_REPOSITORY, useExisting: DrizzleEventsRepository },
     CleanupPublishedEventsJob,
   ],
-  exports: [InngestClient, InngestBroker, EVENTS_REPOSITORY, CleanupPublishedEventsJob],
+  exports: [
+    InngestClient,
+    InngestBroker,
+    EVENTS_REPOSITORY,
+    CleanupPublishedEventsJob,
+    ProvisionModule,
+  ],
 })
 export class SharedMessagingModule {}

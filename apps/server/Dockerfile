@@ -22,13 +22,22 @@ RUN pnpm install --frozen-lockfile
 
 FROM dependencies AS build
 
+ARG SCOOPS_SERVER_APP_MODE
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
+ARG SCOOPS_RELEASE_SHA
+
 COPY . .
 
-RUN pnpm --filter server build
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN,required=false \
+  pnpm --filter server build
 
 FROM base AS runtime
 
+ARG SCOOPS_RELEASE_SHA
+
 ENV NODE_ENV=production
+ENV SCOOPS_RELEASE_SHA=$SCOOPS_RELEASE_SHA
 
 COPY --from=build /app /app
 

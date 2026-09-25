@@ -1,9 +1,11 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { PasswordRecoveryPreparedEvent } from '@scoops/core/identity/domain/events'
+import type { Telemetry } from '@scoops/core/shared/interfaces'
 
 import { CommunicationModuleFixture } from '@/communication/fixtures/communication-module-fixture'
 import { SendPasswordRecoveryEmailJob } from '@/communication/messaging/inngest/jobs/send-password-recovery-email-job'
+import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
 
 describe('Send Password Recovery Email Job', () => {
   let fixture: CommunicationModuleFixture
@@ -31,6 +33,9 @@ describe('Send Password Recovery Email Job', () => {
   })
 
   it('delivers the canonical password recovery event through Inngest and Mailpit', async () => {
+    const telemetry = fixture.get<Telemetry>(TELEMETRY)
+    const recordJobRun = vi.spyOn(telemetry, 'recordJobRun')
+    const captureUnexpected = vi.spyOn(telemetry, 'captureUnexpected')
     const occurredAt = fixture.datetimeProvider.now()
     const expiresAt = new Date(occurredAt.getTime() + 60 * 60 * 1000)
     const event = new PasswordRecoveryPreparedEvent({
@@ -57,6 +62,14 @@ describe('Send Password Recovery Email Job', () => {
     expect(message.HTML).toContain(event.payload.actionUrl)
     expect(message.Text).toContain(event.payload.expiresAt)
     expect(message.Text).toContain('Redefinir senha')
+    expect(recordJobRun).toHaveBeenCalledTimes(1)
+    expect(recordJobRun).toHaveBeenCalledWith({
+      functionId: SendPasswordRecoveryEmailJob.ID,
+      outcome: 'success',
+      durationMs: expect.any(Number),
+    })
+    expect(JSON.stringify(recordJobRun.mock.calls)).not.toContain(event.payload.email)
+    expect(captureUnexpected).not.toHaveBeenCalled()
   })
 
   it('rejects malformed event data without delivering an email', async () => {

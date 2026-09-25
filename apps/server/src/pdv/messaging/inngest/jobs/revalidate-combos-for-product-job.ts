@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ProductSalesConfigurationChangedEvent } from '@scoops/core/mrp/domain/events'
+import type { Telemetry } from '@scoops/core/shared/interfaces'
 import type { ProductSalesConfiguration } from '@scoops/core/mrp/domain/structures'
 import { RevalidateCombosForProductUseCase } from '@scoops/core/pdv/use-cases'
 import { productSalesConfigurationChangedEventSchema } from '@scoops/validation'
@@ -10,6 +11,7 @@ import type { PdvDatabase } from '@scoops/core/pdv/interfaces'
 import { PDV_REPOSITORIES } from '@/pdv/constants'
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
 import { InngestJob } from '@/shared/messaging/inngest/inngest-job'
+import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
 
 export const productSalesConfigurationChangedEvent = eventType(
   ProductSalesConfigurationChangedEvent._NAME,
@@ -30,22 +32,33 @@ export class RevalidateCombosForProductJob extends InngestJob {
   constructor(
     @Inject(InngestClient) inngest: InngestClient,
     @Inject(PDV_REPOSITORIES.database) database: PdvDatabase,
+    @Inject(TELEMETRY) operationalTelemetry: Telemetry,
   ) {
-    super(inngest)
+    super(inngest, operationalTelemetry)
     this.useCase = new RevalidateCombosForProductUseCase(database)
     this.function = this.inngest.createFunction(
       {
         id: RevalidateCombosForProductJob.ID,
+        onFailure: ({ event, error }) =>
+          this.recordTerminalFailure(
+            RevalidateCombosForProductJob.ID,
+            event.data.run_id,
+            event.data.event.ts,
+            error,
+          ),
         concurrency: {
           limit: 1,
           key: 'event.data.establishmentId + ":" + event.data.productId',
         },
         triggers: [productSalesConfigurationChangedEvent],
       },
-      async ({ event, step }) =>
-        step.run('revalidate-combos', () =>
+      async ({ event, step, runId }) => {
+        const result = await step.run('revalidate-combos', () =>
           this.useCase.execute(this.toDomainRequest(event.data)),
-        ),
+        )
+        this.recordSuccessfulRun(RevalidateCombosForProductJob.ID, runId, event.ts)
+        return result
+      },
     )
   }
 

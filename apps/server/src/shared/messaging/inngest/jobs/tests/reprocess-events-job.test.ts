@@ -1,42 +1,38 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import type { Telemetry } from '@scoops/core/shared/interfaces'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ReprocessEventsJob } from '@/shared/messaging/inngest/jobs/reprocess-events-job'
 import { eventModel } from '@/shared/database/drizzle/models/event-model'
-import type { DrizzleClient } from '@/shared/database/drizzle/drizzle-client'
-import { DrizzleEventsRepository } from '@/shared/database/drizzle/repositories/drizzle-events-repository'
-import { InngestFixture } from '@/shared/messaging/inngest/inngest-fixture'
+import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
+import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { SharedMessagingModuleFixture } from '@/shared/messaging/fixtures/shared-messaging-module-fixture'
+import { ReprocessEventsJob } from '@/shared/messaging/inngest/jobs/reprocess-events-job'
 
-describe('ReprocessEventsJob', () => {
-  let fixture: InngestFixture
-  let job: ReprocessEventsJob
-  let notify: ReturnType<typeof vi.fn>
-  const now = new Date('2026-09-02T12:00:00.000Z')
+describe('Reprocess Events Job', () => {
+  let fixture: SharedMessagingModuleFixture
+  let recordJobRun: ReturnType<typeof vi.spyOn>
+  let captureUnexpected: ReturnType<typeof vi.spyOn>
 
   beforeAll(async () => {
-    notify = vi.fn()
-    fixture = new InngestFixture({
-      functionId: 'shared/reprocess-events',
-      createJob: (client) => {
-        const eventsRepository = new DrizzleEventsRepository({
-          requireDatabase: () => fixture.database,
-          notify,
-        } as unknown as DrizzleClient)
-        job = new ReprocessEventsJob(client, eventsRepository, {
-          now: () => now,
-        } as never)
-        return job
-      },
+    fixture = await SharedMessagingModuleFixture.register({
+      inngestJob: ReprocessEventsJob,
     })
-    await fixture.setup()
   })
 
-  afterEach(async () => {
+  beforeEach(async () => {
+    vi.restoreAllMocks()
     await fixture.resetDatabase()
-    notify.mockClear()
+    const telemetry = fixture.get<Telemetry>(TELEMETRY)
+    recordJobRun = vi.spyOn(telemetry, 'recordJobRun')
+    captureUnexpected = vi.spyOn(telemetry, 'captureUnexpected')
   })
-  afterAll(async () => fixture.teardown())
 
-  it('requeues eligible failures and expired reservations without inflating attempts', async () => {
+  afterAll(async () => {
+    vi.restoreAllMocks()
+    await fixture?.close()
+  })
+
+  it('requeues only eligible rows through the test-only AppModule registration', async () => {
+    const now = fixture.get(DatetimeProvider).now()
     const eligible = await fixture.insertOutboxEvent({
       status: 'failed',
       attempts: 4,
@@ -57,30 +53,59 @@ describe('ReprocessEventsJob', () => {
       reservedBy: 'instance:execution',
       reservationExpiresAt: new Date(now.getTime() - 60_000),
     })
-    await expect(job.reprocess(now)).resolves.toEqual({ failed: 1, expiredPublishing: 1 })
 
+    const run = await fixture.invokeInngest()
+
+    expect(run.status.toLowerCase()).toBe('completed')
+    expect(run.function?.id).toBe(ReprocessEventsJob.ID)
     const rows = await fixture.database.select().from(eventModel)
     expect(rows.find((row) => row.id === eligible.id)).toMatchObject({
-      status: 'pending',
+      status: 'published',
       attempts: 4,
       reservedBy: null,
       reservationExpiresAt: null,
     })
-    expect(rows.find((row) => row.id === publishing.id)?.status).toBe('pending')
+    expect(rows.find((row) => row.id === publishing.id)?.status).toBe('published')
     expect(rows.find((row) => row.id === early.id)?.status).toBe('failed')
     expect(rows.find((row) => row.id === terminal.id)?.status).toBe('failed')
-    expect(notify).toHaveBeenCalledWith('scoops_events', eligible.id)
-    expect(notify).toHaveBeenCalledWith('scoops_events', publishing.id)
+    expect(recordJobRun).toHaveBeenCalledTimes(1)
+    expect(recordJobRun).toHaveBeenCalledWith({
+      functionId: ReprocessEventsJob.ID,
+      outcome: 'success',
+      durationMs: expect.any(Number),
+    })
+    expect(JSON.stringify(recordJobRun.mock.calls)).not.toContain(eligible.id)
+    expect(captureUnexpected).not.toHaveBeenCalled()
+    expect(process.env.SCOOPS_SERVER_APP_MODE).toBe('test')
   })
 
-  it('wakes the publisher after recovering eligible rows', async () => {
-    const failed = await fixture.insertOutboxEvent({
+  it('publishes an eligible recovered event after the scheduled job wakes the broker', async () => {
+    const now = fixture.get(DatetimeProvider).now()
+    const event = await fixture.insertOutboxEvent({
       status: 'failed',
-      attempts: 1,
+      attempts: 2,
       availableAt: new Date(now.getTime() - 60_000),
     })
-    await job.reprocess(now)
 
-    expect(notify).toHaveBeenCalledWith('scoops_events', failed.id)
+    const run = await fixture.invokeInngest()
+    const rows = await fixture.database.select().from(eventModel)
+    const recovered = rows.find(({ id }) => id === event.id)
+
+    expect(run.status.toLowerCase()).toBe('completed')
+    expect(run.function?.id).toBe(ReprocessEventsJob.ID)
+    expect(recovered).toMatchObject({
+      status: 'published',
+      attempts: 2,
+      reservedBy: null,
+      reservationExpiresAt: null,
+    })
+    expect(recordJobRun).toHaveBeenCalledTimes(1)
+    expect(recordJobRun).toHaveBeenCalledWith({
+      functionId: ReprocessEventsJob.ID,
+      outcome: 'success',
+      durationMs: expect.any(Number),
+    })
+    expect(JSON.stringify(recordJobRun.mock.calls)).not.toContain(event.id)
+    expect(captureUnexpected).not.toHaveBeenCalled()
   })
 })

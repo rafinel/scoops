@@ -7,6 +7,7 @@ import type {
   EmailMessage,
   NotificationCreate,
 } from '@scoops/core/communication/domain/structures'
+import type { EmailProvider } from '@scoops/core/communication/interfaces'
 import type { NotificationsRepository } from '@scoops/core/communication/interfaces'
 import type { User } from '@scoops/core/identity/domain/entities'
 import {
@@ -18,7 +19,10 @@ import type { ServerAuthProvider } from '@scoops/core/identity/interfaces'
 import type { InngestJob } from '@/shared/messaging/inngest/inngest-job'
 
 import { CommunicationModule } from '@/communication/communication.module'
-import { COMMUNICATION_REPOSITORIES } from '@/communication/constants'
+import {
+  COMMUNICATION_PROVIDERS,
+  COMMUNICATION_REPOSITORIES,
+} from '@/communication/constants'
 import { CommunicationSeeder } from '@/communication/database/communication-seeder'
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
 import { IdentityModule } from '@/identity/identity.module'
@@ -72,6 +76,7 @@ export class CommunicationModuleFixture {
     private readonly restFixture: RestFixture,
     private readonly inngestFixture?: InngestFixture,
     private readonly originalEmailEnvironment?: Readonly<{
+      serverAppMode: string | undefined
       provider: string | undefined
       host: string | undefined
       port: string | undefined
@@ -81,15 +86,27 @@ export class CommunicationModuleFixture {
 
   static async register<T extends InngestJob>(options: {
     readonly inngestJob: InngestJobType<T>
+    readonly emailProvider?: EmailProvider
+    readonly timeoutMs?: number
   }): Promise<CommunicationModuleFixture>
   static async register(
     authProvider: ServerAuthProvider,
   ): Promise<CommunicationModuleFixture>
   static async register<T extends InngestJob>(
-    optionsOrAuth: { readonly inngestJob: InngestJobType<T> } | ServerAuthProvider,
+    optionsOrAuth:
+      | {
+          readonly inngestJob: InngestJobType<T>
+          readonly emailProvider?: EmailProvider
+          readonly timeoutMs?: number
+        }
+      | ServerAuthProvider,
   ): Promise<CommunicationModuleFixture> {
     if ('inngestJob' in optionsOrAuth)
-      return CommunicationModuleFixture.registerInngestJob(optionsOrAuth.inngestJob)
+      return CommunicationModuleFixture.registerInngestJob(
+        optionsOrAuth.inngestJob,
+        optionsOrAuth.emailProvider,
+        optionsOrAuth.timeoutMs,
+      )
 
     const restFixture = await RestFixture.register(
       {
@@ -115,13 +132,17 @@ export class CommunicationModuleFixture {
 
   private static async registerInngestJob<T extends InngestJob>(
     inngestJob: InngestJobType<T>,
+    emailProvider?: EmailProvider,
+    timeoutMs?: number,
   ): Promise<CommunicationModuleFixture> {
     const originalEmailEnvironment = {
+      serverAppMode: process.env.SCOOPS_SERVER_APP_MODE,
       provider: process.env.SCOOPS_EMAIL_PROVIDER,
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
       from: process.env.SCOOPS_EMAIL_SENDER,
     }
+    process.env.SCOOPS_SERVER_APP_MODE = 'test'
     process.env.SCOOPS_EMAIL_PROVIDER = 'smtp'
     process.env.SMTP_HOST = '127.0.0.1'
     process.env.SMTP_PORT = '54325'
@@ -130,6 +151,7 @@ export class CommunicationModuleFixture {
     let restFixture: RestFixture | undefined
     const inngestFixture = new InngestFixture({
       functionId: inngestJob.ID,
+      timeoutMs,
       createJob: async (client) => {
         restFixture = await RestFixture.register(
           {
@@ -140,7 +162,17 @@ export class CommunicationModuleFixture {
               InngestModule.forRoot({ functions: [] }),
             ],
           },
-          (builder) => builder.overrideProvider(InngestClient).useValue(client),
+          (builder) => {
+            let configuredBuilder = builder
+              .overrideProvider(InngestClient)
+              .useValue(client)
+            if (emailProvider) {
+              configuredBuilder = configuredBuilder
+                .overrideProvider(COMMUNICATION_PROVIDERS.email)
+                .useValue(emailProvider)
+            }
+            return configuredBuilder
+          },
         )
         return restFixture.get(inngestJob)
       },
@@ -322,11 +354,16 @@ export class CommunicationModuleFixture {
   }
 
   private static restoreEmailEnvironment(environment: {
+    readonly serverAppMode: string | undefined
     readonly provider: string | undefined
     readonly host: string | undefined
     readonly port: string | undefined
     readonly from: string | undefined
   }) {
+    CommunicationModuleFixture.restoreEnvironmentVariable(
+      'SCOOPS_SERVER_APP_MODE',
+      environment.serverAppMode,
+    )
     CommunicationModuleFixture.restoreEnvironmentVariable(
       'SCOOPS_EMAIL_PROVIDER',
       environment.provider,

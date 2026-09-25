@@ -4,6 +4,10 @@ import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeader, setResponseHeader } from '@tanstack/react-start/server'
 
 import { BROWSER_ENV } from '@/constants'
+import {
+  getSafeErrorClass,
+  logWebWarning,
+} from '@/provision/telemetry/sentry-telemetry-provider'
 
 export type AuthSessionResolution = {
   account: Account | null
@@ -19,6 +23,21 @@ type SessionCookieValidationContext = {
   requestHost?: string
 }
 
+type ParsedSessionCookie = {
+  cookieValue: string
+  attributes: Map<string, string | true>
+}
+
+const ALLOWED_SESSION_COOKIE_ATTRIBUTES = new Set([
+  'domain',
+  'expires',
+  'httponly',
+  'max-age',
+  'path',
+  'samesite',
+  'secure',
+])
+
 export const resolveAuthSession = createServerFn({ method: 'GET' }).handler(
   async (): Promise<AuthSessionResolution> => {
     const testResolution = resolvePlaywrightAuthSession()
@@ -28,10 +47,17 @@ export const resolveAuthSession = createServerFn({ method: 'GET' }).handler(
     if (!cookie) return { account: null, session: null }
 
     const requestOptions = { headers: { Cookie: cookie } }
-    const [accountResponse, providerResponse] = await Promise.all([
-      fetch(`${BROWSER_ENV.scoopsServerRestUrl}/auth/session`, requestOptions),
-      fetch(`${BROWSER_ENV.scoopsServerAppUrl}/api/auth/get-session`, requestOptions),
-    ])
+    let responses: [Response, Response]
+    try {
+      responses = await Promise.all([
+        fetch(`${BROWSER_ENV.scoopsServerRestUrl}/auth/session`, requestOptions),
+        fetch(`${BROWSER_ENV.scoopsServerAppUrl}/api/auth/get-session`, requestOptions),
+      ])
+    } catch (error) {
+      logAuthSessionTransportWarning(error)
+      throw error
+    }
+    const [accountResponse, providerResponse] = responses
 
     forwardSessionCookies(accountResponse, {
       apiOrigin: BROWSER_ENV.scoopsServerAppUrl,
@@ -46,6 +72,7 @@ export const resolveAuthSession = createServerFn({ method: 'GET' }).handler(
       return { account: null, session: null }
     }
     if (!accountResponse.ok || !providerResponse.ok) {
+      logAuthSessionProviderWarning()
       throw new Error('A sessão de autenticação está indisponível.')
     }
 
@@ -57,6 +84,14 @@ export const resolveAuthSession = createServerFn({ method: 'GET' }).handler(
     }
   },
 )
+
+function logAuthSessionTransportWarning(error: unknown): void {
+  logWebWarning('auth.session', getSafeErrorClass(error), 'ssr')
+}
+
+function logAuthSessionProviderWarning(): void {
+  logWebWarning('auth.session', 'SessionProviderError', 'ssr')
+}
 
 function resolvePlaywrightAuthSession(): AuthSessionResolution | null {
   if (process.env.SCOOPS_PLAYWRIGHT_MOCK_SSR_AUTH !== '1') return null
@@ -93,41 +128,67 @@ export function isAllowedSessionCookie(
   value: string,
   context: SessionCookieValidationContext,
 ): boolean {
+  const parsedCookie = parseSessionCookie(value)
+  if (!parsedCookie || !hasRequiredSessionCookieAttributes(parsedCookie.attributes)) {
+    return false
+  }
+
+  const apiUrl = new URL(context.apiOrigin)
+  const loopback = isLoopbackHostname(apiUrl.hostname)
+  if (!hasValidSessionCookieLifetime(parsedCookie.attributes)) return false
+
+  const isExpired = isSessionCookieExpired(parsedCookie.attributes)
+  if (!parsedCookie.cookieValue && !isExpired) return false
+
+  return isAllowedForApiOrigin(parsedCookie.attributes, context, apiUrl, loopback)
+}
+
+function parseSessionCookie(value: string): ParsedSessionCookie | null {
   const parts = value.split(';').map((part) => part.trim())
   const [nameValue, ...attributeParts] = parts
   const separator = nameValue?.indexOf('=') ?? -1
   if (separator <= 0 || nameValue.slice(0, separator) !== SESSION_COOKIE_NAME) {
-    return false
+    return null
   }
-  const cookieValue = nameValue.slice(separator + 1)
 
+  const attributes = parseSessionCookieAttributes(attributeParts)
+  if (!attributes) return null
+
+  return { cookieValue: nameValue.slice(separator + 1), attributes }
+}
+
+function parseSessionCookieAttributes(
+  attributeParts: string[],
+): Map<string, string | true> | null {
   const attributes = new Map<string, string | true>()
   for (const part of attributeParts) {
-    if (!part) return false
-    const attributeSeparator = part.indexOf('=')
-    const name = (
-      attributeSeparator === -1 ? part : part.slice(0, attributeSeparator)
-    ).toLowerCase()
-    const attributeValue =
-      attributeSeparator === -1 ? true : part.slice(attributeSeparator + 1)
-
-    if (
-      attributes.has(name) ||
-      ![
-        'domain',
-        'expires',
-        'httponly',
-        'max-age',
-        'path',
-        'samesite',
-        'secure',
-      ].includes(name)
-    ) {
-      return false
-    }
-    attributes.set(name, attributeValue)
+    if (!addSessionCookieAttribute(part, attributes)) return null
   }
 
+  return attributes
+}
+
+function addSessionCookieAttribute(
+  part: string,
+  attributes: Map<string, string | true>,
+): boolean {
+  if (!part) return false
+
+  const attributeSeparator = part.indexOf('=')
+  const name = (
+    attributeSeparator === -1 ? part : part.slice(0, attributeSeparator)
+  ).toLowerCase()
+  if (attributes.has(name) || !ALLOWED_SESSION_COOKIE_ATTRIBUTES.has(name)) return false
+
+  const attributeValue =
+    attributeSeparator === -1 ? true : part.slice(attributeSeparator + 1)
+  attributes.set(name, attributeValue)
+  return true
+}
+
+function hasRequiredSessionCookieAttributes(
+  attributes: Map<string, string | true>,
+): boolean {
   if (
     attributes.get('path') !== '/' ||
     attributes.get('httponly') !== true ||
@@ -136,11 +197,10 @@ export function isAllowedSessionCookie(
     return false
   }
 
-  const apiUrl = new URL(context.apiOrigin)
-  const loopback = isLoopbackHostname(apiUrl.hostname)
-  const domain = attributes.get('domain')
-  const isSecure = attributes.get('secure') === true
+  return true
+}
 
+function hasValidSessionCookieLifetime(attributes: Map<string, string | true>): boolean {
   const expires = attributes.get('expires')
   const maxAge = attributes.get('max-age')
   if (
@@ -151,9 +211,25 @@ export function isAllowedSessionCookie(
     return false
   }
 
-  const isExpired =
+  return true
+}
+
+function isSessionCookieExpired(attributes: Map<string, string | true>): boolean {
+  const expires = attributes.get('expires')
+  const maxAge = attributes.get('max-age')
+  return (
     maxAge === '0' || (typeof expires === 'string' && Date.parse(expires) <= Date.now())
-  if (!cookieValue && !isExpired) return false
+  )
+}
+
+function isAllowedForApiOrigin(
+  attributes: Map<string, string | true>,
+  context: SessionCookieValidationContext,
+  apiUrl: URL,
+  loopback: boolean,
+): boolean {
+  const domain = attributes.get('domain')
+  const isSecure = attributes.get('secure') === true
 
   if (loopback) {
     return domain === undefined && !isSecure

@@ -1,9 +1,11 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { OnboardingConfirmationPreparedEvent } from '@scoops/core/identity/domain/events'
+import type { Telemetry } from '@scoops/core/shared/interfaces'
 
 import { CommunicationModuleFixture } from '@/communication/fixtures/communication-module-fixture'
 import { SendOnboardingConfirmationEmailJob } from '@/communication/messaging/inngest/jobs/send-onboarding-confirmation-email-job'
+import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
 
 describe('Send Onboarding Confirmation Email Job', () => {
   let fixture: CommunicationModuleFixture
@@ -33,6 +35,9 @@ describe('Send Onboarding Confirmation Email Job', () => {
   })
 
   it('delivers the canonical onboarding event through Inngest and Mailpit', async () => {
+    const telemetry = fixture.get<Telemetry>(TELEMETRY)
+    const recordJobRun = vi.spyOn(telemetry, 'recordJobRun')
+    const captureUnexpected = vi.spyOn(telemetry, 'captureUnexpected')
     const occurredAt = fixture.datetimeProvider.now()
     const expiresAt = new Date(occurredAt.getTime() + 60 * 60 * 1000)
     const event = new OnboardingConfirmationPreparedEvent({
@@ -59,6 +64,14 @@ describe('Send Onboarding Confirmation Email Job', () => {
     expect(message.HTML).toContain(event.payload.actionUrl)
     expect(message.Text).toContain(event.payload.expiresAt)
     expect(message.Text).toContain('Confirmar cadastro')
+    expect(recordJobRun).toHaveBeenCalledTimes(1)
+    expect(recordJobRun).toHaveBeenCalledWith({
+      functionId: SendOnboardingConfirmationEmailJob.ID,
+      outcome: 'success',
+      durationMs: expect.any(Number),
+    })
+    expect(JSON.stringify(recordJobRun.mock.calls)).not.toContain(event.payload.email)
+    expect(captureUnexpected).not.toHaveBeenCalled()
   })
 
   it('rejects malformed event data without delivering an email', async () => {

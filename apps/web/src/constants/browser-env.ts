@@ -5,6 +5,11 @@ const BROWSER_ENV_INPUT = {
     import.meta.env.VITE_SCOOPS_SERVER_APP_URL ?? getDefaultServerAppUrl(),
   ),
   scoopsServerApiPrefix: import.meta.env.VITE_SCOOPS_SERVER_API_PREFIX ?? '',
+  scoopsWebAppMode:
+    import.meta.env.VITE_SCOOPS_WEB_APP_MODE ??
+    (import.meta.env.MODE === 'test' ? 'test' : 'dev'),
+  sentryDsn: import.meta.env.VITE_SENTRY_DSN,
+  scoopsReleaseSha: import.meta.env.VITE_SCOOPS_RELEASE_SHA,
 }
 
 function getDefaultServerAppUrl(): string {
@@ -57,6 +62,9 @@ export function parseBrowserEnv(input: unknown) {
   return {
     scoopsServerAppUrl: url.origin,
     scoopsServerRestUrl: `${url.origin}${environment.scoopsServerApiPrefix}`,
+    scoopsWebAppMode: environment.scoopsWebAppMode,
+    sentryDsn: environment.sentryDsn,
+    scoopsReleaseSha: environment.scoopsReleaseSha,
   }
 }
 
