@@ -58789,8 +58789,8 @@
       "functions": [
         {
           "name": "createApp",
-          "startLine": 23,
-          "endLine": 39,
+          "startLine": 16,
+          "endLine": 41,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -58806,7 +58806,7 @@
             },
             {
               "name": "functionLength",
-              "value": 17,
+              "value": 26,
               "threshold": 70,
               "severity": "ok"
             },
@@ -58818,21 +58818,21 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 298.02,
+              "value": 589.62,
               "threshold": 800,
-              "severity": "ok"
+              "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 55.7,
+          "maintainabilityIndex": 49.6,
           "maintainabilityRating": "warn",
-          "healthScore": 84,
+          "healthScore": 79,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 67,
-        "weightedMI": 64.7,
-        "weightedHealthScore": 87.6,
+        "totalLines": 51,
+        "weightedMI": 53.2,
+        "weightedHealthScore": 80.7,
         "worstSeverity": "warn",
         "smellIds": []
       }
