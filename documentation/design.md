@@ -187,6 +187,22 @@ Gap/padding scale: 4, 6, 8, 12, 14, 16, 20, 24, 32.
 - Subtitle 13/400 `$text-secondary`.
 - Main button (e.g. "Link Brand") aligned to the right.
 
+### Dialogs
+
+- Use the shared `DialogHeader` or `AlertDialogHeader` two-column layout: keep the
+  semantic icon tile in the first column and the title with its supporting
+  description in the second column. The description sits directly below the
+  title.
+- Keep icon tiles fixed-size and top-aligned with the title. Keep the copy group
+  shrinkable so long titles and localized descriptions wrap without pushing the
+  icon out of alignment.
+- Dialog headers have 24px padding, a soft bottom separator, and enough right
+  padding for the close control. The close control stays at the top-right,
+  separate from the title and description.
+- Do not override the header to a single-column or vertical layout when it has a
+  semantic icon. Alert and destructive dialogs use the same header structure;
+  preserve their existing semantic icon and color.
+
 ### Card metrics
 
 Three variations:
