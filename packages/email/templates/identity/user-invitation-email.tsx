@@ -34,7 +34,7 @@ export const UserInvitationEmail = Object.assign(
     PreviewProps: {
       name: 'Maria Silva',
       actionUrl: 'https://example.com/invitation/accept',
-      expiresAt: '10/09/2026 às 18:00',
+      expiresAt: '2026-09-10T21:00:00.000Z',
       operation: 'initial',
     } satisfies UserInvitationEmailProps,
   },
