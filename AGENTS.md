@@ -8,6 +8,12 @@ documentation, and normal validation commands are sufficient. Use the Playwright
 CLI for all browser interaction, inspection and validation; do not use
 `browser-use`, CDP workflows or Playwright MCP for repository implementation.
 
+## Grilling protocol
+
+When the grilling protocol is being applied, do not use the question tool
+(`request_user_input`) to ask the user questions. Ask any needed questions through
+the conversation in accordance with the grilling protocol.
+
 ## Parallel work and subagents
 
 Whenever the work contains independent workstreams that can be executed in
