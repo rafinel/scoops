@@ -30,14 +30,16 @@ export const DiscountTypeDialog = ({
   return (
     <Dialog onOpenChange={handleOpenChange} open={open}>
       <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-[520px]'>
-        <DialogHeader className='flex flex-col gap-3 border-b border-border-soft p-6 pr-14'>
-          <span className='grid size-11 place-items-center rounded-xl bg-primary-soft text-primary'>
+        <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft p-6 pr-14'>
+          <span className='grid size-11 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary'>
             <Icon name='tags' className='size-5' />
           </span>
-          <DialogTitle className='col-auto text-xl'>Criar desconto</DialogTitle>
-          <DialogDescription className='col-auto'>
-            Escolha o tipo de desconto para continuar.
-          </DialogDescription>
+          <div className='min-w-0 space-y-1'>
+            <DialogTitle className='text-xl'>Criar desconto</DialogTitle>
+            <DialogDescription>
+              Escolha o tipo de desconto para continuar.
+            </DialogDescription>
+          </div>
         </DialogHeader>
         <div className='grid gap-3 p-6'>
           <button

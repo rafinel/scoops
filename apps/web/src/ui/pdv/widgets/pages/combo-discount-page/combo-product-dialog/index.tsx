@@ -55,14 +55,16 @@ export const ComboProductDialog = (props: ComboProductDialogProps) => {
   return (
     <Dialog onOpenChange={handleOpenChange} open={props.open}>
       <DialogContent className='max-h-[calc(100vh-2rem)] overflow-y-auto sm:max-w-[900px]'>
-        <DialogHeader className='flex flex-col gap-3 border-b border-border-soft p-6 pr-14'>
-          <span className='grid size-11 place-items-center rounded-xl bg-primary-soft text-primary'>
+        <DialogHeader className='flex-row items-start gap-3 border-b border-border-soft p-6 pr-14'>
+          <span className='grid size-11 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary'>
             <Icon name='package' className='size-5' />
           </span>
-          <DialogTitle className='col-auto text-xl'>Adicionar produto</DialogTitle>
-          <DialogDescription className='col-auto'>
-            Escolha o produto e configure a composição do Combo.
-          </DialogDescription>
+          <div className='min-w-0 space-y-1'>
+            <DialogTitle className='text-xl'>Adicionar produto</DialogTitle>
+            <DialogDescription>
+              Escolha o produto e configure a composição do Combo.
+            </DialogDescription>
+          </div>
         </DialogHeader>
 
         <div className='grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(260px,0.8fr)_minmax(300px,1.2fr)]'>

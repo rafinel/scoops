@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type {
   ProductCategory,
   ProductStockControl,
@@ -9,6 +10,7 @@ import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
+import { StockControlGuidanceDialog } from '../stock-control-guidance-dialog'
 import type {
   BrandDraft,
   ProductRegistrationFieldErrors,
@@ -62,7 +64,10 @@ export const ProductStockControlCard = ({
   stockControl,
 }: ProductStockControlCardProps) => (
   <section className='rounded-2xl bg-card p-4 shadow-sm ring-1 ring-foreground/5 sm:p-6'>
-    <h2 className='sr-only'>Controle de estoque</h2>
+    <div className='mb-3 flex items-center justify-between gap-3'>
+      <h2 className='text-sm font-extrabold'>Estoque</h2>
+      <StockControlGuidanceHelp />
+    </div>
     <div className='grid grid-cols-2 rounded-xl bg-muted/60 p-1'>
       {[
         ['single', 'Estoque único'],
@@ -249,3 +254,22 @@ export const ProductStockControlCard = ({
     ) : null}
   </section>
 )
+
+const StockControlGuidanceHelp = () => {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <Button
+        className='h-8 shrink-0 gap-1 px-2 text-xs font-bold text-primary'
+        onClick={() => setOpen(true)}
+        type='button'
+        variant='ghost'
+      >
+        <Icon className='size-3.5' name='info' />
+        Entenda o estoque
+      </Button>
+      <StockControlGuidanceDialog onOpenChange={setOpen} open={open} />
+    </>
+  )
+}

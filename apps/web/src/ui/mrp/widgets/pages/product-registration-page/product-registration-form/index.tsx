@@ -1,8 +1,9 @@
 import type { ProductCategory, ProductUnit } from '@scoops/core/mrp/domain/structures'
-import type { FormEvent, ReactNode } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import type { UseFormRegister } from 'react-hook-form'
 
 import { Card, CardContent } from '@/ui/shadcn/card'
+import { Button } from '@/ui/shadcn/button'
 import { Checkbox } from '@/ui/shadcn/checkbox'
 import { Input } from '@/ui/shadcn/input'
 import { Label } from '@/ui/shadcn/label'
@@ -14,7 +15,9 @@ import {
   SelectValue,
 } from '@/ui/shadcn/select'
 import { cn } from '@/ui/shared/lib/utils'
+import { Icon } from '@/ui/shared/widgets/components/icon'
 
+import { CategoryGuidanceDialog } from '../category-guidance-dialog'
 import type {
   ProductRegistrationFieldErrors,
   ProductRegistrationFormValues,
@@ -94,6 +97,10 @@ export const ProductRegistrationForm = ({
   <form className='space-y-4' noValidate onSubmit={onSubmit}>
     <Card className='py-0'>
       <CardContent className='grid gap-4 p-3.5'>
+        <div className='flex items-center justify-between gap-3'>
+          <h2 className='text-sm font-extrabold'>Catálogo</h2>
+          <CategoryGuidanceHelp />
+        </div>
         <div className='grid grid-cols-2 gap-3'>
           <Label className='grid min-w-0 gap-1.5 text-xs font-semibold text-muted-foreground'>
             Nome
@@ -193,3 +200,22 @@ export const ProductRegistrationForm = ({
     {children}
   </form>
 )
+
+const CategoryGuidanceHelp = () => {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <Button
+        className='h-8 shrink-0 gap-1 px-2 text-xs font-bold text-primary'
+        onClick={() => setOpen(true)}
+        type='button'
+        variant='ghost'
+      >
+        <Icon className='size-3.5' name='info' />
+        Entenda as categorias
+      </Button>
+      <CategoryGuidanceDialog onOpenChange={setOpen} open={open} />
+    </>
+  )
+}

@@ -28,14 +28,12 @@ export const RemoveComboProductDialog = (props: RemoveComboProductDialogProps) =
         className='sm:max-w-[440px]'
         finalFocus={props.resolveFinalFocus}
       >
-        <AlertDialogHeader className='grid grid-cols-1 gap-3 border-b border-border-soft p-6 pr-14'>
-          <AlertDialogMedia className='row-auto bg-destructive/10 text-destructive'>
+        <AlertDialogHeader className='gap-3 border-b border-border-soft p-6 pr-14'>
+          <AlertDialogMedia className='bg-destructive/10 text-destructive'>
             <Icon name='trash-2' />
           </AlertDialogMedia>
-          <AlertDialogTitle className='col-start-1'>
-            Remover produto do Combo?
-          </AlertDialogTitle>
-          <AlertDialogDescription className='col-start-1'>
+          <AlertDialogTitle>Remover produto do Combo?</AlertDialogTitle>
+          <AlertDialogDescription>
             O produto {props.productName} será removido da composição. Você poderá
             adicioná-lo novamente antes de salvar o Combo.
           </AlertDialogDescription>
