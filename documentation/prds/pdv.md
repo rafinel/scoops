@@ -991,19 +991,19 @@ PRQ-08 and PRQ-09.
 
 ### PRQ-15 — Order Cancellation
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
-**Outcome:** A Manager can cancel any registered order as a one-way lifecycle transition while
-atomically restoring consumption whose current stock target still exists, recording skipped
-restoration for deleted targets, and preserving the original commercial and operational history.
+**Outcome:** A Manager can cancel any registered order as a one-way lifecycle transition, choose
+whether each sold order line returns its stock consumption or records it as a loss, and preserve
+the original commercial and operational history.
 
 **Actors:** Manager
 
 **Consumes:** registered order and immutable stock-consumption facts from PRQ-08 and PRQ-09;
 establishment access and Manager authorization from Identity; current stock facts from MRP.
 
-**Provides:** canceled order facts and restored stock facts consumed by PRQ-10 and future
-operational history.
+**Provides:** canceled order facts, per-line stock disposition facts, and restored stock facts
+consumed by PRQ-10 and future operational history.
 
 #### Capabilities
 
@@ -1013,16 +1013,25 @@ operational history.
 - **No time limit:** a Manager may cancel any registered order regardless of age.
 - **Mandatory confirmation:** cancellation requires explicit confirmation.
 - **Reason:** cancellation reason is optional; when supplied, it is preserved.
-- **Atomic restoration:** cancellation changes order status and metadata and restores every
-  product and brand stock consumption from the original sale whose current product and, when
-  applicable, brand stock target still exists in one atomic transaction.
-- **Deleted stock target:** when an original product no longer exists, or an original brand no
-  longer exists for brand-controlled consumption, that consumption is not restored; the skipped
-  quantity and snapshotted target identity are recorded as cancellation facts and do not prevent
-  the order from being canceled.
-- **Failure:** if an eligible restoration or cancellation cannot complete, the order remains
-  `Registered`, no partial stock restoration or skipped-restoration record is kept, and retry is
-  allowed.
+- **Stock disposition:** before confirming cancellation, the Manager chooses for each sold order
+  line whether its stock consumption is returned to stock or recorded as a loss. Each line
+  defaults to `Devolver ao estoque`, preserving the current behavior unless the Manager changes
+  it to `Registrar como perda`.
+- **Line scope:** a line's disposition applies to all stock consumption attributed to that sale
+  line, including its product, brand and accompaniments when applicable.
+- **Atomic outcomes:** cancellation changes order status and metadata, restores the eligible
+  stock targets selected for return, and records the loss outcomes selected by the Manager in one
+  atomic transaction.
+- **Loss record:** a loss outcome keeps the associated quantity out of stock and records its
+  snapshotted product or brand identity, quantity, order, responsible Manager and occurrence
+  time as a cancellation fact.
+- **Deleted stock target:** when a line is selected for return but its original product no longer
+  exists, or its original brand no longer exists for brand-controlled consumption, that
+  consumption is not restored; the skipped quantity and snapshotted target identity are recorded
+  as cancellation facts and do not prevent the order from being canceled.
+- **Failure:** if cancellation, a selected stock restoration, or a loss record cannot complete,
+  the order remains `Registered`, no partial stock outcome or skipped-restoration record is kept,
+  and retry is allowed.
 - **One-way transition:** `Registered` -> `Canceled` only. Canceled orders cannot be edited,
   reactivated, canceled again or deleted.
 - **History preservation:** cancellation does not change original products, configurations,
@@ -1035,16 +1044,55 @@ operational history.
 
 - **Detail action:** registered order details show `Cancel order` only to Managers.
 - **Confirmation:** dialog shows order number, date/time, item count, total, optional reason,
-  and warns that the order remains in history with status `Canceled` while products, channel
-  and values remain preserved.
-- **Success:** details show `Canceled`, cancellation timestamp, canceling Manager and optional
-  reason.
+  and a `Devolver ao estoque` / `Registrar como perda` choice for every sold order line. It
+  warns that the order remains in history with status `Canceled` while products, channel and
+  values remain preserved.
+- **Success:** details show `Canceled`, cancellation timestamp, canceling Manager, optional
+  reason and the stock outcome for each line, including any skipped restoration.
 - **Failure:** display a retryable error, keep the order `Registered`, and explain that no
-  partial stock restoration occurred.
+  partial stock outcome occurred.
 - **History:** order list displays status and supports `Registered` and `Canceled` filters;
   canceled details remain readable using preserved snapshots.
 - **Accessibility:** confirmation focus, labels, reason field, status, errors and cancellation
-  updates are keyboard and assistive-technology accessible.
+  updates and per-line stock choices are keyboard and assistive-technology accessible.
+
+---
+
+### PRQ-16 — Order Printing
+
+- [ ] **Implemented**
+
+**Outcome:** A user can print a non-fiscal copy of saved order details for physical
+operations.
+
+**Actors:** Manager, Operator
+
+**Consumes:** immutable order snapshots from PRQ-09 and order access from PRQ-10.
+
+**Provides:** a print-ready representation of saved order details.
+
+#### Capabilities
+
+- **Availability:** a print action is available from the successful order-registration view
+  and saved order-detail pages.
+- **Snapshot:** printed order data comes from the saved order snapshot and does not change
+  when current products, prices, Combos or channels are edited.
+- **Local printing:** the action opens the browser or operating-system print dialog so the
+  user can select a locally configured printer, including a thermal printer.
+- **No external provider:** printing does not require an external storage or printing
+  provider.
+- **Non-fiscal:** the printed order copy is operational documentation and does not issue a
+  fiscal receipt or tax document.
+
+#### Experience
+
+- The successful order-registration view and order-detail pages offer `Imprimir pedido`.
+- The print representation includes the saved order identity, items, quantities, prices and
+  totals, along with the channel and lifecycle status when present.
+- The browser or operating-system print dialog lets the user choose the locally configured
+  printer and print settings.
+- **Accessibility:** the print action has an accessible name, visible keyboard focus and
+  supports keyboard activation.
 
 ---
 
@@ -1071,6 +1119,7 @@ flowchart LR
     R13["PRQ-13 Combo management"]
     R14["PRQ-14 Combo application"]
     R15["PRQ-15 Order cancellation"]
+    R16["PRQ-16 Order printing"]
 
     Identity --> R01
     Identity --> R10
@@ -1118,6 +1167,8 @@ flowchart LR
     R11 --> R15
     R15 --> R10
     R15 --> Analytics
+    R09 --> R16
+    R10 --> R16
 ```
 
 ## 7. User Journeys
@@ -1268,8 +1319,10 @@ flowchart LR
    - recording of discounts and Combo links;
    - write-off of all stocks.
 6. The system displays `Order #<number> registered successfully`.
-7. The system cleans the cart.
-8. The journey ends.
+7. The Operator can select `Imprimir pedido` to print a non-fiscal copy through the local
+   browser or operating-system print dialog.
+8. The system cleans the cart.
+9. The journey ends.
 
 ### Journey L — Channel changes during assembly
 
@@ -1324,10 +1377,12 @@ flowchart LR
 5. The user opens an order.
 6. The system presents complete snapshots of the sale, including Combos,
    economy and participating products.
-7. Operators can view cancellation status and details; only Managers see the
+7. The user can select `Imprimir pedido` to print the saved non-fiscal order details through
+   the local browser or operating-system print dialog.
+8. Operators can view cancellation status and details; only Managers see the
    cancellation action for registered orders.
-8. No editing, reversal or deletion actions are offered.
-9. The journey ends.
+9. No editing, reversal or deletion actions are offered.
+10. The journey ends.
 
 ### Journey Q — Manager cancels a registered order
 
@@ -1335,13 +1390,17 @@ flowchart LR
 2. The system displays the cancellation action and preserved order number,
    date, item count and total.
 3. The Manager selects `Cancel order`.
-4. The system opens a confirmation dialog with an optional reason and explains
-   that the order remains in history with status `Canceled`, while products,
-   channel and values remain preserved.
-5. The Manager confirms the cancellation.
-6. The system atomically restores product and brand stock consumptions whose current stock target
-   still exists, records any restoration skipped for a deleted target, and records canceled
-   status, timestamp, Manager and optional reason.
+4. The system opens a confirmation dialog with an optional reason and a
+   `Devolver ao estoque` / `Registrar como perda` choice for each sold order
+   line, defaulting each line to `Devolver ao estoque`. It explains that the
+   order remains in history with status `Canceled`, while products, channel and
+   values remain preserved.
+5. The Manager may change the stock outcome for any line, then confirms the
+   cancellation.
+6. The system atomically restores eligible stock targets for lines selected
+   for return, records loss outcomes for lines selected as losses, records any
+   restoration skipped for a deleted target, and saves canceled status,
+   timestamp, Manager and optional reason.
 7. Success: details show `Canceled` and cancellation metadata.
 8. Failure: order remains `Registered`, no partial stock restoration is
    maintained, and the Manager can retry.
@@ -1364,7 +1423,7 @@ flowchart LR
 - Validity, start date, end date or discount scheduling.
 - Manual selection, application or removal of Combo by the Operator.
 - Free observations per item or order.
-- Printing of receipt, coupon or tax document.
+- Fiscal receipt, coupon or tax document.
 - NFC-e, SAT, NF-e or other tax integrations.
 - Integration with iFood, Rappi, WhatsApp, machines or other systems.
 - Automatic import of external orders.
