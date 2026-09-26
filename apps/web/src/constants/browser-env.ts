@@ -5,6 +5,11 @@ const BROWSER_ENV_INPUT = {
     import.meta.env.VITE_SCOOPS_SERVER_APP_URL ?? getDefaultServerAppUrl(),
   ),
   scoopsServerApiPrefix: import.meta.env.VITE_SCOOPS_SERVER_API_PREFIX ?? '',
+  scoopsWebAppMode:
+    import.meta.env.VITE_SCOOPS_WEB_APP_MODE ??
+    (import.meta.env.MODE === 'test' ? 'test' : 'dev'),
+  sentryDsn: import.meta.env.VITE_SENTRY_DSN,
+  scoopsReleaseSha: import.meta.env.VITE_SCOOPS_RELEASE_SHA,
 }
 
 function getDefaultServerAppUrl(): string {
@@ -35,29 +40,57 @@ function alignLoopbackServerAppUrl(serverAppUrl: string): string {
   return url.origin
 }
 
-export function parseBrowserEnv(input: unknown) {
-  const environment = browserEnvSchema.parse(input)
+export function parseBrowserEnv(
+  input: unknown,
+): ParsedBrowserEnv | ParsedBrowserEnvWithMonitoring {
+  const browserEnvInput = Object(input)
+  const hasExplicitMode = 'scoopsWebAppMode' in browserEnvInput
+  const environment = browserEnvSchema.parse({
+    ...browserEnvInput,
+    scoopsWebAppMode: hasExplicitMode
+      ? browserEnvInput.scoopsWebAppMode
+      : BROWSER_ENV_INPUT.scoopsWebAppMode,
+  })
   const url = new URL(environment.scoopsServerAppUrl)
-  const isLoopback =
-    url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '::1'
-
-  if (
-    url.username ||
-    url.password ||
-    url.pathname !== '/' ||
-    url.search ||
-    url.hash ||
-    (isLoopback ? url.protocol !== 'http:' : url.protocol !== 'https:')
-  ) {
+  if (!isValidServerAppUrl(url)) {
     throw new Error(
       'VITE_SCOOPS_SERVER_APP_URL must be an exact HTTP loopback or HTTPS API origin.',
     )
   }
 
-  return {
+  const parsedEnvironment = {
     scoopsServerAppUrl: url.origin,
     scoopsServerRestUrl: `${url.origin}${environment.scoopsServerApiPrefix}`,
   }
+
+  if (!hasExplicitMode) return parsedEnvironment
+
+  return {
+    ...parsedEnvironment,
+    scoopsWebAppMode: environment.scoopsWebAppMode,
+    sentryDsn: environment.sentryDsn,
+    scoopsReleaseSha: environment.scoopsReleaseSha,
+  }
 }
 
-export const BROWSER_ENV = parseBrowserEnv(BROWSER_ENV_INPUT)
+type ParsedBrowserEnv = {
+  scoopsServerAppUrl: string
+  scoopsServerRestUrl: string
+}
+
+type ParsedBrowserEnvWithMonitoring = ParsedBrowserEnv & {
+  scoopsWebAppMode: string
+  sentryDsn: string | undefined
+  scoopsReleaseSha: string | undefined
+}
+
+function isValidServerAppUrl(url: URL): boolean {
+  const protocol = ['localhost', '127.0.0.1', '::1'].includes(url.hostname)
+    ? 'http:'
+    : 'https:'
+  return url.protocol === protocol && url.href === `${url.origin}/`
+}
+
+export const BROWSER_ENV = parseBrowserEnv(
+  BROWSER_ENV_INPUT,
+) as ParsedBrowserEnvWithMonitoring

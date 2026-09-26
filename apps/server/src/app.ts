@@ -3,8 +3,14 @@ import { HttpAdapterHost } from '@nestjs/core'
 import { toNodeHandler } from 'better-auth/node'
 import type { NextFunction, Request, Response } from 'express'
 import type { IncomingMessage } from 'node:http'
+import type { Telemetry } from '@scoops/core/shared/interfaces'
 
 import { GlobalErrorHandler } from '@/shared/rest/filters'
+import {
+  getOperationalHttpMethod,
+  getOperationalRouteTemplate,
+  getOperationalStatusClass,
+} from '@/shared/provision/telemetry/server-app-telemetry-provider'
 
 type AuthHandler = {
   handler: (request: globalThis.Request) => Promise<globalThis.Response>
@@ -13,12 +19,15 @@ type AuthHandler = {
 export type HttpAuthBootstrapOptions = {
   trustedOrigins: readonly string[]
   isAllowedRoute: (request: Pick<IncomingMessage, 'method' | 'url'>) => boolean
+  operationalTelemetry: Telemetry
 }
 
 export class App {
   constructor(public readonly instance: INestApplication) {}
 
   configureHttpApp(auth: AuthHandler, options: HttpAuthBootstrapOptions): void {
+    this.configureHttpTelemetry(options.operationalTelemetry)
+
     this.instance.enableCors({
       origin: [...options.trustedOrigins],
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
@@ -52,8 +61,26 @@ export class App {
     parserApp.useBodyParser('urlencoded', { extended: true })
 
     this.instance.useGlobalFilters(
-      new GlobalErrorHandler(this.instance.get(HttpAdapterHost)),
+      new GlobalErrorHandler(
+        this.instance.get(HttpAdapterHost),
+        options.operationalTelemetry,
+      ),
     )
+  }
+
+  configureHttpTelemetry(telemetry: Telemetry): void {
+    this.instance.use((request: Request, response: Response, next: NextFunction) => {
+      const startedAt = performance.now()
+      response.once('finish', () => {
+        telemetry.recordHttpRequest({
+          route: getOperationalRouteTemplate(request.route?.path),
+          method: getOperationalHttpMethod(request.method),
+          statusClass: getOperationalStatusClass(response.statusCode),
+          durationMs: Math.max(0, performance.now() - startedAt),
+        })
+      })
+      next()
+    })
   }
 
   private async sanitizeBetterAuthResponse(

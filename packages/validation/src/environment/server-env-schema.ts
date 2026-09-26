@@ -20,6 +20,21 @@ const serverEnvObjectSchema = z.object({
   INNGEST_EVENT_KEY: z.string().optional(),
   INNGEST_SIGNING_KEY: z.string().optional(),
   SCOOPS_SERVER_APP_MODE: z.enum(['dev', 'prod', 'stg', 'test']).default('dev'),
+  SENTRY_DSN: z
+    .string()
+    .optional()
+    .transform((value) => (value === '' ? undefined : value))
+    .pipe(z.url().optional()),
+  SCOOPS_RELEASE_SHA: z
+    .string()
+    .optional()
+    .transform((value) => (value === '' ? undefined : value))
+    .pipe(
+      z
+        .string()
+        .regex(/^[a-f0-9]{40}$/i)
+        .optional(),
+    ),
   SCOOPS_SERVER_APP_PORT: z.coerce.number().int().positive().default(3336),
   SCOOPS_PDV_PREVIEW_TOKEN_SECRET: z.string().min(32),
   BETTER_AUTH_SECRET: z.string().min(32),
@@ -84,6 +99,30 @@ function validateServerEnvironment(
 ) {
   validateEmailProvider(environment, context)
   validateResendApiKey(environment, context)
+  validateSentryConfiguration(environment, context)
+}
+
+function validateSentryConfiguration(
+  environment: ServerEnvironment,
+  context: z.RefinementCtx,
+) {
+  if (!['stg', 'prod'].includes(environment.SCOOPS_SERVER_APP_MODE)) return
+
+  if (!environment.SENTRY_DSN) {
+    addValidationIssue(
+      context,
+      ['SENTRY_DSN'],
+      'Sentry DSN is required in deployed modes',
+    )
+  }
+
+  if (!environment.SCOOPS_RELEASE_SHA) {
+    addValidationIssue(
+      context,
+      ['SCOOPS_RELEASE_SHA'],
+      'A full Git SHA is required in deployed modes',
+    )
+  }
 }
 
 export const serverEnvSchema = serverEnvObjectSchema.superRefine(

@@ -1,4 +1,5 @@
 import './register-paths'
+import '@/shared/provision/telemetry/sentry-init'
 
 import { NestFactory } from '@nestjs/core'
 import type { INestApplication } from '@nestjs/common'
@@ -9,9 +10,14 @@ import { App } from '@/app'
 import { IDENTITY_PROVIDERS } from '@/identity/constants'
 import { getTrustedOrigins, isAllowedBetterAuthRoute } from '@/identity/provision/auth'
 import { EnvProvider } from '@/shared/provision/env/env-provider'
+import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { SentryLogger } from '@/shared/provision/logger/sentry-logger'
 
 export async function createApp(): Promise<INestApplication> {
-  const app = new App(await NestFactory.create(AppModule, { bodyParser: false }))
+  const nestApp = await NestFactory.create(AppModule, { bodyParser: false })
+  // biome-ignore lint/correctness/useHookAtTopLevel: Nest's useLogger configures the HTTP app logger.
+  nestApp.useLogger(nestApp.get(SentryLogger))
+  const app = new App(nestApp)
 
   const openApiConfig = new DocumentBuilder()
     .setTitle('Scoops REST API')
@@ -26,6 +32,7 @@ export async function createApp(): Promise<INestApplication> {
   app.configureHttpApp(app.instance.get(IDENTITY_PROVIDERS.betterAuth), {
     trustedOrigins: getTrustedOrigins(envProvider.get('SCOOPS_WEB_APP_URL')),
     isAllowedRoute: isAllowedBetterAuthRoute,
+    operationalTelemetry: app.instance.get(TELEMETRY),
   })
 
   await app.instance.init()

@@ -1,4 +1,7 @@
 import { createRouter as createTanStackRouter } from '@tanstack/react-router'
+
+import { initializeBrowserSentry } from './provision/telemetry/sentry.config'
+
 import { routeTree } from './routeTree.gen'
 
 export function getRouter() {
@@ -12,6 +15,8 @@ export function getRouter() {
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
   })
+
+  initializeBrowserSentry(router)
 
   return router
 }

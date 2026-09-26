@@ -15,6 +15,13 @@ import {
   ServiceUnavailableError,
   TooManyRequestsError,
 } from '@scoops/core/shared/domain/errors'
+import type { Telemetry } from '@scoops/core/shared/interfaces'
+
+import {
+  getOperationalHttpMethod,
+  getOperationalRouteTemplate,
+  getOperationalStatusClass,
+} from '@/shared/provision/telemetry/server-app-telemetry-provider'
 
 export type ErrorResponse = {
   readonly statusCode: number
@@ -26,16 +33,41 @@ export type ErrorResponse = {
 
 @Catch()
 export class GlobalErrorHandler implements ExceptionFilter {
-  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+  constructor(
+    private readonly httpAdapterHost: HttpAdapterHost,
+    private readonly operationalTelemetry: Telemetry,
+  ) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     const { httpAdapter } = this.httpAdapterHost
     const context = host.switchToHttp()
-    const request = context.getRequest()
+    const request = context.getRequest<{
+      url: string
+      method?: string
+      route?: { path?: unknown }
+    }>()
     const response = context.getResponse()
     const errorResponse = this.createErrorResponse(exception, request.url)
 
+    if (!(exception instanceof AppError) && !(exception instanceof HttpException)) {
+      const safeContext = {
+        route: getOperationalRouteTemplate(request.route?.path),
+        method: getOperationalHttpMethod(request.method),
+        statusClass: getOperationalStatusClass(errorResponse.statusCode),
+        errorClass: this.getErrorClass(exception),
+      }
+      this.operationalTelemetry.captureUnexpected(exception, safeContext)
+      this.operationalTelemetry.logError(safeContext)
+    }
+
     httpAdapter.reply(response, errorResponse, errorResponse.statusCode)
+  }
+
+  private getErrorClass(exception: unknown): string {
+    if (!(exception instanceof Error)) return 'Error'
+    return /^[A-Za-z][A-Za-z0-9]{0,63}$/.test(exception.constructor.name)
+      ? exception.constructor.name
+      : 'Error'
   }
 
   private createErrorResponse(exception: unknown, path: string): ErrorResponse {

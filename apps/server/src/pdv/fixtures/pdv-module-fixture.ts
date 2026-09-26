@@ -88,6 +88,50 @@ type RegisterPortionOrderInput = {
   readonly stockQuantity?: number
 }
 
+type PortionOrderLine = {
+  readonly productId: string
+  readonly kind: 'portion'
+  readonly quantity: number
+  readonly sizeId: string
+  readonly accompanimentIds: string[]
+}
+
+const PORTION_PRODUCT_DEFAULTS = {
+  unit: 'un',
+  categories: ['portion'],
+  stockControl: 'single',
+  status: 'active',
+  allowNegativeStock: false,
+  idealStock: 0,
+  currentUnitCost: 2,
+} as const
+
+const REGULAR_PRODUCT_SIZE_DEFAULTS = {
+  name: 'Regular',
+  quantity: 1,
+  price: 10,
+  isActive: true,
+} as const
+
+const PORTION_ORDER_LINE_DEFAULTS = {
+  kind: 'portion' as const,
+  accompanimentIds: [] as string[],
+}
+
+const PDV_FIXTURE_IMPORTS = [
+  SharedModule,
+  IdentityModule,
+  MrpModule,
+  PdvModule,
+  InngestModule.forRoot({ functions: [] }),
+]
+
+const IDENTITY_FIXTURE_AUTH_PROVIDERS = [
+  IDENTITY_PROVIDERS.authIdentity,
+  IDENTITY_PROVIDERS.betterAuthSessionVerifier,
+  BetterAuthSessionIssuer,
+]
+
 type ConfigureFixture = (builder: TestingModuleBuilder) => TestingModuleBuilder
 
 type InngestJobType<T extends InngestJob> = Type<T> & {
@@ -101,6 +145,29 @@ type PdvModuleFixtureOptions<T extends InngestJob> = {
 
 type CapturedEventsRepository = Pick<EventsRepository, 'add'> & {
   readonly events: Event[]
+}
+
+type PdvRestContext = {
+  readonly restFixture: RestFixture
+  readonly originalPreviewTokenSecret: string | undefined
+  readonly stockConsumeFailure: { error?: AppError }
+  readonly stockRestoreFailure: { error?: AppError }
+  readonly databaseFailure: { error?: AppError }
+  readonly eventsRepository: CapturedEventsRepository
+}
+
+type PdvRestSetup = {
+  readonly authProvider: ServerAuthProvider
+  readonly configure?: ConfigureFixture
+  readonly databaseFailure: { error?: AppError }
+  readonly eventsRepository: CapturedEventsRepository
+  readonly inngestClient?: InngestClient
+  readonly stockConsumeFailure: { error?: AppError }
+  readonly stockRestoreFailure: { error?: AppError }
+}
+
+type PdvJobRegistration = {
+  context?: PdvRestContext
 }
 
 export class PdvModuleFixture {
@@ -123,6 +190,8 @@ export class PdvModuleFixture {
     private readonly databaseFailure: { error?: AppError },
     private readonly inngestFixture: InngestFixture | undefined,
     private readonly eventsRepository: CapturedEventsRepository,
+    private readonly originalServerAppMode?: string,
+    private readonly originalEmailProvider?: string,
   ) {}
 
   static async register<T extends InngestJob = InngestJob>(
@@ -161,69 +230,22 @@ export class PdvModuleFixture {
     const events: Event[] = []
     const eventsRepository: CapturedEventsRepository = {
       events,
-      add(event) {
+      add: async (event) => {
         events.push(event)
-        return Promise.resolve()
       },
     }
+    const setup: PdvRestSetup = {
+      authProvider,
+      configure,
+      databaseFailure,
+      eventsRepository,
+      inngestClient,
+      stockConsumeFailure,
+      stockRestoreFailure,
+    }
     const restFixture = await RestFixture.register(
-      {
-        imports: [
-          SharedModule,
-          IdentityModule,
-          MrpModule,
-          PdvModule,
-          InngestModule.forRoot({ functions: [] }),
-        ],
-      },
-      (builder: TestingModuleBuilder) => {
-        let configuredBuilder = configure?.(builder) ?? builder
-
-        if (inngestClient) {
-          // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
-          configuredBuilder = configuredBuilder
-            .overrideProvider(InngestClient)
-            .useValue(inngestClient)
-        }
-
-        return configuredBuilder
-          .overrideProvider(IDENTITY_PROVIDERS.authIdentity)
-          .useValue(authProvider)
-          .overrideProvider(IDENTITY_PROVIDERS.betterAuthSessionVerifier)
-          .useValue(authProvider)
-          .overrideProvider(BetterAuthSessionIssuer)
-          .useValue(authProvider)
-          .overrideProvider(PDV_PROVIDERS.stockProvider)
-          .useFactory({
-            inject: [MrpStockProvider],
-            factory: (provider: MrpStockProvider) => ({
-              consume: async (...args: Parameters<typeof provider.consume>) => {
-                if (stockConsumeFailure.error) throw stockConsumeFailure.error
-                return provider.consume(...args)
-              },
-              restore: async (...args: Parameters<typeof provider.restore>) => {
-                const restorations = await provider.restore(...args)
-                if (stockRestoreFailure.error) throw stockRestoreFailure.error
-                return restorations
-              },
-            }),
-          })
-          .overrideProvider(PDV_REPOSITORIES.database)
-          .useFactory({
-            inject: [DrizzlePdvDatabase],
-            factory: (database: DrizzlePdvDatabase): PdvDatabase => ({
-              run<Result>(
-                operation: (repositories: PdvDatabaseRepositories) => Promise<Result>,
-              ) {
-                return database.run(async (repositories) => {
-                  const result = await operation({ ...repositories, eventsRepository })
-                  if (databaseFailure.error) throw databaseFailure.error
-                  return result
-                })
-              },
-            }),
-          })
-      },
+      { imports: PDV_FIXTURE_IMPORTS },
+      (builder) => PdvModuleFixture.configureRestFixture(builder, setup),
     )
 
     return {
@@ -236,9 +258,92 @@ export class PdvModuleFixture {
     }
   }
 
+  private static configureRestFixture(
+    builder: TestingModuleBuilder,
+    setup: PdvRestSetup,
+  ): TestingModuleBuilder {
+    const {
+      authProvider,
+      configure,
+      databaseFailure,
+      eventsRepository,
+      inngestClient,
+      stockConsumeFailure,
+      stockRestoreFailure,
+    } = setup
+    let configuredBuilder = configure?.(builder) ?? builder
+
+    if (inngestClient)
+      // biome-ignore lint/correctness/useHookAtTopLevel: Nest's TestingModuleBuilder exposes a useValue method.
+      configuredBuilder = configuredBuilder
+        .overrideProvider(InngestClient)
+        .useValue(inngestClient)
+
+    for (const token of IDENTITY_FIXTURE_AUTH_PROVIDERS) {
+      configuredBuilder = configuredBuilder.overrideProvider(token).useValue(authProvider)
+    }
+
+    return configuredBuilder
+      .overrideProvider(PDV_PROVIDERS.stockProvider)
+      .useFactory(
+        PdvModuleFixture.createStockProviderFactory(
+          stockConsumeFailure,
+          stockRestoreFailure,
+        ),
+      )
+      .overrideProvider(PDV_REPOSITORIES.database)
+      .useFactory(
+        PdvModuleFixture.createDatabaseFactory(databaseFailure, eventsRepository),
+      )
+  }
+
+  private static createStockProviderFactory(
+    stockConsumeFailure: { error?: AppError },
+    stockRestoreFailure: { error?: AppError },
+  ) {
+    return {
+      inject: [MrpStockProvider],
+      factory: (provider: MrpStockProvider) => ({
+        consume: async (...args: Parameters<typeof provider.consume>) => {
+          if (stockConsumeFailure.error) throw stockConsumeFailure.error
+          return provider.consume(...args)
+        },
+        restore: async (...args: Parameters<typeof provider.restore>) => {
+          const restorations = await provider.restore(...args)
+          if (stockRestoreFailure.error) throw stockRestoreFailure.error
+          return restorations
+        },
+      }),
+    }
+  }
+
+  private static createDatabaseFactory(
+    databaseFailure: { error?: AppError },
+    eventsRepository: CapturedEventsRepository,
+  ) {
+    return {
+      inject: [DrizzlePdvDatabase],
+      factory: (database: DrizzlePdvDatabase): PdvDatabase => ({
+        run<Result>(
+          operation: (repositories: PdvDatabaseRepositories) => Promise<Result>,
+        ) {
+          return database.run(async (repositories) => {
+            const result = await operation({ ...repositories, eventsRepository })
+            if (databaseFailure.error) throw databaseFailure.error
+            return result
+          })
+        },
+      }),
+    }
+  }
+
   private static fromRestContext(
     context: Awaited<ReturnType<typeof PdvModuleFixture.registerRestContext>>,
     inngestFixture?: InngestFixture,
+    originalEnvironment?: {
+      readonly originalServerAppMode: string | undefined
+      readonly originalEmailProvider: string | undefined
+    },
   ) {
     return new PdvModuleFixture(
       context.restFixture,
@@ -248,6 +353,8 @@ export class PdvModuleFixture {
       context.databaseFailure,
       inngestFixture,
       context.eventsRepository,
+      originalEnvironment?.originalServerAppMode,
+      originalEnvironment?.originalEmailProvider,
     )
   }
 
@@ -256,41 +363,95 @@ export class PdvModuleFixture {
     options: PdvModuleFixtureOptions<T>,
     jobType: InngestJobType<T>,
   ) {
-    let context:
-      | Awaited<ReturnType<typeof PdvModuleFixture.registerRestContext>>
-      | undefined
-    const inngestFixture = new InngestFixture({
+    const originalServerAppMode = process.env.SCOOPS_SERVER_APP_MODE
+    const originalEmailProvider = process.env.SCOOPS_EMAIL_PROVIDER
+    process.env.SCOOPS_SERVER_APP_MODE = 'test'
+    process.env.SCOOPS_EMAIL_PROVIDER = 'smtp'
+    const registration: PdvJobRegistration = {}
+    const inngestFixture = PdvModuleFixture.createInngestFixture(
+      authProvider,
+      options,
+      jobType,
+      registration,
+    )
+    const context = await PdvModuleFixture.startInngestFixture(
+      inngestFixture,
+      registration,
+      originalServerAppMode,
+      originalEmailProvider,
+    )
+
+    return PdvModuleFixture.fromRestContext(context, inngestFixture, {
+      originalServerAppMode,
+      originalEmailProvider,
+    })
+  }
+
+  private static createInngestFixture<T extends InngestJob>(
+    authProvider: ServerAuthProvider,
+    options: PdvModuleFixtureOptions<T>,
+    jobType: InngestJobType<T>,
+    registration: PdvJobRegistration,
+  ) {
+    return new InngestFixture({
       functionId: jobType.ID,
       createJob: async (client) => {
-        context = await PdvModuleFixture.registerRestContext(
+        registration.context = await PdvModuleFixture.registerRestContext(
           authProvider,
           options.configure,
           client,
         )
-        return context.restFixture.get(jobType)
+        return registration.context.restFixture.get(jobType)
       },
     })
+  }
 
+  private static async startInngestFixture(
+    inngestFixture: InngestFixture,
+    registration: PdvJobRegistration,
+    originalServerAppMode: string | undefined,
+    originalEmailProvider: string | undefined,
+  ): Promise<PdvRestContext> {
     try {
       await inngestFixture.setup()
     } catch (error) {
-      try {
-        await context?.restFixture.close()
-      } catch (closeError) {
-        throw new AggregateError(
-          [error, closeError],
-          'Failed to register the PDV fixture.',
-        )
-      }
-      throw error
+      return PdvModuleFixture.cleanupFailedInngestSetup(
+        error,
+        registration,
+        originalServerAppMode,
+        originalEmailProvider,
+      )
     }
 
-    if (!context) {
+    if (!registration.context) {
       await inngestFixture.teardown()
+      PdvModuleFixture.restoreJobEnvironment(originalServerAppMode, originalEmailProvider)
       throw new Error('O fixture do PDV não foi registrado no Inngest.')
     }
 
-    return PdvModuleFixture.fromRestContext(context, inngestFixture)
+    return registration.context
+  }
+
+  private static async cleanupFailedInngestSetup(
+    error: unknown,
+    registration: PdvJobRegistration,
+    originalServerAppMode: string | undefined,
+    originalEmailProvider: string | undefined,
+  ): Promise<never> {
+    PdvModuleFixture.restoreJobEnvironment(originalServerAppMode, originalEmailProvider)
+    const closeResult = await Promise.allSettled([
+      Promise.resolve().then(() => registration.context?.restFixture.close()),
+    ])
+    const [result] = closeResult
+
+    if (result?.status === 'rejected') {
+      throw new AggregateError(
+        [error, result.reason],
+        'Failed to register the PDV fixture.',
+      )
+    }
+
+    throw error
   }
 
   get app(): INestApplication {
@@ -508,55 +669,64 @@ export class PdvModuleFixture {
   async registerPortionOrder(
     input: RegisterPortionOrderInput,
   ): Promise<{ product: Product; size: ProductSize; order: Order }> {
+    const {
+      authorization,
+      channelId,
+      idempotencyKey,
+      productName,
+      quantity,
+      stockQuantity,
+    } = input
     const product = await this.addProduct({
+      ...PORTION_PRODUCT_DEFAULTS,
       establishmentId: input.establishmentId ?? PdvModuleFixture.accounts.establishmentId,
-      name: input.productName,
-      unit: 'un',
-      categories: ['portion'],
-      stockControl: 'single',
-      status: 'active',
-      allowNegativeStock: false,
-      idealStock: 0,
-      currentUnitCost: 2,
+      name: productName,
     })
     const size = await this.addProductSize({
+      ...REGULAR_PRODUCT_SIZE_DEFAULTS,
       establishmentId: product.establishmentId,
       productId: product.id,
-      name: 'Regular',
-      quantity: 1,
-      price: 10,
-      isActive: true,
     })
     await this.stockBalances.initialize(product.id)
-    await this.stockBalances.add({ productId: product.id }, input.stockQuantity ?? 100)
+    await this.stockBalances.add({ productId: product.id }, stockQuantity ?? 100)
 
+    const channel = channelId ? { channelId } : {}
     const lines = [
       {
+        ...PORTION_ORDER_LINE_DEFAULTS,
         productId: product.id,
-        kind: 'portion' as const,
-        quantity: input.quantity ?? 1,
+        quantity: quantity ?? 1,
         sizeId: size.id,
-        accompanimentIds: [],
       },
     ]
     const preview = await request(this.app.getHttpServer())
       .post('/orders/preview')
-      .set('Cookie', input.authorization)
-      .send({
-        ...(input.channelId ? { channelId: input.channelId } : {}),
-        lines,
-      })
+      .set('Cookie', authorization)
+      .send({ ...channel, lines })
+    const order = await this.submitPortionOrder(
+      authorization,
+      idempotencyKey,
+      preview.body.previewToken,
+      channel,
+      lines,
+    )
+
+    return { product, size, order }
+  }
+
+  /** Submit the same channel, cart and authorization that were used for the preview. */
+  private async submitPortionOrder(
+    authorization: string,
+    idempotencyKey: string,
+    previewToken: string,
+    channel: { readonly channelId?: string },
+    lines: PortionOrderLine[],
+  ): Promise<Order> {
     const response = await request(this.app.getHttpServer())
       .post('/orders')
-      .set('Cookie', input.authorization)
-      .send({
-        idempotencyKey: input.idempotencyKey,
-        previewToken: preview.body.previewToken,
-        ...(input.channelId ? { channelId: input.channelId } : {}),
-        lines,
-      })
-
-    return { product, size, order: response.body.order as Order }
+      .set('Cookie', authorization)
+      .send({ idempotencyKey, previewToken, ...channel, lines })
+    return response.body.order as Order
   }
 
   async close() {
@@ -573,6 +743,12 @@ export class PdvModuleFixture {
     } catch (error) {
       errors.push(error)
     } finally {
+      if (this.inngestFixture) {
+        PdvModuleFixture.restoreJobEnvironment(
+          this.originalServerAppMode,
+          this.originalEmailProvider,
+        )
+      }
       if (this.originalPreviewTokenSecret === undefined) {
         delete process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET
       } else {
@@ -583,6 +759,16 @@ export class PdvModuleFixture {
     if (errors.length > 0) {
       throw new AggregateError(errors, 'Failed to close the PDV fixture.')
     }
+  }
+
+  private static restoreJobEnvironment(
+    originalServerAppMode: string | undefined,
+    originalEmailProvider: string | undefined,
+  ) {
+    if (originalServerAppMode === undefined) delete process.env.SCOOPS_SERVER_APP_MODE
+    else process.env.SCOOPS_SERVER_APP_MODE = originalServerAppMode
+    if (originalEmailProvider === undefined) delete process.env.SCOOPS_EMAIL_PROVIDER
+    else process.env.SCOOPS_EMAIL_PROVIDER = originalEmailProvider
   }
 }
 

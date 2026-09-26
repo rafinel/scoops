@@ -1,252 +1,207 @@
-import { UserProfile } from '@scoops/core/identity/domain/structures'
 import { NotificationKind } from '@scoops/core/communication/domain/structures'
-import type {
-  NotificationAudienceProvider,
-  NotificationsRepository,
-} from '@scoops/core/communication/interfaces'
-import { describe, expect, it, vi } from 'vitest'
+import { ProductStockAlertStateEnteredEvent } from '@scoops/core/mrp/domain/events'
+import {
+  UserInactivatedEvent,
+  UserInvitationAcceptedEvent,
+  UserProfileUpdatedEvent,
+  UserReactivatedEvent,
+} from '@scoops/core/identity/domain/events'
+import type { Telemetry } from '@scoops/core/shared/interfaces'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { CommunicationModuleFixture } from '@/communication/fixtures/communication-module-fixture'
 import { CreateInProductNotificationsJob } from '@/communication/messaging/inngest/jobs/create-in-product-notifications-job'
+import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
 
-type Handler = (input: {
-  event: { id?: string; name: string; data: unknown }
-  step: { run: (name: string, operation: () => Promise<unknown>) => Promise<unknown> }
-}) => Promise<unknown>
+describe('Create In Product Notifications Job', () => {
+  let fixture: CommunicationModuleFixture
+  let recordJobRun: ReturnType<typeof vi.spyOn>
+  let captureUnexpected: ReturnType<typeof vi.spyOn>
 
-const ids = {
-  establishmentId: '55000000-0000-4000-8000-000000000001',
-  userId: '55000000-0000-4000-8000-000000000002',
-  actorUserId: '55000000-0000-4000-8000-000000000003',
-  productId: '55000000-0000-4000-8000-000000000004',
-}
-const timestamp = '2026-09-05T12:00:00.000Z'
+  beforeAll(async () => {
+    fixture = await CommunicationModuleFixture.register({
+      inngestJob: CreateInProductNotificationsJob,
+    })
+  })
 
-function captureJob(
-  overrides: {
-    addMany?: NotificationsRepository['addMany']
-    audienceProvider?: NotificationAudienceProvider
-  } = {},
-) {
-  const addMany = overrides.addMany ?? vi.fn().mockResolvedValue(undefined)
-  const notificationsRepository: NotificationsRepository = {
-    addMany,
-    findPage: vi.fn(),
-    markRead: vi.fn(),
-    removeAll: vi.fn(),
-  }
-  const audienceProvider =
-    overrides.audienceProvider ??
-    ({
-      findManyActiveByEstablishment: vi
-        .fn()
-        .mockResolvedValue([{ userId: ids.actorUserId, profile: UserProfile.Manager }]),
-    } satisfies NotificationAudienceProvider)
-  const createFunction = vi.fn((_options: unknown, handler: Handler) => handler)
-  const job = new CreateInProductNotificationsJob(
-    { createFunction } as never,
-    notificationsRepository,
-    audienceProvider,
-    { now: () => new Date('2026-09-05T13:00:00.000Z') },
-  )
-  return {
-    addMany: addMany as ReturnType<typeof vi.fn>,
-    createFunction,
-    handler: job.function as unknown as Handler,
-  }
-}
+  beforeEach(async () => {
+    vi.restoreAllMocks()
+    await fixture.resetDatabase()
+    await fixture.seedAccounts()
+    const telemetry = fixture.get<Telemetry>(TELEMETRY)
+    recordJobRun = vi.spyOn(telemetry, 'recordJobRun')
+    captureUnexpected = vi.spyOn(telemetry, 'captureUnexpected')
+  })
 
-function stockAlertEvent(id = 'event-stock-alert') {
-  return {
-    id,
-    name: 'mrp/product.stock-alert-state-entered',
-    data: {
-      establishmentId: ids.establishmentId,
-      productId: ids.productId,
+  afterAll(async () => {
+    vi.restoreAllMocks()
+    await fixture?.close()
+  })
+
+  it('registers all source events with the established concurrency and retry policy', () => {
+    expect(fixture.inngestFunctionOptions).toMatchObject({
+      id: CreateInProductNotificationsJob.ID,
+      retries: 5,
+      concurrency: { limit: 1, key: 'event.data.establishmentId' },
+    })
+    expect(fixture.inngestFunctionOptions.triggers).toHaveLength(5)
+  })
+
+  it('processes all registered source events and records one safe terminal outcome each', async () => {
+    const accounts = CommunicationModuleFixture.accounts
+    const now = fixture.datetimeProvider.now()
+    const userId = fixture.idProvider.generate()
+    const actorUserId = fixture.idProvider.generate()
+    const productId = fixture.idProvider.generate()
+    const events = [
+      new ProductStockAlertStateEnteredEvent({
+        establishmentId: accounts.establishmentId,
+        productId,
+        productName: 'Chocolate',
+        unit: 'kg',
+        state: 'below-ideal',
+        availableQuantity: 2,
+        idealQuantity: 10,
+        occurredAt: now,
+      }),
+      new UserInvitationAcceptedEvent({
+        establishmentId: accounts.establishmentId,
+        userId,
+        email: 'new-user@example.com',
+        userName: 'New User',
+        profile: 'operator',
+        occurredAt: now,
+      }),
+      new UserProfileUpdatedEvent({
+        establishmentId: accounts.establishmentId,
+        userId,
+        email: 'new-user@example.com',
+        userName: 'New User',
+        actorUserId,
+        previousProfile: 'operator',
+        profile: 'manager',
+        updatedAt: now,
+      }),
+      new UserInactivatedEvent({
+        establishmentId: accounts.establishmentId,
+        userId,
+        email: 'new-user@example.com',
+        userName: 'New User',
+        actorUserId,
+        previousStatus: 'active',
+        status: 'inactive',
+        updatedAt: now,
+      }),
+      new UserReactivatedEvent({
+        establishmentId: accounts.establishmentId,
+        userId,
+        email: 'new-user@example.com',
+        userName: 'New User',
+        actorUserId,
+        previousStatus: 'inactive',
+        profile: 'operator',
+        status: 'active',
+        updatedAt: now,
+      }),
+    ]
+
+    for (const event of events) {
+      const run = await fixture.runInngest({ name: event.name, data: event.payload })
+      expect(run.status.toLowerCase()).toBe('completed')
+      expect(run.function?.id).toBe(CreateInProductNotificationsJob.ID)
+    }
+
+    const page = await fixture.notificationsRepository.findPage({
+      establishmentId: accounts.establishmentId,
+      recipientUserId: accounts.managerId,
+      limit: 20,
+    })
+    expect(page.items.map(({ kind }) => kind)).toEqual(
+      expect.arrayContaining([
+        NotificationKind.StockBelowIdeal,
+        NotificationKind.UserAdded,
+        NotificationKind.UserPromoted,
+        NotificationKind.UserInactivated,
+        NotificationKind.UserReactivated,
+      ]),
+    )
+    expect(recordJobRun).toHaveBeenCalledTimes(events.length)
+    expect(recordJobRun.mock.calls).toEqual(
+      Array.from({ length: events.length }, () => [
+        {
+          functionId: CreateInProductNotificationsJob.ID,
+          outcome: 'success',
+          durationMs: expect.any(Number),
+        },
+      ]),
+    )
+    expect(JSON.stringify(recordJobRun.mock.calls)).not.toContain(
+      accounts.establishmentId,
+    )
+    expect(JSON.stringify(recordJobRun.mock.calls)).not.toContain(userId)
+    expect(captureUnexpected).not.toHaveBeenCalled()
+  }, 150_000)
+
+  it('rejects malformed source data before creating notifications', async () => {
+    const accounts = CommunicationModuleFixture.accounts
+    const run = await fixture.runInngest({
+      id: fixture.idProvider.generate(),
+      name: UserInactivatedEvent._NAME,
+      data: { establishmentId: 'not-a-uuid' },
+    })
+
+    expect(run.status.toLowerCase()).toBe('failed')
+    const page = await fixture.notificationsRepository.findPage({
+      establishmentId: accounts.establishmentId,
+      recipientUserId: accounts.managerId,
+      limit: 20,
+    })
+    expect(page.items).toHaveLength(0)
+    expect(recordJobRun).toHaveBeenCalledTimes(1)
+    expect(recordJobRun).toHaveBeenCalledWith({
+      functionId: CreateInProductNotificationsJob.ID,
+      outcome: 'failure',
+      durationMs: expect.any(Number),
+    })
+    expect(JSON.stringify(recordJobRun.mock.calls)).not.toContain(
+      accounts.establishmentId,
+    )
+    expect(captureUnexpected).toHaveBeenCalledTimes(1)
+  })
+
+  it('preserves the source event ID for notification idempotency', async () => {
+    const accounts = CommunicationModuleFixture.accounts
+    const eventId = fixture.idProvider.generate()
+    const event = new ProductStockAlertStateEnteredEvent({
+      establishmentId: accounts.establishmentId,
+      productId: fixture.idProvider.generate(),
       productName: 'Chocolate',
       unit: 'kg',
       state: 'below-ideal',
       availableQuantity: 2,
       idealQuantity: 10,
-      occurredAt: timestamp,
-    },
-  } as const
-}
+      occurredAt: fixture.datetimeProvider.now(),
+    })
+    const run = await fixture.runInngest({
+      id: eventId,
+      name: event.name,
+      data: event.payload,
+    })
+    const page = await fixture.notificationsRepository.findPage({
+      establishmentId: accounts.establishmentId,
+      recipientUserId: accounts.managerId,
+      limit: 20,
+    })
 
-const step = {
-  run: vi.fn(async (_name: string, operation: () => Promise<unknown>) => operation()),
-}
-
-describe('CreateInProductNotificationsJob', () => {
-  it('maps all five typed source events and preserves their source IDs', async () => {
-    const captured = captureJob()
-    const events = [
-      {
-        name: 'mrp/product.stock-alert-state-entered',
-        data: {
-          establishmentId: ids.establishmentId,
-          productId: ids.productId,
-          productName: 'Chocolate',
-          unit: 'kg',
-          state: 'below-ideal',
-          availableQuantity: 2,
-          idealQuantity: 10,
-          occurredAt: timestamp,
-        },
-      },
-      {
-        name: 'identity/user.invitation-accepted',
-        data: {
-          establishmentId: ids.establishmentId,
-          userId: ids.userId,
-          email: 'ana@example.com',
-          userName: 'Ana',
-          profile: 'operator',
-          occurredAt: timestamp,
-        },
-      },
-      {
-        name: 'identity/user.profile-updated',
-        data: {
-          establishmentId: ids.establishmentId,
-          userId: ids.userId,
-          actorUserId: ids.actorUserId,
-          email: 'ana@example.com',
-          userName: 'Ana',
-          previousProfile: 'operator',
-          profile: 'manager',
-          updatedAt: timestamp,
-        },
-      },
-      {
-        name: 'identity/user.inactivated',
-        data: {
-          establishmentId: ids.establishmentId,
-          userId: ids.userId,
-          actorUserId: ids.actorUserId,
-          email: 'ana@example.com',
-          userName: 'Ana',
-          previousStatus: 'active',
-          status: 'inactive',
-          updatedAt: timestamp,
-        },
-      },
-      {
-        name: 'identity/user.reactivated',
-        data: {
-          establishmentId: ids.establishmentId,
-          userId: ids.userId,
-          actorUserId: ids.actorUserId,
-          email: 'ana@example.com',
-          userName: 'Ana',
-          previousStatus: 'inactive',
-          profile: 'operator',
-          status: 'active',
-          updatedAt: timestamp,
-        },
-      },
-    ] as const
-
-    for (const [index, event] of events.entries()) {
-      await captured.handler({ event: { ...event, id: `event-${index}` }, step })
-    }
-
-    expect(captured.createFunction).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: 'communication/create-in-product-notifications',
-        retries: 5,
-        concurrency: { limit: 1, key: 'event.data.establishmentId' },
-      }),
-      expect.any(Function),
-    )
-    expect(step.run).toHaveBeenCalledTimes(5)
-    expect(captured.addMany).toHaveBeenCalledTimes(5)
-    expect(captured.addMany.mock.calls.map(([rows]) => rows[0])).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          sourceEventId: 'event-0',
-          kind: NotificationKind.StockBelowIdeal,
-        }),
-        expect.objectContaining({
-          sourceEventId: 'event-1',
-          kind: NotificationKind.UserAdded,
-        }),
-        expect.objectContaining({
-          sourceEventId: 'event-2',
-          kind: NotificationKind.UserPromoted,
-        }),
-        expect.objectContaining({
-          sourceEventId: 'event-3',
-          kind: NotificationKind.UserInactivated,
-        }),
-        expect.objectContaining({
-          sourceEventId: 'event-4',
-          kind: NotificationKind.UserReactivated,
-        }),
-      ]),
-    )
-  })
-
-  it('rejects missing IDs or malformed data before the durable step', async () => {
-    const captured = captureJob()
-    step.run.mockClear()
-
-    await expect(
-      captured.handler({
-        event: { name: 'identity/user.inactivated', data: {} },
-        step,
-      }),
-    ).rejects.toThrow('O identificador do evento de comunicação é obrigatório')
-    await expect(
-      captured.handler({
-        event: {
-          id: 'event-invalid',
-          name: 'identity/user.inactivated',
-          data: { establishmentId: ids.establishmentId },
-        },
-        step,
-      }),
-    ).rejects.toThrow()
-    expect(step.run).not.toHaveBeenCalled()
-  })
-
-  it('preserves the source ID across duplicate deliveries for repository idempotency', async () => {
-    const captured = captureJob()
-    step.run.mockClear()
-    const event = stockAlertEvent('duplicate-event')
-
-    await captured.handler({ event, step })
-    await captured.handler({ event, step })
-
-    expect(captured.addMany).toHaveBeenCalledTimes(2)
-    expect(captured.addMany.mock.calls.map(([rows]) => rows[0].sourceEventId)).toEqual([
-      'duplicate-event',
-      'duplicate-event',
-    ])
-  })
-
-  it('propagates audience and repository failures through the durable step', async () => {
-    const audienceError = new Error('Audience directory unavailable.')
-    const audienceProvider: NotificationAudienceProvider = {
-      findManyActiveByEstablishment: vi.fn().mockRejectedValue(audienceError),
-    }
-    const audienceFailure = captureJob({ audienceProvider })
-    step.run.mockClear()
-
-    await expect(
-      audienceFailure.handler({ event: stockAlertEvent('audience-failure'), step }),
-    ).rejects.toBe(audienceError)
-    expect(step.run).toHaveBeenCalledTimes(1)
-    expect(audienceFailure.addMany).not.toHaveBeenCalled()
-
-    const repositoryError = new Error('Notification repository unavailable.')
-    const addMany = vi.fn().mockRejectedValue(repositoryError)
-    const repositoryFailure = captureJob({ addMany })
-    step.run.mockClear()
-
-    await expect(
-      repositoryFailure.handler({ event: stockAlertEvent('repository-failure'), step }),
-    ).rejects.toBe(repositoryError)
-    expect(step.run).toHaveBeenCalledTimes(1)
-    expect(addMany).toHaveBeenCalledTimes(1)
+    expect(run.status.toLowerCase()).toBe('completed')
+    expect(run.function?.id).toBe(CreateInProductNotificationsJob.ID)
+    expect(page.items.map(({ sourceEventId }) => sourceEventId)).toEqual([eventId])
+    expect(recordJobRun).toHaveBeenCalledTimes(1)
+    expect(recordJobRun).toHaveBeenCalledWith({
+      functionId: CreateInProductNotificationsJob.ID,
+      outcome: 'success',
+      durationMs: expect.any(Number),
+    })
+    expect(captureUnexpected).not.toHaveBeenCalled()
   })
 })

@@ -14,19 +14,20 @@ export default {
       'apps/server/src/**/rest/controllers/*.controller.ts',
     ],
     allowed: [
-      'apps/web/src/constants/browser-env.ts',
       'apps/server/src/configure-http-app.ts',
       'apps/server/src/**/messaging/**/jobs/*.ts',
       'apps/server/src/**/messaging/outbox/*.ts',
       'apps/server/src/**/database/cutover/**/*.ts',
       'apps/web/src/middlewares/*.ts',
-      'apps/web/src/rest/axios/**/*.ts',
       'apps/web/src/server/**/*.ts',
       'apps/web/src/ui/**/widgets/**/*.ts',
       'apps/web/src/ui/**/widgets/**/*.tsx',
       'apps/web/src/ui/communication/contexts/notification-shell-context/use-notification-shell-provider.ts',
     ],
     indirect: [
+      'apps/web/src/constants/browser-env.ts',
+      'apps/web/src/rest/axios/**/*.ts',
+      'apps/web/src/server/auth/resolve-auth-session.ts',
       'apps/server/src/shared/messaging/inngest/inngest-broker.ts',
       'apps/server/src/communication/provision/email/**/*.ts',
       'apps/server/src/**/provision/**/*.ts',
@@ -76,7 +77,6 @@ export default {
     'apps/web/src/ui/communication/contexts/notification-shell-context/tests/use-notification-shell-provider.test.ts',
     'apps/web/src/middlewares/tests/*.test.ts',
     'apps/web/src/server/**/tests/*.test.ts',
-    'apps/web/src/rest/axios/**/tests/*.test.ts',
   ],
   testPathRules: [
     {
@@ -106,6 +106,9 @@ export default {
     },
   ],
   forbiddenTestPatterns: [
+    'apps/web/src/constants/tests/browser-env.test.ts',
+    'apps/web/src/rest/axios/tests/axios-rest-client.test.ts',
+    'apps/web/src/server/auth/tests/resolve-auth-session.test.ts',
     'apps/server/src/shared/messaging/inngest/inngest-broker.test.ts',
     'apps/web/src/rest/services/**/*.test.ts',
     'apps/web/src/rest/services/**/*.test.tsx',
