@@ -9,6 +9,24 @@ type IdentityActionEmailContentProps = {
   name: string
 }
 
+function formatExpirationDate(value: string) {
+  const date = new Date(value)
+  const dateLabel = new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+  }).format(date)
+  const timeLabel = new Intl.DateTimeFormat('pt-BR', {
+    hour: '2-digit',
+    hourCycle: 'h23',
+    minute: '2-digit',
+    timeZone: 'America/Sao_Paulo',
+  }).format(date)
+
+  return `${dateLabel} às ${timeLabel}`
+}
+
 const headingStyle = {
   color: '#111827',
   fontSize: '24px',
@@ -69,6 +87,8 @@ export const IdentityActionEmailContent = ({
   heading,
   name,
 }: IdentityActionEmailContentProps) => {
+  const expirationDate = formatExpirationDate(expiresAt)
+
   return (
     <>
       <Heading as='h1' style={headingStyle}>
@@ -82,7 +102,7 @@ export const IdentityActionEmailContent = ({
         </Button>
       </Section>
       <Section style={expirySectionStyle}>
-        <Text style={expiryTextStyle}>Este link expira em {expiresAt}.</Text>
+        <Text style={expiryTextStyle}>Este link expira em {expirationDate}.</Text>
       </Section>
     </>
   )

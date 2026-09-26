@@ -28,7 +28,7 @@ export const OnboardingConfirmationEmail = Object.assign(
     PreviewProps: {
       name: 'Maria Silva',
       actionUrl: 'https://example.com/onboarding/confirm',
-      expiresAt: '10/09/2026 às 18:00',
+      expiresAt: '2026-09-10T21:00:00.000Z',
     } satisfies OnboardingConfirmationEmailProps,
   },
 )

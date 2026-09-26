@@ -1,7 +1,8 @@
 import type { OrderDetails } from '@scoops/core/pdv/domain/structures'
 
-import { Button } from '@/ui/shadcn/button'
+import { Button, buttonVariants } from '@/ui/shadcn/button'
 import { Card } from '@/ui/shadcn/card'
+import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { useFormatDate } from '@/ui/shared/hooks/use-format-date'
@@ -92,9 +93,13 @@ export const OrderConfirmation = ({ order, onNewSale }: OrderConfirmationProps) 
         </div>
       </Card>
       <div className='mt-6 flex flex-col justify-center gap-3 sm:flex-row'>
-        <Button disabled type='button' variant='outline'>
+        <Anchor
+          className={buttonVariants({ variant: 'outline' })}
+          params={{ orderId: order.id }}
+          route='orderDetails'
+        >
           <Icon name='clipboard-list' /> Ver pedido
-        </Button>
+        </Anchor>
         <Button onClick={onNewSale} type='button'>
           <Icon name='plus' /> Iniciar nova venda
         </Button>
