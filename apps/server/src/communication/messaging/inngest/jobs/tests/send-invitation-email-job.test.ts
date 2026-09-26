@@ -65,7 +65,10 @@ describe('Send Invitation Email Job', () => {
     expect(message.MessageID).toMatch(/@scoops\.local$/)
     expect(message.Text).toContain(event.payload.name)
     expect(message.HTML).toContain(event.payload.actionUrl)
-    expect(message.Text).toContain(event.payload.expiresAt)
+    expect(message.Text).toMatch(
+      /Este link expira em \d{2}\/\d{2}\/\d{4} às \d{2}:\d{2}\./,
+    )
+    expect(message.Text).not.toContain(event.payload.expiresAt)
     expect(recordJobRun).toHaveBeenCalledTimes(1)
     expect(recordJobRun).toHaveBeenCalledWith({
       functionId: SendInvitationEmailJob.ID,
