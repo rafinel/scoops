@@ -86,62 +86,48 @@ export const CancelOrderDialog = ({
               Cada escolha vale para todos os consumos deste item.
             </p>
             <div className='max-h-64 space-y-3 overflow-y-auto pr-1'>
-              {order.lines.map((line, linePosition) => {
-                const fieldName = `lineDispositions.${linePosition}.disposition` as const
-                const selected = watch(fieldName) ?? 'return'
-
-                return (
-                  <fieldset
-                    className='rounded-xl border border-border-soft p-2'
-                    key={`${line.product.productId}-${line.size?.sizeId ?? 'default'}-${line.brand?.brandId ?? 'no-brand'}-${line.baseUnitPrice}`}
-                  >
-                    <legend className='px-1 text-sm font-bold'>
-                      {line.product.name}
-                    </legend>
-                    <div className='grid grid-cols-2 gap-2'>
-                      {(
-                        [
-                          ['return', 'Devolver ao estoque'],
-                          ['loss', 'Registrar como perda'],
-                        ] as const
-                      ).map(([value, label]) => {
-                        const id = `cancel-line-${linePosition}-${value}`
-                        const isSelected = selected === value
-
-                        return (
-                          <label
-                            className={`flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold outline-none transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring ${
-                              isSelected
-                                ? value === 'loss'
-                                  ? '!border-danger-soft bg-danger-soft text-danger'
-                                  : '!border-success-soft bg-success-soft text-success'
-                                : 'border-border bg-card text-foreground hover:bg-muted'
-                            }`}
-                            htmlFor={id}
-                            key={value}
-                          >
-                            <input
-                              className={`size-4 shrink-0 ${
-                                isSelected
-                                  ? value === 'loss'
-                                    ? 'accent-danger'
-                                    : 'accent-success'
-                                  : 'accent-primary'
-                              }`}
-                              checked={isSelected}
-                              id={id}
-                              type='radio'
-                              value={value}
-                              {...register(fieldName)}
-                            />
-                            <span>{label}</span>
-                          </label>
-                        )
-                      })}
-                    </div>
-                  </fieldset>
-                )
-              })}
+              {order.lines.map((line, linePosition) => (
+                <fieldset
+                  className='rounded-xl border border-border-soft p-2'
+                  key={`${line.product.productId}-${line.size?.sizeId ?? 'default'}-${line.brand?.brandId ?? 'no-brand'}-${line.baseUnitPrice}`}
+                >
+                  <legend className='px-1 text-sm font-bold'>{line.product.name}</legend>
+                  <div className='grid grid-cols-2 gap-2'>
+                    {LINE_DISPOSITION_OPTIONS.map((option) => (
+                      <label
+                        className={`flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold outline-none transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring ${
+                          watch(`lineDispositions.${linePosition}.disposition`) ===
+                          option.value
+                            ? option.selectedClass
+                            : UNSELECTED_DISPOSITION_CLASS
+                        }`}
+                        htmlFor={`cancel-line-${linePosition}-${option.value}`}
+                        key={option.value}
+                      >
+                        <input
+                          className={`size-4 shrink-0 ${
+                            watch(`lineDispositions.${linePosition}.disposition`) ===
+                            option.value
+                              ? option.selectedInputClass
+                              : 'accent-primary'
+                          }`}
+                          checked={
+                            watch(`lineDispositions.${linePosition}.disposition`) ===
+                            option.value
+                          }
+                          id={`cancel-line-${linePosition}-${option.value}`}
+                          type='radio'
+                          value={option.value}
+                          {...register(
+                            `lineDispositions.${linePosition}.disposition` as const,
+                          )}
+                        />
+                        <span>{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ))}
             </div>
           </fieldset>
           <div>
@@ -206,3 +192,21 @@ export const CancelOrderDialog = ({
     </Dialog>
   )
 }
+
+const LINE_DISPOSITION_OPTIONS = [
+  {
+    value: 'return',
+    label: 'Devolver ao estoque',
+    selectedClass: '!border-success-soft bg-success-soft text-success',
+    selectedInputClass: 'accent-success',
+  },
+  {
+    value: 'loss',
+    label: 'Registrar como perda',
+    selectedClass: '!border-danger-soft bg-danger-soft text-danger',
+    selectedInputClass: 'accent-danger',
+  },
+] as const
+
+const UNSELECTED_DISPOSITION_CLASS =
+  'border-border bg-card text-foreground hover:bg-muted'

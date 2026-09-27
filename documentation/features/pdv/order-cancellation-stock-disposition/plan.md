@@ -12,9 +12,9 @@ updated_at: 2026-09-27
 
 - **Spec:** [`./spec.md`](./spec.md), revision 1, `in_progress`.
 - **Rationale:** The Contract crosses Core/Validation, Server persistence and REST, and Web UI; it includes a generated database migration, transaction and authorization risk, design references, and real authenticated runtime validation.
-- **Current phase:** F3-T6 — `complete`; conclusion audit refreshed and inspected all affected dialog captures and reconciled PRD traceability.
-- **Next action:** Evaluation is ready; resume publication through `conclude-spec`.
-- **Active blockers:** None. Migration 0027 remains applied.
+- **Current phase:** F3-T7 — `in_progress`; user authorized fixing all three complexity failures.
+- **Next action:** Commit the validated F3-T7 corrections and closure ledger, update PR #46, and wait for Core, Server, Web and Validation checks on its new head. Keep the Spec in progress until all applicable checks pass.
+- **Active blockers:** Current-head PR CI is pending. The same independent Implementation Reviewer completed with no findings (EV-73). The final serial Web integration run passed 222/223; its only unrelated Sales Channels validation failure passed twice in focused reruns (EV-70). Migration 0027 remains applied.
 - **Builders:** `builder_core` completed F1 including FND-07. `builder_server` completed F2-T1 and its FND-08 correction. `builder_web` completed F2-T2, including the FND-10 browser fixture correction; real HTTP/PostgreSQL and visual exits are recorded in Evaluation.
 - **Coordination:** Builder Core owns the tightly coupled Core and small Validation changes. Builder Server and Builder Web start after F1 and run in parallel. The Orchestrator owns generated migration artifacts, the integrated path sensor, Evaluation, final integration, and coordination of one Implementation Reviewer.
 - **Status handling:** Keep F3 `in_progress` while integrated validation and review are active. Keep failed or corrective work `in_progress` with its finding and next action; after a contracted-path correction, mark prior path-conformance evidence stale and rerun the sensor before invalidated sensors or the same Reviewer resume.
@@ -35,6 +35,17 @@ updated_at: 2026-09-27
 | 6 | `Builder Web` (`builder_web`) | F3-T4 | Match selected border to its background and preserve keyboard focus | FND-12 opened by user screenshot | — | `complete` | EV-53–EV-56 record fresh visual evidence, passing focused/browser checks, static checks, full serial suite, and the same Implementation Reviewer report with no blockers. |
 | 7 | `Builder Web` (`builder_web`) | F3-T5 | Match the selected radio indicator to its semantic color | FND-13 opened by user screenshot | — | `complete` | EV-57–EV-58 record fresh inspected screenshots, passing focused color/focus checks, affected static checks, final path sensor, and the same Implementation Reviewer report with no findings. Full serial suite evidence from F3-T4 is retained as accepted non-blocking for this bounded visual-only accent-color change. |
 | 8 | `Builder Web` (`builder_web`) | F3-T6 | Refresh affected dialog visual evidence for conclusion | FND-14 | Orchestrator evidence reconciliation | `complete` | Fresh captures at 657 × 894 with one loss selected and 375 × 812 keyboard/error states are inspected; radio colors, border, focus, recovery, console/network and responsive results are recorded in EV-11, EV-13, EV-14 and EV-59. No implementation defect or source edit was needed. |
+| 9 | `Builder Core` (`builder_core`) | F3-T7 | Reduce cancellation helper complexity reported by PR CI | FND-15 | `Builder Server` CI attribution | `complete` | EV-63: Core complexity, code, types, architecture and full coverage pass; focused cancellation/restoration tests pass. EV-67 records current Contract path conformance. |
+| 9 | `Builder Server` (`builder_server`) | F3-T7 | Refactor complex response and mapper functions | FND-16 | `Builder Core`, `Builder Web` | `complete` | EV-68 and EV-71: Server complexity has zero warnings/errors; code, types, architecture, build, focused controller tests and full coverage pass. Behavior and baseline remain unchanged. |
+| 9 | `Builder Web` (`builder_web`) | F3-T7 | Resolve current-main complexity blockers surfaced by Web CI | FND-17 | `Builder Core`, `Builder Server` | `complete` | EV-69–EV-72: Web complexity has zero warnings/errors; types, architecture, code, focused UI tests and fresh responsive screenshots pass; coverage floors remain unchanged. |
+
+#### F3-T7 — Final PR complexity gate correction
+
+- **Status:** `in_progress`; all three complexity failures now pass locally (EV-63, EV-68–EV-71). Core, Server and Web full coverage pass. The same independent reviewer completed with no findings (EV-73); current-head CI on PR #46 is the remaining closure gate.
+- **Contract owner:** Builder Core (`builder_core`) owns only `packages/core/src/pdv/use-cases/cancel-order-use-case.ts` and `packages/core/src/mrp/use-cases/restore-order-stock-use-case.ts`. Keep all PRQ/FR/AC outcomes, transaction boundaries, authorization, line identity and excluded-target behavior unchanged.
+- **Supporting gate owners:** Builder Server completed the planned repository, DTO and mapper complexity correction within Contract-owned Server paths. Builder Web corrected the current-main stock-control and order-confirmation findings and supporting complex Web components; these changes preserve labels, validation, requests, accessibility and visible behavior. Fresh evidence and exact complexity summaries are in EV-68–EV-72.
+- **Prohibited:** Do not edit thresholds or `.code-multivitals-baseline.json`; do not modify any other paths or PRD/Spec behavior. If preserving behavior cannot be verified with current evidence, stop and report.
+- **Exits:** Local exact complexity checks, Server build, Core/Server/Web full coverage, code/types/architecture, test-integrity and Spec path sensor pass. The final Web integration result is recorded in EV-70: 222/223 passed, and the one unrelated Sales Channels validation case passed twice on focused reruns; EV-54 retains the earlier full serial 223/223 result. The same Reviewer reports no findings. Run every applicable PR workflow on the updated head before closing F3.
 
 ### F1 — Core and Validation contracts
 
@@ -151,7 +162,7 @@ These corrections are test-only, outside Spec revision 1's Technical Contract, a
 
 #### F3-T4 — Refine selected disposition border and focus appearance
 
-- **Status/owner:** `in_progress; awaiting review` — Builder Web (`builder_web`), integrated validation by Orchestrator
+- **Status/owner:** `complete` — Builder Web (`builder_web`), integrated validation by Orchestrator; refreshed after F3-T5 in EV-59
 - **Paths:** `apps/web/src/ui/pdv/widgets/pages/order-details-page/cancel-order-dialog/index.tsx`; `apps/web/tests/pdv/order-page.test.tsx` for a focused semantic border/focus regression assertion and fresh screenshots; `./evaluation.md` and this Plan
 - **Contract:** Spec revision 1; AC-02 and AC-07; preserve one accessible return/loss selection per order line and visible keyboard focus. PRD behavior and cancellation outcomes do not change.
 - **Design reference:** User-provided selected-choice screenshot. On pointer selection the choice border must blend into its selected fill; keyboard focus must remain discernible.
@@ -159,7 +170,7 @@ These corrections are test-only, outside Spec revision 1's Technical Contract, a
 
 #### F3-T5 — Match selected radio indicator to its semantic color
 
-- **Status/owner:** `in_progress` — Builder Web; Orchestrator owns integrated validation and Evaluation.
+- **Status/owner:** `complete` — Builder Web; integrated validation and Evaluation are recorded in EV-57–EV-59.
 - **Paths:** `apps/web/src/ui/pdv/widgets/pages/order-details-page/cancel-order-dialog/index.tsx`; `apps/web/tests/pdv/order-page.test.tsx`; this Plan and `./evaluation.md`.
 - **Contract:** Spec revision 1; AC-02 and AC-07. Selected return and loss controls use the matching semantic green/red hue while retaining a visible keyboard focus ring.
 - **Design reference:** User-provided screenshot dated 2026-09-27 showing the purple radio dot on both green and red selected backgrounds.

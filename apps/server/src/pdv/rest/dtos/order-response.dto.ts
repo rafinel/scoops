@@ -44,23 +44,48 @@ export class OrderResponseDto {
   static from(order: OrderDetails): OrderResponseDto {
     return Object.assign(new OrderResponseDto(), {
       ...order,
-      ...(order.channel ? { channel: order.channel } : {}),
-      lines: order.lines,
-      discounts: order.discounts,
-      createdByName: order.createdByName,
-      status: order.status,
-      ...(order.cancellation
-        ? {
-            cancellation: {
-              canceledAt: order.cancellation.canceledAt.toISOString(),
-              canceledBy: order.cancellation.canceledBy,
-              canceledByName: order.cancellation.canceledByName,
-              ...(order.cancellation.reason ? { reason: order.cancellation.reason } : {}),
-              outcomes: order.cancellation.outcomes.map((outcome) => ({ ...outcome })),
-            },
-          }
-        : {}),
+      ...OrderResponseDto.cancellationProperty(order.cancellation),
       createdAt: order.createdAt.toISOString(),
     })
+  }
+
+  private static cancellationProperty(
+    cancellation: OrderDetails['cancellation'],
+  ): Partial<Pick<OrderResponseDto, 'cancellation'>> {
+    return cancellation
+      ? { cancellation: OrderResponseDto.toCancellationResponse(cancellation) }
+      : {}
+  }
+
+  private static toCancellationResponse(
+    cancellation: NonNullable<OrderDetails['cancellation']>,
+  ): OrderCancellationResponseDto {
+    return {
+      ...OrderResponseDto.toCancellationDetails(cancellation),
+      ...OrderResponseDto.toCancellationReason(cancellation.reason),
+      outcomes: OrderResponseDto.toRestorationResponses(cancellation.outcomes),
+    }
+  }
+
+  private static toCancellationDetails(
+    cancellation: NonNullable<OrderDetails['cancellation']>,
+  ): Pick<OrderCancellationResponseDto, 'canceledAt' | 'canceledBy' | 'canceledByName'> {
+    return {
+      canceledAt: cancellation.canceledAt.toISOString(),
+      canceledBy: cancellation.canceledBy,
+      canceledByName: cancellation.canceledByName,
+    }
+  }
+
+  private static toCancellationReason(
+    reason: string | undefined,
+  ): Pick<OrderCancellationResponseDto, 'reason'> | Record<string, never> {
+    return reason ? { reason } : {}
+  }
+
+  private static toRestorationResponses(
+    outcomes: NonNullable<OrderDetails['cancellation']>['outcomes'],
+  ): OrderRestorationResponseDto[] {
+    return outcomes.map((outcome) => ({ ...outcome }))
   }
 }

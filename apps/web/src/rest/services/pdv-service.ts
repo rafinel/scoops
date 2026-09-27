@@ -252,16 +252,7 @@ export const PdvService = (restClient: RestClient): PdvRestService => ({
     return mapOrderResponse(await restClient.get<OrderJson>(`/orders/${orderId}`))
   },
 
-  async cancelOrder(
-    orderId: string,
-    input: {
-      readonly reason?: string
-      readonly lineDispositions: readonly {
-        readonly linePosition: number
-        readonly disposition: 'return' | 'loss'
-      }[]
-    },
-  ) {
+  async cancelOrder(orderId, input) {
     return mapOrderResponse(
       await restClient.patch<OrderJson>(`/orders/${orderId}/cancel`, input),
     )

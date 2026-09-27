@@ -16,7 +16,6 @@ import {
 } from '@/ui/shadcn/select'
 import { cn } from '@/ui/shared/lib/utils'
 import { Icon } from '@/ui/shared/widgets/components/icon'
-
 import { CategoryGuidanceDialog } from '../category-guidance-dialog'
 import type {
   ProductRegistrationFieldErrors,
@@ -66,7 +65,6 @@ const UNIT_OPTIONS: Array<{ value: ProductUnit; label: string }> = [
   { value: 'l', label: 'Litros (l)' },
   { value: 'un', label: 'Unidades (un)' },
 ]
-
 export type ProductRegistrationFormProps = {
   categories: ProductCategory[]
   children: ReactNode
@@ -80,7 +78,6 @@ export type ProductRegistrationFormProps = {
   register: UseFormRegister<ProductRegistrationFormValues>
   unit: ProductUnit
 }
-
 export const ProductRegistrationForm = ({
   categories,
   children,
@@ -142,14 +139,10 @@ export const ProductRegistrationForm = ({
           </Label>
         </div>
         <fieldset
-          aria-describedby={
-            fieldErrors.categories ? 'product-categories-error' : undefined
-          }
+          aria-describedby={fieldErrors.categories ? CATEGORY_ERROR_ID : undefined}
           aria-invalid={Boolean(fieldErrors.categories)}
         >
-          <legend className='mb-2 text-xs font-semibold text-muted-foreground'>
-            Categorias
-          </legend>
+          <legend className={CATEGORY_LEGEND_CLASS}>Categorias</legend>
           <div className='grid gap-2 sm:grid-cols-2'>
             {CATEGORY_VALUES.map((category) => {
               const isSelected = categories.includes(category)
@@ -188,7 +181,7 @@ export const ProductRegistrationForm = ({
           {fieldErrors.categories ? (
             <p
               className='mt-2 text-sm font-semibold text-destructive'
-              id='product-categories-error'
+              id={CATEGORY_ERROR_ID}
               role='alert'
             >
               {fieldErrors.categories}
@@ -201,18 +194,21 @@ export const ProductRegistrationForm = ({
   </form>
 )
 
+const CATEGORY_ERROR_ID = 'product-categories-error'
+const CATEGORY_LEGEND_CLASS = 'mb-2 text-xs font-semibold text-muted-foreground'
+const CATEGORY_GUIDANCE_BUTTON_PROPS = {
+  className: 'h-8 shrink-0 gap-1 px-2 text-xs font-bold text-primary',
+  type: 'button',
+  variant: 'ghost',
+} as const
+const CATEGORY_GUIDANCE_ICON_CLASS = 'size-3.5'
+
 const CategoryGuidanceHelp = () => {
   const [open, setOpen] = useState(false)
-
   return (
     <>
-      <Button
-        className='h-8 shrink-0 gap-1 px-2 text-xs font-bold text-primary'
-        onClick={() => setOpen(true)}
-        type='button'
-        variant='ghost'
-      >
-        <Icon className='size-3.5' name='info' />
+      <Button {...CATEGORY_GUIDANCE_BUTTON_PROPS} onClick={() => setOpen(true)}>
+        <Icon name='info' className={CATEGORY_GUIDANCE_ICON_CLASS} />
         Entenda as categorias
       </Button>
       <CategoryGuidanceDialog onOpenChange={setOpen} open={open} />
