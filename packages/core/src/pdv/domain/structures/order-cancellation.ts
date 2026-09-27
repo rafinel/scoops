@@ -5,5 +5,5 @@ export type OrderCancellation = {
   readonly canceledBy: string
   readonly canceledByName: string
   readonly reason?: string
-  readonly restorations: readonly OrderStockRestoration[]
+  readonly outcomes: readonly OrderStockRestoration[]
 }

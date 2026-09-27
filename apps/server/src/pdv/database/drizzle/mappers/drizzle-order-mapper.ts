@@ -138,13 +138,16 @@ export class DrizzleOrderMapper {
       ...(record.cancellationReason !== null
         ? { reason: record.cancellationReason }
         : {}),
-      restorations: DrizzleOrderMapper.sortByPosition(restorations).map((restoration) => {
+      outcomes: DrizzleOrderMapper.sortByPosition(restorations).map((restoration) => {
         if (
           (restoration.brandId === null) !== (restoration.brandName === null) ||
           restoration.brandName?.trim().length === 0
         )
           throw new ConflictError('A operação no banco de dados entrou em conflito.')
         return {
+          ...(restoration.linePosition !== null
+            ? { linePosition: restoration.linePosition }
+            : {}),
           productId: restoration.productId,
           productName: restoration.productName,
           ...(restoration.brandId

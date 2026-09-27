@@ -3,12 +3,15 @@ import type { OrderDetails } from '@scoops/core/pdv/domain/structures'
 import { OrderStatus } from '@scoops/core/pdv/domain/structures'
 
 class OrderRestorationResponseDto {
+  @ApiPropertyOptional({ minimum: 0, description: 'Omitted for legacy outcomes.' })
+  linePosition?: number
   @ApiProperty({ format: 'uuid' }) productId!: string
   @ApiProperty() productName!: string
   @ApiPropertyOptional({ format: 'uuid' }) brandId?: string
   @ApiPropertyOptional() brandName?: string
-  @ApiProperty({ minimum: 0 }) quantity!: number
-  @ApiProperty({ enum: ['restored', 'skipped'] }) outcome!: 'restored' | 'skipped'
+  @ApiProperty({ minimum: 0, exclusiveMinimum: true }) quantity!: number
+  @ApiProperty({ enum: ['restored', 'skipped', 'lost'] })
+  outcome!: 'restored' | 'skipped' | 'lost'
 }
 
 class OrderCancellationResponseDto {
@@ -17,7 +20,7 @@ class OrderCancellationResponseDto {
   @ApiProperty() canceledByName!: string
   @ApiPropertyOptional() reason?: string
   @ApiProperty({ type: () => OrderRestorationResponseDto, isArray: true })
-  restorations!: OrderRestorationResponseDto[]
+  outcomes!: OrderRestorationResponseDto[]
 }
 
 export class OrderResponseDto {
@@ -53,9 +56,7 @@ export class OrderResponseDto {
               canceledBy: order.cancellation.canceledBy,
               canceledByName: order.cancellation.canceledByName,
               ...(order.cancellation.reason ? { reason: order.cancellation.reason } : {}),
-              restorations: order.cancellation.restorations.map((restoration) => ({
-                ...restoration,
-              })),
+              outcomes: order.cancellation.outcomes.map((outcome) => ({ ...outcome })),
             },
           }
         : {}),

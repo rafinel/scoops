@@ -96,7 +96,7 @@ describe('ProductRegistrationPage', () => {
     render(<ProductRegistrationPage />)
 
     expect(screen.getByRole('heading', { name: 'Novo produto' })).not.toBeNull()
-    expect(screen.getByRole('heading', { name: 'Controle de estoque' })).not.toBeNull()
+    expect(screen.getByRole('heading', { name: 'Estoque' })).not.toBeNull()
     expect(
       (screen.getByRole('textbox', { name: 'Nome' }) as HTMLInputElement).value,
     ).toBe('Polpa')

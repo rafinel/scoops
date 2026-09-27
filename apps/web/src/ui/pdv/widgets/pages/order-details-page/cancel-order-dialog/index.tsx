@@ -33,6 +33,7 @@ export const CancelOrderDialog = ({
     handleSubmit,
     isCancelingOrder,
     register,
+    watch,
   } = useCancelOrderDialog({ onOpenChange, onSuccess, open, order })
   const formatCurrency = useFormatCurrency()
   const formatDate = useFormatDate()
@@ -63,7 +64,7 @@ export const CancelOrderDialog = ({
             <Icon name='x' />
           </Button>
         </DialogHeader>
-        <form className='space-y-5 p-6' onSubmit={handleSubmit}>
+        <form className='space-y-4 p-6' onSubmit={handleSubmit}>
           <div className='flex items-center justify-between rounded-xl bg-muted p-4'>
             <div>
               <p className='font-extrabold'>
@@ -79,6 +80,70 @@ export const CancelOrderDialog = ({
               <p className='text-lg font-extrabold'>{formatCurrency(order.total)}</p>
             </div>
           </div>
+          <fieldset className='space-y-3'>
+            <legend className='text-sm font-bold'>Destino do estoque por item</legend>
+            <p className='text-xs leading-5 text-muted-foreground'>
+              Cada escolha vale para todos os consumos deste item.
+            </p>
+            <div className='max-h-64 space-y-3 overflow-y-auto pr-1'>
+              {order.lines.map((line, linePosition) => {
+                const fieldName = `lineDispositions.${linePosition}.disposition` as const
+                const selected = watch(fieldName) ?? 'return'
+
+                return (
+                  <fieldset
+                    className='rounded-xl border border-border-soft p-2'
+                    key={`${line.product.productId}-${line.size?.sizeId ?? 'default'}-${line.brand?.brandId ?? 'no-brand'}-${line.baseUnitPrice}`}
+                  >
+                    <legend className='px-1 text-sm font-bold'>
+                      {line.product.name}
+                    </legend>
+                    <div className='grid grid-cols-2 gap-2'>
+                      {(
+                        [
+                          ['return', 'Devolver ao estoque'],
+                          ['loss', 'Registrar como perda'],
+                        ] as const
+                      ).map(([value, label]) => {
+                        const id = `cancel-line-${linePosition}-${value}`
+                        const isSelected = selected === value
+
+                        return (
+                          <label
+                            className={`flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold outline-none transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring ${
+                              isSelected
+                                ? value === 'loss'
+                                  ? '!border-danger-soft bg-danger-soft text-danger'
+                                  : '!border-success-soft bg-success-soft text-success'
+                                : 'border-border bg-card text-foreground hover:bg-muted'
+                            }`}
+                            htmlFor={id}
+                            key={value}
+                          >
+                            <input
+                              className={`size-4 shrink-0 ${
+                                isSelected
+                                  ? value === 'loss'
+                                    ? 'accent-danger'
+                                    : 'accent-success'
+                                  : 'accent-primary'
+                              }`}
+                              checked={isSelected}
+                              id={id}
+                              type='radio'
+                              value={value}
+                              {...register(fieldName)}
+                            />
+                            <span>{label}</span>
+                          </label>
+                        )
+                      })}
+                    </div>
+                  </fieldset>
+                )
+              })}
+            </div>
+          </fieldset>
           <div>
             <label className='text-sm font-bold' htmlFor='cancel-reason'>
               Motivo do cancelamento (opcional)
@@ -86,7 +151,7 @@ export const CancelOrderDialog = ({
             <Textarea
               aria-describedby={fieldError ? 'cancel-reason-error' : undefined}
               aria-invalid={Boolean(fieldError)}
-              className='mt-2 min-h-20 resize-y'
+              className='mt-2 min-h-12 resize-y'
               id='cancel-reason'
               maxLength={500}
               placeholder='Ex.: pedido duplicado'
@@ -103,10 +168,10 @@ export const CancelOrderDialog = ({
           </div>
           <Alert className='border-danger/20 bg-danger-soft text-danger'>
             <Icon name='triangle-alert' />
-            <AlertDescription className='text-danger'>
-              O pedido permanecerá no histórico com status Cancelado. O estoque consumido
-              será restaurado quando o alvo atual existir; produtos, canal e valores
-              registrados serão preservados.
+            <AlertDescription className='text-xs leading-5 text-danger'>
+              O pedido ficará no histórico como Cancelado. Devoluções exigem destino
+              disponível; perdas não voltam ao estoque. Os dados da venda serão
+              preservados.
             </AlertDescription>
           </Alert>
           {errorMessage ? (

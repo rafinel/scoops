@@ -33,7 +33,7 @@ export const OrderItems = ({ order }: OrderItemsProps) => {
         <span className='text-right'>Total</span>
       </div>
       <div className='divide-y divide-border-soft'>
-        {order.lines.map((line) => {
+        {order.lines.map((line, linePosition) => {
           const configuration = [
             line.size?.name,
             line.brand?.name,
@@ -65,6 +65,36 @@ export const OrderItems = ({ order }: OrderItemsProps) => {
                   <p className='mt-1 truncate text-xs text-muted-foreground'>
                     {configuration || 'Configuração padrão'}
                   </p>
+                  {order.cancellation ? (
+                    <fieldset
+                      aria-label='Destino do estoque'
+                      className='mt-2 flex flex-wrap gap-2'
+                    >
+                      <legend className='sr-only'>Destino do estoque</legend>
+                      {[
+                        ...new Set(
+                          order.cancellation.outcomes
+                            .filter((outcome) => outcome.linePosition === linePosition)
+                            .map((outcome) => outcome.outcome)
+                            .filter((outcome) => outcome !== 'skipped'),
+                        ),
+                      ].map((outcome) => (
+                        <span
+                          className={cn(
+                            'inline-flex min-h-6 items-center rounded-full px-2.5 py-1 text-xs font-bold',
+                            outcome === 'lost'
+                              ? 'bg-danger-soft text-danger'
+                              : 'bg-success-soft text-success',
+                          )}
+                          key={outcome}
+                        >
+                          {outcome === 'lost'
+                            ? 'Registrado como perda'
+                            : 'Devolvido ao estoque'}
+                        </span>
+                      ))}
+                    </fieldset>
+                  ) : null}
                   {order.channel ? (
                     <p className='mt-1 truncate text-xs text-primary'>
                       {order.channel.name}

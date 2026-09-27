@@ -192,7 +192,7 @@ for PRQ-03, PRQ-06, PRQ-07, PRQ-08, PRQ-09, and PRQ-10.
 
 ### PRQ-03 — Inventory Control and Stock History
 
-
+- [ ] **Implemented**
 **Outcome:** Authorized users can understand current stock and its attributable history, while
 Managers can apply valid entries and write-offs without leaving balances and transactions
 inconsistent.

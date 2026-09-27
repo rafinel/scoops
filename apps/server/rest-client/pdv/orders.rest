@@ -47,7 +47,11 @@ Cookie: {{sessionCookie}}
 Content-Type: application/json
 
 {
-  "reason": "  Cliente solicitou o cancelamento  "
+  "reason": "  Cliente solicitou o cancelamento  ",
+  "lineDispositions": [
+    { "linePosition": 0, "disposition": "return" },
+    { "linePosition": 1, "disposition": "loss" }
+  ]
 }
 
 # Response body:
@@ -58,7 +62,10 @@ Content-Type: application/json
 #     "canceledByName": "Maria Manager",
 #     "reason": "Cliente solicitou o cancelamento",
 #     "canceledAt": "2026-01-01T12:05:00.000Z",
-#     "restorations": []
+#     "outcomes": [
+#       { "linePosition": 0, "productName": "Chocolate", "quantity": 1, "outcome": "restored" },
+#       { "linePosition": 1, "productName": "Granulado", "quantity": 1, "outcome": "lost" }
+#     ]
 #   }
 # }
 

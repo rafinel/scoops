@@ -372,6 +372,16 @@ export class DrizzleOrdersRepository
     orderId: string,
     cancellation: OrderCancellation,
   ): Promise<Order> {
+    if (
+      cancellation.outcomes.some(
+        ({ linePosition }) =>
+          linePosition === undefined ||
+          !Number.isInteger(linePosition) ||
+          linePosition < 0,
+      )
+    )
+      throw new ConflictError('O resultado do cancelamento não atribui todas as linhas.')
+
     const [record] = await this.database
       .update(orderModel)
       .set({
@@ -391,18 +401,19 @@ export class DrizzleOrdersRepository
       .returning()
     if (!record) throw new ConflictError('O pedido já foi cancelado.')
 
-    if (cancellation.restorations.length > 0)
+    if (cancellation.outcomes.length > 0)
       await this.database.insert(orderStockRestorationModel).values(
-        cancellation.restorations.map((restoration, position) => ({
+        cancellation.outcomes.map((outcome, position) => ({
           id: crypto.randomUUID(),
           orderId,
           position,
-          productId: restoration.productId,
-          productName: restoration.productName,
-          brandId: restoration.brandId ?? null,
-          brandName: restoration.brandName ?? null,
-          quantity: String(restoration.quantity),
-          outcome: restoration.outcome,
+          linePosition: outcome.linePosition ?? null,
+          productId: outcome.productId,
+          productName: outcome.productName,
+          brandId: outcome.brandId ?? null,
+          brandName: outcome.brandName ?? null,
+          quantity: String(outcome.quantity),
+          outcome: outcome.outcome,
         })),
       )
 

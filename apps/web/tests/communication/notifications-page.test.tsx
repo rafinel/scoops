@@ -274,7 +274,7 @@ test.describe('NotificationsPage', () => {
     await identityFixture.mockManagerAccount()
     const communication = CommunicationModuleFixture(page)
     await communication.mockNotifications({
-      delayMs: 350,
+      delayMs: 1500,
       managerNotifications: MANAGER_NOTIFICATIONS,
     })
 

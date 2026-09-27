@@ -47,7 +47,7 @@ export class CancelOrderController {
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'The order identifier is malformed.',
+    description: 'The order identifier or one or more line positions are invalid.',
     type: ErrorResponseDto,
   })
   @ApiResponse({

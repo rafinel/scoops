@@ -10,8 +10,19 @@ export const useCancelOrderAction = () => {
   const { account } = useAuthContext()
   const { pdvService } = useRestContext()
   const mutation = useMutation({
-    mutationFn: async ({ orderId, reason }: { orderId: string; reason?: string }) => {
-      const response = await pdvService.cancelOrder(orderId, { reason })
+    mutationFn: async ({
+      orderId,
+      reason,
+      lineDispositions,
+    }: {
+      orderId: string
+      reason?: string
+      lineDispositions: readonly {
+        linePosition: number
+        disposition: 'return' | 'loss'
+      }[]
+    }) => {
+      const response = await pdvService.cancelOrder(orderId, { reason, lineDispositions })
       if (response.isFailure) response.throwError()
       return response.body
     },

@@ -3,6 +3,8 @@ import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Order } from '#pdv/domain/entities/order.ts'
 import { OrderStatus } from '#pdv/domain/structures/order-status.ts'
 import type { OrderCancellation } from '#pdv/domain/structures/order-cancellation.ts'
+import type { OrderLineDisposition } from '#pdv/domain/structures/order-line-disposition.ts'
+import type { OrderStockRestoration } from '#pdv/domain/structures/order-stock-restoration.ts'
 import type { StockRestorationTarget } from '#pdv/domain/structures/stock-restoration-target.ts'
 import type { PdvDatabase } from '#pdv/interfaces/pdv-database.ts'
 import {
@@ -25,6 +27,7 @@ export type CancelOrderRequest = {
   readonly actor: Actor
   readonly orderId: string
   readonly reason?: string
+  readonly lineDispositions: readonly OrderLineDisposition[]
 }
 
 export class CancelOrderUseCase implements UseCase<CancelOrderRequest, Order> {
@@ -43,9 +46,6 @@ export class CancelOrderUseCase implements UseCase<CancelOrderRequest, Order> {
         ordersRepository,
         stockProvider: scopedStockProvider,
       }: PdvDatabaseRepositories) => {
-        const stockProvider = this.stockProvider ?? scopedStockProvider
-        if (!stockProvider)
-          throw new ConflictError('O restaurador de estoque não está disponível.')
         const order = await ordersRepository.findByIdForUpdate(
           request.actor.establishmentId,
           request.orderId,
@@ -55,21 +55,58 @@ export class CancelOrderUseCase implements UseCase<CancelOrderRequest, Order> {
         if (order.status !== OrderStatus.Registered)
           throw new ConflictError('O pedido já foi cancelado.')
 
+        const dispositions = validateLineDispositions(
+          request.lineDispositions,
+          order.lines.length,
+        )
+        const entries = toDispositionTargets(order, dispositions)
+        const returnTargets = entries.flatMap((entry) =>
+          entry.disposition === 'return' ? [entry.target] : [],
+        )
+
         const occurredAt = this.datetimeProvider.now()
-        const restorations = await stockProvider.restore({
-          establishmentId: request.actor.establishmentId,
-          orderId: order.id,
-          performedBy: request.actor.id,
-          performedByName: request.actor.name,
-          occurredAt,
-          targets: toRestorationTargets(order),
+        let restorations: readonly OrderStockRestoration[] = []
+        if (returnTargets.length > 0) {
+          const stockProvider = this.stockProvider ?? scopedStockProvider
+          if (!stockProvider)
+            throw new ConflictError('O restaurador de estoque não está disponível.')
+          restorations = await stockProvider.restore({
+            establishmentId: request.actor.establishmentId,
+            orderId: order.id,
+            performedBy: request.actor.id,
+            performedByName: request.actor.name,
+            occurredAt,
+            targets: returnTargets,
+          })
+          if (restorations.length !== returnTargets.length)
+            throw new ConflictError(
+              'O resultado da devolução de estoque está incompleto.',
+            )
+          for (const [index, target] of returnTargets.entries()) {
+            const restoration = restorations[index]
+            if (!restoration || !matchesTarget(restoration, target))
+              throw new ConflictError(
+                'O resultado da devolução não corresponde ao consumo do pedido.',
+              )
+          }
+        }
+
+        let restorationIndex = 0
+        const outcomes = entries.map(({ disposition, target }) => {
+          if (disposition === 'loss') return { ...target, outcome: 'lost' as const }
+          const restoration = restorations[restorationIndex++]
+          if (!restoration)
+            throw new ConflictError(
+              'O resultado da devolução de estoque está incompleto.',
+            )
+          return restoration
         })
         const cancellation: OrderCancellation = {
           canceledAt: occurredAt,
           canceledBy: request.actor.id,
           canceledByName: request.actor.name,
           ...(reason ? { reason } : {}),
-          restorations,
+          outcomes,
         }
 
         return ordersRepository.cancel(
@@ -96,7 +133,56 @@ export class CancelOrderUseCase implements UseCase<CancelOrderRequest, Order> {
   }
 }
 
-function toRestorationTargets(order: Order): readonly StockRestorationTarget[] {
+function validateLineDispositions(
+  lineDispositions: readonly OrderLineDisposition[],
+  lineCount: number,
+): ReadonlyMap<number, OrderLineDisposition['disposition']> {
+  if (!Array.isArray(lineDispositions) || lineDispositions.length !== lineCount)
+    throw new BadRequestError('Informe um destino para cada linha do pedido.')
+
+  const dispositions = new Map<number, OrderLineDisposition['disposition']>()
+  for (const choice of lineDispositions) {
+    if (
+      !choice ||
+      !Number.isInteger(choice.linePosition) ||
+      choice.linePosition < 0 ||
+      choice.linePosition >= lineCount ||
+      (choice.disposition !== 'return' && choice.disposition !== 'loss') ||
+      dispositions.has(choice.linePosition)
+    ) {
+      throw new BadRequestError(
+        'O destino informado para as linhas do pedido é inválido.',
+      )
+    }
+    dispositions.set(choice.linePosition, choice.disposition)
+  }
+  if (dispositions.size !== lineCount)
+    throw new BadRequestError('Informe um destino para cada linha do pedido.')
+  return dispositions
+}
+
+function matchesTarget(
+  restoration: OrderStockRestoration,
+  target: StockRestorationTarget,
+): boolean {
+  return (
+    restoration.linePosition === target.linePosition &&
+    restoration.productId === target.productId &&
+    restoration.productName === target.productName &&
+    restoration.brandId === target.brandId &&
+    restoration.brandName === target.brandName &&
+    restoration.quantity === target.quantity &&
+    (restoration.outcome === 'restored' || restoration.outcome === 'skipped')
+  )
+}
+
+function toDispositionTargets(
+  order: Order,
+  dispositions: ReadonlyMap<number, OrderLineDisposition['disposition']>,
+): readonly {
+  disposition: OrderLineDisposition['disposition']
+  target: StockRestorationTarget
+}[] {
   const snapshots = new Map<string, { name: string; brands: Map<string, string> }>()
   const accompanimentNames = new Map<string, string>()
 
@@ -111,43 +197,37 @@ function toRestorationTargets(order: Order): readonly StockRestorationTarget[] {
       accompanimentNames.set(accompaniment.accompanimentId, accompaniment.name)
   }
 
-  const targets = new Map<string, StockRestorationTarget & { readonly order: number }>()
-  let position = 0
-  for (const line of order.lines) {
+  const entries: {
+    disposition: OrderLineDisposition['disposition']
+    target: StockRestorationTarget
+  }[] = []
+  for (const [linePosition, line] of order.lines.entries()) {
     for (const consumption of line.consumptions) {
-      const key = `${consumption.productId}:${consumption.brandId ?? ''}`
-      const current = targets.get(key)
-      if (current) {
-        targets.set(key, {
-          ...current,
-          quantity: current.quantity + consumption.quantity,
-        })
-        continue
-      }
-
       const snapshot = snapshots.get(consumption.productId)
       const brandName = consumption.brandId
         ? (consumption.brandName ??
           snapshot?.brands.get(consumption.brandId) ??
           'Marca removida')
         : undefined
-      targets.set(key, {
-        productId: consumption.productId,
-        productName:
-          consumption.productName ??
-          snapshot?.name ??
-          (consumption.accompanimentId
-            ? accompanimentNames.get(consumption.accompanimentId)
-            : undefined) ??
-          'Produto removido',
-        ...(consumption.brandId ? { brandId: consumption.brandId, brandName } : {}),
-        quantity: consumption.quantity,
-        order: position++,
+      entries.push({
+        disposition: dispositions.get(
+          linePosition,
+        ) as OrderLineDisposition['disposition'],
+        target: {
+          linePosition,
+          productId: consumption.productId,
+          productName:
+            consumption.productName ??
+            snapshot?.name ??
+            (consumption.accompanimentId
+              ? accompanimentNames.get(consumption.accompanimentId)
+              : undefined) ??
+            'Produto removido',
+          ...(consumption.brandId ? { brandId: consumption.brandId, brandName } : {}),
+          quantity: consumption.quantity,
+        },
       })
     }
   }
-
-  return [...targets.values()]
-    .sort((left, right) => left.order - right.order)
-    .map(({ order: _order, ...target }) => target)
+  return entries
 }

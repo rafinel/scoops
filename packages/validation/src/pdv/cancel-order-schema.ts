@@ -9,6 +9,19 @@ const optionalReasonSchema = z
 
 export const cancelOrderSchema = z.strictObject({
   reason: optionalReasonSchema,
+  lineDispositions: z
+    .array(
+      z.strictObject({
+        linePosition: z.number().int().nonnegative(),
+        disposition: z.enum(['return', 'loss']),
+      }),
+    )
+    .nonempty()
+    .refine(
+      (choices) =>
+        new Set(choices.map(({ linePosition }) => linePosition)).size === choices.length,
+      'Cada linha do pedido pode ter apenas um destino.',
+    ),
 })
 
 export type CancelOrderInput = z.infer<typeof cancelOrderSchema>

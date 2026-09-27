@@ -6,7 +6,6 @@ import type { OrderDetails } from '@scoops/core/pdv/domain/structures'
 import { cancelOrderSchema, type CancelOrderInput } from '@scoops/validation'
 
 import { useCancelOrderAction } from '@/ui/pdv/hooks/use-cancel-order-action'
-import { showErrorToast } from '@/ui/shared/notifications'
 
 export type CancelOrderDialogProps = {
   onOpenChange: (open: boolean) => void
@@ -23,7 +22,13 @@ export function useCancelOrderDialog({
   const { cancelOrder, cancelOrderError, isCancelingOrder } = useCancelOrderAction()
   const [submitError, setSubmitError] = useState<string | null>(null)
   const form = useForm<CancelOrderInput>({
-    defaultValues: { reason: '' },
+    defaultValues: {
+      reason: '',
+      lineDispositions: order.lines.map((_line, linePosition) => ({
+        linePosition,
+        disposition: 'return',
+      })),
+    },
     resolver: zodResolver(cancelOrderSchema),
   })
 
@@ -31,7 +36,11 @@ export function useCancelOrderDialog({
     setSubmitError(null)
     try {
       const reason = input.reason?.trim() || undefined
-      await cancelOrder({ orderId: order.id, reason })
+      await cancelOrder({
+        orderId: order.id,
+        reason,
+        lineDispositions: input.lineDispositions,
+      })
       onSuccess()
       onOpenChange(false)
       form.reset()
@@ -39,12 +48,19 @@ export function useCancelOrderDialog({
       const message =
         caught instanceof Error ? caught.message : 'Não foi possível cancelar o pedido.'
       setSubmitError(message)
-      showErrorToast('Não foi possível cancelar o pedido. Tente novamente.')
     }
   }
 
   function handleClose() {
     if (isCancelingOrder) return
+    setSubmitError(null)
+    form.reset({
+      reason: '',
+      lineDispositions: order.lines.map((_line, linePosition) => ({
+        linePosition,
+        disposition: 'return',
+      })),
+    })
     onOpenChange(false)
   }
 
@@ -56,5 +72,6 @@ export function useCancelOrderDialog({
     handleSubmit: form.handleSubmit(handleSubmit),
     isCancelingOrder,
     register: form.register,
+    watch: form.watch,
   }
 }

@@ -1,4 +1,5 @@
 export type OrderStockRestoration = {
+  readonly linePosition: number
   readonly productId: string
   readonly productName: string
   readonly brandId?: string

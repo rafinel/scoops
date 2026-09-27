@@ -58,7 +58,7 @@ describe('Cancel Order Use Case', () => {
     useCase = new CancelOrderUseCase(database, datetime)
   })
 
-  it('consolidates product/brand consumption and commits one immutable cancellation fact', async () => {
+  it('keeps same-destination consumptions attributable to their sold line', async () => {
     const order = OrderFaker.fake({
       id: 'order-1',
       establishmentId: actor.establishmentId,
@@ -86,14 +86,25 @@ describe('Cancel Order Use Case', () => {
     orders.findByIdForUpdate.mockResolvedValue(order)
     stockProvider.restore.mockResolvedValue([
       {
+        linePosition: 0,
         productId: 'p1',
         productName: 'Chocolate',
         brandId: 'b1',
         brandName: 'Marca',
-        quantity: 3,
+        quantity: 1,
         outcome: 'restored',
       },
       {
+        linePosition: 0,
+        productId: 'p1',
+        productName: 'Chocolate',
+        brandId: 'b1',
+        brandName: 'Marca',
+        quantity: 2,
+        outcome: 'restored',
+      },
+      {
+        linePosition: 0,
         productId: 'p2',
         productName: 'Produto removido',
         quantity: 3,
@@ -103,7 +114,12 @@ describe('Cancel Order Use Case', () => {
     orders.cancel.mockResolvedValue(canceled)
 
     await expect(
-      useCase.execute({ actor, orderId: order.id, reason: '  Ajuste solicitado  ' }),
+      useCase.execute({
+        actor,
+        orderId: order.id,
+        reason: '  Ajuste solicitado  ',
+        lineDispositions: [{ linePosition: 0, disposition: 'return' }],
+      }),
     ).resolves.toBe(canceled)
     expect(stockProvider.restore).toHaveBeenCalledWith({
       establishmentId: actor.establishmentId,
@@ -113,13 +129,27 @@ describe('Cancel Order Use Case', () => {
       occurredAt: new Date('2026-01-02T03:04:05.000Z'),
       targets: [
         {
+          linePosition: 0,
           productId: 'p1',
           productName: 'Chocolate',
           brandId: 'b1',
           brandName: 'Marca',
+          quantity: 1,
+        },
+        {
+          linePosition: 0,
+          productId: 'p1',
+          productName: 'Chocolate',
+          brandId: 'b1',
+          brandName: 'Marca',
+          quantity: 2,
+        },
+        {
+          linePosition: 0,
+          productId: 'p2',
+          productName: 'Produto removido',
           quantity: 3,
         },
-        { productId: 'p2', productName: 'Produto removido', quantity: 3 },
       ],
     })
     expect(orders.cancel).toHaveBeenCalledWith(
@@ -130,7 +160,33 @@ describe('Cancel Order Use Case', () => {
         canceledBy: actor.id,
         canceledByName: actor.name,
         reason: 'Ajuste solicitado',
-        restorations: expect.any(Array),
+        outcomes: [
+          {
+            linePosition: 0,
+            productId: 'p1',
+            productName: 'Chocolate',
+            brandId: 'b1',
+            brandName: 'Marca',
+            quantity: 1,
+            outcome: 'restored',
+          },
+          {
+            linePosition: 0,
+            productId: 'p1',
+            productName: 'Chocolate',
+            brandId: 'b1',
+            brandName: 'Marca',
+            quantity: 2,
+            outcome: 'restored',
+          },
+          {
+            linePosition: 0,
+            productId: 'p2',
+            productName: 'Produto removido',
+            quantity: 3,
+            outcome: 'skipped',
+          },
+        ],
       }),
     )
   })
@@ -164,22 +220,44 @@ describe('Cancel Order Use Case', () => {
       ],
     })
     orders.findByIdForUpdate.mockResolvedValue(order)
-    stockProvider.restore.mockResolvedValue([])
+    stockProvider.restore.mockResolvedValue([
+      {
+        linePosition: 0,
+        productId: 'ingredient-1',
+        productName: 'Farinha',
+        brandId: 'brand-1',
+        brandName: 'Moinho',
+        quantity: 2,
+        outcome: 'restored',
+      },
+      {
+        linePosition: 0,
+        productId: 'p1',
+        productName: 'Bolo',
+        quantity: 1,
+        outcome: 'restored',
+      },
+    ])
     orders.cancel.mockResolvedValue({ ...order, status: OrderStatus.Canceled })
 
-    await useCase.execute({ actor, orderId: order.id })
+    await useCase.execute({
+      actor,
+      orderId: order.id,
+      lineDispositions: [{ linePosition: 0, disposition: 'return' }],
+    })
 
     expect(stockProvider.restore).toHaveBeenCalledWith(
       expect.objectContaining({
         targets: [
           {
+            linePosition: 0,
             productId: 'ingredient-1',
             productName: 'Farinha',
             brandId: 'brand-1',
             brandName: 'Moinho',
             quantity: 2,
           },
-          { productId: 'p1', productName: 'Bolo', quantity: 1 },
+          { linePosition: 0, productId: 'p1', productName: 'Bolo', quantity: 1 },
         ],
       }),
     )
@@ -189,23 +267,44 @@ describe('Cancel Order Use Case', () => {
     const order = OrderFaker.fake({ establishmentId: actor.establishmentId })
     orders.findByIdForUpdate.mockResolvedValue(order)
     stockProvider.restore.mockRejectedValue(new Error('restore failed'))
-    await expect(useCase.execute({ actor, orderId: order.id })).rejects.toThrow(
-      'restore failed',
-    )
+    await expect(
+      useCase.execute({
+        actor,
+        orderId: order.id,
+        lineDispositions: [{ linePosition: 0, disposition: 'return' }],
+      }),
+    ).rejects.toThrow('restore failed')
     expect(orders.cancel).not.toHaveBeenCalled()
 
     stockProvider.restore.mockResolvedValue([])
     orders.cancel.mockRejectedValue(new Error('cancel failed'))
-    await expect(useCase.execute({ actor, orderId: order.id })).rejects.toThrow(
-      'cancel failed',
-    )
+    stockProvider.restore.mockResolvedValue([
+      {
+        linePosition: 0,
+        productId: order.lines[0].product.productId,
+        productName: order.lines[0].product.name,
+        quantity: 1,
+        outcome: 'restored',
+      },
+    ])
+    await expect(
+      useCase.execute({
+        actor,
+        orderId: order.id,
+        lineDispositions: [{ linePosition: 0, disposition: 'return' }],
+      }),
+    ).rejects.toThrow('cancel failed')
   })
 
   it('rejects missing, canceled, unauthorized and overlong requests without side effects', async () => {
     orders.findByIdForUpdate.mockResolvedValue(undefined)
-    await expect(useCase.execute({ actor, orderId: 'missing' })).rejects.toBeInstanceOf(
-      NotFoundError,
-    )
+    await expect(
+      useCase.execute({
+        actor,
+        orderId: 'missing',
+        lineDispositions: [{ linePosition: 0, disposition: 'return' }],
+      }),
+    ).rejects.toBeInstanceOf(NotFoundError)
 
     orders.findByIdForUpdate.mockResolvedValue(
       OrderFaker.fake({
@@ -213,17 +312,27 @@ describe('Cancel Order Use Case', () => {
         establishmentId: actor.establishmentId,
       }),
     )
-    await expect(useCase.execute({ actor, orderId: 'canceled' })).rejects.toBeInstanceOf(
-      ConflictError,
-    )
+    await expect(
+      useCase.execute({
+        actor,
+        orderId: 'canceled',
+        lineDispositions: [{ linePosition: 0, disposition: 'return' }],
+      }),
+    ).rejects.toBeInstanceOf(ConflictError)
     await expect(
       useCase.execute({
         actor: { ...actor, profile: UserProfile.Operator },
         orderId: 'order-1',
+        lineDispositions: [{ linePosition: 0, disposition: 'return' }],
       }),
     ).rejects.toBeInstanceOf(AuthorizationError)
     await expect(
-      useCase.execute({ actor, orderId: 'order-1', reason: 'x'.repeat(501) }),
+      useCase.execute({
+        actor,
+        orderId: 'order-1',
+        reason: 'x'.repeat(501),
+        lineDispositions: [{ linePosition: 0, disposition: 'return' }],
+      }),
     ).rejects.toBeInstanceOf(BadRequestError)
     expect(stockProvider.restore).not.toHaveBeenCalled()
   })
@@ -231,10 +340,270 @@ describe('Cancel Order Use Case', () => {
   it('uses the locked tenant read and one deterministic clock value', async () => {
     const order = OrderFaker.fake({ establishmentId: actor.establishmentId })
     orders.findByIdForUpdate.mockResolvedValue(order)
-    stockProvider.restore.mockResolvedValue([])
+    stockProvider.restore.mockResolvedValue([
+      {
+        linePosition: 0,
+        productId: order.lines[0].product.productId,
+        productName: order.lines[0].product.name,
+        quantity: 1,
+        outcome: 'restored',
+      },
+    ])
     orders.cancel.mockResolvedValue({ ...order, status: OrderStatus.Canceled })
-    await useCase.execute({ actor, orderId: order.id })
+    await useCase.execute({
+      actor,
+      orderId: order.id,
+      lineDispositions: [{ linePosition: 0, disposition: 'return' }],
+    })
     expect(orders.findByIdForUpdate).toHaveBeenCalledWith(actor.establishmentId, order.id)
     expect(datetime.now).toHaveBeenCalledTimes(1)
+  })
+
+  it('records each loss consumption without calling the stock provider', async () => {
+    const order = OrderFaker.fake({
+      id: 'order-1',
+      establishmentId: actor.establishmentId,
+      lines: [
+        {
+          ...OrderFaker.fake().lines[0],
+          product: { productId: 'p1', name: 'Bolo', kind: 'portion' },
+          accompaniments: [],
+          consumptions: [
+            { productId: 'flour', productName: 'Farinha', quantity: 2 },
+            { productId: 'sugar', productName: 'Açúcar', quantity: 1 },
+          ],
+        },
+        {
+          ...OrderFaker.fake().lines[0],
+          product: { productId: 'p2', name: 'Sorvete', kind: 'resale' },
+          accompaniments: [],
+          consumptions: [{ productId: 'p2', quantity: 1 }],
+        },
+      ],
+    })
+    orders.findByIdForUpdate.mockResolvedValue(order)
+    orders.cancel.mockImplementation(
+      async (_establishmentId, _orderId, cancellation) => ({
+        ...order,
+        status: OrderStatus.Canceled,
+        cancellation,
+      }),
+    )
+
+    const result = await useCase.execute({
+      actor,
+      orderId: order.id,
+      lineDispositions: [
+        { linePosition: 0, disposition: 'loss' },
+        { linePosition: 1, disposition: 'loss' },
+      ],
+    })
+
+    expect(stockProvider.restore).not.toHaveBeenCalled()
+    expect(result.cancellation?.outcomes).toEqual([
+      {
+        linePosition: 0,
+        productId: 'flour',
+        productName: 'Farinha',
+        quantity: 2,
+        outcome: 'lost',
+      },
+      {
+        linePosition: 0,
+        productId: 'sugar',
+        productName: 'Açúcar',
+        quantity: 1,
+        outcome: 'lost',
+      },
+      {
+        linePosition: 1,
+        productId: 'p2',
+        productName: 'Sorvete',
+        quantity: 1,
+        outcome: 'lost',
+      },
+    ])
+  })
+
+  it('sends only return lines to MRP and preserves mixed outcomes in line order', async () => {
+    const order = OrderFaker.fake({
+      id: 'order-1',
+      establishmentId: actor.establishmentId,
+      lines: [
+        {
+          ...OrderFaker.fake().lines[0],
+          product: { productId: 'p1', name: 'Bolo', kind: 'portion' },
+          accompaniments: [],
+          consumptions: [{ productId: 'flour', productName: 'Farinha', quantity: 2 }],
+        },
+        {
+          ...OrderFaker.fake().lines[0],
+          product: { productId: 'p2', name: 'Sorvete', kind: 'resale' },
+          accompaniments: [],
+          consumptions: [{ productId: 'p2', quantity: 1 }],
+        },
+      ],
+    })
+    orders.findByIdForUpdate.mockResolvedValue(order)
+    stockProvider.restore.mockResolvedValue([
+      {
+        linePosition: 1,
+        productId: 'p2',
+        productName: 'Sorvete',
+        quantity: 1,
+        outcome: 'restored',
+      },
+    ])
+    orders.cancel.mockImplementation(
+      async (_establishmentId, _orderId, cancellation) => ({
+        ...order,
+        status: OrderStatus.Canceled,
+        cancellation,
+      }),
+    )
+
+    const result = await useCase.execute({
+      actor,
+      orderId: order.id,
+      lineDispositions: [
+        { linePosition: 0, disposition: 'loss' },
+        { linePosition: 1, disposition: 'return' },
+      ],
+    })
+
+    expect(stockProvider.restore).toHaveBeenCalledWith(
+      expect.objectContaining({
+        targets: [
+          {
+            linePosition: 1,
+            productId: 'p2',
+            productName: 'Sorvete',
+            quantity: 1,
+          },
+        ],
+      }),
+    )
+    expect(result.cancellation?.outcomes).toEqual([
+      {
+        linePosition: 0,
+        productId: 'flour',
+        productName: 'Farinha',
+        quantity: 2,
+        outcome: 'lost',
+      },
+      {
+        linePosition: 1,
+        productId: 'p2',
+        productName: 'Sorvete',
+        quantity: 1,
+        outcome: 'restored',
+      },
+    ])
+  })
+
+  it('rejects an MRP result for the wrong consumption on the same line and rolls back', async () => {
+    const order = OrderFaker.fake({
+      id: 'order-1',
+      establishmentId: actor.establishmentId,
+      lines: [
+        {
+          ...OrderFaker.fake().lines[0],
+          product: { productId: 'p1', name: 'Bolo', kind: 'portion' },
+          accompaniments: [],
+          consumptions: [
+            { productId: 'flour', productName: 'Farinha', quantity: 2 },
+            { productId: 'sugar', productName: 'Açúcar', quantity: 1 },
+          ],
+        },
+      ],
+    })
+    orders.findByIdForUpdate.mockResolvedValue(order)
+    let simulatedStockQuantity = 0
+    database.run.mockImplementation(async (operation) => {
+      const before = simulatedStockQuantity
+      try {
+        return await operation(scope)
+      } catch (error) {
+        simulatedStockQuantity = before
+        throw error
+      }
+    })
+    stockProvider.restore.mockImplementation(async (request) => {
+      simulatedStockQuantity += request.targets.reduce(
+        (total, target) => total + target.quantity,
+        0,
+      )
+      return [
+        {
+          ...request.targets[0],
+          productId: 'sugar',
+          productName: 'Açúcar',
+          quantity: 1,
+          outcome: 'restored',
+        },
+        {
+          ...request.targets[1],
+          outcome: 'restored',
+        },
+      ]
+    })
+
+    await expect(
+      useCase.execute({
+        actor,
+        orderId: order.id,
+        lineDispositions: [{ linePosition: 0, disposition: 'return' }],
+      }),
+    ).rejects.toBeInstanceOf(ConflictError)
+
+    expect(simulatedStockQuantity).toBe(0)
+    expect(orders.cancel).not.toHaveBeenCalled()
+  })
+
+  it('rejects duplicate, missing, out-of-range, and invalid line choices before stock changes', async () => {
+    const order = OrderFaker.fake({ establishmentId: actor.establishmentId })
+    orders.findByIdForUpdate.mockResolvedValue(order)
+    const invalidChoices = [
+      [],
+      [
+        { linePosition: 0, disposition: 'return' },
+        { linePosition: 0, disposition: 'loss' },
+      ],
+      [{ linePosition: 1, disposition: 'return' }],
+      [{ linePosition: -1, disposition: 'return' }],
+      [{ linePosition: 0, disposition: 'unknown' }],
+    ]
+    for (const lineDispositions of invalidChoices) {
+      await expect(
+        useCase.execute({ actor, orderId: order.id, lineDispositions } as never),
+      ).rejects.toBeInstanceOf(BadRequestError)
+    }
+    expect(stockProvider.restore).not.toHaveBeenCalled()
+    expect(orders.cancel).not.toHaveBeenCalled()
+  })
+
+  it('rejects a second cancellation after the first transition', async () => {
+    const order = OrderFaker.fake({ establishmentId: actor.establishmentId })
+    orders.findByIdForUpdate
+      .mockResolvedValueOnce(order)
+      .mockResolvedValueOnce({ ...order, status: OrderStatus.Canceled })
+    stockProvider.restore.mockResolvedValue([
+      {
+        linePosition: 0,
+        productId: order.lines[0].product.productId,
+        productName: order.lines[0].product.name,
+        quantity: 1,
+        outcome: 'restored',
+      },
+    ])
+    orders.cancel.mockResolvedValue({ ...order, status: OrderStatus.Canceled })
+    const request = {
+      actor,
+      orderId: order.id,
+      lineDispositions: [{ linePosition: 0, disposition: 'return' as const }],
+    }
+    await useCase.execute(request)
+    await expect(useCase.execute(request)).rejects.toBeInstanceOf(ConflictError)
+    expect(stockProvider.restore).toHaveBeenCalledTimes(1)
   })
 })

@@ -52,8 +52,9 @@ export class OrderFaker {
         canceledAt: new Date('2026-01-02T00:00:00.000Z'),
         canceledBy: faker.string.uuid(),
         canceledByName: faker.person.fullName(),
-        restorations: order.lines.flatMap((line) =>
+        outcomes: order.lines.flatMap((line, linePosition) =>
           line.consumptions.map((consumption) => ({
+            linePosition,
             productId: consumption.productId,
             productName: line.product.name,
             ...(consumption.productName ? { productName: consumption.productName } : {}),

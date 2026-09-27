@@ -2,6 +2,7 @@ import type { OrderStockRestoration } from '#mrp/domain/structures/order-stock-r
 import type { OrderStockRestorationRequest } from '#mrp/domain/structures/order-stock-restoration-request.ts'
 import { StockTransactionType } from '#mrp/domain/structures/stock-transaction-type.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
+import { BadRequestError } from '#shared/domain/errors/index.ts'
 
 export class RestoreOrderStockUseCase {
   constructor(private readonly database: MrpDatabase) {}
@@ -9,6 +10,9 @@ export class RestoreOrderStockUseCase {
   async execute(
     input: OrderStockRestorationRequest,
   ): Promise<readonly OrderStockRestoration[]> {
+    if (input.targets.length === 0)
+      throw new BadRequestError('Informe ao menos um consumo para devolver ao estoque.')
+
     return this.database.run(async (repositories) => {
       const products = new Map<
         string,

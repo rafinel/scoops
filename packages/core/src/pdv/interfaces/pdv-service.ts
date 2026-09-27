@@ -25,7 +25,10 @@ export interface PdvService {
   getOrder(orderId: string): Promise<RestResponse<OrderDetails>>
   cancelOrder(
     orderId: string,
-    input: { readonly reason?: string },
+    input: {
+      readonly reason?: string
+      readonly lineDispositions: readonly import('#pdv/domain/structures/order-line-disposition.ts').OrderLineDisposition[]
+    },
   ): Promise<RestResponse<OrderDetails>>
   listOrderCatalog(
     input: Omit<SalesCatalogListParams, 'establishmentId'> & {
