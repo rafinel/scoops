@@ -470,11 +470,22 @@ workflow as a next action or ask whether to fix an in-Contract failure. It pause
 missing authority, a required product or technical decision, an external blocker, or the
 documented repeated-failure limit.
 
-After applicable CI passes, conclusion sets Evaluation, Plan when present, and Spec to
-`completed`. It does not create a closure-only commit solely for SDD ledger status changes;
-any required implementation or product-documentation commit updates the same PR and its
-resulting checks must pass. Conclusion does not merge or deploy unless the user explicitly
-asks.
+After applicable CI passes on the implementation candidate, conclusion sets Evaluation,
+Plan when present, and Spec to `completed`, then commits those final SDD records to the same
+delivery PR. Spec, Plan and Evaluation are review artifacts: include their delivery-owned
+changes in the PR even when a status or evidence update is documentation-only. The closure
+commit must contain only scoped SDD artifacts and any other explicitly delivery-owned
+documentation; preserve unrelated user work. Run the applicable PR checks on this closure
+head and require them to pass before declaring delivery complete.
+
+Record the CI gate that authorized closure in Evaluation with each run URL and tested SHA.
+After the closure commit, verify the actual PR head and all applicable live check results.
+Report those final-head results and links in the delivery summary. Do not add the final
+closure-head run IDs back into Evaluation after the closure commit: doing so would change the
+tested SHA again. The live PR checks are the authoritative record for that documentation-only
+head. Any implementation change or failure that requires a code correction re-enters the
+normal commit, publication and Evaluation evidence loop. Conclusion does not merge or deploy
+unless the user explicitly asks.
 
 ## 9. Pull-request feedback and reopening
 

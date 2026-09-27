@@ -138,8 +138,9 @@ conclusion automatically after it returns evaluation to `ready`.
 7. Before invoking `commit-code`, audit the complete changed-documentation list again. Ensure
    every delivery-owned or required factual documentation change is intentionally staged in the
    normal delivery commit(s), represented in the PR traceability and recorded in `evaluation.md`.
-   Only unrelated user-owned documentation or purely operational SDD ledger closure updates may
-   remain outside the delivery commit, and each exclusion must be recorded.
+   Spec, Plan and Evaluation are part of the review candidate; do not omit them because a change
+   records execution state, evidence or closure. Preserve unrelated user-owned documentation and
+   record each exclusion.
 8. Invoke `commit-code` to create intentional scoped commits, including any authorized PRD
    checkbox changes from step 6 and all delivery-owned or required factual documentation changes.
 9. Inspect the existing delivery PR, if any, and compare its base, head SHA, title and body
@@ -207,7 +208,7 @@ incomplete conclusion run.
 
 ## Evidence and documentation closure
 
-After CI passes, verify `evaluation.md` contains:
+After the implementation-candidate CI gate passes, verify `evaluation.md` contains:
 
 - the Canonical Evaluation shape from `documentation/prompts/implement-spec-prompt.md`, including
   its sections, table columns and stable evidence IDs;
@@ -230,7 +231,7 @@ Verify that every delivery-owned or required factual documentation change from t
 diff is included in the scoped delivery commit(s), PR traceability and final Evaluation. A
 documentation change must not be omitted solely because it does not change runtime code. Record
 the paths and rationale for included changes, and the explicit reason for each preserved
-unrelated or closure-only documentation path.
+unrelated user-owned documentation path.
 
 Check PRD, Architecture, Modules, Design, Tooling and the Rule Pack against delivered facts.
 Apply factual documentation corrections only. Product, Contract, global Rule, module
@@ -285,23 +286,29 @@ requires user authority and the late-change route.
 
 ## Complete the delivery
 
-Only after the PR CI gate passes and no blocking finding remains:
+Only after the implementation-candidate PR CI gate passes and no blocking finding remains:
 
 - set `evaluation.md` to `completed`;
 - set `plan.md` to `completed`, when present;
 - set `spec.md` to `completed` and retain only the summarized outcome and
   link to `evaluation.md`;
-- preserve detailed evidence in `evaluation.md`.
+- preserve detailed evidence in `evaluation.md`;
+- commit the completed Spec, Plan and Evaluation to the same PR through `commit-code`, then
+  invoke `create-pr` and require all applicable checks to pass on that closure commit's head.
 
-Do not create a closure-only commit solely to update `evaluation.md`, `plan.md` or another
-SDD ledger. Preserve final evidence in the operational artifacts and PR record; create a
-normal delivery commit only when the implementation or required product documentation itself
-needs to be committed. Wait for checks on the actual delivery head before declaring delivery
+The closure commit is an expected part of every Spec delivery. Keep it limited to the
+delivery-owned Spec, Plan and Evaluation closure changes and any required factual documentation;
+never include unrelated user work. If checks fail on the closure head, follow the normal
+failure-routing rules, fix the cause and rerun checks on the new head before declaring delivery
 complete.
 
-Required product documentation and factual documentation corrections belong in the normal
-delivery commit(s) and PR. The closure-only restriction applies only to purely operational SDD
-ledger updates, which must still be recorded in the final delivery state.
+Record the implementation-candidate PR CI runs in Evaluation with their URLs and tested SHA.
+After publishing the closure commit, verify every applicable live check on the actual PR head
+and include its result and links in the delivery summary. Do not amend Evaluation with those
+post-closure run IDs: another Evaluation commit would create a new head and repeat this gate.
+The current PR check rollup is the authoritative record for the final documentation-only head.
+If a post-closure failure requires an implementation correction, return through
+`implement-spec`, refresh Evaluation evidence, then commit, republish and rerun the full gate.
 
 Do not wait indefinitely for reviewer comments and do not process them here. Later actionable
 review feedback is handled by `resolve-pr-feedback`; while the PR remains open, that workflow
@@ -323,6 +330,7 @@ Return:
 - applicable PR CI workflows and results;
 - documentation paths included in the delivery, with explicitly preserved exclusions and their
   rationale;
+- final PR head SHA and live check results after the SDD closure commit;
 - documentation alignment and remaining non-blocking limitations;
 - finding-derived PRD, Architecture, Design, Tooling and Rule Pack improvements, including
   justified no-change dispositions;

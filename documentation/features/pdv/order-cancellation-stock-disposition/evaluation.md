@@ -3,7 +3,7 @@ feature: "pdv/order-cancellation-stock-disposition"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 1
-status: in_progress
+status: completed
 updated_at: 2026-09-27
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-09-27
 
 Evaluation of Spec revision 1 against the current implementation.
 
-Current result: The Spec implementation and migration 0027 are complete. All three authorized complexity corrections pass locally with thresholds and baselines unchanged; Core, Server and Web full coverage commands pass (EV-63, EV-68, EV-69, EV-71). The final serial Web integration run passed 222/223; the one unrelated Sales Channels validation case passed in two consecutive focused reruns (EV-70). The same independent Implementation Reviewer found no contract or implementation findings and inspected all eight refreshed F3-T7 screenshots without visual findings (EV-72–EV-73). PR #46 still points at the prior head pending the delivery commit, publication update and final PR CI. Keep the Spec in progress until the current PR head's applicable CI checks are green. PDV PRQ-15 remains fully delivered and checked; PRQ-09/10/11/12 and MRP PRQ-03 remain partial and unchecked. No cancellation product behavior failure has been found.
+Current result: Spec revision 1 is complete and published in [PR #46](https://github.com/rafinel/scoops/pull/46) at head `f8602d2df7b94aba68c8d9e5f88510ce4520b30a`. Core, Server, Validation, Web, and all four Complexity checks on that SHA passed. Core, Server, and Web coverage floors pass; migration 0027 is applied; the independent Implementation Reviewer found no findings. EV-70 records the one unrelated intermittent local browser-test failure and its focused repeats; the current-head Web CI browser suite passes. No threshold or baseline changed. PDV PRQ-15 remains fully delivered and checked; PDV PRQ-09/10/11/12 and MRP PRQ-03 remain partial and unchecked. Final PR workflow evidence is recorded below.
 
 ## Acceptance matrix
 
@@ -209,6 +209,13 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| EV-74 | Core CI + Complexity | `d0845bc3fcd7053e72c27bad3d83436fef269ec2` | Workflow validation passed, but Complexity failed; superseded by EV-75. | [Run 36320572808](https://github.com/rafinel/scoops/actions/runs/36320572808) |
+| EV-74 | Server CI + Complexity | `d0845bc3fcd7053e72c27bad3d83436fef269ec2` | Workflow validation passed, but Complexity failed; superseded by EV-75. | [Run 36320572847](https://github.com/rafinel/scoops/actions/runs/36320572847) |
+| EV-74 | Web CI + Complexity | `d0845bc3fcd7053e72c27bad3d83436fef269ec2` | Workflow validation passed, but Complexity failed; superseded by EV-75. | [Run 36320572822](https://github.com/rafinel/scoops/actions/runs/36320572822) |
+| EV-75 | Core CI + Complexity | `f8602d2df7b94aba68c8d9e5f88510ce4520b30a` | Passed; Core workflow and its Complexity job completed successfully. | [Run 36337239381](https://github.com/rafinel/scoops/actions/runs/36337239381) |
+| EV-75 | Server CI + Complexity | `f8602d2df7b94aba68c8d9e5f88510ce4520b30a` | Passed; Inngest integration, Server coverage, build and Complexity completed successfully. Coverage line result 75.36% (75.2% floor). | [Run 36337239305](https://github.com/rafinel/scoops/actions/runs/36337239305) |
+| EV-75 | Validation CI + Complexity | `f8602d2df7b94aba68c8d9e5f88510ce4520b30a` | Passed; Validation workflow and its Complexity job completed successfully. | [Run 36337239344](https://github.com/rafinel/scoops/actions/runs/36337239344) |
+| EV-75 | Web CI + Complexity | `f8602d2df7b94aba68c8d9e5f88510ce4520b30a` | Passed; Web coverage, browser integration, build and Complexity completed successfully. | [Run 36337239298](https://github.com/rafinel/scoops/actions/runs/36337239298) |
 
 ## History
 
@@ -250,3 +257,4 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | 2026-09-27 | User directed “fix all” after reviewing the three failed PR complexity checks. This authorizes behavior-preserving cleanup across Core, Server and Web needed to clear those exact checks; thresholds and complexity baselines remain unchanged. F3-T7 continues with three bounded correction owners. |
 | 2026-09-27 | Core, Server and Web F3-T7 corrections now pass their exact complexity checks with zero warnings/errors. Core/Server/Web coverage, Server build, test integrity, architecture, and the final 37-path Spec conformance sensor pass (EV-63, EV-68–EV-71). The final serial Web integration run passes 222/223 with one unrelated Sales Channels validation timeout; that case passes twice in focused reruns (EV-70). |
 | 2026-09-27 | Fresh F3-T7 screenshots were regenerated, retained under `apps/web/test-results/f3-t7-complexity/`, and inspected (EV-72). The same Implementation Reviewer resumed, reviewed all eight captures and the integrated diff, and reported no remaining findings (EV-73). Commit, PR update, and current-head CI remain. |
+| 2026-09-27 | PR #46 updated to `f8602d2df7b94aba68c8d9e5f88510ce4520b30a`; Core, Server, Validation, Web and all four Complexity checks passed on that head (EV-75). F3-T7 is complete. Spec, Plan and Evaluation closure statuses are completed; no closure-only commit was created. |

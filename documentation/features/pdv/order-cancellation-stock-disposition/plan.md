@@ -1,6 +1,6 @@
 ---
 title: Destino do estoque por linha no cancelamento de pedido — implementation plan
-status: in_progress
+status: completed
 spec: ./spec.md
 spec_revision: 1
 evaluation: ./evaluation.md
@@ -10,14 +10,14 @@ updated_at: 2026-09-27
 
 # Execution status
 
-- **Spec:** [`./spec.md`](./spec.md), revision 1, `in_progress`.
+- **Spec:** [`./spec.md`](./spec.md), revision 1, `completed`.
 - **Rationale:** The Contract crosses Core/Validation, Server persistence and REST, and Web UI; it includes a generated database migration, transaction and authorization risk, design references, and real authenticated runtime validation.
-- **Current phase:** F3-T7 — `in_progress`; user authorized fixing all three complexity failures.
-- **Next action:** Commit the validated F3-T7 corrections and closure ledger, update PR #46, and wait for Core, Server, Web and Validation checks on its new head. Keep the Spec in progress until all applicable checks pass.
-- **Active blockers:** Current-head PR CI is pending. The same independent Implementation Reviewer completed with no findings (EV-73). The final serial Web integration run passed 222/223; its only unrelated Sales Channels validation failure passed twice in focused reruns (EV-70). Migration 0027 remains applied.
+- **Current phase:** F3-T7 — `complete`; all three complexity fixes and the PR CI gate pass.
+- **Next action:** None. PR #46 is ready for review; this task did not merge or deploy it.
+- **Active blockers:** None. The local Web integration rerun had one unrelated intermittent Sales Channels validation failure that passed twice in focused reruns; the current-head Web CI integration suite passed (EV-70, EV-75). Migration 0027 remains applied.
 - **Builders:** `builder_core` completed F1 including FND-07. `builder_server` completed F2-T1 and its FND-08 correction. `builder_web` completed F2-T2, including the FND-10 browser fixture correction; real HTTP/PostgreSQL and visual exits are recorded in Evaluation.
 - **Coordination:** Builder Core owns the tightly coupled Core and small Validation changes. Builder Server and Builder Web start after F1 and run in parallel. The Orchestrator owns generated migration artifacts, the integrated path sensor, Evaluation, final integration, and coordination of one Implementation Reviewer.
-- **Status handling:** Keep F3 `in_progress` while integrated validation and review are active. Keep failed or corrective work `in_progress` with its finding and next action; after a contracted-path correction, mark prior path-conformance evidence stale and rerun the sensor before invalidated sensors or the same Reviewer resume.
+- **Status handling:** All Plan phases and tasks are complete. Final workflow evidence is recorded in Evaluation EV-75; operational closure updates remain local per `conclude-spec` and are not a closure-only commit.
 
 # Execution ledger
 
@@ -41,11 +41,11 @@ updated_at: 2026-09-27
 
 #### F3-T7 — Final PR complexity gate correction
 
-- **Status:** `in_progress`; all three complexity failures now pass locally (EV-63, EV-68–EV-71). Core, Server and Web full coverage pass. The same independent reviewer completed with no findings (EV-73); current-head CI on PR #46 is the remaining closure gate.
+- **Status:** `complete`; all three complexity failures pass locally and on PR CI (EV-63, EV-68–EV-71, EV-75). Core, Server and Web full coverage pass; the same independent reviewer reported no findings (EV-73).
 - **Contract owner:** Builder Core (`builder_core`) owns only `packages/core/src/pdv/use-cases/cancel-order-use-case.ts` and `packages/core/src/mrp/use-cases/restore-order-stock-use-case.ts`. Keep all PRQ/FR/AC outcomes, transaction boundaries, authorization, line identity and excluded-target behavior unchanged.
 - **Supporting gate owners:** Builder Server completed the planned repository, DTO and mapper complexity correction within Contract-owned Server paths. Builder Web corrected the current-main stock-control and order-confirmation findings and supporting complex Web components; these changes preserve labels, validation, requests, accessibility and visible behavior. Fresh evidence and exact complexity summaries are in EV-68–EV-72.
 - **Prohibited:** Do not edit thresholds or `.code-multivitals-baseline.json`; do not modify any other paths or PRD/Spec behavior. If preserving behavior cannot be verified with current evidence, stop and report.
-- **Exits:** Local exact complexity checks, Server build, Core/Server/Web full coverage, code/types/architecture, test-integrity and Spec path sensor pass. The final Web integration result is recorded in EV-70: 222/223 passed, and the one unrelated Sales Channels validation case passed twice on focused reruns; EV-54 retains the earlier full serial 223/223 result. The same Reviewer reports no findings. Run every applicable PR workflow on the updated head before closing F3.
+- **Exits:** Local exact complexity checks, Server build, Core/Server/Web full coverage, code/types/architecture, test-integrity and Spec path sensor pass. The final local Web integration result is EV-70 (222/223; its unrelated intermittent Sales Channels validation case passed twice in focused reruns); current-head Web CI passed the complete browser workflow (EV-75). The same Reviewer reports no findings. Every applicable current-head PR workflow passed.
 
 ### F1 — Core and Validation contracts
 

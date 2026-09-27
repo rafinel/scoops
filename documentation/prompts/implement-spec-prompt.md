@@ -651,5 +651,7 @@ completed on the current candidate and every verified blocking review finding is
 - After three materially identical failures, ask the user only when resolution requires a
   decision unavailable in the repository or environment; otherwise continue safely.
 
-`evaluation.md` is the operational evidence ledger. It is not part of the review candidate by
-default and does not require a closure-only documentation commit.
+`evaluation.md` is the operational evidence ledger and a review artifact. Include its
+delivery-owned evidence changes in the feature PR. `conclude-spec` commits its final status and
+closure evidence to that same PR after the implementation-candidate CI gate passes, then
+requires the applicable checks to pass again on the closure head.
