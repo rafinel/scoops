@@ -4,5 +4,14 @@ import type { StockRestorationRequest } from '#pdv/domain/structures/stock-resto
 
 export interface StockProvider {
   consume(event: OrderRegisteredEvent): Promise<void>
-  restore(request: StockRestorationRequest): Promise<readonly OrderStockRestoration[]>
+  restore(request: StockRestorationRequest): Promise<readonly StockProviderRestoration[]>
+}
+
+/** Results returned by MRP; `lost` is a PDV disposition and never a stock-provider result. */
+export type StockProviderRestoration = Omit<
+  OrderStockRestoration,
+  'linePosition' | 'outcome'
+> & {
+  readonly linePosition: number
+  readonly outcome: 'restored' | 'skipped'
 }

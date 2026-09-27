@@ -28,6 +28,9 @@ export class MrpStockProvider implements StockProvider {
   }
 
   restore(request: StockRestorationRequest) {
-    return this.restoreOrderStock.execute({ ...request })
+    return this.restoreOrderStock.execute({
+      ...request,
+      targets: request.targets.map((target) => ({ ...target })),
+    })
   }
 }

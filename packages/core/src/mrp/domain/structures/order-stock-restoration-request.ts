@@ -5,6 +5,7 @@ export type OrderStockRestorationRequest = {
   readonly performedByName: string
   readonly occurredAt: Date
   readonly targets: readonly {
+    readonly linePosition: number
     readonly productId: string
     readonly productName: string
     readonly brandId?: string

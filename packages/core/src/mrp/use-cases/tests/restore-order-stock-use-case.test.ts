@@ -11,6 +11,7 @@ import type { StockBalancesRepository } from '#mrp/interfaces/stock-balances-rep
 import type { StockTransactionsRepository } from '#mrp/interfaces/stock-transactions-repository.ts'
 import type { OrderStockRestorationRequest } from '#mrp/domain/structures/order-stock-restoration-request.ts'
 import { RestoreOrderStockUseCase } from '#mrp/use-cases/restore-order-stock-use-case.ts'
+import { BadRequestError } from '#shared/domain/errors/index.ts'
 
 describe('RestoreOrderStockUseCase', () => {
   let database: MockProxy<MrpDatabase>
@@ -42,7 +43,9 @@ describe('RestoreOrderStockUseCase', () => {
       performedBy: 'manager-1',
       performedByName: 'Manager',
       occurredAt: new Date(),
-      targets: [{ productId: 'product-1', productName: 'Sorvete', quantity: 2 }],
+      targets: [
+        { linePosition: 2, productId: 'product-1', productName: 'Sorvete', quantity: 2 },
+      ],
     }
     await expect(new RestoreOrderStockUseCase(database).execute(input)).resolves.toEqual([
       { ...input.targets[0], outcome: 'restored' },
@@ -61,10 +64,32 @@ describe('RestoreOrderStockUseCase', () => {
         performedBy: 'manager-1',
         performedByName: 'Manager',
         occurredAt: new Date(),
-        targets: [{ productId: 'deleted', productName: 'Removido', quantity: 1 }],
+        targets: [
+          { linePosition: 1, productId: 'deleted', productName: 'Removido', quantity: 1 },
+        ],
       }),
     ).resolves.toEqual([
-      { productId: 'deleted', productName: 'Removido', quantity: 1, outcome: 'skipped' },
+      {
+        linePosition: 1,
+        productId: 'deleted',
+        productName: 'Removido',
+        quantity: 1,
+        outcome: 'skipped',
+      },
     ])
+  })
+
+  it('rejects an empty restoration request before opening the MRP transaction', async () => {
+    await expect(
+      new RestoreOrderStockUseCase(database).execute({
+        establishmentId: 'shop-1',
+        orderId: 'order-1',
+        performedBy: 'manager-1',
+        performedByName: 'Manager',
+        occurredAt: new Date(),
+        targets: [],
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError)
+    expect(database.run).not.toHaveBeenCalled()
   })
 })

@@ -604,7 +604,7 @@ registration-time cost facts consumed by PRQ-09.
 
 ### PRQ-09 — Order Snapshot
 
-
+- [ ] **Implemented**
 **Outcome:** Authorized users can rely on immutable commercial and operational facts preserved
 at the time an order is registered.
 
@@ -679,7 +679,7 @@ commercial, cancellation, cost, and cost-completeness facts.
 
 ### PRQ-10 — Order History
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
 **Outcome:** Operators and Managers can consult all orders from the current ice cream shop and
 open their immutable details.
@@ -734,7 +734,7 @@ PRQ-09 and establishment access from the Identity module.
 
 ### PRQ-11 — Permissions, Navigation and Isolation
 
-
+- [ ] **Implemented**
 **Outcome:** Operators and Managers see only the PDV navigation and actions authorized for their
 profiles, with all data isolated to the current establishment.
 
@@ -775,7 +775,7 @@ module.
 
 ### PRQ-12 — Performance, Responsiveness and Accessibility
 
-
+- [ ] **Implemented**
 **Outcome:** Operators and Managers can use all four PDV areas quickly and accessibly on priority
 devices while receiving consistent server-backed results.
 
@@ -991,7 +991,7 @@ PRQ-08 and PRQ-09.
 
 ### PRQ-15 — Order Cancellation
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** A Manager can cancel any registered order as a one-way lifecycle transition, choose
 whether each sold order line returns its stock consumption or records it as a loss, and preserve
@@ -1048,7 +1048,8 @@ consumed by PRQ-10 and future operational history.
   warns that the order remains in history with status `Canceled` while products, channel and
   values remain preserved.
 - **Success:** details show `Canceled`, cancellation timestamp, canceling Manager, optional
-  reason and the stock outcome for each line, including any skipped restoration.
+  reason and each line's returned or loss outcome. Skipped restorations remain auditable
+  cancellation facts but are not displayed in order details.
 - **Failure:** display a retryable error, keep the order `Registered`, and explain that no
   partial stock outcome occurred.
 - **History:** order list displays status and supports `Registered` and `Canceled` filters;

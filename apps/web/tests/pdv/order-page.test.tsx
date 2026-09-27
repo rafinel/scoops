@@ -94,8 +94,9 @@ function orderResponse(
             canceledBy: 'browser-manager-id',
             canceledByName: 'Maria Manager',
             reason: 'Cliente solicitou o cancelamento',
-            restorations: [
+            outcomes: [
               {
+                linePosition: 0,
                 productId: '00000000-0000-4000-8000-000000000030',
                 productName: 'Açaí',
                 quantity: 1,
@@ -163,7 +164,13 @@ test.describe('OrderPage', () => {
         cancelAttempts += 1
         if (cancelAttempts === 1)
           return { body: { message: 'temporary failure' }, status: 503 }
-        expect(request.body).toEqual({ reason: 'Cliente solicitou o cancelamento' })
+        expect(request.body).toEqual({
+          reason: 'Cliente solicitou o cancelamento',
+          lineDispositions: [
+            { linePosition: 0, disposition: 'return' },
+            { linePosition: 1, disposition: 'return' },
+          ],
+        })
         currentOrder = orderResponse('canceled')
         return { body: currentOrder }
       },
@@ -298,7 +305,119 @@ test.describe('OrderPage', () => {
     await page.getByRole('button', { name: 'Cancelar pedido' }).click()
     const dialog = page.getByRole('dialog', { name: 'Cancelar pedido?' })
     await expect(dialog).toBeVisible()
-    await expect(dialog.getByText('O pedido permanecerá no histórico')).toBeVisible()
+    await expect(dialog.getByText('O pedido ficará no histórico')).toBeVisible()
+    await page.setViewportSize({ width: 657, height: 894 })
+    const returnChoices = dialog.getByRole('radio', { name: 'Devolver ao estoque' })
+    const lossChoices = dialog.getByRole('radio', { name: 'Registrar como perda' })
+    const expectPointerChoiceColors = async (
+      choice: typeof returnChoices,
+      expectedFill: string,
+      expectedAccent: string,
+    ) => {
+      await expect
+        .poll(() =>
+          choice.evaluate((radio) => {
+            const label = radio.closest('label')
+            if (!label) throw new Error('Cancellation choice is missing its label')
+            return getComputedStyle(label).backgroundColor
+          }),
+        )
+        .toBe(expectedFill)
+      const presentation = await choice.evaluate((radio) => {
+        const label = radio.closest('label')
+        if (!label) throw new Error('Cancellation choice is missing its label')
+        const style = getComputedStyle(label)
+
+        return {
+          backgroundColor: style.backgroundColor,
+          borderColor: style.borderColor,
+          className: label.className,
+          accentColor: getComputedStyle(radio).accentColor,
+          focusVisible: radio.matches(':focus-visible'),
+        }
+      })
+
+      expect(presentation.borderColor, presentation.className).toBe(
+        presentation.backgroundColor,
+      )
+      expect(presentation.accentColor).toBe(expectedAccent)
+      expect(presentation.focusVisible).toBe(false)
+    }
+    await returnChoices.first().click()
+    await expect(returnChoices.first()).toBeChecked()
+    await expectPointerChoiceColors(
+      returnChoices.first(),
+      'rgb(220, 252, 231)',
+      'rgb(22, 101, 52)',
+    )
+    await page.screenshot({
+      path: 'test-results/order-cancellation-stock-disposition/dialog-desktop-pointer.png',
+      fullPage: false,
+    })
+    await lossChoices.first().click()
+    await expect(lossChoices.first()).toBeChecked()
+    await expectPointerChoiceColors(
+      lossChoices.first(),
+      'rgb(254, 226, 226)',
+      'rgb(153, 27, 27)',
+    )
+    await page.screenshot({
+      path: 'test-results/order-cancellation-stock-disposition/dialog-desktop-loss.png',
+      fullPage: false,
+    })
+    await dialog.getByRole('button', { name: 'Fechar cancelamento' }).focus()
+    await page.keyboard.press('Tab')
+    const keyboardFocusedChoices = dialog.locator('input[type="radio"]:focus-visible')
+    await expect(keyboardFocusedChoices).toHaveCount(1)
+    await expect(keyboardFocusedChoices).toBeFocused()
+    const desktopFocusRing = await keyboardFocusedChoices.evaluate(
+      (radio) => getComputedStyle(radio.closest('label') as HTMLElement).boxShadow,
+    )
+    expect(desktopFocusRing).not.toBe('none')
+    expect(desktopFocusRing).toMatch(/109[, ]+40[, ]+217/)
+    await page.screenshot({
+      path: 'test-results/order-cancellation-stock-disposition/dialog-desktop-keyboard.png',
+      fullPage: false,
+    })
+    await dialog.getByRole('button', { name: 'Fechar cancelamento' }).click()
+    await expect(dialog).toBeHidden()
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.getByRole('main').getByRole('button', { name: 'Cancelar pedido' }).click()
+    const mobileDialog = page.getByRole('dialog', { name: 'Cancelar pedido?' })
+    const mobileLossChoices = mobileDialog.getByRole('radio', {
+      name: 'Registrar como perda',
+    })
+    await mobileLossChoices.first().click()
+    await expect(mobileLossChoices.first()).toBeChecked()
+    await expectPointerChoiceColors(
+      mobileLossChoices.first(),
+      'rgb(254, 226, 226)',
+      'rgb(153, 27, 27)',
+    )
+    await page.screenshot({
+      path: 'test-results/order-cancellation-stock-disposition/dialog-mobile-pointer.png',
+      fullPage: false,
+    })
+    await mobileDialog.getByRole('button', { name: 'Fechar cancelamento' }).focus()
+    await page.keyboard.press('Tab')
+    const mobileKeyboardFocusedChoices = mobileDialog.locator(
+      'input[type="radio"]:focus-visible',
+    )
+    await expect(mobileKeyboardFocusedChoices).toHaveCount(1)
+    await expect(mobileKeyboardFocusedChoices).toBeFocused()
+    const mobileFocusRing = await mobileKeyboardFocusedChoices.evaluate(
+      (radio) => getComputedStyle(radio.closest('label') as HTMLElement).boxShadow,
+    )
+    expect(mobileFocusRing).not.toBe('none')
+    expect(mobileFocusRing).toMatch(/109[, ]+40[, ]+217/)
+    await page.screenshot({
+      path: 'test-results/order-cancellation-stock-disposition/dialog-mobile-keyboard.png',
+      fullPage: false,
+    })
+    await mobileDialog.getByRole('button', { name: 'Fechar cancelamento' }).click()
+    await expect(mobileDialog).toBeHidden()
+    await page.setViewportSize({ width: 1481, height: 1050 })
+    await page.getByRole('main').getByRole('button', { name: 'Cancelar pedido' }).click()
     await page.setViewportSize({ width: 657, height: 602 })
     await page.screenshot({
       path: 'test-results/pdv-orders-cancellation-dialog-657x602.png',

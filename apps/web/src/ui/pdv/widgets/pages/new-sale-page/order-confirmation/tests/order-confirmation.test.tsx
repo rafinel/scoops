@@ -1,7 +1,18 @@
 import { cleanup, render, screen, fireEvent } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { ROUTES } from '@/constants/routes'
+import type { AnchorProps } from '@/ui/shared/widgets/components/anchor'
+
 import { OrderConfirmation } from '..'
+
+vi.mock('@/ui/shared/widgets/components/anchor', () => ({
+  Anchor: ({ children, route, ...props }: AnchorProps) => (
+    <a href={ROUTES[route]} {...props}>
+      {children}
+    </a>
+  ),
+}))
 
 const order = {
   id: 'order-1',
@@ -33,6 +44,10 @@ describe('OrderConfirmation', () => {
 
     expect(screen.getByRole('heading', { name: 'Pedido registrado' })).toBeTruthy()
     expect(screen.getByText('#0042')).toBeTruthy()
+    expect(screen.getByText('Pote pronto')).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Ver pedido' }).getAttribute('href')).toBe(
+      ROUTES.orderDetails,
+    )
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar nova venda' }))
     expect(onNewSale).toHaveBeenCalledOnce()
   })

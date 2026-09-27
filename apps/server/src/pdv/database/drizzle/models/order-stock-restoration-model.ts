@@ -21,6 +21,7 @@ export const orderStockRestorationModel = pgTable(
       .notNull()
       .references(() => orderModel.id, { onDelete: 'cascade' }),
     position: integer('position').notNull(),
+    linePosition: integer('line_position'),
     productId: uuid('product_id').notNull(),
     productName: text('product_name').notNull(),
     brandId: uuid('brand_id'),
@@ -34,9 +35,18 @@ export const orderStockRestorationModel = pgTable(
       table.position,
     ),
     index('pdv_order_stock_restorations_order_idx').on(table.orderId),
+    index('pdv_order_stock_restorations_order_line_position_idx').on(
+      table.orderId,
+      table.linePosition,
+      table.position,
+    ),
     check(
       'pdv_order_stock_restorations_position_non_negative',
       sql`${table.position} >= 0`,
+    ),
+    check(
+      'pdv_order_stock_restorations_line_position_non_negative',
+      sql`${table.linePosition} is null or ${table.linePosition} >= 0`,
     ),
     check(
       'pdv_order_stock_restorations_product_name_non_blank',

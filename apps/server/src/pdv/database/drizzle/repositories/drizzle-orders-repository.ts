@@ -372,6 +372,16 @@ export class DrizzleOrdersRepository
     orderId: string,
     cancellation: OrderCancellation,
   ): Promise<Order> {
+    if (
+      cancellation.outcomes.some(
+        ({ linePosition }) =>
+          linePosition === undefined ||
+          !Number.isInteger(linePosition) ||
+          linePosition < 0,
+      )
+    )
+      throw new ConflictError('O resultado do cancelamento não atribui todas as linhas.')
+
     const [record] = await this.database
       .update(orderModel)
       .set({
@@ -391,20 +401,10 @@ export class DrizzleOrdersRepository
       .returning()
     if (!record) throw new ConflictError('O pedido já foi cancelado.')
 
-    if (cancellation.restorations.length > 0)
-      await this.database.insert(orderStockRestorationModel).values(
-        cancellation.restorations.map((restoration, position) => ({
-          id: crypto.randomUUID(),
-          orderId,
-          position,
-          productId: restoration.productId,
-          productName: restoration.productName,
-          brandId: restoration.brandId ?? null,
-          brandName: restoration.brandName ?? null,
-          quantity: String(restoration.quantity),
-          outcome: restoration.outcome,
-        })),
-      )
+    if (cancellation.outcomes.length > 0)
+      await this.database
+        .insert(orderStockRestorationModel)
+        .values(this.toRestorationRows(orderId, cancellation.outcomes))
 
     return this.toDomain(record)
   }
@@ -576,111 +576,111 @@ export class DrizzleOrdersRepository
   private async findAggregateRows(
     orderIds: readonly string[],
   ): Promise<Map<string, AggregateRows>> {
-    const rowsByOrderId = new Map<string, AggregateRows>()
-    if (orderIds.length === 0) return rowsByOrderId
+    if (orderIds.length === 0) return new Map()
+    return this.groupAggregateRows(orderIds, await this.loadAggregateRows(orderIds))
+  }
 
-    const lines = await this.database
+  private async loadAggregateRows(orderIds: readonly string[]): Promise<AggregateRows> {
+    return {
+      ...(await this.findLineAggregateRows(orderIds)),
+      ...(await this.findDiscountAggregateRows(orderIds)),
+      restorations: await this.findAggregateRestorations(orderIds),
+    }
+  }
+
+  private async findLineAggregateRows(
+    orderIds: readonly string[],
+  ): Promise<
+    Pick<
+      AggregateRows,
+      'lines' | 'lineAccompaniments' | 'lineConsumptions' | 'lineCostComponents'
+    >
+  > {
+    const lines = await this.findOrderLines(orderIds)
+    const lineChildren = await this.findLineAggregateChildren(lines)
+    return { lines, ...lineChildren }
+  }
+
+  private findLineAggregateChildren(
+    lines: AggregateRows['lines'],
+  ): Promise<
+    Pick<AggregateRows, 'lineAccompaniments' | 'lineConsumptions' | 'lineCostComponents'>
+  > {
+    const lineIds = lines.map((line) => line.id)
+    return this.findOrderLineChildren(lineIds)
+  }
+
+  private async findOrderLineChildren(
+    lineIds: string[],
+  ): Promise<
+    Pick<AggregateRows, 'lineAccompaniments' | 'lineConsumptions' | 'lineCostComponents'>
+  > {
+    return {
+      lineAccompaniments: await this.findOrderLineAccompaniments(lineIds),
+      lineConsumptions: await this.findOrderLineConsumptions(lineIds),
+      lineCostComponents: await this.findOrderLineCostComponents(lineIds),
+    }
+  }
+
+  private findOrderLineAccompaniments(ids: string[]) {
+    return this.findRowsForIds(ids, (lineIds) =>
+      this.database
+        .select()
+        .from(orderLineAccompanimentModel)
+        .where(inArray(orderLineAccompanimentModel.orderLineId, lineIds))
+        .orderBy(asc(orderLineAccompanimentModel.position)),
+    )
+  }
+
+  private findOrderLineConsumptions(ids: string[]) {
+    return this.findRowsForIds(ids, (lineIds) =>
+      this.database
+        .select()
+        .from(orderLineConsumptionModel)
+        .where(inArray(orderLineConsumptionModel.orderLineId, lineIds))
+        .orderBy(asc(orderLineConsumptionModel.position)),
+    )
+  }
+
+  private findOrderLineCostComponents(ids: string[]) {
+    return this.findRowsForIds(ids, (lineIds) =>
+      this.database
+        .select()
+        .from(orderLineCostComponentModel)
+        .where(inArray(orderLineCostComponentModel.orderLineId, lineIds))
+        .orderBy(asc(orderLineCostComponentModel.position)),
+    )
+  }
+
+  private findOrderLines(orderIds: readonly string[]): Promise<AggregateRows['lines']> {
+    return this.database
       .select()
       .from(orderLineModel)
       .where(inArray(orderLineModel.orderId, [...orderIds]))
       .orderBy(asc(orderLineModel.position), asc(orderLineModel.id))
-    const lineIds = lines.map((line) => line.id)
-    const lineAccompaniments = lineIds.length
-      ? await this.database
-          .select()
-          .from(orderLineAccompanimentModel)
-          .where(inArray(orderLineAccompanimentModel.orderLineId, lineIds))
-          .orderBy(asc(orderLineAccompanimentModel.position))
-      : []
-    const lineConsumptions = lineIds.length
-      ? await this.database
-          .select()
-          .from(orderLineConsumptionModel)
-          .where(inArray(orderLineConsumptionModel.orderLineId, lineIds))
-          .orderBy(asc(orderLineConsumptionModel.position))
-      : []
-    const lineCostComponents = lineIds.length
-      ? await this.database
-          .select()
-          .from(orderLineCostComponentModel)
-          .where(inArray(orderLineCostComponentModel.orderLineId, lineIds))
-          .orderBy(asc(orderLineCostComponentModel.position))
-      : []
-    const discounts = await this.database
-      .select()
-      .from(orderDiscountModel)
-      .where(inArray(orderDiscountModel.orderId, [...orderIds]))
-      .orderBy(asc(orderDiscountModel.position), asc(orderDiscountModel.id))
-    const discountIds = discounts.map((discount) => discount.id)
-    const components = discountIds.length
-      ? await this.database
-          .select()
-          .from(orderDiscountComponentModel)
-          .where(inArray(orderDiscountComponentModel.orderDiscountId, discountIds))
-          .orderBy(
-            asc(orderDiscountComponentModel.position),
-            asc(orderDiscountComponentModel.id),
-          )
-      : []
-    const componentIds = components.map((component) => component.id)
-    const componentAccompaniments = componentIds.length
-      ? await this.database
-          .select()
-          .from(orderDiscountComponentAccompanimentModel)
-          .where(
-            inArray(orderDiscountComponentAccompanimentModel.componentId, componentIds),
-          )
-          .orderBy(asc(orderDiscountComponentAccompanimentModel.position))
-      : []
-    const discountLines = componentIds.length
-      ? await this.database
-          .select()
-          .from(orderDiscountLineModel)
-          .where(inArray(orderDiscountLineModel.componentId, componentIds))
-      : []
-    const restorations = await this.database
-      .select()
-      .from(orderStockRestorationModel)
-      .where(inArray(orderStockRestorationModel.orderId, [...orderIds]))
-      .orderBy(asc(orderStockRestorationModel.position))
+  }
 
-    for (const orderId of orderIds) {
-      const orderLineIds = new Set(
-        lines.filter((line) => line.orderId === orderId).map((line) => line.id),
-      )
-      const orderDiscountIds = new Set(
-        discounts
-          .filter((discount) => discount.orderId === orderId)
-          .map((discount) => discount.id),
-      )
-      const orderComponentIds = new Set(
-        components
-          .filter((component) => orderDiscountIds.has(component.orderDiscountId))
-          .map((component) => component.id),
-      )
-      rowsByOrderId.set(orderId, {
-        lines: lines.filter((line) => line.orderId === orderId),
-        lineAccompaniments: lineAccompaniments.filter((row) =>
-          orderLineIds.has(row.orderLineId),
-        ),
-        lineConsumptions: lineConsumptions.filter((row) =>
-          orderLineIds.has(row.orderLineId),
-        ),
-        lineCostComponents: lineCostComponents.filter((row) =>
-          orderLineIds.has(row.orderLineId),
-        ),
-        discounts: discounts.filter((discount) => discount.orderId === orderId),
-        components: components.filter((component) => orderComponentIds.has(component.id)),
-        componentAccompaniments: componentAccompaniments.filter((row) =>
-          orderComponentIds.has(row.componentId),
-        ),
-        discountLines: discountLines.filter((row) =>
-          orderComponentIds.has(row.componentId),
-        ),
-        restorations: restorations.filter((row) => row.orderId === orderId),
-      })
+  private findRowsForIds<Row>(
+    ids: readonly string[],
+    findRows: (ids: string[]) => Promise<Row[]>,
+  ): Promise<Row[]> {
+    if (ids.length === 0) return Promise.resolve([])
+    return findRows([...ids])
+  }
+  private async findOrderDiscountChildren(componentIds: string[]) {
+    return {
+      componentAccompaniments:
+        await this.findOrderDiscountComponentAccompaniments(componentIds),
+      discountLines: await this.findOrderDiscountLines(componentIds),
     }
-    return rowsByOrderId
+  }
+  private findOrderDiscountLines(ids: string[]) {
+    return this.findRowsForIds(ids, (componentIds) =>
+      this.database
+        .select()
+        .from(orderDiscountLineModel)
+        .where(inArray(orderDiscountLineModel.componentId, componentIds)),
+    )
   }
 
   private toConflictError(error: unknown): unknown {
@@ -705,4 +705,216 @@ export class DrizzleOrdersRepository
     }
     return false
   }
+
+  private async findDiscountAggregateRows(
+    orderIds: readonly string[],
+  ): Promise<
+    Pick<
+      AggregateRows,
+      'discounts' | 'components' | 'componentAccompaniments' | 'discountLines'
+    >
+  > {
+    const discounts = await this.findOrderDiscounts(orderIds)
+    const discountChildren = await this.findDiscountAggregateChildren(discounts)
+    return { discounts, ...discountChildren }
+  }
+
+  private async findDiscountAggregateChildren(
+    discounts: AggregateRows['discounts'],
+  ): Promise<
+    Pick<AggregateRows, 'components' | 'componentAccompaniments' | 'discountLines'>
+  > {
+    const discountIds = discounts.map((discount) => discount.id)
+    const components = await this.findOrderDiscountComponents(discountIds)
+    const componentIds = components.map((component) => component.id)
+    return {
+      components,
+      ...(await this.findOrderDiscountChildren(componentIds)),
+    }
+  }
+
+  private findOrderDiscountComponents(ids: string[]) {
+    return this.findRowsForIds(ids, (discountIds) =>
+      this.database
+        .select()
+        .from(orderDiscountComponentModel)
+        .where(inArray(orderDiscountComponentModel.orderDiscountId, discountIds))
+        .orderBy(
+          asc(orderDiscountComponentModel.position),
+          asc(orderDiscountComponentModel.id),
+        ),
+    )
+  }
+
+  private findOrderDiscountComponentAccompaniments(ids: string[]) {
+    return this.findRowsForIds(ids, (componentIds) =>
+      this.database
+        .select()
+        .from(orderDiscountComponentAccompanimentModel)
+        .where(
+          inArray(orderDiscountComponentAccompanimentModel.componentId, componentIds),
+        )
+        .orderBy(asc(orderDiscountComponentAccompanimentModel.position)),
+    )
+  }
+
+  private findOrderDiscounts(
+    orderIds: readonly string[],
+  ): Promise<AggregateRows['discounts']> {
+    return this.database
+      .select()
+      .from(orderDiscountModel)
+      .where(inArray(orderDiscountModel.orderId, [...orderIds]))
+      .orderBy(asc(orderDiscountModel.position), asc(orderDiscountModel.id))
+  }
+
+  private async findAggregateRestorations(
+    orderIds: readonly string[],
+  ): Promise<AggregateRows['restorations']> {
+    return this.database
+      .select()
+      .from(orderStockRestorationModel)
+      .where(inArray(orderStockRestorationModel.orderId, [...orderIds]))
+      .orderBy(asc(orderStockRestorationModel.position))
+  }
+
+  private groupAggregateRows(
+    orderIds: readonly string[],
+    rows: AggregateRows,
+  ): Map<string, AggregateRows> {
+    const rowsByOrderId = new Map<string, AggregateRows>()
+    for (const orderId of orderIds)
+      rowsByOrderId.set(orderId, this.findAggregateRowsForOrder(orderId, rows))
+    return rowsByOrderId
+  }
+
+  private findAggregateRowsForOrder(orderId: string, rows: AggregateRows): AggregateRows {
+    return {
+      ...this.findLineRowsForOrder(orderId, rows),
+      ...this.findDiscountRowsForOrder(orderId, rows),
+      restorations: rows.restorations.filter((row) => row.orderId === orderId),
+    }
+  }
+
+  private findLineRowsForOrder(orderId: string, rows: AggregateRows): LineAggregateRows {
+    const lines = rows.lines.filter((line) => line.orderId === orderId)
+    return {
+      lines,
+      ...this.findLineChildRows(new Set(lines.map((line) => line.id)), rows),
+    }
+  }
+
+  private findLineChildRows(
+    orderLineIds: ReadonlySet<string>,
+    rows: AggregateRows,
+  ): LineChildRows {
+    return this.filterRowsInGroups(
+      rows,
+      ['lineAccompaniments', 'lineConsumptions', 'lineCostComponents'],
+      'orderLineId',
+      orderLineIds,
+    )
+  }
+
+  private filterRowsInGroups<Group extends keyof AggregateRows>(
+    rows: AggregateRows,
+    groups: readonly Group[],
+    foreignKey: string,
+    ids: ReadonlySet<string>,
+  ): Pick<AggregateRows, Group> {
+    return Object.fromEntries(
+      groups.map((group) => [
+        group,
+        (rows[group] as unknown as readonly Record<string, string>[]).filter((row) =>
+          ids.has(row[foreignKey]),
+        ),
+      ]),
+    ) as unknown as Pick<AggregateRows, Group>
+  }
+
+  private findDiscountRowsForOrder(
+    orderId: string,
+    rows: AggregateRows,
+  ): DiscountAggregateRows {
+    const discounts = rows.discounts.filter((discount) => discount.orderId === orderId)
+    return {
+      discounts,
+      ...this.findDiscountChildRows(
+        new Set(discounts.map((discount) => discount.id)),
+        rows,
+      ),
+    }
+  }
+
+  /** Filters component-linked snapshots after resolving the order's discounts. */
+  private findDiscountChildRows(
+    discountIds: ReadonlySet<string>,
+    rows: AggregateRows,
+  ): DiscountChildRows {
+    const components = this.findComponentsForDiscounts(discountIds, rows)
+    return this.findDiscountRowsForComponents(components, rows)
+  }
+
+  private findDiscountRowsForComponents(
+    components: AggregateRows['components'],
+    rows: AggregateRows,
+  ): DiscountChildRows {
+    return {
+      components,
+      ...this.filterRowsInGroups(
+        rows,
+        ['componentAccompaniments', 'discountLines'],
+        'componentId',
+        this.getComponentIds(components),
+      ),
+    }
+  }
+
+  private getComponentIds(components: AggregateRows['components']): ReadonlySet<string> {
+    return new Set(components.map((component) => component.id))
+  }
+
+  private findComponentsForDiscounts(
+    discountIds: ReadonlySet<string>,
+    rows: AggregateRows,
+  ): AggregateRows['components'] {
+    return rows.components.filter((component) =>
+      discountIds.has(component.orderDiscountId),
+    )
+  }
+
+  private toRestorationRows(orderId: string, outcomes: OrderCancellation['outcomes']) {
+    return outcomes.map((outcome, position) => ({
+      id: crypto.randomUUID(),
+      orderId,
+      position,
+      linePosition: outcome.linePosition ?? null,
+      productId: outcome.productId,
+      productName: outcome.productName,
+      brandId: outcome.brandId ?? null,
+      brandName: outcome.brandName ?? null,
+      quantity: String(outcome.quantity),
+      outcome: outcome.outcome,
+    }))
+  }
 }
+
+type LineAggregateRows = Pick<
+  AggregateRows,
+  'lines' | 'lineAccompaniments' | 'lineConsumptions' | 'lineCostComponents'
+>
+
+type LineChildRows = Pick<
+  AggregateRows,
+  'lineAccompaniments' | 'lineConsumptions' | 'lineCostComponents'
+>
+
+type DiscountAggregateRows = Pick<
+  AggregateRows,
+  'discounts' | 'components' | 'componentAccompaniments' | 'discountLines'
+>
+
+type DiscountChildRows = Pick<
+  AggregateRows,
+  'components' | 'componentAccompaniments' | 'discountLines'
+>

@@ -106,7 +106,7 @@ test.describe('NewProductPage', () => {
 
     await page.setViewportSize({ width: 1440, height: 900 })
     await page
-      .getByRole('heading', { name: 'Controle de estoque' })
+      .getByRole('heading', { name: 'Estoque' })
       .scrollIntoViewIfNeeded()
     await page
       .getByText('Total calculado pelas quantidades iniciais das marcas.')
