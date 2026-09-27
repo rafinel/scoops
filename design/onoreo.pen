@@ -101085,6 +101085,421 @@
       "y": 3769,
       "width": 358,
       "height": "fit_content"
+    },
+    {
+      "type": "frame",
+      "id": "iUxIp",
+      "x": -2134,
+      "y": -2799,
+      "name": "Global Search Result Row",
+      "reusable": true,
+      "width": 456,
+      "height": 64,
+      "fill": "$bg-card",
+      "cornerRadius": 10,
+      "gap": 12,
+      "padding": [
+        8,
+        12
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "di8Lx",
+          "name": "Result icon surface",
+          "width": 36,
+          "height": 36,
+          "fill": "$bg-card",
+          "cornerRadius": 10,
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "hwfJN",
+              "name": "Result icon",
+              "width": 18,
+              "height": 18,
+              "icon": "ice-cream-bowl",
+              "library": "lucide",
+              "fill": "$category-portion"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "vrOqn",
+          "name": "Result text",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 2,
+          "children": [
+            {
+              "type": "text",
+              "id": "qFw9E",
+              "name": "Result title",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Sorvete de morango",
+              "fontFamily": "$font-body",
+              "fontSize": 14,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "wibVU",
+              "name": "Result details",
+              "fill": "$text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Porção ativa · Estoque baixo",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "icon",
+          "id": "yEDV7",
+          "name": "Open result",
+          "width": 16,
+          "height": 16,
+          "icon": "arrow-up-right",
+          "library": "lucide",
+          "fill": "$text-tertiary"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "sqqJg",
+      "x": -2134,
+      "y": -2655,
+      "name": "Global Search Dropdown — Results",
+      "reusable": true,
+      "width": 480,
+      "fill": "$bg-card",
+      "cornerRadius": 16,
+      "stroke": "$border",
+      "strokeWidth": 1,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#0000001F",
+        "offset": {
+          "x": 0,
+          "y": 8
+        },
+        "blur": 20
+      },
+      "layout": "vertical",
+      "gap": 4,
+      "padding": 12,
+      "children": [
+        {
+          "type": "frame",
+          "id": "jklDz",
+          "name": "Search results heading",
+          "width": "fill_container",
+          "height": 28,
+          "padding": [
+            0,
+            8
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "CQl2c",
+              "name": "Result count",
+              "fill": "$text-secondary",
+              "content": "4 resultados",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "rectangle",
+          "id": "yKcNx",
+          "name": "Header separator",
+          "fill": "$border-soft",
+          "width": "fill_container",
+          "height": 1
+        },
+        {
+          "type": "frame",
+          "id": "DjCB2",
+          "name": "Produtos results",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 4,
+          "children": [
+            {
+              "type": "frame",
+              "id": "iPMkn",
+              "name": "Produtos heading",
+              "width": "fill_container",
+              "padding": [
+                6,
+                8
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "aUojf",
+                  "name": "Produtos label",
+                  "fill": "$text-secondary",
+                  "content": "Produtos",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "id": "usTKT",
+              "type": "ref",
+              "ref": "iUxIp",
+              "name": "Sorvete de morango",
+              "width": "fill_container",
+              "descendants": {
+                "di8Lx": {
+                  "fill": "$bg-card"
+                },
+                "hwfJN": {
+                  "icon": "ice-cream-bowl",
+                  "fill": "$category-portion"
+                },
+                "qFw9E": {
+                  "content": "Sorvete de morango"
+                },
+                "wibVU": {
+                  "content": "Porção ativa · Estoque baixo"
+                }
+              }
+            },
+            {
+              "id": "FQm2q",
+              "type": "ref",
+              "ref": "iUxIp",
+              "name": "Calda de morango",
+              "width": "fill_container",
+              "descendants": {
+                "di8Lx": {
+                  "fill": "$bg-card"
+                },
+                "hwfJN": {
+                  "icon": "package",
+                  "fill": "$category-ingredient"
+                },
+                "qFw9E": {
+                  "content": "Calda de morango"
+                },
+                "wibVU": {
+                  "content": "Ingrediente ativo · 2.400 g em estoque"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "VYWeG",
+          "name": "Pedidos results",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 4,
+          "children": [
+            {
+              "type": "frame",
+              "id": "WrYrz",
+              "name": "Pedidos heading",
+              "width": "fill_container",
+              "padding": [
+                6,
+                8
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "BO3Je",
+                  "name": "Pedidos label",
+                  "fill": "$text-secondary",
+                  "content": "Pedidos",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "id": "bkr0h",
+              "type": "ref",
+              "ref": "iUxIp",
+              "name": "Pedido 1024",
+              "width": "fill_container",
+              "descendants": {
+                "di8Lx": {
+                  "fill": "$bg-card"
+                },
+                "hwfJN": {
+                  "icon": "receipt-text",
+                  "fill": "$text-secondary"
+                },
+                "qFw9E": {
+                  "content": "Pedido #1024"
+                },
+                "wibVU": {
+                  "content": "22 set 2026 · Morango 500 ml · R$ 48,00"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ergSr",
+          "name": "Descontos results",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 4,
+          "children": [
+            {
+              "type": "frame",
+              "id": "rZOCW",
+              "name": "Descontos heading",
+              "width": "fill_container",
+              "padding": [
+                6,
+                8
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "avQg3",
+                  "name": "Descontos label",
+                  "fill": "$text-secondary",
+                  "content": "Descontos",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "id": "hVNPo",
+              "type": "ref",
+              "ref": "iUxIp",
+              "name": "Combo Morango",
+              "width": "fill_container",
+              "descendants": {
+                "di8Lx": {
+                  "fill": "$bg-card"
+                },
+                "hwfJN": {
+                  "icon": "tag",
+                  "fill": "$primary"
+                },
+                "qFw9E": {
+                  "content": "Combo Morango"
+                },
+                "wibVU": {
+                  "content": "Combo ativo · 10% de desconto"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "rectangle",
+          "id": "dFXTF",
+          "name": "Footer separator",
+          "fill": "$border-soft",
+          "width": "fill_container",
+          "height": 1
+        },
+        {
+          "type": "frame",
+          "id": "Zj2pq",
+          "name": "Keyboard hint",
+          "width": "fill_container",
+          "height": 28,
+          "padding": [
+            0,
+            8
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "Cv1Sf",
+              "name": "Keyboard instructions",
+              "fill": "$text-secondary",
+              "content": "↑↓ navegar   ·   Enter abrir   ·   Esc fechar",
+              "fontFamily": "$font-body",
+              "fontSize": 11,
+              "fontWeight": "500"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "j9VUB",
+      "type": "ref",
+      "ref": "sqqJg",
+      "name": "Global Search Dropdown — 320px preview",
+      "x": -1574,
+      "y": -2655,
+      "width": 320
+    },
+    {
+      "type": "frame",
+      "id": "vCsG7",
+      "x": -2134,
+      "y": -530,
+      "name": "Global Search — expanded preview",
+      "clip": true,
+      "width": 1280,
+      "height": 560,
+      "fill": "$bg-page",
+      "layout": "none",
+      "children": [
+        {
+          "id": "Vzs2Y",
+          "type": "ref",
+          "ref": "d8DadK",
+          "name": "Header with active global search",
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "descendants": {
+            "u5Oj2": {
+              "stroke": "$primary-soft",
+              "strokeWidth": 2
+            },
+            "ni8Ri": {
+              "content": "morango",
+              "fill": "$text-primary"
+            }
+          }
+        },
+        {
+          "id": "JR6af",
+          "type": "ref",
+          "ref": "sqqJg",
+          "name": "Global Search Dropdown instance",
+          "x": 24,
+          "y": 80,
+          "width": 480
+        }
+      ]
     }
   ],
   "variables": {
@@ -101163,6 +101578,46 @@
     "font-body": {
       "type": "string",
       "value": "Manrope"
+    },
+    "category-ingredient": {
+      "type": "color",
+      "value": "#1447E6"
+    },
+    "category-manufacturable": {
+      "type": "color",
+      "value": "#7008E7"
+    },
+    "category-portion": {
+      "type": "color",
+      "value": "#008236"
+    },
+    "category-accompaniment": {
+      "type": "color",
+      "value": "#BB4D00"
+    },
+    "category-resale": {
+      "type": "color",
+      "value": "#C10007"
+    },
+    "category-ingredient-bg": {
+      "type": "color",
+      "value": "#EFF6FF"
+    },
+    "category-manufacturable-bg": {
+      "type": "color",
+      "value": "#F5F3FF"
+    },
+    "category-portion-bg": {
+      "type": "color",
+      "value": "#F0FDF4"
+    },
+    "category-accompaniment-bg": {
+      "type": "color",
+      "value": "#FFFBEB"
+    },
+    "category-resale-bg": {
+      "type": "color",
+      "value": "#FEF2F2"
     }
   },
   "fileToken": "957aee75-3cf4-4a19-81b0-8bb4bc85ef3e"
