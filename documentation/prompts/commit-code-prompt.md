@@ -63,6 +63,12 @@ Identify:
   group changes; verify they are intentionally scoped, route-complete and free of credentials
 - files that may contain secrets or machine-specific data
 
+For a Spec delivery, treat the delivery-owned `spec.md`, `plan.md` and `evaluation.md` as
+scoped review artifacts. Include their status, evidence and closure changes when the active
+workflow directs their publication; do not omit them merely because they are documentation-only.
+Keep unrelated user-owned design, PRD or other documentation changes out unless the user
+explicitly assigns them to this delivery.
+
 Do not assume every dirty file belongs to the same task. If ownership remains
 ambiguous after inspecting the diff and task context, exclude the file and report
 the ambiguity instead of committing it speculatively.

@@ -570,16 +570,18 @@ historical and policy-governed data lifecycles remain outside this product surfa
 
 ### PRQ-13 — Navigation, States, and Quality of Experience
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
 **Outcome:** Managers and Operators can understand and recover from Identity states
-through coherent, authorized, responsive, and accessible navigation and feedback.
+through coherent, authorized, responsive, and accessible navigation, global search,
+and feedback.
 
 **Actors:** Manager, Operator, Prospective Manager, Invited User
 
 **Consumes:** Onboarding states from PRQ-01; session states from PRQ-02; recovery states
 from PRQ-03; authorization facts from PRQ-04; invitation states from PRQ-05; profile
-change facts from PRQ-07; active and inactive states from PRQ-08.
+change facts from PRQ-07; active and inactive states from PRQ-08; searchable product
+facts from MRP; order, sales-channel, and discount facts from PDV.
 
 #### Capabilities
 
@@ -589,6 +591,14 @@ change facts from PRQ-07; active and inactive states from PRQ-08.
   link, inactive account, access denied, communication failure, and expired session.
 - Hidden navigation must not replace authorization of protected actions.
 - Relevant actions must remain associated with the user who performed them.
+- The Header's global search must return matching authorized page destinations and
+  establishment-scoped records grouped by type. Managers may find products by name,
+  orders by sequence number or snapshotted product name, users by name or email,
+  and sales channels and discounts by name. Operators may find only `New Sale`
+  and `Orders` destinations and authorized orders; administrative records and
+  destinations must not appear in their results.
+- Opening a result must apply the destination's authorization and establishment
+  isolation. A direct address must not expose a result that search would hide.
 
 #### Experience
 
@@ -596,6 +606,10 @@ change facts from PRQ-07; active and inactive states from PRQ-08.
   and Lucide icons.
 - Every action awaiting a response must expose loading, success, and error states.
 - Every empty list must explain the situation and offer the next valid action.
+- Global search must show distinct loading, no-results, and error states. Results
+  must identify their record type and enough context to distinguish matches,
+  including status where relevant. The dropdown must support keyboard navigation,
+  visible focus, and an accessible result name.
 - Blocked-action messages must explain why and, when possible, how to recover.
 - All flows must work from 320 px without mandatory horizontal scrolling.
 - Meet WCAG 2.2 Level AA with sufficient contrast, visible focus, keyboard navigation,

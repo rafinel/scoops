@@ -60,6 +60,11 @@ that must not enter the PR. Keep unrelated changes in place and out of commits. 
 relationship between a file and the delivery is ambiguous, stop and report it instead of
 including the file speculatively.
 
+For a Spec delivery, the Spec, Plan when present, and Evaluation are review artifacts and belong
+in the PR. Include delivery-owned status, execution and evidence changes, including the final
+closure update created by `conclude-spec`. Do not exclude them as operational or closure-only
+documentation. Preserve and exclude unrelated user-owned changes.
+
 ## Branch and PR preparation
 
 1. Inspect status and staged/unstaged changes. Preserve unrelated or user-owned work.
@@ -168,8 +173,8 @@ Include these sections in this order:
   another non-closing relationship when an issue is listed.
 - **PRD and Spec traceability** — applicable PRD, fully/partially delivered `PRQ-*`
   requirements and their current Implemented-checkbox disposition, Spec, Plan, exact revision
-  and covered `FR-*`/`AC-*` criteria. Report the state established by `conclude-spec`; this
-  workflow does not change PRD checkboxes;
+  and covered `FR-*`/`AC-*` criteria. Link to the Spec, Plan and Evaluation and report the
+  completed state established by `conclude-spec`; this workflow does not change PRD checkboxes;
 - **Implementation** — coherent frontend, backend, domain, persistence and test slices with
   the most relevant changed paths. Describe each affected layer concretely: name the
   contracts/use cases, schemas, migrations/models, routes/controllers, UI routes/widgets,
