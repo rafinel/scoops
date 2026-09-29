@@ -1,44 +1,24 @@
 name: Web CI
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.dockerignore'
-      - '.github/workflows/web-app-staging-cd.yml'
-      - '.github/workflows/web-app-ci.yml'
-      - '.code-multivitals-baseline.json'
-      - '.code-multivitals.json'
-      - 'apps/web/**'
-      - 'biome.json'
-      - 'package.json'
-      - 'packages/core/**'
-      - 'packages/validation/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'scripts/check-complexity.mjs'
-      - 'scripts/sync-heroku-env.mjs'
-      - 'scripts/write-coverage-report.mjs'
-      - '.dependency-cruiser.mjs'
   pull_request:
     paths:
-      - '.dockerignore'
-      - '.github/workflows/web-app-staging-cd.yml'
-      - '.github/workflows/web-app-ci.yml'
-      - '.code-multivitals-baseline.json'
-      - '.code-multivitals.json'
-      - 'apps/web/**'
-      - 'biome.json'
-      - 'package.json'
-      - 'packages/core/**'
-      - 'packages/validation/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'scripts/check-complexity.mjs'
-      - 'scripts/sync-heroku-env.mjs'
-      - 'scripts/write-coverage-report.mjs'
-      - '.dependency-cruiser.mjs'
+      - ".dockerignore"
+      - ".github/workflows/web-app-staging-cd.yml"
+      - ".github/workflows/web-app-ci.yml"
+      - ".code-multivitals-baseline.json"
+      - ".code-multivitals.json"
+      - "apps/web/**"
+      - "biome.json"
+      - "package.json"
+      - "packages/core/**"
+      - "packages/validation/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "scripts/check-complexity.mjs"
+      - "scripts/sync-heroku-env.mjs"
+      - "scripts/write-coverage-report.mjs"
+      - ".dependency-cruiser.mjs"
 
 permissions:
   contents: read
