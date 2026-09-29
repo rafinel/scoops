@@ -1,4 +1,6 @@
 import { ProductDetailsPage } from '@/ui/mrp/widgets/pages/product-details-page'
+import { UserProfile } from '@scoops/core/identity/domain/structures'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 import { ProductStockControls } from './product-stock-controls'
 import { ProductStockDialogs } from './product-stock-dialogs'
@@ -9,6 +11,8 @@ import { useProductStockSlot } from './use-product-stock-slot'
 export type ProductStockSlotProps = { productId: string }
 
 export const ProductStockSlot = ({ productId }: ProductStockSlotProps) => {
+  const { account } = useAuthContext()
+  const canManage = account?.profile === UserProfile.Manager
   const {
     productStock,
     selectedAction,
@@ -46,6 +50,7 @@ export const ProductStockSlot = ({ productId }: ProductStockSlotProps) => {
             unit={productStock.product.unit}
           />
           <ProductStockControls
+            canManage={canManage}
             isBrandActionPending={isBrandActionPending}
             onAddBrand={handleAddBrand}
             onDeleteBrand={handleDeleteBrand}
@@ -56,6 +61,7 @@ export const ProductStockSlot = ({ productId }: ProductStockSlotProps) => {
             productStock={productStock}
           />
           <ProductStockDialogs
+            canManage={canManage}
             onActionOpenChange={handleActionOpenChange}
             onActionSuccess={handleActionSuccess}
             productId={productId}

@@ -110,6 +110,27 @@ test.describe('ProductPricesPage', () => {
     expect(failedRequests).toEqual([])
   })
 
+  test('lets Operators read configured sizes without pricing management controls', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await identityFixture.mockOperatorSession()
+    await identityFixture.mockOperatorAccount()
+    await mrpFixture.mockProductPricing({
+      respond: () => ({ body: portionPricingResponse([PORTION_SIZE]) }),
+    })
+
+    await page.goto(`/products/${PRODUCT_ID}/prices`)
+    await expect(page).toHaveURL(`/products/${PRODUCT_ID}/prices`)
+    await expect(page.getByRole('heading', { name: PORTION_PRODUCT.name })).toBeVisible()
+    await expect(page.getByRole('row', { name: /300 ml.*300 ml/ })).toBeVisible()
+    await expect(page.getByRole('cell', { name: 'R$ 18,50' })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Adicionar tamanho/ })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Editar 300 ml' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Remover 300 ml' })).toHaveCount(0)
+  })
+
   test('focuses the validated size destination after the pricing card loads', async ({
     page,
     identityFixture,
@@ -510,14 +531,21 @@ test.describe('ProductPricesPage', () => {
   }) => {
     await identityFixture.mockManagerSession()
     await identityFixture.mockManagerAccount()
+    let isActive = true
+    let price = 12
     const { requests } = await mrpFixture.mockProductPricing({
       respond: ({ method, body }) => ({
         body: resalePricingResponse({
           isActive:
-            method === 'PUT' ? Boolean((body as { isActive: boolean }).isActive) : true,
-          price: method === 'PUT' ? Number((body as { price: number }).price) : 12,
+            method === 'PUT'
+              ? (isActive = Boolean((body as { isActive: boolean }).isActive))
+              : isActive,
+          price:
+            method === 'PUT'
+              ? (price = Number((body as { price: number }).price))
+              : price,
         }),
-        status: method === 'PUT' ? 200 : 200,
+        status: 200,
       }),
     })
 

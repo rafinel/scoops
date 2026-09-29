@@ -101,4 +101,34 @@ describe('ProductRecipeCard', () => {
     ).toBe(true)
     expect(onProduce).not.toHaveBeenCalled()
   })
+
+  it('shows recipe facts without write controls for Operators', () => {
+    mockedUseProductRecipeCard.mockReturnValue({
+      error: null,
+      isPending: false,
+      isValidYield: true,
+      yieldQuantity: '10',
+      handleSaveYield: vi.fn(),
+      setYieldQuantity: vi.fn(),
+    })
+    render(
+      <ProductRecipeCard
+        canManage={false}
+        details={details}
+        onAdd={vi.fn()}
+        onEdit={vi.fn()}
+        onProduce={vi.fn()}
+        onRemove={vi.fn()}
+      />,
+    )
+    expect(screen.getByRole('heading', { name: 'Receita' })).toBeTruthy()
+    expect(screen.getByText('Leite')).toBeTruthy()
+    expect(screen.getByText('Rendimento estimado: 10 un')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: /Produzir/ })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Salvar' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Adicionar ingrediente' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Editar Leite' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Remover Leite' })).toBeNull()
+    expect(screen.queryByRole('columnheader', { name: 'AÇÕES' })).toBeNull()
+  })
 })

@@ -25,6 +25,12 @@ describe('List Products Controller [GET /products]', () => {
     const accompaniment = await fixture.addProduct(createProduct({ name: 'Syrup' }))
     const used = await fixture.addProduct(createProduct({ name: 'Sundae' }))
     const unused = await fixture.addProduct(createProduct({ name: 'Other Sundae' }))
+    const foreignUsed = await fixture.addProduct(
+      createProduct({
+        establishmentId: '42000000-0000-0000-0000-000000000001',
+        name: 'Foreign Sundae',
+      }),
+    )
     const type = await fixture.addAccompanimentType({
       establishmentId: used.establishmentId,
       name: 'Topping',
@@ -49,6 +55,12 @@ describe('List Products Controller [GET /products]', () => {
     const foreign = await request(fixture.app.getHttpServer())
       .get(`/products?usedAsAccompanimentId=${accompaniment.id}&page=1&pageSize=20`)
       .set('Cookie', foreignManagerRequestAuthorization())
+    const operatorSearch = await request(fixture.app.getHttpServer())
+      .get('/products?search=Sundae&page=1&pageSize=20')
+      .set('Cookie', operatorRequestAuthorization())
+    const foreignTenantSearch = await request(fixture.app.getHttpServer())
+      .get('/products?search=Sundae&page=1&pageSize=20')
+      .set('Cookie', foreignManagerRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(
@@ -64,5 +76,22 @@ describe('List Products Controller [GET /products]', () => {
     ).toEqual([used.id])
     expect(foreign.status).toBe(200)
     expect(foreign.body.items).toEqual([])
+    expect(operatorSearch.status).toBe(200)
+    expect(
+      operatorSearch.body.items.map(
+        (item: { product: { id: string } }) => item.product.id,
+      ),
+    ).toEqual(expect.arrayContaining([used.id, unused.id]))
+    expect(
+      operatorSearch.body.items.map(
+        (item: { product: { id: string } }) => item.product.id,
+      ),
+    ).not.toContain(foreignUsed.id)
+    expect(foreignTenantSearch.status).toBe(200)
+    expect(
+      foreignTenantSearch.body.items.map(
+        (item: { product: { id: string } }) => item.product.id,
+      ),
+    ).toEqual([foreignUsed.id])
   })
 })

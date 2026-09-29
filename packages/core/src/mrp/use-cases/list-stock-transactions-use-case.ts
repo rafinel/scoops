@@ -32,7 +32,9 @@ export class ListStockTransactionsUseCase
       request.actor.establishmentId,
       request.productId,
     )
-    if (!product) throw new NotFoundError('Produto não encontrado.')
+    if (!product || product.establishmentId !== request.actor.establishmentId) {
+      throw new NotFoundError('Produto não encontrado.')
+    }
     return this.stockTransactionsRepository.findPage(
       request.actor.establishmentId,
       product.id,
@@ -41,10 +43,8 @@ export class ListStockTransactionsUseCase
   }
 
   private validateActor(actor: ProductActor): void {
-    if (actor.profile !== UserProfile.Manager)
-      throw new AuthorizationError(
-        'Somente gestores podem consultar o histórico de estoque.',
-      )
+    if (actor.profile !== UserProfile.Manager && actor.profile !== UserProfile.Operator)
+      throw new AuthorizationError('É necessário ter acesso ao histórico de estoque.')
   }
 
   private validateParams(params: StockTransactionListParams): void {

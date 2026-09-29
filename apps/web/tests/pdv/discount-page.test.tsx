@@ -69,3 +69,49 @@ test('renders the Combo detail page and delete recovery boundary', async ({
   await page.getByRole('button', { name: 'Excluir' }).click()
   await expect(page.getByRole('alertdialog', { name: 'Excluir combo?' })).toBeVisible()
 })
+
+test('lets Operators read Combo details without management controls', async ({
+  page,
+  identityFixture,
+}) => {
+  await identityFixture.mockOperatorSession()
+  await identityFixture.mockOperatorAccount()
+  await page.route('**/discounts/combo-1', async (route) => {
+    if (route.request().resourceType() === 'document') return route.continue()
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        combo,
+        components: [
+          {
+            component: combo.components[0],
+            productName: 'Açaí',
+            configurationName: '500 ml',
+            accompanimentNames: [],
+            unitPrice: 14,
+            subtotal: 14,
+            validity: 'valid',
+          },
+          {
+            component: combo.components[1],
+            productName: 'Brownie',
+            configurationName: 'Preço padrão',
+            accompanimentNames: [],
+            unitPrice: 10,
+            subtotal: 10,
+            validity: 'valid',
+          },
+        ],
+        normalPrice: 24,
+        savings: 4,
+      }),
+    })
+  })
+  await page.goto('/discounts/combo-1')
+  await expect(page).toHaveURL('/discounts/combo-1')
+  await expect(page.getByText('Combo Açaí + Brownie')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Açaí', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Brownie', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Excluir' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Salvar' })).toHaveCount(0)
+})

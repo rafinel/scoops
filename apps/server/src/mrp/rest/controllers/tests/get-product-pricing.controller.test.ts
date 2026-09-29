@@ -120,6 +120,13 @@ describe('Get Product Pricing Controller [GET /products/:productId/pricing]', ()
     const product = await fixture.addProduct(
       createProduct({ name: 'Protected Pricing', categories: [ProductCategory.Portion] }),
     )
+    const foreignProduct = await fixture.addProduct(
+      createProduct({
+        establishmentId: '44000000-0000-0000-0000-000000000001',
+        name: 'Foreign Pricing',
+        categories: [ProductCategory.Portion],
+      }),
+    )
     const anonymous = await request(fixture.app.getHttpServer()).get(
       `/products/${product.id}/pricing`,
     )
@@ -129,13 +136,18 @@ describe('Get Product Pricing Controller [GET /products/:productId/pricing]', ()
     const foreign = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/pricing`)
       .set('Cookie', foreignManagerRequestAuthorization())
+    const operatorForeign = await request(fixture.app.getHttpServer())
+      .get(`/products/${foreignProduct.id}/pricing`)
+      .set('Cookie', operatorRequestAuthorization())
     const malformed = await request(fixture.app.getHttpServer())
       .get('/products/not-a-uuid/pricing')
       .set('Cookie', managerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
-    expect(operator.status).toBe(403)
+    expect(operator.status).toBe(200)
+    expect(operator.body.product.id).toBe(product.id)
     expect(foreign.status).toBe(404)
+    expect(operatorForeign.status).toBe(404)
     expect(malformed.status).toBe(400)
   })
 })

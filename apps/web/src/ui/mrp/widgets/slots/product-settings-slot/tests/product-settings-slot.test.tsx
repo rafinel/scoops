@@ -1,9 +1,11 @@
-import { render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ProductFaker } from '@scoops/core/mrp/domain/entities/fakers'
+import { UserProfile } from '@scoops/core/identity/domain/structures'
 
 import { RestContextProvider } from '@/ui/shared/contexts/rest-context'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 import { ProductSettingsSlot } from '../index'
 import { useProductSettingsSlot } from '../use-product-settings-slot'
@@ -12,7 +14,7 @@ vi.mock('@/ui/mrp/widgets/pages/product-details-page', () => ({
   ProductDetailsPage: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 vi.mock('@/ui/shared/hooks/use-auth-context', () => ({
-  useAuthContext: () => ({ getSession: vi.fn().mockResolvedValue(null) }),
+  useAuthContext: vi.fn(),
 }))
 vi.mock('../basic-information-card', () => ({
   BasicInformationCard: () => <section aria-label='Informações básicas' />,
@@ -46,10 +48,15 @@ vi.mock('../remove-product-dialog/use-remove-product-dialog', () => ({
 vi.mock('../use-product-settings-slot', () => ({ useProductSettingsSlot: vi.fn() }))
 
 const useProductSettingsSlotMock = vi.mocked(useProductSettingsSlot)
+const useAuthContextMock = vi.mocked(useAuthContext)
 const product = ProductFaker.fake({ name: 'Açaí settings', categories: ['ingredient'] })
 
 describe('ProductSettingsSlot', () => {
+  afterEach(cleanup)
   beforeEach(() => {
+    useAuthContextMock.mockReturnValue({
+      account: { profile: UserProfile.Manager },
+    } as never)
     useProductSettingsSlotMock.mockReturnValue({
       settings: { product },
       settingsError: null,
@@ -80,6 +87,18 @@ describe('ProductSettingsSlot', () => {
     expect(screen.getByRole('region', { name: 'Categorias do produto' })).toBeTruthy()
     expect(screen.getByRole('region', { name: 'Anotações internas' })).toBeTruthy()
     expect(screen.getByRole('region', { name: 'Zona de Perigo' })).toBeTruthy()
+  })
+
+  it('shows read-only product settings to Operators without management cards', () => {
+    useAuthContextMock.mockReturnValue({
+      account: { profile: UserProfile.Operator },
+    } as never)
+    render(<ProductSettingsSlot productId={product.id} retrySearch={{}} />)
+    expect(screen.getByRole('heading', { name: 'Configurações do produto' })).toBeTruthy()
+    expect(screen.getByText('Açaí settings')).toBeTruthy()
+    expect(screen.queryByRole('region', { name: 'Informações básicas' })).toBeNull()
+    expect(screen.queryByRole('region', { name: 'Zona de Perigo' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Remover produto' })).toBeNull()
   })
 
   it('renders a stable loading state and a retryable read error', () => {

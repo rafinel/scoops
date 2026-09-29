@@ -7,6 +7,7 @@ import {
   createProduct,
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
+  operatorRequestAuthorization,
   prepareMrpFixture,
   resetMrpFixture,
 } from './mrp-controller-test-helpers'
@@ -140,15 +141,26 @@ describe('List Stock Transactions Controller [GET /products/:productId/stock-tra
 
   it('returns uniform not-found for foreign and missing products', async () => {
     const product = await fixture.addProduct(createProduct())
+    const foreignProduct = await fixture.addProduct(
+      createProduct({ establishmentId: '44000000-0000-0000-0000-000000000001' }),
+    )
+    const operator = await request(fixture.app.getHttpServer())
+      .get(`/products/${product.id}/stock-transactions?page=1&limit=20`)
+      .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/stock-transactions?page=1&limit=20`)
       .set('Cookie', foreignManagerRequestAuthorization())
+    const operatorForeign = await request(fixture.app.getHttpServer())
+      .get(`/products/${foreignProduct.id}/stock-transactions?page=1&limit=20`)
+      .set('Cookie', operatorRequestAuthorization())
     const missing = await request(fixture.app.getHttpServer())
       .get(
         '/products/00000000-0000-4000-8000-000000000099/stock-transactions?page=1&limit=20',
       )
       .set('Cookie', managerRequestAuthorization())
+    expect(operator.status).toBe(200)
     expect(foreign.status).toBe(404)
+    expect(operatorForeign.status).toBe(404)
     expect(missing.status).toBe(404)
     expect(foreign.body.title).toBe(missing.body.title)
   })

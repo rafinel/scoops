@@ -6,6 +6,7 @@ import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
+  operatorRequestAuthorization,
   createProduct,
   managerRequestAuthorization,
   prepareMrpFixture,
@@ -36,5 +37,12 @@ describe('Save Recipe Yield Controller [PUT /products/:productId/recipe]', () =>
     expect(malformed.status).toBe(422)
     expect(saved.status).toBe(200)
     expect(saved.body.recipe).toMatchObject({ yieldQuantity: 2.5, ingredients: [] })
+  })
+  it('denies Operator access to this Manager-only route before controller execution', async () => {
+    const response = await request(fixture.app.getHttpServer())
+      .put('/products/00000000-0000-4000-8000-000000000001/recipe')
+      .set('Cookie', operatorRequestAuthorization())
+
+    expect(response.status).toBe(403)
   })
 })

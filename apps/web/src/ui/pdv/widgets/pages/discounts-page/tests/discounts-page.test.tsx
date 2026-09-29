@@ -32,6 +32,7 @@ const useDiscountsPageMock = vi.mocked(useDiscountsPage)
 function createView() {
   return {
     discountsError: null,
+    canManageDiscounts: true,
     discountsPage: undefined,
     hasFilters: false,
     isDiscountsError: false,
@@ -69,6 +70,7 @@ describe('DiscountsPage', () => {
     })
     render(<DiscountsPage />)
     expect(screen.getByRole('heading', { name: 'Descontos' })).toBeTruthy()
+    expect(screen.getByText('Crie e acompanhe ofertas aplicadas no PDV.')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Criar primeiro desconto' }))
     expect(useDiscountsPageMock.mock.results[0].value.handleCreate).toHaveBeenCalledOnce()
   })
@@ -101,5 +103,23 @@ describe('DiscountsPage', () => {
     rerender(<DiscountsPage />)
     expect(screen.getByText('Combo Açaí + Brownie')).toBeTruthy()
     expect(screen.getByText('Ativo')).toBeTruthy()
+  })
+
+  it('shows Operators discount details without create controls or the type dialog', () => {
+    useDiscountsPageMock.mockReturnValue({
+      ...createView(),
+      canManageDiscounts: false,
+      discountsPage: { items: [], page: 1, pageSize: 10, total: 0, totalPages: 0 },
+    })
+    render(<DiscountsPage />)
+    expect(
+      screen.getByText('Consulte as ofertas de desconto aplicadas no PDV.'),
+    ).toBeTruthy()
+    expect(
+      screen.getByRole('heading', { name: 'Nenhum desconto cadastrado' }),
+    ).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Criar desconto' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Criar primeiro desconto' })).toBeNull()
+    expect(screen.queryByTestId('discount-type-dialog')).toBeNull()
   })
 })

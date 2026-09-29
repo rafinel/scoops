@@ -60,14 +60,21 @@ branches into decisions that depend on it. Work the tree in rounds:
   ➡️ <recommended answer>
   ```
 
-- Wait for the user's answers before recomputing the next frontier.
+- Keep each question round pending until the user answers it. Do not create or revise
+  `plan.md`, move to dependent planning decisions, or end the task with a final response while
+  answers are pending. Silence or elapsed time is not an answer. If the user requests a format
+  correction without answering, restate the same pending frontier in the required format.
+- After receiving the answers, recompute the design tree and ask the entire newly available
+  frontier in the next round. Continue until no planning decision remains unsettled.
 - Research repository facts directly; do not ask the user for facts that can be inspected. Keep
   planning decisions with the user.
 - Limit the tree to execution concerns such as phase boundaries, ownership, parallelism,
   dependencies, recovery, validation coverage and handoff. Product or technical Contract
   ambiguity belongs in `create-spec`.
 - Challenge contradictions and risks. When the frontier is empty, present the shared
-  understanding and request explicit confirmation before creating or revising `plan.md`.
+  understanding and request explicit confirmation before creating or revising `plan.md`. Keep
+  the task pending until that confirmation arrives; a request to use or correct the grilling
+  format does not count as confirmation.
 
 Use the Spec's real source and GitHub Issue traceability. Do not invent or migrate external
 records.
@@ -210,6 +217,7 @@ Use one coverage table to schedule evidence without repeating the Spec's scenari
 | Automated | `pnpm check:spec-implementation -- <spec-path>` | Complete affected-path map | Spec Technical Contract | `./evaluation.md` | `pending` |
 | Manual | MV-01 | AC-01 | Spec MV-01 | `./evaluation.md` | `pending` |
 | Visual (optional) | `<state>` | AC-02 | `./design/<reference>.png` | `Playwright test-results path or CI artifact identifier` | `pending` |
+| Review (conditional) | Visual Reviewer | Design-backed `AC-*` | `./design/manifest.md` | Advisory report; verified findings in `./evaluation.md` | `pending` |
 | Runtime | `<integration>` | AC-03 | Integration Contract | `./evaluation.md` | `pending` |
 
 Add a `REST client` row for every affected route-group example file. Its evidence target must
@@ -224,6 +232,13 @@ multiple states/viewports. Recommended supplemental screenshots may be deferred 
 manifest records the decision and no acceptance gap remains. Builders and the Orchestrator use
 saved references and do not depend on Pencil MCP.
 
+When the current Spec explicitly requires a Visual Reviewer, schedule exactly one read-only
+[`Visual Reviewer`](../agents/visual-reviewer-agent.md) after fresh captures exist for every
+assigned manifest row. It audits the integrated UI as one surface; its report is advisory, and the
+Orchestrator verifies findings and records official visual evidence. Resume that same Reviewer
+after visual corrections with refreshed captures. Do not add manual `MV-*` scenarios solely to
+support this review or substitute it for the Implementation Reviewer.
+
 Schedule the root `pnpm check:spec-implementation -- <spec-path>` sensor after all Builder diffs
 and Orchestrator-owned artifacts are integrated. It must pass and be recorded in `evaluation.md`
 before integrated sensors or the Implementation Reviewer starts. After any correction affecting
@@ -233,8 +248,8 @@ Reviewer resumes.
 
 Schedule exactly one read-only [`Implementation Reviewer`](../agents/implementation-reviewer-agent.md)
 after the integrated path sensor passes and before readiness. Do not create Reviewers per Builder,
-phase, application or package. The Reviewer checks
-the complete candidate, cross-Builder contracts and all affected surfaces; when UI is affected,
+phase, application or package. The Reviewer checks the complete candidate, cross-Builder
+contracts and all affected surfaces; when UI is affected,
 it also inspects every required final visual comparison and independently replays high-risk
 Playwright CLI interactions. Its report is not evidence: the Orchestrator verifies each finding,
 records accepted findings in Evaluation and resumes the responsible Builder for correction. After
@@ -247,10 +262,10 @@ services/accounts/fixtures ready, every `MV-*` executable, transient validation-
 identifiers recorded, the final Spec tree/conformance comparison passed, all additional-screenshot
 decisions resolved, the latest `check:spec-implementation` run passed after the last
 contracted-path correction, every affected REST-client artifact is present and route-complete,
-the Implementation Reviewer completed, every verified review finding is resolved and
-no blocking finding active, and every affected workspace coverage command passed without lowering
-its configured floor. Then
-route directly to `conclude-spec`.
+the Implementation Reviewer completed, any Spec-required Visual Reviewer completed against
+current captures, every verified review finding is resolved, no blocking finding is active, and
+every affected workspace coverage command passed without lowering its configured floor. Then route
+directly to `conclude-spec`.
 
 ### 4. Execution log — conditional
 
@@ -280,6 +295,7 @@ After creating or materially revising `plan.md`, return a concise summary with:
 - active Builders, reused phase assignments, parallel waves, critical dependencies and
   shared ownership;
 - the scheduled Implementation Reviewer and its affected surfaces;
+- any Spec-required Visual Reviewer and its reference coverage;
 - planned manual/runtime/visual coverage;
 - active risks or blockers;
 - initial phase and next action.

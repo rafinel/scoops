@@ -1,15 +1,17 @@
 import { ProductDetailsPage } from '@/ui/mrp/widgets/pages/product-details-page'
+import { UserProfile } from '@scoops/core/identity/domain/structures'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
 import { ProductRecipeCard } from './product-recipe-card'
-import { ProduceProductDialog } from './produce-product-dialog'
+import { RecipeActionDialogs } from './action-dialogs'
 import { RecipeError } from './recipe-error'
-import { RecipeIngredientDialog } from './recipe-ingredient-dialog'
 import { RecipeLoading } from './recipe-loading'
-import { RemoveRecipeIngredientDialog } from './remove-recipe-ingredient-dialog'
 import { useProductRecipeSlot } from './use-product-recipe-slot'
 
 export type ProductRecipeSlotProps = { productId: string }
 export const ProductRecipeSlot = ({ productId }: ProductRecipeSlotProps) => {
+  const { account } = useAuthContext()
+  const canManage = account?.profile === UserProfile.Manager
   const {
     details,
     handleActionOpenChange,
@@ -35,46 +37,20 @@ export const ProductRecipeSlot = ({ productId }: ProductRecipeSlotProps) => {
       {details && !isLoading && !isError && !isUnsupported ? (
         <>
           <ProductRecipeCard
+            canManage={canManage}
             details={details}
             onAdd={handleAddAction}
             onEdit={handleEditAction}
             onProduce={handleProduceAction}
             onRemove={handleRemoveAction}
           />
-          {selectedAction?.kind === 'add' || selectedAction?.kind === 'edit' ? (
-            <RecipeIngredientDialog
-              existingProductIds={
-                details.recipe?.ingredients.map(
-                  (ingredient) => ingredient.ingredientProductId,
-                ) ?? []
-              }
-              ingredient={
-                selectedAction.kind === 'edit' ? selectedAction.ingredient : undefined
-              }
+          {canManage ? (
+            <RecipeActionDialogs
+              details={details}
               onOpenChange={handleActionOpenChange}
               onSuccess={handleActionSuccess}
-              open
               productId={productId}
-              recipeTotalCost={details.recipe?.totalCost ?? 0}
-              unit={details.product.unit}
-            />
-          ) : null}
-          {selectedAction?.kind === 'remove' ? (
-            <RemoveRecipeIngredientDialog
-              ingredient={selectedAction.ingredient}
-              onOpenChange={handleActionOpenChange}
-              onSuccess={handleActionSuccess}
-              open
-              productId={productId}
-            />
-          ) : null}
-          {selectedAction?.kind === 'produce' && details.recipe ? (
-            <ProduceProductDialog
-              onOpenChange={handleActionOpenChange}
-              onSuccess={handleActionSuccess}
-              open
-              product={details.product}
-              recipe={details.recipe}
+              selectedAction={selectedAction}
             />
           ) : null}
         </>

@@ -197,7 +197,7 @@ export class GetProductRecipeUseCase implements UseCase<Request, ProductRecipeDe
   }
 
   private validateActor(actor: ProductActor): void {
-    if (actor.profile !== UserProfile.Manager) {
+    if (actor.profile !== UserProfile.Manager && actor.profile !== UserProfile.Operator) {
       throw new AuthorizationError('Somente gestores podem consultar receitas.')
     }
   }

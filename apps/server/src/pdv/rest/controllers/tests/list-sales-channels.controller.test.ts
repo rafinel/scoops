@@ -48,7 +48,8 @@ describe('List Sales Channels Controller [GET /sales-channels]', () => {
           channel.establishmentId === '43000000-0000-0000-0000-000000000001',
       ),
     ).toBe(true)
-    expect(operator.status).toBe(403)
+    expect(operator.status).toBe(200)
+    expect(operator.body).toEqual(manager.body)
     expect(anonymous.status).toBe(401)
   })
 })

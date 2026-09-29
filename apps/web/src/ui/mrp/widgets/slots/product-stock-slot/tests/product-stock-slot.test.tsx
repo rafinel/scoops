@@ -2,11 +2,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ProductFaker } from '@scoops/core/mrp/domain/entities/fakers'
+import { BrandFaker, ProductFaker } from '@scoops/core/mrp/domain/entities/fakers'
+import { UserProfile } from '@scoops/core/identity/domain/structures'
+import type { ProductStockDetails } from '@scoops/core/mrp/domain/structures'
 import type { MrpService } from '@scoops/core/mrp/interfaces'
 import { RestResponse } from '@scoops/core/shared/responses/rest-response'
 
 import { RestContext } from '@/ui/shared/contexts/rest-context'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 import type { AnchorProps } from '@/ui/shared/widgets/components/anchor'
 import { ProductStockSlot } from '..'
 
@@ -15,6 +18,7 @@ import { useProductStockSlot } from '../use-product-stock-slot'
 vi.mock('../use-product-stock-slot', () => ({
   useProductStockSlot: vi.fn(),
 }))
+vi.mock('@/ui/shared/hooks/use-auth-context', () => ({ useAuthContext: vi.fn() }))
 
 vi.mock('@/ui/shared/widgets/components/anchor', () => ({
   Anchor: ({ children, params: _params, route: _route, ...props }: AnchorProps) => (
@@ -25,6 +29,7 @@ vi.mock('@/ui/shared/widgets/components/anchor', () => ({
 }))
 
 const useProductStockSlotMock = vi.mocked(useProductStockSlot)
+const useAuthContextMock = vi.mocked(useAuthContext)
 const handleBackMock = vi.fn()
 const handleRetryMock = vi.fn()
 
@@ -65,7 +70,7 @@ describe('ProductStockSlot', () => {
     }
   }
 
-  function fakeProductStock() {
+  function fakeProductStock(): ProductStockDetails {
     return {
       product: ProductFaker.fake({
         id: 'product-1',
@@ -134,6 +139,9 @@ describe('ProductStockSlot', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    useAuthContextMock.mockReturnValue({
+      account: { profile: UserProfile.Manager },
+    } as never)
     useProductStockSlotMock.mockReturnValue(fakeProductStockSlot())
   })
 
@@ -165,6 +173,43 @@ describe('ProductStockSlot', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Voltar para produtos' }))
 
     expect(handleBackMock).toHaveBeenCalledOnce()
+  })
+
+  it('keeps stock facts readable and hides stock controls for Operators', () => {
+    useAuthContextMock.mockReturnValue({
+      account: { profile: UserProfile.Operator },
+    } as never)
+    const stock: ProductStockDetails = {
+      ...fakeProductStock(),
+      product: ProductFaker.fake({
+        id: 'product-1',
+        establishmentId: 'establishment-1',
+        name: 'Polpa de morango',
+        unit: 'kg',
+        categories: ['ingredient'],
+        stockControl: 'by-brand',
+        status: 'active',
+        allowNegativeStock: false,
+        idealStock: 10,
+      }),
+      brands: [
+        {
+          brand: BrandFaker.fake({ id: 'brand-1', name: 'Marca de teste' }),
+          stockQuantity: 4,
+          unitPrice: 3,
+        },
+      ],
+    }
+    useProductStockSlotMock.mockReturnValue(fakeProductStockSlot({ productStock: stock }))
+    renderPage()
+    expect(screen.getByText('Estoque total')).not.toBeNull()
+    expect(screen.getAllByText('Marca de teste').length).toBeGreaterThan(0)
+    expect(
+      screen.queryByRole('button', { name: 'Abrir ações da marca Marca de teste' }),
+    ).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Adicionar marca' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Entrada' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Baixa' })).toBeNull()
   })
 
   it('shows request recovery and delegates retry', () => {

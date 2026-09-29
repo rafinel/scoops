@@ -1,5 +1,7 @@
 import { ProductDetailsPage } from '@/ui/mrp/widgets/pages/product-details-page'
+import { UserProfile } from '@scoops/core/identity/domain/structures'
 import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 import { BasicInformationCard } from './basic-information-card'
 import { ProductCategoriesCard } from './product-categories-card'
@@ -7,6 +9,7 @@ import { ProductDangerZone } from './product-danger-zone'
 import { InternalNotesCard } from './internal-notes-card'
 import { ProductSettingsError } from './product-settings-error'
 import { ProductSettingsLoading } from './product-settings-loading'
+import { ReadOnlySettingsCard } from './read-only-settings-card'
 import { RemoveProductDialog } from './remove-product-dialog'
 import { StockControlCard } from './stock-control-card'
 import {
@@ -21,6 +24,8 @@ export const ProductSettingsSlot = ({
   productId,
   retrySearch,
 }: ProductSettingsSlotProps) => {
+  const { account } = useAuthContext()
+  const canManage = account?.profile === UserProfile.Manager
   const {
     settings,
     hasSettingsError,
@@ -47,16 +52,20 @@ export const ProductSettingsSlot = ({
         <ProductSettingsError onRetry={handleRetry} />
       ) : null}
       {product && !isLoadingSettings ? (
-        <div className='grid gap-5'>
-          <BasicInformationCard onUnitChange={handleUnitChange} product={product} />
-          <StockControlCard product={product} />
-          <ProductCategoriesCard product={product} retrySearch={retrySearch} />
-          <InternalNotesCard product={product} />
-          <ProductDangerZone onRemove={handleOpenRemoval} />
-        </div>
+        canManage ? (
+          <div className='grid gap-5'>
+            <BasicInformationCard onUnitChange={handleUnitChange} product={product} />
+            <StockControlCard product={product} />
+            <ProductCategoriesCard product={product} retrySearch={retrySearch} />
+            <InternalNotesCard product={product} />
+            <ProductDangerZone onRemove={handleOpenRemoval} />
+          </div>
+        ) : (
+          <ReadOnlySettingsCard product={product} />
+        )
       ) : null}
 
-      {product && targetUnit ? (
+      {canManage && product && targetUnit ? (
         <UnitChangeDialog
           currentUnit={product.unit}
           onOpenChange={handleUnitDialogOpenChange}
@@ -65,7 +74,7 @@ export const ProductSettingsSlot = ({
           targetUnit={targetUnit}
         />
       ) : null}
-      {product ? (
+      {canManage && product ? (
         <RemoveProductDialog
           onOpenChange={handleRemovalOpenChange}
           open={isRemovalDialogOpen}

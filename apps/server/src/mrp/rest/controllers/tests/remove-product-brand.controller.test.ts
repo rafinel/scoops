@@ -4,6 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import {
+  operatorRequestAuthorization,
   createProduct,
   managerRequestAuthorization,
   prepareMrpFixture,
@@ -79,5 +80,14 @@ describe('Remove Product Brand Controller [DELETE /products/:productId/brands/:b
       { page: 1, limit: 20 },
     )
     expect(page.items[0]).toMatchObject({ brandId: brand.id, brandName: 'Historical' })
+  })
+  it('denies Operator access to this Manager-only route before controller execution', async () => {
+    const response = await request(fixture.app.getHttpServer())
+      .delete(
+        '/products/00000000-0000-4000-8000-000000000001/brands/00000000-0000-4000-8000-000000000001',
+      )
+      .set('Cookie', operatorRequestAuthorization())
+
+    expect(response.status).toBe(403)
   })
 })

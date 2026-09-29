@@ -20,7 +20,7 @@ export class GetProductAccompanimentsController {
   }
 
   @Get(':productId/accompaniments')
-  @RequiredProfiles([UserProfile.Manager])
+  @RequiredProfiles([UserProfile.Manager, UserProfile.Operator])
   @ApiParam({ name: 'productId', format: 'uuid', description: 'The Portion product.' })
   @ApiResponse({
     status: HttpStatus.OK,

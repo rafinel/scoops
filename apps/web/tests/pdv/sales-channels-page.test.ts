@@ -12,12 +12,19 @@ const SCREENSHOT_DIR = 'test-results/pdv'
 const INITIAL_PAGE_READY_TIMEOUT_MS = 15_000
 const EXPECTED_UNMOUNTED_WARNING =
   /Can't perform a React state update on a component that hasn't mounted yet/
+const EXPECTED_ROUTE_ANIMATION_ABORT =
+  /Failed to load animation data from URL: \/assets\/lotties\/ice-cream-loading\.lottie\. AbortError/
 
 function recordDiagnostics(page: Page) {
   const consoleErrors: string[] = []
+  const expectedAnimationAbortErrors: string[] = []
   const failedRequests: string[] = []
   page.on('console', (message) => {
     if (message.type() === 'error') {
+      if (EXPECTED_ROUTE_ANIMATION_ABORT.test(message.text())) {
+        expectedAnimationAbortErrors.push(message.text())
+        return
+      }
       consoleErrors.push(message.text())
     }
   })
@@ -26,6 +33,7 @@ function recordDiagnostics(page: Page) {
   })
   return {
     consoleErrors,
+    expectedAnimationAbortErrors,
     failedRequests,
     unexpectedConsoleErrors: (additionalExpected: readonly RegExp[] = []) =>
       consoleErrors.filter(
@@ -99,6 +107,11 @@ test.describe('SalesChannelsPage', () => {
       await expect(channelResult('Balcão')).toBeVisible()
       await expect(channelResult('Promoção local')).toBeVisible()
       expect(diagnostics.unexpectedConsoleErrors()).toEqual([])
+      expect(
+        diagnostics.expectedAnimationAbortErrors.every((error) =>
+          EXPECTED_ROUTE_ANIMATION_ABORT.test(error),
+        ),
+      ).toBe(true)
       expect(diagnostics.failedRequests).toEqual([])
     })
   }
@@ -119,7 +132,63 @@ test.describe('SalesChannelsPage', () => {
     await expect(page.getByRole('row', { name: /Delivery próprio/ })).toBeVisible()
     await expect(page.getByRole('row', { name: /Promoção local/ })).toBeVisible()
     expect(diagnostics.unexpectedConsoleErrors()).toEqual([])
+    expect(
+      diagnostics.expectedAnimationAbortErrors.every((error) =>
+        EXPECTED_ROUTE_ANIMATION_ABORT.test(error),
+      ),
+    ).toBe(true)
     expect(diagnostics.failedRequests).toEqual([])
+  })
+
+  test('keeps the channel name and adjustment filters addressable together', async ({
+    page,
+    identityFixture,
+    pdvFixture,
+  }) => {
+    await startManager(page, identityFixture, DESKTOP)
+    await pdvFixture.mockSalesChannels()
+    await page.goto('/sales-channels?search=Delivery&adjustment=increase')
+
+    await expect(page.getByRole('textbox', { name: 'Buscar canal' })).toHaveValue(
+      'Delivery',
+    )
+    await expect(
+      page.getByRole('button', { name: 'Filtrar acréscimos' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('row', { name: /Delivery próprio/ })).toBeVisible()
+    await expect(page.getByRole('row', { name: /iFood/ })).toHaveCount(0)
+
+    await page.getByRole('textbox', { name: 'Buscar canal' }).fill('missing')
+    await expect(page).toHaveURL(/search=missing/)
+    await expect(page.getByText('Nenhum canal corresponde a esta busca.')).toBeVisible()
+    await page.getByRole('button', { name: 'Limpar busca' }).first().click()
+    await expect(page.getByRole('textbox', { name: 'Buscar canal' })).toHaveValue('')
+    await expect(page).toHaveURL(/adjustment=increase/)
+  })
+
+  test('resolves a direct channel search for a match late in the complete list', async ({
+    page,
+    identityFixture,
+    pdvFixture,
+  }) => {
+    await startManager(page, identityFixture, DESKTOP)
+    const channels = Array.from({ length: 15 }, (_, index) => ({
+      id: `deep-channel-${index + 1}`,
+      establishmentId: 'establishment-1',
+      name: index === 14 ? 'Canal de busca profunda' : `Canal ${index + 1}`,
+      percentage: index,
+      status: 'active' as const,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    }))
+    await pdvFixture.mockSalesChannels({ channels })
+    await page.goto('/sales-channels?search=Canal%20de%20busca%20profunda')
+
+    await expect(page.getByRole('textbox', { name: 'Buscar canal' })).toHaveValue(
+      'Canal de busca profunda',
+    )
+    await expect(page.getByRole('row', { name: /Canal de busca profunda/ })).toBeVisible()
+    await expect(page.getByRole('row')).toHaveCount(2)
   })
 
   test('renders the Manager desktop list and completes the lifecycle contract', async ({
@@ -275,6 +344,11 @@ test.describe('SalesChannelsPage', () => {
     )
     await expect(page.getByText('Delivery ajustado')).toHaveCount(0)
     expect(diagnostics.unexpectedConsoleErrors()).toEqual([])
+    expect(
+      diagnostics.expectedAnimationAbortErrors.every((error) =>
+        EXPECTED_ROUTE_ANIMATION_ABORT.test(error),
+      ),
+    ).toBe(true)
     expect(diagnostics.failedRequests).toEqual([])
   })
 
@@ -318,6 +392,11 @@ test.describe('SalesChannelsPage', () => {
       ),
     ).toBe(true)
     expect(diagnostics.unexpectedConsoleErrors()).toEqual([])
+    expect(
+      diagnostics.expectedAnimationAbortErrors.every((error) =>
+        EXPECTED_ROUTE_ANIMATION_ABORT.test(error),
+      ),
+    ).toBe(true)
     expect(diagnostics.failedRequests).toEqual([])
   })
 
@@ -340,6 +419,11 @@ test.describe('SalesChannelsPage', () => {
     ).toBeVisible()
     await page.screenshot({ path: `${SCREENSHOT_DIR}/vis-08-empty-768x1024.png` })
     expect(diagnostics.unexpectedConsoleErrors()).toEqual([])
+    expect(
+      diagnostics.expectedAnimationAbortErrors.every((error) =>
+        EXPECTED_ROUTE_ANIMATION_ABORT.test(error),
+      ),
+    ).toBe(true)
     expect(diagnostics.failedRequests).toEqual([])
   })
 
@@ -374,6 +458,11 @@ test.describe('SalesChannelsPage', () => {
     })
     expect(pdv.requests.filter((request) => request.method === 'POST')).toHaveLength(0)
     expect(diagnostics.unexpectedConsoleErrors()).toEqual([])
+    expect(
+      diagnostics.expectedAnimationAbortErrors.every((error) =>
+        EXPECTED_ROUTE_ANIMATION_ABORT.test(error),
+      ),
+    ).toBe(true)
     expect(diagnostics.failedRequests).toEqual([])
   })
 
@@ -412,6 +501,11 @@ test.describe('SalesChannelsPage', () => {
         page.getByRole('heading', { name: 'Nenhum canal cadastrado' }),
       ).toBeVisible()
       expect(diagnostics.unexpectedConsoleErrors()).toEqual([])
+      expect(
+        diagnostics.expectedAnimationAbortErrors.every((error) =>
+          EXPECTED_ROUTE_ANIMATION_ABORT.test(error),
+        ),
+      ).toBe(true)
       expect(diagnostics.failedRequests).toEqual([])
     })
   }
@@ -443,11 +537,16 @@ test.describe('SalesChannelsPage', () => {
       await expect(recoveredChannel).toBeVisible()
       expect(pdv.requests.filter((request) => request.method === 'GET')).toHaveLength(2)
       expect(diagnostics.unexpectedConsoleErrors([/status of 503/])).toEqual([])
+      expect(
+        diagnostics.expectedAnimationAbortErrors.every((error) =>
+          EXPECTED_ROUTE_ANIMATION_ABORT.test(error),
+        ),
+      ).toBe(true)
       expect(diagnostics.failedRequests).toEqual([])
     })
   }
 
-  test('denies Operator management access and removes the management navigation item', async ({
+  test('lets Operators read Sales Channels without management controls', async ({
     page,
     identityFixture,
     pdvFixture,
@@ -456,12 +555,27 @@ test.describe('SalesChannelsPage', () => {
     await identityFixture.mockOperatorSession()
     await identityFixture.mockOperatorAccount()
     const pdv = await pdvFixture.mockSalesChannels()
+    await page.setViewportSize({ width: 1440, height: 900 })
     await page.goto('/sales-channels')
-    await expect(page).toHaveURL(/\/access-denied$/)
-    await expect(page.getByRole('heading', { name: 'Acesso negado' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Canais de venda' })).toHaveCount(0)
-    expect(pdv.requests).toHaveLength(0)
+    await expect(page).toHaveURL(/\/sales-channels$/)
+    await expect(page.getByRole('heading', { name: 'Canais de venda' })).toBeVisible()
+    await expect(page.getByRole('row', { name: /Delivery próprio/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Novo canal' })).toHaveCount(0)
+    await expect(
+      page.getByRole('button', { name: 'Abrir ações de Delivery próprio' }),
+    ).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Canais de venda' })).toBeVisible()
+    await page.screenshot({
+      path: 'test-results/f10-operator-sales-channels-1440x900.png',
+    })
+    expect(pdv.requests.some((request) => request.method === 'GET')).toBe(true)
+    expect(pdv.requests.some((request) => request.method !== 'GET')).toBe(false)
     expect(diagnostics.unexpectedConsoleErrors()).toEqual([])
+    expect(
+      diagnostics.expectedAnimationAbortErrors.every((error) =>
+        EXPECTED_ROUTE_ANIMATION_ABORT.test(error),
+      ),
+    ).toBe(true)
     expect(diagnostics.failedRequests).toEqual([])
   })
 

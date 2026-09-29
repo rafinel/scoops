@@ -8,7 +8,6 @@ import type {
   MrpDatabase,
   MrpDatabaseRepositories,
 } from '#mrp/interfaces/mrp-database.ts'
-import { AuthorizationError } from '#shared/domain/errors/index.ts'
 import { GetProductRecipeUseCase } from '#mrp/use-cases/get-product-recipe-use-case.ts'
 
 const product = ProductFaker.fake({
@@ -46,7 +45,7 @@ describe('Get Product Recipe Use Case', () => {
     expect(scope.recipesRepository.add).not.toHaveBeenCalled()
   })
 
-  it('denies recipe disclosure to operators', async () => {
+  it('allows operators to read recipes without creating them', async () => {
     await expect(
       useCase.execute({
         actor: {
@@ -56,7 +55,7 @@ describe('Get Product Recipe Use Case', () => {
         },
         productId: product.id,
       }),
-    ).rejects.toBeInstanceOf(AuthorizationError)
-    expect(database.run).not.toHaveBeenCalled()
+    ).resolves.toEqual({ product, recipe: null })
+    expect(scope.recipesRepository.add).not.toHaveBeenCalled()
   })
 })

@@ -5,6 +5,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
+  operatorRequestAuthorization,
   managerRequestAuthorization,
   preparePdvFixture,
   resetPdvFixture,
@@ -76,5 +77,12 @@ describe('List Combo Products Controller [GET /discounts/catalog]', () => {
       .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(422)
+  })
+  it('denies Operator access to this Manager-only route before controller execution', async () => {
+    const response = await request(fixture.app.getHttpServer())
+      .get('/discounts/catalog')
+      .set('Cookie', operatorRequestAuthorization())
+
+    expect(response.status).toBe(403)
   })
 })

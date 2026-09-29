@@ -36,7 +36,9 @@ export const ProductsPage = ({ search, onSearchChange }: ProductsPageProps) => {
         <h1 className='mt-2 text-3xl font-black tracking-tight sm:text-4xl'>Produtos</h1>
         <div className='mt-2 flex flex-wrap items-center gap-x-4 gap-y-2'>
           <p className='max-w-xl text-sm text-muted-foreground'>
-            Cadastre e acompanhe seus produtos, marcas e categorias.
+            {canManageProducts
+              ? 'Cadastre e acompanhe seus produtos, marcas e categorias.'
+              : 'Consulte os produtos, marcas e categorias cadastrados no estabelecimento.'}
           </p>
           {canManageTypes ? (
             <Anchor

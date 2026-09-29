@@ -6,6 +6,7 @@ import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
+  operatorRequestAuthorization,
   createProduct,
   managerRequestAuthorization,
   prepareMrpFixture,
@@ -55,5 +56,12 @@ describe('Preview Production Controller [POST /products/:productId/production-pr
     await expect(fixture.balances.findByProductId(ingredient.id)).resolves.toMatchObject({
       quantity: 1,
     })
+  })
+  it('denies Operator access to this Manager-only route before controller execution', async () => {
+    const response = await request(fixture.app.getHttpServer())
+      .post('/products/00000000-0000-4000-8000-000000000001/production-preview')
+      .set('Cookie', operatorRequestAuthorization())
+
+    expect(response.status).toBe(403)
   })
 })

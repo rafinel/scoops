@@ -59,7 +59,7 @@ export class GetProductStockUseCase implements UseCase<Request, ProductStockDeta
   }
 
   private validateActor(actor: ProductActor): void {
-    if (actor.profile !== UserProfile.Manager) {
+    if (actor.profile !== UserProfile.Manager && actor.profile !== UserProfile.Operator) {
       throw new AuthorizationError('Somente gestores podem consultar o estoque.')
     }
   }

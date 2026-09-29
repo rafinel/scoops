@@ -17,11 +17,7 @@ import type {
   MrpDatabase,
   MrpDatabaseRepositories,
 } from '#mrp/interfaces/mrp-database.ts'
-import {
-  AuthorizationError,
-  BadRequestError,
-  NotFoundError,
-} from '#shared/domain/errors/index.ts'
+import { BadRequestError, NotFoundError } from '#shared/domain/errors/index.ts'
 import { GetProductPricingUseCase } from '#mrp/use-cases/get-product-pricing-use-case.ts'
 
 const establishmentId = 'establishment-1'
@@ -212,13 +208,13 @@ describe('Get Product Pricing Use Case', () => {
     expect(result.sizes[0]).not.toHaveProperty('marginPercentage')
   })
 
-  it('requires a Manager and hides foreign or unsupported products', async () => {
+  it('allows Operators and hides foreign or unsupported products', async () => {
     await expect(
       useCase.execute({
         actor: { ...actor, profile: UserProfile.Operator },
         productId: portion.id,
       }),
-    ).rejects.toBeInstanceOf(AuthorizationError)
+    ).resolves.toMatchObject({ product: { id: portion.id } })
 
     scope.productsRepository.findById.mockResolvedValue(undefined)
     await expect(

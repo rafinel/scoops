@@ -140,7 +140,8 @@ export class DrizzleProductsRepository
       .as('brand_totals')
     const establishmentFilter = eq(productModel.establishmentId, input.establishmentId)
     const filters = [establishmentFilter]
-    if (input.search) filters.push(ilike(productModel.name, `%${input.search}%`))
+    if (input.search)
+      filters.push(ilike(productModel.name, `%${escapeLikePattern(input.search)}%`))
     if (input.status) filters.push(eq(productModel.status, input.status))
     if (input.categories?.length)
       filters.push(arrayOverlaps(productModel.categories, [...input.categories]))
@@ -173,22 +174,16 @@ export class DrizzleProductsRepository
         sql`${productModel.idealStock} is null or coalesce(${stockTotals.stockQuantity}, 0) >= ${productModel.idealStock}`,
       )
     }
-    const sortColumn = (() => {
-      switch (input.sortBy) {
-        case ProductSortField.Name:
-          return productModel.name
-        case ProductSortField.StockQuantity:
-          return stockTotals.stockQuantity
-        case ProductSortField.BrandCount:
-          return brandTotals.brandCount
-        case ProductSortField.Categories:
-          return productModel.categories
-        case ProductSortField.Unit:
-          return productModel.unit
-        default:
-          return productModel.createdAt
-      }
-    })()
+    const sortColumns = {
+      [ProductSortField.Name]: productModel.name,
+      [ProductSortField.StockQuantity]: stockTotals.stockQuantity,
+      [ProductSortField.BrandCount]: brandTotals.brandCount,
+      [ProductSortField.Categories]: productModel.categories,
+      [ProductSortField.Unit]: productModel.unit,
+    }
+    const sortColumn = input.sortBy
+      ? (sortColumns[input.sortBy] ?? productModel.createdAt)
+      : productModel.createdAt
     const order = input.sortDirection === ProductSortDirection.Ascending ? asc : desc
     const [records, totals, kpiRows] = await Promise.all([
       this.database
@@ -255,15 +250,7 @@ export class DrizzleProductsRepository
     establishmentId: string,
     productId: string,
   ): Promise<Product | undefined> {
-    const [record] = await this.database
-      .select()
-      .from(productModel)
-      .where(
-        and(
-          eq(productModel.establishmentId, establishmentId),
-          eq(productModel.id, productId),
-        ),
-      )
+    const [record] = await this.findProductByIdentity(establishmentId, productId)
       .for('update')
       .limit(1)
     return record ? DrizzleProductMapper.toDomain(record) : undefined
@@ -280,34 +267,9 @@ export class DrizzleProductsRepository
     productIdOrChanges: string | ProductUpdate,
     scopedChanges?: ProductUpdate,
   ): Promise<Product> {
-    const isScoped = typeof productIdOrChanges === 'string'
-    const productId = isScoped ? productIdOrChanges : establishmentOrProductId
-    const changes = isScoped ? scopedChanges : productIdOrChanges
-    if (!changes)
-      throw new ConflictError('A operação no banco de dados entrou em conflito.')
-
-    const productFilters = isScoped
-      ? [
-          eq(productModel.establishmentId, establishmentOrProductId),
-          eq(productModel.id, productId),
-        ]
-      : [eq(productModel.id, productId)]
-    const [record] = await this.database
-      .update(productModel)
-      .set({
-        ...changes,
-        categories: changes.categories ? [...changes.categories] : undefined,
-        idealStock: this.toNumericValue(changes.idealStock),
-        currentUnitCost: this.toNumericValue(changes.currentUnitCost),
-        internalNotes:
-          changes.internalNotes === undefined ? undefined : changes.internalNotes,
-        updatedAt: new Date(),
-      })
-      .where(and(...productFilters))
-      .returning()
-    if (!record)
-      throw new ConflictError('A operação no banco de dados entrou em conflito.')
-    return DrizzleProductMapper.toDomain(record)
+    return this.replaceProductRecord(
+      resolveProductUpdate(establishmentOrProductId, productIdOrChanges, scopedChanges),
+    )
   }
 
   async remove(establishmentId: string, productId: string): Promise<void>
@@ -316,18 +278,11 @@ export class DrizzleProductsRepository
     establishmentOrProductId: string,
     scopedProductId?: string,
   ): Promise<void> {
-    const isScoped = scopedProductId !== undefined
-    const productId = scopedProductId ?? establishmentOrProductId
-    const filters = isScoped
-      ? [
-          eq(productModel.establishmentId, establishmentOrProductId),
-          eq(productModel.id, productId),
-        ]
-      : [eq(productModel.id, productId)]
-    const deleted = await this.database
-      .delete(productModel)
-      .where(and(...filters))
-      .returning({ id: productModel.id })
+    const { establishmentId, productId } = resolveProductRemoval(
+      establishmentOrProductId,
+      scopedProductId,
+    )
+    const deleted = await this.removeProductRecord(establishmentId, productId)
     if (!deleted.length)
       throw new ConflictError('A operação no banco de dados entrou em conflito.')
   }
@@ -340,4 +295,103 @@ export class DrizzleProductsRepository
     if (value === undefined || value === null) return value
     return String(value)
   }
+
+  private async replaceProductRecord(
+    input: ReturnType<typeof resolveProductUpdate>,
+  ): Promise<Product> {
+    const [record] = await this.updateProductRecord(input)
+    return requireProductRecord(record)
+  }
+
+  private updateProductRecord(input: ReturnType<typeof resolveProductUpdate>) {
+    return this.database
+      .update(productModel)
+      .set(toProductUpdatePersistence(input.changes, this.toNumericValue.bind(this)))
+      .where(productIdentityFilter(input.establishmentId, input.productId))
+      .returning()
+  }
+
+  private findProductByIdentity(establishmentId: string, productId: string) {
+    return this.database
+      .select()
+      .from(productModel)
+      .where(productIdentityFilter(establishmentId, productId))
+  }
+
+  private removeProductRecord(establishmentId: string | undefined, productId: string) {
+    return this.database
+      .delete(productModel)
+      .where(productIdentityFilter(establishmentId, productId))
+      .returning({ id: productModel.id })
+  }
+}
+
+function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, '\\$&')
+}
+
+function productIdentityFilter(establishmentId: string | undefined, productId: string) {
+  const productIdFilter = eq(productModel.id, productId)
+  return establishmentId !== undefined
+    ? and(eq(productModel.establishmentId, establishmentId), productIdFilter)
+    : productIdFilter
+}
+
+function resolveProductUpdate(
+  establishmentOrProductId: string,
+  productIdOrChanges: string | ProductUpdate,
+  scopedChanges?: ProductUpdate,
+): { establishmentId?: string; productId: string; changes: ProductUpdate } {
+  return typeof productIdOrChanges === 'string'
+    ? scopedProductUpdate(establishmentOrProductId, productIdOrChanges, scopedChanges)
+    : { productId: establishmentOrProductId, changes: productIdOrChanges }
+}
+
+function scopedProductUpdate(
+  establishmentId: string,
+  productId: string,
+  changes?: ProductUpdate,
+): { establishmentId: string; productId: string; changes: ProductUpdate } {
+  if (!changes)
+    throw new ConflictError('A operação no banco de dados entrou em conflito.')
+  return { establishmentId, productId, changes }
+}
+
+function resolveProductRemoval(
+  establishmentOrProductId: string,
+  scopedProductId?: string,
+): { establishmentId?: string; productId: string } {
+  return scopedProductId !== undefined
+    ? { establishmentId: establishmentOrProductId, productId: scopedProductId }
+    : { productId: establishmentOrProductId }
+}
+
+function toProductUpdatePersistence(
+  changes: ProductUpdate,
+  toNumericValue: (value: number | null | undefined) => string | null | undefined,
+) {
+  return {
+    ...changes,
+    categories: changes.categories && [...changes.categories],
+    ...toNumericStockValues(changes, toNumericValue),
+    internalNotes: changes.internalNotes,
+    updatedAt: new Date(),
+  }
+}
+
+function toNumericStockValues(
+  changes: ProductUpdate,
+  toNumericValue: (value: number | null | undefined) => string | null | undefined,
+) {
+  return {
+    idealStock: toNumericValue(changes.idealStock),
+    currentUnitCost: toNumericValue(changes.currentUnitCost),
+  }
+}
+
+function requireProductRecord(
+  record: Parameters<typeof DrizzleProductMapper.toDomain>[0] | undefined,
+): Product {
+  if (!record) throw new ConflictError('A operação no banco de dados entrou em conflito.')
+  return DrizzleProductMapper.toDomain(record)
 }

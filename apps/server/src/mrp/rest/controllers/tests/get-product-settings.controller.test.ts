@@ -50,8 +50,11 @@ describe('Get Product Settings Controller [GET /products/:productId/settings]', 
     expect(response.body.product.updatedAt).toBe(product.updatedAt.toISOString())
   })
 
-  it('enforces manager authorization and tenant-safe not-found', async () => {
+  it('allows same-establishment Operators and preserves tenant-safe not-found', async () => {
     const product = await fixture.addProduct(createProduct())
+    const foreignProduct = await fixture.addProduct(
+      createProduct({ establishmentId: '44000000-0000-0000-0000-000000000001' }),
+    )
     const anonymous = await request(fixture.app.getHttpServer()).get(
       `/products/${product.id}/settings`,
     )
@@ -61,13 +64,21 @@ describe('Get Product Settings Controller [GET /products/:productId/settings]', 
     const foreign = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/settings`)
       .set('Cookie', foreignManagerRequestAuthorization())
+    const operatorForeign = await request(fixture.app.getHttpServer())
+      .get(`/products/${foreignProduct.id}/settings`)
+      .set('Cookie', operatorRequestAuthorization())
     const missing = await request(fixture.app.getHttpServer())
       .get('/products/00000000-0000-4000-8000-000000000099/settings')
       .set('Cookie', managerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
-    expect(operator.status).toBe(403)
+    expect(operator.status).toBe(200)
+    expect(operator.body.product).toMatchObject({
+      id: product.id,
+      establishmentId: product.establishmentId,
+    })
     expect(foreign.status).toBe(404)
+    expect(operatorForeign.status).toBe(404)
     expect(missing.status).toBe(404)
   })
 })

@@ -9,6 +9,7 @@ import { Icon } from '@/ui/shared/widgets/components/icon'
 import { ProductBrandsCard } from '../product-brands-card'
 
 export type ProductStockControlsProps = {
+  canManage: boolean
   isBrandActionPending: boolean
   onAddBrand: () => void
   onDeleteBrand: (brand: ProductBrandStock) => void
@@ -20,6 +21,7 @@ export type ProductStockControlsProps = {
 }
 
 export const ProductStockControls = ({
+  canManage,
   isBrandActionPending,
   onAddBrand,
   onDeleteBrand,
@@ -34,6 +36,7 @@ export const ProductStockControls = ({
       <ProductBrandsCard
         actionsDisabled={isBrandActionPending}
         brands={productStock.brands}
+        canManage={canManage}
         onAddBrand={onAddBrand}
         onDelete={onDeleteBrand}
         onEdit={onEditBrand}
@@ -44,6 +47,8 @@ export const ProductStockControls = ({
       />
     )
   }
+
+  if (!canManage) return null
 
   return (
     <section className='rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5 sm:p-6'>

@@ -19,7 +19,10 @@ export class GetComboUseCase implements UseCase<Request, ComboDetails> {
     private readonly catalog: SalesCatalogProvider,
   ) {}
   async execute(request: Request): Promise<ComboDetails> {
-    if (request.actor.profile !== UserProfile.Manager)
+    if (
+      request.actor.profile !== UserProfile.Manager &&
+      request.actor.profile !== UserProfile.Operator
+    )
       throw new AuthorizationError('Somente gestores podem gerenciar combos.')
     const combo = await this.database.run(
       ({ discountsRepository }: PdvDatabaseRepositories) =>

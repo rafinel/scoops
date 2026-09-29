@@ -20,7 +20,7 @@ export class GetProductRecipeController {
   }
 
   @Get(':productId/recipe')
-  @RequiredProfiles([UserProfile.Manager])
+  @RequiredProfiles([UserProfile.Manager, UserProfile.Operator])
   @ApiParam({
     name: 'productId',
     format: 'uuid',

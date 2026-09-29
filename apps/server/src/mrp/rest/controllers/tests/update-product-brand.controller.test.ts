@@ -4,6 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import {
+  operatorRequestAuthorization,
   createProduct,
   managerRequestAuthorization,
   prepareMrpFixture,
@@ -69,5 +70,14 @@ describe('Update Product Brand Controller [PATCH /products/:productId/brands/:br
     await expect(fixture.brands.findById(product.id, first.id)).resolves.toMatchObject({
       name: 'First',
     })
+  })
+  it('denies Operator access to this Manager-only route before controller execution', async () => {
+    const response = await request(fixture.app.getHttpServer())
+      .patch(
+        '/products/00000000-0000-4000-8000-000000000001/brands/00000000-0000-4000-8000-000000000001',
+      )
+      .set('Cookie', operatorRequestAuthorization())
+
+    expect(response.status).toBe(403)
   })
 })

@@ -96,7 +96,7 @@ evidence only to rename an identifier.
 
 ## Roles
 
-SDD uses four roles. Prompt names such as `create-spec` or `conclude-spec` are workflows,
+SDD uses five roles. Prompt names such as `create-spec` or `conclude-spec` are workflows,
 not additional agents.
 
 | Role | Responsibility | Restrictions |
@@ -105,12 +105,15 @@ not additional agents.
 | [Builder](./agents/builder-agent.md) | Implements one bounded direct, phase, task or fix scope against the current Spec revision and Rules. | Does not edit Spec, Plan, Evaluation, PRD or Rules; does not review its own work or publish delivery artifacts. |
 | [Spec Reviewer](./agents/spec-reviewer-agent.md) | During `create-spec`, independently audits a draft Spec for compatibility with Architecture, Modules ownership and the applicable Rule Pack before any `create-plan` step. | Does not assess product completeness, design fidelity, validation evidence, implementation code or plan execution; does not edit files, resolve ambiguity, create subagents or decide Spec status. |
 | [Implementation Reviewer](./agents/implementation-reviewer-agent.md) | Independently reviews one integrated Plan-backed implementation candidate against the Spec, Rules, design references and current evidence. | Does not edit files, implement fixes, create subagents or decide the official evidence verdict. |
+| [Visual Reviewer](./agents/visual-reviewer-agent.md) | When explicitly requested by the user or current Spec, independently compares one integrated design-backed UI candidate with saved references and current captures. | Does not edit files, replace the Implementation Reviewer, create official evidence or decide readiness. |
 
 Builders and Reviewers are scoped subagents created by the Orchestrator in the current task.
 No subagent creates another subagent, fork or user-owned task. Spec quality is enforced by
 clarification, authoring-integrity checks and the applicable independent Spec Reviewer;
 implementation quality is enforced by deterministic sensors, Playwright CLI evidence and the
-applicable Implementation Reviewer.
+applicable Implementation Reviewer. A Visual Reviewer is optional and activated only when
+the user or current Spec requests independent visual review; its report supplements the
+Orchestrator's visual evidence without adding a default delivery gate.
 
 ## Durable artifacts
 
@@ -297,6 +300,11 @@ For UI backed by Pencil or supplied screenshots, the Spec creator:
 The Spec stays `draft` when a required reference cannot be saved or a screenshot-derived
 product ambiguity remains unresolved.
 
+When independent visual review is explicitly requested, the Spec records the Visual Reviewer
+scope and current-capture handoff in its Validation Contract. That audit happens during
+implementation, after captures exist; it is not another `create-spec` review gate or `MV-*`
+scenario.
+
 Builders and the Orchestrator use the saved bundle. They do not use live Pencil during normal
 implementation. Pencil is reopened only when the Design Contract changes or the user requests
 a reference refresh.
@@ -317,6 +325,8 @@ The Plan contains:
 | Execution log | Conditional record of findings, failed attempts or material execution events. |
 
 Builders never edit the Plan. The Orchestrator keeps it current throughout implementation.
+When the current Spec requires a Visual Reviewer, the Plan schedules one audit after current
+design-state captures exist and before readiness; it does not add manual `MV-*` scenarios.
 
 ## 5. Implementation and living evidence
 
@@ -396,7 +406,10 @@ implementation capture with its original saved reference at the exact viewport a
 each AC and MV result, inspects console, network and persisted-state evidence, and verifies every
 affected REST-client example file against the current controller operations and shared request
 schemas. REST-client parity is a separate artifact check and does not replace real HTTP integration
-evidence.
+evidence. When a Visual Reviewer was explicitly requested, the Orchestrator gives it the
+current manifest, saved references and fresh implementation captures, verifies its findings,
+and resolves accepted visual discrepancies before readiness. This does not replace the
+Implementation Reviewer or any contracted `MV-*` scenario.
 
 On a failed sensor or material discrepancy, findings are recorded, the responsible Builder is
 resumed when possible and affected evidence is invalidated. When a correction affects a

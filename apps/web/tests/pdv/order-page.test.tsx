@@ -429,7 +429,9 @@ test.describe('OrderPage', () => {
     })
     await reason.fill('  Cliente solicitou o cancelamento  ')
     await dialog.getByRole('button', { name: 'Cancelar pedido' }).click()
-    await expect(dialog.getByRole('alert')).toBeVisible()
+    await expect(
+      dialog.getByRole('alert').filter({ hasText: 'temporary failure' }),
+    ).toBeVisible()
     await expect(reason).toHaveValue('  Cliente solicitou o cancelamento  ')
     await dialog.getByRole('button', { name: 'Cancelar pedido' }).click()
     await expect(page.getByText('Cancelado por')).toBeVisible()
@@ -524,6 +526,10 @@ test.describe('OrderPage', () => {
     await pdvFixture.mockOrders({ detail: { body: orderResponse() } })
     await page.goto(`/orders/${ORDER_ID}`)
     await expect(page.getByRole('heading', { name: 'Pedido #00124' })).toBeVisible()
+    await expect(page.getByText('Açaí', { exact: true })).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: 'Delivery próprio', exact: true }),
+    ).toBeVisible()
     await expect(page.getByRole('button', { name: 'Cancelar pedido' })).toHaveCount(0)
 
     const managerContext = await browser.newContext({ baseURL })

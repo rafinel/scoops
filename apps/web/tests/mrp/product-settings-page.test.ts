@@ -221,6 +221,25 @@ test.describe('ProductSettingsPage', () => {
     expect(returnTo).toContain('retryDependency=consuming-recipe')
   })
 
+  test('lets Operators read product settings without management controls', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await identityFixture.mockOperatorSession()
+    await identityFixture.mockOperatorAccount()
+    await mrpFixture.mockProductStock({
+      respond: () => ({ body: { product: PRODUCT, stockQuantity: 8, brands: [] } }),
+    })
+
+    await page.goto(`/products/${PRODUCT_ID}/settings`)
+    await expect(page).toHaveURL(`/products/${PRODUCT_ID}/settings`)
+    await expect(page.getByRole('heading', { name: PRODUCT.name })).toBeVisible()
+    await expect(page.getByText('Visível apenas para o gerente.')).toBeVisible()
+    await expect(page.getByRole('button', { name: /Salvar/ })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /Editar/ })).toHaveCount(0)
+  })
+
   test('clears a mismatched retry product while preserving the protected shell', async ({
     page,
     identityFixture,

@@ -2,24 +2,27 @@ import type {
   ProductRecipeDetails,
   RecipeIngredientDetails,
 } from '@scoops/core/mrp/domain/structures'
+
 import { Button } from '@/ui/shadcn/button'
-import { Input } from '@/ui/shadcn/input'
+import { Icon } from '@/ui/shared/widgets/components/icon'
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
-import { Icon } from '@/ui/shared/widgets/components/icon'
-import { RecipeEmptyState } from '../recipe-empty-state'
-import { RecipeIngredientsTable } from '../recipe-ingredients-table'
-import { Metric } from './metric'
+
+import { RecipeNotConfigured, RecipeSummary } from './recipe-summary'
+import { RecipeYieldEditor } from './recipe-yield-editor'
 import { useProductRecipeCard } from './use-product-recipe-card'
 
 export type ProductRecipeCardProps = {
+  canManage?: boolean
   details: ProductRecipeDetails
   onAdd: () => void
   onEdit: (ingredient: RecipeIngredientDetails) => void
   onProduce: () => void
   onRemove: (ingredient: RecipeIngredientDetails) => void
 }
+
 export const ProductRecipeCard = ({
+  canManage = true,
   details,
   onAdd,
   onEdit,
@@ -32,6 +35,8 @@ export const ProductRecipeCard = ({
   const { error, handleSaveYield, isPending, setYieldQuantity, yieldQuantity } =
     useProductRecipeCard(product.id, recipe)
   const hasIngredients = Boolean(recipe?.ingredients.length)
+  const limitingIngredient = recipe?.ingredients.find((item) => item.isLimiting)
+
   return (
     <section className='rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5 sm:p-6'>
       <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
@@ -41,103 +46,49 @@ export const ProductRecipeCard = ({
             Defina os ingredientes que compõem uma produção.
           </p>
         </div>
-        <Button
-          disabled={!hasIngredients}
-          onClick={onProduce}
-          variant={hasIngredients ? 'default' : 'outline'}
-        >
-          <Icon name='play' /> Produzir
-        </Button>
+        {canManage ? (
+          <Button
+            disabled={!hasIngredients}
+            onClick={onProduce}
+            variant={hasIngredients ? 'default' : 'outline'}
+          >
+            <Icon name='play' /> Produzir
+          </Button>
+        ) : null}
       </div>
-      <div className='mt-5 flex max-w-xl flex-col gap-2 rounded-xl bg-muted p-2 focus-within:ring-2 focus-within:ring-ring/20 sm:flex-row sm:items-center sm:gap-0 sm:overflow-hidden sm:p-1'>
-        <label
-          className='grid min-w-0 flex-1 gap-2 px-3 text-sm font-semibold text-muted-foreground sm:grid-cols-[auto_1fr] sm:items-center sm:gap-3 sm:whitespace-nowrap'
-          htmlFor='recipe-yield-quantity'
-        >
-          Rendimento estimado por:
-          <Input
-            aria-describedby={error ? 'recipe-yield-error' : undefined}
-            aria-invalid={Boolean(error)}
-            className='h-9 min-w-0 bg-card'
-            id='recipe-yield-quantity'
-            inputMode='decimal'
-            min='0'
-            onChange={(event) => setYieldQuantity(event.target.value)}
-            type='number'
-            value={yieldQuantity}
-          />
-        </label>
-        <span className='grid place-items-center rounded-lg bg-card px-3 py-2 text-sm font-bold sm:rounded-none sm:border-l sm:bg-transparent sm:py-0'>
-          {product.unit}
-        </span>
-        <Button
-          className='w-full sm:ml-1 sm:w-auto'
-          disabled={isPending}
-          onClick={() => void handleSaveYield()}
-          size='sm'
-          type='button'
-          variant='outline'
-        >
-          {isPending ? 'Salvando…' : 'Salvar'}
-        </Button>
-      </div>
-      {error ? (
-        <p
-          className='mt-2 text-sm font-semibold text-destructive'
-          id='recipe-yield-error'
-          role='alert'
-        >
-          {error}
+      {canManage ? (
+        <RecipeYieldEditor
+          error={error ?? undefined}
+          isPending={isPending}
+          onSave={() => void handleSaveYield()}
+          onValueChange={setYieldQuantity}
+          unit={product.unit}
+          value={yieldQuantity}
+        />
+      ) : recipe ? (
+        <p className='mt-5 text-sm text-muted-foreground'>
+          Rendimento estimado: {formatQuantity(recipe.yieldQuantity, product.unit)}
         </p>
       ) : null}
       {recipe ? (
-        <>
-          <div className='mt-5 grid gap-3 md:grid-cols-3'>
-            <Metric
-              label='CMV total'
-              value={formatCurrency(recipe.totalCost)}
-              detail={`por ${formatQuantity(recipe.yieldQuantity, product.unit)}`}
-            />
-            <Metric
-              label='Custo unitário'
-              value={formatCurrency(recipe.unitCost)}
-              detail={`por ${product.unit}`}
-            />
-            <Metric
-              attention
-              label='Máximo produzível'
-              value={formatQuantity(recipe.maximumProducibleQuantity, product.unit)}
-              detail={
-                recipe.ingredients.find((ingredient) => ingredient.isLimiting)
-                  ?.ingredientProductName
-                  ? `limitado por ${recipe.ingredients.find((ingredient) => ingredient.isLimiting)?.ingredientProductName}`
-                  : 'Sem ingredientes'
-              }
-            />
-          </div>
-          {hasIngredients ? (
-            <>
-              <div className='mt-5'>
-                <RecipeIngredientsTable
-                  ingredients={recipe.ingredients}
-                  onEdit={onEdit}
-                  onRemove={onRemove}
-                />
-              </div>
-              <Button className='mt-5' onClick={onAdd}>
-                <Icon name='plus' /> Adicionar ingrediente
-              </Button>
-            </>
-          ) : (
-            <div className='mt-5'>
-              <RecipeEmptyState canAdd onAdd={onAdd} />
-            </div>
+        <RecipeSummary
+          limitingIngredientName={limitingIngredient?.ingredientProductName}
+          maximumProducible={formatQuantity(
+            recipe.maximumProducibleQuantity,
+            product.unit,
           )}
-        </>
+          totalCost={formatCurrency(recipe.totalCost)}
+          totalCostDetail={`por ${formatQuantity(recipe.yieldQuantity, product.unit)}`}
+          unitCost={formatCurrency(recipe.unitCost)}
+          unitCostDetail={`por ${product.unit}`}
+          canManage={canManage}
+          ingredients={recipe.ingredients}
+          onAdd={onAdd}
+          onEdit={onEdit}
+          onRemove={onRemove}
+        />
       ) : (
-        <div className='mt-5'>
-          <RecipeEmptyState canAdd={false} onAdd={onAdd} />
-        </div>
+        <RecipeNotConfigured canManage={canManage} onAdd={onAdd} />
       )}
     </section>
   )

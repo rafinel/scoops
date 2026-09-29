@@ -251,6 +251,8 @@ Communication; and current stock-attention facts for Analytics.
   alert state must also initiate its authoritative stock-threshold fact through the transactional
   outbox; the stock transaction itself is not published as a communication event.
 - Transactions are isolated by establishment and require the same authorization as their product.
+- Operators can read immutable stock history for products they may inspect; stock entry, write-off,
+  and all balance-changing actions remain Manager-only.
 
 #### Experience
 
@@ -273,6 +275,7 @@ Communication; and current stock-attention facts for Analytics.
 
 ### PRQ-04 — Product Listing
 
+- [ ] **Implemented**
 
 **Outcome:** Authorized users can find, compare, and open products using establishment-wide
 operational context and predictable filters, sorting, and pagination.
@@ -293,27 +296,32 @@ balances and stock status from PRQ-03; production capacity from PRQ-06.
 - Low Stock is based on comparison with ideal stock.
 - Stock value is not an MRP KPI and belongs to a financial view of costs, profits, and movements.
 - Empty results distinguish an establishment with no products from filters with no matches.
+- Operators may use the product listing and its filters read-only. Product registration,
+  edits, status changes, and product-management shortcuts remain Manager-only.
 
 #### Experience
 
 - The table occupies the available space below the filters. Filters remain in the approved layout
   position without competing horizontally with the table.
 - Columns show Name, Stock quantity, Number of brands, Categories, Unit, and necessary actions.
+- Operators see product facts and read-only row navigation without product-management actions.
 - A Low row may use an alert background, red indicator, and explanatory text without relying on
   color alone.
 - Search has an icon and contextual placeholder. `Clear filters` removes every active filter.
-- No products presents `Register first product`; no filtered matches presents `No products found`
-  and `Clear filters`.
+- With no products, Managers see `Register first product` and its registration action; Operators see
+  an informational empty state without a create action. No filtered matches presents `No products
+  found` and `Clear filters` for both profiles.
 
 ---
 
 ### PRQ-05 — Dedicated Product Page and Settings
 
+- [ ] **Implemented**
 
-**Outcome:** Managers can inspect and maintain each product through one category-aware page while
-understanding the impact of category, unit, and deletion changes.
+**Outcome:** Managers can inspect and maintain each product through one category-aware page, while
+Operators can inspect product information without changing it.
 
-**Actors:** Manager
+**Actors:** Manager, Operator
 
 **Consumes:** Product catalog, categories, unit, status, and stock-control facts from PRQ-01.
 
@@ -324,6 +332,9 @@ PRQ-09, and PRQ-10.
 
 - Stock and Settings tabs are always available. Recipe is available for Manufacturable,
   Accompaniments for Portion, Prices—Sizes for Portion, and Prices—Resale for Resale.
+- Operators can open the product page and read its product, stock, recipe, accompaniment,
+  and price information. Every registration, status, stock-policy, and destructive action is
+  unavailable to Operators; Manager capabilities remain unchanged.
 - PDV consumes size and Resale commercial facts without transferring sales-rule ownership to MRP.
 - A category in use cannot be removed until its dependencies are resolved.
 - Unit changes affect product-owned balances, ideal stock, costs, recipes, sizes, consumption,
@@ -348,6 +359,8 @@ PRQ-09, and PRQ-10.
 - Settings contains Basic Information, read-only Stock Control with editable negative-stock
   policy, Categories, Internal Notes, and Danger Zone. Product removal is available from the
   Danger Zone rather than from the header.
+- Operators see authorized product facts in a read-only presentation. Editable fields, status
+  controls, stock-policy controls, creation shortcuts, and the Danger Zone are hidden.
 - Unit-change and deletion dialogs explain affected records before confirmation.
 - Simple fields may save on blur according to the module design standard.
 
@@ -568,17 +581,22 @@ product-size-accompaniment prices, and current operating-cost facts for PRQ-10, 
 
 ### PRQ-10 — Navigation, States, and High-Impact Changes
 
+- [ ] **Implemented**
 
 **Outcome:** Managers can navigate MRP and complete or recover from destructive and high-impact
-product changes with clear dependency, loading, success, and error feedback.
+product changes with clear dependency, loading, success, and error feedback. Operators can
+navigate to Products and inspect product information only.
 
-**Actors:** Manager
+**Actors:** Manager, Operator
 
 **Consumes:** Establishment authorization from Identity; product and dependency facts from
 PRQ-01, PRQ-02, PRQ-05, PRQ-06, PRQ-08, and PRQ-09.
 
 #### Capabilities
 
+- Operators receive only the Products destination from MRP and cannot access MRP administration,
+  production, Price Modifiers, or Accompaniment Types. Managers retain the existing MRP navigation
+  and contextual Accompaniment Types access.
 - MRP navigation provides Products context without unnecessary sub-navigation. Dashboard, PDV,
   Order History, and Price Modifiers remain destinations of their owning product areas;
   Accompaniment Types is reached contextually rather than from the global sidebar.

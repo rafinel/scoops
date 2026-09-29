@@ -34,6 +34,9 @@ describe('List Combos Controller [GET /discounts]', () => {
     const response = await request(fixture.app.getHttpServer())
       .get('/discounts?status=inactive&page=1&pageSize=10')
       .set('Cookie', managerRequestAuthorization())
+    const operator = await request(fixture.app.getHttpServer())
+      .get('/discounts?status=inactive&page=1&pageSize=10')
+      .set('Cookie', operatorRequestAuthorization())
 
     expect(response.status).toBe(200)
     expect(response.headers['content-type']).toMatch(/json/)
@@ -48,6 +51,13 @@ describe('List Combos Controller [GET /discounts]', () => {
     ).toEqual(expect.arrayContaining([first.id, second.id]))
     expect(
       response.body.items.every(
+        (item: { combo: { establishmentId: string } }) =>
+          item.combo.establishmentId === '43000000-0000-0000-0000-000000000001',
+      ),
+    ).toBe(true)
+    expect(operator.status).toBe(200)
+    expect(
+      operator.body.items.every(
         (item: { combo: { establishmentId: string } }) =>
           item.combo.establishmentId === '43000000-0000-0000-0000-000000000001',
       ),
@@ -67,7 +77,7 @@ describe('List Combos Controller [GET /discounts]', () => {
       .set('Cookie', managerRequestAuthorization())
 
     expect(anonymous.status).toBe(401)
-    expect(operator.status).toBe(403)
+    expect(operator.status).toBe(200)
     expect(foreign.status).toBe(200)
     expect(invalid.status).toBe(422)
   })

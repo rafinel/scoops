@@ -1,4 +1,5 @@
 export { acceptUserInvitationSchema } from './identity/accept-user-invitation-schema.ts'
+export { globalSearchQuerySchema } from './identity/global-search-query-schema.ts'
 export { resetPasswordSchema } from './identity/reset-password-schema.ts'
 export { changeUserProfileSchema } from './identity/change-user-profile-schema.ts'
 export { changeUserStatusSchema } from './identity/change-user-status-schema.ts'

@@ -1,11 +1,9 @@
 import type { RecipeIngredientDetails } from '@scoops/core/mrp/domain/structures'
 
-import { Button } from '@/ui/shadcn/button'
 import {
   Table,
   TableBody,
   TableCaption,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -13,15 +11,17 @@ import {
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { useFormatDecimal } from '@/ui/shared/hooks/use-format-decimal'
 import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
-import { Icon } from '@/ui/shared/widgets/components/icon'
+import { RecipeIngredientRow } from './recipe-ingredient-row'
 
 export type RecipeIngredientsTableProps = {
+  canManage?: boolean
   ingredients: readonly RecipeIngredientDetails[]
   onEdit: (ingredient: RecipeIngredientDetails) => void
   onRemove: (ingredient: RecipeIngredientDetails) => void
 }
 
 export const RecipeIngredientsTable = ({
+  canManage = true,
   ingredients,
   onEdit,
   onRemove,
@@ -54,58 +54,25 @@ export const RecipeIngredientsTable = ({
             <TableHead className='text-xs font-semibold text-muted-foreground'>
               ESTOQUE
             </TableHead>
-            <TableHead className='p-3 text-xs font-semibold text-muted-foreground'>
-              AÇÕES
-            </TableHead>
+            {canManage ? (
+              <TableHead className='p-3 text-xs font-semibold text-muted-foreground'>
+                AÇÕES
+              </TableHead>
+            ) : null}
           </TableRow>
         </TableHeader>
         <TableBody>
           {ingredients.map((ingredient) => (
-            <TableRow
-              className={
-                ingredient.isLimiting
-                  ? 'border-b border-border-soft bg-destructive/5'
-                  : 'border-b border-border-soft'
-              }
+            <RecipeIngredientRow
+              canManage={canManage}
+              formatCurrency={formatCurrency}
+              formatDecimal={formatDecimal}
+              formatQuantity={formatQuantity}
+              ingredient={ingredient}
               key={ingredient.id}
-            >
-              <TableCell className='p-3 font-bold'>
-                {ingredient.ingredientProductName}
-              </TableCell>
-              <TableCell>{ingredient.ingredientBrandName ?? 'Estoque único'}</TableCell>
-              <TableCell>
-                {formatQuantity(ingredient.quantity, ingredient.unit)}
-              </TableCell>
-              <TableCell>{formatCurrency(ingredient.lineCost)}</TableCell>
-              <TableCell>{formatDecimal(ingredient.cogsPercentage)}%</TableCell>
-              <TableCell
-                className={ingredient.isLimiting ? 'font-bold text-destructive' : ''}
-              >
-                {formatQuantity(ingredient.currentBalance, ingredient.unit)}
-                {ingredient.isLimiting ? ' · limitante' : ''}
-              </TableCell>
-              <TableCell className='p-3'>
-                <div className='flex gap-2'>
-                  <Button
-                    aria-label={`Editar ${ingredient.ingredientProductName}`}
-                    onClick={() => onEdit(ingredient)}
-                    size='sm'
-                    variant='outline'
-                  >
-                    <Icon name='pencil' />
-                  </Button>
-                  <Button
-                    aria-label={`Remover ${ingredient.ingredientProductName}`}
-                    className='text-destructive'
-                    onClick={() => onRemove(ingredient)}
-                    size='sm'
-                    variant='outline'
-                  >
-                    <Icon name='trash-2' />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
+              onEdit={onEdit}
+              onRemove={onRemove}
+            />
           ))}
         </TableBody>
       </Table>
