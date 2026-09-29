@@ -281,7 +281,7 @@ test.describe('ProductsPage', () => {
     expect(productsMock.requests.length).toBeGreaterThanOrEqual(2)
   })
 
-  test('hides Manager-only registration from Operators', async ({
+  test('lets Operators read Products without registration controls', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -290,8 +290,13 @@ test.describe('ProductsPage', () => {
     await identityFixture.mockOperatorAccount()
     await mrpFixture.mockProducts({ getResponse: { body: PRODUCT_PAGE } })
 
+    await page.setViewportSize({ width: 1440, height: 900 })
     await page.goto('/products')
+    await expect(page).toHaveURL(/\/products(?:\?|$)/)
     await expect(page.getByRole('heading', { name: 'Produtos' })).toBeVisible()
+    await expect(page.getByText('Leite integral')).toBeVisible()
     await expect(page.getByRole('link', { name: /Novo produto/ })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: /Tipos de acompanhamento/ })).toHaveCount(0)
+    await page.screenshot({ path: 'test-results/f10-operator-products-1440x900.png' })
   })
 })

@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 import { useComboDiscountPage } from '../use-combo-discount-page'
 import { useComboQuery } from '@/ui/pdv/hooks/use-combo-query'
@@ -11,6 +12,7 @@ import { useUpdateComboAction } from '@/ui/pdv/hooks/use-update-combo-action'
 import { comboDetails } from './combo-test-fixtures'
 
 vi.mock('@/ui/shared/hooks/use-navigation', () => ({ useNavigation: vi.fn() }))
+vi.mock('@/ui/shared/hooks/use-auth-context', () => ({ useAuthContext: vi.fn() }))
 vi.mock('@/ui/pdv/hooks/use-combo-query', () => ({ useComboQuery: vi.fn() }))
 vi.mock('@/ui/pdv/hooks/use-create-combo-action', () => ({
   useCreateComboAction: vi.fn(),
@@ -22,6 +24,9 @@ vi.mock('@/ui/pdv/hooks/use-update-combo-action', () => ({
 describe('useComboDiscountPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(useAuthContext).mockReturnValue({
+      account: { profile: 'manager' },
+    } as never)
     vi.mocked(useNavigation).mockReturnValue({
       navigateTo: vi.fn().mockResolvedValue(undefined),
       navigateToPath: vi.fn(),
@@ -95,5 +100,15 @@ describe('useComboDiscountPage', () => {
       }),
     })
     expect(refetchComboDetails).toHaveBeenCalledOnce()
+  })
+
+  it('exposes Operator read-only capability', () => {
+    vi.mocked(useAuthContext).mockReturnValue({
+      account: { profile: 'operator' },
+    } as never)
+    const { result } = renderHook(() =>
+      useComboDiscountPage({ comboId: 'combo-1', mode: 'edit' }),
+    )
+    expect(result.current.canManageDiscounts).toBe(false)
   })
 })

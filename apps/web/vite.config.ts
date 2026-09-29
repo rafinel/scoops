@@ -47,7 +47,11 @@ const config = defineConfig(({ command, mode }) => {
   return {
     resolve: { tsconfigPaths: true },
     plugins: [
-      devtools(),
+      devtools({
+        consolePiping: {
+          enabled: environment.SCOOPS_PLAYWRIGHT_MOCK_SSR_AUTH !== '1',
+        },
+      }),
       tailwindcss(),
       tanstackStart(),
       ...(command === 'build' && isDeployedMode

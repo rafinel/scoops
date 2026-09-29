@@ -20,7 +20,7 @@ export class GetProductSettingsController {
   }
 
   @Get(':productId/settings')
-  @RequiredProfiles([UserProfile.Manager])
+  @RequiredProfiles([UserProfile.Manager, UserProfile.Operator])
   @ApiParam({ name: 'productId', format: 'uuid', description: 'The product to read.' })
   @ApiResponse({
     status: HttpStatus.OK,

@@ -23,7 +23,7 @@ export class ListSalesChannelsController {
   }
 
   @Get()
-  @RequiredProfiles([UserProfile.Manager])
+  @RequiredProfiles([UserProfile.Manager, UserProfile.Operator])
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Sales channels returned.',

@@ -10,6 +10,7 @@ import { Icon } from '@/ui/shared/widgets/components/icon'
 import { ProductAccompanimentsTable } from '../product-accompaniments-table'
 
 export type ProductAccompanimentsCardProps = {
+  canManage?: boolean
   details: ProductAccompanimentsDetails
   onAdd: () => void
   onEdit: (item: ProductAccompanimentDetails) => void
@@ -17,6 +18,7 @@ export type ProductAccompanimentsCardProps = {
 }
 
 export const ProductAccompanimentsCard = ({
+  canManage = true,
   details,
   onAdd,
   onEdit,
@@ -35,12 +37,15 @@ export const ProductAccompanimentsCard = ({
           Itens oferecidos junto a este produto no PDV.
         </p>
       </div>
-      <Button className='min-h-10 shadow-primary' onClick={onAdd} type='button'>
-        <Icon name='plus' /> Vincular acompanhamento
-      </Button>
+      {canManage ? (
+        <Button className='min-h-10 shadow-primary' onClick={onAdd} type='button'>
+          <Icon name='plus' /> Vincular acompanhamento
+        </Button>
+      ) : null}
     </CardHeader>
     <CardContent className='p-0'>
       <ProductAccompanimentsTable
+        canManage={canManage}
         items={details.accompaniments}
         onEdit={onEdit}
         onRemove={onRemove}

@@ -15,6 +15,7 @@ export type IdentityModuleFixture = {
 
 export const IdentityModuleFixture = (page: Page): IdentityModuleFixture => {
   let sessionMode: 'anonymous' | 'manager' | 'operator' = 'anonymous'
+  let browserAuthRoutesRegistered = false
 
   const setSsrAuth = async (status: number, body: unknown) => {
     await page.context().setExtraHTTPHeaders({
@@ -50,33 +51,41 @@ export const IdentityModuleFixture = (page: Page): IdentityModuleFixture => {
     }
   }
 
+  const mockBrowserAuthRoutes = async () => {
+    if (browserAuthRoutesRegistered) return
+    browserAuthRoutesRegistered = true
+
+    await page.route('**/api/auth/get-session*', async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify(sessionResponse()),
+        status: 200,
+      })
+    })
+    await page.route('**/auth/session*', async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify(sessionResponse()),
+        status: sessionMode === 'anonymous' ? 401 : 200,
+      })
+    })
+  }
+
   return {
     async mockAnonymousProvider() {
       if (process.env.SCOOPS_RUN_REAL_INTEGRATION === '1') return
 
       await setSsrAuth(401, { account: null, session: null })
+      await mockBrowserAuthRoutes()
       await page.route('**/api/auth/sign-out*', async (route) => {
         sessionMode = 'anonymous'
         await route.fulfill({ status: 204, body: '' })
-      })
-      await page.route('**/api/auth/get-session*', async (route) => {
-        await route.fulfill({
-          contentType: 'application/json',
-          body: JSON.stringify(sessionResponse()),
-          status: 200,
-        })
-      })
-      await page.route('**/auth/session*', async (route) => {
-        await route.fulfill({
-          contentType: 'application/json',
-          body: JSON.stringify(sessionResponse()),
-          status: sessionMode === 'anonymous' ? 401 : 200,
-        })
       })
     },
 
     async mockManagerSession() {
       sessionMode = 'manager'
+      await mockBrowserAuthRoutes()
       await setSsrAuth(200, sessionResponse())
       await page.context().addCookies([
         {
@@ -93,6 +102,7 @@ export const IdentityModuleFixture = (page: Page): IdentityModuleFixture => {
 
     async mockManagerAccount() {
       sessionMode = 'manager'
+      await mockBrowserAuthRoutes()
       await setSsrAuth(200, {
         ...accountResponse(),
         session: {
@@ -103,22 +113,6 @@ export const IdentityModuleFixture = (page: Page): IdentityModuleFixture => {
           absoluteExpiresAt: '2099-01-08T00:00:00.000Z',
         },
       })
-      await page.route('**/auth/session*', async (route) => {
-        await route.fulfill({
-          contentType: 'application/json',
-          body: JSON.stringify({
-            ...accountResponse(),
-            session: {
-              sessionId: 'manager-session-id',
-              user: { id: 'browser-manager-id', email: 'manager@example.com' },
-              createdAt: '2026-01-01T00:00:00.000Z',
-              expiresAt: '2099-01-01T00:30:00.000Z',
-              absoluteExpiresAt: '2099-01-08T00:00:00.000Z',
-            },
-          }),
-          status: 200,
-        })
-      })
     },
 
     async mockSessionUnavailable() {
@@ -127,6 +121,7 @@ export const IdentityModuleFixture = (page: Page): IdentityModuleFixture => {
 
     async mockOperatorSession() {
       sessionMode = 'operator'
+      await mockBrowserAuthRoutes()
       await setSsrAuth(200, sessionResponse())
       await page.context().addCookies([
         {
@@ -143,6 +138,7 @@ export const IdentityModuleFixture = (page: Page): IdentityModuleFixture => {
 
     async mockOperatorAccount() {
       sessionMode = 'operator'
+      await mockBrowserAuthRoutes()
       await setSsrAuth(200, {
         ...accountResponse({
           id: 'browser-operator-id',
@@ -157,27 +153,6 @@ export const IdentityModuleFixture = (page: Page): IdentityModuleFixture => {
           expiresAt: '2099-01-01T00:30:00.000Z',
           absoluteExpiresAt: '2099-01-08T00:00:00.000Z',
         },
-      })
-      await page.route('**/auth/session*', async (route) => {
-        await route.fulfill({
-          contentType: 'application/json',
-          body: JSON.stringify({
-            ...accountResponse({
-              id: 'browser-operator-id',
-              name: 'Scoops Operator',
-              email: 'operator@example.com',
-              profile: 'operator',
-            }),
-            session: {
-              sessionId: 'operator-session-id',
-              user: { id: 'browser-operator-id', email: 'operator@example.com' },
-              createdAt: '2026-01-01T00:00:00.000Z',
-              expiresAt: '2099-01-01T00:30:00.000Z',
-              absoluteExpiresAt: '2099-01-08T00:00:00.000Z',
-            },
-          }),
-          status: 200,
-        })
       })
     },
   }

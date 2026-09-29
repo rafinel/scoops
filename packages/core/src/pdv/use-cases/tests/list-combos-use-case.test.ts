@@ -13,12 +13,29 @@ describe('ListCombosUseCase', () => {
   beforeEach(() => {
     database = mock<PdvDatabase>()
     catalog = mock<SalesCatalogProvider>()
+    database.run.mockImplementation(async (operation) =>
+      operation({
+        discountsRepository: {
+          findPage: async () => ({
+            items: [],
+            page: 1,
+            pageSize: 10,
+            total: 0,
+            totalPages: 0,
+          }),
+        },
+      } as never),
+    )
   })
-  it('rejects non-manager actors before infrastructure access', async () => {
+  it('allows Operators to list discounts scoped to their establishment', async () => {
     const useCase = new ListCombosUseCase(database, catalog)
     await expect(
       useCase.execute({ actor, page: 1, pageSize: 10 }),
-    ).rejects.toBeInstanceOf(Error)
-    expect(database.run).not.toHaveBeenCalled()
+    ).resolves.toMatchObject({
+      items: [],
+      page: 1,
+      total: 0,
+    })
+    expect(database.run).toHaveBeenCalledOnce()
   })
 })

@@ -36,7 +36,7 @@ export class ListStockTransactionsController {
   }
 
   @Get(':productId/stock-transactions')
-  @RequiredProfiles([UserProfile.Manager])
+  @RequiredProfiles([UserProfile.Manager, UserProfile.Operator])
   @ApiParam({
     name: 'productId',
     format: 'uuid',

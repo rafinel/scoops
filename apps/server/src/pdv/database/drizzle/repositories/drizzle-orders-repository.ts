@@ -567,7 +567,7 @@ export class DrizzleOrdersRepository
         .where(
           and(
             eq(orderLineModel.orderId, orderModel.id),
-            ilike(orderLineModel.productName, `%${search}%`),
+            ilike(orderLineModel.productName, `%${escapeLikePattern(search)}%`),
           ),
         ),
     )
@@ -897,6 +897,10 @@ export class DrizzleOrdersRepository
       outcome: outcome.outcome,
     }))
   }
+}
+
+function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, '\\$&')
 }
 
 type LineAggregateRows = Pick<

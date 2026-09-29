@@ -237,7 +237,7 @@ export class ListCombosUseCase
     }
   }
   private validateActor(actor: ComboActor): void {
-    if (actor.profile !== UserProfile.Manager)
+    if (actor.profile !== UserProfile.Manager && actor.profile !== UserProfile.Operator)
       throw new AuthorizationError('Somente gestores podem gerenciar combos.')
   }
   private validatePage(page: number, pageSize: number): void {

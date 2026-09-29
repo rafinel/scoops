@@ -21,6 +21,8 @@ export const identityQueryKeys = {
       },
     ] as const,
   userDetails: (userId: string) => [...identityQueryKeys.all, 'user', userId] as const,
+  globalSearch: (establishmentId: string, profile: UserProfile, query: string) =>
+    [...identityQueryKeys.all, 'globalSearch', establishmentId, profile, query] as const,
 }
 
 export type { UserProfile, UserStatus }

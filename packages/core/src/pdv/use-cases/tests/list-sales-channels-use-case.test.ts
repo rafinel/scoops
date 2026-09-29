@@ -4,7 +4,6 @@ import { mock, type MockProxy } from 'vitest-mock-extended'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { SalesChannelFaker } from '#pdv/domain/entities/fakers/index.ts'
 import type { SalesChannelsRepository } from '#pdv/interfaces/sales-channels-repository.ts'
-import { AuthorizationError } from '#shared/domain/errors/authorization-error.ts'
 import { ListSalesChannelsUseCase } from '#pdv/use-cases/list-sales-channels-use-case.ts'
 
 describe('List Sales Channels Use Case', () => {
@@ -32,12 +31,12 @@ describe('List Sales Channels Use Case', () => {
     expect(repository.findMany).toHaveBeenCalledWith('e1')
   })
 
-  it('rejects operator management reads', async () => {
+  it('allows Operators to read only their establishment channels', async () => {
     await expect(
       useCase.execute({
         actor: { id: 'operator-1', establishmentId: 'e1', profile: UserProfile.Operator },
       }),
-    ).rejects.toBeInstanceOf(AuthorizationError)
-    expect(repository.findMany).not.toHaveBeenCalled()
+    ).resolves.toMatchObject([{ id: 'a' }, { id: 'z' }, { id: 'b' }])
+    expect(repository.findMany).toHaveBeenCalledWith('e1')
   })
 })

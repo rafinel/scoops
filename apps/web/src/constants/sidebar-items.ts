@@ -23,6 +23,7 @@ export const SIDEBAR_ITEMS: readonly SidebarItem[] = [
     icon: 'package',
     label: 'Produtos',
     route: 'products',
+    profiles: [UserProfile.Manager, UserProfile.Operator],
     activePrefixes: ['/products/'],
   },
   { icon: 'shopping-cart', label: 'Nova venda', route: 'newSale' },
@@ -31,13 +32,13 @@ export const SIDEBAR_ITEMS: readonly SidebarItem[] = [
     icon: 'store',
     label: 'Canais de venda',
     route: 'salesChannels',
-    profiles: [UserProfile.Manager],
+    profiles: [UserProfile.Manager, UserProfile.Operator],
   },
   {
     icon: 'tags',
     label: 'Descontos',
     route: 'discounts',
-    profiles: [UserProfile.Manager],
+    profiles: [UserProfile.Manager, UserProfile.Operator],
     activePrefixes: ['/discounts/'],
   },
 ]
@@ -56,7 +57,12 @@ export const SIDEBAR_SECONDARY_ITEMS: readonly SidebarItem[] = [
     route: 'shopSettings',
     profiles: [UserProfile.Manager],
   },
-  { icon: 'credit-card', label: 'Assinatura', route: 'subscription' },
+  {
+    icon: 'credit-card',
+    label: 'Assinatura',
+    route: 'subscription',
+    profiles: [UserProfile.Manager],
+  },
 ]
 
 export function getSidebarItems(

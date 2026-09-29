@@ -6,7 +6,8 @@ Identity enables an independent ice cream or açaí shop to create its Scoops
 establishment, activate its first Manager, authenticate its team, and manage each
 user's access lifecycle. Each user belongs to one establishment, and the MVP uses
 only the fixed `Manager` and `Operator` profiles. Managers administer Scoops and the
-team; Operators access only `New Sale` and `Orders`.
+team; Operators use `New Sale` and `Orders` and can read `Products`, `Sales Channels`,
+and `Discounts` without managing them.
 
 The module provides direct onboarding, predictable authorization, establishment
 isolation, individual authorship, and access revocation without erasing identity or
@@ -42,7 +43,8 @@ establishment, invite staff, and control administrative and operational access.
 
 ### Secondary audiences
 
-- Operators who need individual Scoops access limited to authorized sales flows.
+- Operators who need individual Scoops access for authorized sales flows and read-only
+  visibility into product, channel, and discount information.
 - New Managers who create an establishment and become its first Manager.
 
 ### Non-audience
@@ -235,7 +237,7 @@ states consumed by PRQ-13.
 
 ### PRQ-04 — Profiles and Authorization
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
 **Outcome:** Every protected area and action applies a predictable, fixed access model
 within the user's own establishment.
@@ -251,8 +253,11 @@ PRQ-11, PRQ-13, and PRQ-14.
 - The only profiles are `Manager` and `Operator`; profiles cannot be created, renamed,
   edited, duplicated, or deleted.
 - Individual permission grants or removals must not exist.
-- Managers have full access to all modules and configurations. Operators may access
-  only `New Sale` and `Orders`.
+- Managers have full access to all modules and configurations. Operators can use
+  `New Sale` and `Orders` and read `Products`, `Sales Channels`, and `Discounts`
+  within their establishment. The latter three areas are view-only for Operators;
+  they cannot create, edit, activate, inactivate, delete, cancel, or otherwise manage
+  their records or configuration.
 - Direct addresses and shortcuts must not bypass authorization.
 - Every user and action must remain isolated to the user's establishment.
 - No user may promote or demote themselves, and no action may leave an establishment
@@ -594,9 +599,10 @@ facts from MRP; order, sales-channel, and discount facts from PDV.
 - The Header's global search must return matching authorized page destinations and
   establishment-scoped records grouped by type. Managers may find products by name,
   orders by sequence number or snapshotted product name, users by name or email,
-  and sales channels and discounts by name. Operators may find only `New Sale`
-  and `Orders` destinations and authorized orders; administrative records and
-  destinations must not appear in their results.
+  and sales channels and discounts by name. Operators may find `New Sale`, `Orders`,
+  `Products`, `Sales Channels`, and `Discounts` destinations, plus authorized products,
+  orders, sales channels, and discounts. They must not receive Manager-only destinations
+  or user records.
 - Opening a result must apply the destination's authorization and establishment
   isolation. A direct address must not expose a result that search would hide.
 
@@ -780,7 +786,8 @@ flowchart LR
    - Another active Manager exists: the action may continue.
    - Demotion would leave no active Manager: the system blocks and explains the rule.
 3. The Manager confirms.
-4. The affected user retains only `New Sale` and `Orders`, an audit record is created,
+4. The affected user retains Operator access to `New Sale` and `Orders`, plus read-only
+   access to `Products`, `Sales Channels`, and `Discounts`; an audit record is created,
    and the user is notified.
 
 ### Journey H — Inactivate a user

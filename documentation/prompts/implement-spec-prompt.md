@@ -18,7 +18,8 @@ implement-spec
                                                                        ↓
                                      pnpm check:spec-implementation -- <spec>
                                                                        ↓
-                                  integrated sensors + applicable single Reviewer
+                           integrated sensors + applicable Implementation Reviewer
+                                     + explicitly requested Visual Reviewer
                                                                        ↓
                                                                 conclude-spec
 ```
@@ -164,6 +165,7 @@ and title-cases the display label:
 | Builder Server | `builder_server` | `Builder server` |
 | Builder Web | `builder_web` | `Builder web` |
 | Implementation Reviewer | `implementation-reviewer` | `Implementation Reviewer` |
+| Visual Reviewer, when requested | `visual-reviewer` | `Visual Reviewer` |
 
 For a future ownership boundary, use `builder_<normalized-boundary>`. When a genuinely independent
 replacement fix Builder is required, use `builder_fix_<normalized-boundary>`. Resume an existing
@@ -445,8 +447,10 @@ test paths, exact focused command, result and any documented exception in `evalu
 For Plan-backed execution, activate exactly one read-only
 [`Implementation Reviewer`](../agents/implementation-reviewer-agent.md) after all
 implementation Builder diffs are integrated. Never create a Reviewer per Builder, phase,
-application or package, and do not add specialist Reviewers. Direct execution does not require a
-separate Reviewer unless the Spec or another repository authority explicitly requires one.
+application or package. The optional Visual Reviewer below is the only separate focused reviewer;
+activate it only when the user or current Spec explicitly requests independent visual review.
+Direct execution does not require an Implementation Reviewer unless the Spec or another repository
+authority explicitly requires one.
 
 Do not substitute or reactivate the Spec Reviewer here: the Spec Reviewer is a pre-plan
 Architecture/Rules compatibility gate only.
@@ -466,6 +470,22 @@ resumes the responsible Builder. After a correction, resume the same Implementat
 recheck the affected candidate; never activate a replacement Reviewer merely because the
 implementation changed. Readiness requires the review to be current and every verified blocking
 finding to be resolved.
+
+### Visual Reviewer
+
+For a design-backed candidate, activate one read-only
+[`Visual Reviewer`](../agents/visual-reviewer-agent.md) only when the user or current Spec
+explicitly requests independent visual review. Give it the saved manifest and reference images,
+exact current routes/states/viewports, fresh transient captures and current visual `EV-*` rows.
+Use the generated visual-reviewer role when callable; otherwise activate a `default` agent with
+the canonical Visual Reviewer file and an explicit read-only assignment.
+It compares the assigned surface as one audit and reports exact visual differences and stale or
+missing captures. Resume the same agent after corrections with refreshed captures.
+
+The Visual Reviewer may run alongside integrated sensors and the applicable Implementation
+Reviewer. It does not replace the Orchestrator's required visual comparisons, automated or
+manual evidence, the Implementation Reviewer, or the official Evaluation verdict. The
+Orchestrator verifies and records accepted findings and routes fixes before readiness.
 
 ## Rule reinforcement after findings
 

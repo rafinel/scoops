@@ -1,12 +1,13 @@
 import { ProductDetailsPage } from '@/ui/mrp/widgets/pages/product-details-page'
+import { UserProfile } from '@scoops/core/identity/domain/structures'
 import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 import { ProductPricingError } from './product-pricing-error'
 import { ProductPricingLoading } from './product-pricing-loading'
 import { ProductResaleSettingsCard } from './product-resale-settings-card'
-import { ProductSizeDialog } from './product-size-dialog'
 import { ProductSizesCard } from './product-sizes-card'
-import { RemoveProductSizeDialog } from './remove-product-size-dialog'
+import { ProductPricingActionDialogs } from './action-dialogs'
 import { useProductPricingSlot } from './use-product-pricing-slot'
 
 export type ProductPricingSlotProps = {
@@ -14,6 +15,8 @@ export type ProductPricingSlotProps = {
 }
 
 export const ProductPricingSlot = ({ productId }: ProductPricingSlotProps) => {
+  const { account } = useAuthContext()
+  const canManage = account?.profile === UserProfile.Manager
   const {
     handleActionOpenChange,
     handleActionSuccess,
@@ -42,6 +45,7 @@ export const ProductPricingSlot = ({ productId }: ProductPricingSlotProps) => {
         <>
           {pricing.mode === 'portion' ? (
             <ProductSizesCard
+              canManage={canManage}
               onAdd={handleAdd}
               onEdit={handleEdit}
               onRemove={handleRemove}
@@ -49,26 +53,20 @@ export const ProductPricingSlot = ({ productId }: ProductPricingSlotProps) => {
               unit={pricing.product.unit}
             />
           ) : (
-            <ProductResaleSettingsCard details={pricing} productId={productId} />
+            <ProductResaleSettingsCard
+              canManage={canManage}
+              details={pricing}
+              productId={productId}
+            />
           )}
 
-          {selectedAction?.kind === 'add' || selectedAction?.kind === 'edit' ? (
-            <ProductSizeDialog
-              isOpen
-              onOpenChange={handleActionOpenChange}
-              onSuccess={() => void handleActionSuccess()}
-              productId={productId}
-              size={selectedAction.kind === 'edit' ? selectedAction.size : undefined}
-              unit={pricing.product.unit}
-            />
-          ) : null}
-          {selectedAction?.kind === 'remove' ? (
-            <RemoveProductSizeDialog
-              isOpen
+          {canManage ? (
+            <ProductPricingActionDialogs
               onOpenChange={handleActionOpenChange}
               onSuccess={handleActionSuccess}
               productId={productId}
-              size={selectedAction.size}
+              selectedAction={selectedAction}
+              unit={pricing.product.unit}
             />
           ) : null}
         </>

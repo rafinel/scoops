@@ -23,7 +23,7 @@ export class GetComboController {
   }
 
   @Get(':discountId')
-  @RequiredProfiles([UserProfile.Manager])
+  @RequiredProfiles([UserProfile.Manager, UserProfile.Operator])
   @ApiParam({ name: 'discountId', format: 'uuid', description: 'The Combo to read.' })
   @ApiResponse({
     status: HttpStatus.OK,

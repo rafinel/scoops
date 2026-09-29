@@ -41,7 +41,8 @@ async function fakeStorageState(
 
   try {
     const page = await context.newPage()
-    await signIn(page, account.email, account.password)
+    const destination = account.name === 'operator' ? '/sales/new' : '/'
+    await signIn(page, account.email, account.password, destination)
     const state = await context.storageState()
     expect(
       state.cookies.some((cookie) => cookie.name === SCOOPS_SESSION_COOKIE_NAME),
@@ -53,13 +54,18 @@ async function fakeStorageState(
   }
 }
 
-async function signIn(page: Page, email: string, password: string): Promise<void> {
+async function signIn(
+  page: Page,
+  email: string,
+  password: string,
+  destination: '/' | '/sales/new',
+): Promise<void> {
   await page.goto('/login?returnTo=%2F')
   await page.getByLabel('E-mail').fill(email)
   await page.getByRole('textbox', { name: 'Senha' }).fill(password)
   await page.getByRole('button', { name: 'Entrar no Scoops' }).click()
 
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page).toHaveURL((url) => url.pathname === destination)
   await expect(
     page.getByRole('navigation', { name: 'Navegação principal' }),
   ).toBeVisible()

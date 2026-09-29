@@ -6,6 +6,7 @@ const salesChannelAdjustmentFilterSchema = z.enum(['increase', 'discount', 'neut
 
 export const salesChannelsSearchSchema = z.object({
   adjustment: salesChannelAdjustmentFilterSchema.optional().catch(undefined),
+  search: z.string().trim().optional().catch(undefined),
 })
 
 export type SalesChannelAdjustmentFilter = z.infer<

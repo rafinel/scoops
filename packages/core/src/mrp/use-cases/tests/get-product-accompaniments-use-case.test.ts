@@ -12,11 +12,7 @@ import type {
   MrpDatabase,
   MrpDatabaseRepositories,
 } from '#mrp/interfaces/mrp-database.ts'
-import {
-  AuthorizationError,
-  BadRequestError,
-  NotFoundError,
-} from '#shared/domain/errors/index.ts'
+import { BadRequestError, NotFoundError } from '#shared/domain/errors/index.ts'
 import { GetProductAccompanimentsUseCase } from '#mrp/use-cases/get-product-accompaniments-use-case.ts'
 
 const establishmentId = 'establishment-1'
@@ -136,13 +132,13 @@ describe('Get Product Accompaniments Use Case', () => {
     expect(result.accompaniments[0]).not.toHaveProperty('price')
   })
 
-  it('rejects operators and non-Portion or missing owners without revealing data', async () => {
+  it('allows operators to read accompaniments and hides non-Portion or missing owners', async () => {
     await expect(
       useCase.execute({
         actor: { id: 'operator-1', establishmentId, profile: UserProfile.Operator },
         productId: owner.id,
       }),
-    ).rejects.toBeInstanceOf(AuthorizationError)
+    ).resolves.toMatchObject({ product: { id: owner.id } })
 
     scope.productsRepository.findById.mockResolvedValue(single)
     await expect(

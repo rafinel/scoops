@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ProductFaker } from '@scoops/core/mrp/domain/entities/fakers'
 
@@ -14,6 +14,7 @@ vi.mock('@/ui/mrp/hooks/use-save-product-resale-configuration-action', () => ({
 }))
 
 describe('ProductResaleSettingsCard', () => {
+  afterEach(cleanup)
   beforeEach(() => vi.clearAllMocks())
 
   it('keeps Single Resale at one stock unit without a package field', () => {
@@ -59,5 +60,26 @@ describe('ProductResaleSettingsCard', () => {
 
     expect(screen.getByRole('heading', { name: 'Nenhuma marca cadastrada' })).toBeTruthy()
     expect(screen.getByText(/Cadastre uma marca em Estoque/)).toBeTruthy()
+  })
+
+  it('shows resale price and availability as read-only for Operators', () => {
+    render(
+      <ProductResaleSettingsCard
+        canManage={false}
+        details={{
+          mode: 'resale-single',
+          product: ProductFaker.fake({ categories: ['resale'], stockControl: 'single' }),
+          resale: [{ isActive: true, packageQuantity: 1, price: 12.5 }],
+          sizes: [],
+        }}
+        productId='product-1'
+      />,
+    )
+    expect(screen.getByRole('heading', { name: 'Preço de Revenda' })).toBeTruthy()
+    expect(screen.getByText(/12,50/)).toBeTruthy()
+    expect(screen.getByText('Disponível')).toBeTruthy()
+    expect(screen.queryByRole('textbox')).toBeNull()
+    expect(screen.queryByRole('checkbox', { name: 'Disponível no PDV' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Salvar' })).toBeNull()
   })
 })

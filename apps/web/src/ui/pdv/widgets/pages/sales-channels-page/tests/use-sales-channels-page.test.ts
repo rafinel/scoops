@@ -1,8 +1,11 @@
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { UserProfile } from '@scoops/core/identity/domain/structures'
+
 import { useReactivateSalesChannelAction } from '@/ui/pdv/hooks/use-reactivate-sales-channel-action'
 import { useSalesChannelsQuery } from '@/ui/pdv/hooks/use-sales-channels-query'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 import { useSalesChannelsPage } from '../use-sales-channels-page'
 
@@ -14,9 +17,11 @@ vi.mock('@/ui/pdv/hooks/use-reactivate-sales-channel-action', () => ({
 vi.mock('@/ui/pdv/hooks/use-sales-channels-query', () => ({
   useSalesChannelsQuery: vi.fn(),
 }))
+vi.mock('@/ui/shared/hooks/use-auth-context', () => ({ useAuthContext: vi.fn() }))
 
 const useReactivateSalesChannelActionMock = vi.mocked(useReactivateSalesChannelAction)
 const useSalesChannelsQueryMock = vi.mocked(useSalesChannelsQuery)
+const useAuthContextMock = vi.mocked(useAuthContext)
 const channel = makeSalesChannel({
   id: 'inactive-1',
   name: 'Balcão',
@@ -26,6 +31,14 @@ const channel = makeSalesChannel({
 describe('useSalesChannelsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    useReactivateSalesChannelActionMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      reactivateSalesChannel: vi.fn().mockResolvedValue(channel),
+    })
+    useAuthContextMock.mockReturnValue({
+      account: { profile: UserProfile.Manager },
+    } as never)
     useSalesChannelsQueryMock.mockReturnValue({
       isLoadingSalesChannels: false,
       isRefreshingSalesChannels: false,
@@ -34,6 +47,15 @@ describe('useSalesChannelsPage', () => {
       salesChannels: [channel],
       salesChannelsError: null,
     })
+  })
+
+  it('identifies Operator access as read-only', () => {
+    useAuthContextMock.mockReturnValue({
+      account: { profile: UserProfile.Operator },
+    } as never)
+    const { result } = renderHook(() => useSalesChannelsPage())
+
+    expect(result.current.canManageSalesChannels).toBe(false)
   })
 
   it('coordinates selection, retry and successful reactivation', async () => {

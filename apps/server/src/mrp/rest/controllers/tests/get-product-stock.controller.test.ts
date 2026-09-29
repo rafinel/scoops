@@ -76,17 +76,25 @@ describe('Get Product Stock Controller [GET /products/:productId/stock]', () => 
 
   it('enforces profile authorization and uniform tenant-safe not-found', async () => {
     const product = await fixture.addProduct(createProduct())
+    const foreignProduct = await fixture.addProduct(
+      createProduct({ establishmentId: '44000000-0000-0000-0000-000000000001' }),
+    )
     const operator = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/stock`)
       .set('Cookie', operatorRequestAuthorization())
     const foreign = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/stock`)
       .set('Cookie', foreignManagerRequestAuthorization())
+    const operatorForeign = await request(fixture.app.getHttpServer())
+      .get(`/products/${foreignProduct.id}/stock`)
+      .set('Cookie', operatorRequestAuthorization())
     const missing = await request(fixture.app.getHttpServer())
       .get('/products/00000000-0000-4000-8000-000000000099/stock')
       .set('Cookie', managerRequestAuthorization())
-    expect(operator.status).toBe(403)
+    expect(operator.status).toBe(200)
+    expect(operator.body.product.id).toBe(product.id)
     expect(foreign.status).toBe(404)
+    expect(operatorForeign.status).toBe(404)
     expect(missing.status).toBe(404)
     expect(foreign.body.title).toBe(missing.body.title)
   })

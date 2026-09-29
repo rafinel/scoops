@@ -5,6 +5,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router'
 
 import { useDiscountsQuery } from '@/ui/pdv/hooks/use-discounts-query'
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 import { useDiscountsPage } from '../use-discounts-page'
 
@@ -16,11 +17,13 @@ vi.mock('@/ui/pdv/hooks/use-discounts-query', () => ({
   useDiscountsQuery: vi.fn(),
 }))
 vi.mock('@/ui/shared/hooks/use-navigation', () => ({ useNavigation: vi.fn() }))
+vi.mock('@/ui/shared/hooks/use-auth-context', () => ({ useAuthContext: vi.fn() }))
 
 const useNavigateMock = vi.mocked(useNavigate)
 const useSearchMock = vi.mocked(useSearch)
 const useDiscountsQueryMock = vi.mocked(useDiscountsQuery)
 const useNavigationMock = vi.mocked(useNavigation)
+const useAuthContextMock = vi.mocked(useAuthContext)
 
 describe('useDiscountsPage', () => {
   const navigateMock = vi.fn()
@@ -28,6 +31,7 @@ describe('useDiscountsPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    useAuthContextMock.mockReturnValue({ account: { profile: 'manager' } } as never)
     useNavigateMock.mockReturnValue(navigateMock as never)
     useSearchMock.mockReturnValue({ page: 1, pageSize: 10 } as never)
     useDiscountsQueryMock.mockReturnValue({
@@ -64,5 +68,11 @@ describe('useDiscountsPage', () => {
         type: undefined,
       },
     })
+  })
+
+  it('allows only Managers to manage discounts', () => {
+    useAuthContextMock.mockReturnValue({ account: { profile: 'operator' } } as never)
+    const { result } = renderHook(() => useDiscountsPage())
+    expect(result.current.canManageDiscounts).toBe(false)
   })
 })

@@ -8,6 +8,7 @@ export * from '#identity/use-cases/confirm-ice-cream-shop-onboarding-use-case.ts
 export * from '#identity/use-cases/expire-ice-cream-shop-onboardings-use-case.ts'
 export * from '#identity/use-cases/confirmation-redirect.ts'
 export * from '#identity/use-cases/list-users-use-case.ts'
+export * from '#identity/use-cases/search-global-use-case.ts'
 export * from '#identity/use-cases/get-user-details-use-case.ts'
 export * from '#identity/use-cases/invite-user-use-case.ts'
 export * from '#identity/use-cases/correct-user-invitation-use-case.ts'

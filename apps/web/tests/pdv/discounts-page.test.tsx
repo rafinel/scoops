@@ -152,4 +152,61 @@ test.describe('DiscountsPage', () => {
     expect(consoleErrors).toEqual([])
     expect(failedRequests).toEqual([])
   })
+
+  test('lets Operators read Discounts without management controls', async ({
+    page,
+    identityFixture,
+  }) => {
+    await identityFixture.mockOperatorSession()
+    await identityFixture.mockOperatorAccount()
+    await page.setViewportSize({ height: 900, width: 1440 })
+    await page.route('**/discounts?*', async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items: [
+            {
+              combo,
+              components: [
+                {
+                  component: combo.components[0],
+                  productName: 'Açaí',
+                  configurationName: '500 ml',
+                  accompanimentNames: [],
+                  unitPrice: 14,
+                  subtotal: 14,
+                  validity: 'valid',
+                },
+                {
+                  component: combo.components[1],
+                  productName: 'Brownie',
+                  configurationName: 'Preço padrão',
+                  accompanimentNames: [],
+                  unitPrice: 10,
+                  subtotal: 10,
+                  validity: 'valid',
+                },
+              ],
+              normalPrice: 24,
+              savings: 4,
+            },
+          ],
+          page: 1,
+          pageSize: 10,
+          total: 1,
+          totalPages: 1,
+        }),
+      })
+    })
+
+    await page.goto('/discounts')
+    await expect(page).toHaveURL(/\/discounts(?:\?|$)/)
+    await expect(page.getByRole('heading', { name: 'Descontos', exact: true })).toBeVisible()
+    await expect(page.getByText('Combo Açaí + Brownie').first()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Criar desconto' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: /Novo desconto/ })).toHaveCount(0)
+    await page.screenshot({
+      path: 'test-results/f10-operator-discounts-1440x900.png',
+    })
+  })
 })

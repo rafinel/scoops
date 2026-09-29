@@ -13,6 +13,7 @@ import { ProfilesGuard } from '@/identity/rest/guards/profiles.guard'
 import { OriginGuard } from '@/identity/rest/guards/origin.guard'
 import { IdentityProvisionModule } from '@/identity/provision/identity-provision.module'
 import { IdentityMessagingModule } from '@/identity/messaging/identity-messaging.module'
+import { GlobalSearchProvisionModule } from '@/shared/provision/global-search/global-search-provision.module'
 import {
   ConfirmIceCreamShopOnboardingController,
   CorrectIceCreamShopOnboardingEmailController,
@@ -30,6 +31,7 @@ import {
   ResendUserInvitationController,
   RequestPasswordRecoveryController,
   ResetPasswordController,
+  SearchGlobalController,
 } from '@/identity/rest/controllers'
 import { ProvisionModule } from '@/shared/provision/provision.module'
 
@@ -38,11 +40,13 @@ import { ProvisionModule } from '@/shared/provision/provision.module'
     IdentityDatabaseModule,
     IdentityProvisionModule,
     IdentityMessagingModule,
+    GlobalSearchProvisionModule,
     ProvisionModule,
   ],
   controllers: [
     GetAuthSessionController,
     ChangeUserProfileController,
+    SearchGlobalController,
     RegisterIceCreamShopOnboardingController,
     GetIceCreamShopOnboardingController,
     ResendIceCreamShopConfirmationController,

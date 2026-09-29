@@ -6,6 +6,7 @@ import type { PdvModuleFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import {
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
+  operatorRequestAuthorization,
   preparePdvFixture,
   resetPdvFixture,
 } from '@/pdv/fixtures/pdv-module-fixture'
@@ -40,9 +41,15 @@ describe('Get Combo Controller [GET /discounts/:discountId]', () => {
     })
     expect(response.body.combo.createdAt).toBe(combo.createdAt.toISOString())
     expect(response.body.components).toHaveLength(2)
+
+    const operator = await request(fixture.app.getHttpServer())
+      .get(`/discounts/${combo.id}`)
+      .set('Cookie', operatorRequestAuthorization())
+    expect(operator.status).toBe(200)
+    expect(operator.body).toEqual(response.body)
   })
 
-  it('hides foreign records and rejects malformed identifiers', async () => {
+  it('hides foreign records from Managers and Operators and rejects malformed identifiers', async () => {
     const foreignCombo = await fixture.addCombo(
       comboCreate({
         establishmentId: '44000000-0000-0000-0000-000000000001',
@@ -55,8 +62,12 @@ describe('Get Combo Controller [GET /discounts/:discountId]', () => {
     const malformed = await request(fixture.app.getHttpServer())
       .get('/discounts/not-a-uuid')
       .set('Cookie', foreignManagerRequestAuthorization())
+    const foreignOperator = await request(fixture.app.getHttpServer())
+      .get(`/discounts/${foreignCombo.id}`)
+      .set('Cookie', operatorRequestAuthorization())
 
     expect(foreign.status).toBe(404)
+    expect(foreignOperator.status).toBe(404)
     expect(malformed.status).toBe(400)
   })
 })

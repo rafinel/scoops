@@ -1,3 +1,5 @@
+import type { GlobalSearchPageKey } from '@scoops/core/identity/domain/structures'
+
 export const ROUTES = {
   root: '/',
   login: '/login',
@@ -31,6 +33,20 @@ export const ROUTES = {
   shopSettings: '/shop-settings',
   notifications: '/notifications',
 } as const
+
+export const GLOBAL_SEARCH_PAGE_ROUTES = {
+  dashboard: ROUTES.app,
+  products: ROUTES.products,
+  newSale: ROUTES.newSale,
+  orders: ROUTES.orders,
+  salesChannels: ROUTES.salesChannels,
+  discounts: ROUTES.discounts,
+  users: ROUTES.users,
+  shopSettings: ROUTES.shopSettings,
+  subscription: ROUTES.subscription,
+  account: ROUTES.account,
+  accompanimentTypes: ROUTES.accompanimentTypes,
+} satisfies Record<GlobalSearchPageKey, RoutePath>
 
 export function productRecipeRoute(productId: string): string {
   return ROUTES.productDetailsRecipe.replace('$productId', productId)

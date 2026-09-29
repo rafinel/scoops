@@ -8,6 +8,7 @@ import type {
   UserSummary,
   UsersPage,
   UsersListParams,
+  GlobalSearchResults,
 } from '@scoops/core/identity/domain/structures'
 import type { IdentityService as IdentityRestService } from '@scoops/core/identity/interfaces'
 import { RestResponse } from '@scoops/core/shared/responses/rest-response'
@@ -36,7 +37,17 @@ type WebIdentityService = Omit<IdentityRestService, 'acceptUserInvitation'> & {
   acceptUserInvitation(input: AcceptUserInvitationInput): Promise<RestResponse<void>>
 }
 
-export const IdentityService = (restClient: RestClient): WebIdentityService => {
+export const IdentityService = (restClient: RestClient): WebIdentityService => ({
+  ...createSessionMethods(restClient),
+  ...createEstablishmentSettingsMethods(restClient),
+  ...createOnboardingMethods(restClient),
+  ...createUserQueryMethods(restClient),
+  ...createUserActionMethods(restClient),
+})
+
+function createSessionMethods(
+  restClient: RestClient,
+): Pick<WebIdentityService, 'getAccount' | 'changeOwnUserName'> {
   return {
     getAccount() {
       return restClient.get<Account>('/auth/session')
@@ -45,54 +56,83 @@ export const IdentityService = (restClient: RestClient): WebIdentityService => {
     changeOwnUserName(name: string) {
       return restClient.patch<Account>('/auth/session/name', { name })
     },
+  }
+}
 
-    async getEstablishmentSettings() {
-      const response = await restClient.get<EstablishmentSettingsJson>(
-        '/establishments/current',
-      )
-      if (!response.isSuccessful) {
-        return response as unknown as RestResponse<EstablishmentSettings>
-      }
+function createEstablishmentSettingsMethods(
+  restClient: RestClient,
+): Pick<
+  WebIdentityService,
+  'getEstablishmentSettings' | 'changeEstablishmentName' | 'changeEstablishmentTimezone'
+> {
+  async function getEstablishmentSettings() {
+    const response = await restClient.get<EstablishmentSettingsJson>(
+      '/establishments/current',
+    )
+    if (!response.isSuccessful) {
+      return response as unknown as RestResponse<EstablishmentSettings>
+    }
 
-      return new RestResponse({
-        body: EstablishmentSettingsMapper(response.body),
-        statusCode: response.statusCode,
-        headers: response.headers,
-      })
-    },
+    return new RestResponse({
+      body: EstablishmentSettingsMapper(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  }
 
-    async changeEstablishmentName(name: string) {
-      const response = await restClient.patch<EstablishmentSettingsJson>(
-        '/establishments/current/name',
-        { name },
-      )
-      if (!response.isSuccessful) {
-        return response as unknown as RestResponse<EstablishmentSettings>
-      }
+  async function changeEstablishmentName(name: string) {
+    const response = await restClient.patch<EstablishmentSettingsJson>(
+      '/establishments/current/name',
+      { name },
+    )
+    if (!response.isSuccessful) {
+      return response as unknown as RestResponse<EstablishmentSettings>
+    }
 
-      return new RestResponse({
-        body: EstablishmentSettingsMapper(response.body),
-        statusCode: response.statusCode,
-        headers: response.headers,
-      })
-    },
+    return new RestResponse({
+      body: EstablishmentSettingsMapper(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  }
 
-    async changeEstablishmentTimezone(timeZone: string) {
-      const response = await restClient.patch<EstablishmentSettingsJson>(
-        '/establishments/current/timezone',
-        { timeZone },
-      )
-      if (!response.isSuccessful) {
-        return response as unknown as RestResponse<EstablishmentSettings>
-      }
+  async function changeEstablishmentTimezone(timeZone: string) {
+    const response = await restClient.patch<EstablishmentSettingsJson>(
+      '/establishments/current/timezone',
+      { timeZone },
+    )
+    if (!response.isSuccessful) {
+      return response as unknown as RestResponse<EstablishmentSettings>
+    }
 
-      return new RestResponse({
-        body: EstablishmentSettingsMapper(response.body),
-        statusCode: response.statusCode,
-        headers: response.headers,
-      })
-    },
+    return new RestResponse({
+      body: EstablishmentSettingsMapper(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  }
 
+  return {
+    getEstablishmentSettings,
+    changeEstablishmentName,
+    changeEstablishmentTimezone,
+  }
+}
+
+function createOnboardingMethods(
+  restClient: RestClient,
+): Pick<
+  WebIdentityService,
+  | 'registerIceCreamShop'
+  | 'getIceCreamShopOnboarding'
+  | 'resendIceCreamShopConfirmation'
+  | 'correctIceCreamShopOnboardingEmail'
+  | 'confirmIceCreamShopOnboarding'
+  | 'requestPasswordRecovery'
+  | 'resetPassword'
+  | 'acceptUserInvitation'
+> {
+  return {
     async registerIceCreamShop(request: IceCreamShopOnboardingInput) {
       const response = await restClient.post<IceCreamShopOnboardingRegistrationJson>(
         '/registration-attempts/onboarding',
@@ -149,38 +189,68 @@ export const IdentityService = (restClient: RestClient): WebIdentityService => {
       return restClient.post<void>('/registration-attempts/password-reset', input)
     },
 
-    async listUsers(input: Omit<UsersListParams, 'establishmentId'>) {
-      const params = new URLSearchParams()
-      if (input.search) params.set('search', input.search)
-      if (input.profile) params.set('profile', input.profile)
-      if (input.status) params.set('status', input.status)
-      params.set('page', String(input.page))
-      params.set('pageSize', String(input.pageSize))
-
-      const response = await restClient.get<UsersPageJson>(`/users?${params.toString()}`)
-
-      if (!response.isSuccessful) {
-        return response as unknown as RestResponse<UsersPage<UserSummary>>
-      }
-
-      return new RestResponse({
-        body: UsersPageMapper(response.body),
-        statusCode: response.statusCode,
-        headers: response.headers,
-      })
+    async acceptUserInvitation(input: AcceptUserInvitationInput) {
+      return restClient.post<void>('/registration-attempts/invitation/accept', input)
     },
+  }
+}
 
-    async getUserDetails(userId: string) {
-      const response = await restClient.get<UserDetailsJson>(`/users/${userId}`)
-      if (!response.isSuccessful) return response as unknown as RestResponse<UserDetails>
+function createUserQueryMethods(
+  restClient: RestClient,
+): Pick<WebIdentityService, 'listUsers' | 'searchGlobal' | 'getUserDetails'> {
+  async function listUsers(input: Omit<UsersListParams, 'establishmentId'>) {
+    const params = new URLSearchParams()
+    if (input.search) params.set('search', input.search)
+    if (input.profile) params.set('profile', input.profile)
+    if (input.status) params.set('status', input.status)
+    params.set('page', String(input.page))
+    params.set('pageSize', String(input.pageSize))
 
-      return new RestResponse({
-        body: UserDetailsMapper(response.body),
-        statusCode: response.statusCode,
-        headers: response.headers,
-      })
-    },
+    const response = await restClient.get<UsersPageJson>(`/users?${params.toString()}`)
 
+    if (!response.isSuccessful) {
+      return response as unknown as RestResponse<UsersPage<UserSummary>>
+    }
+
+    return new RestResponse({
+      body: UsersPageMapper(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  }
+
+  async function searchGlobal(query: string) {
+    const params = new URLSearchParams({ q: query })
+    return restClient.get<GlobalSearchResults>(`/global-search?${params.toString()}`)
+  }
+
+  async function getUserDetails(userId: string) {
+    const response = await restClient.get<UserDetailsJson>(`/users/${userId}`)
+    if (!response.isSuccessful) return response as unknown as RestResponse<UserDetails>
+
+    return new RestResponse({
+      body: UserDetailsMapper(response.body),
+      statusCode: response.statusCode,
+      headers: response.headers,
+    })
+  }
+
+  return { listUsers, searchGlobal, getUserDetails }
+}
+
+function createUserActionMethods(
+  restClient: RestClient,
+): Pick<
+  WebIdentityService,
+  | 'inviteUser'
+  | 'correctUserInvitation'
+  | 'resendUserInvitation'
+  | 'cancelUserInvitation'
+  | 'changeUserProfile'
+  | 'changeUserStatus'
+  | 'correctUserName'
+> {
+  return {
     async inviteUser(input: { name: string; email: string; profile: UserProfile }) {
       return UserDetailsResponseMapper(
         await restClient.post<UserDetailsJson>('/users/invitations', input),
@@ -204,10 +274,6 @@ export const IdentityService = (restClient: RestClient): WebIdentityService => {
 
     async cancelUserInvitation(userId: string) {
       return restClient.delete<void>(`/users/${userId}/invitation`)
-    },
-
-    async acceptUserInvitation(input: AcceptUserInvitationInput) {
-      return restClient.post<void>('/registration-attempts/invitation/accept', input)
     },
 
     async changeUserProfile(userId: string, profile: UserProfile) {

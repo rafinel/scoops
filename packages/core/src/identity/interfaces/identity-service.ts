@@ -11,8 +11,10 @@ import type { UsersPage } from '#identity/domain/structures/users-page.ts'
 import type { UsersListParams } from '#identity/domain/structures/users-list-params.ts'
 import type { EstablishmentSettings } from '#identity/domain/structures/establishment-settings.ts'
 import type { EstablishmentTimezone } from '#identity/domain/structures/establishment-timezone.ts'
+import type { GlobalSearchResults } from '#identity/domain/structures/global-search-results.ts'
 
 export interface IdentityService {
+  searchGlobal(query: string): Promise<RestResponse<GlobalSearchResults>>
   getAccount(): Promise<RestResponse<Account>>
   changeOwnUserName(name: string): Promise<RestResponse<Account>>
   getEstablishmentSettings(): Promise<RestResponse<EstablishmentSettings>>

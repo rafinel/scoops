@@ -415,11 +415,16 @@ test.describe('New product access', () => {
     await expect(page.getByRole('heading', { name: 'Entre no Scoops' })).toBeVisible()
   })
 
-  test('redirects operators to access denied', async ({ page, identityFixture }) => {
+  test('denies Operators direct product registration access', async ({
+    page,
+    identityFixture,
+  }) => {
     await identityFixture.mockOperatorSession()
     await identityFixture.mockOperatorAccount()
     await page.goto('/products/new')
     await expect(page).toHaveURL('/access-denied')
     await expect(page.getByRole('heading', { name: 'Acesso negado' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Novo produto' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Salvar produto' })).toHaveCount(0)
   })
 })

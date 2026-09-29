@@ -1,12 +1,12 @@
-import { Button } from '@/ui/shadcn/button'
-import { BackLink } from '@/ui/shared/widgets/components/back-link'
-import { Icon } from '@/ui/shared/widgets/components/icon'
+import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 
 import { ChangeComboStatusDialog } from './change-combo-status-dialog'
 import { ComboDiscountHeader } from './combo-discount-header'
 import { ComboDiscountForm } from './combo-discount-form'
 import { ComboDiscountLoading } from './combo-discount-loading'
 import { DeleteComboDialog } from './delete-combo-dialog'
+import { EditLoadError } from './edit-load-error'
+import { ReadOnlyComboDetails } from './read-only-combo-details'
 import {
   useComboDiscountPage,
   type ComboDiscountPageProps,
@@ -16,6 +16,7 @@ export type { ComboDiscountPageProps }
 
 export const ComboDiscountPage = (props: ComboDiscountPageProps) => {
   const {
+    canManageDiscounts,
     announcement,
     comboDetails,
     comboDetailsError,
@@ -36,57 +37,44 @@ export const ComboDiscountPage = (props: ComboDiscountPageProps) => {
     statusTarget,
     submitError,
   } = useComboDiscountPage(props)
+  const formatCurrency = useFormatCurrency()
 
   if (props.mode === 'edit' && isLoadingComboDetails) {
     return <ComboDiscountLoading />
   }
 
   if (props.mode === 'edit' && isComboDetailsError) {
-    return (
-      <section className='grid min-h-64 place-items-center rounded-2xl border border-border-soft bg-card p-6 text-center'>
-        <div>
-          <Icon name='triangle-alert' className='mx-auto mb-3 size-8 text-destructive' />
-          <h1 className='text-lg font-extrabold'>Não foi possível carregar o combo.</h1>
-          <p className='mt-2 max-w-md text-sm text-muted-foreground'>
-            {comboDetailsError instanceof Error
-              ? comboDetailsError.message
-              : 'Tente novamente ou volte para a lista de descontos.'}
-          </p>
-          <div className='mt-5 flex justify-center gap-2'>
-            <Button onClick={handleRetry} variant='outline'>
-              Tentar novamente
-            </Button>
-            <BackLink aria-label='Voltar para descontos' route='discounts'>
-              Voltar para descontos
-            </BackLink>
-          </div>
-        </div>
-      </section>
-    )
+    return <EditLoadError error={comboDetailsError} onRetry={handleRetry} />
   }
 
   if (props.mode === 'edit' && !comboDetails) return null
 
   return (
     <section className='min-w-0 space-y-5'>
-      <ComboDiscountHeader
-        announcement={announcement}
-        hasDetails={Boolean(comboDetails)}
-        isRefreshing={isRefreshingComboDetails}
-        mode={props.mode}
-        onRequestDelete={handleRequestDelete}
-      />
-      <ComboDiscountForm
-        initialDetails={comboDetails}
-        isPending={isPending}
-        mode={props.mode}
-        onCancel={handleCancel}
-        onRequestStatusChange={handleRequestStatusChange}
-        onSubmit={handleSubmit}
-        submitError={submitError}
-      />
+      {canManageDiscounts ? (
+        <>
+          <ComboDiscountHeader
+            announcement={announcement}
+            hasDetails={Boolean(comboDetails)}
+            isRefreshing={isRefreshingComboDetails}
+            mode={props.mode}
+            onRequestDelete={handleRequestDelete}
+          />
+          <ComboDiscountForm
+            initialDetails={comboDetails}
+            isPending={isPending}
+            mode={props.mode}
+            onCancel={handleCancel}
+            onRequestStatusChange={handleRequestStatusChange}
+            onSubmit={handleSubmit}
+            submitError={submitError}
+          />
+        </>
+      ) : comboDetails ? (
+        <ReadOnlyComboDetails details={comboDetails} formatCurrency={formatCurrency} />
+      ) : null}
 
-      {props.mode === 'edit' && comboDetails && statusTarget ? (
+      {canManageDiscounts && props.mode === 'edit' && comboDetails && statusTarget ? (
         <ChangeComboStatusDialog
           combo={comboDetails.combo}
           expectedUpdatedAt={comboDetails.combo.updatedAt}
@@ -96,7 +84,7 @@ export const ComboDiscountPage = (props: ComboDiscountPageProps) => {
           targetStatus={statusTarget}
         />
       ) : null}
-      {props.mode === 'edit' && comboDetails ? (
+      {canManageDiscounts && props.mode === 'edit' && comboDetails ? (
         <DeleteComboDialog
           combo={comboDetails.combo}
           expectedUpdatedAt={comboDetails.combo.updatedAt}

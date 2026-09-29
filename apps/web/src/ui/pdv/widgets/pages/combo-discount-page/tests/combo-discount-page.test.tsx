@@ -29,6 +29,7 @@ const useComboDiscountPageMock = vi.mocked(useComboDiscountPage)
 
 function createView() {
   return {
+    canManageDiscounts: true,
     announcement: '',
     comboDetails: undefined,
     comboDetailsError: null,
@@ -86,5 +87,22 @@ describe('ComboDiscountPage', () => {
     expect(
       useComboDiscountPageMock.mock.results.at(-1)?.value.handleRetry,
     ).toHaveBeenCalledOnce()
+  })
+
+  it('shows combo details to Operators without edit, status, or delete controls', () => {
+    useComboDiscountPageMock.mockReturnValue({
+      ...createView(),
+      canManageDiscounts: false,
+      comboDetails,
+      isDeleteOpen: true,
+      statusTarget: 'inactive',
+    })
+    render(<ComboDiscountPage comboId='combo-1' mode='edit' />)
+    expect(screen.getByRole('heading', { name: comboDetails.combo.name })).toBeTruthy()
+    expect(screen.getByText('Composição do combo')).toBeTruthy()
+    expect(screen.getByText('Açaí')).toBeTruthy()
+    expect(screen.queryByTestId('combo-form')).toBeNull()
+    expect(screen.queryByTestId('status-dialog')).toBeNull()
+    expect(screen.queryByTestId('delete-dialog')).toBeNull()
   })
 })

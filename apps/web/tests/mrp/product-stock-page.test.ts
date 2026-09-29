@@ -120,6 +120,35 @@ test.describe('ProductStockPage', () => {
     )
   })
 
+  test('lets Operators read stock and history without stock controls', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await identityFixture.mockOperatorSession()
+    await identityFixture.mockOperatorAccount()
+    await mrpFixture.mockProductStock({
+      respond: ({ url }) =>
+        url.pathname.endsWith('/stock-transactions')
+          ? { body: TRANSACTIONS }
+          : { body: fakeStockResponse() },
+    })
+
+    await page.setViewportSize({ width: 1560, height: 1320 })
+    await page.goto(`/products/${PRODUCT_ID}/stock`)
+    await expect(page).toHaveURL(`/products/${PRODUCT_ID}/stock`)
+    await expect(page.getByRole('heading', { name: PRODUCT.name })).toBeVisible()
+    await expect(
+      page.getByRole('row', { name: /Frooty Principal/ }),
+    ).toBeVisible()
+    await expect(page.getByRole('cell', { name: 'Maria Silva' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Entrada' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Baixa' })).toHaveCount(0)
+    await expect(
+      page.getByRole('button', { name: 'Abrir ações da marca Frooty' }),
+    ).toHaveCount(0)
+  })
+
   test('loads the canonical populated route and captures exact detail and history requests', async ({
     page,
     identityFixture,
