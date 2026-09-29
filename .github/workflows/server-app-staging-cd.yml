@@ -39,8 +39,8 @@ jobs:
 
       - name: Validate deployment configuration
         env:
-          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ vars.SENTRY_SERVER_STAGING_PROJECT }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_SERVER_STAGING_PROJECT }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
           test -n "$HEROKU_APP_NAME"
@@ -75,8 +75,8 @@ jobs:
 
       - name: Validate server runtime and release configuration
         env:
-          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ vars.SENTRY_SERVER_STAGING_PROJECT }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_SERVER_STAGING_PROJECT }}
         run: |
           test "$SCOOPS_SERVER_APP_MODE" = stg
           test -n "$SENTRY_DSN"
@@ -86,8 +86,8 @@ jobs:
 
       - name: Build and push server images
         env:
-          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ vars.SENTRY_SERVER_STAGING_PROJECT }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_SERVER_STAGING_PROJECT }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
           DOCKER_BUILDKIT=1 docker build \
