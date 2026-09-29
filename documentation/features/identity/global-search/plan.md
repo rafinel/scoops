@@ -1,6 +1,6 @@
 ---
 title: Authenticated global search — implementation plan
-status: completed
+status: in_progress
 spec: ./spec.md
 spec_revision: 12
 evaluation: ./evaluation.md
@@ -10,12 +10,12 @@ updated_at: 2026-09-29
 
 # Execution status
 
-- **Spec:** [`./spec.md`](./spec.md), revision 12, `completed` after the compatibility review, implementation evidence, PR publication and implementation-candidate CI gate.
+- **Spec:** [`./spec.md`](./spec.md), revision 12, `in_progress` after the compatibility review and Orchestrator integrity checks; product behavior, API and state ownership are unchanged.
 - **Plan-backed rationale:** The contract spans Core, Validation, Server and Web, with role and tenant boundaries, an authenticated endpoint, cross-module read adapters, generated route coordination, real HTTP validation and nine design references.
-- **Current phase:** All implementation phases and evidence are complete; PR #48 implementation-candidate CI passed. The delivery closure commit is being published for its final-head CI gate.
-- **Next action:** Confirm all applicable CI checks pass on the closure commit head.
-- **Active blockers:** No implementation blockers. Closure-head CI is pending.
-- **Active Builders:** All Builder assignments are complete; no Builder work remains.
+- **Current phase:** PR #49 now uses the requested `feat/global-search` branch with all pre-existing branch changes included. The initial Web CI issue has been corrected; conformance, Web types, coverage, Biome and all scoped complexity checks pass.
+- **Next action:** Commit the correction and refreshed evidence, update PR #49 through `create-pr`, then poll all applicable checks on the new head.
+- **Active blockers:** Corrected-head PR CI is pending.
+- **Active Builders:** All Builder assignments are complete; Orchestrator owns publication, PR CI and closure ledger updates.
 - **Shared ownership:** The Orchestrator owns `.dependency-cruiser.mjs`, route generation output (`apps/web/src/routeTree.gen.ts`, only if generation changes it), the integrated path sensor, evidence integration and review coordination. Do not hand-edit generated route metadata.
 
 # Execution ledger
@@ -193,11 +193,11 @@ The phases below follow the user-approved Operator scope. Revision 6 established
 #### F12-T2 — Refactor Web complexity findings
 
 - **Status/owner:** `completed` — Builder Web (`/root/builder_fix_web`) and Sales Channels/IdentityService helper (`/root/sales_channels_list_split`).
-- **Depends/parallel:** Depends on conclusion preflight finding F-19; parallel with F12-T1. Preserve excluded analytics dashboard edits.
-- **Paths:** Existing mapped Web complexity files: `apps/web/src/rest/services/identity-service.ts`; `apps/web/src/ui/identity/widgets/components/global-search/index.tsx`; `apps/web/src/ui/identity/widgets/components/global-search/use-global-search.ts`; `apps/web/src/ui/mrp/widgets/slots/product-accompaniments-slot/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-accompaniments-slot/product-accompaniments-table/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-pricing-slot/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-pricing-slot/product-resale-settings-card/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-recipe-slot/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-recipe-slot/product-recipe-card/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-recipe-slot/recipe-ingredients-table/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-settings-slot/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-stock-slot/product-brands-card/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-pricing-slot/product-sizes-card/product-sizes-table/index.tsx`; `apps/web/src/ui/pdv/widgets/pages/combo-discount-page/index.tsx`; `apps/web/src/ui/pdv/widgets/pages/combo-discount-page/use-combo-discount-page.ts`; `apps/web/src/ui/pdv/widgets/pages/discounts-page/use-discounts-page.ts`; `apps/web/src/ui/pdv/widgets/pages/sales-channels-page/index.tsx`; `apps/web/src/ui/pdv/widgets/pages/sales-channels-page/use-sales-channels-page.ts`; and `apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-list/index.tsx`. The new child widget paths are the 24 revision 11 `Create` paths enumerated in Spec section 3. Do not modify `apps/web/src/ui/analytics/widgets/pages/dashboard-page/index.tsx` or `apps/web/src/server/analytics/log-analytics-interaction.ts`; these are excluded user-owned changes.
+- **Depends/parallel:** Depends on conclusion preflight finding F-19; parallel with F12-T1. The user later directed inclusion of the analytics dashboard and logger already on `feat/global-search`; the correction keeps those branch changes in scope.
+- **Paths:** Existing mapped Web complexity files: `apps/web/src/rest/services/identity-service.ts`; `apps/web/src/ui/identity/widgets/components/global-search/index.tsx`; `apps/web/src/ui/identity/widgets/components/global-search/use-global-search.ts`; `apps/web/src/ui/mrp/widgets/slots/product-accompaniments-slot/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-accompaniments-slot/product-accompaniments-table/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-pricing-slot/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-pricing-slot/product-resale-settings-card/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-recipe-slot/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-recipe-slot/product-recipe-card/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-recipe-slot/recipe-ingredients-table/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-settings-slot/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-stock-slot/product-brands-card/index.tsx`; `apps/web/src/ui/mrp/widgets/slots/product-pricing-slot/product-sizes-card/product-sizes-table/index.tsx`; `apps/web/src/ui/pdv/widgets/pages/combo-discount-page/index.tsx`; `apps/web/src/ui/pdv/widgets/pages/combo-discount-page/use-combo-discount-page.ts`; `apps/web/src/ui/pdv/widgets/pages/discounts-page/use-discounts-page.ts`; `apps/web/src/ui/pdv/widgets/pages/sales-channels-page/index.tsx`; `apps/web/src/ui/pdv/widgets/pages/sales-channels-page/use-sales-channels-page.ts`; and `apps/web/src/ui/pdv/widgets/pages/sales-channels-page/sales-channels-list/index.tsx`; the complete candidate also includes the current-branch Dashboard analytics hook and logger corrections. The new child widget paths are the 24 revision 11 `Create` paths enumerated in Spec section 3.
 - **Contract:** Preserve FR-01–FR-08 and AC-01–AC-11, role-based read-only behavior, routes, search keyboard behavior, accessibility, responsive layout and existing API behavior.
 - **Rules:** `documentation/rules/code-conventions-rules.md`; `documentation/rules/ui-layer-rules.md`; `documentation/rules/web-app-routing-rules.md`; `documentation/rules/widget-testing-rules.md`; `documentation/design.md`.
-- **Exit:** Web code and focused tests pass; all feature-owned error-level complexity findings are resolved. The clean-candidate Web type check passed; the shared dirty worktree command reports one diagnostic in excluded user-owned analytics code. Clean-candidate Web scoped complexity passes with zero warnings/errors. Orchestrator captured and inspected current desktop, narrow, keyboard, loading, empty, error and Operator read-only screenshots and reran live browser behavior with console/network checks.
+- **Exit:** Web code, types, coverage (211 files/544 tests), focused route tests and integration pass; all feature-owned complexity findings are resolved. The current-branch logger type check and Dashboard hook refactor pass Biome and Web complexity with zero warnings/errors. Existing current desktop, narrow, keyboard, loading, empty, error and Operator read-only screenshots and live browser evidence remain valid; no visual state changed in this correction.
 
 # Validation and handoff
 
@@ -226,4 +226,4 @@ The phases below follow the user-approved Operator scope. Revision 6 established
 
 ## Final handoff condition
 
-Revision 5's implementation and validation handoff was complete, including its 229/229 Web integration result and nine visual comparisons. Revisions 6–10 established and mapped the approved Operator behavior and current test-path classifications. F8–F11, F12 and the final F10 route-test conformance correction are complete. Final revision 12 local evidence is current; PRD requirements remain unchecked because the mapped outcomes are partially delivered. Delivery publication and PR CI remain.
+Revision 5's implementation and validation handoff was complete, including its 229/229 Web integration result and nine visual comparisons. Revisions 6–10 established and mapped the approved Operator behavior and current test-path classifications. F8–F11, F12 and the final F10 route-test conformance correction are complete. The initial #49 Web check found issues in the explicitly included branch analytics; their correction and local validation are complete. PRD requirements remain unchecked because the mapped outcomes are partially delivered. Corrected-head PR CI remains.

@@ -1,10 +1,10 @@
-import { analyticsInteractionSchema, type AnalyticsInteraction } from '@scoops/validation'
+import { analyticsInteractionSchema } from '@scoops/validation'
 import { createServerFn } from '@tanstack/react-start'
 import { getRequestHeader } from '@tanstack/react-start/server'
 
 export const logAnalyticsInteraction = createServerFn({ method: 'POST' })
   .validator(analyticsInteractionSchema)
-  .handler(async ({ data }: { data: AnalyticsInteraction }) => {
+  .handler(async () => {
     if (!getRequestHeader('cookie')) return { accepted: false as const }
 
     try {
