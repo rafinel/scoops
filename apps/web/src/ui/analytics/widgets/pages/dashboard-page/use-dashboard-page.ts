@@ -3,7 +3,7 @@ import type { AnalyticsPeriod } from '@scoops/core/analytics/domain/structures'
 import type { AnalyticsInteraction } from '@scoops/validation'
 import { useSalesAnalyticsQuery } from '@/ui/analytics/hooks/use-sales-analytics-query'
 import { useStockAttentionQuery } from '@/ui/analytics/hooks/use-stock-attention-query'
-import { useAnalyticsInteraction } from '@/ui/analytics/hooks/use-analytics-interaction'
+import { useLogsAnalyticsInteractionAction } from '@/ui/analytics/hooks/use-logs-analytics-interaction-action'
 
 type DashboardSourceInteraction = Omit<AnalyticsInteraction, 'tenantId'>
 
@@ -35,7 +35,7 @@ export function useDashboardPage() {
   const [period, setPeriod] = useState<AnalyticsPeriod>('last-30-days')
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [coverageOpen, setCoverageOpen] = useState(false)
-  const logInteraction = useAnalyticsInteraction()
+  const logInteraction = useLogsAnalyticsInteractionAction()
   const sales = useSalesAnalyticsQuery(period)
   const stock = useStockAttentionQuery()
 
