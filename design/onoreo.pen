@@ -101154,7 +101154,7 @@
               "fill": "$text-secondary",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "Porção ativa · Estoque baixo",
+              "content": "Porção · Ativo",
               "fontFamily": "$font-body",
               "fontSize": 12,
               "fontWeight": "500"
@@ -101280,7 +101280,7 @@
                   "content": "Sorvete de morango"
                 },
                 "wibVU": {
-                  "content": "Porção ativa · Estoque baixo"
+                  "content": "Porção · Ativo"
                 }
               }
             },
@@ -101302,7 +101302,7 @@
                   "content": "Calda de morango"
                 },
                 "wibVU": {
-                  "content": "Ingrediente ativo · 2.400 g em estoque"
+                  "content": "Ingrediente · Ativo"
                 }
               }
             }
@@ -101356,7 +101356,7 @@
                   "content": "Pedido #1024"
                 },
                 "wibVU": {
-                  "content": "22 set 2026 · Morango 500 ml · R$ 48,00"
+                  "content": "22 set 2026 · Morango 500 ml"
                 }
               }
             }
@@ -101410,7 +101410,7 @@
                   "content": "Combo Morango"
                 },
                 "wibVU": {
-                  "content": "Combo ativo · 10% de desconto"
+                  "content": "Combo · Ativo"
                 }
               }
             }
@@ -101500,6 +101500,563 @@
           "width": 480
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "htlE8",
+      "x": -1188,
+      "y": -2641,
+      "name": "Global Search Dropdown — Loading",
+      "width": 480,
+      "fill": "$bg-card",
+      "cornerRadius": 16,
+      "stroke": "$border",
+      "strokeWidth": 1,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#0000001F",
+        "offset": {
+          "x": 0,
+          "y": 8
+        },
+        "blur": 20
+      },
+      "layout": "vertical",
+      "gap": 4,
+      "padding": 12,
+      "children": [
+        {
+          "type": "frame",
+          "id": "h5ZXd",
+          "name": "Search state heading",
+          "width": "fill_container",
+          "height": 28,
+          "padding": [
+            0,
+            8
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "JvaUs",
+              "name": "Loading label",
+              "fill": "$text-secondary",
+              "content": "Buscando resultados",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "rectangle",
+          "id": "z8LhtD",
+          "name": "Header separator",
+          "fill": "$border-soft",
+          "width": "fill_container",
+          "height": 1
+        },
+        {
+          "type": "frame",
+          "id": "mGLtt",
+          "name": "Loading content",
+          "width": "fill_container",
+          "height": 96,
+          "gap": 12,
+          "padding": [
+            16,
+            8
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "u282W",
+              "name": "Loading icon",
+              "width": 18,
+              "height": 18,
+              "icon": "loader-circle",
+              "library": "lucide",
+              "fill": "$primary"
+            },
+            {
+              "type": "frame",
+              "id": "RaiGf",
+              "name": "Loading text",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "wbVmb",
+                  "name": "Loading title",
+                  "fill": "$text-primary",
+                  "content": "Procurando no Scoops",
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "F5wxo5",
+                  "name": "Loading detail",
+                  "fill": "$text-secondary",
+                  "content": "Os resultados aparecerão aqui.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Ef8y4",
+      "x": -677,
+      "y": -2641,
+      "name": "Global Search Dropdown — No results",
+      "width": 480,
+      "fill": "$bg-card",
+      "cornerRadius": 16,
+      "stroke": "$border",
+      "strokeWidth": 1,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#0000001F",
+        "offset": {
+          "x": 0,
+          "y": 8
+        },
+        "blur": 20
+      },
+      "layout": "vertical",
+      "gap": 4,
+      "padding": 12,
+      "children": [
+        {
+          "type": "frame",
+          "id": "X92HL",
+          "name": "Search state heading",
+          "width": "fill_container",
+          "height": 28,
+          "padding": [
+            0,
+            8
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "hKcBF",
+              "name": "Loading label",
+              "fill": "$text-secondary",
+              "content": "Nenhum resultado",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "rectangle",
+          "id": "ZJNXL",
+          "name": "Header separator",
+          "fill": "$border-soft",
+          "width": "fill_container",
+          "height": 1
+        },
+        {
+          "type": "frame",
+          "id": "HKgVr",
+          "name": "Loading content",
+          "width": "fill_container",
+          "height": 96,
+          "gap": 12,
+          "padding": [
+            16,
+            8
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "oPjQg",
+              "name": "Loading icon",
+              "width": 18,
+              "height": 18,
+              "icon": "search-x",
+              "library": "lucide",
+              "fill": "$text-secondary"
+            },
+            {
+              "type": "frame",
+              "id": "qUZ46",
+              "name": "Loading text",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "UFe3m",
+                  "name": "Loading title",
+                  "fill": "$text-primary",
+                  "content": "Nenhum resultado para “morango”",
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "fmO78",
+                  "name": "Loading detail",
+                  "fill": "$text-secondary",
+                  "content": "Tente outro termo.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "qRMgq",
+      "x": -132,
+      "y": -2641,
+      "name": "Global Search Dropdown — Error",
+      "width": 480,
+      "fill": "$bg-card",
+      "cornerRadius": 16,
+      "stroke": "$border",
+      "strokeWidth": 1,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#0000001F",
+        "offset": {
+          "x": 0,
+          "y": 8
+        },
+        "blur": 20
+      },
+      "layout": "vertical",
+      "gap": 4,
+      "padding": 12,
+      "children": [
+        {
+          "type": "frame",
+          "id": "KGVy9",
+          "name": "Search state heading",
+          "width": "fill_container",
+          "height": 28,
+          "padding": [
+            0,
+            8
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "DnaEn",
+              "name": "Loading label",
+              "fill": "$text-secondary",
+              "content": "Não foi possível buscar",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "rectangle",
+          "id": "bv9VP",
+          "name": "Header separator",
+          "fill": "$border-soft",
+          "width": "fill_container",
+          "height": 1
+        },
+        {
+          "type": "frame",
+          "id": "mfWbb",
+          "name": "Loading content",
+          "width": "fill_container",
+          "height": 96,
+          "gap": 12,
+          "padding": [
+            16,
+            8
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "icon",
+              "id": "E9Zf1",
+              "name": "Loading icon",
+              "width": 18,
+              "height": 18,
+              "icon": "circle-alert",
+              "library": "lucide",
+              "fill": "$danger"
+            },
+            {
+              "type": "frame",
+              "id": "ral9o",
+              "name": "Loading text",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "S3npe1",
+                  "name": "Loading title",
+                  "fill": "$text-primary",
+                  "content": "A busca falhou",
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "XdOsK",
+                  "name": "Loading detail",
+                  "fill": "$primary",
+                  "content": "Tentar novamente",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "IzLCK",
+      "x": -360,
+      "y": -530,
+      "name": "Global Search — 320px Header and results",
+      "width": 320,
+      "height": 680,
+      "fill": "$bg-page",
+      "layout": "vertical",
+      "gap": 8,
+      "children": [
+        {
+          "type": "frame",
+          "id": "wV1fS",
+          "name": "Mobile Header",
+          "width": 320,
+          "height": 128,
+          "fill": "$bg-card",
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 12,
+          "children": [
+            {
+              "type": "frame",
+              "id": "EBA4o",
+              "name": "Mobile search bar",
+              "width": 296,
+              "height": 44,
+              "fill": "$bg-card",
+              "cornerRadius": 12,
+              "stroke": "$primary-soft",
+              "strokeWidth": 2,
+              "gap": 10,
+              "padding": [
+                0,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "EcSAS",
+                  "name": "Search icon",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "search",
+                  "library": "lucide",
+                  "fill": "$text-secondary"
+                },
+                {
+                  "type": "text",
+                  "id": "pmLiO",
+                  "name": "Search query",
+                  "fill": "$text-primary",
+                  "content": "morango",
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "E6NrP",
+              "name": "Mobile Header actions",
+              "width": 296,
+              "height": 44,
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "hnMWl",
+                  "name": "Open menu control",
+                  "width": 40,
+                  "height": 40,
+                  "fill": "$bg-card",
+                  "cornerRadius": 8,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "azlHd",
+                      "name": "Menu icon",
+                      "width": 18,
+                      "height": 18,
+                      "icon": "menu",
+                      "library": "lucide",
+                      "fill": "$text-secondary"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "TUySF",
+                  "name": "Notifications control",
+                  "width": 40,
+                  "height": 40,
+                  "fill": "$bg-card",
+                  "cornerRadius": 8,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "Z4VZK6",
+                      "name": "Bell icon",
+                      "width": 18,
+                      "height": 18,
+                      "icon": "bell",
+                      "library": "lucide",
+                      "fill": "$text-secondary"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Iphwe",
+                  "name": "User menu control",
+                  "width": 160,
+                  "height": 40,
+                  "fill": "$bg-card",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "gap": 8,
+                  "padding": [
+                    0,
+                    8
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "rOiXU",
+                      "name": "User avatar",
+                      "width": 28,
+                      "height": 28,
+                      "fill": "$success-soft",
+                      "cornerRadius": 14,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "jjnC7",
+                          "name": "User initials",
+                          "fill": "$success",
+                          "content": "CM",
+                          "fontFamily": "$font-body",
+                          "fontSize": 11,
+                          "fontWeight": "800"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "o7ws8r",
+                      "name": "User name",
+                      "fill": "$text-primary",
+                      "content": "Carlos",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "icon",
+                      "id": "kbjAf",
+                      "name": "User menu chevron",
+                      "width": 14,
+                      "height": 14,
+                      "icon": "chevron-down",
+                      "library": "lucide",
+                      "fill": "$text-secondary"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "pegX2",
+          "type": "ref",
+          "ref": "sqqJg",
+          "name": "Mobile results dropdown",
+          "x": 0,
+          "y": 136,
+          "width": 320
+        }
+      ]
+    },
+    {
+      "id": "w3kxj",
+      "type": "ref",
+      "ref": "sqqJg",
+      "x": -2134,
+      "y": -1450,
+      "name": "Global Search Dropdown — Keyboard focus",
+      "descendants": {
+        "usTKT": {
+          "fill": "$primary-soft",
+          "stroke": "$primary",
+          "strokeWidth": 2
+        }
+      }
     }
   ],
   "variables": {
