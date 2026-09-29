@@ -10,6 +10,7 @@ import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
+  operatorRequestAuthorization,
   createProduct,
   managerRequestAuthorization,
   prepareMrpFixture,
@@ -117,5 +118,14 @@ describe('Update Recipe Ingredient Controller [PATCH /products/:productId/recipe
       ),
     ).resolves.toMatchObject({ ingredientBrandId: alternate.id })
     expect(primary.id).not.toBe(alternate.id)
+  })
+  it('denies Operator access to this Manager-only route before controller execution', async () => {
+    const response = await request(fixture.app.getHttpServer())
+      .patch(
+        '/products/00000000-0000-4000-8000-000000000001/recipe/ingredients/00000000-0000-4000-8000-000000000001',
+      )
+      .set('Cookie', operatorRequestAuthorization())
+
+    expect(response.status).toBe(403)
   })
 })

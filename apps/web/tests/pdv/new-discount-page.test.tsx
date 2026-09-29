@@ -1,5 +1,13 @@
 import { expect, test } from '../playwright'
 
+test('denies Operators access to discount creation', async ({ page, identityFixture }) => {
+  await identityFixture.mockOperatorSession()
+  await identityFixture.mockOperatorAccount()
+  await page.goto('/discounts/new')
+  await expect(page).toHaveURL('/access-denied')
+  await expect(page.getByRole('heading', { name: 'Acesso negado' })).toBeVisible()
+})
+
 test('renders the Combo create page for a Manager', async ({
   page,
   identityFixture,

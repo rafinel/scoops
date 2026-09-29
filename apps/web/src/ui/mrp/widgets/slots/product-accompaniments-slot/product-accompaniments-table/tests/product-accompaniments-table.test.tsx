@@ -41,4 +41,31 @@ describe('ProductAccompanimentsTable', () => {
     expect(onEdit).toHaveBeenCalledTimes(1)
     expect(onRemove).toHaveBeenCalledTimes(1)
   })
+
+  it('keeps accompaniment facts visible without row actions for Operators', () => {
+    render(
+      <ProductAccompanimentsTable
+        canManage={false}
+        items={[
+          {
+            id: 'link-2',
+            accompanimentProductId: 'product-2',
+            accompanimentProductName: 'Granola',
+            accompanimentTypeId: 'type-1',
+            accompanimentTypeName: 'Cobertura',
+            unit: 'g',
+            quantityPerPortion: 20,
+            estimatedCost: 0.45,
+          },
+        ]}
+        onEdit={vi.fn()}
+        onRemove={vi.fn()}
+      />,
+    )
+    expect(screen.getByText('Granola')).toBeTruthy()
+    expect(screen.getByRole('columnheader', { name: 'ACOMPANHAMENTO' })).toBeTruthy()
+    expect(screen.queryByRole('columnheader', { name: 'AÇÕES' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Editar Granola' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Remover Granola' })).toBeNull()
+  })
 })

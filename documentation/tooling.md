@@ -568,10 +568,14 @@ Each workflow also has a separate `Complexity` job that runs the scoped
 CodeMultiVitals baseline quality gate alongside the app/package-specific
 validation job.
 
-The workflows run on matching pushes and pull requests. The repository does not currently contain
-deployment automation, such as Coolify workflows; deployment remains a separate manual or
-externally managed infrastructure concern. New GitHub automation must use Scoops-specific
-workflow names, secrets and environment variables.
+The validation workflows run on matching pushes and pull requests. Separate
+[`server-app-staging-cd.yml`](../.github/workflows/server-app-staging-cd.yml) and
+[`web-app-staging-cd.yml`](../.github/workflows/web-app-staging-cd.yml) workflows
+deploy matching pushes to `main` to Heroku staging. The repository does not
+currently define a production deployment workflow. See
+[`infrastructure.md`](infrastructure.md) for environment topology. New GitHub
+automation must use Scoops-specific workflow names, secrets and environment
+variables.
 
 ## Recommended local validation
 

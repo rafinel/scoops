@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react'
 import { DashboardPeriodControl } from './dashboard-period-control'
 import { DashboardSummary } from './dashboard-summary'
 import { DashboardSalesStatus } from './dashboard-sales-status'
@@ -11,7 +10,6 @@ import { useDashboardPage } from './use-dashboard-page'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { Skeleton } from '@/ui/shadcn/skeleton'
 import { useFormatDate } from '@/ui/shared/hooks/use-format-date'
-import { useAnalyticsInteraction } from '@/ui/analytics/hooks/use-analytics-interaction'
 
 const PERIOD_LABELS = {
   today: 'Hoje',
@@ -21,63 +19,19 @@ const PERIOD_LABELS = {
 } as const
 
 export const DashboardPage = () => {
-  const page = useDashboardPage()
-  const logInteraction = useAnalyticsInteraction()
-  const hasLoggedView = useRef(false)
-  const [coverageOpen, setCoverageOpen] = useState(false)
+  const {
+    period,
+    sales,
+    stock,
+    isRefreshing,
+    coverageOpen,
+    setPeriod,
+    refresh,
+    handleCoverageOpenChange,
+  } = useDashboardPage()
   const formatDate = useFormatDate()
-  useEffect(() => {
-    if (!hasLoggedView.current) {
-      hasLoggedView.current = true
-      logInteraction({
-        event: 'dashboard-viewed',
-        period: page.period,
-        target: 'dashboard',
-        source: 'ui',
-      })
-    }
-    if (page.sales.isStale) {
-      logInteraction({
-        event: 'stale-presented',
-        period: page.period,
-        target: 'summary',
-        source: 'sales',
-      })
-    } else if (page.sales.error && !page.sales.data) {
-      logInteraction({
-        event: 'source-failure',
-        period: page.period,
-        target: 'summary',
-        source: 'sales',
-      })
-    }
-    if (page.stock.isStale) {
-      logInteraction({
-        event: 'stale-presented',
-        period: page.period,
-        target: 'stock',
-        source: 'stock',
-      })
-    } else if (page.stock.error && !page.stock.data) {
-      logInteraction({
-        event: 'source-failure',
-        period: page.period,
-        target: 'stock',
-        source: 'stock',
-      })
-    }
-  }, [
-    logInteraction,
-    page.period,
-    page.sales.data,
-    page.sales.error,
-    page.sales.isStale,
-    page.stock.data,
-    page.stock.error,
-    page.stock.isStale,
-  ])
-  const salesLoading = page.sales.isLoading && !page.sales.data
-  const stockLoading = page.stock.isLoading && !page.stock.data
+  const salesLoading = sales.isLoading && !sales.data
+  const stockLoading = stock.isLoading && !stock.data
   return (
     <section
       className='flex w-full min-w-0 flex-1 flex-col space-y-5 px-4'
@@ -93,31 +47,31 @@ export const DashboardPage = () => {
           </h1>
           <p className='mt-2 flex items-center gap-1.5 text-xs text-muted-foreground'>
             <Icon name='circle-check' className='size-3.5 text-success' /> Atualizado{' '}
-            {page.sales.data
-              ? `em ${formatDate(page.sales.data.updatedAt, { hour: '2-digit', minute: '2-digit' })}`
+            {sales.data
+              ? `em ${formatDate(sales.data.updatedAt, { hour: '2-digit', minute: '2-digit' })}`
               : 'agora'}
           </p>
         </div>
         <DashboardPeriodControl
-          period={page.period}
-          onChange={page.setPeriod}
-          onRefresh={() => void page.refresh()}
-          isRefreshing={page.isRefreshing}
+          period={period}
+          onChange={setPeriod}
+          onRefresh={() => void refresh()}
+          isRefreshing={isRefreshing}
         />
       </header>
       <div className='flex flex-wrap items-center gap-2 rounded-xl bg-muted/50 px-3 py-2 text-xs text-muted-foreground'>
         <Icon name='calendar' className='size-4 text-primary' />
         <strong className='text-foreground'>
-          {page.sales.data
-            ? `${formatDate(page.sales.data.selected.localStartDate)}–${formatDate(page.sales.data.selected.localEndDate)}`
-            : PERIOD_LABELS[page.period]}
+          {sales.data
+            ? `${formatDate(sales.data.selected.localStartDate)}–${formatDate(sales.data.selected.localEndDate)}`
+            : PERIOD_LABELS[period]}
         </strong>
-        {page.sales.data ? (
+        {sales.data ? (
           <>
             comparado com{' '}
             <strong className='text-foreground'>
-              {formatDate(page.sales.data.comparison.localStartDate)}–
-              {formatDate(page.sales.data.comparison.localEndDate)}
+              {formatDate(sales.data.comparison.localStartDate)}–
+              {formatDate(sales.data.comparison.localEndDate)}
             </strong>
           </>
         ) : null}
@@ -150,7 +104,7 @@ export const DashboardPage = () => {
             <Skeleton className='h-3 w-24' />
           </div>
         </section>
-      ) : page.sales.error && !page.sales.data ? (
+      ) : sales.error && !sales.data ? (
         <section
           role='alert'
           className='rounded-xl border border-danger/20 bg-card p-5 text-sm text-danger'
@@ -159,14 +113,14 @@ export const DashboardPage = () => {
           <button
             type='button'
             className='font-bold underline'
-            onClick={() => void page.sales.refetch()}
+            onClick={() => void sales.refetch()}
           >
             Tentar novamente
           </button>
         </section>
-      ) : page.sales.data ? (
+      ) : sales.data ? (
         <>
-          {page.sales.isStale ? (
+          {sales.isStale ? (
             <div
               role='status'
               className='rounded-xl border border-warning/30 bg-warning-soft px-4 py-2 text-sm text-warning'
@@ -175,37 +129,27 @@ export const DashboardPage = () => {
               <button
                 type='button'
                 className='font-bold underline'
-                onClick={() => void page.sales.refetch()}
+                onClick={() => void sales.refetch()}
               >
                 Tentar novamente
               </button>
             </div>
           ) : null}
           <DashboardSummary
-            analytics={page.sales.data}
-            onCoverageDetails={() => {
-              setCoverageOpen(true)
-              logInteraction({
-                event: 'cost-review-opened',
-                period: page.period,
-                target: 'cost-coverage',
-                source: 'ui',
-              })
-            }}
+            analytics={sales.data}
+            onCoverageDetails={() => handleCoverageOpenChange(true)}
           />
         </>
       ) : null}
-      {page.sales.data && page.sales.data.cancellations.count > 0 ? (
+      {sales.data && sales.data.cancellations.count > 0 ? (
         <section className='flex items-start gap-3 rounded-xl border bg-card px-4 py-3 text-sm'>
           <Icon name='triangle-alert' className='mt-0.5 size-4 shrink-0 text-danger' />
           <p>
-            <strong>
-              {page.sales.data.cancellations.count} cancelamentos no período ·{' '}
-            </strong>
+            <strong>{sales.data.cancellations.count} cancelamentos no período · </strong>
             {new Intl.NumberFormat('pt-BR', {
               style: 'currency',
               currency: 'BRL',
-            }).format(page.sales.data.cancellations.valueCents / 100)}
+            }).format(sales.data.cancellations.valueCents / 100)}
             <span className='block text-xs text-muted-foreground'>
               Podem incluir pedidos registrados em períodos anteriores.
             </span>
@@ -253,11 +197,11 @@ export const DashboardPage = () => {
             </div>
             <Skeleton className='mt-5 h-4 w-32' />
           </section>
-        ) : page.sales.data ? (
+        ) : sales.data ? (
           <div className='order-1 min-w-0 lg:order-none lg:col-span-2'>
-            <DashboardSalesStatus hasSalesData={page.sales.data.summary.validOrders > 0}>
+            <DashboardSalesStatus hasSalesData={sales.data.summary.validOrders > 0}>
               <section className='rounded-2xl border bg-card p-5 shadow-card'>
-                <SalesEvolution analytics={page.sales.data} />
+                <SalesEvolution analytics={sales.data} />
               </section>
             </DashboardSalesStatus>
           </div>
@@ -303,7 +247,7 @@ export const DashboardPage = () => {
               </div>
             </div>
           </section>
-        ) : page.stock.error && !page.stock.data ? (
+        ) : stock.error && !stock.data ? (
           <section
             role='alert'
             className='order-2 rounded-2xl border border-danger/20 bg-card p-5 text-sm text-danger lg:order-none lg:col-span-2'
@@ -312,14 +256,14 @@ export const DashboardPage = () => {
             <button
               type='button'
               className='font-bold underline'
-              onClick={() => void page.stock.refetch()}
+              onClick={() => void stock.refetch()}
             >
               Tentar novamente
             </button>
           </section>
-        ) : page.stock.data ? (
+        ) : stock.data ? (
           <div className='order-2 min-w-0 lg:order-none lg:col-span-2'>
-            {page.stock.isStale ? (
+            {stock.isStale ? (
               <div
                 role='status'
                 className='mb-3 rounded-xl border border-warning/30 bg-warning-soft px-4 py-2 text-sm text-warning'
@@ -328,13 +272,13 @@ export const DashboardPage = () => {
                 <button
                   type='button'
                   className='font-bold underline'
-                  onClick={() => void page.stock.refetch()}
+                  onClick={() => void stock.refetch()}
                 >
                   Tentar novamente
                 </button>
               </div>
             ) : null}
-            <StockAttentionWidget stock={page.stock.data} />
+            <StockAttentionWidget stock={stock.data} />
           </div>
         ) : null}
         {salesLoading ? (
@@ -350,9 +294,9 @@ export const DashboardPage = () => {
               <Skeleton className='h-12 w-10/12' />
             </div>
           </section>
-        ) : page.sales.data && page.sales.data.summary.validOrders > 0 ? (
+        ) : sales.data && sales.data.summary.validOrders > 0 ? (
           <section className='order-3 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-span-2'>
-            <ProductPerformance analytics={page.sales.data} />
+            <ProductPerformance analytics={sales.data} />
           </section>
         ) : null}
         {salesLoading ? (
@@ -373,16 +317,16 @@ export const DashboardPage = () => {
               <Skeleton className='h-10 w-10/12' />
             </div>
           </section>
-        ) : page.sales.data && page.sales.data.summary.validOrders > 0 ? (
+        ) : sales.data && sales.data.summary.validOrders > 0 ? (
           <section className='order-4 rounded-2xl border bg-card p-5 shadow-card lg:order-none lg:col-span-2'>
-            <ChannelPerformance analytics={page.sales.data} />
+            <ChannelPerformance analytics={sales.data} />
           </section>
         ) : null}
       </div>
       <CostCoverageDialog
         open={coverageOpen}
-        onClose={() => setCoverageOpen(false)}
-        analytics={page.sales.data}
+        onClose={() => handleCoverageOpenChange(false)}
+        analytics={sales.data}
       />
     </section>
   )

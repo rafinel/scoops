@@ -27,7 +27,7 @@ export class ListSalesChannelsUseCase
   }
 
   private validateActor(actor: SalesChannelActor): void {
-    if (actor.profile !== UserProfile.Manager) {
+    if (actor.profile !== UserProfile.Manager && actor.profile !== UserProfile.Operator) {
       throw new AuthorizationError('Somente gestores podem consultar canais de venda.')
     }
   }

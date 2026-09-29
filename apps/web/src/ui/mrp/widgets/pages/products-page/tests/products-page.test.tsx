@@ -19,7 +19,12 @@ vi.mock('@/ui/shared/widgets/components/anchor', () => ({
 }))
 vi.mock('../products-kpi-cards', () => ({ ProductsKpiCards: () => <div>kpis</div> }))
 vi.mock('../products-list-card', () => ({
-  ProductsListCard: () => <div>product-list</div>,
+  ProductsListCard: ({ canManageProducts }: { canManageProducts: boolean }) => (
+    <div>
+      product-list
+      {canManageProducts ? <a href='/products/new'>Novo produto</a> : null}
+    </div>
+  ),
 }))
 vi.mock('../product-filters-dialog', () => ({ ProductFiltersDialog: () => null }))
 vi.mock('../products-empty-state', () => ({ ProductsEmptyState: () => null }))
@@ -64,15 +69,25 @@ describe('ProductsPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Produtos' })).toBeTruthy()
     expect(
+      screen.getByText('Cadastre e acompanhe seus produtos, marcas e categorias.'),
+    ).toBeTruthy()
+    expect(
       screen.getByRole('link', { name: /Tipos de acompanhamento/ }).getAttribute('href'),
     ).toBe(ROUTES.accompanimentTypes)
     expect(screen.getByText('kpis')).toBeTruthy()
     expect(screen.getByText('product-list')).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Novo produto' })).toBeTruthy()
   })
 
-  it('hides type navigation for operators', () => {
+  it('hides type navigation and product registration for operators', () => {
     useProductsPageMock.mockReturnValue(createPageState(false))
     render(<ProductsPage onSearchChange={vi.fn()} search={search} />)
+    expect(
+      screen.getByText(
+        'Consulte os produtos, marcas e categorias cadastrados no estabelecimento.',
+      ),
+    ).toBeTruthy()
     expect(screen.queryByRole('link', { name: /Tipos de acompanhamento/ })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Novo produto' })).toBeNull()
   })
 })

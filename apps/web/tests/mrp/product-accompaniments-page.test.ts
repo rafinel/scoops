@@ -30,6 +30,52 @@ const ACCOMPANIMENT = {
 }
 
 test.describe('ProductAccompanimentsPage', () => {
+  test('lets Operators read linked accompaniments without management controls', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await identityFixture.mockOperatorSession()
+    await identityFixture.mockOperatorAccount()
+    await mrpFixture.mockProductStock({
+      respond: () => ({
+        body: { product: PRODUCT, stockQuantity: 1, stockSituation: 'normal', brands: [] },
+      }),
+    })
+    await mrpFixture.mockProductAccompaniments({
+      respond: () => ({
+        body: {
+          product: PRODUCT,
+          accompaniments: [
+            {
+              id: 'link-1',
+              accompanimentProductId: ACCOMPANIMENT_ID,
+              accompanimentProductName: 'Granola',
+              accompanimentTypeId: TYPE_ID,
+              accompanimentTypeName: 'Cobertura',
+              unit: 'g',
+              quantityPerPortion: 50,
+              brandName: 'Estoque único',
+              unitCost: 0.009,
+              estimatedCost: 0.45,
+            },
+          ],
+        },
+      }),
+    })
+    await mrpFixture.mockAccompanimentTypes({
+      respond: () => ({ body: { items: [], page: 1, pageSize: 100, total: 0, totalPages: 0 } }),
+    })
+
+    await page.goto(`/products/${PRODUCT_ID}/accompaniments`)
+    await expect(page).toHaveURL(`/products/${PRODUCT_ID}/accompaniments`)
+    await expect(page.getByRole('heading', { name: PRODUCT.name })).toBeVisible()
+    await expect(page.getByText('Granola')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Vincular acompanhamento' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /Editar Granola/ })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /Remover Granola/ })).toHaveCount(0)
+  })
+
   test('renders populated rows and submits a link through mocked transport', async ({
     page,
     identityFixture,

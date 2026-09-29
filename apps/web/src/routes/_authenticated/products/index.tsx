@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { productsSearchSchema } from '@scoops/validation'
+
 import { ProductsPage } from '@/ui/mrp/widgets/pages/products-page'
 
 export const Route = createFileRoute('/_authenticated/products/')({

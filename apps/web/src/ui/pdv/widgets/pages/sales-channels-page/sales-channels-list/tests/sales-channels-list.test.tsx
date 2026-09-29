@@ -34,6 +34,7 @@ describe('SalesChannelsList', () => {
     render(
       <SalesChannelsList
         adjustmentFilter={undefined}
+        canManageSalesChannels
         channels={channels}
         onAdjustmentFilterChange={vi.fn()}
         onDelete={vi.fn()}
@@ -57,6 +58,7 @@ describe('SalesChannelsList', () => {
     render(
       <SalesChannelsList
         adjustmentFilter={undefined}
+        canManageSalesChannels
         channels={[channels[0]]}
         onAdjustmentFilterChange={vi.fn()}
         onDelete={vi.fn()}
@@ -87,6 +89,7 @@ describe('SalesChannelsList', () => {
     render(
       <SalesChannelsList
         adjustmentFilter='discount'
+        canManageSalesChannels
         channels={channels}
         onAdjustmentFilterChange={onAdjustmentFilterChange}
         onDelete={vi.fn()}
@@ -106,5 +109,26 @@ describe('SalesChannelsList', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Limpar filtro' }))
     expect(onAdjustmentFilterChange).toHaveBeenCalledWith(undefined)
+  })
+
+  it('keeps the Operator channel list read-only', () => {
+    render(
+      <SalesChannelsList
+        adjustmentFilter={undefined}
+        canManageSalesChannels={false}
+        channels={[channels[0]]}
+        onAdjustmentFilterChange={vi.fn()}
+        onDelete={vi.fn()}
+        onEdit={vi.fn()}
+        onInactivate={vi.fn()}
+        onReactivate={vi.fn()}
+      />,
+    )
+
+    expect(screen.getAllByText('Delivery próprio').length).toBeGreaterThan(0)
+    expect(screen.queryByRole('columnheader', { name: 'Ações' })).toBeNull()
+    expect(
+      screen.queryByRole('button', { name: 'Abrir ações de Delivery próprio' }),
+    ).toBeNull()
   })
 })

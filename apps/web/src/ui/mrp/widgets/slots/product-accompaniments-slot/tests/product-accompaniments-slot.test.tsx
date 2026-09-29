@@ -1,13 +1,15 @@
 import type { ReactNode } from 'react'
 
-import { fireEvent, render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ProductFaker } from '@scoops/core/mrp/domain/entities/fakers'
+import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { ProductAccompanimentsDetails } from '@scoops/core/mrp/domain/structures'
 
 import { ProductAccompanimentsSlot } from '../index'
 import { useProductAccompanimentsSlot } from '../use-product-accompaniments-slot'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 vi.mock('@/ui/mrp/widgets/pages/product-details-page', () => ({
   ProductDetailsPage: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -16,8 +18,10 @@ vi.mock('@/ui/mrp/widgets/pages/product-details-page', () => ({
 vi.mock('../use-product-accompaniments-slot', () => ({
   useProductAccompanimentsSlot: vi.fn(),
 }))
+vi.mock('@/ui/shared/hooks/use-auth-context', () => ({ useAuthContext: vi.fn() }))
 
 const useProductAccompanimentsSlotMock = vi.mocked(useProductAccompanimentsSlot)
+const useAuthContextMock = vi.mocked(useAuthContext)
 const product = ProductFaker.fake({ categories: ['portion'], name: 'Açaí especial' })
 const details: ProductAccompanimentsDetails = {
   product,
@@ -52,9 +56,30 @@ const fakeSlotState = () => ({
 })
 
 describe('ProductAccompanimentsSlot', () => {
+  afterEach(cleanup)
   beforeEach(() => {
+    useAuthContextMock.mockReturnValue({
+      account: { profile: UserProfile.Manager },
+    } as never)
     vi.clearAllMocks()
     useProductAccompanimentsSlotMock.mockReturnValue(fakeSlotState() as never)
+  })
+
+  it('keeps accompaniment details visible and suppresses edit dialogs for Operators', () => {
+    const accompaniment = details.accompaniments[0]
+    if (!accompaniment) throw new Error('Expected fixture accompaniment')
+    useAuthContextMock.mockReturnValue({
+      account: { profile: UserProfile.Operator },
+    } as never)
+    useProductAccompanimentsSlotMock.mockReturnValue({
+      ...fakeSlotState(),
+      selectedAction: { kind: 'edit', item: accompaniment },
+    })
+    render(<ProductAccompanimentsSlot productId={product.id} />)
+    expect(screen.getByText('Acompanhamentos')).toBeTruthy()
+    expect(screen.getByText('Granola')).toBeTruthy()
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Vincular acompanhamento' })).toBeNull()
   })
 
   it('renders the populated accompaniment card through the slot boundary', () => {
@@ -100,7 +125,7 @@ describe('ProductAccompanimentsSlot', () => {
     ).toBeTruthy()
     expect(
       screen.getAllByRole('button', { name: 'Vincular acompanhamento' }),
-    ).toHaveLength(2)
+    ).toHaveLength(1)
   })
 
   it('keeps populated content visible while reporting a refresh', () => {

@@ -1,0 +1,12 @@
+export type GlobalSearchPageKey =
+  | 'dashboard'
+  | 'products'
+  | 'newSale'
+  | 'orders'
+  | 'salesChannels'
+  | 'discounts'
+  | 'users'
+  | 'shopSettings'
+  | 'subscription'
+  | 'account'
+  | 'accompanimentTypes'

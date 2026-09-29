@@ -28,7 +28,7 @@ export class ListCombosController {
   }
 
   @Get()
-  @RequiredProfiles([UserProfile.Manager])
+  @RequiredProfiles([UserProfile.Manager, UserProfile.Operator])
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Combos returned.',

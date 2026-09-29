@@ -1,12 +1,13 @@
-import { ProductDetailsPage } from '@/ui/mrp/widgets/pages/product-details-page'
-import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
+import { UserProfile } from '@scoops/core/identity/domain/structures'
 
-import { ProductAccompanimentsCard } from './product-accompaniments-card'
-import { AccompanimentsEmptyState } from './accompaniments-empty-state'
+import { QueryRefreshStatus } from '@/ui/shared/widgets/components/query-refresh-status'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
+import { ProductDetailsPage } from '@/ui/mrp/widgets/pages/product-details-page'
+
+import { AccompanimentActionDialogs } from './action-dialogs'
+import { ProductAccompanimentsContent } from './product-accompaniments-content'
 import { ProductAccompanimentsError } from './product-accompaniments-error'
 import { ProductAccompanimentsLoading } from './product-accompaniments-loading'
-import { ProductAccompanimentDialog } from './product-accompaniment-dialog'
-import { RemoveProductAccompanimentDialog } from './remove-product-accompaniment-dialog'
 import { useProductAccompanimentsSlot } from './use-product-accompaniments-slot'
 
 export type ProductAccompanimentsSlotProps = {
@@ -16,6 +17,8 @@ export type ProductAccompanimentsSlotProps = {
 export const ProductAccompanimentsSlot = ({
   productId,
 }: ProductAccompanimentsSlotProps) => {
+  const { account } = useAuthContext()
+  const canManage = account?.profile === UserProfile.Manager
   const {
     details,
     handleActionOpenChange,
@@ -31,6 +34,7 @@ export const ProductAccompanimentsSlot = ({
     product,
     selectedAction,
   } = useProductAccompanimentsSlot(productId)
+
   return (
     <ProductDetailsPage
       onBack={handleBack}
@@ -41,46 +45,24 @@ export const ProductAccompanimentsSlot = ({
       {isLoading ? <ProductAccompanimentsLoading /> : null}
       {isError ? <ProductAccompanimentsError onRetry={handleRetry} /> : null}
       {details && !isLoading && !isError ? (
-        details.accompaniments.length === 0 ? (
-          <AccompanimentsEmptyState onAdd={handleAddAction} />
-        ) : (
-          <>
-            <ProductAccompanimentsCard
-              details={details}
-              onAdd={handleAddAction}
-              onEdit={handleEditAction}
-              onRemove={handleRemoveAction}
+        <>
+          <ProductAccompanimentsContent
+            canManage={canManage}
+            details={details}
+            onAdd={handleAddAction}
+            onEdit={handleEditAction}
+            onRemove={handleRemoveAction}
+          />
+          {canManage &&
+          (details.accompaniments.length > 0 || selectedAction?.kind === 'add') ? (
+            <AccompanimentActionDialogs
+              onOpenChange={handleActionOpenChange}
+              onSuccess={handleActionSuccess}
+              productId={productId}
+              selectedAction={selectedAction}
             />
-            {selectedAction?.kind === 'add' || selectedAction?.kind === 'edit' ? (
-              <ProductAccompanimentDialog
-                item={selectedAction.kind === 'edit' ? selectedAction.item : undefined}
-                onOpenChange={handleActionOpenChange}
-                onSuccess={handleActionSuccess}
-                open
-                productId={productId}
-              />
-            ) : null}
-            {selectedAction?.kind === 'remove' ? (
-              <RemoveProductAccompanimentDialog
-                item={selectedAction.item}
-                onOpenChange={handleActionOpenChange}
-                onSuccess={handleActionSuccess}
-                open
-                productId={productId}
-              />
-            ) : null}
-          </>
-        )
-      ) : null}
-      {details &&
-      details.accompaniments.length === 0 &&
-      selectedAction?.kind === 'add' ? (
-        <ProductAccompanimentDialog
-          onOpenChange={handleActionOpenChange}
-          onSuccess={handleActionSuccess}
-          open
-          productId={productId}
-        />
+          ) : null}
+        </>
       ) : null}
     </ProductDetailsPage>
   )

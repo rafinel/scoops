@@ -61,6 +61,7 @@ export const UserMenu = (props: UserMenuProps) => {
           disabled={isPending}
           onClick={handleLogout}
         >
+          <Icon name='door-open' className='size-4' />
           {isPending ? 'Saindo…' : 'Sair deste dispositivo'}
         </DropdownMenuItem>
       </DropdownMenuContent>

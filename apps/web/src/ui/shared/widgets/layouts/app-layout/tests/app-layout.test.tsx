@@ -21,6 +21,10 @@ vi.mock('@/ui/shared/hooks/use-url-pathname', () => ({
   useUrlPathname: vi.fn(),
 }))
 
+vi.mock('@/ui/identity/widgets/components/global-search', () => ({
+  GlobalSearch: () => <input aria-label='Buscar no Scoops' />,
+}))
+
 vi.mock('../use-app-layout', () => ({
   useAppLayout: vi.fn(),
 }))
@@ -107,11 +111,16 @@ describe('AppLayout', () => {
       getSidebarItems(UserProfile.Operator).some(
         (item) => item.route === 'salesChannels',
       ),
+    ).toBe(true)
+    expect(
+      getSidebarItems(UserProfile.Operator).some((item) => item.route === 'subscription'),
     ).toBe(false)
-    const products = getSidebarItems(UserProfile.Operator).find(
-      (item) => item.route === 'products',
-    )
-    expect(products?.activePrefixes).toContain('/products/')
+    expect(
+      getSidebarItems(UserProfile.Operator).some((item) => item.route === 'products'),
+    ).toBe(true)
+    expect(
+      getSidebarItems(UserProfile.Operator).some((item) => item.route === 'discounts'),
+    ).toBe(true)
   })
 
   it('marks exact and nested routes active and normalizes trailing slashes', () => {

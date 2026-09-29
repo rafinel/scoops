@@ -30,6 +30,28 @@ const PRODUCT = ProductFaker.fake({
 test.describe('ProductRecipePage', () => {
   test.describe.configure({ mode: 'serial' })
 
+  test('lets Operators read recipe details without recipe management controls', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await identityFixture.mockOperatorSession()
+    await identityFixture.mockOperatorAccount()
+    await mockRecipeCatalog(mrpFixture)
+    await mockRecipeIngredientSources(mrpFixture)
+    await mrpFixture.mockProductRecipe({
+      respond: () => ({ body: fakeRecipeResponse() }),
+    })
+
+    await navigateToRecipe(page)
+    await expect(page.getByText('Polpa').first()).toBeVisible()
+    await expect(page.getByText('CMV total')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Produzir' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Adicionar ingrediente' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Editar Polpa' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Remover Polpa' })).toHaveCount(0)
+  })
+
   test('renders Recipe references and mutation dialogs with stateful mocked transport', async ({
     page,
     identityFixture,

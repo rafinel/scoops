@@ -1,0 +1,7 @@
+@baseUrl = http://localhost:3336
+@globalSearchQuery = vanilla
+
+### Authenticated global search for the current account
+GET {{baseUrl}}/global-search?q={{globalSearchQuery}}
+Accept: application/json
+Cookie: {{sessionCookie}}

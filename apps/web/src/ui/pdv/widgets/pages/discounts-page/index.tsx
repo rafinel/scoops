@@ -11,6 +11,7 @@ import { useDiscountsPage } from './use-discounts-page'
 
 export const DiscountsPage = () => {
   const {
+    canManageDiscounts,
     discountsPage,
     hasFilters,
     isDiscountsError,
@@ -41,13 +42,17 @@ export const DiscountsPage = () => {
             Descontos
           </h1>
           <p className='mt-2 max-w-2xl text-sm text-muted-foreground'>
-            Crie e acompanhe ofertas aplicadas no PDV.
+            {canManageDiscounts
+              ? 'Crie e acompanhe ofertas aplicadas no PDV.'
+              : 'Consulte as ofertas de desconto aplicadas no PDV.'}
           </p>
         </div>
-        <Button className='min-h-10 shrink-0' onClick={handleCreate}>
-          <Icon name='plus' />
-          Criar desconto
-        </Button>
+        {canManageDiscounts ? (
+          <Button className='min-h-10 shrink-0' onClick={handleCreate}>
+            <Icon name='plus' />
+            Criar desconto
+          </Button>
+        ) : null}
       </header>
 
       <PageRefreshStatus
@@ -60,7 +65,19 @@ export const DiscountsPage = () => {
         <DiscountsError onRetry={handleRetry} />
       ) : null}
       {!isLoadingDiscounts && !isDiscountsError && isEmpty ? (
-        <DiscountsEmptyState onCreate={handleCreate} />
+        canManageDiscounts ? (
+          <DiscountsEmptyState onCreate={handleCreate} />
+        ) : (
+          <section
+            className='rounded-2xl border border-dashed p-12 text-center'
+            role='status'
+          >
+            <h2 className='text-lg font-extrabold'>Nenhum desconto cadastrado</h2>
+            <p className='mx-auto mt-1 max-w-md text-sm text-muted-foreground'>
+              Os descontos cadastrados pela sua equipe aparecerão aqui.
+            </p>
+          </section>
+        )
       ) : null}
       {!isLoadingDiscounts && !isDiscountsError && !isEmpty ? (
         <DiscountsList
@@ -77,11 +94,13 @@ export const DiscountsPage = () => {
         />
       ) : null}
 
-      <DiscountTypeDialog
-        onChoose={handleChooseCombo}
-        onOpenChange={handleTypeDialogOpenChange}
-        open={isTypeDialogOpen}
-      />
+      {canManageDiscounts ? (
+        <DiscountTypeDialog
+          onChoose={handleChooseCombo}
+          onOpenChange={handleTypeDialogOpenChange}
+          open={isTypeDialogOpen}
+        />
+      ) : null}
     </section>
   )
 }

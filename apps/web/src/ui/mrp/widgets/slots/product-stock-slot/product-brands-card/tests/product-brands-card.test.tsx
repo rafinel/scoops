@@ -154,4 +154,28 @@ describe('ProductBrandsCard', () => {
       expect.objectContaining({ brand: alternateBrand.brand }),
     )
   })
+
+  it('keeps brand stock facts readable without management actions for Operators', () => {
+    const brandStock = fakeBrandStock({ brand: { name: 'Marca somente leitura' } })
+    useProductBrandsCardMock.mockReturnValue({
+      rows: [
+        {
+          ...brandStock,
+          formattedPackagePrice: 'R$ 12,50',
+          formattedPackageQuantity: '2 kg',
+          formattedStockQuantity: '9 kg',
+          formattedUnitPrice: 'R$ 6,25 / kg',
+        },
+      ],
+    })
+    render(
+      <ProductBrandsCard {...fakeProps({ brands: [brandStock], canManage: false })} />,
+    )
+    expect(screen.getAllByText('Marca somente leitura').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('9 kg').length).toBeGreaterThan(0)
+    expect(screen.queryByRole('button', { name: 'Adicionar marca' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Entrada de estoque' })).toBeNull()
+    expect(screen.queryByRole('button', { name: /Abrir ações da marca/ })).toBeNull()
+    expect(screen.queryByRole('columnheader', { name: 'Ações' })).toBeNull()
+  })
 })

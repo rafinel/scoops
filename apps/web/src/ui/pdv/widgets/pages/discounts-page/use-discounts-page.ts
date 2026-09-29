@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 
 import type { DiscountStatus, DiscountType } from '@scoops/core/pdv/domain/structures'
+import { UserProfile } from '@scoops/core/identity/domain/structures'
 
 import { discountDetailsRoute } from '@/constants/routes'
 import {
@@ -10,10 +11,39 @@ import {
   type DiscountsSearch,
 } from '@/ui/pdv/hooks/use-discounts-query'
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
+import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 export type DiscountsPageSearchChange = Partial<DiscountsSearch>
 
+const createSearchHandlers = (
+  search: DiscountsSearch,
+  navigate: (options: never) => void,
+) => {
+  const updateSearch = (nextSearch: DiscountsPageSearchChange) => {
+    const next = { ...search, ...nextSearch }
+    void navigate({
+      search: {
+        search: next.search || undefined,
+        type: next.type,
+        status: next.status,
+        page: next.page === 1 ? undefined : next.page,
+        pageSize: next.pageSize === 10 ? undefined : next.pageSize,
+      },
+    } as never)
+  }
+  return {
+    handleSearchChange: (value: string) => updateSearch({ search: value, page: 1 }),
+    handleTypeChange: (type: DiscountType | undefined) => updateSearch({ type, page: 1 }),
+    handleStatusChange: (status: DiscountStatus | undefined) =>
+      updateSearch({ status, page: 1 }),
+    handlePageChange: (page: number) => updateSearch({ page: Math.max(1, page) }),
+    handleClearFilters: () =>
+      updateSearch({ search: undefined, type: undefined, status: undefined, page: 1 }),
+  }
+}
+
 export function useDiscountsPage() {
+  const { account } = useAuthContext()
   const searchParams = useSearch({ strict: false }) as Partial<DiscountsSearch>
   const search: DiscountsSearch = {
     page: searchParams.page ?? 1,
@@ -35,43 +65,7 @@ export function useDiscountsPage() {
     refetchDiscounts,
   } = useDiscountsQuery(search)
   const [isTypeDialogOpen, setTypeDialogOpen] = useState(false)
-
-  function updateSearch(nextSearch: DiscountsPageSearchChange) {
-    const next = {
-      ...search,
-      ...nextSearch,
-    }
-
-    void navigate({
-      search: {
-        search: next.search || undefined,
-        type: next.type,
-        status: next.status,
-        page: next.page === 1 ? undefined : next.page,
-        pageSize: next.pageSize === 10 ? undefined : next.pageSize,
-      },
-    } as never)
-  }
-
-  function handleSearchChange(value: string) {
-    updateSearch({ search: value, page: 1 })
-  }
-
-  function handleTypeChange(type: DiscountType | undefined) {
-    updateSearch({ type, page: 1 })
-  }
-
-  function handleStatusChange(status: DiscountStatus | undefined) {
-    updateSearch({ status, page: 1 })
-  }
-
-  function handlePageChange(page: number) {
-    updateSearch({ page: Math.max(1, page) })
-  }
-
-  function handleClearFilters() {
-    updateSearch({ search: undefined, type: undefined, status: undefined, page: 1 })
-  }
+  const searchHandlers = createSearchHandlers(search, navigate)
 
   function handleCreate() {
     setTypeDialogOpen(true)
@@ -95,6 +89,7 @@ export function useDiscountsPage() {
   }
 
   return {
+    canManageDiscounts: account?.profile === UserProfile.Manager,
     discountsError,
     discountsPage,
     hasFilters: Boolean(search.search || search.type || search.status),
@@ -105,15 +100,11 @@ export function useDiscountsPage() {
     isPageLoadingDiscounts,
     isTypeDialogOpen,
     search,
-    handleClearFilters,
+    ...searchHandlers,
     handleChooseCombo,
     handleCreate,
     handleDetails,
-    handlePageChange,
     handleRetry,
-    handleSearchChange,
-    handleStatusChange,
-    handleTypeChange,
     handleTypeDialogOpenChange,
   }
 }

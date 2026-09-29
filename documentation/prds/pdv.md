@@ -133,12 +133,13 @@ who need to assemble and record orders during service.
 
 ### PRQ-01 — Sales Channel Management
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
 **Outcome:** The Manager can create and manage optional channels that
-apply a global percentage to the paid items of an order.
+apply a global percentage to the paid items of an order. Operators can view channel details
+without changing them.
 
-**Actors:** Manager
+**Actors:** Manager, Operator
 
 **Consumes:** establishment access and profile authorization from the Identity module.
 
@@ -167,10 +168,14 @@ PRQ-05, PRQ-06, PRQ-07, PRQ-09 and PRQ-10.
   for previous orders.
 - **Multi-tenancy:** channels are exclusive to the current ice cream shop.
 - **Authorization:** management permissions depend on the Identity module.
+- **Operator access:** Operators can view the establishment's channel list and details; channel
+  creation, editing, activation, inactivation, and deletion remain Manager-only.
 
 #### Experience
 
 - **List:** must display name, percentage, type of adjustment, status and actions.
+- **Read-only view:** Operators see channel facts and status but no management actions or edit
+  controls.
 - **New channel:** must request name, percentage and status.
 - **Representation:** additions use a `+` sign, discounts use `−` and percentages
   neutrals use `0%`.
@@ -746,9 +751,11 @@ module.
 #### Capabilities
 
 - **Independent navigation:** must contain `New sale`, `Orders`,
-  `Sales channels` and `Discounts`, without parent group.
+  `Sales channels` and `Discounts`, without parent group. Operators may open all four areas;
+  `Sales channels` and `Discounts` are read-only for them.
 - **Operator:** can assemble, register and consult orders.
-- **Manager:** has Operator permissions and manages channels and discounts.
+- **Manager:** has Operator permissions and manages channels and discounts. Operators may view
+  channel and discount records but cannot manage them.
 - **Cancellation authorization:** only Managers can cancel registered orders;
   Operators can view cancellation status and details but cannot initiate it.
 - **Product Configuration:** remains outside the Sales module.
@@ -820,12 +827,13 @@ devices while receiving consistent server-backed results.
 
 ### PRQ-13 — Combo Discount Management
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
-**Outcome:** The Manager can create and manage discounts of the type
-Combo, made up of different products and sold for a fixed final price.
+**Outcome:** The Manager can create and manage discounts of the type Combo, made up of different
+products and sold for a fixed final price. Operators can view Combo definitions without changing
+them.
 
-**Actors:** Manager
+**Actors:** Manager, Operator
 
 **Consumes:** establishment access and profile authorization from the Identity module; product,
 size, accompaniment, brand, price and availability facts from the MRP module; configured Portion
@@ -866,12 +874,16 @@ and Resale facts from PRQ-03 and PRQ-04.
 - **Multi-tenancy:** discounts belong exclusively to the current ice cream shop.
 - **Permission:** only Managers can create, edit, activate, inactivate or
   delete Combos.
+- **Operator access:** Operators can view the establishment's Combo list and details, including
+  status and composition; all Combo management actions remain Manager-only.
 
 #### Experience
 
 - **Navigation:** `Discounts` must be an independent entry of the module.
 - **List:** must display name, type, price of the Combo, quantity of products,
   status and actions.
+- **Read-only view:** Operators inspect Combo facts and status but see no create, edit, activate,
+  inactivate, or delete actions.
 - **Search:** the placeholder must be
   `Search by discount or product name…`.
 - **Filters:** must only offer `Type` and `Status`.

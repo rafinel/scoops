@@ -12,10 +12,19 @@ import type {
   ProductsRepository,
   StockTransactionsRepository,
 } from '#mrp/interfaces/index.ts'
-import { BadRequestError, NotFoundError } from '#shared/domain/errors/index.ts'
+import {
+  AuthorizationError,
+  BadRequestError,
+  NotFoundError,
+} from '#shared/domain/errors/index.ts'
 import { ListStockTransactionsUseCase } from '#mrp/use-cases/list-stock-transactions-use-case.ts'
 
 const actor = { id: 'u1', establishmentId: 'e1', profile: UserProfile.Manager }
+const operator = {
+  id: 'u2',
+  establishmentId: 'e1',
+  profile: UserProfile.Operator,
+}
 const product: Product = {
   id: 'p1',
   establishmentId: 'e1',
@@ -50,6 +59,33 @@ describe('List Stock Transactions Use Case', () => {
     expect(products.findById).toHaveBeenCalledWith('e1', 'p1')
     expect(transactions.findPage).toHaveBeenCalledWith('e1', 'p1', params)
   })
+
+  it('allows Operators to read scoped stock history', async () => {
+    const params = { page: 1, limit: 20 }
+    const result = await useCase.execute({ actor: operator, productId: 'p1', params })
+
+    expect(result).toEqual({ items: [], page: 1, limit: 20, total: 0 })
+    expect(products.findById).toHaveBeenCalledWith('e1', 'p1')
+    expect(transactions.findPage).toHaveBeenCalledWith('e1', 'p1', params)
+  })
+
+  it('rejects unsupported actors before reading products or transactions', async () => {
+    const unsupportedActor = {
+      ...operator,
+      profile: 'prospective' as never,
+    }
+
+    await expect(
+      useCase.execute({
+        actor: unsupportedActor,
+        productId: 'p1',
+        params: { page: 1, limit: 20 },
+      }),
+    ).rejects.toBeInstanceOf(AuthorizationError)
+    expect(products.findById).not.toHaveBeenCalled()
+    expect(transactions.findPage).not.toHaveBeenCalled()
+  })
+
   it('rejects invalid paging or dates and hides missing products', async () => {
     await expect(
       useCase.execute({ actor, productId: 'p1', params: { page: 0, limit: 101 } }),
@@ -70,5 +106,20 @@ describe('List Stock Transactions Use Case', () => {
     await expect(
       useCase.execute({ actor, productId: 'foreign', params: { page: 1, limit: 20 } }),
     ).rejects.toBeInstanceOf(NotFoundError)
+    expect(transactions.findPage).not.toHaveBeenCalled()
+  })
+
+  it('hides a product returned from outside the actor establishment', async () => {
+    products.findById.mockResolvedValue({ ...product, establishmentId: 'e2' })
+
+    await expect(
+      useCase.execute({
+        actor: operator,
+        productId: 'p1',
+        params: { page: 1, limit: 20 },
+      }),
+    ).rejects.toBeInstanceOf(NotFoundError)
+    expect(products.findById).toHaveBeenCalledWith('e1', 'p1')
+    expect(transactions.findPage).not.toHaveBeenCalled()
   })
 })

@@ -166,7 +166,7 @@ export class DrizzleDiscountsRepository
     if (input.status) filters.push(eq(discountModel.status, input.status))
 
     if (input.search) {
-      const nameMatch = ilike(discountModel.name, `%${input.search}%`)
+      const nameMatch = ilike(discountModel.name, `%${escapeLikePattern(input.search)}%`)
       const productMatch =
         matchingProductIds === undefined
           ? undefined
@@ -561,4 +561,8 @@ export class DrizzleDiscountsRepository
     }
     return error
   }
+}
+
+function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, '\\$&')
 }

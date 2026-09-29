@@ -1044,10 +1044,21 @@ controller operation is represented once, and its examples match the current rou
 request contract. Include the affected Core, Server and Web `test:coverage` commands; a Spec may
 omit one only when that workspace is unaffected and the reason is explicit.
 
-The Orchestrator executes every applicable `MV-*` with the Playwright CLI. Design-backed
-visual comparison is optional evidence for material acceptance decisions and does not require
-a dedicated visual-reference integration test. Builder checks and automated results remain
-supporting evidence for the applicable behavioral and manual validation.
+The Orchestrator executes every applicable `MV-*` with the Playwright CLI. Design-backed UI
+requires a visual comparison for each supplied or required supplemental reference; those
+comparisons do not add `MV-*` scenarios or require a dedicated visual-reference integration test.
+Builder checks and automated results remain supporting evidence for the applicable behavioral
+and manual validation.
+
+When the user or authoritative request explicitly requires independent visual review, the
+Spec's Validation Contract must require one read-only
+[`Visual Reviewer`](../agents/visual-reviewer-agent.md) audit of the integrated design-backed
+candidate. Name the exact manifest references, states and viewports, require current transient
+implementation captures before activation, and keep the report advisory: the Orchestrator
+verifies findings and owns official `EV-*` visual evidence. Schedule the audit through a future
+Plan when Plan-backed execution is selected, or through `implement-spec` for direct execution.
+Do not add `MV-*` scenarios merely to support the reviewer or activate it during `create-spec`;
+the Spec Reviewer remains the only pre-plan compatibility gate.
 
 ### 5. Documentation alignment and revision history
 
@@ -1127,6 +1138,8 @@ Spec review remains. Before changing it to `open`, verify:
 - complete resulting field schemas for every affected Entity and Structure;
 - no unresolved material product or technical ambiguity;
 - complete/current design bundle and screenshot integrity when applicable;
+- an explicit Visual Reviewer requirement and current-capture handoff when independent visual
+  review was requested, without transferring official evidence ownership or adding manual flows;
 - visual analysis inventory for every supplied screenshot and a recorded decision for every
   additional-screenshot suggestion;
 - a complete data-model contract for every created or modified migration path, including

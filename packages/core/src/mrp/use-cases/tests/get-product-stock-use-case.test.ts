@@ -15,7 +15,7 @@ import type {
   ProductsRepository,
   StockBalancesRepository,
 } from '#mrp/interfaces/index.ts'
-import { AuthorizationError, NotFoundError } from '#shared/domain/errors/index.ts'
+import { NotFoundError } from '#shared/domain/errors/index.ts'
 import { GetProductStockUseCase } from '#mrp/use-cases/get-product-stock-use-case.ts'
 
 const product: Product = {
@@ -80,17 +80,19 @@ describe('Get Product Stock Use Case', () => {
     })
   })
 
-  it('hides foreign and missing products and rejects non-managers', async () => {
+  it('hides foreign products and allows operators to read their establishment stock', async () => {
     products.findById.mockResolvedValue(undefined)
     await expect(useCase.execute({ actor, productId: 'foreign' })).rejects.toBeInstanceOf(
       NotFoundError,
     )
+    products.findById.mockResolvedValue(product)
+    balances.findManyByProductId.mockResolvedValue([])
     await expect(
       useCase.execute({
         actor: { ...actor, profile: UserProfile.Operator },
         productId: 'p1',
       }),
-    ).rejects.toBeInstanceOf(AuthorizationError)
+    ).resolves.toMatchObject({ product: { id: 'p1' } })
     expect(products.findById).toHaveBeenCalledWith('e1', 'foreign')
   })
 })

@@ -14,6 +14,8 @@ describe('DashboardPage', () => {
       setPeriod: vi.fn(),
       refresh: vi.fn(),
       isRefreshing: false,
+      coverageOpen: false,
+      handleCoverageOpenChange: vi.fn(),
       sales: {
         data: undefined,
         error: null,

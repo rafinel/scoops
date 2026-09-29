@@ -14,6 +14,11 @@ export interface SalesChannelsRepository {
   ): Promise<SalesChannel | undefined>
   findMany(establishmentId: string): Promise<readonly SalesChannel[]>
   findActive(establishmentId: string): Promise<readonly SalesChannel[]>
+  searchByName(
+    establishmentId: string,
+    query: string,
+    limit: number,
+  ): Promise<readonly SalesChannel[]>
   replace(
     establishmentId: string,
     channelId: string,

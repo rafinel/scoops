@@ -7,6 +7,7 @@ import { ProductSizesEmptyState } from './product-sizes-empty-state'
 import { ProductSizesTable } from './product-sizes-table'
 
 export type ProductSizesCardProps = {
+  canManage?: boolean
   sizes: readonly ProductSizePricing[]
   unit: string
   onAdd: (target: HTMLElement) => void
@@ -15,6 +16,7 @@ export type ProductSizesCardProps = {
 }
 
 export const ProductSizesCard = ({
+  canManage = true,
   sizes,
   unit,
   onAdd,
@@ -30,7 +32,7 @@ export const ProductSizesCard = ({
           {sizes.length === 1 ? 'tamanho configurado' : 'tamanhos configurados'}
         </p>
       </div>
-      {sizes.length > 0 ? (
+      {canManage && sizes.length > 0 ? (
         <Button
           className='w-full sm:w-auto'
           onClick={(event) => onAdd(event.currentTarget)}
@@ -41,9 +43,22 @@ export const ProductSizesCard = ({
     </div>
     <div className='mt-6'>
       {sizes.length === 0 ? (
-        <ProductSizesEmptyState onAdd={onAdd} />
+        canManage ? (
+          <ProductSizesEmptyState onAdd={onAdd} />
+        ) : (
+          <div
+            className='rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center'
+            role='status'
+          >
+            <h3 className='font-extrabold'>Nenhum tamanho cadastrado</h3>
+            <p className='mx-auto mt-1 max-w-md text-sm text-muted-foreground'>
+              Os tamanhos de venda cadastrados aparecerão aqui.
+            </p>
+          </div>
+        )
       ) : (
         <ProductSizesTable
+          canManage={canManage}
           onEdit={onEdit}
           onRemove={onRemove}
           sizes={sizes}

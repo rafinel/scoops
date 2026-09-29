@@ -1,46 +1,28 @@
 import type { SalesChannelAdjustmentFilter } from '@scoops/validation'
 
 import { Button } from '@/ui/shadcn/button'
-import { Card, CardContent } from '@/ui/shadcn/card'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
-import { ChangeSalesChannelStatusDialog } from './change-sales-channel-status-dialog'
-import { DeleteSalesChannelDialog } from './delete-sales-channel-dialog'
-import { SalesChannelDialog } from './sales-channel-dialog'
-import { SalesChannelsEmptyState } from './sales-channels-empty-state'
-import { SalesChannelsError } from './sales-channels-error'
+import { SalesChannelsActionDialogs } from './action-dialogs'
+import { ChannelSearch } from './channel-search'
 import { SalesChannelsFeedback } from './sales-channels-feedback'
-import { SalesChannelsList } from './sales-channels-list'
-import { SalesChannelsLoading } from './sales-channels-loading'
+import { SalesChannelsResults } from './sales-channels-results'
 import { useSalesChannelsPage } from './use-sales-channels-page'
 
 export type SalesChannelsPageProps = {
   adjustmentFilter: SalesChannelAdjustmentFilter | undefined
   onAdjustmentFilterChange: (filter: SalesChannelAdjustmentFilter | undefined) => void
+  searchFilter?: string
+  onSearchFilterChange: (filter: string | undefined) => void
 }
 
 export const SalesChannelsPage = ({
   adjustmentFilter,
   onAdjustmentFilterChange,
+  searchFilter,
+  onSearchFilterChange,
 }: SalesChannelsPageProps) => {
-  const {
-    actionError,
-    announcement,
-    isLoadingSalesChannels,
-    isRefreshingSalesChannels,
-    isReactivating,
-    isSalesChannelsError,
-    handleCreate,
-    handleDelete,
-    handleEdit,
-    handleInactivate,
-    handleOpenChange,
-    handleRetry,
-    handleStatusChange,
-    handleSuccess,
-    salesChannels,
-    selectedAction,
-  } = useSalesChannelsPage()
+  const page = useSalesChannelsPage(searchFilter)
 
   return (
     <section className='min-w-0 space-y-5'>
@@ -50,92 +32,54 @@ export const SalesChannelsPage = ({
             Canais de venda
           </h1>
           <p className='mt-1 max-w-2xl text-sm font-medium text-muted-foreground'>
-            Configure ajustes percentuais para delivery, balcão e outros contextos de
-            venda.
+            {page.canManageSalesChannels
+              ? 'Configure ajustes percentuais para delivery, balcão e outros contextos de venda.'
+              : 'Consulte os canais de venda e os ajustes aplicados aos pedidos.'}
           </p>
         </div>
-        <Button
-          className='min-h-10 self-start shadow-primary sm:self-auto'
-          onClick={handleCreate}
-          type='button'
-        >
-          <Icon name='plus' /> Novo canal
-        </Button>
+        {page.canManageSalesChannels ? (
+          <Button
+            className='min-h-10 self-start shadow-primary sm:self-auto'
+            onClick={page.handleCreate}
+            type='button'
+          >
+            <Icon name='plus' /> Novo canal
+          </Button>
+        ) : null}
       </header>
-      <Card className='gap-0 rounded-2xl border py-0 shadow-none'>
-        <CardContent className='flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between'>
-          <div className='flex min-w-0 items-start gap-3'>
-            <span className='grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary'>
-              <Icon name='calculator' className='size-5' />
-            </span>
-            <div className='min-w-0'>
-              <h2 className='text-sm font-extrabold'>O canal é opcional</h2>
-              <p className='mt-1 text-sm text-muted-foreground'>
-                Sem canal, o pedido mantém os preços-base. O percentual escolhido vale
-                para todos os itens pagos.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      <SalesChannelsFeedback
-        actionError={actionError}
-        announcement={announcement}
-        isRefreshing={isRefreshingSalesChannels}
+      <ChannelSearch
+        onSearchFilterChange={onSearchFilterChange}
+        searchFilter={searchFilter}
       />
-      {isLoadingSalesChannels ? (
-        <SalesChannelsLoading />
-      ) : isSalesChannelsError ? (
-        <SalesChannelsError onRetry={handleRetry} />
-      ) : salesChannels.length === 0 ? (
-        <SalesChannelsEmptyState onAdd={handleCreate} />
-      ) : (
-        <SalesChannelsList
-          adjustmentFilter={adjustmentFilter}
-          channels={salesChannels}
-          isReactivatePending={isReactivating}
-          onAdjustmentFilterChange={onAdjustmentFilterChange}
-          onDelete={handleDelete}
-          onEdit={handleEdit}
-          onInactivate={handleInactivate}
-          onReactivate={(channel) => handleStatusChange(channel, 'active')}
-        />
-      )}
-      {selectedAction?.kind === 'create' ? (
-        <SalesChannelDialog
-          mode='add'
-          onOpenChange={handleOpenChange}
-          onRequestStatusChange={handleStatusChange}
-          onSuccess={handleSuccess}
-          open
-        />
-      ) : null}
-      {selectedAction?.kind === 'edit' ? (
-        <SalesChannelDialog
-          channel={selectedAction.channel}
-          mode='edit'
-          onOpenChange={handleOpenChange}
-          onRequestStatusChange={handleStatusChange}
-          onSuccess={handleSuccess}
-          open
-        />
-      ) : null}
-      {selectedAction?.kind === 'inactivate' ? (
-        <ChangeSalesChannelStatusDialog
-          channel={selectedAction.channel}
-          onOpenChange={handleOpenChange}
-          onSuccess={handleSuccess}
-          open
-        />
-      ) : null}
-      {selectedAction?.kind === 'delete' ? (
-        <DeleteSalesChannelDialog
-          channel={selectedAction.channel}
-          onOpenChange={handleOpenChange}
-          onSuccess={handleSuccess}
-          open
-        />
-      ) : null}
+      <SalesChannelsFeedback
+        actionError={page.actionError}
+        announcement={page.announcement}
+        isRefreshing={page.isRefreshingSalesChannels}
+      />
+      <SalesChannelsResults
+        adjustmentFilter={adjustmentFilter}
+        canManage={page.canManageSalesChannels}
+        channels={page.salesChannels}
+        isError={page.isSalesChannelsError}
+        isLoading={page.isLoadingSalesChannels}
+        isReactivatePending={page.isReactivating}
+        matchingChannels={page.matchingChannels}
+        onAdd={page.handleCreate}
+        onAdjustmentFilterChange={onAdjustmentFilterChange}
+        onDelete={page.handleDelete}
+        onEdit={page.handleEdit}
+        onInactivate={page.handleInactivate}
+        onReactivate={(channel) => page.handleStatusChange(channel, 'active')}
+        onRetry={page.handleRetry}
+        onSearchFilterChange={onSearchFilterChange}
+      />
+      <SalesChannelsActionDialogs
+        canManage={page.canManageSalesChannels}
+        onOpenChange={page.handleOpenChange}
+        onStatusChange={page.handleStatusChange}
+        onSuccess={page.handleSuccess}
+        selectedAction={page.selectedAction}
+      />
     </section>
   )
 }

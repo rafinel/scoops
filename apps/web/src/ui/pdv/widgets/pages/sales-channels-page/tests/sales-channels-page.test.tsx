@@ -24,12 +24,14 @@ const channel = makeSalesChannel()
 const pageProps = {
   adjustmentFilter: undefined,
   onAdjustmentFilterChange: vi.fn(),
+  onSearchFilterChange: vi.fn(),
 }
 
 function createView() {
   return {
     actionError: null,
     announcement: '',
+    canManageSalesChannels: true,
     isLoadingSalesChannels: false,
     isRefreshingSalesChannels: false,
     isReactivating: false,
@@ -42,6 +44,7 @@ function createView() {
     handleRetry: vi.fn(),
     handleStatusChange: vi.fn(),
     handleSuccess: vi.fn(),
+    matchingChannels: [],
     salesChannels: [],
     selectedAction: undefined,
   }
@@ -59,11 +62,51 @@ describe('SalesChannelsPage', () => {
     render(<SalesChannelsPage {...pageProps} />)
 
     expect(screen.getByRole('heading', { name: 'Canais de venda' })).toBeTruthy()
+    expect(
+      screen.getByText(
+        'Configure ajustes percentuais para delivery, balcão e outros contextos de venda.',
+      ),
+    ).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'Nenhum canal cadastrado' })).toBeTruthy()
     fireEvent.click(screen.getAllByRole('button', { name: 'Novo canal' })[0])
     expect(
       useSalesChannelsPageMock.mock.results[0].value.handleCreate,
     ).toHaveBeenCalledOnce()
+  })
+
+  it('renders channel facts without management controls for an Operator', () => {
+    useSalesChannelsPageMock.mockReturnValue({
+      ...createView(),
+      canManageSalesChannels: false,
+      matchingChannels: [channel],
+      salesChannels: [channel],
+    })
+
+    render(<SalesChannelsPage {...pageProps} />)
+
+    expect(screen.getByRole('heading', { name: 'Canais de venda' })).toBeTruthy()
+    expect(
+      screen.getByText('Consulte os canais de venda e os ajustes aplicados aos pedidos.'),
+    ).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Novo canal' })).toBeNull()
+    expect(screen.getAllByText('Delivery próprio')).toHaveLength(2)
+    expect(
+      screen.queryByRole('button', { name: 'Abrir ações de Delivery próprio' }),
+    ).toBeNull()
+  })
+
+  it('shows a read-only empty message without a channel-creation action', () => {
+    useSalesChannelsPageMock.mockReturnValue({
+      ...createView(),
+      canManageSalesChannels: false,
+    })
+
+    render(<SalesChannelsPage {...pageProps} />)
+
+    expect(
+      screen.getByRole('status', { name: 'Canais cadastrados' }).textContent,
+    ).toContain('Os canais de venda cadastrados pela sua equipe aparecerão aqui.')
+    expect(screen.queryByRole('button', { name: 'Novo canal' })).toBeNull()
   })
 
   it('composes loading, retryable error and populated states', () => {
@@ -88,12 +131,34 @@ describe('SalesChannelsPage', () => {
 
     useSalesChannelsPageMock.mockReturnValue({
       ...createView(),
+      matchingChannels: [channel],
       salesChannels: [channel],
     })
     rerender(<SalesChannelsPage {...pageProps} />)
     expect(screen.getAllByText('Delivery próprio')).toHaveLength(2)
     expect(screen.getAllByText('+12,00%')).toHaveLength(2)
     expect(screen.getAllByText('Ativo')).toHaveLength(2)
+  })
+
+  it('shows the clearable empty state for a URL name filter', () => {
+    const onSearchFilterChange = vi.fn()
+    useSalesChannelsPageMock.mockReturnValue({
+      ...createView(),
+      salesChannels: [channel],
+    })
+
+    render(
+      <SalesChannelsPage
+        {...pageProps}
+        onSearchFilterChange={onSearchFilterChange}
+        searchFilter='missing'
+      />,
+    )
+
+    expect(useSalesChannelsPageMock).toHaveBeenCalledWith('missing')
+    expect(screen.getByText('Nenhum canal corresponde a esta busca.')).toBeTruthy()
+    fireEvent.click(screen.getAllByRole('button', { name: 'Limpar busca' })[1])
+    expect(onSearchFilterChange).toHaveBeenCalledWith(undefined)
   })
 
   it('renders action errors and opens the selected dialog boundary', () => {

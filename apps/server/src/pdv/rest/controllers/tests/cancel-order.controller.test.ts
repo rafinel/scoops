@@ -6,10 +6,10 @@ import { AppError } from '@scoops/core/shared/domain/errors'
 
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import {
+  operatorRequestAuthorization,
   PdvModuleFixture,
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
-  operatorRequestAuthorization,
   preparePdvFixture,
   resetPdvFixture,
 } from '@/pdv/fixtures/pdv-module-fixture'
@@ -347,5 +347,12 @@ describe('Cancel Order Controller [PATCH /orders/:orderId/cancel]', () => {
     expect(order?.cancellation?.outcomes).toEqual(response.body.cancellation.outcomes)
     expect(firstAfter?.quantity).toBe(firstBefore?.quantity)
     expect(secondAfter?.quantity).toBe((secondBefore?.quantity ?? 0) + 1)
+  })
+  it('denies Operator access to this Manager-only route before controller execution', async () => {
+    const response = await request(fixture.app.getHttpServer())
+      .patch('/orders/00000000-0000-4000-8000-000000000001/cancel')
+      .set('Cookie', operatorRequestAuthorization())
+
+    expect(response.status).toBe(403)
   })
 })

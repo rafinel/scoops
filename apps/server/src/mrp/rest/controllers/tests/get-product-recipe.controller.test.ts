@@ -26,6 +26,12 @@ describe('Get Product Recipe Controller [GET /products/:productId/recipe]', () =
     const product = await fixture.addProduct(
       createProduct({ categories: [ProductCategory.Manufacturable] }),
     )
+    const foreignProduct = await fixture.addProduct(
+      createProduct({
+        establishmentId: '44000000-0000-0000-0000-000000000001',
+        categories: [ProductCategory.Manufacturable],
+      }),
+    )
 
     const response = await request(fixture.app.getHttpServer())
       .get(`/products/${product.id}/recipe`)
@@ -33,13 +39,16 @@ describe('Get Product Recipe Controller [GET /products/:productId/recipe]', () =
 
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({ product: { id: product.id }, recipe: null })
+    const operator = await request(fixture.app.getHttpServer())
+      .get(`/products/${product.id}/recipe`)
+      .set('Cookie', operatorRequestAuthorization())
+    expect(operator.status).toBe(200)
+    expect(operator.body).toMatchObject({ product: { id: product.id }, recipe: null })
     expect(
-      (
-        await request(fixture.app.getHttpServer())
-          .get(`/products/${product.id}/recipe`)
-          .set('Cookie', operatorRequestAuthorization())
-      ).status,
-    ).toBe(403)
+      await request(fixture.app.getHttpServer())
+        .get(`/products/${foreignProduct.id}/recipe`)
+        .set('Cookie', operatorRequestAuthorization()),
+    ).toMatchObject({ status: 404 })
     expect(
       (
         await request(fixture.app.getHttpServer())
