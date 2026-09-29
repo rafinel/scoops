@@ -71,6 +71,7 @@ const workspaceRules = {
           '^src/shared/database/drizzle/schema\\.ts$',
           '^src/shared/database/seed\\.ts$',
           '^src/shared/provision/notification-audience/notification-audience\\.module\\.ts$',
+          '^src/shared/provision/global-search/(?:global-search-provision\\.module|identity-global-search-provider|mrp-global-search-provider|pdv-global-search-provider)\\.ts$',
         ],
       },
       to: { path: '^src/(?:billing|communication|identity|mrp|pdv)/' },
@@ -90,6 +91,63 @@ const workspaceRules = {
           '^src/identity/constants(?:/|\\.ts$)',
           '^src/identity/database/identity-database\\.module\\.ts$',
         ],
+      },
+    },
+    {
+      name: 'server-shared-global-search-module-boundary',
+      severity: 'error',
+      comment:
+        'The shared global-search provider module may import only its three owning database modules and Identity provider tokens.',
+      from: {
+        path: '^src/shared/provision/global-search/global-search-provision\\.module\\.ts$',
+      },
+      to: {
+        path: '^src/(?:billing|communication|identity|mrp|pdv)/',
+        pathNot: [
+          '^src/identity/constants(?:/|\\.ts$)',
+          '^src/identity/database/identity-database\\.module\\.ts$',
+          '^src/mrp/database/mrp-database\\.module\\.ts$',
+          '^src/pdv/database/pdv-database\\.module\\.ts$',
+        ],
+      },
+    },
+    {
+      name: 'server-shared-global-search-identity-boundary',
+      severity: 'error',
+      comment:
+        'The shared Identity search adapter may import only Identity repository tokens.',
+      from: {
+        path: '^src/shared/provision/global-search/identity-global-search-provider\\.ts$',
+      },
+      to: {
+        path: '^src/(?:billing|communication|identity|mrp|pdv)/',
+        pathNot: '^src/identity/constants(?:/|\\.ts$)',
+      },
+    },
+    {
+      name: 'server-shared-global-search-mrp-boundary',
+      severity: 'error',
+      comment:
+        'The shared MRP search adapter may import only MRP repository tokens.',
+      from: {
+        path: '^src/shared/provision/global-search/mrp-global-search-provider\\.ts$',
+      },
+      to: {
+        path: '^src/(?:billing|communication|identity|mrp|pdv)/',
+        pathNot: '^src/mrp/constants(?:/|\\.ts$)',
+      },
+    },
+    {
+      name: 'server-shared-global-search-pdv-boundary',
+      severity: 'error',
+      comment:
+        'The shared PDV search adapter may import only PDV repository tokens.',
+      from: {
+        path: '^src/shared/provision/global-search/pdv-global-search-provider\\.ts$',
+      },
+      to: {
+        path: '^src/(?:billing|communication|identity|mrp|pdv)/',
+        pathNot: '^src/pdv/constants(?:/|\\.ts$)',
       },
     },
     {
