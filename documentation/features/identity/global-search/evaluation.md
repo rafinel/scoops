@@ -3,7 +3,7 @@ feature: "identity/global-search"
 spec: ./spec.md
 plan: ./plan.md
 spec_revision: 12
-status: ready
+status: completed
 updated_at: 2026-09-29
 ---
 
@@ -11,7 +11,7 @@ updated_at: 2026-09-29
 
 Evaluation of Spec revision `12` against the current implementation.
 
-Current result: Revision 12's baseline amendment and complexity corrections are complete; all layer gates, current runtime/visual evidence and the excluded-analytics baseline audit pass. The first clean-branch conformance run identified two contractual route-test paths missing from the initial commit. Builder Web verified the Dashboard Operator redirect and completed the Manager/anonymous/Operator Subscription guard cases. The focused Playwright route run passed 8/8 and Biome passed both files. The clean current-main candidate now passes the revision 12 path sensor for all 116 paths (28 Create, 88 Modify), with 106 unrelated changed paths ignored. F20 is resolved and F10 is complete. All eleven ACs have current passing evidence; all nine mapped PRQs remain partially delivered and unchecked. Evaluation is `ready`; PR publication and applicable CI checks are next.
+Current result: Spec revision 12 is complete and published in ready-for-review PR [#48](https://github.com/rafinel/scoops/pull/48). All eleven acceptance criteria and current implementation evidence pass; F20 is resolved; F10 and F12 are complete. The implementation-candidate CI gate passed on head `2839b0756b4528d89c7ac8ffefd128711bdf4ff6` across Core, Server, Web, Validation and all complexity jobs. The closure-only commit is published next; its final-head check rollup is authoritative for post-closure CI. All nine mapped PRQs remain partially delivered and their Implemented checkboxes remain unchecked.
 
 ## Acceptance matrix
 
@@ -86,10 +86,10 @@ Visual evidence uses the common `EV-*` Evidence identifiers with `Type = visual`
 | Rule Pack | `documentation/rules.md` and all 11 paths listed in Spec section 5 | Revision 7 compatibility review passed; task applicability is recorded in `./plan.md`. | Relevant `Antipatterns to Avoid` sections and architecture checker boundary remain contracted. |
 | Design | `documentation/design.md`; `./design/manifest.md` and nine saved references | Reviewed. | Manifest records visual inventory, viewports, states and evidence names; no supplemental screenshot is required. |
 | Tooling | `documentation/tooling.md` | Reviewed. | Use documented workspace commands and Playwright CLI; generated route output remains Orchestrator-owned. |
-| SDD workflow | `documentation/sdd.md`; `./spec.md`; `./plan.md` | Spec revision 12 is in progress; Evaluation is ready and Plan F12 is complete. | Compatibility reviews through revision 12 completed without remaining findings. Implementation and visual evidence is current; PRD Implemented checkboxes remain unchecked because all nine mapped PRQs are partially delivered. |
+| SDD workflow | `documentation/sdd.md`; `./spec.md`; `./plan.md` | Spec revision 12, Plan and Evaluation are completed. | Compatibility reviews through revision 12 completed without remaining findings. Implementation, visual evidence and implementation-candidate CI are current; final closure-head CI remains pending. PRD Implemented checkboxes remain unchecked because all nine mapped PRQs are partially delivered. |
 | PRD implementation traceability | `documentation/prds/identity.md` PRQ-04/13; `documentation/prds/mrp.md` PRQ-03/04/05/10; `documentation/prds/pdv.md` PRQ-01/11/13 | Partially delivered; all nine Implemented checkboxes remain unchecked. | Identity PRQ-04: FR-02/04, AC-02/03/04/05/10/11 (read-only Operator scope only). Identity PRQ-13: FR-01–08, AC-01–11 (global search and role-aware navigation only). MRP PRQ-03: FR-04, AC-05/11 (read-only stock history); PRQ-04/05/10: FR-02/04, AC-03/04/05/10/11 (read-only listing/detail/navigation). PDV PRQ-01/11/13: FR-02/04, AC-03/04/05/10/11 (read-only channel, navigation and Combo visibility). Each requirement retains capabilities or experience outside this Spec, so none is fully delivered. |
 | Delivery documentation | `documentation/features/identity/global-search/`; `documentation/prds/identity.md`; `documentation/prds/mrp.md`; `documentation/prds/pdv.md`; `documentation/sdd.md`; `documentation/prompts/create-plan-prompt.md`; `documentation/prompts/create-spec-prompt.md`; `documentation/prompts/implement-spec-prompt.md`; `documentation/agents/visual-reviewer-agent.md` | Include in this delivery. | Feature artifacts and saved design references, approved product-contract amendments, and Visual Reviewer workflow guidance are required to represent this implementation and its explicitly requested independent review. |
-| Preserved unrelated user work | `.github/workflows/server-app-staging-cd.yml`; `.github/workflows/web-app-staging-cd.yml`; `documentation/tooling.md`; `documentation/infrastructure.md`; `apps/web/src/server/analytics/log-analytics-interaction.ts`; `apps/web/src/ui/analytics/widgets/pages/dashboard-page/index.tsx` | Excluded from this delivery. | The workflow/documentation paths add staging deployment topology, and the analytics paths remove dashboard-view telemetry. These changes are unrelated to global search; preserve them in the shared worktree and do not stage them. The local Web type check reports the `data` parameter made unused by the excluded analytics edit; a clean-candidate check passed with those files at committed versions. |
+| Preserved unrelated user work | `.github/workflows/server-app-staging-cd.yml`; `.github/workflows/web-app-staging-cd.yml`; `documentation/tooling.md`; `documentation/infrastructure.md`; `design/onoreo.pen`; `apps/web/src/server/analytics/log-analytics-interaction.ts`; `apps/web/src/ui/analytics/widgets/pages/dashboard-page/index.tsx` | Excluded from this delivery. | The workflow/documentation paths add staging deployment topology, the `.pen` edit is unrelated design work, and the analytics paths remove dashboard-view telemetry. Preserve these shared-worktree changes and do not stage them. The local Web type check reports the `data` parameter made unused by the excluded analytics edit; a clean-candidate check passed with those files at committed versions. |
 
 ## Findings
 
@@ -127,11 +127,16 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| EV-CI-01 | Core CI (including Complexity) | `2839b0756b4528d89c7ac8ffefd128711bdf4ff6` | Passed: Core code, architecture, types, coverage and Complexity jobs succeeded. | [Run 36587085944](https://github.com/rafinel/scoops/actions/runs/36587085944) |
+| EV-CI-02 | Server CI (including Complexity) | `2839b0756b4528d89c7ac8ffefd128711bdf4ff6` | Passed: Server code, architecture, types, Inngest integration, coverage, build and Complexity jobs succeeded. | [Run 36587085472](https://github.com/rafinel/scoops/actions/runs/36587085472) |
+| EV-CI-03 | Web CI (including Complexity) | `2839b0756b4528d89c7ac8ffefd128711bdf4ff6` | Passed: route generation, code, architecture, types, coverage, browser integration, build and Complexity jobs succeeded. | [Run 36587085659](https://github.com/rafinel/scoops/actions/runs/36587085659) |
+| EV-CI-04 | Validation CI | `2839b0756b4528d89c7ac8ffefd128711bdf4ff6` | Passed: Validation code, types and Complexity jobs succeeded. | [Run 36587085889](https://github.com/rafinel/scoops/actions/runs/36587085889) |
 
 ## History
 
 | Date/Time | Event |
 | --- | --- |
+| 2026-09-29 | Published ready-for-review [PR #48](https://github.com/rafinel/scoops/pull/48) from `feat/global-search-delivery` to `main`, based on current `origin/main`. Implementation-candidate head `2839b0756b4528d89c7ac8ffefd128711bdf4ff6` passed Core, Server, Web and Validation CI, including all four applicable Complexity jobs. The PR is not draft. Closure status and final-head CI remain pending. |
 | 2026-09-27 | Implementation kickoff: Spec revision 4 confirmed `open`, then marked `in_progress`; Plan-backed strategy selected; Playwright CLI health check passed; baseline recorded as 27 declared Creates absent, 30 Modifies present, and no implementation-source diff. |
 | 2026-09-27 | Activated Wave 1: Builder Core (`/root/builder_core`) started F1-T1 and Builder Validation (`/root/builder_validation`) started F2-T1 in parallel after their exact ownership, FR/AC coverage, Rule Packs, paths and exits were recorded in `./plan.md`. |
 | 2026-09-27 | Completed F2-T1: reviewed the three Validation paths, confirmed the global query schema/export and optional sales-channel filter, reran Validation code and type checks successfully, and completed the phase. F1-T1 remains active. |
