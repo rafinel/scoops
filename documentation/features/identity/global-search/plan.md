@@ -1,6 +1,6 @@
 ---
 title: Authenticated global search — implementation plan
-status: in_progress
+status: completed
 spec: ./spec.md
 spec_revision: 12
 evaluation: ./evaluation.md
@@ -10,12 +10,12 @@ updated_at: 2026-09-29
 
 # Execution status
 
-- **Spec:** [`./spec.md`](./spec.md), revision 12, `in_progress` after the compatibility review and Orchestrator integrity checks; product behavior, API and state ownership are unchanged.
+- **Spec:** [`./spec.md`](./spec.md), revision 12, `completed` after the compatibility review, implementation evidence, PR publication and implementation-candidate CI gate.
 - **Plan-backed rationale:** The contract spans Core, Validation, Server and Web, with role and tenant boundaries, an authenticated endpoint, cross-module read adapters, generated route coordination, real HTTP validation and nine design references.
-- **Current phase:** F10 route-test conformance correction complete; F12 complexity and integrated evidence work complete; delivery publication and PR CI are pending.
-- **Next action:** Commit the final scoped candidate, publish/update its ready-for-review PR, and poll applicable CI checks through terminal results.
-- **Active blockers:** No local validation blockers. PR CI has not run for the final delivery candidate yet.
-- **Active Builders:** All Builder assignments are complete; Orchestrator owns publication, PR CI and closure ledger updates.
+- **Current phase:** All implementation phases and evidence are complete; PR #48 implementation-candidate CI passed. The delivery closure commit is being published for its final-head CI gate.
+- **Next action:** Confirm all applicable CI checks pass on the closure commit head.
+- **Active blockers:** No implementation blockers. Closure-head CI is pending.
+- **Active Builders:** All Builder assignments are complete; no Builder work remains.
 - **Shared ownership:** The Orchestrator owns `.dependency-cruiser.mjs`, route generation output (`apps/web/src/routeTree.gen.ts`, only if generation changes it), the integrated path sensor, evidence integration and review coordination. Do not hand-edit generated route metadata.
 
 # Execution ledger
