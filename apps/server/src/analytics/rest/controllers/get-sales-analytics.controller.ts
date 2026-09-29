@@ -40,6 +40,7 @@ export class GetSalesAnalyticsController {
       },
       period: query.period,
     })
+
     return SalesAnalyticsResponseDto.from(result)
   }
 }
