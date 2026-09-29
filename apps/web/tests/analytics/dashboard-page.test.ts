@@ -22,7 +22,9 @@ test.describe('DashboardPage', () => {
         minute: '2-digit',
       }).format(new Date('2026-09-13T13:00:00.000Z')),
     )
-    await expect(page.getByText(`Atualizado em ${updatedAt}`, { exact: true })).toBeVisible()
+    await expect(
+      page.getByText(`Atualizado em ${updatedAt}`, { exact: true }),
+    ).toBeVisible()
     await expect(page.getByText('R$ 1.250,00', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Estoque agora' })).toBeVisible()
     await expect(page.getByRole('listitem').locator('svg')).toHaveCount(1)
@@ -62,6 +64,17 @@ test.describe('DashboardPage', () => {
     await expect(page).toHaveURL(/\/login\?returnTo=%2F/)
   })
 
+  test('redirects an Operator from Dashboard root to New Sale', async ({
+    page,
+    identityFixture,
+  }) => {
+    await identityFixture.mockOperatorSession()
+    await identityFixture.mockOperatorAccount()
+    await page.goto('/')
+    await expect(page).toHaveURL(/\/sales\/new\/?$/)
+    await expect(page.getByRole('heading', { name: 'Nova venda' })).toBeVisible()
+  })
+
   test('keeps dashboard controls readable at a narrow viewport', async ({
     page,
     identityFixture,
@@ -80,7 +93,7 @@ test.describe('DashboardPage', () => {
     await expect(
       page.getByRole('combobox', { name: 'Período do dashboard' }),
     ).toBeVisible()
-    await expect(page.getByRole('textbox', { name: 'Buscar no Scoops' })).toBeVisible()
+    await expect(page.getByRole('combobox', { name: 'Buscar no Scoops' })).toBeVisible()
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(390)

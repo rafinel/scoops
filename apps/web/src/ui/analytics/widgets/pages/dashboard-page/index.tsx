@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { DashboardPeriodControl } from './dashboard-period-control'
 import { DashboardSummary } from './dashboard-summary'
 import { DashboardSalesStatus } from './dashboard-sales-status'
@@ -23,19 +23,9 @@ const PERIOD_LABELS = {
 export const DashboardPage = () => {
   const page = useDashboardPage()
   const logInteraction = useAnalyticsInteraction()
-  const hasLoggedView = useRef(false)
   const [coverageOpen, setCoverageOpen] = useState(false)
   const formatDate = useFormatDate()
   useEffect(() => {
-    if (!hasLoggedView.current) {
-      hasLoggedView.current = true
-      logInteraction({
-        event: 'dashboard-viewed',
-        period: page.period,
-        target: 'dashboard',
-        source: 'ui',
-      })
-    }
     if (page.sales.isStale) {
       logInteraction({
         event: 'stale-presented',
