@@ -1,6 +1,6 @@
 ---
 title: Authenticated global search — implementation plan
-status: in_progress
+status: completed
 spec: ./spec.md
 spec_revision: 12
 evaluation: ./evaluation.md
@@ -12,9 +12,9 @@ updated_at: 2026-09-29
 
 - **Spec:** [`./spec.md`](./spec.md), revision 12, `in_progress` after the compatibility review and Orchestrator integrity checks; product behavior, API and state ownership are unchanged.
 - **Plan-backed rationale:** The contract spans Core, Validation, Server and Web, with role and tenant boundaries, an authenticated endpoint, cross-module read adapters, generated route coordination, real HTTP validation and nine design references.
-- **Current phase:** PR #49 now uses the requested `feat/global-search` branch with all pre-existing branch changes included. The initial Web CI issue has been corrected; conformance, Web types, coverage, Biome and all scoped complexity checks pass.
-- **Next action:** Commit the correction and refreshed evidence, update PR #49 through `create-pr`, then poll all applicable checks on the new head.
-- **Active blockers:** Corrected-head PR CI is pending.
+- **Current phase:** The corrected implementation candidate passed all applicable PR checks; Spec, Plan and Evaluation closure is committed in this head.
+- **Next action:** Publish the closure commit through PR #49 and verify the current-head CI rollup.
+- **Active blockers:** Final closure-head CI is pending.
 - **Active Builders:** All Builder assignments are complete; Orchestrator owns publication, PR CI and closure ledger updates.
 - **Shared ownership:** The Orchestrator owns `.dependency-cruiser.mjs`, route generation output (`apps/web/src/routeTree.gen.ts`, only if generation changes it), the integrated path sensor, evidence integration and review coordination. Do not hand-edit generated route metadata.
 
