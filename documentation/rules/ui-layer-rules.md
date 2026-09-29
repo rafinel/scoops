@@ -156,6 +156,21 @@ The action hook owns request orchestration and lifecycle callbacks. Page or
 widget hooks consume the action hook and own local form state, UI state, and
 interaction handlers.
 
+### UI-local TanStack Start actions
+
+When a TanStack Start server function exists only to support one UI action,
+declare it in the same action-hook module as the hook that invokes it. Keep its
+input validation in `.validator()` and server-only request handling in the
+`.handler()` callback, and keep the React hook responsible for UI dependencies
+and invocation. Name the exported hook with the `use<Name>Action` pattern. This
+keeps a UI-only server action and its caller within one feature boundary without
+creating a separate `apps/web/src/server` module for a single consumer.
+
+Keep server functions in `apps/web/src/server` when they are shared across UI
+features or consumed outside a single action hook, such as route-level session
+resolution. Do not move REST operations or domain orchestration into an
+action-hook module; those continue to use the web REST and core boundaries.
+
 Query and action hooks do not receive dedicated test files. Their observable
 request, lifecycle, invalidation, recovery and rendering behavior is covered by
 the consuming page/widget test and, when applicable, the route integration
