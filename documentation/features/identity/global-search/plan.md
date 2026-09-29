@@ -12,9 +12,9 @@ updated_at: 2026-09-29
 
 - **Spec:** [`./spec.md`](./spec.md), revision 12, `in_progress` after the compatibility review and Orchestrator integrity checks; product behavior, API and state ownership are unchanged.
 - **Plan-backed rationale:** The contract spans Core, Validation, Server and Web, with role and tenant boundaries, an authenticated endpoint, cross-module read adapters, generated route coordination, real HTTP validation and nine design references.
-- **Current phase:** F12 integrated complexity-baseline refresh and validation — complete; delivery publication and PR CI are pending.
-- **Next action:** Commit the scoped candidate, publish/update its ready-for-review PR, and poll all applicable CI checks through terminal results.
-- **Active blockers:** No local validation blockers. PR CI has not run for the delivery candidate yet.
+- **Current phase:** F10 route-test conformance correction complete; F12 complexity and integrated evidence work complete; delivery publication and PR CI are pending.
+- **Next action:** Commit the final scoped candidate, publish/update its ready-for-review PR, and poll applicable CI checks through terminal results.
+- **Active blockers:** No local validation blockers. PR CI has not run for the final delivery candidate yet.
 - **Active Builders:** All Builder assignments are complete; Orchestrator owns publication, PR CI and closure ledger updates.
 - **Shared ownership:** The Orchestrator owns `.dependency-cruiser.mjs`, route generation output (`apps/web/src/routeTree.gen.ts`, only if generation changes it), the integrated path sensor, evidence integration and review coordination. Do not hand-edit generated route metadata.
 
@@ -31,9 +31,9 @@ updated_at: 2026-09-29
 | 5 | `Orchestrator` | F7 | Integrated validation and handoff (revision 5) | F5, F6 | — | `completed — historical` | Revision 5 path sensor, workspace checks, MV-01, visual rows and reviews passed. Revision 6 invalidates role-scope evidence listed in Evaluation. |
 | 6 | `Builder Core` (`/root/builder_core`) | F8 | Operator global-search policy and stock-history access | F1, F2, F3; Spec revision 6 review | — | `completed` | Core permits the five Operator page results and scoped product/order/channel/discount record results without Identity user searches; authorized Operators read product-scoped stock history; focused tests, Core code/type checks and coverage pass (96 files/270 tests above floors). |
 | 7 | `Builder Server` (`/root/builder_server`) | F9 | Operator read-only server access | F8 | F10 | `completed` | Scoped Operator GETs, foreign-tenant rejection, search groups/no users, and Manager-only write/preview denial passed; focused HTTP passed 11 files/27 tests, 16 added authorization suites passed 16 files/51 tests, Server coverage passed 94 files/281 tests above floors, and Server/Core checks/build/architecture passed. |
-| 7 | `Builder Web` (`/root/builder_web`) | F10 | Operator read-only pages and routes | F8 | F9 | `completed` | Operator read-only pages, stock history, Manager-only actions, route tests 109/109, broad Playwright integration 237/237, updated focused page suites, authenticated page captures, and current Web code/types/build pass. Latest full unit/coverage runs passed all 544 tests and coverage floors. |
+| 7 | `Builder Web` (`/root/builder_web`) | F10 | Operator read-only pages and routes | F8 | F9 | `completed` | Operator read-only pages and route behavior are validated. The clean current-main candidate includes the exact Dashboard route test (Modify) and Subscription route test (Create) from revision 12; focused route checks pass 8/8, Biome passes both files, and final path conformance passes 116 paths. |
 | 8 | `Orchestrator` | F11 | Revision 10 integrated validation and review | F9, F10 | — | `completed` | Revision 10 path sensor, root architecture/test-integrity gates, Server/Web coverage and build gates, real authenticated MV-01, refreshed visual evidence, and both integrated review follow-ups pass. Evaluation is ready; conclusion remains a separate workflow. |
-| 9 | Core, Server, Web Builders | F12 | Complexity corrections and evidence refresh | F11; revision 11 Spec review; revision 12 baseline-path review | Parallel by workspace | `in_progress` | Feature-owned error-level complexity findings are resolved; the generated baseline is refreshed and reviewed only for this intentional refactor; root/scoped gates, workspace quality checks, affected UI behavior and fresh screenshots pass. |
+| 9 | Core, Server, Web Builders | F12 | Complexity corrections and evidence refresh | F11; revision 11 Spec review; revision 12 baseline-path review | Parallel by workspace | `completed` | Feature-owned error-level complexity findings are resolved; the generated baseline is refreshed and reviewed only for this intentional refactor; root/scoped gates, workspace quality checks, affected UI behavior and fresh screenshots pass. |
 
 #### F6-T2 — Correct the broad Web integration regressions
 
@@ -226,4 +226,4 @@ The phases below follow the user-approved Operator scope. Revision 6 established
 
 ## Final handoff condition
 
-Revision 5's implementation and validation handoff was complete, including its 229/229 Web integration result and nine visual comparisons. Revisions 6–10 established and mapped the approved Operator behavior and current test-path classifications. F8–F11 and F12 are complete. Final revision 12 local evidence is current; PRD requirements remain unchecked because the mapped outcomes are partially delivered. Delivery publication and PR CI remain.
+Revision 5's implementation and validation handoff was complete, including its 229/229 Web integration result and nine visual comparisons. Revisions 6–10 established and mapped the approved Operator behavior and current test-path classifications. F8–F11, F12 and the final F10 route-test conformance correction are complete. Final revision 12 local evidence is current; PRD requirements remain unchecked because the mapped outcomes are partially delivered. Delivery publication and PR CI remain.
