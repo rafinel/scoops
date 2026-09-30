@@ -20,7 +20,9 @@ export class SentryTelemetry
 
   override warn(message: unknown, ...optionalParams: unknown[]): void {
     super.warn(message, ...optionalParams)
-    this.logWarning({ errorClass: 'NestLoggerWarning' })
+    if (!this.logKnownNestWarning(message)) {
+      this.logWarning({ errorClass: 'NestLoggerWarning' })
+    }
   }
 
   override debug(message: unknown, ...optionalParams: unknown[]): void {
@@ -164,6 +166,37 @@ export class SentryTelemetry
     if (context.errorClass) safeAttributes.error_class = errorClass
 
     return safeAttributes
+  }
+
+  private logKnownNestWarning(message: unknown): boolean {
+    if (typeof message !== 'string' || message.length > 512) return false
+
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(message)
+    } catch {
+      return false
+    }
+    const ageMinutes = this.getBacklogAgeMinutes(parsed)
+    if (ageMinutes === undefined) return false
+
+    this.runSafely(() => {
+      Sentry.logger.warn('Outbox pending backlog', {
+        signal: 'outbox_pending_backlog',
+        age_minutes: ageMinutes,
+      })
+    })
+    return true
+  }
+
+  private getBacklogAgeMinutes(value: unknown): number | undefined {
+    if (typeof value !== 'object' || value === null) return undefined
+
+    const { signal, ageMinutes } = value as Record<string, unknown>
+    if (signal !== 'outbox_pending_backlog') return undefined
+    if (typeof ageMinutes !== 'number' || !Number.isFinite(ageMinutes)) return undefined
+
+    return Math.min(Math.max(Math.floor(ageMinutes), 0), 525_600)
   }
 
   private runSafely(operation: () => void): void {
