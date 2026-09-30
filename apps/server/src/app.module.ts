@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { ScheduleModule } from '@nestjs/schedule'
 import { serverEnvSchema } from '@scoops/validation'
 
 import { BillingModule } from '@/billing/billing.module'
@@ -18,24 +19,17 @@ import {
 } from '@/communication/messaging/inngest/jobs'
 import { ExpireIceCreamShopOnboardingsJob } from '@/identity/messaging/inngest/jobs'
 import { RevalidateCombosForProductJob } from '@/pdv/messaging/inngest/jobs'
-import { CleanupPublishedEventsJob } from '@/shared/messaging/inngest/jobs/cleanup-published-events-job'
-import { ReprocessEventsJob } from '@/shared/messaging/inngest/jobs/reprocess-events-job'
 import { SharedMessagingModule } from '@/shared/messaging/shared-messaging.module'
 import { AnalyticsModule } from '@/analytics/analytics.module'
 
-const appMode = serverEnvSchema.shape.SCOOPS_SERVER_APP_MODE.parse(
-  process.env.SCOOPS_SERVER_APP_MODE,
-)
-
-export type ServerAppMode = 'dev' | 'test' | 'stg' | 'prod'
-
-const isRecoveryEnvironment = appMode === 'dev' || appMode === 'test'
+serverEnvSchema.shape.SCOOPS_SERVER_APP_MODE.parse(process.env.SCOOPS_SERVER_APP_MODE)
 
 @Module({
   imports: [
     SharedModule,
     SharedDatabaseModule,
     SharedMessagingModule,
+    ScheduleModule.forRoot(),
     ProvisionModule,
     IdentityModule,
     BillingModule,
@@ -49,13 +43,10 @@ const isRecoveryEnvironment = appMode === 'dev' || appMode === 'test'
         SendOnboardingConfirmationEmailJob,
         SendPasswordRecoveryEmailJob,
         CreateInProductNotificationsJob,
-        CleanupPublishedEventsJob,
         ExpireIceCreamShopOnboardingsJob,
         RevalidateCombosForProductJob,
-        ...(isRecoveryEnvironment ? [ReprocessEventsJob] : []),
       ],
     }),
   ],
-  providers: isRecoveryEnvironment ? [ReprocessEventsJob] : [],
 })
 export class AppModule {}

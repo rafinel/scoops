@@ -1,5 +1,5 @@
 import { AppError } from '@scoops/core/shared/domain/errors'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 import type { InngestFunction } from 'inngest'
 
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
@@ -11,7 +11,7 @@ export abstract class InngestJob {
 
   constructor(
     protected readonly inngest: InngestClient,
-    private readonly operationalTelemetry: Telemetry,
+    private readonly telemetry: TelemetryProvider,
   ) {}
 
   protected recordSuccessfulRun(
@@ -32,7 +32,7 @@ export abstract class InngestJob {
     if (!this.recordRunOnce(runId)) return
 
     this.runSafely(() =>
-      this.operationalTelemetry.recordJobRun({
+      this.telemetry.recordJobRun({
         functionId,
         outcome: 'failure',
         durationMs,
@@ -47,8 +47,8 @@ export abstract class InngestJob {
       durationMs,
       errorClass: this.getSafeErrorClass(error),
     }
-    this.runSafely(() => this.operationalTelemetry.captureUnexpected(error, safeContext))
-    this.runSafely(() => this.operationalTelemetry.logError(safeContext))
+    this.runSafely(() => this.telemetry.captureUnexpected(error, safeContext))
+    this.runSafely(() => this.telemetry.logError(safeContext))
   }
 
   private recordRun(
@@ -60,9 +60,7 @@ export abstract class InngestJob {
     const durationMs = this.getDuration(eventTimestamp)
     if (!this.recordRunOnce(runId)) return
 
-    this.runSafely(() =>
-      this.operationalTelemetry.recordJobRun({ functionId, outcome, durationMs }),
-    )
+    this.runSafely(() => this.telemetry.recordJobRun({ functionId, outcome, durationMs }))
   }
 
   private recordRunOnce(runId: string): boolean {
@@ -92,7 +90,7 @@ export abstract class InngestJob {
     try {
       operation()
     } catch {
-      // Telemetry must never change the Inngest result.
+      // TelemetryProvider must never change the Inngest result.
     }
   }
 }

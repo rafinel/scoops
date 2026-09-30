@@ -163,7 +163,7 @@ function captureSafeLog(
       sentry.captureMessage(`web.${level}.${operation}.${errorClass}`)
     })
   } catch {
-    // Telemetry must not change application behavior.
+    // TelemetryProvider must not change application behavior.
   }
 }
 
@@ -188,7 +188,7 @@ function captureWebRequestDuration(
       },
     })
   } catch {
-    // Telemetry must not change request behavior.
+    // TelemetryProvider must not change request behavior.
   }
 }
 
@@ -210,7 +210,7 @@ function captureWebNavigationDuration(
       },
     })
   } catch {
-    // Telemetry must not change navigation behavior.
+    // TelemetryProvider must not change navigation behavior.
   }
 }
 

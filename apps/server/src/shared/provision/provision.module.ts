@@ -6,8 +6,7 @@ import { envSchema, EnvProvider } from '@/shared/provision/env/env-provider'
 import {
   TELEMETRY,
   SentryTelemetry,
-} from '@/shared/provision/telemetry/server-app-telemetry-provider'
-import { SentryLogger } from '@/shared/provision/logger/sentry-logger'
+} from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 @Module({
   imports: [
@@ -22,8 +21,7 @@ import { SentryLogger } from '@/shared/provision/logger/sentry-logger'
     DatetimeProvider,
     SentryTelemetry,
     { provide: TELEMETRY, useExisting: SentryTelemetry },
-    SentryLogger,
   ],
-  exports: [EnvProvider, DatetimeProvider, TELEMETRY, SentryLogger],
+  exports: [EnvProvider, DatetimeProvider, TELEMETRY, SentryTelemetry],
 })
 export class ProvisionModule {}

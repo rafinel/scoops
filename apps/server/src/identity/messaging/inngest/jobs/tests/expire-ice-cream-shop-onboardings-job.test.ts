@@ -1,5 +1,5 @@
 import type { IdentityDatabase } from '@scoops/core/identity/interfaces'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
@@ -7,7 +7,7 @@ import { IdentityModuleFixture } from '@/identity/fixtures/identity-module-fixtu
 import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { ExpireIceCreamShopOnboardingsJob } from '@/identity/messaging/inngest/jobs/expire-ice-cream-shop-onboardings-job'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
-import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { TELEMETRY } from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 describe('Expire Ice Cream Shop Onboardings Job', () => {
   let fixture: IdentityModuleFixture
@@ -24,7 +24,7 @@ describe('Expire Ice Cream Shop Onboardings Job', () => {
 
   beforeEach(async () => {
     await fixture.resetDatabase()
-    const telemetry = fixture.get<Telemetry>(TELEMETRY)
+    const telemetry = fixture.get<TelemetryProvider>(TELEMETRY)
     recordJobRun = vi.spyOn(telemetry, 'recordJobRun')
     captureUnexpected = vi.spyOn(telemetry, 'captureUnexpected')
   })

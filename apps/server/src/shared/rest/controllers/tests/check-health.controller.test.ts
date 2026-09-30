@@ -3,7 +3,7 @@ import {
   type ExecutionContext,
   type NestInterceptor,
 } from '@nestjs/common'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 import request from 'supertest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -34,7 +34,7 @@ describe('Check Health Controller [GET /health]', () => {
   let fixture: RestFixture | undefined
   let originalMode: string | undefined
   let originalEmailProvider: string | undefined
-  let operationalTelemetry: Telemetry
+  let telemetry: TelemetryProvider
   let captureUnexpected: ReturnType<typeof vi.spyOn>
   let recordHttpRequest: ReturnType<typeof vi.spyOn>
 
@@ -47,11 +47,11 @@ describe('Check Health Controller [GET /health]', () => {
     process.env.SCOOPS_EMAIL_PROVIDER = 'smtp'
     fixture = await createHealthFixture()
     const { TELEMETRY } = await import(
-      '@/shared/provision/telemetry/server-app-telemetry-provider'
+      '@/shared/provision/telemetry/sentry-telemetry-provider'
     )
-    operationalTelemetry = getFixture(fixture).get<Telemetry>(TELEMETRY)
-    captureUnexpected = vi.spyOn(operationalTelemetry, 'captureUnexpected')
-    recordHttpRequest = vi.spyOn(operationalTelemetry, 'recordHttpRequest')
+    telemetry = getFixture(fixture).get<TelemetryProvider>(TELEMETRY)
+    captureUnexpected = vi.spyOn(telemetry, 'captureUnexpected')
+    recordHttpRequest = vi.spyOn(telemetry, 'recordHttpRequest')
   })
 
   afterEach(async () => {
@@ -109,7 +109,7 @@ describe('Check Health Controller [GET /health]', () => {
 
   it('sends warnings with only safe attributes', () => {
     warningLog.mockClear()
-    operationalTelemetry.logWarning({
+    telemetry.logWarning({
       route: '/users/123?email=private@example.com',
       method: 'get',
       statusClass: '4xx',

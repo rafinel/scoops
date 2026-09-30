@@ -6,12 +6,12 @@ import {
   UserProfileUpdatedEvent,
   UserReactivatedEvent,
 } from '@scoops/core/identity/domain/events'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { CommunicationModuleFixture } from '@/communication/fixtures/communication-module-fixture'
 import { CreateInProductNotificationsJob } from '@/communication/messaging/inngest/jobs/create-in-product-notifications-job'
-import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { TELEMETRY } from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 describe('Create In Product Notifications Job', () => {
   let fixture: CommunicationModuleFixture
@@ -28,7 +28,7 @@ describe('Create In Product Notifications Job', () => {
     vi.restoreAllMocks()
     await fixture.resetDatabase()
     await fixture.seedAccounts()
-    const telemetry = fixture.get<Telemetry>(TELEMETRY)
+    const telemetry = fixture.get<TelemetryProvider>(TELEMETRY)
     recordJobRun = vi.spyOn(telemetry, 'recordJobRun')
     captureUnexpected = vi.spyOn(telemetry, 'captureUnexpected')
   })

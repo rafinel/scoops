@@ -1,11 +1,41 @@
-import { Injectable } from '@nestjs/common'
+import { ConsoleLogger, Injectable, type LoggerService } from '@nestjs/common'
 import * as Sentry from '@sentry/nestjs'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 
 export const TELEMETRY = Symbol('TELEMETRY')
 
 @Injectable()
-export class SentryTelemetry implements Telemetry {
+export class SentryTelemetry
+  extends ConsoleLogger
+  implements TelemetryProvider, LoggerService
+{
+  override log(message: unknown, ...optionalParams: unknown[]): void {
+    super.log(message, ...optionalParams)
+  }
+
+  override error(message: unknown, ...optionalParams: unknown[]): void {
+    super.error(message, ...optionalParams)
+    this.logError({ errorClass: 'NestLoggerError' })
+  }
+
+  override warn(message: unknown, ...optionalParams: unknown[]): void {
+    super.warn(message, ...optionalParams)
+    this.logWarning({ errorClass: 'NestLoggerWarning' })
+  }
+
+  override debug(message: unknown, ...optionalParams: unknown[]): void {
+    super.debug(message, ...optionalParams)
+  }
+
+  override verbose(message: unknown, ...optionalParams: unknown[]): void {
+    super.verbose(message, ...optionalParams)
+  }
+
+  override fatal(message: unknown, ...optionalParams: unknown[]): void {
+    super.fatal(message, ...optionalParams)
+    this.logError({ errorClass: 'NestLoggerFatal' })
+  }
+
   recordHttpRequest(input: {
     route: string
     method: 'GET' | 'HEAD' | 'OPTIONS' | 'PATCH' | 'POST' | 'PUT' | 'DELETE'
@@ -51,6 +81,7 @@ export class SentryTelemetry implements Telemetry {
     method?: string
     statusClass?: string
     functionId?: string
+    signal?: 'job_telemetry_failure'
     outcome?: string
     durationMs?: number
     errorClass?: string
@@ -65,6 +96,7 @@ export class SentryTelemetry implements Telemetry {
     method?: string
     statusClass?: string
     functionId?: string
+    signal?: 'job_telemetry_failure'
     outcome?: string
     durationMs?: number
     errorClass?: string
@@ -81,6 +113,7 @@ export class SentryTelemetry implements Telemetry {
       method?: string
       statusClass?: string
       functionId?: string
+      signal?: 'job_telemetry_failure'
       outcome?: string
       durationMs?: number
       errorClass?: string
@@ -107,6 +140,7 @@ export class SentryTelemetry implements Telemetry {
     method?: string
     statusClass?: string
     functionId?: string
+    signal?: 'job_telemetry_failure'
     outcome?: string
     durationMs?: number
     errorClass?: string
@@ -122,6 +156,7 @@ export class SentryTelemetry implements Telemetry {
     if (context.statusClass && isSafeStatusClass(context.statusClass))
       safeAttributes.status_class = context.statusClass
     if (context.functionId) safeAttributes.function_id = functionId
+    if (context.signal === 'job_telemetry_failure') safeAttributes.signal = context.signal
     if (context.outcome === 'success' || context.outcome === 'failure')
       safeAttributes.outcome = context.outcome
     if (typeof context.durationMs === 'number' && Number.isFinite(context.durationMs))
@@ -135,7 +170,7 @@ export class SentryTelemetry implements Telemetry {
     try {
       operation()
     } catch {
-      // Telemetry must never change the application result.
+      // TelemetryProvider must never change the application result.
     }
   }
 }

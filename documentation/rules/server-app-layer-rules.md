@@ -34,6 +34,12 @@ Nest instance, configure Swagger, resolve application dependencies, call the
 listening. It must not duplicate CORS, Better Auth, parser, sanitization, or
 global-filter logic.
 
+Resolve the shared `SentryTelemetry` provider from the Nest container and use
+that same instance for `INestApplication.useLogger()` and `App` HTTP telemetry
+configuration. `SentryTelemetry` implements the core `TelemetryProvider` contract
+and Nest's `LoggerService` while preserving console output. Do not add a separate
+`SentryLogger` adapter or construct another logger for the application bootstrap.
+
 The bootstrap sequence must preserve `bodyParser: false` during
 `NestFactory.create`, configure Better Auth before Nest body parsers are
 installed, initialize the application once, and return/use the wrapped

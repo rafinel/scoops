@@ -6,7 +6,7 @@ description: Domain-event, broker, Inngest job, fan-out, and NestJS messaging co
 
 These rules apply to shared messaging infrastructure, module-owned messaging
 adapters, domain events consumed asynchronously, and application composition of
-Inngest functions.
+Inngest functions and Nest scheduled tasks.
 
 ## Core owns domain events and the broker contract
 
@@ -86,11 +86,14 @@ The application composition registers every exported Inngest job function in the
 single Inngest endpoint. A feature messaging module owns and exports its jobs; the
 feature root module imports that messaging module. Database-triggered workers are
 Nest providers, not Inngest functions: they do not expose `this.function` and are
-not added to the Inngest function registry. An environment-gated recovery function
-may be provided by the application root when its owning shared module must remain
-free of that provider in environments where recovery is disabled; the root must
-use the validated environment mode for both provider construction and function
-registration so the two sets cannot diverge.
+not added to the Inngest function registry. The shared outbox recovery runs as a
+Nest cron provider, scheduled by `ScheduleModule` in every environment.
+
+Jobs use `TelemetryProvider` for run metrics and safe warning and error reporting.
+Do not construct a Nest `Logger` inside an Inngest or scheduled job. Shared and
+feature jobs receive the provider through the `TELEMETRY` token or their
+`InngestJob` base constructor. Swallow failures from the observability path so
+they cannot change a job's result.
 
 ## Inngest jobs expose `this.function`
 
@@ -170,8 +173,8 @@ publishes each row directly through `InngestClient` with the event row ID as the
 external event ID, then marks the row published only after acknowledgement. It
 must not write a second event row. Notifications
 are a latency optimization and are not the durability boundary: startup and
-reconnect drain pending rows, while `ReprocessEventsJob` remains the periodic
-recovery path. Inngest owns consumer retries; the outbox does not track
+reconnect drain pending rows, while the Nest `ReprocessEventsJob` remains the
+periodic recovery path. Inngest owns consumer retries; the outbox does not track
 per-consumer delivery.
 The consuming feature still owns its jobs and business side effects, and the
 outbox does not move Communication email ownership into Identity or shared
@@ -179,16 +182,18 @@ infrastructure.
 
 Shared database infrastructure provides the singleton `DatabaseTransactionContext`.
 Shared messaging imports that database module and owns `InngestBroker`,
-`InngestClient`, and publish/reprocessing/cleanup jobs in one acyclic module; do not
-create an outbox module that imports its parent messaging module. `InngestBroker` claims
-only pending rows. Failed publication uses bounded backoff and a finite automatic
-attempt cap; a separate reprocessing job returns only eligible failed or
-expired-reservation rows to pending, while terminal failures remain visible for operator
-action.
+`InngestClient`, and the Nest cleanup and recovery cron jobs in one acyclic module;
+do not create an outbox module that imports its parent messaging module.
+`InngestBroker` claims only pending rows. Failed publication uses bounded backoff and
+a finite automatic attempt cap; the recovery cron returns only eligible failed or
+expired-reservation rows to pending, while terminal failures remain visible for
+operator action.
 
-`ReprocessEventsJob` is registered and scheduled only in local and test environments.
-Staging and production rely on startup/reconnect draining; environment composition
-must not instantiate or register the reprocessor in `stg` or `prod`.
+`ReprocessEventsJob` is registered and scheduled in every environment through
+Nest's `ScheduleModule`. Startup and reconnect draining remain useful for latency
+and process-crash recovery, while the every-minute cron returns eligible failed
+publications and expired reservations to pending state. Terminal failures at the
+automatic-attempt cap remain available for operator action.
 
 Call the expiring worker ownership a `reservation`, not a lease or database lock.
 Reservation columns use `reserved_by` and `reservation_expires_at`; guarded completion

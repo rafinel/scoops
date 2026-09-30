@@ -7,13 +7,13 @@ import type {
   OnboardingIdentifierProvider,
   UserAccessIdentityProvider,
 } from '@scoops/core/identity/interfaces'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 
 import { IDENTITY_PROVIDERS, IDENTITY_REPOSITORIES } from '@/identity/constants'
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
 import { InngestJob } from '@/shared/messaging/inngest/inngest-job'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
-import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { TELEMETRY } from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 @Injectable()
 export class ExpireIceCreamShopOnboardingsJob extends InngestJob {
@@ -33,9 +33,9 @@ export class ExpireIceCreamShopOnboardingsJob extends InngestJob {
     onboardingIdentifierProvider: OnboardingIdentifierProvider,
     @Inject(IDENTITY_PROVIDERS.userAccessIdentity)
     userAccessIdentityProvider: UserAccessIdentityProvider,
-    @Inject(TELEMETRY) operationalTelemetry: Telemetry,
+    @Inject(TELEMETRY) telemetry: TelemetryProvider,
   ) {
-    super(inngest, operationalTelemetry)
+    super(inngest, telemetry)
     this.useCase = new ExpireIceCreamShopOnboardingsUseCase(
       identityDatabase,
       datetimeProvider,

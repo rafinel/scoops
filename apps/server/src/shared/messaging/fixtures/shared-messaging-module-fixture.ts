@@ -7,7 +7,6 @@ import {
   type InngestTestDatabase,
 } from '@/shared/messaging/inngest/inngest-fixture'
 import type { InngestJob } from '@/shared/messaging/inngest/inngest-job'
-import { ReprocessEventsJob } from '@/shared/messaging/inngest/jobs/reprocess-events-job'
 import { SharedMessagingModule } from '@/shared/messaging/shared-messaging.module'
 import { RestFixture } from '@/shared/rest/tests/rest-fixture'
 
@@ -30,15 +29,12 @@ export class SharedMessagingModuleFixture {
     process.env.SCOOPS_EMAIL_PROVIDER = 'smtp'
 
     let restFixture: RestFixture | undefined
-    const isRecoveryJob = options.inngestJob.ID === ReprocessEventsJob.ID
     const inngestFixture = new InngestFixture({
       functionId: options.inngestJob.ID,
       createJob: async (client) => {
-        const imports = isRecoveryJob
-          ? [(await import('../../../app.module.js')).AppModule]
-          : [SharedMessagingModule]
-        restFixture = await RestFixture.register({ imports }, (builder) =>
-          builder.overrideProvider(InngestClient).useValue(client),
+        restFixture = await RestFixture.register(
+          { imports: [SharedMessagingModule] },
+          (builder) => builder.overrideProvider(InngestClient).useValue(client),
         )
         return restFixture.get(options.inngestJob)
       },

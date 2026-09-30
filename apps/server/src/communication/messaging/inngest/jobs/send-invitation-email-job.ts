@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import type { EmailProvider } from '@scoops/core/communication/interfaces'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 import { UserInvitationPreparedEvent } from '@scoops/core/identity/domain/events'
 import { renderUserInvitationEmail } from '@scoops/email/templates'
 import { userInvitationPreparedEventSchema } from '@scoops/validation'
@@ -9,7 +9,7 @@ import { eventType, type InngestFunction } from 'inngest'
 import { COMMUNICATION_PROVIDERS } from '@/communication/constants/communication-providers'
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
 import { InngestJob } from '@/shared/messaging/inngest/inngest-job'
-import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { TELEMETRY } from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 export const sendInvitationEmailEvent = eventType(UserInvitationPreparedEvent._NAME, {
   schema: userInvitationPreparedEventSchema,
@@ -23,9 +23,9 @@ export class SendInvitationEmailJob extends InngestJob {
   constructor(
     @Inject(InngestClient) inngest: InngestClient,
     @Inject(COMMUNICATION_PROVIDERS.email) private readonly emailProvider: EmailProvider,
-    @Inject(TELEMETRY) operationalTelemetry: Telemetry,
+    @Inject(TELEMETRY) telemetry: TelemetryProvider,
   ) {
-    super(inngest, operationalTelemetry)
+    super(inngest, telemetry)
 
     this.function = this.inngest.createFunction(
       {

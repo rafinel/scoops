@@ -15,13 +15,13 @@ import {
   ServiceUnavailableError,
   TooManyRequestsError,
 } from '@scoops/core/shared/domain/errors'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 
 import {
   getOperationalHttpMethod,
   getOperationalRouteTemplate,
   getOperationalStatusClass,
-} from '@/shared/provision/telemetry/server-app-telemetry-provider'
+} from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 export type ErrorResponse = {
   readonly statusCode: number
@@ -35,7 +35,7 @@ export type ErrorResponse = {
 export class GlobalErrorHandler implements ExceptionFilter {
   constructor(
     private readonly httpAdapterHost: HttpAdapterHost,
-    private readonly operationalTelemetry: Telemetry,
+    private readonly telemetry: TelemetryProvider,
   ) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
@@ -56,8 +56,8 @@ export class GlobalErrorHandler implements ExceptionFilter {
         statusClass: getOperationalStatusClass(errorResponse.statusCode),
         errorClass: this.getErrorClass(exception),
       }
-      this.operationalTelemetry.captureUnexpected(exception, safeContext)
-      this.operationalTelemetry.logError(safeContext)
+      this.telemetry.captureUnexpected(exception, safeContext)
+      this.telemetry.logError(safeContext)
     }
 
     httpAdapter.reply(response, errorResponse, errorResponse.statusCode)

@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { OnboardingConfirmationPreparedEvent } from '@scoops/core/identity/domain/events'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 
 import { CommunicationModuleFixture } from '@/communication/fixtures/communication-module-fixture'
 import { SendOnboardingConfirmationEmailJob } from '@/communication/messaging/inngest/jobs/send-onboarding-confirmation-email-job'
-import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { TELEMETRY } from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 describe('Send Onboarding Confirmation Email Job', () => {
   let fixture: CommunicationModuleFixture
@@ -35,7 +35,7 @@ describe('Send Onboarding Confirmation Email Job', () => {
   })
 
   it('delivers the canonical onboarding event through Inngest and Mailpit', async () => {
-    const telemetry = fixture.get<Telemetry>(TELEMETRY)
+    const telemetry = fixture.get<TelemetryProvider>(TELEMETRY)
     const recordJobRun = vi.spyOn(telemetry, 'recordJobRun')
     const captureUnexpected = vi.spyOn(telemetry, 'captureUnexpected')
     const occurredAt = fixture.datetimeProvider.now()

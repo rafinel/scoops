@@ -1,6 +1,6 @@
 import { ProductSalesConfigurationChangedEvent } from '@scoops/core/mrp/domain/events'
 import type { ProductCreate } from '@scoops/core/mrp/domain/structures'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 import { EstablishmentFaker } from '@scoops/core/identity/domain/entities/fakers'
 import { productSalesConfigurationChangedEventSchema } from '@scoops/validation'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -9,7 +9,7 @@ import { IdentitySeeder } from '@/identity/database/identity-seeder'
 import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { PdvModuleFixture, resetPdvFixture } from '@/pdv/fixtures/pdv-module-fixture'
 import { RevalidateCombosForProductJob } from '@/pdv/messaging/inngest/jobs/revalidate-combos-for-product-job'
-import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { TELEMETRY } from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 const TEST_ESTABLISHMENT_ID = '45000000-0000-4000-8000-000000000001'
 
@@ -29,7 +29,7 @@ describe('Revalidate Combos For Product Job', () => {
   beforeEach(async () => {
     vi.restoreAllMocks()
     await resetPdvFixture(fixture, auth)
-    const telemetry = fixture.get<Telemetry>(TELEMETRY)
+    const telemetry = fixture.get<TelemetryProvider>(TELEMETRY)
     recordJobRun = vi.spyOn(telemetry, 'recordJobRun')
     captureUnexpected = vi.spyOn(telemetry, 'captureUnexpected')
   })

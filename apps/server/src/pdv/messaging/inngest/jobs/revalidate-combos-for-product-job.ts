@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ProductSalesConfigurationChangedEvent } from '@scoops/core/mrp/domain/events'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 import type { ProductSalesConfiguration } from '@scoops/core/mrp/domain/structures'
 import { RevalidateCombosForProductUseCase } from '@scoops/core/pdv/use-cases'
 import { productSalesConfigurationChangedEventSchema } from '@scoops/validation'
@@ -11,7 +11,7 @@ import type { PdvDatabase } from '@scoops/core/pdv/interfaces'
 import { PDV_REPOSITORIES } from '@/pdv/constants'
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
 import { InngestJob } from '@/shared/messaging/inngest/inngest-job'
-import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { TELEMETRY } from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 export const productSalesConfigurationChangedEvent = eventType(
   ProductSalesConfigurationChangedEvent._NAME,
@@ -32,9 +32,9 @@ export class RevalidateCombosForProductJob extends InngestJob {
   constructor(
     @Inject(InngestClient) inngest: InngestClient,
     @Inject(PDV_REPOSITORIES.database) database: PdvDatabase,
-    @Inject(TELEMETRY) operationalTelemetry: Telemetry,
+    @Inject(TELEMETRY) telemetry: TelemetryProvider,
   ) {
-    super(inngest, operationalTelemetry)
+    super(inngest, telemetry)
     this.useCase = new RevalidateCombosForProductUseCase(database)
     this.function = this.inngest.createFunction(
       {

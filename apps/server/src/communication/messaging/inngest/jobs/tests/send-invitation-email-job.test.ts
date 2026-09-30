@@ -4,11 +4,11 @@ import { RetryAfterError } from 'inngest'
 
 import type { EmailProvider } from '@scoops/core/communication/interfaces'
 import { UserInvitationPreparedEvent } from '@scoops/core/identity/domain/events'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 
 import { CommunicationModuleFixture } from '@/communication/fixtures/communication-module-fixture'
 import { SendInvitationEmailJob } from '@/communication/messaging/inngest/jobs/send-invitation-email-job'
-import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { TELEMETRY } from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 describe('Send Invitation Email Job', () => {
   let fixture: CommunicationModuleFixture
@@ -36,7 +36,7 @@ describe('Send Invitation Email Job', () => {
   })
 
   it('delivers the canonical invitation event through Inngest and Mailpit', async () => {
-    const telemetry = fixture.get<Telemetry>(TELEMETRY)
+    const telemetry = fixture.get<TelemetryProvider>(TELEMETRY)
     const recordJobRun = vi.spyOn(telemetry, 'recordJobRun')
     const captureUnexpected = vi.spyOn(telemetry, 'captureUnexpected')
     const occurredAt = fixture.datetimeProvider.now()
@@ -103,7 +103,7 @@ describe('Send Invitation Email Job', () => {
     })
 
     try {
-      const telemetry = failureFixture.get<Telemetry>(TELEMETRY)
+      const telemetry = failureFixture.get<TelemetryProvider>(TELEMETRY)
       const recordJobRun = vi.spyOn(telemetry, 'recordJobRun')
       const captureUnexpected = vi.spyOn(telemetry, 'captureUnexpected')
       const event = new UserInvitationPreparedEvent({

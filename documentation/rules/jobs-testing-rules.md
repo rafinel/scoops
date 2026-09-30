@@ -4,10 +4,10 @@ description: Integration-testing rules for Inngest jobs, module fixtures, durabl
 
 # Job Testing Rules
 
-These rules apply to Inngest job tests under `apps/server/src` and to the fixture
-infrastructure used by those tests.
+These rules apply to Inngest job tests, Nest scheduled-job tests under
+`apps/server/src`, and the fixture infrastructure used by those tests.
 
-## Job tests are integration tests
+## Inngest job tests are integration tests
 
 Test a job through a real Inngest Dev Server and the Nest module that owns the
 job. The test must exercise the complete applicable path:
@@ -30,7 +30,7 @@ apps/server/src/<module>/messaging/inngest/jobs/tests/<job-name>.test.ts
 Use one file per job. The top-level `describe` writes the job name with words
 separated, such as `Generate Formalization Signature Preview Job`.
 
-## Every job exposes a stable ID
+## Jobs expose a stable ID
 
 The job class declares its function identifier once:
 
@@ -44,7 +44,7 @@ Use `ExampleJob.ID` in `createFunction`, module fixtures, registration
 assertions, and run matching. Do not repeat the identifier literal in tests or
 fixture setup.
 
-## Module fixtures own job integration setup
+## Inngest module fixtures own integration setup
 
 Each feature uses its existing `<Module>ModuleFixture` for both controller and
 job tests. Do not create a separate job fixture or a function-based test context.
@@ -117,7 +117,7 @@ Do not start an unrelated service. A fan-out job with no repository or storage
 dependency must prove its Inngest behavior without inventing a database or file
 effect.
 
-## Construct canonical events
+## Construct canonical events for Inngest
 
 Instantiate the domain event class and send its `name` and `payload`:
 
@@ -144,7 +144,7 @@ Dates crossing the Inngest transport boundary must match the job's event schema.
 Assert malformed, incomplete, duplicate, or oversized payloads when those are
 meaningful transport rules.
 
-## Execute through Inngest
+## Execute event-driven jobs through Inngest
 
 Event-triggered jobs run through the module fixture:
 
@@ -244,6 +244,23 @@ pnpm --filter server exec vitest list --config vitest.inngest.config.mts
 
 Test discovery proves only that files load and are selected. It does not replace
 the container execution result.
+
+## Test Nest scheduled jobs through their Nest module
+
+Nest cron jobs are registered providers, not Inngest functions. Keep their tests
+under the owning module's `messaging/nest/jobs/tests/` directory and compose the
+real Nest module with `ScheduleModule.forRoot()`. Use real persistence when the
+scheduled job reads or mutates the database.
+
+Assert that the named cron is registered through `SchedulerRegistry` using the
+job's static `ID`. Invoke the public scheduled method through the Nest container
+to verify its behavior deterministically; do not wait for wall-clock cron ticks.
+Assert resulting state and safe `TelemetryProvider` outcomes. These tests run in
+the regular Server Vitest suite:
+
+```bash
+pnpm --filter server test
+```
 
 ## Antipatterns to avoid
 

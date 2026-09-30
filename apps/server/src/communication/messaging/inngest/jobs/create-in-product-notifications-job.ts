@@ -11,7 +11,7 @@ import type {
   NotificationAudienceProvider,
   NotificationsRepository,
 } from '@scoops/core/communication/interfaces'
-import type { Telemetry } from '@scoops/core/shared/interfaces'
+import type { TelemetryProvider } from '@scoops/core/shared/interfaces'
 import { CreateInProductNotificationsUseCase } from '@scoops/core/communication/use-cases'
 import {
   productStockAlertStateEnteredEventSchema,
@@ -30,7 +30,7 @@ import {
 import { InngestClient } from '@/shared/messaging/inngest/inngest-client'
 import { InngestJob } from '@/shared/messaging/inngest/inngest-job'
 import { DatetimeProvider } from '@/shared/provision/datetime/datetime-provider'
-import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { TELEMETRY } from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 type NotificationFactWithoutSource = InProductNotificationFact extends infer Fact
   ? Fact extends { sourceEventId: string }
@@ -72,9 +72,9 @@ export class CreateInProductNotificationsJob extends InngestJob {
     @Inject(COMMUNICATION_PROVIDERS.notificationAudience)
     audienceProvider: NotificationAudienceProvider,
     @Inject(DatetimeProvider) datetimeProvider: DatetimeProvider,
-    @Inject(TELEMETRY) operationalTelemetry: Telemetry,
+    @Inject(TELEMETRY) telemetry: TelemetryProvider,
   ) {
-    super(inngest, operationalTelemetry)
+    super(inngest, telemetry)
     this.useCase = new CreateInProductNotificationsUseCase(
       notificationsRepository,
       audienceProvider,

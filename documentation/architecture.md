@@ -436,7 +436,8 @@ shared `events` table through that transaction. Shared messaging's
 `InngestBroker` listens for committed PostgreSQL
 notifications, drains pending rows and publishes them directly through
 `InngestClient` with the stable event-row ID. Startup/reconnect draining and the
-periodic local/test `ReprocessEventsJob` cover missed notifications. Communication
+every-minute Nest `ReprocessEventsJob` in every environment recover missed
+notifications, failed publications and expired reservations. Communication
 alone composes and delivers the resulting email. The application broker is not
 injected into the use case because the EventsRepository is already in the
 Identity database scope.
@@ -444,10 +445,11 @@ Shared outbox infrastructure owns no message template, recipient policy, or
 email-provider contract and does not track consumer-delivery state.
 `SharedDatabaseModule` provides the singleton transaction context;
 `SharedMessagingModule` imports it and owns the InngestBroker, Inngest client, database-
-triggered publisher, and recovery/cleanup jobs without a reverse module dependency.
-The reprocessor is disabled in staging/production. Publication
-failures use bounded backoff and a finite automatic-attempt cap; terminal failures
-remain visible for operator action.
+triggered publisher, Nest cleanup and recovery cron jobs without a reverse module
+dependency. `AppModule` initializes Nest's `ScheduleModule`, so both cron jobs run
+in every environment; cleanup runs daily at 03:00 UTC. Publication failures use bounded
+backoff and a finite automatic-attempt cap; terminal failures remain visible for
+operator action.
 
 ## 15. External integrations and files
 

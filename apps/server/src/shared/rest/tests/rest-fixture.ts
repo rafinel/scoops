@@ -5,7 +5,7 @@ import { Test, type TestingModule, type TestingModuleBuilder } from '@nestjs/tes
 import { DatabaseFixture } from '@/shared/database/fixtures/database-fixture'
 import { App } from '@/app'
 import { GlobalErrorHandler } from '@/shared/rest/filters'
-import { TELEMETRY } from '@/shared/provision/telemetry/server-app-telemetry-provider'
+import { SentryTelemetry } from '@/shared/provision/telemetry/sentry-telemetry-provider'
 
 type TestingModuleMetadata = Parameters<typeof Test.createTestingModule>[0]
 
@@ -27,14 +27,14 @@ export class RestFixture {
       const builder = Test.createTestingModule(metadata)
       const moduleRef = await (configure?.(builder) ?? builder).compile()
       app = moduleRef.createNestApplication()
-      new App(app).configureHttpTelemetry(moduleRef.get(TELEMETRY))
+      new App(app).configureHttpTelemetry(moduleRef.get(SentryTelemetry))
       app.use((request: { headers: { origin?: string } }, _response, next) => {
         request.headers.origin ??= 'http://localhost:4000'
         next()
       })
       // biome-ignore lint/correctness/useHookAtTopLevel: Nest global filter registration is not a React hook.
       app.useGlobalFilters(
-        new GlobalErrorHandler(app.get(HttpAdapterHost), moduleRef.get(TELEMETRY)),
+        new GlobalErrorHandler(app.get(HttpAdapterHost), moduleRef.get(SentryTelemetry)),
       )
       await app.init()
 

@@ -8,18 +8,20 @@ type OperationalHttpMethod =
   | 'POST'
   | 'PUT'
   | 'DELETE'
+type OperationalSignal = 'job_telemetry_failure'
 
 type TelemetryContext = {
   route?: string
   method?: OperationalHttpMethod
   statusClass?: OperationalStatusClass
   functionId?: string
+  signal?: OperationalSignal
   outcome?: OperationalOutcome
   durationMs?: number
   errorClass?: string
 }
 
-export interface Telemetry {
+export interface TelemetryProvider {
   recordHttpRequest(input: {
     route: string
     method: OperationalHttpMethod
