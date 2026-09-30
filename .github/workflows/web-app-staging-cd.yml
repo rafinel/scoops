@@ -42,12 +42,14 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_WEB_STAGING_PROJECT }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_WEB_STAGING_DSN: ${{ secrets.SENTRY_WEB_STAGING_DSN }}
         run: |
           test -n "$HEROKU_APP_NAME"
           test -n "$HEROKU_API_KEY"
           test -n "$SENTRY_ORG"
           test -n "$SENTRY_PROJECT"
           test -n "$SENTRY_AUTH_TOKEN"
+          test -n "$SENTRY_WEB_STAGING_DSN"
 
       - name: Install Heroku CLI
         run: curl https://cli-assets.heroku.com/install.sh | sh
@@ -58,11 +60,13 @@ jobs:
       - name: Load and sync web environment
         env:
           HEROKU_ENV_FILE: ${{ secrets.SCOOPS_WEB_APP_STAGING_ENV }}
+          SENTRY_WEB_STAGING_DSN: ${{ secrets.SENTRY_WEB_STAGING_DSN }}
         run: |
           test -n "$HEROKU_ENV_FILE"
           env_file="$RUNNER_TEMP/web.env"
           printf '%s' "$HEROKU_ENV_FILE" > "$env_file"
-          printf '\nSCOOPS_RELEASE_SHA=%s\nVITE_SCOOPS_RELEASE_SHA=%s\n' \
+          printf '\nSENTRY_DSN=%s\nVITE_SENTRY_DSN=%s\nSCOOPS_RELEASE_SHA=%s\nVITE_SCOOPS_RELEASE_SHA=%s\n' \
+            "$SENTRY_WEB_STAGING_DSN" "$SENTRY_WEB_STAGING_DSN" \
             "$GITHUB_SHA" "$GITHUB_SHA" >> "$env_file"
           chmod 600 "$env_file"
           node scripts/sync-heroku-env.mjs "$env_file" "$HEROKU_APP_NAME" "$GITHUB_ENV"
