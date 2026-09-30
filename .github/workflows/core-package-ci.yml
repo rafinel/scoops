@@ -1,34 +1,19 @@
 name: Core CI
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/core-package-ci.yml'
-      - 'biome.json'
-      - '.code-multivitals-baseline.json'
-      - '.code-multivitals.json'
-      - 'package.json'
-      - 'packages/core/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'scripts/check-complexity.mjs'
-      - 'scripts/write-coverage-report.mjs'
-      - '.dependency-cruiser.mjs'
   pull_request:
     paths:
-      - '.github/workflows/core-package-ci.yml'
-      - 'biome.json'
-      - '.code-multivitals-baseline.json'
-      - '.code-multivitals.json'
-      - 'package.json'
-      - 'packages/core/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'scripts/check-complexity.mjs'
-      - 'scripts/write-coverage-report.mjs'
-      - '.dependency-cruiser.mjs'
+      - ".github/workflows/core-package-ci.yml"
+      - "biome.json"
+      - ".code-multivitals-baseline.json"
+      - ".code-multivitals.json"
+      - "package.json"
+      - "packages/core/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "scripts/check-complexity.mjs"
+      - "scripts/write-coverage-report.mjs"
+      - ".dependency-cruiser.mjs"
 
 permissions:
   contents: read
