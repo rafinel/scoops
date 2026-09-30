@@ -144,7 +144,7 @@ function getSafeRouteTemplate(router: AnyRouter): string {
   if (
     typeof routeId !== 'string' ||
     routeId.length > 160 ||
-    !/^\/(?:[A-Za-z0-9_$-]+(?:\/[A-Za-z0-9_$-]+)*)?$/.test(routeId)
+    !/^\/(?:[A-Za-z0-9_$-]+(?:\/[A-Za-z0-9_$-]+)*\/?)?$/.test(routeId)
   ) {
     return 'unknown'
   }
