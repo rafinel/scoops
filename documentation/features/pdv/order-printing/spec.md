@@ -1,6 +1,6 @@
 ---
 title: Order printing
-status: in_progress
+status: completed
 revision: 5
 source:
   type: issue
@@ -9,7 +9,7 @@ scope:
   - apps/web/src/ui/pdv/widgets
   - apps/web/src/ui/shared/widgets/components/icon
   - apps/web/tests/pdv
-last_updated_at: 2026-09-30
+last_updated_at: 2026-10-01
 ---
 
 ## 1. Context and scope
@@ -385,3 +385,7 @@ Core and Server `test:coverage` are omitted because neither workspace changes; V
 | 5 | 2026-09-30 | Add two pure confirmation/header body wrappers | Final two measured MI warnings require separating owning-hook composition from existing screen wrapper markup; no product/design changes |
 
 Recommended execution: direct `implement-spec`. One cohesive Web capability uses stable existing data/dependencies; the native-dialog and paper evidence fit three canonical manual scenarios without meaningful phased delivery. No Plan or Evaluation is created by create-spec.
+
+## Delivery outcome
+
+Revision 5 completed: native same-page order printing on confirmation and details, with saved-snapshot 80 mm/A4 output. FR-01–06, AC-01–08 and MV-01–03 passed; PRQ-16 fully delivered. Detailed validation, human native-print attestation, visual comparisons, findings and candidate CI are retained in [evaluation.md](./evaluation.md). Delivery: [PR #50](https://github.com/rafinel/scoops/pull/50).

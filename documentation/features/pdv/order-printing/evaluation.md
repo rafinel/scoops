@@ -2,15 +2,15 @@
 feature: "pdv/order-printing"
 spec: ./spec.md
 spec_revision: 5
-status: ready
-updated_at: 2026-09-30
+status: completed
+updated_at: 2026-10-01
 ---
 
 # Evaluation
 
 Evaluation of Spec revision `5` against the current implementation.
 
-Current result: revision 5 is implemented and validation-ready. User explicitly confirmed native validation after being asked about preview, A4/80mm and cancel/repeat; EV-51 records human attestation, not automated observation. Persisted long-order and real foreign-order denial evidence now pass. Conclusion preflight passed after default-port recovery of12existingmockCORS failures; no publication/completed state yet. All automated checks pass on the final candidate: 39-path scope, 558 Web unit tests with coverage, 243 browser tests, types, code, architecture, test integrity, complexity and build. Real Manager and Operator registration/details checks preserve saved orders during keyboard print invocation. Seven reference surfaces and narrow layouts have fresh, inspected captures.
+Current result: Spec revision 5 completed after passing local preflight and implementation-candidate PR CI. AC-01–08 and MV-01–03 pass, seven saved references and supplemental captures were inspected, and native printing has explicit human attestation (EV-51). PRQ-16 is fully delivered and checked. Delivery: [PR #50](https://github.com/rafinel/scoops/pull/50), branch `feat/order-printing`. Closure-head live checks are reported from the PR rollup after publication; their run IDs are intentionally not added here.
 
 All required implementation/manual evidence is now present. Evaluation is `ready`; Spec remains `in_progress` until publication and PR CI closure. PRQ-16 is fully delivered and its Implemented checkbox is checked after localpreflight; no publication/completed transition has been performed. Native results have human provenance (EV-51); prior limitations remain historical evidence.
 
@@ -179,7 +179,7 @@ Visual evidence uses the common `EV-*` Evidence identifiers with `Type = visual`
 | PRQ-16 Outcome/Actors/Consumes/Provides/Capabilities/Experience | FR-01–06; AC-01–08 | AllAC/MVpassed; EV21/26/30/31/39/40/51 andconclusionEV52–62; savedfacts, roleavailability, nativehumanvalidation andresponsive/accessibilityreferences | Fully delivered; Implementedcheckedafterlocalpreflight, before anycommit/publication |
 | PRQ-09/10/11 | ExistingimmutableSnapshot/history/accessdependencies | EV30/39/40; unchangeddomain/server/routes, real404isolation andsnapshotJSONpreserved | Existingdependenciespreserved; no checkboxchanges |
 
-No in-scope partial or deferred requirement remains. Localvalidationiscomplete; PRCI/publicationstillnotexecuted.
+No in-scope partial or deferred requirement remains. Local validation and implementation-candidate Web CI passed; PR #50 publishes this delivery.
 
 ### Publication scope preflight
 
@@ -195,6 +195,9 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| CI-01 | Web CI (pull_request), Web and Complexity jobs | edf5c0f8048ad1e3360e78b688dbbbe5c651c140 | passed; 217 files/558 unit tests with coverage, 243 browser tests (10.9min), types/code/architecture/complexity/build passed | [Run 36870398978](https://github.com/rafinel/scoops/actions/runs/36870398978) |
+
+Core CI, Server CI and Validation CI are inapplicable: their checked-in path filters exclude the Web/design/documentation-only candidate. Both applicable candidate checks are completed/success on the actual PR head above. No merge or deployment performed.
 
 ## History
 
@@ -239,8 +242,10 @@ is not SDD current-commit metadata. Retain failed and superseded-head runs as hi
 | 2026-09-30 | Read-onlyconclusion_findings_dispositions auditcompleted; materialfindings mappedto exactauthorities/Updated/Nochange. Applied factual implement-spec preflightfixture/nativecapability andearlycomplexity clarifications plus toolingtrackedAuth guidance; generatedcommands synchronized andscriptchecksstarted. No product/globalpolicy/architecturechange. Finalsourcepreflight underway; publicationauthority notyetprovided. |
 | 2026-09-30 | Conclusionpreflightpaths39,coverage558,types/code/architecture/integrity/complexity/build allpass EV52–59;21scriptchecks/sync/whitespacepassEV61. Browser243regressionEV60stillrunning; nofeaturechanges. Findingdispositionsreviewcomplete; no publicationauthority yet, no commit/push/PR or PRDcheckboxchange. |
 | 2026-09-30 | Fullalternateportbrowserpreflightfinished231pass/12fail16.8min. Investigationverifies everyfailurecausedbypre-existinghardcoded SSEmockCORS origin4001against4012; featureprinttests allpass. Port4001nowfree, lastfailed12focusedrecoveryrunningondefaultport, no source/config/testedit. Evaluationin_progress untilaffectedscenariosrerun. Earlier“nofailures”progressstatements wereincorrect becauseonlylogtailwasread; correcteduserreportandledger. |
-| 2026-09-30 | Defaultportfailed-case recoverypassed12/12in1.4min EV62, provingall12alternateportfailureswereexistingmockCORS origin mismatch. All243browsercases nowhavepassingcurrentevidence(231fullrun+12recovery), earlierfull243passonsamesourcepreserved. Toolingoriginlimitationclarified; findingsresolved/dispositionscomplete. PRQ16fulltraceabilityverified andcheckboxcheckedafterlocalpreflight; evaluationready,Specin_progress. No commits/push/PR; waitingexplicitpublicationauthority. Taskservices/browsercleanupcomplete; localfixturesretained. |
+| 2026-09-30 | Defaultportfailed-case recoverypassed12/12in1.4min EV62, provingall12alternateportfailureswereexistingmockCORS origin mismatch. All243browsercases nowhavepassingcurrentevidence(231fullrun+12recovery), earlierfull243passonsamesourcepreserved. Toolingoriginlimitationclarified; findingsresolved/dispositionscomplete. PRQ16fulltraceabilityverified andcheckboxcheckedafterlocalpreflight; evaluationready,Specin_progress. At this historical checkpoint no commits/push/PR existed; publication authority was granted on 2026-10-01. Taskservices/browsercleanupcomplete; localfixturesretained. |
 
 | 2026-09-30 | Final postdocumentationpathcheck againpassed39contractedpaths; whitespaceclean. Canonicaltables reconciled tocontiguousrows; source/evidencecontent unchanged. Publication approval issole pending conclusionauthority. |
 
 | 2026-10-01 | User explicitly authorized conclude-spec commits/push/PR. Fresh path sensor passed39paths; sync:agents unchanged and21script tests passed. Read-only publication audit reconciled PRQ16/revision5/focusedCLI command and registered-long capture descriptions; no implementation or acceptance change. Current origin/main equals validated baseline. |
+
+| 2026-10-01 | Published commits2ce6a729 andedf5c0f8 through commit-code/create-pr, ready PR#50 with main current and @codex review requested. Candidate PR WebCI passed onedf5c0f8048ad1e3360e78b688dbbbe5c651c140 (CI01),558unit/243browser/build; complete documentation and finding disposition audit passed. Spec/Evaluation completed in expected closure commit; final head checks remain authoritative in PR rollup. No unrelated local files included; no merge/deploy. |
