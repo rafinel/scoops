@@ -1073,7 +1073,7 @@ consumed by PRQ-10 and future operational history.
 
 ### PRQ-16 — Order Printing
 
-- [ ] **Implemented**
+- [x] **Implemented**
 
 **Outcome:** A user can print a non-fiscal copy of saved order details for physical
 operations.

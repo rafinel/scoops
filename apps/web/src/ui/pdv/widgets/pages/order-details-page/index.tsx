@@ -1,10 +1,10 @@
+import { OrderPrint } from '@/ui/pdv/widgets/components/order-print'
+
 import { CancelOrderDialog } from './cancel-order-dialog'
 import { OrderDetailsError } from './order-details-error'
 import { OrderDetailsHeader } from './order-details-header'
 import { OrderDetailsLoading } from './order-details-loading'
-import { OrderItems } from './order-items'
-import { OrderSummary } from './order-summary'
-import { OrderTotals } from './order-totals'
+import { OrderDetailsContent } from './order-details-content'
 import { type OrderDetailsPageProps, useOrderDetailsPage } from './use-order-details-page'
 
 export type { OrderDetailsPageProps }
@@ -30,6 +30,7 @@ export const OrderDetailsPage = ({ orderId }: OrderDetailsPageProps) => {
   return (
     <section className='min-w-0 space-y-5'>
       <OrderDetailsHeader
+        printAction={<OrderPrint disabled={isRefreshingOrder} order={order} />}
         canCancel={canCancel}
         canceledAt={order.cancellation?.canceledAt}
         createdAt={order.createdAt}
@@ -39,17 +40,7 @@ export const OrderDetailsPage = ({ orderId }: OrderDetailsPageProps) => {
         sequenceNumber={order.sequenceNumber}
         status={order.status}
       />
-      <div className='grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_330px]'>
-        <div className='min-w-0 xl:col-start-2 xl:row-start-1'>
-          <OrderSummary order={order} />
-        </div>
-        <div className='min-w-0 space-y-5 xl:col-start-1 xl:row-start-1'>
-          <OrderItems order={order} />
-          <div className='hidden xl:block'>
-            <OrderTotals order={order} />
-          </div>
-        </div>
-      </div>
+      <OrderDetailsContent order={order} />
       <CancelOrderDialog
         onOpenChange={handleCancelOpenChange}
         onSuccess={() => undefined}

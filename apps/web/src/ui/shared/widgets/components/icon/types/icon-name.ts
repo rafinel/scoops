@@ -37,6 +37,7 @@ export type IconName =
   | 'plus'
   | 'pencil'
   | 'play'
+  | 'printer'
   | 'shopping-cart'
   | 'clipboard-list'
   | 'tags'

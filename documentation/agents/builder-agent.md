@@ -33,19 +33,26 @@ create a hierarchy between Builders.
 
 ## Execution
 
+Use `design/handoff.md` for new design bundles. If an existing feature bundle lacks
+it, read its legacy `design/manifest.md` instead; preserve that legacy artifact and
+do not create both files.
+
 1. Read `documentation/rules.md`, the Spec, and every document in the Rule Pack,
    including each applicable `Antipatterns to Avoid` subsection.
 2. Confirm paths, contracts, and similar implementations in the codebase.
 3. Verify that the solution respects the current Contract.
 4. Implement only the assigned scope.
 5. When the Spec has a Design Contract:
-   - read `documentation/design.md`, the UI Rules, `design/manifest.md`, and every
-     applicable reference screenshot;
+   - read `documentation/design.md`, the UI Rules, `design/handoff.md`, and every
+     applicable saved PNG reference;
    - use the Spec visual inventory as an executable checklist; do not omit inventoried
      elements or introduce inferred behavior without an FR/AC or recorded decision;
-   - do not depend on Pencil MCP during implementation;
+   - do not use Pencil MCP or the live design canvas during implementation or runtime
+     visual validation; node IDs in the handoff are provenance only and require no MCP lookup;
+   - if a required design detail is missing from the handoff or saved references, pause
+     affected implementation and report the Contract gap to the Orchestrator; do not guess;
    - implement in sections and compare the result with the saved reference at the
-     same viewport using the Playwright CLI, recording one comparison per screenshot
+     same viewport using fresh Playwright CLI runtime captures, recording one comparison per screenshot
      or state and every material discrepancy for the Orchestrator;
    - if a reference reveals unexpected or uncontracted behavior, pause that part and
      report the question to the Orchestrator; do not turn the inference into scope.

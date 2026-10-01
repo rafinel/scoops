@@ -23,7 +23,7 @@ Read the current Spec, its Rule Pack, Architecture and Tooling. Confirm:
 
 - the Spec is `open` and its revision is current;
 - the Technical and Validation Contracts contain enough detail to schedule work;
-- every required design manifest/reference exists;
+- every required design handoff/reference exists;
 - every affected HTTP route group has a matching REST-client artifact under
   `apps/server/rest-client/<module>/<route-group>.rest`, or the Spec explicitly declares its
   creation;
@@ -210,6 +210,10 @@ the Plan or switches to direct implementation.
 
 ### 3. Validation and handoff
 
+Use `design/handoff.md` for new design bundles. If an existing feature bundle lacks
+it, read its legacy `design/manifest.md` instead; preserve that legacy artifact and
+do not create both files.
+
 Use one coverage table to schedule evidence without repeating the Spec's scenario steps:
 
 | Type | Scenario/surface | Criteria | Reference | Evidence target | Status |
@@ -217,7 +221,7 @@ Use one coverage table to schedule evidence without repeating the Spec's scenari
 | Automated | `pnpm check:spec-implementation -- <spec-path>` | Complete affected-path map | Spec Technical Contract | `./evaluation.md` | `pending` |
 | Manual | MV-01 | AC-01 | Spec MV-01 | `./evaluation.md` | `pending` |
 | Visual (optional) | `<state>` | AC-02 | `./design/<reference>.png` | `Playwright test-results path or CI artifact identifier` | `pending` |
-| Review (conditional) | Visual Reviewer | Design-backed `AC-*` | `./design/manifest.md` | Advisory report; verified findings in `./evaluation.md` | `pending` |
+| Review (conditional) | Visual Reviewer | Design-backed `AC-*` | `./design/handoff.md` | Advisory report; verified findings in `./evaluation.md` | `pending` |
 | Runtime | `<integration>` | AC-03 | Integration Contract | `./evaluation.md` | `pending` |
 
 Add a `REST client` row for every affected route-group example file. Its evidence target must
@@ -229,12 +233,12 @@ Include only applicable rows. For design-backed UI, schedule every supplied scre
 required supplemental state at its exact viewport and record an independent comparison row for
 each. Do not create a dedicated visual-reference test or use one generic capture as evidence for
 multiple states/viewports. Recommended supplemental screenshots may be deferred only when the
-manifest records the decision and no acceptance gap remains. Builders and the Orchestrator use
+handoff records the decision and no acceptance gap remains. Builders and the Orchestrator use
 saved references and do not depend on Pencil MCP.
 
 When the current Spec explicitly requires a Visual Reviewer, schedule exactly one read-only
 [`Visual Reviewer`](../agents/visual-reviewer-agent.md) after fresh captures exist for every
-assigned manifest row. It audits the integrated UI as one surface; its report is advisory, and the
+assigned handoff row. It audits the integrated UI as one surface; its report is advisory, and the
 Orchestrator verifies findings and records official visual evidence. Resume that same Reviewer
 after visual corrections with refreshed captures. Do not add manual `MV-*` scenarios solely to
 support this review or substitute it for the Implementation Reviewer.

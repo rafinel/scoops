@@ -13,7 +13,7 @@ need a feature Contract.
 
 Follow these stages in order. Research may precede clarification; writing or modifying
 `spec.md` may not. The clarification gate is a hard stop, not a documentation step: never
-create a draft Spec, design manifest, Plan, or other contract artifact and then ask the user
+create a draft Spec, design handoff, Plan, or other contract artifact and then ask the user
 to resolve a material product or technical choice that the artifact already encodes. Research
 outputs such as inspected screenshots or notes may be saved when needed, but the feature
 Spec remains unwritten until the gate passes.
@@ -238,7 +238,7 @@ For new work against a concluded feature, create
 | Artifact | Creation point | Purpose |
 | --- | --- | --- |
 | `spec.md` | This workflow | Product, technical and validation Contract. |
-| `design/manifest.md` and screenshots | During Spec authoring when UI is design-backed | File-backed implementation and visual-validation references. |
+| `design/handoff.md` and screenshots | During Spec authoring when UI is design-backed | File-backed implementation and visual-validation references. |
 | `plan.md` | Only when Plan-backed execution is recommended | Execution phases, dependencies and durable progress ledger. |
 | `evaluation.md` | At implementation kickoff | Actual validation evidence, findings and lessons learned. |
 
@@ -292,7 +292,7 @@ important. Tables are required for:
 
 - scope/product alignment when more than one item is involved;
 - FR/PRQ/AC traceability;
-- design-frame inventory in `design/manifest.md`;
+- design-frame inventory in `design/handoff.md`;
 - implementation paths grouped by affected application and layer;
 - technical decisions, when any are recorded;
 - validation coverage, documentation alignment, Rule Pack and revision history.
@@ -379,9 +379,42 @@ several restrictions apply.
 
 #### Design Contract — conditional
 
-For design-backed UI, link `design/manifest.md` and define required frames/states,
+New design bundles use `design/handoff.md` as the canonical filename. Existing bundles
+may retain `design/manifest.md`; consuming workflows use that legacy file only when
+`design/handoff.md` is absent. Do not create both files for a new bundle.
+
+For design-backed UI, link `design/handoff.md` and define required frames/states,
 screenshot coverage, exact viewports, responsive behavior, implementation surfaces and
-allowed deviations. Keep the detailed frame inventory in the manifest, not `spec.md`.
+allowed deviations. Keep the detailed frame inventory in the handoff, not `spec.md`.
+
+#### Implementation-facing design handoff
+
+Implementation and UI-validation agents must not use Pencil MCP or the live canvas.
+Their design inputs are the saved handoff and screenshots; node IDs are provenance only.
+Require Playwright CLI for browser interaction and fresh runtime capture comparisons.
+The Spec authoring workflow may use Pencil to inspect/design and export those inputs.
+If required details are missing, treat them as a Design Contract gap and complete the
+saved handoff/reference bundle before handing the surface to implementation.
+
+`design/handoff.md` must go beyond a screenshot inventory. Preserve the inventory and
+add measured design specifications for the affected regions/components so a Builder can
+implement the visual result without guessing or reopening the design tool:
+
+- exact source node/component IDs and mapping to existing repository widgets;
+- container sizing, padding, gaps, alignment, columns and content-driven height;
+- font family, size, weight, line-height when explicitly defined, and text wrapping;
+- color, border, radius, shadow and icon dimensions, mapped to existing tokens;
+- desktop/narrow/paper behavior where applicable, including focus/disabled/error states;
+- differences between inspected design values and existing component defaults, with
+  repository-governed mappings and approved deviations clearly distinguished;
+- comparison checklist tied to the existing AC/MV/evidence targets.
+
+Use concise property tables with `Element/source | Design value | Repository mapping |
+Responsive/state guidance` or equivalent columns. Read actual design properties and
+existing source; never infer exact measurements from screenshots, claim unspecified
+line-height values, or invent tokens. Label measured reference values separately from
+approved responsive assumptions. Keep product/runtime behavior in the Spec; the handoff
+describes its visual realization without introducing new behavior.
 
 #### Mandatory screenshot analysis and coverage proposal
 
@@ -398,7 +431,7 @@ inventory covering:
 - elements intentionally absent, ambiguous, or likely to be confused with adjacent scope;
 - the FR/AC criteria and implementation surface that the screenshot must validate.
 
-The design manifest must preserve that analysis in a concise table or linked design note:
+The design handoff must preserve that analysis in a concise table or linked design note:
 
 | Reference | Route/surface/state | Viewport | Required visible inventory | Interaction/state coverage | Ambiguities or exclusions | Validation target |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -417,7 +450,7 @@ role, tenant, mobile or breakpoint states. Each suggestion must state:
 
 Required supplemental screenshots must be captured and added to the feature-local design
 bundle before the Spec becomes `open`, or the user must explicitly accept a documented
-visual assumption. Recommended screenshots may be deferred only when the manifest records
+visual assumption. Recommended screenshots may be deferred only when the handoff records
 the deferral, rationale and planned validation state.
 
 During Spec research, use the Pencil skill and MCP for `.pen` contents. Never inspect a
@@ -426,7 +459,7 @@ During Spec research, use the Pencil skill and MCP for `.pen` contents. Never in
 1. inspect editor state/schema and every relevant frame/state, component, variable,
    viewport and node name;
 2. save one screenshot per relevant frame/state under the feature-local `design/` folder;
-3. create a manifest using this table:
+3. create a handoff using this table:
 
    | Reference | Pencil file/node | State | Viewport | Screenshot | Implementation surface | Tokens/components | Validation |
    | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -435,9 +468,9 @@ During Spec research, use the Pencil skill and MCP for `.pen` contents. Never in
 4. record layout-problem inspection for every mapped node;
 5. define responsive behavior when a required viewport has no Pencil frame.
 
-For every screenshot, verify that the manifest path exists and is non-empty, the file is a
+For every screenshot, verify that the handoff path exists and is non-empty, the file is a
 valid image, visual inspection succeeds, dimensions match the declared viewport or record
-the deliberate export scale, and screenshot count matches manifest coverage. An MCP export
+the deliberate export scale, and screenshot count matches handoff coverage. An MCP export
 response alone is not proof that the file exists in the shared workspace. Also verify that
 every supplied screenshot has a completed visual inventory, every required supplemental
 capture is present or explicitly accepted as an assumption, and every reference/state has a
@@ -495,10 +528,10 @@ filesystem APIs.
    ```
 
    Use `view_image` for visual inspection and verify that `file` reports valid,
-   non-empty PNGs with dimensions matching the manifest. An MCP “Exported ...”
+   non-empty PNGs with dimensions matching the handoff. An MCP “Exported ...”
    response alone is not evidence that a shared file exists.
 
-5. Add one manifest row per exported node with its ID, state, viewport/dimensions,
+5. Add one handoff row per exported node with its ID, state, viewport/dimensions,
    relative PNG link, implementation surface, and visual validation requirement.
    If the UNC export cannot reach the workspace, keep the Spec `draft` and record
    the artifact blocker instead of claiming the Design Contract is satisfied.
@@ -1053,7 +1086,7 @@ and manual validation.
 When the user or authoritative request explicitly requires independent visual review, the
 Spec's Validation Contract must require one read-only
 [`Visual Reviewer`](../agents/visual-reviewer-agent.md) audit of the integrated design-backed
-candidate. Name the exact manifest references, states and viewports, require current transient
+candidate. Name the exact handoff references, states and viewports, require current transient
 implementation captures before activation, and keep the report advisory: the Orchestrator
 verifies findings and owns official `EV-*` visual evidence. Schedule the audit through a future
 Plan when Plan-backed execution is selected, or through `implement-spec` for direct execution.

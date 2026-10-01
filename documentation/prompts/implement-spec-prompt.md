@@ -209,7 +209,14 @@ Before the first implementation change for the current revision:
 8. initialize or update the Spec/Plan references, revision,
    `status: in_progress`, acceptance matrix, automated/runtime/manual/visual evidence,
    Rule/documentation compliance, findings and lessons learned;
-9. record required services, accounts, fixtures, design references and evidence targets.
+9. verify and record required services, accounts, fixtures, design references and evidence
+   targets. Inventory the actual fixture coverage required by each manual scenario, including
+   role, tenancy, status, cardinality and long/optional content when relevant. Record missing
+   fixtures and their scoped preparation, ownership and cleanup; do not infer their availability
+   from a seed command or mocked suite. For native browser/OS workflows, verify the observation
+   capability separately from API invocation, media emulation or exported artifacts, and record
+   any human observation needed. Apply the existing fail-closed manual-evidence gate when a
+   required capability or fixture cannot be made available within the authorized scope.
 
 Do not proceed when the Builder activation, baseline conformance comparison or Playwright
 health result is missing or failed. A prose statement that these steps happened is insufficient;
@@ -409,6 +416,11 @@ Phase completion must be sensor-backed. Do not use a Builder report as official 
 
 Each Builder runs focused feedback checks for the paths it changes before handoff:
 
+Run the applicable complexity sensor at the first coherent production composition boundary and
+after structural corrections. Resolve measured violations before starting full regression or
+build exits that would be superseded by the resulting refactor. Preserve the documented
+thresholds and baseline; this ordering does not replace any required final integrated exit.
+
 - `Builder Core` and `Builder Validation` run their applicable code, type and unit sensors;
 - `Builder Server` runs applicable sensors plus focused `curl` scenarios against the real local
   server for changed runtime behavior, covering status/body, validation, authentication,
@@ -475,7 +487,7 @@ finding to be resolved.
 
 For a design-backed candidate, activate one read-only
 [`Visual Reviewer`](../agents/visual-reviewer-agent.md) only when the user or current Spec
-explicitly requests independent visual review. Give it the saved manifest and reference images,
+explicitly requests independent visual review. Give it the saved design handoff and reference images,
 exact current routes/states/viewports, fresh transient captures and current visual `EV-*` rows.
 Use the generated visual-reviewer role when callable; otherwise activate a `default` agent with
 the canonical Visual Reviewer file and an explicit read-only assignment.
@@ -558,19 +570,30 @@ sensor passed. The next action is correction and rerun, not a user permission re
 
 ## Design-backed UI execution
 
+Design authoring through `create-spec` may use Pencil MCP; implementation and runtime
+visual validation consume the saved feature-local bundle.
+
+Use `design/handoff.md` for new design bundles. If an existing feature bundle lacks
+it, read its legacy `design/manifest.md` instead; preserve that legacy artifact and
+do not create both files.
+
 When a Design Contract exists:
 
-- read `design/manifest.md` and every saved reference before coding;
+- read the feature-local `design/handoff.md` and every saved PNG reference before coding;
 - confirm every supplied screenshot has a visual inventory and every supplemental-screenshot
   suggestion has a recorded decision;
-- do not depend on live Pencil during normal implementation;
+- implementation and UI validation agents must not use Pencil MCP or the live design canvas;
+  use the saved handoff and PNG references with fresh Playwright CLI runtime captures;
+- treat source node IDs as provenance only; no Pencil MCP lookup is required;
+- missing required handoff detail is a Contract gap: pause affected implementation and route
+  it to the Orchestrator before coding; do not guess or recover details from the live canvas;
 - preserve exact state, surface and viewport mappings;
 - use existing behavioral Playwright coverage for accessible interaction, DOM/layout,
   console, failed-request and persistence evidence;
 - do not create a dedicated visual-reference integration test;
 - capture and compare every supplied design screenshot and every required supplemental state at
   its exact viewport, using an existing behavioral scenario or a manual Playwright CLI run;
-  supplemental screenshots marked recommended may be deferred only when the manifest records
+  supplemental screenshots marked recommended may be deferred only when the design handoff records
   the decision and the state is not an acceptance gap;
 - capture every design-backed state at its exact viewport into Playwright's ignored
   `test-results/` output or a CI artifact, and record the comparison details plus the
@@ -579,7 +602,7 @@ When a Design Contract exists:
 
 If an approved implementation change intentionally introduces a visual element absent from
 the references, treat it as a Design Contract amendment. Clarify only unresolved placement or
-scope, update the Spec and manifest/reference artifact, recapture affected screenshots and
+scope, update the Spec and handoff/reference artifact, recapture affected screenshots and
 rerun invalidated validation.
 
 ## Living evidence

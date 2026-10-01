@@ -276,7 +276,13 @@ the repository does not permit committed suites under `apps/web/tests/integratio
 real-service scenarios are manual Playwright CLI evidence and require their
 documented Server/PostgreSQL prerequisites. The committed route suite starts an isolated
 Vite server on `http://127.0.0.1:4001` with the SSR-auth fixture enabled; override the
-port with `PLAYWRIGHT_PORT` when needed. The real-service auth setup continues to use the
+port with `PLAYWRIGHT_PORT` when needed. The current mocked notification SSE responses in
+`tests/fixtures/communication-module-fixture.ts` and
+`tests/communication/notification-toast.test.tsx` still set the allowed origin to
+`http://localhost:4001`; use the default port for suites exercising those fixtures. An alternate
+port can therefore pass the login health check while failing notification/CORS assertions.
+Do not treat those failures as production-server authorization evidence or weaken the
+assertions to accommodate them. The real-service auth setup continues to use the
 developer server on port `4000`.
 
 Use the Playwright CLI for all repository browser interaction, inspection and
@@ -306,7 +312,11 @@ pnpm --filter web test:auth:setup
 ```
 
 The command logs in the local Manager and Operator seed accounts and writes
-ignored Playwright storage states to `apps/web/playwright/.auth/`. Override the
+generated Playwright storage states to `apps/web/playwright/.auth/`. Check their Git
+tracking status before setup; the current Manager and Operator state files are tracked.
+Never publish refreshed session credentials. Preserve existing tracked state files before
+validation and restore task-generated changes afterward; do not untrack files or alter ignore
+configuration as an incidental validation step. Override the
 credentials with `PLAYWRIGHT_MANAGER_EMAIL`, `PLAYWRIGHT_MANAGER_PASSWORD`,
 `PLAYWRIGHT_OPERATOR_EMAIL`, and `PLAYWRIGHT_OPERATOR_PASSWORD` when needed.
 Use a generated state in a test with `test.use({ storageState: ... })`; do not
