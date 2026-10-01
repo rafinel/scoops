@@ -116,10 +116,14 @@ When HTTP routes are affected, include the matching `.rest` files in that scope 
 confirm their route/example parity is recorded in Evaluation. Do not omit a REST-client file
 from the delivery diff merely because it is manually executed or not compiled by the workspace.
 
+Use `design/handoff.md` for new design bundles. If an existing feature bundle lacks
+it, read its legacy `design/manifest.md` instead; preserve that legacy artifact and
+do not create both files.
+
 For design-backed UI, use the saved Spec design bundle—not live Pencil—and include an independent
 comparison for every supplied screenshot and every required supplemental screenshot:
 
-- route/state and exact saved reference path or source node ID from `design/manifest.md`;
+- route/state and exact saved reference path or source node ID from `design/handoff.md`;
 - target viewport;
 - Playwright CLI manual result;
 - implementation screenshot/comparison path;

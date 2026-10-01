@@ -125,9 +125,13 @@ documentation/features/<domain>/<feature>/
 ├── plan.md                         # optional
 ├── evaluation.md                   # created at implementation kickoff
 ├── design/
-│   ├── manifest.md                 # for design-backed UI
+│   ├── handoff.md                  # for design-backed UI
 │   └── <reference screenshots>.png
 ```
+
+New design bundles use `design/handoff.md`. For an existing feature bundle without
+that file, consume its legacy `design/manifest.md`; preserve existing artifacts rather
+than renaming them solely to follow the new convention. Do not create both files.
 
 Implementation screenshots are validation artifacts, not durable feature files. Capture
 them in Playwright's ignored `test-results/` output or retain them as CI artifacts when a
@@ -147,7 +151,7 @@ documentation/features/<domain>/<feature>/changes/<change-name>/
 | `spec.md` | Product, design, technical and validation Contracts. | Execution attempts or test results. |
 | `plan.md` | Execution waves, dependencies, task ownership, status and next action. | Duplicate product or technical contracts. |
 | `evaluation.md` | Actual commands, runtime/manual/visual evidence, findings, history and PR CI evidence. | Product or architecture authority. |
-| `design/manifest.md` | Reference-frame inventory, source node, state, viewport, screenshot, implementation surface and comparison requirement. | Implementation-generated visual proof. |
+| `design/handoff.md` | Reference-frame inventory, source node, state, viewport, screenshot, implementation surface and comparison requirement. | Implementation-generated visual proof. |
 
 ## Artifact statuses
 
@@ -292,7 +296,7 @@ For UI backed by Pencil or supplied screenshots, the Spec creator:
 3. identifies missing states or viewports and classifies supplemental screenshots as
    required or recommended;
 4. saves one reference image per required frame/state in the feature-local `design/` folder;
-5. creates `design/manifest.md` with exact node, state, viewport, implementation surface and
+5. creates `design/handoff.md` with exact node, state, viewport, implementation surface and
    validation mapping;
 6. verifies every image exists, is valid and non-empty, has the declared dimensions or
    export scale, and was opened for visual inspection.
@@ -407,7 +411,7 @@ each AC and MV result, inspects console, network and persisted-state evidence, a
 affected REST-client example file against the current controller operations and shared request
 schemas. REST-client parity is a separate artifact check and does not replace real HTTP integration
 evidence. When a Visual Reviewer was explicitly requested, the Orchestrator gives it the
-current manifest, saved references and fresh implementation captures, verifies its findings,
+current design handoff, saved references and fresh implementation captures, verifies its findings,
 and resolves accepted visual discrepancies before readiness. This does not replace the
 Implementation Reviewer or any contracted `MV-*` scenario.
 

@@ -243,13 +243,22 @@ every partial or deferred requirement must remain unchecked. A mismatch is a blo
 finding and follows the same correction, amendment or transient-failure routing above.
 
 Treat material findings as inputs to durable documentation improvement, not only as closure
-records. For every resolved or active finding, classify whether it exposed reusable missing or
-ambiguous guidance:
+records. This review is a mandatory closure gate. Review the entire Evaluation history,
+including failed attempts, command corrections, fixture and environment blockers, repeated
+validation runs and implementation rework; do not limit the review to defects still active or
+to the final passing result. For every material finding, including resolved and accepted
+non-blocking findings, classify whether it exposed reusable missing or ambiguous guidance:
 
 1. record the concrete issue first in `Findings` with evidence, status and resolution;
 2. extract the reusable principle into `Lessons learned` when applicable;
 3. update the appropriate authority, or record an explicit no-change disposition when no durable
    update is warranted.
+
+For process findings, identify what should have been discovered earlier and the specific
+preflight, routing or validation instruction that would prevent recurrence. Consider fixture
+availability, environment capability, implementation constraints and the choice between focused
+checks and full regression runs. Do not convert developer-specific settings into universal
+requirements or weaken required validation to make closure easier.
 
 Recording a reusable lesson is not complete until its authority disposition is decided in the
 same conclusion pass. For each lesson, name the applicable Markdown authority file(s), make the
@@ -270,15 +279,32 @@ instead of silently editing the document.
   work must follow;
 - update `documentation/tooling.md` when the finding reveals reusable command syntax,
   environment setup, generation, CI or validation guidance;
+- update the owning canonical prompt under `documentation/prompts/` when the finding reveals
+  missing or ambiguous SDD preflight, execution order, delegation, correction routing,
+  validation freshness or closure guidance; update `documentation/sdd.md` or the applicable
+  agent contract when it owns the affected instruction. Synchronize generated skills/commands
+  with `pnpm sync:commands` and agent definitions with `pnpm sync:agents` when their canonical
+  sources change; validate the affected tooling using the documented checks;
 - update every applicable document when the reusable lesson spans architecture, design,
   tooling and execution guidance;
 - make no durable documentation change for a transient environment failure, isolated typo,
   already-documented rule or feature-local detail that would overfit global guidance.
 
 Record each material finding's documentation disposition in `evaluation.md`: link the updated
-PRD, Architecture, Design, Tooling or Rule document and summarize the lesson, or state why no
-update was warranted. A finding entry without its lesson/disposition is insufficient evidence of
-this review.
+PRD, Architecture, Design, Tooling, Rule, SDD, prompt or agent document and summarize the lesson,
+or state why no update was warranted. Record the finding ID, reusable lesson, exact authority
+path, disposition (`Updated`, `No change` or `Routed authority change`) and validation evidence.
+For `No change` because guidance already exists, cite the exact existing instruction and
+explain why a clarification is unnecessary. Generic dispositions such as “lessons recorded”
+or “documentation reviewed” are insufficient.
+
+Before setting any delivery artifact to `completed`, verify that every material finding has
+this disposition and every required documentation update is present, validated and included in
+the delivery scope. An unassessed finding, an unapplied required clarification or an unresolved
+routed authority change blocks closure; recording a future recommendation does not satisfy
+this gate. Preserve historical evidence and do not reopen a resolved implementation defect
+solely to record its documentation disposition.
+
 Keep these corrections concise and generally applicable. A clarification consistent with the
 approved Contract and delivered architecture is part of conclusion; a new product rule,
 Contract obligation, module-ownership decision, architecture decision or global policy still
@@ -332,6 +358,6 @@ Return:
   rationale;
 - final PR head SHA and live check results after the SDD closure commit;
 - documentation alignment and remaining non-blocking limitations;
-- finding-derived PRD, Architecture, Design, Tooling and Rule Pack improvements, including
-  justified no-change dispositions;
+- finding-derived PRD, Architecture, Design, Tooling, Rule Pack, SDD, prompt and agent
+  improvements, including justified no-change dispositions;
 - PR state and next authorized action.

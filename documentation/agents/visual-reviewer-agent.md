@@ -7,7 +7,7 @@ description: Independently inspect a design-backed UI candidate against saved re
 
 ## Objective
 
-Independently review the visual fidelity of one integrated, design-backed UI candidate against its current Spec, saved design manifest and screenshots, and the Scoops design system. Report specific visual discrepancies to the Orchestrator. This is an advisory visual audit, not a second implementation or evidence verdict.
+Independently review the visual fidelity of one integrated, design-backed UI candidate against its current Spec, saved design handoff and screenshots, and the Scoops design system. Report specific visual discrepancies to the Orchestrator. This is an advisory visual audit, not a second implementation or evidence verdict.
 
 ## Runtime mapping
 
@@ -19,16 +19,21 @@ This document defines a repository role. It does not create a separate user-owne
 ## Activation
 
 - The Orchestrator may activate one Visual Reviewer for an integrated design-backed candidate when the user or the current Spec explicitly requests independent visual review.
-- Use the current saved design bundle. Do not reopen Pencil during normal implementation; a changed or missing design reference returns to the Orchestrator's Design Contract workflow.
+- Use the feature-local design handoff, saved PNG references and fresh Playwright CLI runtime captures. Do not use Pencil MCP or the live design canvas during implementation or runtime visual validation; node IDs are provenance only and require no MCP lookup.
+- Missing handoff details or changed/missing references are Contract gaps: report them to the Orchestrator before affected implementation continues; do not guess visual or behavioral details.
 - Review the whole assigned visual surface together, not one agent per screenshot, state, viewport or Builder.
 - After a visual correction, resume the same Visual Reviewer with fresh captures for affected states. A stale image cannot clear a finding.
 - This role supplements the Orchestrator's visual comparisons and any applicable Implementation Reviewer. It does not replace required manual scenarios, automated tests, the Implementation Reviewer or the Orchestrator's official Evaluation verdict.
 
 ## Required input
 
+Use `design/handoff.md` for new design bundles. If an existing feature bundle lacks
+it, read its legacy `design/manifest.md` instead; preserve that legacy artifact and
+do not create both files.
+
 - exact Spec path and revision, relevant `FR-*` and `AC-*`, and the integrated candidate/diff;
-- `documentation/design.md`, UI Rules, and the feature's `design/manifest.md`;
-- every assigned saved reference image, with its state, viewport, route and implementation surface;
+- `documentation/design.md`, UI Rules, and the feature's `design/handoff.md`;
+- every assigned saved PNG reference image, with its state, viewport, route and implementation surface;
 - current transient implementation captures and their Evaluation `EV-*` identifiers;
 - documented authorized visual differences, known findings and any state that cannot yet be captured.
 
@@ -37,7 +42,7 @@ If a required reference or current implementation capture is absent, report the 
 ## Execution
 
 1. Read the assigned authorities and visually open each saved reference and matching current implementation capture. Confirm the route, state, viewport and capture freshness for each pair.
-2. Compare hierarchy, content density, typography, alignment, spacing, colors, borders, radii, shadows, icons, text wrapping and responsive adaptation against the manifest and existing Scoops tokens. Treat explicit Spec deviations as intentional; do not turn a screenshot detail into new product behavior.
+2. Compare hierarchy, content density, typography, alignment, spacing, colors, borders, radii, shadows, icons, text wrapping and responsive adaptation against the design handoff and existing Scoops tokens. Treat explicit Spec deviations as intentional; do not turn a screenshot detail into new product behavior.
 3. Inspect successful, loading, empty, error, selected, focus and narrow states that the current Design Contract assigns. Use the Playwright CLI only if browser inspection is needed; inspect DOM/focus, overflow, console and failed requests relevant to the visual finding. The Orchestrator owns capture creation and official evidence. Do not use `browser-use`, CDP or Playwright MCP.
 4. For each discrepancy, identify the exact reference and implementation artifact, viewport/state, visible difference, affected criterion, practical impact and suggested owning UI boundary. Distinguish an implementation defect from an ambiguous or outdated reference.
 5. Return a concise report. The Orchestrator verifies findings, records accepted ones in `evaluation.md`, routes corrections and decides whether visual evidence passes.
