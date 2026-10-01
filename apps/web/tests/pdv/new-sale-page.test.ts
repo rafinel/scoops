@@ -162,7 +162,7 @@ test.describe('NewSalePage', () => {
           ),
         )
         .toBe(true)
-      await expect(page.getByText('R$ 20,00').last()).toBeVisible()
+      await expect(page.getByRole('main').getByText('R$ 20,00').last()).toBeVisible()
       await page.screenshot({
         path: `test-results/pdv/new-sale-${viewport.name}-${viewport.width}x${viewport.height}.png`,
       })
@@ -237,7 +237,9 @@ test.describe('NewSalePage', () => {
     const loadingState = page.getByRole('status', { name: 'Carregando produtos' })
     await expect(loadingState).toBeVisible()
     await expect(loadingState.locator(':scope > *')).toHaveCount(4)
-    await page.screenshot({ path: 'test-results/pdv/new-sale-catalog-loading-1106x575.png' })
+    await page.screenshot({
+      path: 'test-results/pdv/new-sale-catalog-loading-1106x575.png',
+    })
     await expect(loadingState).toBeHidden({ timeout: INITIAL_PAGE_READY_TIMEOUT_MS })
   })
 
@@ -352,6 +354,8 @@ test.describe('NewSalePage', () => {
             idempotencyKey: 'registration-key-1',
             sequenceNumber: 42,
             createdBy: 'manager-1',
+            createdByName: 'Maria Manager',
+            status: 'registered',
             channel: {
               channelId: 'channel-balcao',
               name: 'Balcão',
@@ -404,9 +408,24 @@ test.describe('NewSalePage', () => {
     await expect(page.getByRole('heading', { name: 'Pedido registrado' })).toBeVisible()
     await expect(page.getByRole('dialog', { name: 'Confirmar pedido' })).toHaveCount(0)
     await expect(page.getByText('#0042')).toBeVisible()
-    await expect(page.getByText('Taça de morango')).toBeVisible()
-    await expect(page.getByText('R$ 20,00').last()).toBeVisible()
+    await expect(page.getByText('Taça de morango').first()).toBeVisible()
+    await expect(page.getByRole('main').getByText('R$ 20,00').last()).toBeVisible()
     await expect(page.getByRole('button', { name: 'Iniciar nova venda' })).toBeVisible()
+    const printDocument = page.locator('body > .order-print-document')
+    await expect(printDocument).toContainText('Pedido #00042')
+    await expect(printDocument).toContainText('Maria Manager')
+    await expect(printDocument).not.toBeVisible()
+    const originalUrl = page.url()
+    await page.evaluate(() => {
+      window.print = () => window.dispatchEvent(new Event('afterprint'))
+    })
+    const printButton = page.getByRole('button', { name: 'Imprimir pedido' })
+    await printButton.focus()
+    await printButton.press('Enter')
+    await expect(printButton).toBeEnabled()
+    await expect(printButton).toBeFocused()
+    await printButton.press('Space')
+    await expect(page).toHaveURL(originalUrl)
     expect(consoleErrors).toEqual([])
     expect(failedRequests).toEqual([])
     expect(failedResponses).toEqual([])
@@ -593,7 +612,9 @@ test.describe('NewSalePage', () => {
       })
       await expect(page.getByRole('dialog', { name: 'Confirmar pedido' })).toHaveCount(0)
       await expect(page.getByRole('dialog')).toHaveCount(0)
-      await expect(page.getByRole('status', { name: 'Verificando registro' })).toBeFocused()
+      await expect(
+        page.getByRole('status', { name: 'Verificando registro' }),
+      ).toBeFocused()
       await expect.poll(() => registrationRequests.length).toBe(2)
       expect(registrationRequests[0]).toEqual(registrationRequests[1])
       expect(registrationRequests[0]).toMatchObject({

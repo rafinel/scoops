@@ -1,5 +1,5 @@
 {
-  "version": "2.19",
+  "version": "2.20",
   "children": [
     {
       "type": "frame",
@@ -45244,14 +45244,12 @@
                   "id": "mrz5A",
                   "name": "Cabeçalho Detalhes do pedido",
                   "width": "fill_container",
-                  "height": 56,
-                  "layout": "none",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
                   "children": [
                     {
                       "type": "frame",
                       "id": "NkK1h",
-                      "x": 0,
-                      "y": 0,
                       "name": "Identificação do pedido",
                       "layout": "vertical",
                       "gap": 7,
@@ -45286,11 +45284,8 @@
                     {
                       "type": "frame",
                       "id": "iQ73s",
-                      "layoutPosition": "absolute",
-                      "x": 740,
-                      "y": 10,
-                      "name": "Ações do pedido registrado — Apenas gerentes",
-                      "gap": 16,
+                      "name": "Ações do pedido registrado",
+                      "gap": 12,
                       "alignItems": "center",
                       "children": [
                         {
@@ -45322,6 +45317,36 @@
                               "fontWeight": "600"
                             }
                           ]
+                        },
+                        {
+                          "id": "wNSUn",
+                          "type": "ref",
+                          "ref": "j81wx",
+                          "name": "Botão Imprimir pedido — Gerente e Operador",
+                          "fill": "$bg-card",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "effect": [],
+                          "padding": [
+                            9,
+                            14
+                          ],
+                          "x": 118,
+                          "y": 0,
+                          "width": "fit_content",
+                          "height": "fit_content",
+                          "descendants": {
+                            "b1bQY": {
+                              "name": "Ícone Imprimir pedido",
+                              "icon": "printer",
+                              "fill": "$text-primary"
+                            },
+                            "dURHs": {
+                              "name": "Texto Imprimir pedido",
+                              "content": "Imprimir pedido",
+                              "fill": "$text-primary"
+                            }
+                          }
                         },
                         {
                           "type": "frame",
@@ -57847,8 +57872,8 @@
                     {
                       "type": "frame",
                       "id": "f28A8l",
-                      "name": "Ações do pedido registrado",
-                      "gap": 16,
+                      "name": "Ações do pedido cancelado",
+                      "gap": 12,
                       "alignItems": "center",
                       "children": [
                         {
@@ -57880,6 +57905,36 @@
                               "fontWeight": "600"
                             }
                           ]
+                        },
+                        {
+                          "id": "LR37S",
+                          "type": "ref",
+                          "ref": "j81wx",
+                          "name": "Botão Imprimir pedido — Gerente e Operador",
+                          "fill": "$bg-card",
+                          "stroke": "$border",
+                          "strokeWidth": 1,
+                          "effect": [],
+                          "padding": [
+                            9,
+                            14
+                          ],
+                          "x": 204,
+                          "y": 0,
+                          "width": "fit_content",
+                          "height": "fit_content",
+                          "descendants": {
+                            "b1bQY": {
+                              "name": "Ícone Imprimir pedido",
+                              "icon": "printer",
+                              "fill": "$text-primary"
+                            },
+                            "dURHs": {
+                              "name": "Texto Imprimir pedido",
+                              "content": "Imprimir pedido",
+                              "fill": "$text-primary"
+                            }
+                          }
                         }
                       ]
                     }
@@ -66657,7 +66712,7 @@
                     "type": "image",
                     "enabled": true,
                     "url": "assets/jKmSB.png",
-                    "mode": "fill"
+                    "mode": "cover"
                   },
                   "width": "fill_container",
                   "height": "fill_container"
@@ -102057,6 +102112,2850 @@
           "strokeWidth": 2
         }
       }
+    },
+    {
+      "type": "frame",
+      "id": "lFo88",
+      "x": -2201,
+      "y": 13469,
+      "name": "Impressão do pedido — 80 mm — Registrado",
+      "clip": true,
+      "width": 302,
+      "fill": "$bg-card",
+      "layout": "vertical",
+      "gap": 18,
+      "padding": [
+        24,
+        18
+      ],
+      "children": [
+        {
+          "type": "frame",
+          "id": "GmQor",
+          "name": "Identificação impressa",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "children": [
+            {
+              "type": "text",
+              "id": "y1tYke",
+              "name": "Número do pedido",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Pedido #00124",
+              "fontFamily": "$font-body",
+              "fontSize": 20,
+              "fontWeight": "800"
+            },
+            {
+              "type": "text",
+              "id": "Fm3NF",
+              "name": "Aviso não fiscal",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Cópia não fiscal",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "rLB2G",
+          "name": "Separador da identificação",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "$border"
+        },
+        {
+          "type": "frame",
+          "id": "Mxdct",
+          "name": "Dados salvos do pedido",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "SLKgk",
+              "name": "Data do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Sa9t8",
+                  "name": "Data do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Registrado em",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "bgcJP",
+                  "name": "Data do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "30/09/2026 · 15:42",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "MX5Xm",
+              "name": "Operador do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "LkUnj",
+                  "name": "Operador do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Registrado por",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "l1ufUd",
+                  "name": "Operador do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Carlo",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "A3A2x",
+              "name": "Canal do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Fwpal",
+                  "name": "Canal do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Canal",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "o5lNw",
+                  "name": "Canal do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Delivery · +12%",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "I0UBE",
+              "name": "Status do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Q03X8",
+                  "name": "Status do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Status",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "ZnKP9",
+                  "name": "Status do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Registrado",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "iYD4t",
+          "name": "Itens e configurações salvos",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "children": [
+            {
+              "type": "text",
+              "id": "pR2Ir",
+              "name": "Título dos itens",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Itens do pedido",
+              "fontFamily": "$font-body",
+              "fontSize": 16,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "w2PB4C",
+              "name": "Separador Açaí tradicional",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "GVaum",
+              "name": "Item Açaí tradicional",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 5,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "IwUPR",
+                  "name": "Produto Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Açaí tradicional",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "Q62Xv",
+                  "name": "Configuração Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Médio · 500 ml",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "zJ0a8",
+                  "name": "Acompanhamentos Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Leite em pó e granola · gratuitos",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "frame",
+                  "id": "DVmmp",
+                  "name": "Preço Açaí tradicional",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "QIRmZ",
+                      "name": "Preço Açaí tradicional — Rótulo",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "1 × R$ 17,92",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "KxQiG",
+                      "name": "Preço Açaí tradicional — Valor",
+                      "fill": "$text-primary",
+                      "content": "R$ 17,92",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "MsHKV",
+              "name": "Separador Milk-shake de morango",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "PeDj5",
+              "name": "Item Milk-shake de morango",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 5,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "zD1Hg",
+                  "name": "Produto Milk-shake de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Milk-shake de morango",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "Z0b3u",
+                  "name": "Configuração Milk-shake de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Copo de 500 ml",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "frame",
+                  "id": "PLm6E",
+                  "name": "Preço Milk-shake de morango",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ywaCR",
+                      "name": "Preço Milk-shake de morango — Rótulo",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "1 × R$ 17,92",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "LJzQn",
+                      "name": "Preço Milk-shake de morango — Valor",
+                      "fill": "$text-primary",
+                      "content": "R$ 17,92",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Lzozr",
+              "name": "Separador Picolé de morango",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "PaYcx",
+              "name": "Item Picolé de morango",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 5,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "SDF0R",
+                  "name": "Produto Picolé de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Picolé de morango",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "X9ehC",
+                  "name": "Configuração Picolé de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Kibon · unidade",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "frame",
+                  "id": "U8rPHx",
+                  "name": "Preço Picolé de morango",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "E6dHb",
+                      "name": "Preço Picolé de morango — Rótulo",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "1 × R$ 6,72",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "uIy4L",
+                      "name": "Preço Picolé de morango — Valor",
+                      "fill": "$text-primary",
+                      "content": "R$ 6,72",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "f4u0e",
+          "name": "Separador antes dos totais",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "$border"
+        },
+        {
+          "type": "frame",
+          "id": "Z7DYmn",
+          "name": "Valores preservados",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "Dhven",
+              "name": "Subtotal do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "bzDOV",
+                  "name": "Subtotal do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Subtotal com canal",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "he9uI",
+                  "name": "Subtotal do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "R$ 42,56",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "smc3m",
+              "name": "Nome do Combo",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Combo Açaí + Milk-shake",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "ruHRW",
+              "name": "Desconto do Combo",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "lP6Hg",
+                  "name": "Desconto do Combo — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Desconto do Combo",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "m7THo",
+                  "name": "Desconto do Combo — Valor",
+                  "fill": "$text-primary",
+                  "content": "− R$ 3,84",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ddmyn",
+              "name": "Separador do total",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "APsn3",
+              "name": "Total do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "l4bUj",
+                  "name": "Total do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Total do pedido",
+                  "fontFamily": "$font-body",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "lsu2W",
+                  "name": "Total do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "R$ 38,72",
+                  "fontFamily": "$font-body",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Soo8o",
+          "name": "Rodapé não fiscal",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "padding": [
+            12,
+            0,
+            0,
+            0
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "g4oD3d",
+              "name": "Separador do rodapé",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "text",
+              "id": "cCj72",
+              "name": "Quantidade de produtos",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "3 produtos · 3 unidades",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "du1oS",
+              "name": "Aviso do rodapé",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Cópia não fiscal",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Y7CU6l",
+      "x": -1739,
+      "y": 13469,
+      "name": "Impressão do pedido — A4 — Registrado",
+      "clip": true,
+      "width": 794,
+      "height": 1123,
+      "fill": "$bg-card",
+      "layout": "vertical",
+      "gap": 18,
+      "padding": 48,
+      "children": [
+        {
+          "type": "frame",
+          "id": "WZCuw",
+          "name": "Identificação impressa",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "children": [
+            {
+              "type": "text",
+              "id": "B5CFw5",
+              "name": "Número do pedido",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Pedido #00124",
+              "fontFamily": "$font-body",
+              "fontSize": 26,
+              "fontWeight": "800"
+            },
+            {
+              "type": "text",
+              "id": "l6RYK",
+              "name": "Aviso não fiscal",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Cópia não fiscal",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "AICrG",
+          "name": "Separador da identificação",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "$border"
+        },
+        {
+          "type": "frame",
+          "id": "j7pHL",
+          "name": "Dados salvos do pedido",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "OnXeH",
+              "name": "Data do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "q0O9r",
+                  "name": "Data do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Registrado em",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "ca7aW",
+                  "name": "Data do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "30/09/2026 · 15:42",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "aqu9D",
+              "name": "Operador do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ha4ms",
+                  "name": "Operador do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Registrado por",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "g9LxID",
+                  "name": "Operador do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Carlo",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Wi1ez",
+              "name": "Canal do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "huDuO",
+                  "name": "Canal do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Canal",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "E7rqs6",
+                  "name": "Canal do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Delivery · +12%",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "yh90h",
+              "name": "Status do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "VdwXE",
+                  "name": "Status do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Status",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "i9z8t",
+                  "name": "Status do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Registrado",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "bPQHC",
+          "name": "Itens e configurações salvos",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "children": [
+            {
+              "type": "text",
+              "id": "J2RuU",
+              "name": "Título dos itens",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Itens do pedido",
+              "fontFamily": "$font-body",
+              "fontSize": 16,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "Y7Kd8",
+              "name": "Cabeçalho da tabela",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "KFHci",
+                  "name": "Cabeçalho Produto",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Produto / configuração",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "c63aIM",
+                  "name": "Cabeçalho Qtd.",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 40,
+                  "content": "Qtd.",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "MNCny",
+                  "name": "Cabeçalho Unitário",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "Unitário",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "D92VqW",
+                  "name": "Cabeçalho Subtotal",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "Subtotal",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "zih3r",
+              "name": "Separador Açaí tradicional",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "GWSWA",
+              "name": "Item Açaí tradicional",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "tLVrt",
+                  "name": "Descrição Açaí tradicional",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "IVGOF",
+                      "name": "Produto Açaí tradicional",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Açaí tradicional",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "RHOeI",
+                      "name": "Configuração Açaí tradicional",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Médio · 500 ml",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Hz62x",
+                      "name": "Acompanhamentos Açaí tradicional",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Leite em pó e granola · gratuitos",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "Kv0OM",
+                  "name": "Quantidade Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 40,
+                  "content": "1",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "qLs8q",
+                  "name": "Unitário Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 17,92",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "eRsBm",
+                  "name": "Subtotal Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 17,92",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "vYiAB",
+              "name": "Separador Milk-shake de morango",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "hjodQ",
+              "name": "Item Milk-shake de morango",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ibUca",
+                  "name": "Descrição Milk-shake de morango",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Wa7AF",
+                      "name": "Produto Milk-shake de morango",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Milk-shake de morango",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "i0vjI",
+                      "name": "Configuração Milk-shake de morango",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Copo de 500 ml",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "S1vSnL",
+                  "name": "Quantidade Milk-shake de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 40,
+                  "content": "1",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "Lmnkm",
+                  "name": "Unitário Milk-shake de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 17,92",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "J5E2g",
+                  "name": "Subtotal Milk-shake de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 17,92",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "BhjKr",
+              "name": "Separador Picolé de morango",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "h5T03",
+              "name": "Item Picolé de morango",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "J4YYCW",
+                  "name": "Descrição Picolé de morango",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "XdcTf",
+                      "name": "Produto Picolé de morango",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Picolé de morango",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "FEVKK",
+                      "name": "Configuração Picolé de morango",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Kibon · unidade",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "ZAYLg",
+                  "name": "Quantidade Picolé de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 40,
+                  "content": "1",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "eCY5O",
+                  "name": "Unitário Picolé de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 6,72",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "jZwSR",
+                  "name": "Subtotal Picolé de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 6,72",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "wSq1Z",
+          "name": "Separador antes dos totais",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "$border"
+        },
+        {
+          "type": "frame",
+          "id": "P5r0E",
+          "name": "Valores preservados",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "XEHPD",
+              "name": "Subtotal do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ekmVb",
+                  "name": "Subtotal do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Subtotal com canal",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "teCxj",
+                  "name": "Subtotal do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "R$ 42,56",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "j9oev",
+              "name": "Nome do Combo",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Combo Açaí + Milk-shake",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "oabGa",
+              "name": "Desconto do Combo",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "zpGT0",
+                  "name": "Desconto do Combo — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Desconto do Combo",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "tzSZ3",
+                  "name": "Desconto do Combo — Valor",
+                  "fill": "$text-primary",
+                  "content": "− R$ 3,84",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "J7fNsI",
+              "name": "Separador do total",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "Dmt4J",
+              "name": "Total do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "YMelc",
+                  "name": "Total do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Total do pedido",
+                  "fontFamily": "$font-body",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "B1kS4w",
+                  "name": "Total do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "R$ 38,72",
+                  "fontFamily": "$font-body",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "oxdlv",
+          "name": "Rodapé não fiscal",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "padding": [
+            12,
+            0,
+            0,
+            0
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "iNWoY",
+              "name": "Separador do rodapé",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "text",
+              "id": "CQGAz",
+              "name": "Quantidade de produtos",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "3 produtos · 3 unidades",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "Mn7ip",
+              "name": "Aviso do rodapé",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Cópia não fiscal",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "YtJxW",
+      "x": -2201,
+      "y": 14362,
+      "name": "Impressão do pedido — 80 mm — Cancelado",
+      "clip": true,
+      "width": 302,
+      "fill": "$bg-card",
+      "layout": "vertical",
+      "gap": 18,
+      "padding": [
+        24,
+        18
+      ],
+      "children": [
+        {
+          "type": "frame",
+          "id": "cwKbr",
+          "name": "Identificação impressa",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "children": [
+            {
+              "type": "text",
+              "id": "HB5Nb",
+              "name": "Número do pedido",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Pedido #00124",
+              "fontFamily": "$font-body",
+              "fontSize": 20,
+              "fontWeight": "800"
+            },
+            {
+              "type": "text",
+              "id": "sYWnD",
+              "name": "Aviso não fiscal",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Cópia não fiscal",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "V3WFm",
+          "name": "Separador da identificação",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "$border"
+        },
+        {
+          "type": "frame",
+          "id": "yaBjt",
+          "name": "Dados salvos do pedido",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "tZ0aC",
+              "name": "Data do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "S6MKZt",
+                  "name": "Data do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Registrado em",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "EHGv5",
+                  "name": "Data do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "30/09/2026 · 15:42",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "K8EYi",
+              "name": "Operador do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Zlek9",
+                  "name": "Operador do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Registrado por",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "X12Qie",
+                  "name": "Operador do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Carlo",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "QP3GH",
+              "name": "Canal do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "rRUrC",
+                  "name": "Canal do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Canal",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "bjEng",
+                  "name": "Canal do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Delivery · +12%",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "r4hN2j",
+              "name": "Status do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "HlIXs",
+                  "name": "Status do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Status",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "adbwm",
+                  "name": "Status do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Cancelado",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "l0mhF",
+          "name": "Itens e configurações salvos",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "children": [
+            {
+              "type": "text",
+              "id": "q8PRFi",
+              "name": "Título dos itens",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Itens do pedido",
+              "fontFamily": "$font-body",
+              "fontSize": 16,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "s6KKvG",
+              "name": "Separador Açaí tradicional",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "xe4VR",
+              "name": "Item Açaí tradicional",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 5,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fKzpW",
+                  "name": "Produto Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Açaí tradicional",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "Q27ayl",
+                  "name": "Configuração Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Médio · 500 ml",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "VWPud",
+                  "name": "Acompanhamentos Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Leite em pó e granola · gratuitos",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "frame",
+                  "id": "ruZ4C",
+                  "name": "Preço Açaí tradicional",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "q4AWl",
+                      "name": "Preço Açaí tradicional — Rótulo",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "1 × R$ 17,92",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Qh5Vr",
+                      "name": "Preço Açaí tradicional — Valor",
+                      "fill": "$text-primary",
+                      "content": "R$ 17,92",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "btMgj",
+              "name": "Separador Milk-shake de morango",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "el1hM",
+              "name": "Item Milk-shake de morango",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 5,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "AmGSy",
+                  "name": "Produto Milk-shake de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Milk-shake de morango",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "FxpWh",
+                  "name": "Configuração Milk-shake de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Copo de 500 ml",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "frame",
+                  "id": "j8afRI",
+                  "name": "Preço Milk-shake de morango",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Sy9Pt",
+                      "name": "Preço Milk-shake de morango — Rótulo",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "1 × R$ 17,92",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "OW8Ur",
+                      "name": "Preço Milk-shake de morango — Valor",
+                      "fill": "$text-primary",
+                      "content": "R$ 17,92",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "zmPOE",
+              "name": "Separador Picolé de morango",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "l2sh3s",
+              "name": "Item Picolé de morango",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 5,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "D6TvRM",
+                  "name": "Produto Picolé de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Picolé de morango",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "TvhQZ",
+                  "name": "Configuração Picolé de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Kibon · unidade",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "frame",
+                  "id": "kfkx8",
+                  "name": "Preço Picolé de morango",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "tZJB5",
+                      "name": "Preço Picolé de morango — Rótulo",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "1 × R$ 6,72",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ZO7wj",
+                      "name": "Preço Picolé de morango — Valor",
+                      "fill": "$text-primary",
+                      "content": "R$ 6,72",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "DpV2g",
+          "name": "Separador antes dos totais",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "$border"
+        },
+        {
+          "type": "frame",
+          "id": "BItZN",
+          "name": "Valores preservados",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "mKsoC",
+              "name": "Subtotal do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "jPc5X",
+                  "name": "Subtotal do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Subtotal com canal",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "UM78i",
+                  "name": "Subtotal do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "R$ 42,56",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "q1ddG",
+              "name": "Nome do Combo",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Combo Açaí + Milk-shake",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "E7Zjv",
+              "name": "Desconto do Combo",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "GGWEj",
+                  "name": "Desconto do Combo — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Desconto do Combo",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "tRJ4o",
+                  "name": "Desconto do Combo — Valor",
+                  "fill": "$text-primary",
+                  "content": "− R$ 3,84",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "ugsCq",
+              "name": "Separador do total",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "krl6E",
+              "name": "Total do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "R4E923",
+                  "name": "Total do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Total do pedido",
+                  "fontFamily": "$font-body",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "WGqIp",
+                  "name": "Total do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "R$ 38,72",
+                  "fontFamily": "$font-body",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "SXPMh",
+          "name": "Metadados do cancelamento",
+          "width": "fill_container",
+          "stroke": "$text-primary",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 6,
+          "padding": 12,
+          "children": [
+            {
+              "type": "text",
+              "id": "NV92x",
+              "name": "Título do cancelamento",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Pedido cancelado",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "zU1nQ",
+              "name": "Data do cancelamento",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "30/09/2026 · 16:08",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "SUM9O",
+              "name": "Responsável pelo cancelamento",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Responsável: Carlo",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "Rv9bQ",
+              "name": "Motivo do cancelamento",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Motivo: Pedido duplicado",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "tJjWX",
+          "name": "Rodapé não fiscal",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "padding": [
+            12,
+            0,
+            0,
+            0
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "cO2iD",
+              "name": "Separador do rodapé",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "text",
+              "id": "pgiM5",
+              "name": "Quantidade de produtos",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "3 produtos · 3 unidades",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "AFw49",
+              "name": "Aviso do rodapé",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Cópia não fiscal",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "aWCXQ",
+      "x": -1739,
+      "y": 14732,
+      "name": "Impressão do pedido — A4 — Cancelado",
+      "clip": true,
+      "width": 794,
+      "height": 1123,
+      "fill": "$bg-card",
+      "layout": "vertical",
+      "gap": 18,
+      "padding": 48,
+      "children": [
+        {
+          "type": "frame",
+          "id": "Pju80",
+          "name": "Identificação impressa",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "children": [
+            {
+              "type": "text",
+              "id": "mRcPf",
+              "name": "Número do pedido",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Pedido #00124",
+              "fontFamily": "$font-body",
+              "fontSize": 26,
+              "fontWeight": "800"
+            },
+            {
+              "type": "text",
+              "id": "d6FX4",
+              "name": "Aviso não fiscal",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Cópia não fiscal",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "mhleh",
+          "name": "Separador da identificação",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "$border"
+        },
+        {
+          "type": "frame",
+          "id": "e6bOI",
+          "name": "Dados salvos do pedido",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "m2vyNY",
+              "name": "Data do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "jJq3J",
+                  "name": "Data do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Registrado em",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "dSeHz",
+                  "name": "Data do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "30/09/2026 · 15:42",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "GmE7a",
+              "name": "Operador do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ucNvt",
+                  "name": "Operador do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Registrado por",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "j5jnp",
+                  "name": "Operador do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Carlo",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Z5o0I",
+              "name": "Canal do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "cn5hj",
+                  "name": "Canal do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Canal",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "lYapW",
+                  "name": "Canal do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Delivery · +12%",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "BVl5E",
+              "name": "Status do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "jBUrU",
+                  "name": "Status do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Status",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "w4gaN",
+                  "name": "Status do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "Cancelado",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "L5sJAU",
+          "name": "Itens e configurações salvos",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "children": [
+            {
+              "type": "text",
+              "id": "WJnIX",
+              "name": "Título dos itens",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Itens do pedido",
+              "fontFamily": "$font-body",
+              "fontSize": 16,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "GNqU3",
+              "name": "Cabeçalho da tabela",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "bxKhz",
+                  "name": "Cabeçalho Produto",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Produto / configuração",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "bimMg",
+                  "name": "Cabeçalho Qtd.",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 40,
+                  "content": "Qtd.",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "qLWvc",
+                  "name": "Cabeçalho Unitário",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "Unitário",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "B78pkO",
+                  "name": "Cabeçalho Subtotal",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "Subtotal",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "jSv9U",
+              "name": "Separador Açaí tradicional",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "YfAqt",
+              "name": "Item Açaí tradicional",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "N2SlMQ",
+                  "name": "Descrição Açaí tradicional",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "r3nDt",
+                      "name": "Produto Açaí tradicional",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Açaí tradicional",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Cspyg",
+                      "name": "Configuração Açaí tradicional",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Médio · 500 ml",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "KG946",
+                      "name": "Acompanhamentos Açaí tradicional",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Leite em pó e granola · gratuitos",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "pXTF9",
+                  "name": "Quantidade Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 40,
+                  "content": "1",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "GgGjx",
+                  "name": "Unitário Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 17,92",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "rxMqC",
+                  "name": "Subtotal Açaí tradicional",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 17,92",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "rDjBR",
+              "name": "Separador Milk-shake de morango",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "y8tEww",
+              "name": "Item Milk-shake de morango",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "JE1SZ",
+                  "name": "Descrição Milk-shake de morango",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bOA73",
+                      "name": "Produto Milk-shake de morango",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Milk-shake de morango",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "NoUCR",
+                      "name": "Configuração Milk-shake de morango",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Copo de 500 ml",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "Nx1T6",
+                  "name": "Quantidade Milk-shake de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 40,
+                  "content": "1",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "SWSAL",
+                  "name": "Unitário Milk-shake de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 17,92",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "DPhQy",
+                  "name": "Subtotal Milk-shake de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 17,92",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "wZ8NU",
+              "name": "Separador Picolé de morango",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "To6uL",
+              "name": "Item Picolé de morango",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "P86p0T",
+                  "name": "Descrição Picolé de morango",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "TS4dN",
+                      "name": "Produto Picolé de morango",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Picolé de morango",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "KULrU",
+                      "name": "Configuração Picolé de morango",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Kibon · unidade",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "roKGx",
+                  "name": "Quantidade Picolé de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 40,
+                  "content": "1",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "fbiKl",
+                  "name": "Unitário Picolé de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 6,72",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "QuGaw",
+                  "name": "Subtotal Picolé de morango",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": 90,
+                  "content": "R$ 6,72",
+                  "textAlign": "right",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "HUMtv",
+          "name": "Separador antes dos totais",
+          "width": "fill_container",
+          "height": 1,
+          "fill": "$border"
+        },
+        {
+          "type": "frame",
+          "id": "cHrJQ",
+          "name": "Valores preservados",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "N4ym3",
+              "name": "Subtotal do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "wiJfX",
+                  "name": "Subtotal do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Subtotal com canal",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "ZoQBM",
+                  "name": "Subtotal do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "R$ 42,56",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "FJ0j9",
+              "name": "Nome do Combo",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Combo Açaí + Milk-shake",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "L4hKC",
+              "name": "Desconto do Combo",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "z1aER",
+                  "name": "Desconto do Combo — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Desconto do Combo",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "cyiVY",
+                  "name": "Desconto do Combo — Valor",
+                  "fill": "$text-primary",
+                  "content": "− R$ 3,84",
+                  "fontFamily": "$font-body",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "u5AaCI",
+              "name": "Separador do total",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "frame",
+              "id": "H5wGDb",
+              "name": "Total do pedido",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "l0xK3",
+                  "name": "Total do pedido — Rótulo",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Total do pedido",
+                  "fontFamily": "$font-body",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "I7pD1P",
+                  "name": "Total do pedido — Valor",
+                  "fill": "$text-primary",
+                  "content": "R$ 38,72",
+                  "fontFamily": "$font-body",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "WMjRQ",
+          "name": "Metadados do cancelamento",
+          "width": "fill_container",
+          "stroke": "$text-primary",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 6,
+          "padding": 12,
+          "children": [
+            {
+              "type": "text",
+              "id": "qF7YM",
+              "name": "Título do cancelamento",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Pedido cancelado",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "C6LUzT",
+              "name": "Data do cancelamento",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "30/09/2026 · 16:08",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "Kxm64",
+              "name": "Responsável pelo cancelamento",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Responsável: Carlo",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "u0j5K",
+              "name": "Motivo do cancelamento",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Motivo: Pedido duplicado",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "AAcKj",
+          "name": "Rodapé não fiscal",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "padding": [
+            12,
+            0,
+            0,
+            0
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "FsnT3",
+              "name": "Separador do rodapé",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "$border"
+            },
+            {
+              "type": "text",
+              "id": "b0unjn",
+              "name": "Quantidade de produtos",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "3 produtos · 3 unidades",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "qCXMD",
+              "name": "Aviso do rodapé",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Cópia não fiscal",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            }
+          ]
+        }
+      ]
     }
   ],
   "variables": {

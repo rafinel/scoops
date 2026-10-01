@@ -259,7 +259,9 @@ test.describe('OrderPage', () => {
     await expect(desktopChannelModifier).toBeVisible()
     await expect(desktopChannelModifier).toContainText('Acrescimo do canal')
     await expect(mobileOrderTotals).toBeHidden()
-    await expect(page.getByText('Informações do pedido', { exact: true })).toBeVisible()
+    await expect(
+      page.getByRole('main').getByText('Informações do pedido', { exact: true }),
+    ).toBeVisible()
     await expect(informationTrigger).toHaveAttribute('aria-expanded', 'true')
     await expect(totalsTrigger).toHaveAttribute('aria-expanded', 'true')
     await expect(informationTrigger).toHaveAttribute('data-panel-open', '')
@@ -295,7 +297,7 @@ test.describe('OrderPage', () => {
       'href',
       '/orders',
     )
-    await expect(page.getByText('Maria Manager')).toBeVisible()
+    await expect(page.getByRole('main').getByText('Maria Manager')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Cancelar pedido' })).toBeVisible()
     await page.screenshot({
       path: 'test-results/pdv-orders-detail-registered-1481x1050.png',
@@ -434,7 +436,7 @@ test.describe('OrderPage', () => {
     ).toBeVisible()
     await expect(reason).toHaveValue('  Cliente solicitou o cancelamento  ')
     await dialog.getByRole('button', { name: 'Cancelar pedido' }).click()
-    await expect(page.getByText('Cancelado por')).toBeVisible()
+    await expect(page.getByRole('main').getByText('Cancelado por')).toBeVisible()
     const cancellationAlert = page
       .getByRole('alert')
       .filter({ hasText: 'Pedido cancelado' })
@@ -526,7 +528,7 @@ test.describe('OrderPage', () => {
     await pdvFixture.mockOrders({ detail: { body: orderResponse() } })
     await page.goto(`/orders/${ORDER_ID}`)
     await expect(page.getByRole('heading', { name: 'Pedido #00124' })).toBeVisible()
-    await expect(page.getByText('Açaí', { exact: true })).toBeVisible()
+    await expect(page.getByRole('main').getByText('Açaí', { exact: true })).toBeVisible()
     await expect(
       page.getByRole('button', { name: 'Delivery próprio', exact: true }),
     ).toBeVisible()
@@ -557,7 +559,7 @@ test.describe('OrderPage', () => {
         await route.continue()
       })
       await managerPage.goto(`/orders/${ORDER_ID}`)
-      await expect(managerPage.getByText('Cancelado', { exact: true })).toBeVisible()
+      await expect(managerPage.getByRole('main').getByText('Cancelado', { exact: true })).toBeVisible()
       await expect(managerPage.getByText('Restauração do estoque')).toHaveCount(0)
       await expect(managerPage.getByText('Restaurado: Açaí (1)')).toHaveCount(0)
       await expect(
@@ -593,7 +595,9 @@ test.describe('OrderPage', () => {
     await expect(
       page.getByRole('button', { name: 'Sem canal', exact: true }),
     ).toHaveCount(0)
-    await expect(page.getByText('Cancelado', { exact: true })).toBeVisible()
+    await expect(
+      page.getByRole('main').getByText('Cancelado', { exact: true }),
+    ).toBeVisible()
     await expect(informationPanel).toContainText('Cancelado em')
     await expect(informationPanel).toContainText('Cancelado por')
     await expect(informationPanel).toContainText('Motivo do cancelamento')
@@ -670,5 +674,96 @@ test.describe('OrderPage', () => {
     releaseDetailRequest()
     await navigation
     await page.unroute('**/orders**')
+  })
+})
+
+test.describe('Order printing', () => {
+  for (const actor of ['Manager', 'Operator'] as const) {
+    for (const status of ['registered', 'canceled'] as const) {
+      test(`prints the saved ${status} snapshot as ${actor} without requests or navigation`, async ({
+        page,
+        identityFixture,
+        pdvFixture,
+      }) => {
+        if (actor === 'Manager') {
+          await identityFixture.mockManagerSession()
+          await identityFixture.mockManagerAccount()
+        } else {
+          await identityFixture.mockOperatorSession()
+          await identityFixture.mockOperatorAccount()
+        }
+        const snapshot = orderResponse(status)
+        const requests = await pdvFixture.mockOrders({ detail: { body: snapshot } })
+        await page.setViewportSize({ width: 1481, height: 1050 })
+        await page.goto(`/orders/${ORDER_ID}`)
+        const action = page.getByRole('button', { name: 'Imprimir pedido' })
+        await expect(action).toBeEnabled()
+        const document = page.locator('body > .order-print-document')
+        await expect(document).not.toBeVisible()
+        await expect(document).toContainText('Pedido #00124')
+        await expect(document).toContainText('Maria Manager')
+        await expect(document).toContainText('Leite em pó')
+        await expect(document).not.toContainText('Fornecedor A')
+        await expect(document).not.toContainText(ORDER_ID)
+        if (status === 'canceled')
+          await expect(document).toContainText('Motivo: Cliente solicitou o cancelamento')
+        else await expect(document).not.toContainText('Pedido cancelado')
+        const before = requests.requests.length
+        const originalUrl = page.url()
+        await page.evaluate(() => {
+          window.print = () => window.dispatchEvent(new Event('afterprint'))
+        })
+        await action.focus()
+        await action.press('Enter')
+        await expect(action).toBeEnabled()
+        await expect(action).toBeFocused()
+        await action.press('Space')
+        await expect(page).toHaveURL(originalUrl)
+        expect(requests.requests).toHaveLength(before)
+        await page.setViewportSize({ width: 390, height: 844 })
+        await expect(action).toBeVisible()
+        const box = await action.boundingBox()
+        expect(box!.x + box!.width).toBeLessThanOrEqual(390)
+        await page.screenshot({
+          path: `test-results/order-print-${actor}-${status}-mobile.png`,
+        })
+        await page.goto('/orders')
+        await expect(page.locator('body > .order-print-document')).toHaveCount(0)
+      })
+    }
+  }
+
+  test('recovers from print API failure and never prints denied detail data', async ({
+    page,
+    identityFixture,
+    pdvFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    await pdvFixture.mockOrders({ detail: { body: orderResponse() } })
+    await page.goto(`/orders/${ORDER_ID}`)
+    const action = page.getByRole('button', { name: 'Imprimir pedido' })
+    await expect(action).toBeEnabled()
+    await page.evaluate(() => {
+      window.print = () => {
+        throw new Error('Unavailable')
+      }
+    })
+    await action.click()
+    await expect(
+      page.getByText('Não foi possível abrir a impressão. Tente novamente.'),
+    ).toBeVisible()
+    await expect(action).toBeEnabled()
+    await page.evaluate(() => {
+      window.print = () => window.dispatchEvent(new Event('afterprint'))
+    })
+    await action.click()
+    await expect(action).toBeEnabled()
+    await pdvFixture.mockOrders({
+      detail: { body: { message: 'Forbidden' }, status: 403 },
+    })
+    await page.reload()
+    await expect(page.getByRole('button', { name: 'Imprimir pedido' })).toHaveCount(0)
+    await expect(page.locator('body > .order-print-document')).toHaveCount(0)
   })
 })

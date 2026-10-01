@@ -1,0 +1,201 @@
+.order-print-document {
+  display: none;
+}
+
+@page order-copy {
+  margin: 0;
+}
+
+@media print {
+  html:has(body > .order-print-document),
+  body:has(> .order-print-document) {
+    min-width: 0;
+    min-height: 0;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    background: white;
+  }
+
+  body:has(> .order-print-document) > :not(.order-print-document) {
+    display: none !important;
+  }
+
+  .order-print-document {
+    --bg-card: white;
+    --text-primary: #111827;
+    --border: #e5e7eb;
+    page: order-copy;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 6.35mm 4.76mm;
+    color: var(--text-primary);
+    background: var(--bg-card);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    color-scheme: light;
+    overflow-wrap: anywhere;
+  }
+
+  .order-print-document > * + * {
+    margin-top: 18px;
+  }
+  .order-print-document h1 {
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .order-print-document h2 {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .order-print-heading {
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .order-print-heading p {
+    margin-top: 6px;
+  }
+  .order-print-metadata,
+  .order-print-totals {
+    display: grid;
+    gap: 8px;
+  }
+  .order-print-pair {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .order-print-pair dt {
+    min-width: 0;
+  }
+  .order-print-pair dd {
+    text-align: right;
+    font-weight: 600;
+  }
+  .order-print-items table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+  }
+  .order-print-items thead {
+    display: none;
+  }
+  .order-print-line {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+    break-inside: avoid;
+  }
+  .order-print-description {
+    grid-column: 1 / -1;
+    padding-bottom: 5px;
+    min-width: 0;
+  }
+  .order-print-description strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .order-print-description p {
+    margin-top: 5px;
+  }
+  .order-print-quantity::after {
+    content: " × ";
+    white-space: pre;
+  }
+  .order-print-quantity,
+  .order-print-unit-price,
+  .order-print-line-subtotal {
+    font-weight: 600;
+  }
+  .order-print-line-subtotal {
+    text-align: right;
+    padding-left: 10px;
+  }
+  .order-print-totals {
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .order-print-total {
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .order-print-total dd {
+    font-weight: 700;
+  }
+  .order-print-cancellation {
+    border: 1px solid var(--text-primary);
+    padding: 12px;
+    break-inside: avoid;
+  }
+  .order-print-cancellation h2 {
+    font-size: 12px;
+  }
+  .order-print-cancellation > * + * {
+    margin-top: 6px;
+  }
+  .order-print-footer {
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .order-print-footer > * + * {
+    margin-top: 6px;
+  }
+}
+
+@media print and (min-width: 120mm) {
+  .order-print-document {
+    padding: 12.7mm;
+  }
+  .order-print-document h1 {
+    font-size: 26px;
+  }
+  .order-print-items thead {
+    display: table-header-group;
+  }
+  .order-print-items th {
+    font-weight: 700;
+    text-align: right;
+    padding-bottom: 12px;
+  }
+  .order-print-items th:first-child {
+    text-align: left;
+  }
+  .order-print-line {
+    display: table-row;
+  }
+  .order-print-line td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    vertical-align: top;
+  }
+  .order-print-description {
+    width: auto;
+  }
+  .order-print-description p {
+    margin-top: 6px;
+  }
+  .order-print-quantity {
+    width: 52px;
+    text-align: right;
+    padding-left: 12px;
+  }
+  .order-print-quantity::after {
+    content: none;
+  }
+  .order-print-unit-price,
+  .order-print-line-subtotal {
+    width: 102px;
+    text-align: right;
+    padding-left: 12px;
+  }
+}
