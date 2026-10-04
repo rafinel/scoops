@@ -4,16 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { RouteTransitionStatus } from '../index'
 import { useRouteTransitionStatus } from '../use-route-transition-status'
 
-vi.mock('@lottiefiles/dotlottie-react', () => ({
-  DotLottieReact: ({ autoplay, ...props }: Record<string, unknown>) => (
-    <canvas
-      data-testid='route-transition-artwork'
-      data-autoplay={autoplay ? 'true' : 'false'}
-      {...props}
-    />
-  ),
-}))
-
 vi.mock('../use-route-transition-status', () => ({
   useRouteTransitionStatus: vi.fn(),
 }))
@@ -36,10 +26,10 @@ describe('RouteTransitionStatus', () => {
     render(<RouteTransitionStatus />)
 
     expect(screen.queryByRole('status')).toBeNull()
-    expect(screen.queryByTestId('route-transition-artwork')).toBeNull()
+    expect(document.querySelector('[data-route-transition-indicator]')).toBeNull()
   })
 
-  it('renders the looping artwork and accessible copy for motion-capable clients', () => {
+  it('renders an accessible top progress indicator during navigation', () => {
     useRouteTransitionStatusMock.mockReturnValue({
       isReducedMotion: false,
       isVisible: true,
@@ -47,18 +37,13 @@ describe('RouteTransitionStatus', () => {
 
     render(<RouteTransitionStatus />)
 
-    expect(
-      screen.getByRole('status', { name: 'Carregando página…' }).getAttribute('role'),
-    ).toBe('status')
-    const artwork = screen.getByTestId('route-transition-artwork')
-    expect(artwork.getAttribute('src')).toBe('/assets/lotties/ice-cream-loading.lottie')
-    expect(artwork.getAttribute('data-autoplay')).toBe('true')
-    expect(artwork.getAttribute('loop')).toBe('')
-    expect(screen.getByRole('status').className).toContain('pointer-events-none')
-    expect(screen.getByRole('status').querySelectorAll('button,a,input')).toHaveLength(0)
+    const status = screen.getByRole('status', { name: 'Carregando página…' })
+    expect(status.getAttribute('aria-busy')).toBe('true')
+    expect(status.querySelector('[data-route-transition-indicator]')).not.toBeNull()
+    expect(status.querySelectorAll('button,a,input')).toHaveLength(0)
   })
 
-  it('renders static feedback without artwork for reduced-motion clients', () => {
+  it('renders a static top progress indicator for reduced-motion clients', () => {
     useRouteTransitionStatusMock.mockReturnValue({
       isReducedMotion: true,
       isVisible: true,
@@ -70,6 +55,9 @@ describe('RouteTransitionStatus', () => {
       screen.getByRole('status', { name: 'Carregando página…' }).getAttribute('role'),
     ).toBe('status')
     expect(screen.getByText('Carregando página…').textContent).toBe('Carregando página…')
-    expect(screen.queryByTestId('route-transition-artwork')).toBeNull()
+    const indicator = document.querySelector<HTMLElement>(
+      '[data-route-transition-indicator]',
+    )
+    expect(indicator?.style.transform).toBe('scaleX(0.84)')
   })
 })

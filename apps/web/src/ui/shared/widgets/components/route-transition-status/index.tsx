@@ -1,10 +1,6 @@
-import { DotLottieReact } from '@lottiefiles/dotlottie-react'
-
 import { useRouteTransitionStatus } from './use-route-transition-status'
 
 const LOADING_LABEL = 'Carregando página…'
-const LOADING_ASSET = '/assets/lotties/ice-cream-loading.lottie'
-
 export const RouteTransitionStatus = () => {
   const { isReducedMotion, isVisible } = useRouteTransitionStatus()
 
@@ -15,26 +11,24 @@ export const RouteTransitionStatus = () => {
       aria-busy='true'
       aria-label={LOADING_LABEL}
       aria-live='polite'
-      className='pointer-events-none fixed inset-0 z-50 grid items-end justify-items-center pb-6 sm:place-items-center sm:pb-0'
+      className='pointer-events-none fixed inset-x-0 top-0 z-[100] h-[3px]'
       data-route-transition-status
       role='status'
     >
-      <div
-        className='flex flex-col items-center gap-3 rounded-2xl bg-card/95 px-6 py-5 text-sm font-extrabold text-foreground shadow-card'
-        data-route-transition-card
-      >
-        {isReducedMotion ? null : (
-          <DotLottieReact
-            aria-hidden='true'
-            autoplay
-            data-route-transition-artwork
-            loop
-            src={LOADING_ASSET}
-            style={{ height: 96, width: 96 }}
-          />
-        )}
-        <span>{LOADING_LABEL}</span>
-      </div>
+      <span className='sr-only'>{LOADING_LABEL}</span>
+      <span
+        aria-hidden='true'
+        className='block h-full origin-left bg-primary'
+        data-route-transition-indicator
+        style={
+          isReducedMotion
+            ? { transform: 'scaleX(0.84)' }
+            : {
+                animation:
+                  'route-transition-progress 640ms cubic-bezier(0.2, 0.8, 0.2, 1) both',
+              }
+        }
+      />
     </div>
   )
 }

@@ -242,6 +242,16 @@ button:disabled,
   }
 }
 
+@keyframes route-transition-progress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(0.84);
+  }
+}
+
 @keyframes auth-enter-badge {
   from {
     opacity: 0;
