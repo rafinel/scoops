@@ -124,6 +124,14 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                   ? product?.sizes.find((size) => size.sizeId === line.sizeId)?.name
                   : (product?.resaleBrands.find((brand) => brand.brandId === line.brandId)
                       ?.name ?? 'Unidade')
+              const selectedAccompaniments =
+                line.kind === 'portion'
+                  ? (product?.sizes
+                      .find((size) => size.sizeId === line.sizeId)
+                      ?.accompaniments.filter((accompaniment) =>
+                        line.accompanimentIds.includes(accompaniment.accompanimentId),
+                      ) ?? [])
+                  : []
               return (
                 <article
                   className='rounded-xl border border-border-soft bg-muted/45 p-3'
@@ -138,6 +146,12 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                         {configuration ??
                           (line.kind === 'portion' ? 'Porção' : 'Revenda')}
                       </p>
+                      {selectedAccompaniments.length > 0 ? (
+                        <p className='mt-1 text-xs leading-snug text-muted-foreground'>
+                          Acompanhamentos:{' '}
+                          {selectedAccompaniments.map((item) => item.name).join(', ')}
+                        </p>
+                      ) : null}
                     </div>
                     <Button
                       aria-label={`Editar ${product?.name ?? 'item'}`}

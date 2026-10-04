@@ -9,6 +9,7 @@ import type { OrderConfirmationProps } from '.'
 export type OrderConfirmationLineView = {
   name: string
   details: string
+  accompaniments?: readonly string[]
   subtotal: string
 }
 export type OrderConfirmationMetadataItem = readonly [label: string, value: string]
@@ -74,6 +75,9 @@ function getLineDisplay(
   return {
     name: line.product.name,
     details: `${line.size?.name ?? line.brand?.name ?? 'Unidade'} · ${formatters.quantity(line.quantity, 'un.')}`,
+    ...(line.accompaniments.length > 0
+      ? { accompaniments: line.accompaniments.map((accompaniment) => accompaniment.name) }
+      : {}),
     subtotal: formatters.currency(line.subtotal),
   }
 }

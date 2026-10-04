@@ -12,6 +12,11 @@ export const OrderConfirmationLines = ({ lines }: OrderConfirmationLinesProps) =
         <div className='min-w-0'>
           <p className='truncate font-bold'>{line.name}</p>
           <p className='truncate text-xs text-muted-foreground'>{line.details}</p>
+          {line.accompaniments?.length ? (
+            <p className='mt-1 text-xs leading-snug text-muted-foreground'>
+              Acompanhamentos: {line.accompaniments.join(', ')}
+            </p>
+          ) : null}
         </div>
         <strong className='shrink-0'>{line.subtotal}</strong>
       </div>

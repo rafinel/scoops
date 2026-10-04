@@ -62,7 +62,7 @@ export const OrderItems = ({ order }: OrderItemsProps) => {
                 </span>
                 <div className='min-w-0'>
                   <h3 className='font-extrabold'>{line.product.name}</h3>
-                  <p className='mt-1 truncate text-xs text-muted-foreground'>
+                  <p className='mt-1 break-words text-xs text-muted-foreground'>
                     {configuration || 'Configuração padrão'}
                   </p>
                   {order.cancellation ? (
