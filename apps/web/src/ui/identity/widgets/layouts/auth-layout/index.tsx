@@ -51,6 +51,15 @@ export const AuthLayout = ({
         <div className='flex flex-1 items-center justify-center'>
           <div className='auth-form-entrance w-full max-w-[420px]'>{children}</div>
         </div>
+        <div className='flex flex-wrap items-center justify-center gap-1.5 text-center text-[13px] font-medium text-muted-foreground sm:hidden'>
+          <span>{headerAction?.prompt ?? 'Ainda não tem uma sorveteria?'}</span>
+          <Anchor
+            route={headerAction?.route ?? 'onboarding'}
+            className='font-extrabold text-primary hover:underline'
+          >
+            {headerAction?.label ?? 'Criar conta'}
+          </Anchor>
+        </div>
       </section>
 
       <AuthVisualLayout variant={visual} />
