@@ -1,7 +1,7 @@
 ---
 title: Identity user management — implementation evidence
 spec: ./spec.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 spec_revision: 2
 status: completed
 github_issue: https://github.com/rafinel/scoops/issues/5

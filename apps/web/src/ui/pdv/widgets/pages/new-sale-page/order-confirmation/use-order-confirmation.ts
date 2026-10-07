@@ -74,10 +74,25 @@ function getLineDisplay(
 ): OrderConfirmationLineView {
   return {
     name: line.product.name,
-    details: `${line.size?.name ?? line.brand?.name ?? 'Unidade'} · ${formatters.quantity(line.quantity, 'un.')}`,
-    ...(line.accompaniments.length > 0
-      ? { accompaniments: line.accompaniments.map((accompaniment) => accompaniment.name) }
-      : {}),
+    details: getLineDetails(line, formatters.quantity),
+    ...getLineAccompaniments(line),
     subtotal: formatters.currency(line.subtotal),
+  }
+}
+
+function getLineDetails(
+  line: OrderDetails['lines'][number],
+  formatQuantity: ConfirmationFormatters['quantity'],
+): string {
+  const unitName = line.size?.name ?? line.brand?.name ?? 'Unidade'
+  return `${unitName} · ${formatQuantity(line.quantity, 'un.')}`
+}
+
+function getLineAccompaniments(
+  line: OrderDetails['lines'][number],
+): Partial<Pick<OrderConfirmationLineView, 'accompaniments'>> {
+  if (line.accompaniments.length === 0) return {}
+  return {
+    accompaniments: line.accompaniments.map((accompaniment) => accompaniment.name),
   }
 }

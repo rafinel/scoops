@@ -6,7 +6,7 @@ description: Developer tooling used in the Scoops monorepo for installation, loc
 
 This document describes how to install, run, validate, and test the Scoops
 monorepo. For application architecture and runtime technology choices, see
-[`architecture.md`](architecture.md).
+[`architecture.md`](./architecture.md).
 
 ## Requirements
 
@@ -153,7 +153,7 @@ Biome is configured centrally in `biome.json`.
   excluded from formatting or linting as appropriate.
 - Import organization is disabled so repository import grouping remains
   intentional and follows
-  [`rules/code-conventions-rules.md`](rules/code-conventions-rules.md).
+  [`rules/code-conventions-rules.md`](./rules/code-conventions-rules.md).
 
 Format the repository:
 
@@ -220,7 +220,7 @@ lockfile, or checker also trigger the relevant jobs.
 Each workspace exposes a `check:architecture` command backed by Dependency Cruiser. Its
 shared `.dependency-cruiser.mjs` policy parses TypeScript dependencies and enforces the
 dependency direction documented in
-[`architecture.md`](architecture.md): Core remains framework-independent, Validation
+[`architecture.md`](./architecture.md): Core remains framework-independent, Validation
 depends only on Zod and Core structures, Web cannot import authoritative server or
 use-case implementation, and Server shared/module boundaries remain explicit.
 
@@ -424,6 +424,16 @@ served directly by TanStack Start and Vite.
 Browser-visible configuration is validated in
 `apps/web/src/constants/browser-env.ts`.
 
+PostHog collection uses the build-time variables in `apps/web/.env.example`:
+`VITE_POSTHOG_ENABLED`, `VITE_POSTHOG_PROJECT_TOKEN`, and
+`VITE_POSTHOG_API_HOST`. Local development and tests force collection off. Deployed
+builds default to off; when enabled, the project token and exact HTTPS API origin
+are required and validated before bundling. Use separate PostHog projects for
+staging and production. The project token is browser-visible and must not be an
+admin or personal API key. Configure the project's **Discard IP data** privacy
+setting before enabling collection. The staging image receives these values as
+build arguments; do not put project values in source code or `.env.example`.
+
 ## Backend tooling
 
 The server uses NestJS and its CLI:
@@ -471,7 +481,7 @@ Docker Compose Inngest service. Production removes `INNGEST_DEV` and supplies
 `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY` through the deployment environment.
 
 Messaging implementation rules are documented in
-[`rules/messaging-layer-rules.md`](rules/messaging-layer-rules.md).
+[`rules/messaging-layer-rules.md`](./rules/messaging-layer-rules.md).
 
 ## Local infrastructure with Docker Compose
 
@@ -534,8 +544,9 @@ configuration.
 
 ### Spec path implementation check
 
-Check every affected path in a feature Spec against the current filesystem and its Git state
-relative to `main`:
+For legacy Specs or explicit required artifacts classified as `Create`, `Modify`,
+`Generate` or `Remove`, check their declared paths against the filesystem and Git
+state relative to `main`:
 
 ```bash
 pnpm check:spec-implementation -- documentation/features/<domain>/<feature>/spec.md
@@ -546,14 +557,16 @@ The command does not fetch. It requires every `Create`, `Modify`, `Generate` and
 have the corresponding final filesystem and Git-diff state, rejects duplicate or non-exact paths,
 and ignores unrelated changed files. This is structural conformance only; semantic behavior and
 test correctness remain owned by the Spec's validation commands and Evaluation evidence.
-Run it after all affected paths and Orchestrator-owned artifacts are integrated, rerun it after
-every correction affecting a contracted path, and record each run in the colocated Evaluation
-before implementation review or readiness.
+Run it on the integrated candidate when those declarations exist; rerun only when
+a change invalidates its structural claims. Record results in Evaluation. New lean
+Specs do not require exhaustive internal path inventories or this checker when
+no classified paths exist; use their contracted checkers and inspect the scoped
+diff and required artifacts instead.
 
 ## Commit conventions
 
 Commit message conventions are documented in
-[`rules/commit-rules.md`](rules/commit-rules.md). The repository does not
+[`rules/commit-rules.md`](./rules/commit-rules.md). The repository does not
 currently configure Husky or commitlint hooks, so these conventions are not
 automatically enforced by local Git hooks.
 
@@ -583,7 +596,7 @@ The validation workflows run on matching pushes and pull requests. Separate
 [`web-app-staging-cd.yml`](../.github/workflows/web-app-staging-cd.yml) workflows
 deploy matching pushes to `main` to Heroku staging. The repository does not
 currently define a production deployment workflow. See
-[`infrastructure.md`](infrastructure.md) for environment topology. New GitHub
+[`infrastructure.md`](./infrastructure.md) for environment topology. New GitHub
 automation must use Scoops-specific workflow names, secrets and environment
 variables.
 
@@ -617,3 +630,14 @@ pnpm --filter web build
 
 Run only the workspaces affected by the change, adding Docker-backed integration
 checks when persistence or external service behavior changes.
+
+### SDD verification and evidence reuse
+
+During implementation, use focused unit/component and static checks. Run applicable
+broad integration suites after the candidate is integrated; fix failures and rerun
+failed and affected checks until passing. Review and conclusion reuse valid local
+evidence. Later changes reopen checks whose claims or dependencies they affect;
+role transitions, status updates and documentation-only handoffs do not require
+another behavioral run. Required coverage floors and actual PR-head CI remain
+mandatory. Record commands, test counts, fixtures and evidence limits in Evaluation;
+mocked browser routes cannot establish real authenticated, persisted behavior.

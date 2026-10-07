@@ -1,7 +1,7 @@
 ---
 feature: "mrp/product-details-page-accompaniments-tab"
 spec: ./spec.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 spec_revision: 7
 status: completed
 updated_at: 2026-08-23

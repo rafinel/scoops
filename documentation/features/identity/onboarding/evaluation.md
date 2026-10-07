@@ -1,7 +1,7 @@
 ---
 title: Ice cream shop onboarding — implementation evidence
 spec: ./spec.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 spec_revision: 11
 status: completed
 github_issue: https://github.com/rafinel/scoops/issues/3

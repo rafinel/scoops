@@ -5,7 +5,7 @@ spec_revision: 3
 github_issue: https://github.com/rafinel/scoops/issues/23
 pull_request: https://github.com/rafinel/scoops/pull/27
 evaluation: ./evaluation.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 completed_at: 2026-08-28
 updated_at: 2026-08-28
 ---
@@ -30,4 +30,4 @@ outside this delivery.
 
 See [evaluation.md](./evaluation.md) for the complete acceptance matrix, RF/CA/REQ traceability,
 runtime/manual/visual evidence, findings and documentation dispositions, and CI quality gate.
-The execution ledger is retained in [plan.md](./plan.md).
+The execution ledger is retained in [plan.md](history/legacy-execution.md).

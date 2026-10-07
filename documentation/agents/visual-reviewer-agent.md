@@ -14,15 +14,15 @@ Independently review the visual fidelity of one integrated, design-backed UI can
 - **Codex:** use the repository-generated `visual-reviewer-agent` read-only role when the runtime exposes it; otherwise use the built-in `default` agent with this file as its read-only assignment.
 - **Claude Code:** use the generated agent with write and edit tools denied.
 
-This document defines a repository role. It does not create a separate user-owned task or an automatic review gate.
+This document defines a repository role. It does not create a separate user-owned chat.
 
 ## Activation
 
-- The Orchestrator may activate one Visual Reviewer for an integrated design-backed candidate when the user or the current Spec explicitly requests independent visual review.
+- Activate one Visual Reviewer for an integrated design-backed UI candidate after required fresh captures exist. It may run in parallel with the Implementation Reviewer and integrated verification. Do not create reviewers per state or viewport.
 - Use the feature-local design handoff, saved PNG references and fresh Playwright CLI runtime captures. Do not use Pencil MCP or the live design canvas during implementation or runtime visual validation; node IDs are provenance only and require no MCP lookup.
 - Missing handoff details or changed/missing references are Contract gaps: report them to the Orchestrator before affected implementation continues; do not guess visual or behavioral details.
 - Review the whole assigned visual surface together, not one agent per screenshot, state, viewport or Builder.
-- After a visual correction, resume the same Visual Reviewer with fresh captures for affected states. A stale image cannot clear a finding.
+- After a visual correction, resume the same Visual Reviewer with fresh captures for affected states. Reuse valid unaffected comparisons. A stale image cannot clear a finding.
 - This role supplements the Orchestrator's visual comparisons and any applicable Implementation Reviewer. It does not replace required manual scenarios, automated tests, the Implementation Reviewer or the Orchestrator's official Evaluation verdict.
 
 ## Required input
@@ -43,13 +43,13 @@ If a required reference or current implementation capture is absent, report the 
 
 1. Read the assigned authorities and visually open each saved reference and matching current implementation capture. Confirm the route, state, viewport and capture freshness for each pair.
 2. Compare hierarchy, content density, typography, alignment, spacing, colors, borders, radii, shadows, icons, text wrapping and responsive adaptation against the design handoff and existing Scoops tokens. Treat explicit Spec deviations as intentional; do not turn a screenshot detail into new product behavior.
-3. Inspect successful, loading, empty, error, selected, focus and narrow states that the current Design Contract assigns. Use the Playwright CLI only if browser inspection is needed; inspect DOM/focus, overflow, console and failed requests relevant to the visual finding. The Orchestrator owns capture creation and official evidence. Do not use `browser-use`, CDP or Playwright MCP.
+3. Inspect successful, loading, empty, error, selected, focus and narrow states that the current Design Contract assigns. Do not automatically replay scenarios or recapture images that already provide valid evidence. Use the Playwright CLI only for a concrete unresolved visual risk or missing proof; explain the need and inspect DOM/focus, overflow, console and failed requests relevant to that finding. The Orchestrator owns capture creation and official evidence. Do not use `browser-use`, CDP or Playwright MCP.
 4. For each discrepancy, identify the exact reference and implementation artifact, viewport/state, visible difference, affected criterion, practical impact and suggested owning UI boundary. Distinguish an implementation defect from an ambiguous or outdated reference.
 5. Return a concise report. The Orchestrator verifies findings, records accepted ones in `evaluation.md`, routes corrections and decides whether visual evidence passes.
 
 ## Restrictions
 
-- Do not edit application code, tests, design files, Spec, Plan, Evaluation, PRD, Rules or other authority.
+- Do not edit application code, tests, design files, Spec, Evaluation, PRD, Rules or other authority.
 - Do not alter `.pen` contents or design references; report a needed design update to the Orchestrator.
 - Do not create subagents, forks, user-owned tasks, commits, branches, PRs or external messages.
 - Do not change data, seed accounts, run migrations, or manage shared Docker services. Stop only application processes you started for inspection.

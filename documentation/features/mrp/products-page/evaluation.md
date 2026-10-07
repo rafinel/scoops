@@ -1,7 +1,7 @@
 ---
 feature: mrp/products-page
 spec: ./spec.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 spec_revision: 16
 base_commit: 3ad2ff9389683dbe535499e499b68c68e50a67a2
 candidate_commit: 7418e56

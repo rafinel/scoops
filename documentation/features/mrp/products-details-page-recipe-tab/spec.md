@@ -6,7 +6,7 @@ source:
   type: issue
   ref: https://github.com/rafinel/scoops/issues/13
 evaluation: ./evaluation.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 last_updated_at: 2026-08-22
 ---
 

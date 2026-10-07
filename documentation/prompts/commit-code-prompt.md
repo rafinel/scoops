@@ -63,7 +63,7 @@ Identify:
   group changes; verify they are intentionally scoped, route-complete and free of credentials
 - files that may contain secrets or machine-specific data
 
-For a Spec delivery, treat the delivery-owned `spec.md`, `plan.md` and `evaluation.md` as
+For a Spec delivery, treat the delivery-owned `spec.md` and `evaluation.md` as
 scoped review artifacts. Include their status, evidence and closure changes when the active
 workflow directs their publication; do not omit them merely because they are documentation-only.
 Keep unrelated user-owned design, PRD or other documentation changes out unless the user
@@ -128,7 +128,10 @@ misleading intermediate state.
 
 ### 4. Validate the Changes
 
-Run the narrowest sufficient checks for the affected workspaces before committing.
+Reuse current passing evidence from the integrated candidate when its implementation,
+contract, dependency and environment assumptions remain valid. Run only missing or invalidated
+checks for the affected workspaces before committing; a commit operation alone does not
+invalidate evidence.
 Use the scripts documented by the project, for example:
 
 ```bash

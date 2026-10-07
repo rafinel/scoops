@@ -5,12 +5,12 @@ description: Publish or update a Scoops delivery pull request with GitHub Issue 
 
 # Create or Update a Pull Request
 
-Publish one coherent Scoops delivery through GitHub. Use `gh`, preserve the user's worktree
+Publish one coherent Scoops delivery through GitHub. Use authenticated `gh`, preserve the user's worktree
 and update an existing delivery PR instead of creating a duplicate.
 
 ## Inputs and authority
 
-Read the implemented Spec or Bug Report, Plan when present, `evaluation.md`, actual diff,
+Read the implemented Spec or Bug Report, `evaluation.md`, actual diff,
 `documentation/sdd.md`, `documentation/tooling.md`, applicable Rules and
 `documentation/rules/commit-rules.md`. For a feature delivery, confirm that the Evaluation
 uses the Canonical Evaluation shape defined in `documentation/prompts/implement-spec-prompt.md`
@@ -60,7 +60,7 @@ that must not enter the PR. Keep unrelated changes in place and out of commits. 
 relationship between a file and the delivery is ambiguous, stop and report it instead of
 including the file speculatively.
 
-For a Spec delivery, the Spec, Plan when present, and Evaluation are review artifacts and belong
+For a Spec delivery, the Spec and Evaluation are review artifacts and belong
 in the PR. Include delivery-owned status, execution and evidence changes, including the final
 closure update created by `conclude-spec`. Do not exclude them as operational or closure-only
 documentation. Preserve and exclude unrelated user-owned changes.
@@ -104,14 +104,20 @@ separate PRs require real semantic boundaries and explicit dependency ordering.
 ## Validation evidence
 
 Use the current Spec/evaluation evidence and run only additional repository-approved checks
-needed to validate publication state. Never replace exact workspace commands from
+needed to validate publication state. Integration-base merges invalidate only evidence whose
+implementation, contract, dependency or environment assumptions changed; verify that impact
+before reusing results or publishing. Never replace exact workspace commands from
 `documentation/tooling.md` with assumed generic commands.
 
-Before publication, verify the current candidate passes the `implement-spec` conformance gate:
-the exact Spec revision is frozen, every changed path is within the recorded Builder scope, the
-required file/widget tree and contracts match, and no affected evidence is stale. If any check
-fails, stop publication and route the correction through `implement-spec`; do not repair the
-implementation directly in the PR workflow.
+Before publication, verify that current evidence covers the Spec revision, observable behavior,
+boundaries and acceptance criteria of the integrated diff. Reuse passing evidence when its
+implementation, dependencies and environment assumptions remain valid; run only missing or
+invalidated checks. The Spec need not inventory ordinary internal declarations or every changed
+file. When it explicitly classifies artifact paths as `Create`, `Modify`, `Generate` or `Remove`,
+require current structural-check evidence for those paths; otherwise record that checker as not
+applicable. If validation fails, record the finding, invoke `implement-spec` for correction and
+integrated verification, then resume publication automatically after Evaluation returns `ready`.
+Do not repair implementation directly in the PR workflow.
 When HTTP routes are affected, include the matching `.rest` files in that scope review and
 confirm their route/example parity is recorded in Evaluation. Do not omit a REST-client file
 from the delivery diff merely because it is manually executed or not compiled by the workspace.
@@ -120,7 +126,7 @@ Use `design/handoff.md` for new design bundles. If an existing feature bundle la
 it, read its legacy `design/manifest.md` instead; preserve that legacy artifact and
 do not create both files.
 
-For design-backed UI, use the saved Spec design bundle—not live Pencil—and include an independent
+For design-backed UI, use the saved Spec design bundle—not live Pencil—and reuse the recorded independent
 comparison for every supplied screenshot and every required supplemental screenshot:
 
 - route/state and exact saved reference path or source node ID from `design/handoff.md`;
@@ -153,8 +159,8 @@ When the delivery changes persistence or generated output:
 
 - compare migration files, snapshots and journals with `origin/main`;
 - resolve migration-number collisions explicitly and preserve prior journal entries;
-- run the repository-documented generation or verification command once, using its exact
-  argument syntax;
+- reuse valid generation/verification evidence; run the repository-documented command
+  only when that evidence is missing or invalidated, using its exact argument syntax;
 - review the generated SQL and metadata against the Spec before publication;
 - verify seeds, generated routes, lockfiles and other derived files are current and included
   only when required by the delivery.
@@ -176,9 +182,10 @@ Include these sections in this order:
   issue, use the GitHub closing keyword `Closes #<number>`; do not use `Refs #<number>` or
   another non-closing relationship when an issue is listed.
 - **PRD and Spec traceability** — applicable PRD, fully/partially delivered `PRQ-*`
-  requirements and their current Implemented-checkbox disposition, Spec, Plan, exact revision
-  and covered `FR-*`/`AC-*` criteria. Link to the Spec, Plan and Evaluation and report the
-  completed state established by `conclude-spec`; this workflow does not change PRD checkboxes;
+  requirements and their current Implemented-checkbox disposition, Spec revision
+  and covered `FR-*`/`AC-*` criteria. Link to the Spec and Evaluation and report their actual
+  current state; only `conclude-spec` changes PRD Implemented checkboxes after local preflight.
+  Publication before its final CI and closure gate does not establish completion;
 - **Implementation** — coherent frontend, backend, domain, persistence and test slices with
   the most relevant changed paths. Describe each affected layer concretely: name the
   contracts/use cases, schemas, migrations/models, routes/controllers, UI routes/widgets,

@@ -307,7 +307,7 @@ intra-PRD edges from `Consumes`/`Provides`; show external business modules as na
 their capability is material.
 
 The graph describes product dependencies, not file dependencies, implementation priority,
-foundation work, execution waves or parallel delivery. Those belong in the Spec and Plan. Omit
+foundation work, execution waves or parallel delivery. Consequential technical constraints belong in the Spec; execution order and delegation belong to the implementing agent. Omit
 the graph when it would contain no meaningful relationship.
 
 ### 7. User Journeys

@@ -1,700 +1,195 @@
 ---
 name: implement-spec
-description: Orchestrate an open or resumed Spec through direct or Plan-backed implementation, living evaluation evidence, corrections and integrated validation.
+description: Implement an open or resumed Spec autonomously, integrate the candidate, verify its contracts, and correct findings until the evidence is ready.
 ---
 
 # Implement a Spec
 
-Use this as the single implementation entry point for every feature Spec. Select the execution
-strategy from the current artifacts; do not require the user to choose another implementation
-prompt:
+Use this single implementation entry point in the current chat:
 
 ```text
-implement-spec
-├── no current Plan → Builder Direct in the current context ───────────┐
-└── current Plan    → stable ownership Builders by dependency wave ───┤
-                                                                       ↓
-                                                            integrated candidate
-                                                                       ↓
-                                     pnpm check:spec-implementation -- <spec>
-                                                                       ↓
-                           integrated sensors + applicable Implementation Reviewer
-                                     + explicitly requested Visual Reviewer
-                                                                       ↓
-                                                                conclude-spec
+Spec → autonomous implementation → integrated verification
+                                      ↓
+                             corrections until passing
+                                      ↓
+                                 conclude-spec
 ```
 
-Run the workflow in the current task. Do not create another user-owned thread.
-
-## Strategy selection
-
-Read `documentation/sdd.md` and its mandatory authorities—the Spec, Modules,
-Architecture, `documentation/rules.md`, every selected Rule and
-`documentation/tooling.md`—then inspect colocated `plan.md` when present.
-
-| Condition | Strategy |
-| --- | --- |
-| Current, non-superseded Plan references the exact Spec revision | Plan-backed execution |
-| No current Plan and the Spec recommends a small cohesive delivery | Direct execution |
-| No current Plan but dependencies, risk or recovery state require one | Invoke `create-plan`, then continue here with Plan-backed execution |
-| Plan is stale after a Spec amendment | Reconcile or recreate it before dependent work |
-| Revised Spec no longer requires its Plan | Set the Plan to `superseded`, then use direct execution |
-
-A completed Plan remains current when conclusion or PR feedback reopens an in-Contract
-correction; reopen only its affected phases/tasks. Never route from this workflow to
-another implementation prompt.
-
-## Spec Reviewer boundary
-
-The [`Spec Reviewer`](../agents/spec-reviewer-agent.md) belongs exclusively to the
-`create-spec` workflow and runs only before an optional `create-plan` step. It assesses only
-whether the current Spec is compatible with the repository’s Architecture, Modules ownership
-and applicable Rule Pack. It does not assess product completeness, design fidelity, validation
-evidence, implementation code, Plan execution or Builder work; it does not edit files, resolve
-ambiguity, create subagents or decide Spec status.
-
-`implement-spec` must never activate, resume or require a Spec Reviewer after planning or during
-implementation. Post-plan quality is established by the contracted path sensor, deterministic
-workspace/runtime/manual evidence and, for Plan-backed delivery, the single read-only
-`Implementation Reviewer` described below. A material Spec amendment returns to `create-spec`
-for the same pre-plan compatibility review before implementation resumes.
-
-If implementation or validation discovers a test path that conflicts with the Spec, selected
-Rules or test-integrity policy, stop the implementation before editing that test or weakening the
-checker. Record the conflict as a blocker, return the Spec to `create-spec` for a material
-amendment, remove or replace the invalid test contract, and rerun the single Spec Reviewer over
-the complete selected Rule Pack before resuming implementation.
-
-The PRD Product Dependency Graph is product authority, not an execution plan. Do not derive
-Builder order, technical prerequisites, Plan phases, waves or parallelism from it. Derive those
-only from the current Spec's Technical Contract, affected paths, runtime dependencies and
-ownership boundaries.
-
-## Fail-closed implementation invariants
-
-These are execution requirements, not recommendations. If any invariant cannot be verified,
-stop before editing feature source and report the exact blocker:
-
-- `implement-spec` is the only implementation entry point. Do not revive, delegate to or
-  simulate a removed implementation workflow.
-- No feature source, test, generated artifact or migration edit starts until a scoped execution
-  assignment is activated and the preflight checklist below is recorded in an Evaluation
-  materialized using the Canonical Evaluation shape below.
-- The Orchestrator may assume the recorded `Builder Direct` role in the current context for a
-  small cohesive delivery. Plan-backed work requires scoped ownership Builders; the Orchestrator
-  may inspect, coordinate and integrate, but may not replace them with unscoped direct edits. A
-  Builder report is not evidence; the Orchestrator must inspect the resulting diff and execute
-  the validation exits.
-- After all Builder diffs and Orchestrator-owned integration artifacts form one complete
-  candidate, run `pnpm check:spec-implementation -- <exact-spec-path>` before any integrated
-  sensor or applicable Implementation Reviewer starts. Run it again after every correction that
-  changes, creates, generates or removes a Spec-contracted path. A passing result proves only
-  affected-path and Git-state conformance; it does not replace semantic validation, Evaluation
-  evidence or review.
-- The Spec's exact revision, required file/widget tree, contracts, exclusions and validation
-  exits are authoritative. Existing code structure, a screenshot, a passing test or a user
-  message cannot silently override them.
-- Any affected `apps/server/rest-client/**/*.rest` file is part of the implementation scope,
-  not an optional documentation afterthought. A route-group change cannot be handed off until
-  its matching example file is present, assigned, route-complete and synchronized with the
-  current request contract.
-- Preserve the applicable PRD's Implemented checkboxes during normal delivery.
-  `implement-spec` never changes an unchecked requirement to checked; it changes a checkbox only
-  to reset a materially amended requirement to unchecked through the approved Contract-change
-  workflow. Evaluation `ready` means the implementation evidence can enter conclusion; it is not
-  PRD closure and does not authorize checking a PRD requirement.
-- An implementation, test, browser, network, console, build, migration or visual error within
-  the current Contract is an automatic correction: record it, invalidate affected evidence,
-  continue the responsible Builder or activate a scoped Builder Fix only when it cannot be
-  resumed or the correction is genuinely independent, fix it immediately, and rerun the
-  affected checks. Never pause for permission to resolve an in-Contract discrepancy.
-- Required manual, runtime, staging or server-backed evidence is fail-closed. If any required
-  `MV-*` scenario is unavailable, inaccessible, non-repeatable, times out, or fails, treat it as
-  a blocking validation finding—not as optional partial evidence. Record the exact blocker,
-  invalidate affected evidence, stop feature implementation at the affected Plan phase, mark
-  that phase blocked, and do not route to `conclude-spec` or continue unrelated implementation
-  work. Resume only after the environment, access or implementation state changes and every
-  invalidated scenario is rerun successfully. Browser/unit mocks never substitute for required
-  real-service, persistence, authorization or manual evidence.
-- A UI change is not validated by a passing test alone. It requires the required behavioral
-  assertions plus a fresh Playwright CLI screenshot at each affected reference/state and an
-  inspected comparison recorded in Evaluation.
-- Never claim readiness from evidence captured before the latest affected change. Mark it
-  `stale` and recapture it.
-- Evaluation is a living ledger, not a final report: after every implementation, test, browser,
-  generated-artifact, migration, documentation or validation change, update the colocated
-  `evaluation.md` in the same task with the exact command/scenario, result, evidence IDs,
-  freshness and applicable lesson/disposition. Invalidate affected prior evidence immediately. Do not report
-  completion, readiness or a passing validation result while the current change is absent from
-  Evaluation.
-
-## Builder activation gate
-
-For feature implementation changes, the Orchestrator must activate a scoped execution assignment
-before any feature source is edited. The assignment must receive the exact Spec revision,
-Spec `AC-*` acceptance criteria, mapped PRD `PRQ-*` requirements or source statements, required
-file/widget tree, allowed paths, Rule Pack, design references and validation exits; its
-activation and scope must be recorded in Evaluation and the current execution artifacts. PRDs do
-not define a separate Acceptance Criteria section.
-
-Use `Builder Direct` in the current agent context for a small cohesive delivery that fits
-comfortably with correction and validation headroom. With a current Plan, activate stable
-ownership Builders derived from the affected applications, packages and module boundaries. The
-current Scoops affinities are `Builder Core` for `packages/core/**`, `Builder Validation` for
-`packages/validation/**`, `Builder Server` for `apps/server/**` and `Builder Web` for
-`apps/web/**`. Activate only affected Builders; group small or tightly coupled package work into
-one cohesive ownership assignment, and add future package-specific Builders only when their work
-is substantial, path-independent and worth the context-loading cost.
-
-The Orchestrator coordinates, inspects, integrates and validates Plan-backed work but must not
-silently replace an activated ownership Builder with direct feature implementation. If the
-required assignment cannot be activated, stop before editing feature code and report the
-orchestration blocker. Prompt, Spec, Plan or evaluation-only documentation maintenance may be
-handled directly when explicitly requested.
-
-### Subagent display names
-
-Pass an explicit stable `task_name` whenever activating a subagent so the Subagents panel shows
-its role and ownership boundary. Use lowercase snake case; Codex renders underscores as spaces
-and title-cases the display label:
-
-| Assignment | `task_name` | Display label |
-| --- | --- | --- |
-| Builder Core | `builder_core` | `Builder core` |
-| Builder Validation | `builder_validation` | `Builder validation` |
-| Builder Server | `builder_server` | `Builder server` |
-| Builder Web | `builder_web` | `Builder web` |
-| Implementation Reviewer | `implementation-reviewer` | `Implementation Reviewer` |
-| Visual Reviewer, when requested | `visual-reviewer` | `Visual Reviewer` |
-
-For a future ownership boundary, use `builder_<normalized-boundary>`. When a genuinely independent
-replacement fix Builder is required, use `builder_fix_<normalized-boundary>`. Resume an existing
-Builder or Reviewer by its original identifier so its name and context remain stable. Do not use
-phase numbers, task numbers, generated IDs or vague names such as `worker`, `agent` or `reviewer`
-alone. `Builder Direct` runs in the current context and therefore has no subagent `task_name`.
-
-## Preflight and evaluation kickoff
-
-Confirm the Spec is `open` for initial implementation or `in_progress` for a resumed
-implementation/correction, its revision is current, required design references exist and no
-material ambiguity remains. Preserve actual source and GitHub Issue traceability without
-inventing external records.
-
-When a module PRD is authoritative, confirm each mapped `PRQ-*` uses the canonical contract:
-Implemented checkbox, Outcome, Actors, optional Consumes, optional Provides, Capabilities and
-conditional Experience. Treat User Journeys as cross-requirement product narratives, not as
-execution order. Do not expect PRD User Stories or Acceptance Criteria, and do not add them as
-implementation artifacts.
-
-Before the first implementation change for the current revision:
-
-1. when web/browser validation applies, run the repository Playwright health check with its
-   exact documented command:
-   `pnpm --filter web check:playwright`; fix a failing health check and rerun it before
-   implementation. Do not improvise Playwright CLI arguments or broaden a focused command
-   after a syntax error; correct the command from `documentation/tooling.md` and rerun it;
-2. freeze the Spec revision;
-3. set an `open` Spec to `in_progress`;
-4. create colocated `evaluation.md` using the Canonical Evaluation shape below when absent, or
-   reconcile an existing file to that structure without discarding existing evidence;
-5. activate the direct assignment or affected ownership Builders and record, before any feature
-   edit, their identifiers, exact Spec revision, FR/AC mapping, owned and prohibited paths,
-   assigned phases, required file/widget tree, Rule Pack, design references, validation exits
-   and expected evidence locations;
-6. compare the untouched implementation against the Spec's required tree, contracts, states and
-   exclusions, and record the baseline result. For a resumed correction, compare the current
-   diff as well;
-7. for Plan-backed execution, validate dependencies, paths, exits and coverage, then set the
-   current Plan and affected work to `in_progress`;
-8. initialize or update the Spec/Plan references, revision,
-   `status: in_progress`, acceptance matrix, automated/runtime/manual/visual evidence,
-   Rule/documentation compliance, findings and lessons learned;
-9. verify and record required services, accounts, fixtures, design references and evidence
-   targets. Inventory the actual fixture coverage required by each manual scenario, including
-   role, tenancy, status, cardinality and long/optional content when relevant. Record missing
-   fixtures and their scoped preparation, ownership and cleanup; do not infer their availability
-   from a seed command or mocked suite. For native browser/OS workflows, verify the observation
-   capability separately from API invocation, media emulation or exported artifacts, and record
-   any human observation needed. Apply the existing fail-closed manual-evidence gate when a
-   required capability or fixture cannot be made available within the authorized scope.
-
-Do not proceed when the Builder activation, baseline conformance comparison or Playwright
-health result is missing or failed. A prose statement that these steps happened is insufficient;
-record exact paths, commands, results and evidence identifiers.
-
-Do not overwrite prior evidence. Evaluation uses only `in_progress`, `ready` and `completed`;
-actual results, findings and lessons learned remain in the evidence ledger rather than metadata.
-
-When a colocated Evaluation already exists, read it before activating the Builder. Treat its
-open findings, failed attempts, command corrections, service prerequisites and visual notes as
-implementation inputs for the current revision. Historical or completed evidence is context,
-not proof for a new revision; keep it intact and recapture any evidence affected by the current
-diff.
-
-### Evaluation contract
-
-Treat the Canonical Evaluation shape below as the structural source of truth at every
-implementation kickoff or resume. Materialize it in the feature folder; do not invent a
-parallel Evaluation format. Replace its placeholders with actual values, omit only the optional
-`plan` metadata when direct execution applies, and preserve its section order and canonical table
-columns.
-
-Do not add base, current or candidate commit metadata to Spec, Plan or Evaluation. Commit
-identity is not part of SDD state. During conclusion, only the PR CI table records the PR head
-SHA needed to identify the revision checked by GitHub.
-
-When reconciling an existing Evaluation, add missing canonical sections/columns and map legacy
-evidence into them without deleting historical commands, findings, failed attempts, CI runs or
-visual comparisons. Remove unused example rows; use an explicit `not_applicable` row only when
-the absence itself needs traceability.
-
-Add one row per `AC-*`, executed automated/runtime sensor, `MV-*`, each supplied or required
-supplemental design screenshot, finding and PR CI run; do not collapse criterion or screenshot
-ranges into one row. Visual rows are mandatory for design-backed UI and optional only when no
-design reference applies. Use stable
-`EV-*`, `MV-*`, `FND-*` and `CI-*` IDs so findings can invalidate exact evidence. Visual
-evidence uses `EV-*` with `Type = visual`; do not create a separate `VIS-*` namespace.
-
-Use `pending`, `passed`, `failed`, `stale` or `not_applicable` for ordinary evidence.
-Visual evidence may use `passed_with_authorized_difference`; findings use `active`,
-`resolved`, `accepted_non_blocking` or `superseded`. Every manual row records both expected
-and observed behavior. For design-backed UI, every supplied and required supplemental visual
-row records its exact viewport, reference path, implementation path and differences; optional
-visual evidence applies only when no design reference is in scope.
-
-### Canonical Evaluation shape
-
-Materialize the colocated file using the canonical template's exact frontmatter, section order
-and table columns. The resulting file must have this shape; do not replace it with a narrative
-report or a feature-specific ledger:
-
-```text
----
-feature: "<domain>/<feature>"
-spec: ./spec.md
-plan: ./plan.md # omit for direct execution
-spec_revision: 1
-status: in_progress
-updated_at: YYYY-MM-DD
----
-
-# Evaluation
-
-Evaluation of Spec revision `<revision>` against the current implementation.
-
-Current result: `<concise statement of validated, pending and blocking evidence>`.
-
-## Acceptance matrix
-
-| Criterion | Evidence | Status |
-| --- | --- | --- |
-
-## Automated and runtime evidence
-
-| ID | Layer | Command or scenario | Result | Status |
-| --- | --- | --- | --- | --- |
-
-## Manual evidence
-
-| ID | Scenario | Criteria | Expected | Observed | Status |
-| --- | --- | --- | --- | --- | --- |
-
-## Visual evidence
-
-Visual evidence uses the common `EV-*` Evidence identifiers with `Type = visual`.
-
-| ID | Type | Surface and state | Viewport | Reference | Implementation | Differences | Status |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-
-## Rule and documentation compliance
-
-| Authority | Reference | Result | Notes |
-| --- | --- | --- | --- |
-
-## Findings
-
-| ID | Classification | Source | Affected evidence | Status | Resolution |
-| --- | --- | --- | --- | --- | --- |
-
-## Lessons learned
-
-- `<reusable lesson extracted from a material finding, or “No durable lesson identified.”>`
-
-## PR CI quality gate
-
-<!-- Populate during conclude-spec. The head SHA identifies the PR revision checked by CI; it
-is not SDD current-commit metadata. Retain failed and superseded-head runs as history. -->
-
-| ID | Workflow | Head SHA | Result | Run |
-| --- | --- | --- | --- | --- |
-
-## History
-
-| Date/Time | Event |
-| --- | --- |
-```
-
-The initial file uses `status: in_progress`; update it to `ready` only when all required current
-evidence is present and no blocking finding remains, and to `completed` only during conclusion.
-Preserve the template's column names, evidence ID conventions and status vocabulary exactly.
-The PR CI table is populated only during `conclude-spec`; its head SHA identifies the PR
-revision checked by CI and is not current-implementation metadata.
-
-## Persistence and user questions
-
-Continue until Evaluation is `ready` or a required validation blocker is reached. Ask the user
-only when an unresolved product, technical-authority, environment or safety decision is genuinely
-required. When a required manual/runtime/staging scenario is unavailable or fails, stop the active
-implementation phase and report the blocker; do not continue implementation merely because other
-sensors pass. After the blocker changes or the user supplies the required decision/access, resume
-the active strategy automatically and rerun invalidated evidence.
-
-Whenever an implementation, sensor, browser, build or validation error occurs, immediately
-fix it when the correction is within the current Contract and repository authority. Record
-the finding, apply the smallest scoped fix, invalidate affected evidence and rerun it. Do not
-ask permission to resolve an in-Contract implementation, CI/test or visual discrepancy.
-
-Changes outside the Spec may remain in the shared worktree. Keep them out of the implementation
-and evidence unless they overlap evaluated paths, contaminate evidence or cause a regression.
-
-## Direct execution strategy
-
-Use when no current Plan exists:
-
-1. activate `Builder Direct` in the current context with the current revision, FR/AC mapping,
-   observable outcome, allowed/prohibited paths, Rule Pack, Architecture, design bundle and
-   applicable tools;
-2. implement within that recorded scope, then inspect the diff; while acting as `Builder Direct`,
-   do not edit Spec, Plan or Evaluation, and return to the Orchestrator role for those updates;
-3. run focused repository-approved generation, code, type, unit and integration checks;
-4. update Evaluation with exact commands/results, criterion coverage,
-   findings and evidence freshness;
-5. for each discrepancy, continue `Builder Direct`, rerun only invalidated evidence and repeat
-   until validation-ready or authority is required.
-
-Reserve repeated full builds for the final Quality Gate unless bundler, exports, environment,
-Docker, workflow or generated-artifact changes require an earlier build.
-
-## Plan-backed execution strategy
-
-Use when a current Plan exists. The Plan owns sequencing, status, attempts and next action;
-Evaluation owns executed evidence and findings.
-
-Before dispatching, map affected paths to the smallest coherent set of stable ownership Builders.
-Do not create one Builder per phase, task or package. A Builder may own multiple sequential phases
-inside its ownership boundary, and the same Builder must be continued across related phases and
-corrections so its implementation context is retained.
-
-Default to at most three concurrent implementation Builders. Exceed that only when the Plan
-records a concrete speed or context benefit, stable input contracts, substantial independent
-work and non-overlapping paths that justify the additional loading and integration cost. Package
-count alone is never sufficient. The Orchestrator owns root configuration, dependency
-installation, lockfiles, shared/generated files and cross-Builder integration.
-
-For each dependency-ready wave:
-
-1. confirm the current Spec revision, dependencies, criteria, paths, Rules, Builder assignments
-   and exits;
-2. mark the wave's phases and assigned tasks `in_progress`;
-3. activate or resume each affected ownership Builder, assigning all dependency-ready phases in
-   its ownership boundary; keep tightly coupled work together and run only stable,
-   non-overlapping Builder scopes in parallel;
-4. coordinate shared/generated files, dependencies and lockfiles through the Orchestrator;
-5. inspect and integrate Builder diffs; Builders do not edit Spec, Plan or Evaluation;
-6. run focused generation, code, type, unit and integration checks from the task exits;
-7. update Evaluation immediately with exact results, evidence freshness and lessons learned, then update
-   the Plan with status, finding IDs, attempts and next action;
-8. complete a task only when its exit passes, and a phase only when every task and phase exit
-   passes;
-9. on failure, keep affected work `in_progress`, resume the responsible ownership Builder,
-   invalidate affected evidence and rerun only what changed; activate a new scoped Builder Fix
-   only when that Builder cannot be resumed or the correction is genuinely independent.
-
-Phase completion must be sensor-backed. Do not use a Builder report as official evidence.
-
-### Builder-focused validation
-
-Each Builder runs focused feedback checks for the paths it changes before handoff:
-
-Run the applicable complexity sensor at the first coherent production composition boundary and
-after structural corrections. Resolve measured violations before starting full regression or
-build exits that would be superseded by the resulting refactor. Preserve the documented
-thresholds and baseline; this ordering does not replace any required final integrated exit.
-
-- `Builder Core` and `Builder Validation` run their applicable code, type and unit sensors;
-- `Builder Server` runs applicable sensors plus focused `curl` scenarios against the real local
-  server for changed runtime behavior, covering status/body, validation, authentication,
-  authorization, persistence, side effects and relevant logs;
-- For every changed HTTP route group, the owning Builder verifies the matching `.rest` file
-  contains one labeled request per controller route, current parameters/headers/bodies and
-  reusable non-secret variables; the Orchestrator records this route/example parity in
-  `evaluation.md`.
-- `Builder Web` uses the Playwright CLI for affected interactions and states, including keyboard,
-  focus, narrow viewport, console, failed requests and fresh screenshots against applicable
-  design references.
-
-Builders return exact commands and observed results, but their reports are not official evidence.
-The Orchestrator reruns or verifies every required exit on the integrated candidate and records it
-in Evaluation in the same task turn. A Builder handoff is incomplete until its commands, results,
-affected evidence freshness and any applicable lesson are materialized there. Keep Builder checks focused;
-do not run a full workspace or UI regression after every small edit unless the task exit requires it.
-
-### Behavior-hook coverage gate
-
-When a feature or widget tree contains colocated `use-*.ts` behavior hooks, enumerate every hook
-under the active scope before handoff and verify that each one has a colocated
-`tests/use-*.test.ts` file. The component test that mocks the owning hook is not a substitute for
-the hook test: the dedicated test must exercise the hook's public state, derived values, guards,
-effects and action outcomes that are relevant to the contract. Mock the nearest domain query or
-action abstraction rather than React Query or another third-party primitive.
-
-If the repository Rule Pack explicitly excludes dedicated tests for a query/action hook, record
-that hook as an explicit exception with the consuming-widget or route evidence that covers it. If
-the Spec or user request requires every hook in a directory, that request takes precedence over
-the default exception and every in-scope hook receives a focused test. Record the hook inventory,
-test paths, exact focused command, result and any documented exception in `evaluation.md`.
-
-### Implementation Reviewer
-
-For Plan-backed execution, activate exactly one read-only
-[`Implementation Reviewer`](../agents/implementation-reviewer-agent.md) after all
-implementation Builder diffs are integrated. Never create a Reviewer per Builder, phase,
-application or package. The optional Visual Reviewer below is the only separate focused reviewer;
-activate it only when the user or current Spec explicitly requests independent visual review.
-Direct execution does not require an Implementation Reviewer unless the Spec or another repository
-authority explicitly requires one.
-
-Do not substitute or reactivate the Spec Reviewer here: the Spec Reviewer is a pre-plan
-Architecture/Rules compatibility gate only.
-
-Give the Reviewer the exact Spec revision, Plan, Rule Pack, integrated diff, design references and
-current evidence index. It reviews the complete candidate for Spec conformance, cross-Builder
-contracts, missing states/tests, integration conflicts and stale evidence. When UI is affected, it
-must inspect every required final screenshot and comparison and independently replay high-risk
-interactions with the Playwright CLI, including applicable responsive, keyboard, accessibility,
-console and network behavior. When server-backed behavior is affected, it may replay high-risk
-real `curl` scenarios and inspect the resulting authorization, persistence or side effects.
-
-The Reviewer may run in parallel with the Orchestrator's integrated sensors, but it never edits
-feature code, Spec, Plan or Evaluation. Its report is not official evidence. The Orchestrator
-verifies every finding, records accepted findings in Evaluation, invalidates affected evidence and
-resumes the responsible Builder. After a correction, resume the same Implementation Reviewer to
-recheck the affected candidate; never activate a replacement Reviewer merely because the
-implementation changed. Readiness requires the review to be current and every verified blocking
-finding to be resolved.
-
-### Visual Reviewer
-
-For a design-backed candidate, activate one read-only
-[`Visual Reviewer`](../agents/visual-reviewer-agent.md) only when the user or current Spec
-explicitly requests independent visual review. Give it the saved design handoff and reference images,
-exact current routes/states/viewports, fresh transient captures and current visual `EV-*` rows.
-Use the generated visual-reviewer role when callable; otherwise activate a `default` agent with
-the canonical Visual Reviewer file and an explicit read-only assignment.
-It compares the assigned surface as one audit and reports exact visual differences and stale or
-missing captures. Resume the same agent after corrections with refreshed captures.
-
-The Visual Reviewer may run alongside integrated sensors and the applicable Implementation
-Reviewer. It does not replace the Orchestrator's required visual comparisons, automated or
-manual evidence, the Implementation Reviewer, or the official Evaluation verdict. The
-Orchestrator verifies and records accepted findings and routes fixes before readiness.
-
-## Rule reinforcement after findings
-
-When a finding exposes a missing, ambiguous or repeatedly violated reusable Rule:
-
-- if the Rule is already clear, fix the implementation and leave the Rule unchanged;
-- if the reusable convention is unclear, pause dependent work and route the Rule change
-  through its authority gate;
-- add a focused `## Antipatterns to Avoid` entry stating the prohibited pattern, required
-  alternative and validation proof;
-- reread the changed Rule, recompute affected Rule Pack and Plan references, record the
-  authority change, invalidate affected evidence and rerun the scoped correction.
-
-Feature-specific behavior belongs in the Spec. Builders do not edit Rules or SDD artifacts.
-
-## Finding-to-lesson documentation
-
-Every accepted finding has two distinct records in `evaluation.md`:
-
-1. a `Findings` entry describing the concrete problem, affected evidence, status and resolution;
-2. a `Lessons learned` entry when the finding exposes guidance that future work can reuse.
-
-The lesson, not the finding label alone, determines whether durable documentation needs an
-update. Classify each reusable lesson against the applicable PRD, Architecture, Design,
-Tooling or Rule document, update that authority through its required workflow, and record the
-link and disposition in `evaluation.md`. If the lesson is feature-local, transient, or already
-covered, record an explicit no-change disposition instead. Do not treat a finding entry as a
-substitute for a lesson or authority update.
-
-## Spec conformance gate during implementation
-
-Treat the current Spec as an active implementation contract throughout the implementation, not
-only as final-validation guidance. Before the first change, before each phase/task or Builder
-handoff, and after every implementation correction, compare the candidate against the Spec's
-required paths, widget/module tree, contracts, behavior, design states, exclusions and
-validation requirements. Use explicit Spec file-tree and contract sections as a checklist;
-never substitute the existing code structure for the structure required by the Spec. Any missing,
-extra or misplaced path, boundary, API field, behavior or design state is an in-Contract finding:
-record it in Evaluation, keep affected work `in_progress`, invalidate affected evidence, fix it
-immediately, and rerun conformance plus the affected sensors. Passing tests or screenshots alone
-does not establish readiness until Spec conformance has also passed.
-
-The final integrated-candidate comparison includes
-`pnpm check:spec-implementation -- <exact-spec-path>`. Run it only after all Builder diffs and
-Orchestrator-owned generated/shared artifacts are integrated, and rerun it whenever a later
-correction affects a contracted path. Record the exact command, classification totals and result
-in Evaluation. Treat failure as an in-Contract structural finding, resume the responsible Builder or
-correct the Orchestrator-owned artifact, and rerun the command before downstream validation. The
-command does not evaluate declarations, behavior, tests, architecture, runtime state or design
-fidelity, so the remaining conformance record and sensors stay mandatory.
-
-### Mandatory conformance record
-
-Every implementation checkpoint and Builder handoff must record all of the following, even when
-the result is unchanged:
-
-| Check | Required proof |
-| --- | --- |
-| File/widget tree | Every required path exists, no path is misplaced, and any intentional extra path is mapped to the Spec or explicitly excluded from the candidate. |
-| Boundary ownership | Each changed path is inside the active Builder scope and the Spec's declared layer/module boundary. |
-| REST-client parity | Every affected route group has its declared `.rest` file; each controller route is represented once with current method, path, parameters, headers and representative body, and no credentials are committed. |
-| Contract | FR/AC, API fields, domain rules, persistence behavior, error semantics and exclusions match the current revision. |
-| Behavior hooks | Every in-scope `use-*.ts` behavior hook has a colocated `tests/use-*.test.ts` file, or an explicit Rule Pack exception with linked consumer/route evidence. |
-| UI states | Loading, empty, success, error, recovery, disabled, selected, focus, keyboard and responsive states applicable to the change are exercised. |
-| Design references | Every supplied and required supplemental screenshot has an exact state/viewport capture, direct comparison, and current transient artifact identifier. |
-| Validation | Commands actually ran on the current candidate; console errors, failed requests, HTTP 4xx/5xx, hydration warnings and persistence results are classified. |
-
-If a check fails, keep the affected work `in_progress`; do not mark it passed because another
-sensor passed. The next action is correction and rerun, not a user permission request.
-
-## Design-backed UI execution
-
-Design authoring through `create-spec` may use Pencil MCP; implementation and runtime
-visual validation consume the saved feature-local bundle.
-
-Use `design/handoff.md` for new design bundles. If an existing feature bundle lacks
-it, read its legacy `design/manifest.md` instead; preserve that legacy artifact and
-do not create both files.
-
-When a Design Contract exists:
-
-- read the feature-local `design/handoff.md` and every saved PNG reference before coding;
-- confirm every supplied screenshot has a visual inventory and every supplemental-screenshot
-  suggestion has a recorded decision;
-- implementation and UI validation agents must not use Pencil MCP or the live design canvas;
-  use the saved handoff and PNG references with fresh Playwright CLI runtime captures;
-- treat source node IDs as provenance only; no Pencil MCP lookup is required;
-- missing required handoff detail is a Contract gap: pause affected implementation and route
-  it to the Orchestrator before coding; do not guess or recover details from the live canvas;
-- preserve exact state, surface and viewport mappings;
-- use existing behavioral Playwright coverage for accessible interaction, DOM/layout,
-  console, failed-request and persistence evidence;
-- do not create a dedicated visual-reference integration test;
-- capture and compare every supplied design screenshot and every required supplemental state at
-  its exact viewport, using an existing behavioral scenario or a manual Playwright CLI run;
-  supplemental screenshots marked recommended may be deferred only when the design handoff records
-  the decision and the state is not an acceptance gap;
-- capture every design-backed state at its exact viewport into Playwright's ignored
-  `test-results/` output or a CI artifact, and record the comparison details plus the
-  transient artifact identifier in Evaluation; do not create a feature `evidence/` folder;
-- keep affected direct work or Plan tasks `in_progress` while a material discrepancy remains.
-
-If an approved implementation change intentionally introduces a visual element absent from
-the references, treat it as a Design Contract amendment. Clarify only unresolved placement or
-scope, update the Spec and handoff/reference artifact, recapture affected screenshots and
-rerun invalidated validation.
-
-## Living evidence
-
-After every implementation change—including fixes, generated artifacts, environment/seed
-changes and tests—reconcile Evaluation and the Plan when present. Update
-commands, results, affected criteria, findings, screenshots and manual/runtime evidence.
-Mark affected earlier evidence `stale` or historical; never accept the implementation with evidence
-from an earlier affected diff.
-
-## User-requested changes before conclusion
-
-Classify every requested change against the current Spec, design bundle, Rules and
-implementation before changing artifacts or code.
-
-### Implementation correction
-
-When the request makes implementation comply with the current Contract:
-
-1. keep the Spec revision unchanged;
-2. record a mapped finding in Evaluation;
-3. set Evaluation and affected Plan work, when present, to `in_progress`;
-4. resume the responsible Builder and mark only affected evidence stale; activate a scoped
-   Builder Fix only when the original Builder cannot be resumed or the correction is genuinely
-   independent;
-5. rerun affected exits, sensors, `MV-*` scenarios and visual comparisons;
-6. continue the selected strategy automatically.
-
-### Contract change
-
-When product behavior, design intent or technical boundaries change:
-
-1. pause affected work and set the Spec to `draft`;
-2. immediately invoke `create-spec` for clarification and authority alignment, updating PRD,
-   Rules, Architecture, Modules, Design or Tooling first when required;
-3. when the approved change materially amends PRD requirements, return every affected `PRQ-*`
-   Implemented checkbox to unchecked before authoring the revised Spec;
-4. increment the revision, update affected Contracts/design/validation and run integrity
-   checks;
-5. return the Spec to `open` and preserve invalidated evidence as historical;
-6. set Evaluation to `in_progress` and re-evaluate strategy;
-7. create or reconcile a Plan when the revision requires Plan-backed execution, or set the
-   old Plan to `superseded` when direct execution is now appropriate;
-8. resume this workflow automatically under the selected strategy.
-
-Ask the user only when the classification or intended product/technical outcome is genuinely
-ambiguous.
-
-## Integrated validation and readiness
-
-After implementation work is complete, validate the exact Spec revision and complete integrated
-candidate. First run `pnpm check:spec-implementation -- <exact-spec-path>`. Only after it passes,
-for Plan-backed execution activate the single Implementation Reviewer while the Orchestrator runs
-the applicable sensors:
-
-1. record the passing path-implementation command, classification totals and observed result;
-2. run integrated technical sensors and the final build Quality Gate;
-3. review generated artifacts and migration bodies;
-4. preflight real services, database/Auth/provider state, accounts and fixtures;
-5. execute every applicable `MV-*` with the Playwright CLI;
-6. verify every affected REST-client file against its controller route group and shared request
-   schemas, then record the parity result;
-7. inspect every AC, manual scenario and supplied/supplemental screenshot with exact
-   viewport/state, console/network, accessibility, DOM/layout and persistence evidence;
-8. when an Implementation Reviewer applies, verify and classify every finding;
-9. record commands, captures, REST-client parity, results, review findings and resolutions in
-   Evaluation.
-
-For Plan-backed execution, keep the integrated phase `in_progress` during this validation and
-complete the Plan only after all affected phases and evidence pass, every affected REST-client file
-is route-complete, the Implementation Reviewer has
-completed on the current candidate and every verified blocking review finding is resolved.
-
-- On failure, record the finding, reopen affected direct/Plan work, resume the responsible
-  Builder when possible and rerun invalidated evidence. After any correction affecting a
-  contracted path, rerun the package check before restarting invalidated sensors or resuming the
-  same Reviewer.
-- A required manual/runtime/staging failure or unavailable dependency is different from a normal
-  correctable implementation discrepancy: keep the affected Plan phase blocked, keep Evaluation
-  non-ready, stop feature edits and report the exact dependency or environment blocker. Do not
-  downgrade it to `partial`, treat a prior smoke as current proof, or proceed to unrelated
-  implementation tasks. Only resume after the blocker is resolved and the affected evidence is
-  freshly rerun.
-- When all evidence is current and no blocking finding remains, reconcile Evaluation to the
-  current implementation, confirm the latest package-check result covers the final contracted
-  path state, complete the Plan when present, set Evaluation to `ready` and immediately invoke
-  `conclude-spec` when publication authority is available. Do not check any PRD
-  requirement: Evaluation `ready` is an implementation-evidence transition, not PRD closure.
-- After three materially identical failures, ask the user only when resolution requires a
-  decision unavailable in the repository or environment; otherwise continue safely.
-
-`evaluation.md` is the operational evidence ledger and a review artifact. Include its
-delivery-owned evidence changes in the feature PR. `conclude-spec` commits its final status and
-closure evidence to that same PR after the implementation-candidate CI gate passes, then
-requires the applicable checks to pass again on the closure head.
+The Spec defines behavior, boundaries, consequential decisions and proofs. The agent
+chooses implementation order, decomposition and delegation. Evaluation records actual
+progress, evidence and findings; it is not a second task plan. Do not create or maintain
+`plan.md`, phase ledgers, dependency waves or task-exit bureaucracy.
+
+## Read and establish scope
+
+Read `documentation/sdd.md`, the current Spec, Modules, Architecture,
+`documentation/rules.md`, every selected Rule, and `documentation/tooling.md`.
+Read applicable PRDs and Design documentation for the affected behavior. When resuming,
+read the colocated Evaluation and its continuation handoff before editing.
+
+Confirm that the Spec is `open` initially or `in_progress` when resuming, its revision is
+current, and no material Contract ambiguity remains. Preserve source and Issue traceability.
+PRD `PRQ-*` requirements define product intent; their Product Dependency Graph and User
+Journeys do not determine implementation order. Do not invent PRD Acceptance Criteria.
+
+Before the first feature edit:
+
+1. set an `open` Spec to `in_progress` and retain its current revision;
+2. create or reconcile `evaluation.md` from
+   [`evaluation.md`](../templates/sdd/evaluation.md), preserving historical results;
+3. inspect current source and the shared worktree; identify scope boundaries, existing
+   findings, required services, accounts, fixtures and design references;
+4. when browser work applies, run `pnpm --filter web check:playwright` using the documented
+   command, correct failures, and record the result before affected implementation;
+5. record a concise current result and known blockers in Evaluation.
+
+Freeze the Contract, not the agent's internal implementation choices. Exact public APIs,
+required migration artifacts and other explicitly contracted decisions remain authoritative;
+ordinary internal file layout and sequencing are chosen within repository Rules. A historical
+Plan is context only and does not control execution or readiness.
+
+## Organize and implement
+
+Implement a small cohesive scope directly when appropriate. Delegate independent workstreams
+with stable input contracts and non-overlapping paths. Give each Builder a descriptive stable
+name, exact Spec revision, relevant `FR-*`/`AC-*`, observable outcome, owned and prohibited
+paths, selected Rules and design references. Tell Builders they share the codebase and must
+preserve others' edits. Reuse the responsible Builder for related work and corrections.
+
+The main agent owns shared decisions, root configuration, lockfiles, generated/shared files,
+integration, Evaluation and the official readiness verdict. Inspect delegated diffs together;
+a Builder's report alone does not establish acceptance. Do not require fixed Builder roles,
+one agent per layer, a written dispatch ledger or a separate execution artifact.
+
+Run focused checks during development. Use the repository's commands and test-ownership
+policy; do not add direct tests to indirect boundaries or weaken tests, coverage thresholds,
+complexity baselines or checkers to pass. Run applicable complexity checks at a coherent
+composition boundary before expensive checks that a structural correction would invalidate.
+Reserve the complete Web integration suite (`pnpm --filter web test:integration`) for final
+validation of the integrated candidate. Do not run it during implementation or intermediate
+corrections; use focused tests and targeted browser scenarios while making changes. At final
+validation, run the complete suite once, then repeat it only when a subsequent correction
+affects its claims or an unresolved risk justifies another full run. Keep repeated full builds
+and other complete integration suites for the integrated candidate unless an earlier failure,
+runtime dependency or Contract requirement justifies them.
+
+For changed HTTP route groups, update the matching
+`apps/server/rest-client/<module>/<route-group>.rest` file in the same scope. Verify one
+labeled request per controller operation with current method, parameters, headers, body and
+reusable non-secret variables. Record route/example parity; it does not prove HTTP behavior.
+
+Preserve PRD Implemented checkboxes during implementation. Evaluation `ready` authorizes
+conclusion, not PRD closure. Only the approved material-amendment workflow may reset an
+affected requirement to unchecked here; `conclude-spec` owns marking delivered requirements.
+
+## Design-backed UI
+
+Read `documentation/design.md`, applicable UI Rules and every required saved reference.
+Use `design/handoff.md`; for an existing bundle lacking it, use its legacy
+`design/manifest.md` without creating both. Treat node IDs as provenance.
+Implementation and runtime validation consume the saved bundle rather than live Pencil.
+Missing required design details are Contract gaps; route them for amendment before affected
+work rather than inferring behavior from screenshots.
+
+Use the Playwright CLI for all browser interaction and validation. Exercise relevant behavior,
+keyboard paths, focus and a narrow viewport, inspect console and failed requests, and verify
+the URL, network or persistence result needed by the criterion. For real-service flows,
+follow the documented Docker/service health and account preflight; seed only explicitly when
+required and authorized, never implicitly from Playwright. Mocked transport does not prove
+real authorization, persistence or external-service behavior.
+
+After each visual implementation or correction checkpoint, capture and inspect fresh runtime
+screenshots against the assigned references at their exact state and viewport. Record each
+comparison and material difference with an `EV-*` row. Include loading, empty, error,
+responsive and other states when contracted. Capture under ignored `test-results/` or as CI
+artifacts; do not create feature evidence folders or dedicated visual-reference tests.
+Stop application processes started for validation and leave shared Docker services running.
+
+## Integrate and verify
+
+Once all source and shared/generated artifacts form one coherent candidate:
+
+1. compare the integrated diff with `FR-*`, `AC-*`, boundaries, exclusions and consequential
+   technical decisions; inspect migrations, generated artifacts and REST-client parity;
+2. run each applicable complete integration suite once on the integrated candidate, together
+   with contracted code, architecture, type, coverage and build checks. Affected Core, Server
+   and Web workspaces must meet their configured coverage floors;
+3. execute required `MV-*` scenarios with their actual environment and fixtures. Record
+   expected and observed results; inspect console, network and persisted state where relevant;
+4. record current evidence and criterion coverage in Evaluation;
+5. activate exactly one independent read-only
+   [`Implementation Reviewer`](../agents/implementation-reviewer-agent.md) for the complete
+   candidate. For a design-backed UI candidate, also activate one
+   [`Visual Reviewer`](../agents/visual-reviewer-agent.md) with fresh captures and saved
+   references. Reviews may run in parallel with verification once their needed inputs exist;
+6. verify findings, apply in-Contract corrections automatically, and rerun failed and affected
+   checks until every required proof passes.
+
+The structural command `pnpm check:spec-implementation -- <exact-spec-path>` applies only
+when the Spec declares exact paths classified as `Create`, `Modify`, `Generate` or `Remove`.
+Record its result where applicable and rerun it when its contracted path state changes. It
+checks disk/Git conformance, not behavior. Lean Specs without such a path contract do not need
+an exhaustive file inventory or this legacy structural gate; do not manufacture one.
+
+Reviewers inspect the Spec, integrated diff and current evidence. They do not automatically
+replay browser/manual scenarios or repeat complete suites. Reuse valid evidence; request a
+narrow additional check only for a concrete unresolved risk, missing proof or discrepancy.
+After a correction, resume the same reviewer only over affected findings and changed surfaces.
+
+## Evidence and corrections
+
+Use the canonical [Evaluation template](../templates/sdd/evaluation.md) and stable `EV-*`,
+`MV-*`, `FND-*` and `CI-*` identifiers. Preserve Spec `FR-*`/`AC-*` IDs and historical failed
+attempts. Visual rows use `EV-*` with `Type = visual`, never a separate identifier namespace.
+Update actual progress and evidence at coherent implementation, validation and correction
+checkpoints; do not mirror every edit as a task ledger. Keep one row per criterion, executed
+check, manual scenario and required visual reference/state.
+
+Record exact commands/scenarios, observed results, artifacts and findings. Describe executed
+check outcomes as passed, failed or blocked; retain pending, stale and not_applicable as
+evidence lifecycle states, and explain blockers in the result and linked finding. Mark evidence
+`stale` only when a change affects what it proves; retain valid unaffected evidence across
+corrections, review and conclusion. A revision change requires an impact assessment rather
+than blindly reusing or invalidating every result. Do not claim readiness from stale evidence.
+Record branch, diff or checkpoint provenance when useful to establish which candidate a proof
+covers; a commit identifier may also serve that purpose. Provenance is not an additional
+status gate. The PR CI table records the exact head SHA checked by GitHub.
+
+Fix implementation, test, browser, build, migration and visual defects inside the Contract
+without asking permission. Record the finding, invalidate affected evidence, make the smallest
+scoped correction, rerun failed/affected checks and continue. Full regression is repeated only
+when the change affects its claims or an unresolved risk justifies it. After three materially
+identical failures, ask the user only when resolution requires a decision unavailable in the
+repository or environment; otherwise change the approach and continue safely.
+
+A required unavailable service, account, fixture, observation capability or external approval
+blocks readiness. Record the exact gap and keep Evaluation `in_progress`; do useful independent
+work where safe, but never substitute mocks or partial results for the required proof. Pause
+only dependent work and ask for a decision/access only when it cannot be obtained within the
+current authority. Correctable failures remain correction work, not permission requests.
+
+If a discrepancy changes product intent, scope, design intent, architecture or another
+contracted decision, pause affected work and return the Spec to `draft` through `create-spec`.
+Update higher authorities first when required, reset materially amended PRD requirements to
+unchecked, increment the revision and refresh affected references and evidence. The Spec
+Reviewer belongs to `create-spec` and is not an implementation reviewer or recurring gate.
+If a declared test conflicts with test-integrity Rules, amend the invalid contract before
+editing that test; never weaken the checker.
+
+For accepted findings, capture a reusable lesson only when warranted. If an existing Rule is
+clear, fix the code. Route missing/ambiguous reusable guidance through its authority workflow;
+feature-local behavior belongs in the Spec. Record the documentation disposition without
+requiring a new Rule for every defect.
+
+## Readiness and continuation
+
+Keep Evaluation `in_progress` while required criteria, checks or verified blocking findings
+remain open. Set it to `ready` when all required evidence is current, both applicable reviews
+are reconciled and no blocking finding remains. Proceed to `conclude-spec` when publication
+authority exists; do not mark the Spec completed or check PRD requirements here.
+
+Before interruption or handoff, leave a small continuation record: branch/candidate provenance, current progress, interrupted or uncommitted paths,
+unfinished criteria, active blockers, latest checker IDs/results, affected stale evidence and
+the next useful action. Do not turn it
+into a replacement Plan, phase list or dependency graph. Preserve unrelated user changes.
+Conclusion and later review reuse valid evidence and reopen only affected proofs.

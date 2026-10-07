@@ -11,8 +11,8 @@ the Spec, implement changes or run implementation validation.
 
 ## Inspect the current review state
 
-Read the open PR, current head SHA, unresolved conversations, reviews, Spec, Plan when
-present, `evaluation.md`, actual diff and GitHub Issue traceability. Ignore stale comments
+Use authenticated `gh` to read the open PR, current head SHA, unresolved conversations,
+reviews, Spec, `evaluation.md`, actual diff and GitHub Issue traceability. Ignore stale comments
 that target superseded code only after verifying they are no longer applicable.
 
 Read the applicable PRD and the delivery's `PRQ-*`/`FR-*`/`AC-*` traceability. Treat the
@@ -26,7 +26,7 @@ the file as an affected implementation artifact, verify that every current contr
 has one labeled example with current parameters, headers, body and reusable non-secret variables,
 and include any required REST-client correction in the `implement-spec` scope. Do not resolve the
 conversation or report the implementation as ready while the example file is missing, stale,
-untracked or absent from the Spec/Plan/Evaluation traceability.
+untracked or absent from the Spec/Evaluation traceability.
 
 Preserve only actual GitHub Issue or direct-request traceability. Do not resolve a
 conversation before its requested action exists on the branch or an evidence-backed response
@@ -52,30 +52,35 @@ Update the PR and reply. Do not reopen the Spec.
 Use when the delivered implementation, tests or evidence does not satisfy the existing
 Spec or Rules while the PR remains open:
 
-1. change the same Spec from `completed` to `open` without incrementing its revision;
-2. set the Plan and affected tasks/phases to `in_progress` when a Plan exists;
-3. set `evaluation.md` to `status: in_progress`, append a review-cycle entry and record the
+1. if completed, change the same Spec to `open` without incrementing its revision; if already
+   active, preserve its current revision and reopen the affected evidence;
+2. set `evaluation.md` to `status: in_progress`, append a review-cycle entry and record the
    comment URL as a mapped finding;
-4. verify the finding against the delivered product and its `PRQ-*`/`FR-*`/`AC-*` mapping. If
+3. verify the finding against the delivered product and its `PRQ-*`/`FR-*`/`AC-*` mapping. If
    it proves an affected PRD requirement is not delivered, change that requirement to
    `- [ ] **Implemented**`; if it is only an evidence gap or transient CI/infrastructure issue
    and product behavior remains verified, preserve the current checkbox state;
-5. invoke `implement-spec`; it automatically resumes the current Plan when one exists;
-6. let that implementation workflow own fixes, invalidated evidence and manual validation;
-7. after it returns evaluation to `ready`, invoke `conclude-spec` to commit, update the
+4. invoke `implement-spec` for autonomous correction and integrated verification;
+5. let that implementation workflow own fixes, invalidated evidence and manual validation;
+6. after it returns evaluation to `ready`, invoke `conclude-spec` to commit, update the
    existing PR, run the final PR CI gate and close the Spec again.
 
 Never apply the correction directly from this workflow, even when the comment appears small.
-The resumed `implement-spec` run must repeat Builder activation/scope verification, Spec tree
-conformance, affected REST-client route/example parity, affected Playwright behavior and fresh
-screenshot comparison where applicable.
+The resumed `implement-spec` run owns decomposition and delegation, verifies the integrated
+diff and reruns only evidence invalidated by the correction. Reuse unaffected passing checks
+and review findings. Check affected REST-client parity and use fresh Playwright captures for
+changed UI state/viewport. Run the structural checker only for explicit classified artifact
+paths; do not require a replacement file inventory or execution ledger. Run applicable
+independent code and visual review in parallel with integrated checks once the candidate and
+required captures exist, using existing valid evidence as their starting point. Resolve verified
+blocking findings and continue corrections until passing or the documented blocker/retry boundary.
 
 ### Contract change
 
 Use when the reviewer requests different product behavior, design intent or technical
 boundaries while the delivery PR remains open:
 
-1. set the same Spec from `completed` to `draft`;
+1. set the same Spec to `draft`;
 2. append the review comment and reason to its revision history;
 3. route through `create-spec` for product/technical clarification and required authority;
 4. once the amendment is approved, identify every materially changed PRD `PRQ-*`, update the
@@ -84,11 +89,11 @@ boundaries while the delivery PR remains open:
    contract is unchanged;
 5. update Rules, Architecture, Modules, Design or Tooling first when required;
 6. increment the Spec revision, reconcile the design bundle and validation, set
-   `evaluation.md` to `status: in_progress`, set a
-   reused Plan to `pending` or a replaced Plan to `superseded`, run the applicable Spec Reviewer
+   `evaluation.md` to `status: in_progress`, preserving unaffected evidence as current and
+   invalidated evidence as historical; run the applicable Spec Reviewer
    inside the `create-spec` integrity gate, and return the Spec to `open` after verified findings
    are resolved without a separate user-facing approval stage;
-7. invoke `implement-spec` using the newly selected direct or Plan-backed strategy;
+7. invoke `implement-spec` to autonomously implement and verify the amended contract;
 8. invoke `conclude-spec` again to resolve full-delivery checkboxes, update the existing PR,
    run CI and close the delivery.
 
@@ -119,9 +124,9 @@ Return:
 - PR and conversation links inspected;
 - classification and evidence for every actionable comment;
 - replies or PR metadata changes made;
-- Spec/Plan/evaluation transition when reopened;
+- Spec/Evaluation transition when reopened;
 - affected PRD `PRQ-*` requirements and any Implemented-checkbox changes or preserved state;
-- workflow invoked or required next;
+- correction, publication and closure outcomes reached in the current task;
 - unresolved comments and blockers.
 
 Do not claim the PR is finally validated or close the Spec. `conclude-spec` owns the final PR

@@ -6,7 +6,7 @@ source:
   type: issue
   ref: [https://github.com/rafinel/scoops/issues/17](https://github.com/rafinel/scoops/issues/17)
 evaluation: ./evaluation.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 completed_at: 2026-08-24
 last_updated_at: 2026-08-24
 ---
@@ -35,4 +35,4 @@ that head. No merge or deployment was performed.
 
 For the authoritative acceptance matrix, runtime/manual/visual evidence, findings, documentation
 alignment and CI records, see [`evaluation.md`](./evaluation.md). The execution ledger is retained
-in [`plan.md`](./plan.md).
+in [`plan.md`](history/legacy-execution.md).

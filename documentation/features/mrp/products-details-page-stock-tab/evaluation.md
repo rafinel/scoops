@@ -1,7 +1,7 @@
 ---
 feature: "mrp/products-details-page-stock-tab"
 spec: ./spec.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 spec_revision: 6
 status: completed
 updated_at: 2026-08-21

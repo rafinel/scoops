@@ -2,7 +2,7 @@
 title: Identity profile and ice cream shop settings — implementation evaluation
 status: completed
 spec: ./spec.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 spec_revision: 3
 base_commit: ae06899eedc093532b6abd5bcb57e6443d5ffa94
 current_commit: 13247489444839d5f8238024665962a2b6a47116e2

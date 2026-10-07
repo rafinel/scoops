@@ -1,7 +1,7 @@
 ---
 feature: "communication/notification-center"
 spec: ./spec.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 spec_revision: 4
 status: completed
 updated_at: 2026-09-06

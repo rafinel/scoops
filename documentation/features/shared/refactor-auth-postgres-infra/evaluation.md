@@ -1,7 +1,7 @@
 ---
 feature: "shared/refactor-auth-postgres-infra"
 spec: ./spec.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 spec_revision: 14
 status: completed
 updated_at: 2026-09-04

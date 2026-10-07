@@ -1,7 +1,7 @@
 ---
 feature: "pdv/combo-discount-management"
 spec: ./spec.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 spec_revision: 10
 status: completed
 updated_at: 2026-08-26

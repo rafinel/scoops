@@ -1,7 +1,7 @@
 ---
 feature: "shared/transition-animations"
 spec: ./spec.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 spec_revision: 1
 status: completed
 updated_at: 2026-09-12
@@ -64,6 +64,7 @@ Current result: `complete`; the implementation, current evidence, one required r
 | `EV-040` | final static/conformance/build sensors | Exact Spec path gate; test-integrity; Web code/types/architecture/complexity; Web build; `git diff --check` | Final post-correction sensors passed: exact path gate 227 contracted paths (64 Create, 161 Modify, 2 Generate, 0 Remove) with 11 non-contract paths ignored; test-integrity 404 tracked test files / 58 changed; code passed with six non-blocking warnings; TypeScript passed; architecture passed 751 modules / 2,576 dependencies; complexity passed 513 files / 2,172 functions with zero warnings/errors; production build and diff check passed. | passed |
 | `EV-041` | Implementation Reviewer | Required independent read-only review, agent `01a0977e-0aee-7981-bb9e-6c0b6b32b131` (`Parfit`) | The single reviewer completed and its findings were used to drive the final correction wave. Responsive status placement, nested widget boundaries, route evidence breadth, semantic MRP assertions, invitation-dialog behavior coverage, pagination feedback, and evidence reconciliation were verified through the current focused/static/browser evidence; no second reviewer was created. | passed |
 | `EV-042` | pagination correction | Affected Web Vitest suites plus shared Pagination test; final static gates | Added distinct retained-page `isPageLoading` feedback, `aria-busy`, localized `Carregando página…` copy, and disabled page controls across Identity, MRP, and PDV pagination owners. Focused affected tests passed 8 files / 19 tests; TypeScript, architecture, complexity, code, and diff checks passed. | passed |
+| `EV-043` | route-status regression correction | `pnpm --filter web test:integration --workers=1`; route-status Vitest; TypeScript; Web complexity; fresh MV-03/MV-04 screenshots | Restored delayed route feedback as a pointer-transparent status card with 96×96 artwork; reduced-motion mode retains static copy without artwork. Focused route evidence passed 11/11 and the complete serial Web integration run passed 243/243 in 17.5 minutes. Fresh 1440×900 and 320×800 screenshots show the artwork/card for MV-03 and static card/copy for MV-04; keyboard, focus, overflow, control-obstruction, console, request, and idle-cleanup checks passed. The missing WASM runtime is bundled locally for the player. | passed |
 
 ## Manual evidence
 
@@ -212,3 +213,5 @@ and no server or deployment path changed in this Spec.
 | 2026-09-12 | Final clean serial Playwright run passed 222/222 in 17.0 minutes on `PLAYWRIGHT_PORT=4001` with no retries. The two earlier long-run flakes passed in isolation and the current no-retry run completed cleanly after route diagnostics classified expected dotLottie cancellation errors. |
 | 2026-09-12 | Initial PR-event Web CI for superseded head `c1a71313` failed because its stale `tests/routes` selector matched no checked-in tests. Updated `.github/workflows/web-app-ci.yml` to run the current fixture-backed `test:integration` suite with one worker, added the path to the Spec contract, committed as `155a7121`, and pushed. |
 | 2026-09-12 | Final PR CI quality gate passed on head `155a7121b1791f8bcb73a0467edad0e94d4bdfe3`: Core, Server, Validation, and Web CI all passed. The external Vercel server-staging preview context remains non-applicable and is recorded above. Spec, Plan, and Evaluation are now closed for revision `1`; PR #38 was superseded by the renamed-branch replacement PR #39. |
+
+| 2026-10-06 | Route-status regression fixed after a full analytics integration replay exposed the four missing card/artwork selectors; focused route evidence passed 11/11, full Web integration passed 243/243, and fresh desktop/narrow screenshots were inspected. |

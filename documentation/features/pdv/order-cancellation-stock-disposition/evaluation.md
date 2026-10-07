@@ -1,7 +1,7 @@
 ---
 feature: "pdv/order-cancellation-stock-disposition"
 spec: ./spec.md
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 spec_revision: 1
 status: completed
 updated_at: 2026-09-27

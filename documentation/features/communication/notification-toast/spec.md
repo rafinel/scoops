@@ -10,7 +10,7 @@ scope:
   - packages/validation
   - apps/server
   - apps/web
-plan: ./plan.md
+legacy_execution: ./history/legacy-execution.md
 evaluation: ./evaluation.md
 updated_at: 2026-09-11
 ---
@@ -24,4 +24,4 @@ experience, and the controller-test fixture consolidation: all five controller-t
 functions now live on `CommunicationModuleFixture`, and the legacy helper module was removed.
 
 Final implementation, runtime, visual, acceptance, rule-alignment and PR CI evidence is retained
-in [`evaluation.md`](./evaluation.md). The execution ledger is retained in [`plan.md`](./plan.md).
+in [`evaluation.md`](./evaluation.md). The execution ledger is retained in [`plan.md`](history/legacy-execution.md).

@@ -1,363 +1,158 @@
 ---
 name: conclude-spec
-description: Publish a validated Spec implementation through its pull request, run the final PR CI Quality Gate, close the SDD artifacts, and report the delivery state.
+description: Publish a validated Spec implementation, verify final PR CI, and close its evidence and delivery records.
 ---
 
 # Conclude a Spec
 
-Close a validation-ready implementation in the current task. `conclude-spec` owns publication,
-the final pull-request CI gate, evidence closure and artifact completion. It does not
-implement changes or process later reviewer feedback.
+`conclude-spec` owns publication, the final pull-request CI gate and delivery closure.
+It consumes the integrated evidence established by `implement-spec`; it does not repeat
+implementation or local validation merely because conclusion has started.
 
-## Workflow continuity
+## Preconditions and authority
 
-Treat every route named by this workflow as an immediate transition inside the current task,
-not as a recommendation for the user to run another prompt. When an in-Contract correction is
-required, invoke `implement-spec`, let it select direct or Plan-backed execution and create
-the Builder, refresh evidence and return evaluation to `ready`, then resume `conclude-spec`
-automatically.
+Read the current Spec, `evaluation.md`, `documentation/sdd.md`, applicable Rule Pack and
+`documentation/tooling.md`. Require Spec `in_progress`, Evaluation `ready`, evidence for the
+current Spec revision and integrated candidate, and no blocking finding or unfinished
+acceptance criterion. Preserve actual GitHub Issue or direct-request traceability.
 
-Do not end the task with a routine correction as a "next action", and do not ask whether the
-user wants it fixed. The active SDD delivery authorizes reversible implementation, test,
-generated-artifact and checked-in CI corrections required to satisfy the current Contract.
-Pause for the user only when a Contract or higher-authority decision is required, publication
-authority is missing, an external blocker prevents progress, or the same failure reaches the
-retry limit defined by the Orchestrator.
+Require authority to commit, push and create or update the PR. Reuse authorization already
+provided in the task. Complete local preparation before asking once for missing publication
+authority; keep the Spec `in_progress` while awaiting it. Do not merge or deploy automatically.
+Use authenticated `gh` for GitHub inspection and publication.
 
-## Preconditions
+When creating or renaming a delivery branch, use `feat/<name>`, `fix/<name>` or `chore/<name>`
+according to the change. Delivery PRs must be ready for review; verify `isDraft: false`.
 
-Require:
+## Local closure preflight
 
-- Spec status is `in_progress`;
-- `evaluation.md` has `status: ready` and references the current Spec revision and
-  implementation;
-- direct implementation or all Plan phases are complete;
-- required AC, `MV-*`, runtime and visual evidence is current;
-- no blocking implementation finding remains;
-- source and GitHub Issue traceability is preserved.
+1. Compare the integrated candidate with the current Spec's observable behavior, boundaries,
+   acceptance criteria and consequential technical decisions. Inspect the actual diff and
+   existing automated, runtime, manual, visual and independent-review evidence. Evidence must
+   name the candidate or affected diff and its assumptions; a check label alone is insufficient.
+2. Reuse passing evidence when its implementation, contract, dependencies and environment
+   assumptions remain valid. Run only missing or invalidated checks. Every affected Core,
+   Server or Web workspace must have current passing `test:coverage` evidence at its configured
+   floor; never lower a threshold to make closure pass. Apply the same freshness decision to
+   generation, formatting, types, integration, architecture, build and Playwright CLI checks.
+3. When the Spec explicitly classifies exact artifact paths as `Create`, `Modify`, `Generate`
+   or `Remove`, require a current passing
+   `pnpm check:spec-implementation -- <exact-spec-path>` result for those obligations. Reuse
+   its result when the relevant paths and Git state remain valid; otherwise rerun it. When no
+   such classified inventory exists, record the structural checker as not applicable. Do not
+   invent an internal file inventory to satisfy the tool. This check never replaces semantic
+   acceptance evidence.
+4. Verify migrations, generated artifacts, saved design references and affected documentation.
+   For every affected HTTP route group, verify its matching
+   `apps/server/rest-client/<module>/<route-group>.rest` file is scoped and route-complete with
+   current parameters, headers, representative bodies and reusable non-secret variables.
+   For UI, require fresh inspected captures for the changed state/viewport and the applicable
+   Playwright behavior, console, network, keyboard, accessibility and responsive evidence.
+5. Inspect all changed documentation in status and staged/unstaged diffs. Include delivery-owned
+   and required factual documentation in the normal commits, PR traceability and Evaluation;
+   preserve unrelated user work and explicitly record exclusions. Spec and Evaluation are review
+   artifacts even when their changes only record evidence or closure.
+6. Map every in-scope `PRQ-*` through `FR-*` and `AC-*` to current evidence and classify it as
+   fully delivered, partially delivered or deferred. Full delivery requires the complete current
+   Outcome, Actors, applicable Consumes and Provides, Capabilities and conditional Experience,
+   with all mapped obligations passing. After this local preflight passes, and before the
+   delivery commit, publication or final PR CI, mark only fully delivered PRD requirements
+   `- [x] **Implemented**`; partial and deferred requirements remain `- [ ] **Implemented**`.
 
-Documentation changes are first-class delivery scope. Inspect every changed documentation
-path in `git status`, `git diff` and `git diff --cached`, including Specs, Plans, Evaluations,
-PRDs, architecture, modules, design, tooling, rules, prompts and REST-client examples.
-Classify each path as delivery-owned, required factual alignment or closure ledger, or unrelated
-user-owned scope. Delivery-owned and required factual documentation must be included in the
-normal delivery commit(s), PR traceability and Evaluation; never omit it because it is
-non-code. Preserve unrelated documentation and record its explicit exclusion.
+Only conclusion marks a PRD requirement implemented. Evaluation `ready` is permission to
+proceed with closure, not PRD delivery state.
 
-Also require a final implementation conformance record: the exact Spec revision and Builder
-scope match the diff; the required file/widget tree, contracts, exclusions and applicable UI
-states pass; every affected screenshot is fresh and inspected; and Playwright console,
-network, HTTP status, accessibility, keyboard and responsive checks are classified. Passing
-tests without this record is not validation-ready.
-The record must include a current passing
-`pnpm check:spec-implementation -- <exact-spec-path>` result for the implementation returned by
-`implement-spec`. This structural result does not replace contract, runtime, visual, REST-client
-or traceability evidence.
-For every affected HTTP route group, the same record must verify the matching
-`apps/server/rest-client/<module>/<route-group>.rest` file is present, included in the scoped
-diff, and contains one current labeled example for every controller route with the required
-parameters, headers and representative body. A passing controller test does not replace this
-REST-client artifact check.
+## Corrections and amendments
 
-Require explicit PRD implementation traceability in that record. Map every in-scope `PRQ-*`
-through the Spec's `FR-*` requirements and `AC-*` acceptance criteria to current Evaluation
-evidence, then classify it as fully delivered, partially delivered or deferred. A requirement
-is fully delivered only when its complete current Outcome, Actors, applicable Consumes and
-Provides, Capabilities and conditional Experience are implemented and every mapped Contract
-obligation has current passing evidence. Scoped
-delivery, passing only a subset of mapped criteria or deliberately leaving part for later is
-partial or deferred, not full delivery.
+A missing or invalidated check is run once for the current candidate. If it fails, record a
+finding and mark only dependent evidence stale. Set Evaluation `in_progress`, invoke
+`implement-spec` for correction and integrated verification, then resume conclusion after it
+returns `ready`. Keep the current Spec revision for an implementation correction.
 
-Conclusion requires authorization to create commits, push the delivery branch and create or
-update its pull request. If that authority is not explicit or already in scope, ask once and
-keep the Spec `in_progress`. Do not silently publish, merge or deploy.
+A change to product behavior, design intent or a consequential technical boundary requires
+Spec amendment: set the Spec `draft`, route through `create-spec`, update higher authority first
+with the required approval, return materially amended PRD requirements to unchecked before the
+revised Spec is authored, increment the revision and reconcile affected Evaluation evidence.
+Continue implementation and conclusion in the same task after the amendment is resolved.
 
-Delivery branch naming is mandatory: when creating or renaming a delivery branch, use exactly
-one of `feat/<name>`, `fix/<name>`, or `chore/<name>` according to the change. Never create or
-rename a delivery branch with a `codex/` prefix or any other prefix.
+Uncheck a previously delivered PRD requirement only when verified product evidence shows it
+is no longer delivered. Preserve its checkbox for transient infrastructure failures or an
+evidence-only gap when the delivered behavior remains verified.
 
-All pull requests opened or updated by this workflow must be ready for review, never draft.
-The mandatory `create-pr` publication step must create or convert the delivery PR with
-`draft: false`; verify `isDraft: false` before the conclusion summary.
+Do not stop with a routine fix listed as a suggested next action. Continue corrections until
+passing. Pause only for a required authority decision, missing publication authority or an
+external blocker that prevents meaningful progress, or the documented repeated-failure limit
+from `implement-spec`. Diagnose repeated failures and change the approach before retrying.
 
-## Authority and late-change routing
+## Publish the candidate
 
-If local preflight or closure review finds a discrepancy, pause the closure phase and classify
-it:
+Use `commit-code` for intentional scoped commits, including authorized PRD checkbox changes and
+all delivery-owned documentation. Then invoke `create-pr` to publish or update the same PR;
+never create a duplicate or bypass its metadata/traceability workflow. Inspect publication's
+resulting diff, base, head SHA and evidence freshness, especially after integration-base merges.
+An integration change invalidates only the checks whose claims it affects. Route required
+corrections through implementation before resuming publication.
 
-- **Implementation correction:** record the finding, mark affected evidence stale, set
-  evaluation to `in_progress` and immediately invoke `implement-spec`. It selects the current
-  Plan automatically when present and owns the correction and validation.
-- **Contract change:** set the Spec to `draft`, immediately invoke `create-spec`, obtain required
-  product or technical authority, uncheck every materially changed PRD `PRQ-*` before the
-  revised Spec is authored, increment the revision, reconcile Plan/evaluation and continue
-  through the recommended implementation route before resuming conclusion.
-- **Documented transient CI/infrastructure failure:** keep the Spec `in_progress` and allow
-  a same-SHA rerun only with concrete evidence that the failure is transient; keep waiting for
-  its result in the current task.
+Record the branch and PR URL in Evaluation when needed. Do not invent approvals or results.
 
-When a correction reopens a previously checked delivery, change an affected PRD requirement
-back to `- [ ] **Implemented**` only when current evidence verifies a product failure against
-that requirement. Do not uncheck requirements for a transient CI/infrastructure failure or an
-evidence-only gap where the delivered product behavior remains verified. Preserve partial and
-deferred requirements as unchecked throughout every route.
+## Final PR CI gate
 
-Do not create a Builder or change the implementation inside `conclude-spec`.
-The invoked implementation workflow creates the Builder and refreshes validation. Resume
-conclusion automatically after it returns evaluation to `ready`.
+After publication, wait for all applicable checked-in GitHub Actions workflows on the actual
+current PR head SHA. Determine applicability from their real path filters, including Core CI,
+Server CI and Web CI when their inputs changed. Record each applicable workflow/check name,
+result, run URL and tested SHA in Evaluation; state why any workflow is inapplicable.
 
-## Prepare and publish the PR
+Pending, missing expected, cancelled or earlier-SHA checks are not passing evidence. A local
+check or branch-push run does not satisfy this PR gate. Poll to terminal results without ending
+the task while required checks are pending.
 
-1. Read the Spec Validation Contract, Rule Pack, current evaluation and
-   `documentation/tooling.md`.
-2. Run `pnpm check:spec-implementation -- <exact-spec-path>` against the complete delivery
-   candidate and record the exact command and result. On failure, classify an
-   implementation correction, mark affected evidence stale, invoke `implement-spec`, and restart
-   conclusion preflight after Evaluation returns to `ready`.
-3. Run the applicable local generation, formatting/code, type, unit coverage, integration,
-   Playwright CLI, architecture and build preflight required by the Spec and changed paths. Every
-   affected Core, Server or Web workspace must pass its `test:coverage` command without reducing
-   the configured floor.
-4. Reconcile generated artifacts, migrations, REST-client examples, saved design evidence and all
-   changed documentation against the current diff. Verify documentation links, statuses,
-   requirement checkboxes, evidence IDs, changed paths and implementation facts. Include every
-   delivery-owned or required factual documentation change in the candidate scope, and record
-   unrelated user-owned documentation as explicitly excluded.
-5. Rerun the final Spec conformance comparison and verify the current validation evidence covers
-   the exact implementation diff. Any later
-   implementation or acceptance-evidence change routes back to the implementation workflow. If a
-   later correction changes, creates, generates or removes a contracted path, rerun the package
-   check before committing or publishing.
-6. Resolve the PRD implementation-checkbox disposition from the completed `PRQ-*`/`FR-*`/`AC-*`
-   traceability record. Change only fully delivered requirements to
-   `- [x] **Implemented**`; leave partially delivered and deferred requirements as
-   `- [ ] **Implemented**`. Make this PRD update only after steps 1–5 pass and before invoking
-   `commit-code`, `create-pr` or the final PR CI gate. If traceability or evidence is incomplete,
-   route the discrepancy through the authority and late-change rules instead of checking the
-   requirement.
-7. Before invoking `commit-code`, audit the complete changed-documentation list again. Ensure
-   every delivery-owned or required factual documentation change is intentionally staged in the
-   normal delivery commit(s), represented in the PR traceability and recorded in `evaluation.md`.
-   Spec, Plan and Evaluation are part of the review candidate; do not omit them because a change
-   records execution state, evidence or closure. Preserve unrelated user-owned documentation and
-   record each exclusion.
-8. Invoke `commit-code` to create intentional scoped commits, including any authorized PRD
-   checkbox changes from step 6 and all delivery-owned or required factual documentation changes.
-9. Inspect the existing delivery PR, if any, and compare its base, head SHA, title and body
-   with the current candidate. If no matching PR exists, the PR points at an earlier SHA, or
-   its publication details are stale or incomplete, **invoke `create-pr` immediately and
-   mandatorily** to create or update it. Do not bypass `create-pr` with an ad hoc PR edit or
-   proceed to the final CI gate before it returns the current PR metadata.
-10. Invoke `create-pr` for the final publication whenever the branch was newly committed or
-   the PR needs any update; reuse the existing delivery PR and never create a duplicate.
-11. Record the branch and PR URL in the delivery record; update
-   `evaluation.md` only when the operational ledger needs the reference.
-
-## Final PR CI Quality Gate
-
-The PR CI gate is a blocking loop. After publication, poll every applicable check attached
-to the current PR head SHA until each reaches a terminal result. A pending or in-progress
-check is not a pass, and this workflow must not return a final delivery summary while any
-required check is pending. Use the actual PR check/run URLs and record each workflow's head
-SHA and result in `evaluation.md`.
-
-Use the checks attached to the current pull request and select the applicable checked-in
-GitHub Actions workflows by their real path filters:
-
-- **Core CI** for affected Core/package inputs;
-- **Server CI** for affected Server or Core inputs;
-- **Web CI** for affected Web or Core inputs.
-
-Wait for every applicable PR check on the current PR head SHA. A branch-push run, local build,
-earlier SHA, cancelled run or missing expected workflow does not satisfy this gate. Record
-the check/workflow name, result, run URL, PR head SHA and relevant test/build summary in
-`evaluation.md`. Record why a workflow is inapplicable when its path filters exclude it.
-
-If CI fails:
-
-- record the failure in `evaluation.md` and keep the Spec `in_progress`;
-- classify whether it proves an affected PRD requirement is not delivered. Uncheck each affected
-  previously checked `PRQ-*` only for a verified product failure; preserve checkbox state for a
-  transient CI/infrastructure failure or an evidence-only issue where product behavior remains
-  verified;
-- immediately invoke the applicable implementation or amendment workflow through the
-  authority and late-change routing above;
-- after that workflow returns evaluation to `ready`, invoke `commit-code`, update the existing
-  PR through the mandatory `create-pr` workflow, and run this gate again on its new head SHA;
-- rerun the same SHA only for a documented transient CI/infrastructure failure;
-- repeat this correction, publication and CI loop until the gate passes or a permitted pause
-  condition from Workflow continuity occurs.
-
-The correction/publication loop must invoke the workflows explicitly in this order:
-
-1. `implement-spec` (or the applicable amendment workflow) for an implementation or
-   Contract correction;
-2. `commit-code` after the correction returns Evaluation to `ready`;
-3. `create-pr` to update the existing delivery PR and obtain its new head SHA;
-4. this CI gate, polling the new head until every applicable check is terminal.
-
-For a same-SHA transient rerun, invoke `create-pr` only if publication metadata changed,
-then continue polling the rerun to a terminal result. Do not stop monitoring because a tool
-call, shell session or assistant turn ended; resume the loop in the current task until the
-gate passes or a permitted pause condition is reached. If a failure remains actionable,
-route it immediately instead of reporting it as a suggested next step.
-
-`conclude-spec` observes and orchestrates CI failures; it does not edit their fixes directly.
-Reporting the failure with a suggested next workflow while fixable work remains is an
-incomplete conclusion run.
+On failure, record the observed cause and keep the Spec `in_progress`. Invoke `implement-spec`
+for an in-contract implementation or checked-in CI correction, or the amendment route for a
+Contract change. After Evaluation returns `ready`, use `commit-code`, update the existing PR
+with `create-pr`, and verify its new head. A same-SHA rerun is allowed only for a concretely
+documented transient infrastructure failure; wait for its terminal result. Repeat until passing
+or an actual authority/external blocker prevents progress.
 
 ## Evidence and documentation closure
 
-After the implementation-candidate CI gate passes, verify `evaluation.md` contains:
+Keep Evaluation concise and sufficient for resumption: current revision/status, AC results,
+exact checks and outcomes, runtime/manual/visual evidence, independent review findings,
+unresolved findings and unfinished criteria, and a short continuation handoff. Use its
+canonical shape from `implement-spec`; do not add a task, phase or ownership ledger.
 
-- the Canonical Evaluation shape from `documentation/prompts/implement-spec-prompt.md`, including
-  its sections, table columns and stable evidence IDs;
-- exact Spec revision;
-- complete acceptance-criteria matrix;
-- automated, runtime, manual and visual evidence;
-- saved reference paths and transient Playwright/CI artifact identifiers when visual evidence
-  was collected; never require a feature `evidence/` directory;
-- visual comparison rows for any supplied or Spec-requested supplemental screenshot that was
-  explicitly scoped as acceptance evidence, including exact viewport/state and differences;
-- a resolved decision for every additional-screenshot suggestion when the suggestion affects
-  an acceptance decision;
-- Rule compliance and documentation alignment;
-- resolved and active findings with their lessons and dispositions;
-- a `Lessons learned` section that extracts reusable guidance from material findings;
-- final validation result;
-- applicable PR CI run evidence and final build result.
+Before closure, verify PRD checkbox disposition against the same `PRQ-*`/`FR-*`/`AC-*` mapping.
+Review material findings, including resolved failures, for reusable guidance. Record the
+concrete finding separately from its lesson. Update the applicable PRD, Architecture, Modules,
+Design, Tooling, Rule, SDD, prompt or agent authority when a factual clarification is warranted;
+otherwise record a specific no-change disposition. New product, architecture, ownership or
+global-policy decisions use the amendment/authority route. Do not turn every isolated typo,
+transient failure or feature-local detail into a global rule.
 
-Verify that every delivery-owned or required factual documentation change from the candidate
-diff is included in the scoped delivery commit(s), PR traceability and final Evaluation. A
-documentation change must not be omitted solely because it does not change runtime code. Record
-the paths and rationale for included changes, and the explicit reason for each preserved
-unrelated user-owned documentation path.
-
-Check PRD, Architecture, Modules, Design, Tooling and the Rule Pack against delivered facts.
-Apply factual documentation corrections only. Product, Contract, global Rule, module
-ownership or architecture changes require user authority and the late-change route.
-
-Reconcile the final PRD checkbox state against the same complete `PRQ-*`/`FR-*`/`AC-*`
-traceability used before publication. Every checked requirement must still be fully delivered;
-every partial or deferred requirement must remain unchecked. A mismatch is a blocking closure
-finding and follows the same correction, amendment or transient-failure routing above.
-
-Treat material findings as inputs to durable documentation improvement, not only as closure
-records. This review is a mandatory closure gate. Review the entire Evaluation history,
-including failed attempts, command corrections, fixture and environment blockers, repeated
-validation runs and implementation rework; do not limit the review to defects still active or
-to the final passing result. For every material finding, including resolved and accepted
-non-blocking findings, classify whether it exposed reusable missing or ambiguous guidance:
-
-1. record the concrete issue first in `Findings` with evidence, status and resolution;
-2. extract the reusable principle into `Lessons learned` when applicable;
-3. update the appropriate authority, or record an explicit no-change disposition when no durable
-   update is warranted.
-
-For process findings, identify what should have been discovered earlier and the specific
-preflight, routing or validation instruction that would prevent recurrence. Consider fixture
-availability, environment capability, implementation constraints and the choice between focused
-checks and full regression runs. Do not convert developer-specific settings into universal
-requirements or weaken required validation to make closure easier.
-
-Recording a reusable lesson is not complete until its authority disposition is decided in the
-same conclusion pass. For each lesson, name the applicable Markdown authority file(s), make the
-factual update when the lesson is already consistent with the approved Contract, or record
-`No change` with a concrete reason. If applying the lesson would change product intent,
-architecture, module ownership or a global policy, route it as a Contract or authority change
-instead of silently editing the document.
-
-- update the applicable module PRD under `documentation/prds/` when the finding clarifies
-  product behavior, user-visible states, permissions or acceptance intent;
-- update `documentation/architecture.md` when the finding reveals an architectural boundary,
-  dependency, data-flow or system-responsibility clarification that future work must retain;
-- update the applicable document under `documentation/rules/` when the finding reveals a
-  repeatable implementation, testing, validation or tooling pitfall that a repository rule can
-  prevent;
-- update `documentation/design.md` when the finding reveals reusable visual-system,
-  component-state, accessibility, responsive-layout or interaction guidance that future UI
-  work must follow;
-- update `documentation/tooling.md` when the finding reveals reusable command syntax,
-  environment setup, generation, CI or validation guidance;
-- update the owning canonical prompt under `documentation/prompts/` when the finding reveals
-  missing or ambiguous SDD preflight, execution order, delegation, correction routing,
-  validation freshness or closure guidance; update `documentation/sdd.md` or the applicable
-  agent contract when it owns the affected instruction. Synchronize generated skills/commands
-  with `pnpm sync:commands` and agent definitions with `pnpm sync:agents` when their canonical
-  sources change; validate the affected tooling using the documented checks;
-- update every applicable document when the reusable lesson spans architecture, design,
-  tooling and execution guidance;
-- make no durable documentation change for a transient environment failure, isolated typo,
-  already-documented rule or feature-local detail that would overfit global guidance.
-
-Record each material finding's documentation disposition in `evaluation.md`: link the updated
-PRD, Architecture, Design, Tooling, Rule, SDD, prompt or agent document and summarize the lesson,
-or state why no update was warranted. Record the finding ID, reusable lesson, exact authority
-path, disposition (`Updated`, `No change` or `Routed authority change`) and validation evidence.
-For `No change` because guidance already exists, cite the exact existing instruction and
-explain why a clarification is unnecessary. Generic dispositions such as “lessons recorded”
-or “documentation reviewed” are insufficient.
-
-Before setting any delivery artifact to `completed`, verify that every material finding has
-this disposition and every required documentation update is present, validated and included in
-the delivery scope. An unassessed finding, an unapplied required clarification or an unresolved
-routed authority change blocks closure; recording a future recommendation does not satisfy
-this gate. Preserve historical evidence and do not reopen a resolved implementation defect
-solely to record its documentation disposition.
-
-Keep these corrections concise and generally applicable. A clarification consistent with the
-approved Contract and delivered architecture is part of conclusion; a new product rule,
-Contract obligation, module-ownership decision, architecture decision or global policy still
-requires user authority and the late-change route.
+Record each material finding's authority path, disposition (`Updated`, `No change` or
+`Routed authority change`) and reason. Required factual updates belong in the scoped delivery.
+An unresolved material finding or required authority change blocks closure. Synchronize changed
+canonical prompts or agent definitions with the documented repository commands when applicable.
 
 ## Complete the delivery
 
-Only after the implementation-candidate PR CI gate passes and no blocking finding remains:
+After implementation-candidate PR CI passes and no blocking finding remains, set Evaluation and
+Spec `completed`, preserve the full Spec contract and detailed evidence, and add a concise outcome
+and Evaluation link. Use `commit-code` for the scoped closure documentation, then `create-pr`
+to publish it to the same PR. Require every applicable live check to pass on this final head.
 
-- set `evaluation.md` to `completed`;
-- set `plan.md` to `completed`, when present;
-- set `spec.md` to `completed` and retain only the summarized outcome and
-  link to `evaluation.md`;
-- preserve detailed evidence in `evaluation.md`;
-- commit the completed Spec, Plan and Evaluation to the same PR through `commit-code`, then
-  invoke `create-pr` and require all applicable checks to pass on that closure commit's head.
+Record the implementation-candidate gate in Evaluation before the closure commit. Report the
+final closure-head check results and URLs directly from GitHub; do not append those run IDs to
+Evaluation and create an endless sequence of documentation commits. If a final-head failure
+requires implementation correction, reopen the same Spec/Evaluation and repeat the correction,
+publication and verification loop.
 
-The closure commit is an expected part of every Spec delivery. Keep it limited to the
-delivery-owned Spec, Plan and Evaluation closure changes and any required factual documentation;
-never include unrelated user work. If checks fail on the closure head, follow the normal
-failure-routing rules, fix the cause and rerun checks on the new head before declaring delivery
-complete.
-
-Record the implementation-candidate PR CI runs in Evaluation with their URLs and tested SHA.
-After publishing the closure commit, verify every applicable live check on the actual PR head
-and include its result and links in the delivery summary. Do not amend Evaluation with those
-post-closure run IDs: another Evaluation commit would create a new head and repeat this gate.
-The current PR check rollup is the authoritative record for the final documentation-only head.
-If a post-closure failure requires an implementation correction, return through
-`implement-spec`, refresh Evaluation evidence, then commit, republish and rerun the full gate.
-
-Do not wait indefinitely for reviewer comments and do not process them here. Later actionable
-review feedback is handled by `resolve-pr-feedback`; while the PR remains open, that workflow
-may reopen the Spec, route implementation and invoke `conclude-spec` again. After merge, use
-the bug-fix workflow for a defect or a new change Spec for changed behavior.
-
-Do not merge or deploy unless explicitly requested.
+Later reviewer comments belong to `resolve-pr-feedback`. Do not wait indefinitely for comments.
+Do not merge or deploy automatically.
 
 ## Conclusion summary
 
-Return:
-
-- clickable Spec, Plan when present, evaluation and PR links;
-- Spec revision and completed status;
-- delivery references, when present;
-- validation result and AC/manual/visual coverage;
-- fully delivered, partially delivered and deferred PRD `PRQ-*` requirements with their final
-  Implemented-checkbox disposition;
-- applicable PR CI workflows and results;
-- documentation paths included in the delivery, with explicitly preserved exclusions and their
-  rationale;
-- final PR head SHA and live check results after the SDD closure commit;
-- documentation alignment and remaining non-blocking limitations;
-- finding-derived PRD, Architecture, Design, Tooling, Rule Pack, SDD, prompt and agent
-  improvements, including justified no-change dispositions;
-- PR state and next authorized action.
+Return clickable Spec, Evaluation and PR links, revision/status, validation and AC/manual/visual
+coverage, fully/partially delivered or deferred `PRQ-*` dispositions, the final PR head SHA and
+applicable live CI results, material limitations and any excluded user work. Report factual
+authority updates or justified no-change dispositions when relevant. Claim completion only after
+the final published head passes its applicable checks.

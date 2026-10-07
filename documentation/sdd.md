@@ -1,49 +1,37 @@
 # Specification-Driven Development
 
-Specification-Driven Development (SDD) is the delivery workflow used for Scoops features
-and feature-scoped changes. It keeps product intent, implementation contracts, execution
-state, evidence, review and pull-request closure in durable repository artifacts.
+Scoops uses SDD for features and changes that need an explicit product or technical
+contract. The Spec defines the required outcomes and their checkers. The agent
+organizes implementation autonomously. Evaluation records actual progress,
+findings and verified evidence through pull-request closure.
 
-SDD is not required for maintenance that does not need a feature Contract. The Orchestrator
-classifies the request and uses a direct maintenance workflow when a Spec would add no useful
-authority or traceability.
+```text
+Spec → autonomous implementation → integrated verification → conclusion
+                                      ↑            ↓
+                                      └── fixes ───┘
+```
 
-## Mandatory reading
+Behavior-preserving maintenance may use direct implementation when a feature
+contract would add no useful authority or traceability. A discovered product or
+consequential technical choice requires reconciliation before dependent work.
 
-Before starting or resuming any SDD workflow, read these repository authorities in full,
-regardless of the initially expected paths or layers:
+## Authority and context discovery
 
-1. [`modules.md`](./modules.md) for business ownership and cross-module boundaries;
-2. [`architecture.md`](./architecture.md) for system invariants and dependency direction;
-3. [`rules.md`](./rules.md) for dynamic Rule selection, followed by every selected Rule;
-4. [`tooling.md`](./tooling.md) for actual workspace, generation, validation and environment
-   commands.
+Before specifying or resuming a feature in a fresh context, read root and applicable
+nested `AGENTS.md`, this workflow, [`modules.md`](./modules.md),
+[`architecture.md`](./architecture.md), [`rules.md`](./rules.md) and its selected Rule
+Pack, and [`tooling.md`](./tooling.md). Inspect actual manifests and affected code.
+Read the complete affected module PRD and relevant Issue/report/direct request.
+For UI, also read [`design.md`](./design.md) and the saved design references.
 
-Read root and applicable nested `AGENTS.md` files before these documents. Re-run Rule
-discovery and reread affected authority whenever the task expands or an authority changes.
-Do not postpone Architecture, Modules or Tooling until implementation happens to cross a
-boundary; they are mandatory SDD preflight inputs.
-
-## Sources of authority
-
-SDD does not replace repository documentation. A feature Spec is written from the applicable
-sources of truth:
-
-| Authority | Governs |
-| --- | --- |
-| Root and nested `AGENTS.md` | Agent behavior, repository safety and tool usage. |
-| [`rules.md`](./rules.md) and selected Rules | Reusable implementation conventions for affected paths and behavior. |
-| [`architecture.md`](./architecture.md) | System boundaries, dependency direction, consistency and integrations. |
-| [`modules.md`](./modules.md) | Business-module ownership. |
-| Module PRD | Product outcomes, actors, capabilities, experience, product dependencies, user journeys and implementation inventory. |
-| [`design.md`](./design.md) and saved design references | UI system and feature-specific visual intent. |
-| [`tooling.md`](./tooling.md) | Real generation, validation, build and environment commands. |
-| GitHub Issue, report or direct request | Delivery source and external traceability when present. |
-
-When a requested feature requires a PRD, Rule, architecture, module, design or tooling
-change, that authority is updated first. Product behavior, global Rules, architecture and
-module ownership require explicit user approval. The Spec is then written against the
-updated authority.
+Reuse complete reads and repository facts already current in the same context.
+Refresh affected sources when scope expands, authority changes or facts become
+uncertain. Repository documentation governs the Spec; the Spec cannot silently
+change product intent, module ownership, architecture or Rules to fit existing code.
+Resolve missing product decisions with the user. Update higher authority first
+when a change requires it, using authorization already given in the conversation;
+material unresolved product, architecture, module or global Rule changes require
+explicit approval. Routine reversible implementation decisions require no approval.
 
 ### PRD requirement contract
 
@@ -66,7 +54,7 @@ and must not become a duplicate requirement list.
 A PRD Product Dependency Graph records only product-capability consumption: an edge from A to B
 means B consumes a capability or authoritative fact provided by A. It does not define file or
 technical dependencies, implementation priority, foundation work, execution phases, waves or
-parallelism. Specs and Plans derive execution dependencies from the Technical Contract and real
+parallelism. The implementing agent derives execution dependencies from the Technical Contract and real
 repository boundaries, never from the PRD graph.
 
 New and materially amended requirements use an unchecked Implemented checkbox. A material PRD
@@ -94,446 +82,230 @@ Completed historical Specs and Evaluations may retain legacy identifiers for rec
 new artifacts and active artifacts being revised use this taxonomy. Do not rewrite historical
 evidence only to rename an identifier.
 
-## Roles
-
-SDD uses five roles. Prompt names such as `create-spec` or `conclude-spec` are workflows,
-not additional agents.
-
-| Role | Responsibility | Restrictions |
-| --- | --- | --- |
-| Orchestrator | The main agent selects workflows, owns artifact state, creates subagents, integrates Builder diffs, runs deterministic sensors, records evidence, publishes the PR and routes failures or changes. | Does not delegate integration or the official evidence verdict, skip required sensors or claim evidence that was not executed. |
-| [Builder](./agents/builder-agent.md) | Implements one bounded direct, phase, task or fix scope against the current Spec revision and Rules. | Does not edit Spec, Plan, Evaluation, PRD or Rules; does not review its own work or publish delivery artifacts. |
-| [Spec Reviewer](./agents/spec-reviewer-agent.md) | During `create-spec`, independently audits a draft Spec for compatibility with Architecture, Modules ownership and the applicable Rule Pack before any `create-plan` step. | Does not assess product completeness, design fidelity, validation evidence, implementation code or plan execution; does not edit files, resolve ambiguity, create subagents or decide Spec status. |
-| [Implementation Reviewer](./agents/implementation-reviewer-agent.md) | Independently reviews one integrated Plan-backed implementation candidate against the Spec, Rules, design references and current evidence. | Does not edit files, implement fixes, create subagents or decide the official evidence verdict. |
-| [Visual Reviewer](./agents/visual-reviewer-agent.md) | When explicitly requested by the user or current Spec, independently compares one integrated design-backed UI candidate with saved references and current captures. | Does not edit files, replace the Implementation Reviewer, create official evidence or decide readiness. |
-
-Builders and Reviewers are scoped subagents created by the Orchestrator in the current task.
-No subagent creates another subagent, fork or user-owned task. Spec quality is enforced by
-clarification, authoring-integrity checks and the applicable independent Spec Reviewer;
-implementation quality is enforced by deterministic sensors, Playwright CLI evidence and the
-applicable Implementation Reviewer. A Visual Reviewer is optional and activated only when
-the user or current Spec requests independent visual review; its report supplements the
-Orchestrator's visual evidence without adding a default delivery gate.
-
 ## Durable artifacts
-
-Feature artifacts live under:
 
 ```text
 documentation/features/<domain>/<feature>/
-├── spec.md
-├── plan.md                         # optional
-├── evaluation.md                   # created at implementation kickoff
-├── design/
-│   ├── handoff.md                  # for design-backed UI
-│   └── <reference screenshots>.png
+├── spec.md                 # contracts and checkers
+├── evaluation.md           # progress, evidence, findings and current handoff
+└── design/                 # saved references when material
+    ├── handoff.md
+    └── <reference screenshots>.png
 ```
 
-New design bundles use `design/handoff.md`. For an existing feature bundle without
-that file, consume its legacy `design/manifest.md`; preserve existing artifacts rather
-than renaming them solely to follow the new convention. Do not create both files.
+Use the [Spec](./templates/sdd/spec.md) and [Evaluation](./templates/sdd/evaluation.md)
+templates. New behavior for an already concluded feature uses
+`changes/<change-name>/` under that feature. Existing design bundles may retain
+`design/manifest.md`; do not create a duplicate handoff solely to rename it.
 
-Implementation screenshots are validation artifacts, not durable feature files. Capture
-them in Playwright's ignored `test-results/` output or retain them as CI artifacts when a
-review needs the pixels; record the state, viewport, comparison result and artifact
-identifier in `evaluation.md`. Do not create or extend
-`documentation/features/**/evidence/` for new features. Legacy evidence directories from
-older revisions may remain in Git history, but they are not part of the current artifact tree.
+There is no separate `plan.md` or `create-plan` step. Execution order, decomposition,
+dependencies and delegation belong to the agent's working context. Existing Plans
+are preserved under `history/legacy-execution.md` for audit and continuation.
+Their task/phase statuses do not gate resumed work. Resume from the current Spec,
+Evaluation and actual diff; consult the archived ledger for unique obligations or
+unfinished work that has not yet been reconciled. Move any unique acceptance
+obligation into the Spec and factual progress/evidence into Evaluation before
+relying on the new handoff. Do not silently discard or weaken earlier obligations.
 
-New behavior for an already concluded feature uses:
+Implementation captures are transient validation artifacts under ignored
+`test-results/` output or CI artifacts. Record state, viewport, comparison result
+and path in Evaluation. Saved design references remain durable; do not create new
+implementation evidence directories under feature documentation.
 
-```text
-documentation/features/<domain>/<feature>/changes/<change-name>/
-```
+## Contract and checkers
 
-| Artifact | Owns | Does not own |
+The Spec has five sections: Context and scope, Implementation Contract, Technical
+Contract, Validation Contract, and Documentation alignment and revision history.
+It defines:
+
+- the problem, selected `PRQ-*`, actors, scope, exclusions and accepted assumptions;
+- observable `FR-*`, testable Given/When/Then `AC-*`, and traceability to product intent;
+- module ownership, public interfaces, persistent invariants, runtime boundaries,
+  migrations and consequential or difficult-to-reverse technical decisions;
+- applicable saved design references, required states and viewports;
+- concrete proof for every criterion: commands or test selectors, expected assertions,
+  environment/fixtures, manual steps or visual comparisons and evidence limits;
+- the exact Rule Pack and material contract revisions.
+
+Specify constraints that affect correctness. Ordinary helper names, internal file
+placement, widget decomposition, exhaustive declaration inventories, task lists
+and execution waves belong to the implementer following repository conventions.
+A Spec may name an existing boundary or a required artifact without prescribing
+every future internal file. Migration semantics, atomicity, compatibility and data
+preservation must be explicit; generated metadata stays generator-owned.
+
+Every FR maps to product requirements and every AC to FR and concrete proof.
+Enumerated states, bounds and transitions require explicit coverage; a sample proves
+only that sample. Negative, recovery, authorization, concurrency and unusual outcomes
+need automated coverage at repository-approved test boundaries. Manual scenarios
+should be concise user-visible journeys, with required screenshots captured during
+them. Additional manual checks need a concrete evidence gap or risk. Do not invent
+product identifiers or weaken acceptance to make implementation pass.
+
+HTTP route changes include route-complete examples in the owning
+`apps/server/rest-client/<module>/<route-group>.rest` file. Record route/example
+parity separately; it cannot prove real HTTP integration. A delivery is incomplete
+while required examples or generated artifacts are missing, stale or untracked.
+
+`pnpm check:spec-implementation -- <spec-path>` remains available for legacy or
+new Specs that explicitly classify exact required artifact paths as `Create`,
+`Modify`, `Generate` or `Remove`. It proves only those declared artifacts, not
+behavior or exhaustive scope. Do not add an internal path inventory merely to
+satisfy this tool. If applicable, run it on the integrated candidate and repeat
+only after changes that invalidate its structural claims. Specs without those
+declarations use their contracted checkers and a scoped diff/artifact inspection.
+
+## Roles and lifecycle
+
+The Orchestrator owns Spec/Evaluation state, shared decisions, integration and the
+official evidence verdict. It implements coherent scopes directly or delegates
+independent work to bounded [Builders](./agents/builder-agent.md), as `AGENTS.md`
+requires. Builders own disjoint code/test scopes and report results without
+changing acceptance obligations or governing artifacts. Reuse Builders for related
+corrections where possible. Only the Orchestrator creates subagents.
+
+A [Spec Reviewer](./agents/spec-reviewer-agent.md) independently checks architecture,
+module and Rule compatibility before the draft becomes `open`; repeat that review
+only for material contract amendments. One independent
+[Implementation Reviewer](./agents/implementation-reviewer-agent.md) assesses the
+integrated implementation and proof coverage. For design-backed UI, run the
+[Visual Reviewer](./agents/visual-reviewer-agent.md) in parallel on the same candidate
+using current required captures. Reviewers do not edit files, decide official
+readiness or automatically rerun integration suites. Findings need concrete evidence
+and a mapped correction; the Orchestrator verifies them.
+
+| Artifact | Status | Meaning |
 | --- | --- | --- |
-| `spec.md` | Product, design, technical and validation Contracts. | Execution attempts or test results. |
-| `plan.md` | Execution waves, dependencies, task ownership, status and next action. | Duplicate product or technical contracts. |
-| `evaluation.md` | Actual commands, runtime/manual/visual evidence, findings, history and PR CI evidence. | Product or architecture authority. |
-| `design/handoff.md` | Reference-frame inventory, source node, state, viewport, screenshot, implementation surface and comparison requirement. | Implementation-generated visual proof. |
-
-## Artifact statuses
-
-### Spec
-
-| Status | Meaning |
-| --- | --- |
-| `draft` | The Contract is being created or materially amended. |
-| `open` | The Contract passed authoring integrity and is implementation-ready. |
-| `in_progress` | Implementation or conclusion is active. |
-| `completed` | Final pull-request CI passed and delivery closure was recorded. |
-
-### Plan and execution ledger
-
-| Artifact | Statuses |
-| --- | --- |
-| Plan | `pending`, `in_progress`, `completed`, `superseded` |
-| Phase, task or coverage row | `pending`, `in_progress`, `completed` |
-
-Failures do not create extra status values. The affected item remains `in_progress`, with
-the finding and next action recorded in the Plan and Evaluation. `superseded` is reserved
-for a revised Spec that replaces the Plan or switches to direct implementation.
-
-### Evaluation
-
-| Item | Values | Meaning |
-| --- | --- | --- |
-| Evaluation status | `in_progress`, `ready`, `completed` | Evidence is being gathered, accepted and ready for conclusion, or closed after PR CI. `ready` is not PRD closure and does not change a PRD Implemented checkbox. |
-| Validation result | `passed`, `failed`, `blocked` | Sensor-backed result stored in Evaluation history, not Evaluation metadata. |
-
-## End-to-end lifecycle
-
-```mermaid
-flowchart TD
-    A["PRD, GitHub Issue, report or direct request"] --> B["create-spec authoring and integrity"]
-    B --> SR["Applicable Spec Reviewer and verified corrections"]
-    SR --> C{"Implementation route"}
-    C -->|Small cohesive delivery| D["implement-spec: direct strategy"]
-    C -->|Dependent or risky delivery| E["create-plan"]
-    E --> F["implement-spec: Plan-backed strategy"]
-    D --> IC["Complete integrated candidate"]
-    F --> IC
-    IC --> SIC["check:spec-implementation path gate"]
-    SIC --> RT{"Plan-backed?"}
-    RT -->|No| G["Integrated sensors and Playwright CLI evidence"]
-    RT -->|Yes| R["One Implementation Reviewer and integrated sensors"]
-    G --> H{"ready evidence"}
-    R --> H
-    H -->|No| I["Responsible Builder correction and refreshed evidence"]
-    I --> C
-    H -->|Yes| J["conclude-spec"]
-    J --> K["commit-code and create-pr"]
-    K --> L["PR CI Quality Gate"]
-    L -->|Failure| M["Route to implementation or Spec amendment"]
-    M --> J
-    L -->|Pass| N["Spec, Plan and Evaluation completed"]
-    N --> O["resolve-pr-feedback when later comments arrive"]
-```
-
-Within an active SDD task, transitions are owned by the Orchestrator. “Return to
-`create-spec`” means temporarily invoking its clarification and amendment workflow against
-the same Spec; it does not require the user to rerun a prompt manually or create another
-task. The same rule applies to every route between conclusion, implementation and amendment:
-the Orchestrator invokes the destination immediately and resumes the caller automatically.
-
-## 1. Optional issue creation
-
-When the product outcome itself is undefined, the Orchestrator routes through
-[`create-prd`](./prompts/create-prd-prompt.md) before feature SDD begins. Once an
-authoritative request or PRD exists, GitHub Issue creation is optional traceability.
-
-[`create-feat-issue`](./prompts/create-feat-issue.md) turns a product request into a concise
-GitHub Issue containing outcome, scope, acceptance criteria and references. Detailed
-layer contracts belong in the Spec, not the Issue.
-
-[`create-refactor-issue`](./prompts/create-refactor-issue-prompt.md) captures one
-evidence-backed, behavior-preserving structural improvement. It routes defects and product
-changes to their owning issue workflows, records the contracts that must remain stable and
-requires proof of both the structural result and regression safety.
-
-Before writing to GitHub, the workflow presents the exact title, body, labels and milestone.
-It submits only after the user explicitly approves that draft. Issue approval does not
-authorize implementation, commits or a pull request.
-
-## 2. Spec creation
-
-[`create-spec`](./prompts/create-spec-prompt.md) researches the repository and writes the
-implementation Contract. Before authoring it must resolve every material product,
-technical, design and validation ambiguity. Questions include repository evidence, a
-recommendation, alternatives and impact. Facts already fixed by authoritative documents
-are not delegated back to the user.
-
-When a PRD is authoritative, the Spec derives its `FR-*` and `AC-*` contracts from the complete
-mapped requirement: Outcome, Actors, applicable Consumes and Provides, Capabilities, conditional
-Experience and relevant cross-requirement User Journeys. The PRD does not duplicate User Stories
-or Acceptance Criteria, and its Product Dependency Graph is not implementation sequencing.
-
-The Spec has five top-level sections:
-
-| Section | Content |
-| --- | --- |
-| Context and scope | Objective, source, current product gap, boundaries, product alignment and accepted assumptions. |
-| Implementation Contract | Observable `FR-*` requirements, `AC-*` Given/When/Then acceptance, cross-cutting restrictions and conditional Design Contract. |
-| Technical Contract | Current technical state, runtime flow, application/layer contracts and consequential technical decisions. |
-| Validation Contract | Automated boundaries, executable `MV-*` manual scenarios, commands and evidence targets. |
-| Documentation alignment and revision history | Governing documents, exact Rule Pack and material Spec revisions. |
-
-The Technical Contract maps exact paths and declarations under the affected project layers:
-Domain, Use cases, Interfaces, Validation, REST, Provision, Database, Messaging and UI.
-Composition wiring is recorded where needed without moving business responsibility out of
-its owning layer. Reusable Zod schemas belong to Validation; their application consumers
-remain in their respective boundary layers. Migration paths include the complete expected
-SQL body.
-
-REST-client examples are first-class implementation artifacts. Whenever a Spec adds or
-changes an HTTP route group, its matching `apps/server/rest-client/<module>/<route-group>.rest`
-file is part of the REST Contract and must appear as an exact allowed path with a `Create` or
-`Modify` classification. The file must cover every route in that group with the current method,
-path parameters, headers, representative request body and reusable variables. The Plan assigns
-the file to the REST-owning Builder (or the Orchestrator when it is a shared generated or
-coordination artifact), and Evaluation records the route/example parity check. A route group
-is not implementation-complete while its REST-client file is missing, stale or untracked.
-
-The Spec remains `draft` until its metadata, FR/AC traceability, technical map, design
-bundle, manual scenarios, commands, links and Rule Pack pass Orchestrator integrity checks and
-the applicable independent [`Spec Reviewer`](./agents/spec-reviewer-agent.md) finds no unresolved
-Architecture or Rule compatibility issue. This review runs inside `create-spec`, before any
-`create-plan` step; it is not a separate user-facing stage or approval verdict. A valid Spec then
-moves directly to `open` and its author summary recommends:
-
-- direct `implement-spec` for a small cohesive change with stable dependencies;
-- `create-plan` followed by Plan-backed `implement-spec` for dependent phases, shared
-  ownership, meaningful parallelism or migration, provider, concurrency, security, visual
-  or recovery risk.
-
-## 3. Design-backed Specs
-
-For UI backed by Pencil or supplied screenshots, the Spec creator:
-
-1. visually inspects every relevant reference and records its visible inventory;
-2. asks about behavior implied by a screenshot but not established by the request or PRD;
-3. identifies missing states or viewports and classifies supplemental screenshots as
-   required or recommended;
-4. saves one reference image per required frame/state in the feature-local `design/` folder;
-5. creates `design/handoff.md` with exact node, state, viewport, implementation surface and
-   validation mapping;
-6. verifies every image exists, is valid and non-empty, has the declared dimensions or
-   export scale, and was opened for visual inspection.
-
-The Spec stays `draft` when a required reference cannot be saved or a screenshot-derived
-product ambiguity remains unresolved.
-
-When independent visual review is explicitly requested, the Spec records the Visual Reviewer
-scope and current-capture handoff in its Validation Contract. That audit happens during
-implementation, after captures exist; it is not another `create-spec` review gate or `MV-*`
-scenario.
-
-Builders and the Orchestrator use the saved bundle. They do not use live Pencil during normal
-implementation. Pencil is reopened only when the Design Contract changes or the user requests
-a reference refresh.
-
-## 4. Optional Plan creation
-
-[`create-plan`](./prompts/create-plan-prompt.md) creates `plan.md` only when the open Spec
-recommends Plan-backed execution. The Plan cannot redefine the Contract; an ambiguity routes back
-to Spec amendment.
-
-The Plan contains:
-
-| Section | Purpose |
-| --- | --- |
-| Execution status | Current Spec revision, phase, active Builders, next action, blockers and shared ownership. |
-| Execution ledger | Waves, stable ownership Builders, phases, tasks, dependencies, non-overlapping paths and sensor-backed exits. |
-| Validation and handoff | Scheduled automated, runtime, manual and visual evidence. |
-| Execution log | Conditional record of findings, failed attempts or material execution events. |
-
-Builders never edit the Plan. The Orchestrator keeps it current throughout implementation.
-When the current Spec requires a Visual Reviewer, the Plan schedules one audit after current
-design-state captures exist and before readiness; it does not add manual `MV-*` scenarios.
-
-## 5. Implementation and living evidence
-
-Implementation always starts through [`implement-spec`](./prompts/implement-spec-prompt.md).
-It selects direct execution when no current Plan exists and Plan-backed execution when a
-current Plan references the Spec revision. The common workflow:
-
-1. freeze the current Spec revision;
-2. set the Spec to `in_progress`, and the Plan when present;
-3. create or reconcile `evaluation.md` from the Canonical Evaluation shape in
-   [`implement-spec`](./prompts/implement-spec-prompt.md) with `status: in_progress`;
-4. activate bounded direct or stable ownership Builders with FR/AC coverage, allowed paths,
-   assigned phases, Rules, Architecture and design references;
-5. inspect and integrate all Builder diffs and Orchestrator-owned artifacts, run
-   `pnpm check:spec-implementation -- <exact-spec-path>` on the complete candidate, then run
-   repository-approved integrated sensors; only after the package check passes, for Plan-backed
-   execution activate one read-only Implementation Reviewer in parallel with those sensors;
-6. verify applicable review findings and record exact results, findings and validation-artifact
-   freshness in Evaluation;
-7. resume the responsible Builder for corrections when possible and rerun only invalidated
-   evidence until the Evaluation is ready.
-
-The direct route activates `Builder Direct` in the current agent context. The Plan route derives
-stable ownership Builders from affected application, package and module boundaries, reuses each
-Builder across related phases and defaults to at most three concurrent implementation Builders.
-It does not create agents linearly with phases, tasks or package count. Builders run in parallel
-only when their contracts are stable and paths do not overlap. After integration, exactly one
-Implementation Reviewer checks the complete candidate, including UI and server-backed surfaces when
-affected; no per-Builder, per-phase, per-application, per-package or specialist Reviewers are
-created. The Orchestrator coordinates root configuration, lockfiles, shared files, generated
-artifacts, integration and the official evidence verdict.
-
-Builder reports are not official evidence. The Orchestrator must verify the diff and sensor
-results. Validation artifacts tied to an earlier affected diff are marked historical or stale
-rather than silently reused; transient screenshots are regenerated under `test-results/` or
-as CI artifacts instead of being committed under feature documentation.
-
-The package check is one Orchestrator-owned structural gate on the complete integrated candidate,
-not a Builder exit or Reviewer. It validates the Spec's `Create`, `Modify`, `Generate` and
-`Remove` paths against disk and Git state. It runs before integrated sensors and the applicable
-Reviewer, and again after any correction affecting a contracted path. Its exact command,
-classification totals and result are recorded in Evaluation, but it is not semantic evidence and
-cannot establish readiness by itself.
-
-During normal delivery, `implement-spec` preserves every PRD Implemented checkbox exactly as
-received; an approved material PRD amendment is the sole case in this workflow that changes an
-affected checkbox, and it changes it only to unchecked. Reaching Evaluation `ready` establishes
-only that the current implementation and evidence can proceed to conclusion; it neither closes
-the PRD requirement nor marks it implemented.
-
-The Canonical Evaluation shape in [`implement-spec`](./prompts/implement-spec-prompt.md) fixes
-the table structure and stable evidence IDs. An Evaluation records:
-
-- Spec and Plan references, revision and status;
-- acceptance matrix;
-- automated and runtime command evidence;
-- manual and visual evidence;
-- Rule and documentation compliance;
-- findings and their resolution;
-- implementation and validation history;
-- PR candidate and CI evidence during conclusion;
-- chronological evaluation history.
-
-## 6. Integrated validation
-
-After the integrated implementation is current, the Orchestrator first runs
-`pnpm check:spec-implementation -- <exact-spec-path>`. Only after it passes, Plan-backed execution
-activates one read-only Implementation Reviewer while the Orchestrator runs the required Core,
-Validation, Server, Web, database, coverage, build and Playwright CLI sensors. Every affected
-Core, Server and Web workspace must pass its configured `test:coverage` floor; lowering a floor
-to make a delivery pass is prohibited, and any result below a configured floor is a blocking
-validation failure. Direct execution does not require a separate Reviewer
-unless the Spec or another repository authority requires one. The Reviewer covers cross-Builder
-contracts and, when UI is affected, inspects every final visual comparison and independently
-replays high-risk Playwright CLI interactions. The Orchestrator compares every transient
-implementation capture with its original saved reference at the exact viewport and state, records
-each AC and MV result, inspects console, network and persisted-state evidence, and verifies every
-affected REST-client example file against the current controller operations and shared request
-schemas. REST-client parity is a separate artifact check and does not replace real HTTP integration
-evidence. When a Visual Reviewer was explicitly requested, the Orchestrator gives it the
-current design handoff, saved references and fresh implementation captures, verifies its findings,
-and resolves accepted visual discrepancies before readiness. This does not replace the
-Implementation Reviewer or any contracted `MV-*` scenario.
-
-On a failed sensor or material discrepancy, findings are recorded, the responsible Builder is
-resumed when possible and affected evidence is invalidated. When a correction affects a
-contracted path, mark the prior package-check row stale and rerun the package check first. Only
-after it passes are affected sensors rerun and the same Implementation Reviewer resumed. A scoped
-Builder Fix is activated only when the responsible Builder cannot be resumed or the correction is
-genuinely independent. Reviewer reports are not evidence; the Orchestrator verifies and records
-accepted findings. When all required evidence and applicable review results are current and no
-verified blocking finding remains, Evaluation becomes `ready`; the Plan route also completes its
-integrated phase and Plan before routing to conclusion.
-
-## 7. Changes before conclusion
-
-Every user-requested change after implementation starts is classified before code or
-artifacts are changed:
-
-| Classification | Meaning | SDD action |
-| --- | --- | --- |
-| Implementation correction | Existing implementation does not satisfy the current Spec, Design Contract or Rule. | Keep the Spec revision, record a finding, reopen affected work/evidence, resume the responsible Builder when possible and rerun the affected validation. |
-| Contract change | Requested product behavior, design intent or technical boundary differs from the current Spec. | Set the Spec to `draft`, route through `create-spec`, update higher authority first when required, return every materially amended PRD `PRQ-*` to unchecked, increment revision, refresh affected design/validation, reopen and reroute implementation. |
-
-Earlier evidence and verdicts affected by a new Spec revision remain as historical records.
-If the route changes from Plan to direct implementation, the Plan becomes `superseded`.
-
-## 8. PR publication, CI and closure
-
-[`conclude-spec`](./prompts/conclude-spec-prompt.md) starts only when the Spec is
-`in_progress`, Evaluation is `ready`, the integrated implementation is validated and no blocking
-finding remains. Conclusion does not edit code directly; when it finds an in-Contract
-correction, it invokes the applicable implementation workflow, which creates the Builder and
-refreshes validation before returning control to conclusion.
-
-With user authorization to commit, push and publish, conclusion:
-
-1. runs `pnpm check:spec-implementation -- <exact-spec-path>` on the complete delivery candidate,
-   then runs the remaining required local preflight;
-2. verifies generated artifacts, migrations, design evidence and documentation;
-3. resolves every in-scope PRD requirement through `PRQ-*`/`FR-*`/`AC-*` traceability, checks
-   only fully delivered requirements as Implemented and leaves partial/deferred requirements
-   unchecked;
-4. uses `commit-code` for scoped commits, including required PRD checkbox changes;
-5. invokes [`create-pr`](./prompts/create-pr-prompt.md) mandatorily whenever the delivery PR
-   is missing, points at an earlier candidate SHA, or has stale/incomplete publication details;
-   `conclude-spec` does not bypass this workflow with ad hoc PR edits;
-6. records the branch and PR URL;
-7. waits for every applicable checked-in GitHub Actions workflow on the current PR head SHA;
-8. records workflow name, result, run URL and tested SHA in Evaluation.
-
-Checkbox resolution happens after local closure preflight and before the delivery commit, PR
-publication and final PR CI, so the checked PRD state is part of the exact tested candidate. A
-verified product failure returns affected requirements to unchecked; partial/deferred delivery
-stays unchecked. Transient infrastructure failures and evidence-only gaps that do not invalidate
-verified product behavior preserve checkbox state.
-
-Before staging a delivery commit, conclusion and `commit-code` audit the complete
-candidate diff against the Spec scope. Pre-existing SDD, Rule, prompt or other
-governance changes outside that scope are inherited changes: exclude them unless
-the user explicitly authorizes their inclusion, and record the disposition in
-Evaluation. A green sensor does not authorize unrelated files to ship.
-
-SDD artifacts do not track a repository base, current or candidate commit. The SHA in the PR CI
-table is limited to identifying the exact PR revision checked by GitHub and is not SDD status
-metadata.
-
-Local checks, a branch-push run, an earlier SHA or a missing expected workflow do not satisfy
-the final PR CI gate. A CI implementation or Contract failure routes back to the appropriate
-workflow; only a demonstrated transient infrastructure failure may rerun the same SHA.
-Routing is not a terminal result: the Orchestrator immediately runs the correction or
-amendment workflow, updates the same PR and resumes the CI gate. It must not report the
-workflow as a next action or ask whether to fix an in-Contract failure. It pauses only for
-missing authority, a required product or technical decision, an external blocker, or the
-documented repeated-failure limit.
-
-After applicable CI passes on the implementation candidate, conclusion sets Evaluation,
-Plan when present, and Spec to `completed`, then commits those final SDD records to the same
-delivery PR. Spec, Plan and Evaluation are review artifacts: include their delivery-owned
-changes in the PR even when a status or evidence update is documentation-only. The closure
-commit must contain only scoped SDD artifacts and any other explicitly delivery-owned
-documentation; preserve unrelated user work. Run the applicable PR checks on this closure
-head and require them to pass before declaring delivery complete.
-
-Record the CI gate that authorized closure in Evaluation with each run URL and tested SHA.
-After the closure commit, verify the actual PR head and all applicable live check results.
-Report those final-head results and links in the delivery summary. Do not add the final
-closure-head run IDs back into Evaluation after the closure commit: doing so would change the
-tested SHA again. The live PR checks are the authoritative record for that documentation-only
-head. Any implementation change or failure that requires a code correction re-enters the
-normal commit, publication and Evaluation evidence loop. Conclusion does not merge or deploy
-unless the user explicitly asks.
-
-## 9. Pull-request feedback and reopening
-
-[`resolve-pr-feedback`](./prompts/resolve-pr-feedback-prompt.md) may run later while the PR is
-open. It classifies each actionable conversation:
-
-| Feedback | Action |
-| --- | --- |
-| Explanation only | Reply with evidence; do not reopen SDD artifacts. |
-| PR metadata correction | Update title, body, labels or traceability; do not reopen the Spec. |
-| Implementation correction | Move the same completed Spec back to `open` without a revision increment, return affected PRD requirements to unchecked only when verified product evidence is invalidated, set Evaluation and affected Plan work to `in_progress`, implement/validate, then invoke conclusion again. |
-| Contract change | Move the Spec to `draft`, return materially amended PRD requirements to unchecked, route through `create-spec`, increment the revision, reconcile Plan/Evaluation, implement/validate, then invoke conclusion again. |
-
-The feedback workflow owns comment inspection, classification, replies and reopening. It
-does not implement changes or own final CI. After merge, defects use the
-bug-fix workflow and changed behavior uses a new change Spec.
+| Spec | `draft` | Contract being authored or materially amended. |
+| Spec | `open` | Authoring integrity and compatibility review passed. |
+| Spec | `in_progress` | Implementation or conclusion active. |
+| Spec | `completed` | Final PR CI passed and closure recorded. |
+| Evaluation | `in_progress` | Progress and evidence being gathered or corrected. |
+| Evaluation | `ready` | All required proof accepted; ready for conclusion, not PRD closure. |
+| Evaluation | `completed` | Final PR CI and delivery closure recorded. |
+
+Executed validation outcomes are `passed`, `failed` or `blocked`. Evidence lifecycle
+may also use `pending`, `stale` or `not_applicable`; an authorized visual difference
+is recorded explicitly. Findings and incomplete criteria describe failures; do not
+invent phase statuses. Existing historical identifiers, revisions and facts remain stable.
+
+## Implementation and verification
+
+1. Establish or resume the current contract and reconcile Git status/diff with
+   Evaluation. Create its acceptance matrix and concise handoff before editing.
+   Inspect prerequisites without automatically launching baseline integration suites.
+2. Implement within the contract. Organize dependencies and bounded delegation
+   directly; use focused unit/component and static checks for early feedback.
+   Record material findings and meaningful checkpoints, not every edit.
+3. Integrate all implementation scopes and generated artifacts. Perform any
+   already-authorized delivery-branch synchronization before final verification.
+4. Run applicable static, architecture, type, build and coverage gates and each
+   applicable server/browser/job integration suite against the integrated candidate.
+   Run broad integration suites once at this point. Fix failures and rerun failed
+   and affected checks until every applicable suite passes. Preserve configured
+   coverage floors; required unavailable infrastructure is a recorded blocker.
+   A zero-test selection, skipped suite or bare exit code is not proof of acceptance.
+5. Execute the required manual journeys with the Playwright CLI and required
+   services/seeded accounts. Capture and inspect fresh UI screenshots at relevant
+   desktop/narrow states and keyboard paths, checking console, network, URL and
+   persisted state. Follow `AGENTS.md` service/account safety and cleanup.
+   Mocked transport cannot prove real authentication, persistence or server-backed
+   behavior. Record whether errors are fixed, pre-existing or blocking.
+6. Run independent code and required visual review in parallel using this candidate,
+   checker results and captures. Review assertion coverage and evidence limits;
+   do not automatically launch another integration run for review.
+7. Fix in-contract findings autonomously. Refresh only invalidated checks/captures
+   and comparisons; preserve passed evidence for unaffected behavior. Material
+   contract changes route through amendment before dependent implementation.
+8. When all applicable criteria/checkers have accepted current evidence and no
+   verified blocker remains, set Evaluation `ready` and proceed to conclusion.
+
+Later implementation, fixture, configuration or source-contract changes reopen
+proof whose claims/dependencies they affect. Record the changed scope and retained
+evidence. A new role, status update, ledger edit or commit hash alone does not
+invalidate unchanged proof. Additional broad reruns require a concrete integration
+risk, affected shared dependency or discovered coverage gap. This reuse policy
+covers local evidence; required GitHub checks still run on the actual PR head.
+
+## Evaluation and continuation
+
+Keep one acceptance/evidence matrix, findings and a small factual handoff in
+`evaluation.md`. Record actual checker commands/results, test counts/assertions,
+environment/fixtures, covered AC/MV IDs, evidence paths and limitations. Identify
+the validated candidate by branch and diff/checkpoint details, with a commit when
+useful for evidence freshness; this is proof provenance, not a new status gate.
+Preserve failed attempts and historical evidence without reporting them as current.
+
+The handoff names the Spec revision, branch/candidate, completed and unfinished
+criteria, interrupted or uncommitted work, latest checker results, blockers and
+next concrete action. A continuing agent reconciles this with Git and the diff
+before choosing execution order. Evaluation describes actual state; it must not
+become a replacement task/phase Plan.
+
+## Amendments and feedback
+
+An implementation correction keeps the Spec revision, reopens Evaluation and
+refreshes affected proof. A changed product, design or consequential technical
+contract returns the Spec to `draft`, reconciles governing authority first,
+increments its revision and refreshes affected design/checkers. Materially amended
+PRD requirements return to unchecked before revised Spec authoring. Routine internal
+implementation choices within the contract do not require amendments.
+
+While a PR remains open, `resolve-pr-feedback` owns comment inspection,
+classification, replies and reopening. Explanation or metadata-only feedback does
+not reopen the contract. Implementation corrections reopen the same completed Spec
+as `open` and Evaluation as `in_progress` without a revision increment. Return PRD
+requirements to unchecked only when verified product evidence is invalidated.
+Contract changes use amendment. Continue implementation and conclusion rather
+than ending with a proposed correction. After merge, defects use the bug workflow
+and changed product behavior uses a new change Spec.
+
+## Publication, CI and closure
+
+`conclude-spec` requires Spec `in_progress`, Evaluation `ready`, current accepted
+evidence and no verified blocker. Reconcile source authority, generated artifacts,
+migrations, saved design coverage, REST parity and scope. Reuse valid local checks;
+run missing or invalidated proof. Corrections immediately re-enter implementation
+and conclusion, subject to documented external blockers and bounded retry limits.
+
+With authorization to commit, push and publish:
+
+1. resolve every selected `PRQ-*` through FR/AC to evidence; check only fully
+   delivered current requirements as Implemented after local closure preflight
+   and before the delivery commit; partial/deferred requirements remain unchecked;
+2. use `commit-code` for scoped commits, including delivery-owned Spec/Evaluation
+   and required PRD changes; exclude inherited unrelated governance or user work
+   unless explicitly authorized, recording its disposition;
+3. invoke `create-pr` when the delivery PR is missing or its publication details
+   are stale; update the same PR and record its URL;
+4. require every applicable checked-in GitHub Actions workflow to pass on the
+   current PR head, recording workflow/result/run URL/tested SHA in Evaluation;
+5. after candidate CI passes, set Spec/Evaluation `completed` and commit scoped
+   closure artifacts to that PR; verify applicable live checks on the closure head.
+
+A local pass, earlier SHA or missing expected workflow does not satisfy final PR CI.
+Record the CI that authorized closure before the closure commit; report live
+closure-head results without writing them back into Evaluation and creating another
+untested head. Product failures return affected PRD requirements to unchecked;
+transient infrastructure failures preserve verified product disposition. Explicit
+waivers are recorded honestly and never reported as passed proof. Do not merge
+or deploy without an explicit request.
 
 ## Workflow registry
 
-| Workflow | Source |
+| Workflow | Canonical source |
 | --- | --- |
-| Define an unresolved product outcome | [`create-prd-prompt.md`](./prompts/create-prd-prompt.md) |
-| Create an approved feature Issue | [`create-feat-issue.md`](./prompts/create-feat-issue.md) |
-| Create an approved refactor Issue | [`create-refactor-issue-prompt.md`](./prompts/create-refactor-issue-prompt.md) |
-| Create or amend a Spec | [`create-spec-prompt.md`](./prompts/create-spec-prompt.md) |
-| Create an optional Plan | [`create-plan-prompt.md`](./prompts/create-plan-prompt.md) |
-| Implement directly or through a Plan | [`implement-spec-prompt.md`](./prompts/implement-spec-prompt.md) |
-| Increase test coverage in existing behavior | [`increase-test-coverage-prompt.md`](./prompts/increase-test-coverage-prompt.md) |
-| Publish, run PR CI and close | [`conclude-spec-prompt.md`](./prompts/conclude-spec-prompt.md) |
-| Create or update the delivery PR | [`create-pr-prompt.md`](./prompts/create-pr-prompt.md) |
-| Resolve later PR comments | [`resolve-pr-feedback-prompt.md`](./prompts/resolve-pr-feedback-prompt.md) |
+| Define product intent | [create-prd](./prompts/create-prd-prompt.md) |
+| Create feature Issue | [create-feat-issue](./prompts/create-feat-issue.md) |
+| Create refactor Issue | [create-refactor-issue](./prompts/create-refactor-issue-prompt.md) |
+| Create or amend Spec | [create-spec](./prompts/create-spec-prompt.md) |
+| Implement and verify | [implement-spec](./prompts/implement-spec-prompt.md) |
+| Increase existing-behavior coverage | [increase-test-coverage](./prompts/increase-test-coverage-prompt.md) |
+| Publish and conclude | [conclude-spec](./prompts/conclude-spec-prompt.md) |
+| Create or update delivery PR | [create-pr](./prompts/create-pr-prompt.md) |
+| Resolve PR feedback | [resolve-pr-feedback](./prompts/resolve-pr-feedback-prompt.md) |
 
-The files under `documentation/prompts/` are canonical. `scripts/sync-commands.mjs`
-synchronizes their generated command and skill representations.
+Prompts and agent contracts inherit this workflow. `pnpm sync:commands` and
+`pnpm sync:agents` regenerate their installed representations. Historical records
+preserve original facts; resumed delivery applies the current execution and local
+evidence-reuse policy without lowering acceptance or checker coverage.
