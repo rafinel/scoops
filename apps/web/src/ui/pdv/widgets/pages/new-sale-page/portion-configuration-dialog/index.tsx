@@ -26,16 +26,16 @@ export const PortionConfigurationDialog = (props: PortionConfigurationDialogProp
   const formatQuantity = useFormatQuantity()
   const {
     accompanimentIds,
+    accompanimentGroups,
     estimatedUnitPrice,
     formError,
+    quantity,
+    sizeId,
     handleAccompanimentChange,
     handleClose,
     handleQuantityChange,
     handleSizeChange,
     handleSubmit,
-    quantity,
-    selectedSize,
-    sizeId,
   } = usePortionConfigurationDialog(props)
   const product = props.product
 
@@ -71,7 +71,7 @@ export const PortionConfigurationDialog = (props: PortionConfigurationDialogProp
                         'h-auto min-h-20 flex-col items-start gap-0.5 rounded-xl border p-3 text-left whitespace-normal',
                         isSelected &&
                           'border-primary bg-accent text-primary ring-1 ring-primary',
-                        isDisabled && 'bg-muted text-muted-foreground opacity-60',
+                        isDisabled && 'bg-muted text-muted-foreground',
                       )}
                       disabled={isDisabled}
                       key={size.sizeId}
@@ -103,52 +103,87 @@ export const PortionConfigurationDialog = (props: PortionConfigurationDialogProp
 
             <fieldset>
               <legend className='flex w-full items-center justify-between gap-3 text-sm font-extrabold'>
-                <span>2. Escolha os acompanhamentos</span>
-                <span className='text-xs font-medium text-muted-foreground'>
-                  Opcional · múltipla escolha
+                <span>
+                  {accompanimentGroups.length > 0
+                    ? '2. Escolha os acompanhamentos'
+                    : '2. Acompanhamentos'}
                 </span>
+                {accompanimentGroups.length > 0 ? (
+                  <span className='text-xs font-medium text-muted-foreground'>
+                    Opcional · múltipla escolha
+                  </span>
+                ) : null}
               </legend>
-              <div className='mt-3 grid gap-2 sm:grid-cols-2'>
-                {(selectedSize?.accompaniments ?? []).map((accompaniment) => {
-                  const isDisabled = !accompaniment.isActive || !accompaniment.isAvailable
-                  const isSelected = accompanimentIds.includes(
-                    accompaniment.accompanimentId,
-                  )
-                  return (
-                    <label
-                      className={cn(
-                        'flex min-h-10 items-center gap-3 rounded-xl border px-3 py-2 text-sm font-bold',
-                        isSelected && 'border-primary bg-accent text-primary',
-                        isDisabled && 'bg-muted text-muted-foreground opacity-60',
-                      )}
-                      htmlFor={`portion-accompaniment-${accompaniment.accompanimentId}`}
-                      key={accompaniment.accompanimentId}
-                    >
-                      <Checkbox
-                        aria-label={accompaniment.name}
-                        checked={isSelected}
-                        disabled={isDisabled}
-                        id={`portion-accompaniment-${accompaniment.accompanimentId}`}
-                        onCheckedChange={(checked) =>
-                          handleAccompanimentChange(
-                            accompaniment.accompanimentId,
-                            checked === true,
-                          )
-                        }
-                      />
-                      <span className='min-w-0 flex-1 truncate'>
-                        {accompaniment.name}
-                      </span>
-                      <span className='shrink-0 text-xs font-bold'>
-                        {isDisabled
-                          ? 'Sem estoque'
-                          : accompaniment.basePrice === 0
-                            ? 'Grátis'
-                            : `+ ${formatCurrency(accompaniment.basePrice)}`}
-                      </span>
-                    </label>
-                  )
-                })}
+              <div className='mt-3 space-y-3'>
+                {accompanimentGroups.length === 0 ? (
+                  <p
+                    className='rounded-xl bg-muted p-4 text-sm text-muted-foreground'
+                    role='status'
+                  >
+                    Este produto não possui acompanhamentos. Você pode continuar
+                    com a quantidade desejada.
+                  </p>
+                ) : null}
+                {accompanimentGroups.map((group) => (
+                  <fieldset key={group.type}>
+                    <legend className='mb-1 text-xs font-semibold text-muted-foreground'>
+                      {group.type}
+                    </legend>
+                    <div className='grid gap-3'>
+                      {group.accompaniments.map((accompaniment) => {
+                        const isDisabled =
+                          !accompaniment.isActive || !accompaniment.isAvailable
+                        const isSelected = accompanimentIds.includes(
+                          accompaniment.accompanimentId,
+                        )
+                        return (
+                          <label
+                            className={cn(
+                              'flex min-h-12 items-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold',
+                              isSelected && 'border-primary bg-accent',
+                              isDisabled && 'bg-muted text-muted-foreground',
+                            )}
+                            htmlFor={`portion-accompaniment-${accompaniment.accompanimentId}`}
+                            key={accompaniment.accompanimentId}
+                          >
+                            <Checkbox
+                              aria-labelledby={`portion-accompaniment-name-${accompaniment.accompanimentId}`}
+                              aria-describedby={`portion-accompaniment-price-${accompaniment.accompanimentId}`}
+                              checked={isSelected}
+                              disabled={isDisabled}
+                              id={`portion-accompaniment-${accompaniment.accompanimentId}`}
+                              onCheckedChange={(checked) =>
+                                handleAccompanimentChange(
+                                  accompaniment.accompanimentId,
+                                  checked === true,
+                                )
+                              }
+                            />
+                            <span
+                              className='min-w-0 flex-1 break-words'
+                              id={`portion-accompaniment-name-${accompaniment.accompanimentId}`}
+                            >
+                              {accompaniment.name}
+                            </span>
+                            <span
+                              id={`portion-accompaniment-price-${accompaniment.accompanimentId}`}
+                              className={cn(
+                                'shrink-0 text-xs font-bold text-muted-foreground',
+                                isSelected && !isDisabled && 'text-primary',
+                              )}
+                            >
+                              {isDisabled
+                                ? 'Sem estoque'
+                                : accompaniment.basePrice === 0
+                                  ? 'Grátis'
+                                  : `+ ${formatCurrency(accompaniment.basePrice)}`}
+                            </span>
+                          </label>
+                        )
+                      })}
+                    </div>
+                  </fieldset>
+                ))}
               </div>
             </fieldset>
 

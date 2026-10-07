@@ -1,7 +1,14 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { PortionConfigurationDialog } from '..'
+import { usePortionConfigurationDialog } from '../use-portion-configuration-dialog'
+
+vi.mock('../use-portion-configuration-dialog', () => ({
+  usePortionConfigurationDialog: vi.fn(),
+}))
+
+const usePortionConfigurationDialogMock = vi.mocked(usePortionConfigurationDialog)
 
 const product = {
   productId: 'product-portion',
@@ -23,7 +30,7 @@ const product = {
         {
           accompanimentId: 'topping-1',
           name: 'Calda de chocolate',
-          type: 'topping' as const,
+          type: 'Cobertura',
           quantityPerPortion: 1,
           basePrice: 2,
           isActive: true,
@@ -36,34 +43,97 @@ const product = {
 }
 
 describe('PortionConfigurationDialog', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    const granola = {
+      ...product.sizes[0].accompaniments[0],
+      accompanimentId: 'granola',
+      name: 'Granola',
+    }
+    usePortionConfigurationDialogMock.mockReturnValue({
+      accompanimentIds: ['granola'],
+      accompanimentGroups: [
+        {
+          type: 'Cobertura',
+          accompaniments: [
+            granola,
+            { ...granola, accompanimentId: 'pacoca', name: 'Paçoca', isAvailable: false },
+          ],
+        },
+        {
+          type: 'Extra',
+          accompaniments: [
+            {
+              ...granola,
+              type: 'Extra',
+              accompanimentId: 'banana',
+              name: 'Banana',
+              basePrice: 0,
+            },
+          ],
+        },
+      ],
+      estimatedUnitPrice: 22,
+      formError: null,
+      quantity: 1,
+      selectedSize: product.sizes[0],
+      sizeId: 'size-medium',
+      handleAccompanimentChange: vi.fn(),
+      handleClose: vi.fn(),
+      handleQuantityChange: vi.fn(),
+      handleSizeChange: vi.fn(),
+      handleSubmit: vi.fn(),
+    })
+  })
+
   afterEach(cleanup)
 
-  it('saves the selected size, accompaniment and quantity', () => {
-    const onSave = vi.fn()
+  function renderDialog() {
     render(
       <PortionConfigurationDialog
         isOpen
         onOpenChange={vi.fn()}
-        onSave={onSave}
+        onSave={vi.fn()}
         product={product}
       />,
     )
+  }
 
-    expect(screen.getByText('0,2 kg')).toBeTruthy()
-    expect(screen.getByRole('region', { name: 'Preço' }).textContent).toContain('Preço')
-    fireEvent.click(screen.getByRole('checkbox', { name: /Calda de chocolate/ }))
-    fireEvent.click(screen.getByRole('button', { name: 'Aumentar quantidade' }))
-    const addButton = screen.getByRole('button', { name: 'Adicionar ao carrinho' })
-    addButton.focus()
-    expect(document.activeElement).toBe(addButton)
-    fireEvent.click(addButton)
+  it('groups options by configured type and keeps free pricing inside its type', () => {
+    renderDialog()
 
-    expect(onSave).toHaveBeenCalledWith({
-      accompanimentIds: ['topping-1'],
-      kind: 'portion',
-      productId: 'product-portion',
-      quantity: 2,
-      sizeId: 'size-medium',
-    })
+    const toppings = screen.getByRole('group', { name: 'Cobertura' })
+    const extras = screen.getByRole('group', { name: 'Extra' })
+    expect(
+      within(toppings)
+        .getByRole('checkbox', { name: 'Granola' })
+        .getAttribute('aria-checked'),
+    ).toBe('true')
+    expect(
+      within(toppings)
+        .getByRole('checkbox', { name: 'Paçoca' })
+        .getAttribute('aria-disabled'),
+    ).toBe('true')
+    expect(within(toppings).getByText('Sem estoque').textContent).toBe('Sem estoque')
+    expect(
+      within(extras)
+        .getByRole('checkbox', { name: 'Banana' })
+        .getAttribute('aria-checked'),
+    ).toBe('false')
+    expect(within(extras).getByText('Grátis').textContent).toBe('Grátis')
+    expect(screen.queryByRole('group', { name: 'Grátis' })).toBeNull()
+  })
+
+  it('delegates selection and cart confirmation through the owning hook', () => {
+    renderDialog()
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Banana' }))
+    expect(
+      usePortionConfigurationDialogMock.mock.results[0].value.handleAccompanimentChange,
+    ).toHaveBeenCalledWith('banana', true)
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar ao carrinho' }))
+    expect(
+      usePortionConfigurationDialogMock.mock.results[0].value.handleSubmit,
+    ).toHaveBeenCalledOnce()
   })
 })

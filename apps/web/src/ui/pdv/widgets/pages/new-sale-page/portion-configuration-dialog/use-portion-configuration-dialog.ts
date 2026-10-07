@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
+import { groupAccompaniments } from '@/ui/pdv/utils/group-accompaniments'
+
 import type {
   CartLineInput,
   SalesCatalogProduct,
@@ -37,6 +39,7 @@ export function usePortionConfigurationDialog({
   const [formError, setFormError] = useState<string | null>(null)
 
   const selectedSize = product?.sizes.find((size) => size.sizeId === sizeId)
+  const accompanimentGroups = groupAccompaniments(selectedSize?.accompaniments ?? [])
   const selectedAccompaniments = useMemo(
     () =>
       selectedSize?.accompaniments.filter((accompaniment) =>
@@ -128,15 +131,16 @@ export function usePortionConfigurationDialog({
 
   return {
     accompanimentIds,
+    accompanimentGroups,
     estimatedUnitPrice,
     formError,
+    quantity,
+    selectedSize,
+    sizeId,
     handleAccompanimentChange,
     handleClose,
     handleQuantityChange,
     handleSizeChange,
     handleSubmit,
-    quantity,
-    selectedSize,
-    sizeId,
   }
 }

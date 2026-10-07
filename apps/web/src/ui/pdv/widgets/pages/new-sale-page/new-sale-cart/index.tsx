@@ -1,3 +1,4 @@
+import { AccompanimentSummary } from '@/ui/pdv/widgets/components/accompaniment-summary'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -146,12 +147,6 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                         {configuration ??
                           (line.kind === 'portion' ? 'Porção' : 'Revenda')}
                       </p>
-                      {selectedAccompaniments.length > 0 ? (
-                        <p className='mt-1 text-xs leading-snug text-muted-foreground'>
-                          Acompanhamentos:{' '}
-                          {selectedAccompaniments.map((item) => item.name).join(', ')}
-                        </p>
-                      ) : null}
                     </div>
                     <Button
                       aria-label={`Editar ${product?.name ?? 'item'}`}
@@ -174,6 +169,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                       <Icon name='x' />
                     </Button>
                   </div>
+                  <AccompanimentSummary accompaniments={selectedAccompaniments} />
                   <div className='mt-3 flex items-center justify-between gap-3'>
                     <div className='flex items-center rounded-lg border bg-card'>
                       <Button

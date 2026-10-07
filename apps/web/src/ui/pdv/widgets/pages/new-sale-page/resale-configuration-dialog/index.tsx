@@ -38,7 +38,7 @@ export const ResaleConfigurationDialog = (props: ResaleConfigurationDialogProps)
   return (
     <Dialog open={props.isOpen} onOpenChange={props.onOpenChange}>
       {product ? (
-        <DialogContent className='max-h-[min(92vh,866px)] max-w-2xl'>
+        <DialogContent className='max-h-[min(92vh,966px)] sm:!max-w-2xl'>
           <DialogHeader className='border-b border-border-soft p-6 pr-16'>
             <span className='row-span-2 grid size-11 place-items-center rounded-xl bg-info-soft text-info'>
               <Icon name={CATEGORY_ICONS.resale} className='size-6' />

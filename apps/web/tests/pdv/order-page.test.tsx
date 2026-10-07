@@ -110,6 +110,78 @@ function orderResponse(
 }
 
 test.describe('OrderPage', () => {
+  for (const viewport of [
+    { width: 1481, height: 1050, name: 'desktop' },
+    { width: 390, height: 844, name: 'narrow' },
+  ]) {
+    test(`groups saved accompaniments by configured type at ${viewport.name} viewport`, async ({
+      page,
+      identityFixture,
+      pdvFixture,
+    }, testInfo) => {
+      const diagnostics: string[] = []
+      page.on('console', (message) => {
+        if (message.type() === 'error') diagnostics.push(message.text())
+      })
+      page.on('requestfailed', (request) => diagnostics.push(request.url()))
+      const snapshot = orderResponse()
+      const savedAccompaniment = snapshot.lines[1].accompaniments[0]
+      snapshot.lines[1].accompaniments = [
+        { ...savedAccompaniment, type: 'Extra' },
+        {
+          ...savedAccompaniment,
+          accompanimentId: 'banana',
+          name: 'Banana',
+          type: 'Extra',
+          basePrice: 0,
+          finalPrice: 0,
+        },
+        {
+          ...savedAccompaniment,
+          accompanimentId: 'granola',
+          name: 'Granola',
+          type: 'Cobertura',
+          basePrice: 0,
+          finalPrice: 0,
+        },
+      ]
+      await identityFixture.mockManagerSession()
+      await identityFixture.mockManagerAccount()
+      const orders = await pdvFixture.mockOrders({ detail: { body: snapshot } })
+      await page.setViewportSize(viewport)
+      await page.goto(`/orders/${ORDER_ID}`)
+      await expect(page).toHaveURL(new RegExp(`/orders/${ORDER_ID}$`))
+      const main = page.getByRole('main')
+      await expect(main.getByText('Acompanhamentos', { exact: true })).toHaveCount(1)
+      const groups = main
+        .locator('dl')
+        .filter({ has: page.getByRole('term').filter({ hasText: /^Extra$/ }) })
+      await expect(groups.getByRole('term')).toHaveText(['Extra', 'Cobertura'])
+      await expect(groups.getByRole('definition')).toHaveText([
+        'Leite em pó · Banana',
+        'Granola',
+      ])
+      await expect(main.getByText('Açaí', { exact: true })).toBeVisible()
+      expect(
+        orders.requests.some(
+          (request) =>
+            request.method === 'GET' && request.url.pathname === `/orders/${ORDER_ID}`,
+        ),
+      ).toBe(true)
+      await expect(
+        page.evaluate(
+          () =>
+            document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        ),
+      ).resolves.toBe(true)
+      await page.screenshot({
+        path: testInfo.outputPath(`accompaniments-order-${viewport.name}.png`),
+        fullPage: true,
+      })
+      expect(diagnostics).toEqual([])
+    })
+  }
+
   test('protects unknown detail URLs and renders a safe not-found state', async ({
     page,
     identityFixture,
@@ -559,7 +631,9 @@ test.describe('OrderPage', () => {
         await route.continue()
       })
       await managerPage.goto(`/orders/${ORDER_ID}`)
-      await expect(managerPage.getByRole('main').getByText('Cancelado', { exact: true })).toBeVisible()
+      await expect(
+        managerPage.getByRole('main').getByText('Cancelado', { exact: true }),
+      ).toBeVisible()
       await expect(managerPage.getByText('Restauração do estoque')).toHaveCount(0)
       await expect(managerPage.getByText('Restaurado: Açaí (1)')).toHaveCount(0)
       await expect(

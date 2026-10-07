@@ -177,6 +177,117 @@ test.describe('NewSalePage', () => {
     })
   }
 
+  for (const viewport of [
+    { width: 1481, height: 1050, name: 'desktop' },
+    { width: 390, height: 844, name: 'narrow' },
+  ]) {
+    test(`groups accompaniments by configured type through selection and cart at ${viewport.name} viewport`, async ({
+      page,
+      identityFixture,
+      pdvFixture,
+    }, testInfo) => {
+      const diagnostics: string[] = []
+      page.on('console', (message) => {
+        if (message.type() === 'error') diagnostics.push(message.text())
+      })
+      page.on('requestfailed', (request) => diagnostics.push(request.url()))
+      const accompaniments = [
+        { accompanimentId: 'granola', name: 'Granola', type: 'Cobertura', basePrice: 2 },
+        { accompanimentId: 'pacoca', name: 'Paçoca', type: 'Cobertura', basePrice: 2 },
+        { accompanimentId: 'milk', name: 'Leite em pó', type: 'Extra', basePrice: 2 },
+        { accompanimentId: 'banana', name: 'Banana', type: 'Extra', basePrice: 0 },
+      ].map((item) => ({
+        ...item,
+        quantityPerPortion: 1,
+        isActive: true,
+        isAvailable: true,
+      }))
+      await identityFixture.mockManagerSession()
+      await identityFixture.mockManagerAccount()
+      await pdvFixture.mockSalesChannels()
+      await page.setViewportSize(viewport)
+      await page.route('**/orders/catalog*', (route) =>
+        route.fulfill({
+          contentType: 'application/json',
+          body: JSON.stringify({
+            items: [{ ...product, sizes: [{ ...product.sizes[0], accompaniments }] }],
+            page: 1,
+            pageSize: 20,
+            total: 1,
+            totalPages: 1,
+          }),
+        }),
+      )
+      const previewRequests: unknown[] = []
+      await page.route('**/orders/preview*', (route) => {
+        const body = route.request().postDataJSON()
+        previewRequests.push(body)
+        return route.fulfill({
+          contentType: 'application/json',
+          body: JSON.stringify({
+            cart: {
+              ...previewCart,
+              lines: [{ ...previewCart.lines[0], ...body.lines[0] }],
+            },
+            previewToken: 'preview-token',
+          }),
+        })
+      })
+      await page.goto('/sales/new')
+      await expect(page).toHaveURL(/\/sales\/new$/)
+      const addProduct = page.getByRole('button', { name: 'Adicionar Taça de morango' })
+      await addProduct.focus()
+      await addProduct.press('Enter')
+      const dialog = page.getByRole('dialog', { name: 'Taça de morango' })
+      const toppings = dialog.getByRole('group', { name: 'Cobertura', exact: true })
+      const extras = dialog.getByRole('group', { name: 'Extra', exact: true })
+      await expect(toppings.getByRole('checkbox')).toHaveCount(2)
+      await expect(extras.getByRole('checkbox')).toHaveCount(2)
+      await toppings.getByRole('checkbox', { name: 'Granola', exact: true }).check()
+      await toppings.getByRole('checkbox', { name: 'Paçoca', exact: true }).check()
+      await extras.getByRole('checkbox', { name: 'Leite em pó', exact: true }).check()
+      const banana = extras.getByRole('checkbox', { name: 'Banana', exact: true })
+      await expect(banana).toHaveAccessibleDescription('Grátis')
+      await banana.focus()
+      await banana.press('Space')
+      await expect(banana).toBeChecked()
+      await page.screenshot({
+        path: testInfo.outputPath(`accompaniments-dialog-${viewport.name}.png`),
+      })
+      await dialog.getByRole('button', { name: 'Adicionar ao carrinho' }).click()
+      const cart = page.getByRole('main')
+      await expect(cart.getByText('Acompanhamentos', { exact: true })).toBeVisible()
+      await expect(cart.getByRole('term')).toHaveText(['Cobertura', 'Extra'])
+      await expect(cart.getByRole('definition')).toHaveText([
+        'Granola · Paçoca',
+        'Leite em pó · Banana',
+      ])
+      await expect
+        .poll(() => previewRequests)
+        .toContainEqual({
+          lines: [
+            {
+              accompanimentIds: ['granola', 'pacoca', 'milk', 'banana'],
+              kind: 'portion',
+              productId: PRODUCT_ID,
+              quantity: 1,
+              sizeId: SIZE_ID,
+            },
+          ],
+        })
+      await expect(
+        page.evaluate(
+          () =>
+            document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        ),
+      ).resolves.toBe(true)
+      await page.screenshot({
+        path: testInfo.outputPath(`accompaniments-cart-${viewport.name}.png`),
+      })
+      expect(diagnostics).toEqual([])
+    })
+  }
+
   test('restores the in-progress cart after reloading the sale route', async ({
     page,
     identityFixture,

@@ -1,3 +1,4 @@
+import { AccompanimentSummary } from '@/ui/pdv/widgets/components/accompaniment-summary'
 import type { OrderDetails } from '@scoops/core/pdv/domain/structures'
 
 import { CATEGORY_ICONS } from '@/constants'
@@ -34,11 +35,7 @@ export const OrderItems = ({ order }: OrderItemsProps) => {
       </div>
       <div className='divide-y divide-border-soft'>
         {order.lines.map((line, linePosition) => {
-          const configuration = [
-            line.size?.name,
-            line.brand?.name,
-            line.accompaniments.map((accompaniment) => accompaniment.name).join(' · '),
-          ]
+          const configuration = [line.size?.name, line.brand?.name]
             .filter(Boolean)
             .join(' · ')
           const channelAdjustment = line.finalUnitPrice - line.baseUnitPrice
@@ -65,6 +62,7 @@ export const OrderItems = ({ order }: OrderItemsProps) => {
                   <p className='mt-1 break-words text-xs text-muted-foreground'>
                     {configuration || 'Configuração padrão'}
                   </p>
+                  <AccompanimentSummary accompaniments={line.accompaniments} />
                   {order.cancellation ? (
                     <fieldset
                       aria-label='Destino do estoque'
