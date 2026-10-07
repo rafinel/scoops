@@ -1,83 +1,72 @@
-import { useEffect, useState } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { stockAdjustmentFormSchema } from '@scoops/validation'
-import { useForm } from 'react-hook-form'
-import type { z } from 'zod'
+import { useEffect, useRef, useState } from 'react'
+import type { FieldErrors } from 'react-hook-form'
 
 import type { ProductBrandStock } from '@scoops/core/mrp/domain/structures'
+import type { WorkflowHandle } from '@scoops/core/shared/interfaces'
 
 import { useAdjustProductStockAction } from '../../../../hooks/use-adjust-product-stock-action'
+import { useStockAdjustmentTelemetry } from './use-stock-adjustment-telemetry'
+import {
+  useStockAdjustmentForm,
+  type StockAdjustmentFormValues,
+} from './use-stock-adjustment-form'
+import {
+  recordStockAdjustmentValidationFailure,
+  submitStockAdjustment,
+} from './submit-stock-adjustment'
 
-type FormValues = z.infer<typeof stockAdjustmentFormSchema>
+export type UseStockAdjustmentDialogProps = UseStockAdjustmentDialogCommonProps &
+  (
+    | { type: 'entry'; workflow: WorkflowHandle<'stock_entry'> }
+    | { type: 'write-off'; workflow: WorkflowHandle<'stock_write_off'> }
+  )
 
-export type UseStockAdjustmentDialogProps = {
-  allowNegativeStock: boolean
-  brand?: ProductBrandStock
-  currentBalance: number
-  isOpen: boolean
-  productId: string
-  type: 'entry' | 'write-off'
-  onOpenChange: (open: boolean) => void
-  onSuccess: () => void
-}
-
-export function useStockAdjustmentDialog({
-  allowNegativeStock,
-  brand,
-  currentBalance,
-  isOpen,
-  productId,
-  type,
-  onOpenChange,
-  onSuccess,
-}: UseStockAdjustmentDialogProps) {
+export function useStockAdjustmentDialog(props: UseStockAdjustmentDialogProps) {
+  const { allowNegativeStock, brand, currentBalance, isOpen, productId, type, workflow } =
+    props
   const adjustment = useAdjustProductStockAction(productId)
+  const hasRelevantInput = useRef(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const stockForm = useStockAdjustmentForm({ brand, currentBalance, type })
   const {
+    errors,
+    handleSubmit: submitForm,
+    inputMode,
+    isInsufficient: isBalanceInsufficient,
+    quantity,
     register,
     reset,
     setValue,
-    watch,
-    handleSubmit: submitForm,
-    formState: { errors },
-  } = useForm<FormValues>({
-    defaultValues: {
-      inputMode: 'baseUnit',
-      quantity: '',
-      justification: '',
-      packageQuantity: brand?.brand.packageQuantity,
-    },
-    resolver: zodResolver(stockAdjustmentFormSchema),
+  } = stockForm
+  const isInsufficient = !allowNegativeStock && isBalanceInsufficient
+  const { baseQuantity, prospectiveBalance } = stockForm
+  const telemetry = useStockAdjustmentTelemetry({
+    allowNegativeStock,
+    hasRelevantInput,
+    isInsufficient,
+    isOpen,
+    type,
+    workflow,
   })
-  const inputMode = watch('inputMode')
-  const quantity = watch('quantity')
-  const numericQuantity = Number(quantity)
-  const baseQuantity =
-    Number.isFinite(numericQuantity) && numericQuantity > 0
-      ? numericQuantity *
-        (inputMode === 'package' ? (brand?.brand.packageQuantity ?? 0) : 1)
-      : 0
-  const prospectiveBalance =
-    type === 'entry' ? currentBalance + baseQuantity : currentBalance - baseQuantity
-  const isInsufficient =
-    type === 'write-off' && !allowNegativeStock && prospectiveBalance < 0
 
   useEffect(() => {
-    reset({
-      inputMode: 'baseUnit',
-      quantity: '',
-      justification: '',
+    resetStockAdjustmentDialog({
+      hasRelevantInput,
+      isOpen,
       packageQuantity: brand?.brand.packageQuantity,
+      reset,
+      setFormError,
     })
-    if (isOpen) setFormError(null)
   }, [brand?.brand.packageQuantity, isOpen, reset])
 
   function handleInputModeChange(value: FormValues['inputMode']) {
+    telemetry.markRelevantInput()
     setValue('inputMode', value, { shouldDirty: true, shouldValidate: true })
     setFormError(null)
   }
 
   function handleQuantityChange() {
+    telemetry.markRelevantInput()
     setFormError(null)
   }
 
@@ -85,37 +74,19 @@ export function useStockAdjustmentDialog({
     setFormError(null)
   }
 
-  async function handleSubmit(values: FormValues) {
-    const submittedQuantity =
-      Number(values.quantity) *
-      (values.inputMode === 'package' ? (values.packageQuantity ?? 0) : 1)
+  function handleValidSubmit(values: FormValues) {
+    return submitStockAdjustment({
+      adjustment,
+      props,
+      reset,
+      setFormError,
+      telemetry,
+      values,
+    })
+  }
 
-    if (type === 'write-off' && !allowNegativeStock && submittedQuantity > currentBalance)
-      return
-
-    setFormError(null)
-    try {
-      await adjustment.adjustProductStock({
-        brandId: brand?.brand.id,
-        quantity: submittedQuantity,
-        type,
-        justification: values.justification?.trim() || undefined,
-      })
-      reset({
-        inputMode: 'baseUnit',
-        quantity: '',
-        justification: '',
-        packageQuantity: brand?.brand.packageQuantity,
-      })
-      onOpenChange(false)
-      onSuccess()
-    } catch (error) {
-      setFormError(
-        error instanceof Error && error.message
-          ? error.message
-          : 'Não foi possível movimentar o estoque. Tente novamente.',
-      )
-    }
+  function handleInvalidSubmit(errors: FieldErrors<FormValues>) {
+    recordStockAdjustmentValidationFailure(props, telemetry, errors)
   }
 
   return {
@@ -125,13 +96,61 @@ export function useStockAdjustmentDialog({
     inputMode,
     isInsufficient,
     isPending: adjustment.isPending,
-    justification: watch('justification'),
+    justification: stockForm.justification,
     prospectiveBalance,
     quantity,
     handleInputModeChange,
     handleJustificationChange,
     handleQuantityChange,
-    handleSubmit: submitForm(handleSubmit),
+    handleSubmit: submitForm(handleValidSubmit, handleInvalidSubmit),
     register,
   }
+}
+
+type FormValues = StockAdjustmentFormValues
+
+const STOCK_ADJUSTMENT_RESET_VALUES = {
+  inputMode: 'baseUnit',
+  quantity: '',
+  justification: '',
+} as const
+
+type ResetStockAdjustmentDialogInput = {
+  hasRelevantInput: { current: boolean }
+  isOpen: boolean
+  packageQuantity?: number
+  reset: ReturnType<typeof useStockAdjustmentForm>['reset']
+  setFormError: (error: string | null) => void
+}
+
+function resetStockAdjustmentDialog(input: ResetStockAdjustmentDialogInput) {
+  resetStockAdjustmentForm(input)
+  clearStockAdjustmentTransientState(input)
+}
+
+function resetStockAdjustmentForm({
+  packageQuantity,
+  reset,
+}: ResetStockAdjustmentDialogInput) {
+  reset({ ...STOCK_ADJUSTMENT_RESET_VALUES, packageQuantity })
+}
+
+function clearStockAdjustmentTransientState({
+  hasRelevantInput,
+  isOpen,
+  setFormError,
+}: ResetStockAdjustmentDialogInput) {
+  if (!isOpen) return
+  hasRelevantInput.current = false
+  setFormError(null)
+}
+
+type UseStockAdjustmentDialogCommonProps = {
+  allowNegativeStock: boolean
+  brand?: ProductBrandStock
+  currentBalance: number
+  isOpen: boolean
+  productId: string
+  onOpenChange: (open: boolean) => void
+  onSuccess: () => void
 }

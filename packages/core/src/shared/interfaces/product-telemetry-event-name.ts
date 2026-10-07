@@ -1,0 +1,10 @@
+export type ProductTelemetryEventName =
+  | 'feature_visited'
+  | 'onboarding_started'
+  | 'onboarding_registration_completed'
+  | 'email_confirmation_completed'
+  | 'workflow_started'
+  | 'workflow_completed'
+  | 'workflow_validation_failed'
+  | 'workflow_blocked'
+  | 'workflow_failed'

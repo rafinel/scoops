@@ -1,4 +1,5 @@
-import type { ProductBrandStock, ProductUnit } from '@scoops/core/mrp/domain/structures'
+import type { ProductUnit } from '@scoops/core/mrp/domain/structures'
+import type { WorkflowHandle } from '@scoops/core/shared/interfaces'
 
 import { Button } from '@/ui/shadcn/button'
 import {
@@ -17,18 +18,17 @@ import { Icon } from '@/ui/shared/widgets/components/icon'
 import { cn } from '@/ui/shared/lib/utils'
 
 import { useStockAdjustmentDialog } from './use-stock-adjustment-dialog'
+import type { UseStockAdjustmentDialogProps } from './use-stock-adjustment-dialog'
 
-export type StockAdjustmentDialogProps = {
-  allowNegativeStock: boolean
-  brand?: ProductBrandStock
-  currentBalance: number
-  isOpen: boolean
-  productId: string
-  type: 'entry' | 'write-off'
+type StockDialogBaseProps = Omit<UseStockAdjustmentDialogProps, 'type' | 'workflow'> & {
   unit: ProductUnit
-  onOpenChange: (open: boolean) => void
-  onSuccess: () => void
 }
+
+export type StockAdjustmentDialogProps = StockDialogBaseProps &
+  (
+    | { type: 'entry'; workflow: WorkflowHandle<'stock_entry'> }
+    | { type: 'write-off'; workflow: WorkflowHandle<'stock_write_off'> }
+  )
 
 export const StockAdjustmentDialog = (props: StockAdjustmentDialogProps) => {
   const { brand, currentBalance, isOpen, type, unit, onOpenChange } = props

@@ -49,7 +49,7 @@ export const ProductStockDialogs = ({
             productId={productId}
           />
         ) : null}
-        {selectedAction?.kind === 'entry' || selectedAction?.kind === 'write-off' ? (
+        {selectedAction?.kind === 'entry' ? (
           <StockAdjustmentDialog
             allowNegativeStock={productStock.product.allowNegativeStock ?? false}
             brand={selectedAction.brand}
@@ -60,8 +60,24 @@ export const ProductStockDialogs = ({
             onOpenChange={onActionOpenChange}
             onSuccess={onActionSuccess}
             productId={productId}
-            type={selectedAction.kind}
+            type='entry'
             unit={productStock.product.unit}
+            workflow={selectedAction.workflow}
+          />
+        ) : selectedAction?.kind === 'write-off' ? (
+          <StockAdjustmentDialog
+            allowNegativeStock={productStock.product.allowNegativeStock ?? false}
+            brand={selectedAction.brand}
+            currentBalance={
+              selectedAction.brand?.stockQuantity ?? productStock.stockQuantity
+            }
+            isOpen
+            onOpenChange={onActionOpenChange}
+            onSuccess={onActionSuccess}
+            productId={productId}
+            type='write-off'
+            unit={productStock.product.unit}
+            workflow={selectedAction.workflow}
           />
         ) : null}
       </>

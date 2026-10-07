@@ -14,6 +14,18 @@ vi.mock('@/ui/shared/hooks/use-navigation', () => ({ useNavigation: vi.fn() }))
 
 const useRegisterProductActionMock = vi.mocked(useRegisterProductAction)
 const useNavigationMock = vi.mocked(useNavigation)
+const analyticsMocks = vi.hoisted(() => ({
+  completeWorkflow: vi.fn(),
+  endWorkflow: vi.fn(),
+  recordFailure: vi.fn(),
+  recordValidationFailure: vi.fn(),
+  startAttempt: vi.fn(),
+  startWorkflow: vi.fn(),
+}))
+
+vi.mock('@/ui/shared/hooks/use-analytics-context', () => ({
+  useAnalyticsContext: vi.fn(() => analyticsMocks),
+}))
 
 function createSubmitEvent() {
   return { persist: vi.fn(), preventDefault: vi.fn() }
@@ -22,9 +34,11 @@ function createSubmitEvent() {
 describe('useProductRegistrationPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    analyticsMocks.startWorkflow.mockReturnValue({ occurrenceId: 'workflow-1' })
+    analyticsMocks.startAttempt.mockReturnValue({ attempt: 1 })
     useRegisterProductActionMock.mockReturnValue({
       isPending: false,
-      mutateAsync: vi.fn().mockResolvedValue({ id: 'product-1' }),
+      registerProduct: vi.fn().mockResolvedValue({ id: 'product-1' }),
     } as never)
     useNavigationMock.mockReturnValue({
       navigateTo: vi.fn().mockResolvedValue(undefined),
@@ -87,8 +101,12 @@ describe('useProductRegistrationPage', () => {
       'Selecione pelo menos uma categoria.',
     )
     expect(
-      useRegisterProductActionMock.mock.results[0]?.value.mutateAsync,
+      useRegisterProductActionMock.mock.results[0]?.value.registerProduct,
     ).not.toHaveBeenCalled()
+    expect(analyticsMocks.recordValidationFailure).toHaveBeenCalledWith({
+      attempt: { attempt: 1 },
+      fields: ['name', 'categories'],
+    })
 
     act(() => {
       result.current.handleNameChange('Chocolate')
@@ -110,6 +128,19 @@ describe('useProductRegistrationPage', () => {
     await waitFor(() => expect(result.current.brandErrors[0]?.name).toBeUndefined())
   })
 
+  it('keeps one product-creation occurrence across rerenders and ends it on unmount', () => {
+    const { rerender, unmount } = renderHook(() => useProductRegistrationPage())
+    const workflow = { occurrenceId: 'workflow-1' }
+    const entryKey = analyticsMocks.startWorkflow.mock.calls[0]?.[0]?.entryKey
+
+    rerender()
+
+    expect(entryKey).toBeTypeOf('string')
+    expect(analyticsMocks.startWorkflow).toHaveBeenCalledTimes(1)
+    unmount()
+    expect(analyticsMocks.endWorkflow).toHaveBeenCalledWith({ workflow })
+  })
+
   it('keeps portion and resale categories exclusive and disables their opposite option', () => {
     const { result } = renderHook(() => useProductRegistrationPage())
 
@@ -129,10 +160,10 @@ describe('useProductRegistrationPage', () => {
   })
 
   it('forces manufacturable products to single stock and rejects by-brand changes', async () => {
-    const mutateAsync = vi.fn().mockResolvedValue({ id: 'product-1' })
+    const registerProduct = vi.fn().mockResolvedValue({ id: 'product-1' })
     useRegisterProductActionMock.mockReturnValue({
       isPending: false,
-      mutateAsync,
+      registerProduct,
     } as never)
     const { result } = renderHook(() => useProductRegistrationPage())
 
@@ -145,16 +176,22 @@ describe('useProductRegistrationPage', () => {
     expect(result.current.stockControl).toBe('single')
 
     await act(async () => result.current.handleRegister(createSubmitEvent() as never))
-    expect(mutateAsync).toHaveBeenCalledWith({
-      name: 'Produto fabricável',
-      unit: ProductUnit.Unit,
-      categories: [ProductCategory.Manufacturable],
-      stockControl: 'single',
-      allowNegativeStock: false,
-      idealStock: 0,
-      initialStock: 0,
-      currentUnitCost: undefined,
-      brands: undefined,
+    expect(registerProduct).toHaveBeenCalledWith(
+      {
+        name: 'Produto fabricável',
+        unit: ProductUnit.Unit,
+        categories: [ProductCategory.Manufacturable],
+        stockControl: 'single',
+        allowNegativeStock: false,
+        idealStock: 0,
+        initialStock: 0,
+        currentUnitCost: undefined,
+        brands: undefined,
+      },
+      expect.anything(),
+    )
+    expect(analyticsMocks.startAttempt).toHaveBeenCalledWith({
+      workflow: { occurrenceId: 'workflow-1' },
     })
 
     const brandsBeforeRejectedChange = result.current.brands
@@ -236,7 +273,7 @@ describe('useProductRegistrationPage', () => {
     const navigateToPath = vi.fn().mockResolvedValue(undefined)
     useRegisterProductActionMock.mockReturnValue({
       isPending: false,
-      mutateAsync,
+      registerProduct: mutateAsync,
     } as never)
     useNavigationMock.mockReturnValue({ navigateTo: vi.fn(), navigateToPath })
     const { result } = renderHook(() => useProductRegistrationPage())
@@ -266,34 +303,37 @@ describe('useProductRegistrationPage', () => {
     expect(result.current.calculatedInitialStock).toBe(13)
     await act(async () => result.current.handleRegister(createSubmitEvent() as never))
 
-    expect(mutateAsync).toHaveBeenCalledWith({
-      name: 'Polpa',
-      unit: ProductUnit.Kilogram,
-      categories: [ProductCategory.Ingredient],
-      stockControl: 'by-brand',
-      allowNegativeStock: false,
-      idealStock: 0,
-      initialStock: 13,
-      currentUnitCost: undefined,
-      brands: [
-        {
-          name: 'Frooty',
-          unit: ProductUnit.Kilogram,
-          packageQuantity: 2.5,
-          packageValue: 12.5,
-          initialQuantity: 10,
-          isPrimary: true,
-        },
-        {
-          name: 'Frutamil',
-          unit: ProductUnit.Kilogram,
-          packageQuantity: 1.5,
-          packageValue: 3.25,
-          initialQuantity: 3,
-          isPrimary: false,
-        },
-      ],
-    })
+    expect(mutateAsync).toHaveBeenCalledWith(
+      {
+        name: 'Polpa',
+        unit: ProductUnit.Kilogram,
+        categories: [ProductCategory.Ingredient],
+        stockControl: 'by-brand',
+        allowNegativeStock: false,
+        idealStock: 0,
+        initialStock: 13,
+        currentUnitCost: undefined,
+        brands: [
+          {
+            name: 'Frooty',
+            unit: ProductUnit.Kilogram,
+            packageQuantity: 2.5,
+            packageValue: 12.5,
+            initialQuantity: 10,
+            isPrimary: true,
+          },
+          {
+            name: 'Frutamil',
+            unit: ProductUnit.Kilogram,
+            packageQuantity: 1.5,
+            packageValue: 3.25,
+            initialQuantity: 3,
+            isPrimary: false,
+          },
+        ],
+      },
+      expect.anything(),
+    )
     expect(navigateToPath).toHaveBeenCalledWith(productDetailsRoute('product-1'))
   })
 
@@ -301,7 +341,7 @@ describe('useProductRegistrationPage', () => {
     const mutateAsync = vi.fn().mockResolvedValue({ id: 'product-1' })
     useRegisterProductActionMock.mockReturnValue({
       isPending: false,
-      mutateAsync,
+      registerProduct: mutateAsync,
     } as never)
     const { result } = renderHook(() => useProductRegistrationPage())
 
@@ -316,17 +356,20 @@ describe('useProductRegistrationPage', () => {
     expect(result.current.brands).toHaveLength(1)
     await act(async () => result.current.handleRegister(createSubmitEvent() as never))
 
-    expect(mutateAsync).toHaveBeenCalledWith({
-      name: 'Chocolate',
-      unit: ProductUnit.Unit,
-      categories: [ProductCategory.Ingredient],
-      stockControl: 'single',
-      allowNegativeStock: false,
-      idealStock: 0,
-      initialStock: 0,
-      currentUnitCost: undefined,
-      brands: undefined,
-    })
+    expect(mutateAsync).toHaveBeenCalledWith(
+      {
+        name: 'Chocolate',
+        unit: ProductUnit.Unit,
+        categories: [ProductCategory.Ingredient],
+        stockControl: 'single',
+        allowNegativeStock: false,
+        idealStock: 0,
+        initialStock: 0,
+        currentUnitCost: undefined,
+        brands: undefined,
+      },
+      expect.anything(),
+    )
   })
 
   it('submits typed single-stock values and navigates to the created product', async () => {
@@ -334,7 +377,7 @@ describe('useProductRegistrationPage', () => {
     const navigateToPath = vi.fn().mockResolvedValue(undefined)
     useRegisterProductActionMock.mockReturnValue({
       isPending: false,
-      mutateAsync,
+      registerProduct: mutateAsync,
     } as never)
     useNavigationMock.mockReturnValue({ navigateTo: vi.fn(), navigateToPath })
     const { result } = renderHook(() => useProductRegistrationPage())
@@ -348,17 +391,20 @@ describe('useProductRegistrationPage', () => {
     })
     await act(async () => result.current.handleRegister(createSubmitEvent() as never))
 
-    expect(mutateAsync).toHaveBeenCalledWith({
-      name: 'Chocolate',
-      unit: ProductUnit.Unit,
-      categories: [ProductCategory.Ingredient],
-      stockControl: 'single',
-      allowNegativeStock: false,
-      idealStock: 10,
-      initialStock: 4,
-      currentUnitCost: 3.5,
-      brands: undefined,
-    })
+    expect(mutateAsync).toHaveBeenCalledWith(
+      {
+        name: 'Chocolate',
+        unit: ProductUnit.Unit,
+        categories: [ProductCategory.Ingredient],
+        stockControl: 'single',
+        allowNegativeStock: false,
+        idealStock: 10,
+        initialStock: 4,
+        currentUnitCost: 3.5,
+        brands: undefined,
+      },
+      expect.anything(),
+    )
     expect(navigateToPath).toHaveBeenCalledWith(productDetailsRoute('product-1'))
   })
 
@@ -366,7 +412,7 @@ describe('useProductRegistrationPage', () => {
     const mutateAsync = vi.fn().mockResolvedValue({ id: 'product-1' })
     useRegisterProductActionMock.mockReturnValue({
       isPending: false,
-      mutateAsync,
+      registerProduct: mutateAsync,
     } as never)
     const { result } = renderHook(() => useProductRegistrationPage())
 
@@ -390,7 +436,7 @@ describe('useProductRegistrationPage', () => {
     const mutateAsync = vi.fn().mockReturnValue(mutation)
     useRegisterProductActionMock.mockReturnValue({
       isPending: false,
-      mutateAsync,
+      registerProduct: mutateAsync,
     } as never)
     const { result } = renderHook(() => useProductRegistrationPage())
     act(() => {
@@ -413,7 +459,7 @@ describe('useProductRegistrationPage', () => {
     const navigateTo = vi.fn().mockResolvedValue(undefined)
     useRegisterProductActionMock.mockReturnValue({
       isPending: true,
-      mutateAsync: vi.fn(),
+      registerProduct: vi.fn(),
     } as never)
     useNavigationMock.mockReturnValue({ navigateTo, navigateToPath: vi.fn() })
     const { result } = renderHook(() => useProductRegistrationPage())
@@ -430,7 +476,7 @@ describe('useProductRegistrationPage', () => {
       .mockRejectedValueOnce({ code: 'UNKNOWN' })
     useRegisterProductActionMock.mockReturnValue({
       isPending: false,
-      mutateAsync,
+      registerProduct: mutateAsync,
     } as never)
     const { result } = renderHook(() => useProductRegistrationPage())
 

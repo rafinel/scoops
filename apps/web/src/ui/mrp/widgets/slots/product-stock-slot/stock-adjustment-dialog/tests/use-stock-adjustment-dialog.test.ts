@@ -12,21 +12,37 @@ vi.mock('@/ui/mrp/hooks/use-adjust-product-stock-action', () => ({
 }))
 
 const useAdjustProductStockActionMock = vi.mocked(useAdjustProductStockAction)
+const analyticsMocks = vi.hoisted(() => ({
+  recordBlock: vi.fn(),
+  recordFailure: vi.fn(),
+  recordValidationFailure: vi.fn(),
+  startAttempt: vi.fn(),
+}))
+
+vi.mock('@/ui/shared/hooks/use-analytics-context', () => ({
+  useAnalyticsContext: vi.fn(() => analyticsMocks),
+}))
 
 describe('useStockAdjustmentDialog', () => {
   function createProps(
     overrides: Partial<Parameters<typeof useStockAdjustmentDialog>[0]> = {},
   ) {
+    const type = overrides.type ?? 'entry'
     return {
       allowNegativeStock: false,
       currentBalance: 10,
       isOpen: true,
       productId: 'product-1',
-      type: 'entry' as const,
+      type,
+      workflow:
+        overrides.workflow ??
+        (type === 'entry'
+          ? { occurrenceId: 'workflow-entry' }
+          : { occurrenceId: 'workflow-write-off' }),
       onOpenChange: vi.fn(),
       onSuccess: vi.fn(),
       ...overrides,
-    }
+    } as Parameters<typeof useStockAdjustmentDialog>[0]
   }
 
   function createBrandStock() {
@@ -48,7 +64,12 @@ describe('useStockAdjustmentDialog', () => {
     result: { current: ReturnType<typeof useStockAdjustmentDialog> },
     name: 'quantity' | 'justification',
   ) {
-    const registration = result.current.register(name)
+    const registration =
+      name === 'quantity'
+        ? result.current.register(name, { onChange: result.current.handleQuantityChange })
+        : result.current.register(name, {
+            onChange: result.current.handleJustificationChange,
+          })
     const field = document.createElement('input')
     field.name = registration.name
     document.body.append(field)
@@ -84,6 +105,7 @@ describe('useStockAdjustmentDialog', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    analyticsMocks.startAttempt.mockReturnValue({ attempt: 1 })
     useAdjustProductStockActionMock.mockReturnValue({
       adjustProductStock: vi.fn().mockResolvedValue(undefined),
       error: null,
@@ -144,12 +166,15 @@ describe('useStockAdjustmentDialog', () => {
 
     await submit(result)
 
-    expect(adjustProductStock).toHaveBeenCalledWith({
-      brandId: undefined,
-      justification: 'Reposição',
-      quantity: 2,
-      type: 'entry',
-    })
+    expect(adjustProductStock).toHaveBeenCalledWith(
+      {
+        brandId: undefined,
+        justification: 'Reposição',
+        quantity: 2,
+        type: 'entry',
+      },
+      { attempt: 1 },
+    )
     expect(result.current.quantity).toBe('')
     expect(result.current.justification).toBe('')
     expect(result.current.formError).toBeNull()
@@ -179,12 +204,15 @@ describe('useStockAdjustmentDialog', () => {
 
     await submit(result)
 
-    expect(adjustProductStock).toHaveBeenCalledWith({
-      brandId: brand.brand.id,
-      justification: undefined,
-      quantity: 6,
-      type: 'entry',
-    })
+    expect(adjustProductStock).toHaveBeenCalledWith(
+      {
+        brandId: brand.brand.id,
+        justification: undefined,
+        quantity: 6,
+        type: 'entry',
+      },
+      { attempt: 1 },
+    )
   })
 
   it('reports validation errors for an invalid quantity and missing package conversion', async () => {
@@ -196,6 +224,10 @@ describe('useStockAdjustmentDialog', () => {
     expect(first.result.current.errors.quantity?.message).toBe(
       'Informe uma quantidade maior que zero.',
     )
+    expect(analyticsMocks.recordValidationFailure).toHaveBeenCalledWith({
+      attempt: { attempt: 1 },
+      fields: ['quantity'],
+    })
 
     first.unmount()
     const second = renderHook(() => useStockAdjustmentDialog(createProps()))
@@ -281,6 +313,14 @@ describe('useStockAdjustmentDialog', () => {
     expect(result.current.baseQuantity).toBe(11)
     expect(result.current.prospectiveBalance).toBe(-1)
     expect(result.current.isInsufficient).toBe(true)
+    expect(analyticsMocks.recordBlock).toHaveBeenCalledWith({
+      workflow: { occurrenceId: 'workflow-write-off' },
+      block: {
+        phase: 'validation',
+        failureCode: 'insufficient_stock',
+        fields: ['quantity'],
+      },
+    })
     await submit(result)
     expect(adjustProductStock).not.toHaveBeenCalled()
     expect(props.onOpenChange).not.toHaveBeenCalled()

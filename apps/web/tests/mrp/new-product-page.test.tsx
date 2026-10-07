@@ -105,9 +105,7 @@ test.describe('NewProductPage', () => {
     await page.getByRole('radio', { name: 'Marca principal 2' }).check({ force: true })
 
     await page.setViewportSize({ width: 1440, height: 900 })
-    await page
-      .getByRole('heading', { name: 'Estoque' })
-      .scrollIntoViewIfNeeded()
+    await page.getByRole('heading', { name: 'Estoque' }).scrollIntoViewIfNeeded()
     await page
       .getByText('Total calculado pelas quantidades iniciais das marcas.')
       .scrollIntoViewIfNeeded()
@@ -428,3 +426,112 @@ test.describe('New product access', () => {
     await expect(page.getByRole('button', { name: 'Salvar produto' })).toHaveCount(0)
   })
 })
+
+if (process.env.SCOOPS_PLAYWRIGHT_ANALYTICS_FIXTURE === '1') {
+  test.describe('analytics', () => {
+    test.use({
+      userAgent:
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36',
+    })
+
+    test('retries a sanitized completion without repeating product creation', async ({
+      page,
+      identityFixture,
+      mrpFixture,
+      analyticsTransportFixture,
+    }) => {
+      await identityFixture.mockManagerSession()
+      await identityFixture.mockManagerAccount()
+      const { registrations } = await mrpFixture.mockProducts({
+        getResponse: {
+          body: {
+            items: [],
+            page: 1,
+            pageSize: 10,
+            totalItems: 0,
+            totalPages: 0,
+            kpis: {},
+          },
+        },
+        postResponse: { body: CREATED_PRODUCT, status: 201 },
+      })
+      await page.route('**/products/product-1/stock', async (route) =>
+        route.fulfill({
+          contentType: 'application/json',
+          body: JSON.stringify(STOCK_RESPONSE),
+        }),
+      )
+      await page.route('**/products/product-1/stock-transactions**', async (route) =>
+        route.fulfill({
+          contentType: 'application/json',
+          body: JSON.stringify({
+            items: [],
+            page: 1,
+            pageSize: 10,
+            totalItems: 0,
+            totalPages: 0,
+          }),
+        }),
+      )
+      await page.addInitScript(() => {
+        Object.defineProperties(Navigator.prototype, {
+          webdriver: { configurable: true, get: () => false },
+          userAgentData: { configurable: true, get: () => undefined },
+        })
+      })
+      await page.goto('/products/new')
+      await expect(page.getByRole('heading', { name: 'Novo produto' })).toBeVisible()
+      await expect
+        .poll(() => analyticsTransportFixture.eventAttempts('$identify').length)
+        .toBeGreaterThan(0)
+      analyticsTransportFixture.failOnceForEvent('workflow_completed')
+
+      await page.getByRole('textbox', { name: 'Nome', exact: true }).fill('Chocolate')
+      await page.getByRole('checkbox', { name: 'Ingrediente' }).check()
+      await page.getByRole('spinbutton', { name: 'Estoque inicial' }).fill('4')
+      await page.getByRole('spinbutton', { name: 'Estoque ideal' }).fill('10')
+      await page.getByRole('spinbutton', { name: /Custo unitário/ }).fill('3.50')
+      await page.getByRole('button', { name: 'Criar produto' }).click()
+
+      await expect(page).toHaveURL('/products/product-1/stock')
+      await expect.poll(() => registrations).toHaveLength(1)
+      await expect
+        .poll(() => analyticsTransportFixture.eventAttempts('workflow_completed').length)
+        .toBeGreaterThanOrEqual(2)
+
+      const [failedAttempt, retryAttempt] =
+        analyticsTransportFixture.eventAttempts('workflow_completed')
+      expect(failedAttempt).toBeDefined()
+      expect(retryAttempt).toBeDefined()
+      const failedProperties = failedAttempt?.properties
+      expect(failedProperties).toBeDefined()
+      expect(retryAttempt).toMatchObject({
+        uuid: failedAttempt?.uuid,
+        timestamp: failedAttempt?.timestamp,
+        properties: {
+          distinct_id:
+            typeof failedProperties === 'object' && failedProperties !== null
+              ? (failedProperties as Record<string, unknown>).distinct_id
+              : undefined,
+          workflow: 'product_creation',
+          workflow_id:
+            typeof failedProperties === 'object' && failedProperties !== null
+              ? (failedProperties as Record<string, unknown>).workflow_id
+              : undefined,
+          establishment_id: 'browser-establishment-id',
+          role: 'manager',
+        },
+      })
+
+      const persistedKeys = await page.evaluate(() => [
+        ...Array.from({ length: window.localStorage.length }, (_, index) =>
+          window.localStorage.key(index),
+        ),
+        ...Array.from({ length: window.sessionStorage.length }, (_, index) =>
+          window.sessionStorage.key(index),
+        ),
+      ])
+      expect(persistedKeys.filter(Boolean).join('\n')).not.toMatch(/posthog|event.queue/i)
+    })
+  })
+}

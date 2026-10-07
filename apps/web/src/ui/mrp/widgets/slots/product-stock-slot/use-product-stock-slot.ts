@@ -1,20 +1,21 @@
 import { useState } from 'react'
 
 import type { ProductBrandStock } from '@scoops/core/mrp/domain/structures'
-
 import { useProductStockQuery } from '../../../hooks/use-product-stock-query'
 import { useSetPrimaryProductBrandAction } from '../../../hooks/use-set-primary-product-brand-action'
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
 import { showErrorToast } from '@/ui/shared/notifications'
+import { useStockWorkflowTracker } from './use-stock-workflow-tracker'
 
-export type ProductStockAction =
-  | { kind: 'add-brand' }
-  | { kind: 'delete-brand' | 'edit-brand'; brand: ProductBrandStock }
-  | { kind: 'entry' | 'write-off'; brand?: ProductBrandStock }
+type StockWorkflowTracker = ReturnType<typeof useStockWorkflowTracker>
+type EntryWorkflow = ReturnType<StockWorkflowTracker['startEntryWorkflow']>
+type WriteOffWorkflow = ReturnType<StockWorkflowTracker['startWriteOffWorkflow']>
+type StockWorkflowByAction = { entry: EntryWorkflow; 'write-off': WriteOffWorkflow }
 
 export function useProductStockSlot(productId: string) {
   const query = useProductStockQuery(productId)
   const setPrimaryAction = useSetPrimaryProductBrandAction(productId)
+  const workflowTracker = useStockWorkflowTracker()
   const { navigateTo } = useNavigation()
   const [selectedAction, setSelectedAction] = useState<ProductStockAction>()
 
@@ -34,28 +35,27 @@ export function useProductStockSlot(productId: string) {
     setSelectedAction({ kind: 'delete-brand', brand })
   }
 
-  async function handleSetPrimaryBrand(brand: ProductBrandStock) {
-    try {
-      await setPrimaryAction.setPrimaryProductBrand(brand.brand.id)
-      await query.refetch()
-    } catch {
-      showErrorToast('Não foi possível definir a marca como principal. Tente novamente.')
-    }
-  }
+  const handleSetPrimaryBrand = (brand: ProductBrandStock) =>
+    updatePrimaryBrandAndRefresh(setPrimaryAction, brand, query.refetch)
 
   function handleEntry(brand?: ProductBrandStock) {
-    setSelectedAction({ kind: 'entry', brand })
+    const workflow = workflowTracker.startEntryWorkflow()
+    setSelectedAction({ kind: 'entry', brand, workflow })
   }
 
   function handleWriteOff(brand?: ProductBrandStock) {
-    setSelectedAction({ kind: 'write-off', brand })
+    const workflow = workflowTracker.startWriteOffWorkflow()
+    setSelectedAction({ kind: 'write-off', brand, workflow })
   }
 
   function handleActionOpenChange(open: boolean) {
-    if (!open) setSelectedAction(undefined)
+    if (open) return
+    workflowTracker.endActiveWorkflow()
+    setSelectedAction(undefined)
   }
 
   function handleActionSuccess() {
+    workflowTracker.endActiveWorkflow()
     setSelectedAction(undefined)
     void query.refetch()
   }
@@ -77,5 +77,28 @@ export function useProductStockSlot(productId: string) {
     handleRetry,
     handleSetPrimaryBrand,
     handleWriteOff,
+  }
+}
+
+export type ProductStockAction =
+  | { kind: 'add-brand' }
+  | { kind: 'delete-brand' | 'edit-brand'; brand: ProductBrandStock }
+  | { kind: 'entry'; brand?: ProductBrandStock; workflow: StockWorkflowByAction['entry'] }
+  | {
+      kind: 'write-off'
+      brand?: ProductBrandStock
+      workflow: StockWorkflowByAction['write-off']
+    }
+
+async function updatePrimaryBrandAndRefresh(
+  action: ReturnType<typeof useSetPrimaryProductBrandAction>,
+  brand: ProductBrandStock,
+  refetch: () => Promise<unknown>,
+) {
+  try {
+    await action.setPrimaryProductBrand(brand.brand.id)
+    await refetch()
+  } catch {
+    showErrorToast('Não foi possível definir a marca como principal. Tente novamente.')
   }
 }

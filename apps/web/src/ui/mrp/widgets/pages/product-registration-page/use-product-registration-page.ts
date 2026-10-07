@@ -1,17 +1,17 @@
 import { useRef, useState, type BaseSyntheticEvent } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  ProductCategory,
-  type ProductStockControl,
-  type ProductUnit,
-} from '@scoops/core/mrp/domain/structures'
+import { ProductCategory } from '@scoops/core/mrp/domain/structures'
+
+import type { ProductStockControl, ProductUnit } from '@scoops/core/mrp/domain/structures'
 import { productRegistrationFormSchema } from '@scoops/validation'
 import { useForm } from 'react-hook-form'
+import type { FieldErrors } from 'react-hook-form'
 import type { z } from 'zod'
 
 import { productDetailsRoute } from '@/constants/routes'
 import { useRegisterProductAction } from '@/ui/mrp/hooks/use-register-product-action'
 import { useNavigation } from '@/ui/shared/hooks/use-navigation'
+import * as ProductRegistrationTelemetry from './use-product-registration-telemetry'
 
 export type ProductRegistrationFormValues = z.infer<typeof productRegistrationFormSchema>
 
@@ -55,7 +55,8 @@ function parseBrazilianDecimal(value: string): number {
 }
 
 export function useProductRegistrationPage() {
-  const { isPending, mutateAsync } = useRegisterProductAction()
+  const { isPending, registerProduct } = useRegisterProductAction()
+  const telemetry = ProductRegistrationTelemetry.useProductRegistrationTelemetry()
   const { navigateTo, navigateToPath } = useNavigation()
   const nextBrandId = useRef(1)
   const isSubmitting = useRef(false)
@@ -86,30 +87,8 @@ export function useProductRegistrationPage() {
         (parseBrazilianDecimal(brand.packageCount) || 0),
     0,
   )
-  const fieldErrors: ProductRegistrationFieldErrors = {
-    brands: errors.brands?.message,
-    categories: errors.categories?.message,
-    currentUnitCost: errors.currentUnitCost?.message,
-    idealStock: errors.idealStock?.message,
-    initialStock: errors.initialStock?.message,
-    name: errors.name?.message,
-  }
-  const brandErrors = brands.map((_, index) => {
-    const brandError = errors.brands?.[index] as
-      | {
-          name?: { message?: string }
-          packageCount?: { message?: string }
-          packagePrice?: { message?: string }
-          packageQuantity?: { message?: string }
-        }
-      | undefined
-    return {
-      name: brandError?.name?.message,
-      packageCount: brandError?.packageCount?.message,
-      packagePrice: brandError?.packagePrice?.message,
-      packageQuantity: brandError?.packageQuantity?.message,
-    }
-  })
+  const { brandErrors, fieldErrors } =
+    ProductRegistrationTelemetry.mapProductRegistrationErrors(errors, brands)
 
   function clearFormError() {
     setFormError(null)
@@ -132,6 +111,27 @@ export function useProductRegistrationPage() {
 
   function handleUnitChange(value: ProductUnit) {
     setFormValue('unit', value)
+  }
+
+  const registrationPageModel = {
+    allowNegativeStock,
+    brandErrors,
+    brands,
+    calculatedInitialStock,
+    categories,
+    currentUnitCost,
+    fieldErrors,
+    formError,
+    idealStock,
+    initialStock,
+    isPending,
+    name,
+    register,
+    stockControl,
+    unit,
+    handleAddBrand,
+    handleAllowNegativeStockChange,
+    handleBrandChange,
   }
 
   function handleProductCategoryToggle(category: ProductCategory) {
@@ -225,51 +225,11 @@ export function useProductRegistrationPage() {
 
   async function handleRegister(values: ProductRegistrationFormValues) {
     clearFormError()
-    const effectiveStockControl = values.categories.includes(
-      ProductCategory.Manufacturable,
-    )
-      ? 'single'
-      : values.stockControl
-    const nextInitialStock =
-      effectiveStockControl === 'by-brand'
-        ? values.brands.reduce(
-            (total, brand) =>
-              total +
-              (parseBrazilianDecimal(brand.packageQuantity) || 0) *
-                (parseBrazilianDecimal(brand.packageCount) || 0),
-            0,
-          )
-        : parseBrazilianDecimal(values.initialStock)
+    const input = ProductRegistrationTelemetry.buildProductRegistrationInput(values)
 
     try {
-      const product = await mutateAsync({
-        name: values.name,
-        unit: values.unit,
-        categories: values.categories,
-        stockControl: effectiveStockControl,
-        allowNegativeStock: values.allowNegativeStock,
-        idealStock: Number(values.idealStock),
-        initialStock: nextInitialStock,
-        currentUnitCost:
-          effectiveStockControl === 'single' &&
-          values.categories.includes(ProductCategory.Ingredient) &&
-          values.currentUnitCost.trim() !== ''
-            ? parseBrazilianDecimal(values.currentUnitCost)
-            : undefined,
-        brands:
-          effectiveStockControl === 'by-brand'
-            ? values.brands.map((brand) => ({
-                name: brand.name,
-                unit: values.unit,
-                packageQuantity: parseBrazilianDecimal(brand.packageQuantity),
-                packageValue: parseBrazilianDecimal(brand.packagePrice),
-                initialQuantity:
-                  parseBrazilianDecimal(brand.packageQuantity) *
-                  parseBrazilianDecimal(brand.packageCount),
-                isPrimary: brand.isPrimary,
-              }))
-            : undefined,
-      })
+      const attempt = telemetry.startAttempt()
+      const product = await registerProduct(input, attempt)
       await navigateToPath(productDetailsRoute(product.id))
     } catch (error) {
       setFormError(
@@ -280,8 +240,9 @@ export function useProductRegistrationPage() {
     }
   }
 
-  function handleInvalidSubmit() {
+  function handleInvalidSubmit(errors: FieldErrors<ProductRegistrationFormValues>) {
     isSubmitting.current = false
+    telemetry.recordInvalidSubmit(errors)
   }
 
   function handleFormSubmit(event?: BaseSyntheticEvent) {
@@ -299,24 +260,7 @@ export function useProductRegistrationPage() {
   }
 
   return {
-    allowNegativeStock,
-    brandErrors,
-    brands,
-    calculatedInitialStock,
-    categories,
-    currentUnitCost,
-    fieldErrors,
-    formError,
-    idealStock,
-    initialStock,
-    isPending,
-    name,
-    register,
-    stockControl,
-    unit,
-    handleAddBrand,
-    handleAllowNegativeStockChange,
-    handleBrandChange,
+    ...registrationPageModel,
     handleCancel,
     handleCurrentUnitCostChange,
     handleIdealStockChange,

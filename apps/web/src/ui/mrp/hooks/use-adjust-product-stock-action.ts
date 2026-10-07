@@ -1,30 +1,17 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-
-import type { AdjustProductStockInput } from '@scoops/core/mrp/domain/structures'
+import { useMutation } from '@tanstack/react-query'
 
 import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
-
-import { mrpQueryKeys } from './mrp-query-keys'
+import {
+  createStockAdjustmentDispatcher,
+  useStockAdjustmentMutationOptions,
+} from './use-adjust-product-stock-action-telemetry'
 
 export const useAdjustProductStockAction = (productId: string) => {
   const { mrpService } = useRestContext()
-  const queryClient = useQueryClient()
-  const mutation = useMutation({
-    mutationFn: async (input: AdjustProductStockInput) => {
-      const response = await mrpService.adjustProductStock(productId, input)
-      if (response.isFailure) response.throwError()
-      return response.body
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: mrpQueryKeys.productStock(productId),
-      })
-    },
-  })
-
+  const mutation = useMutation(useStockAdjustmentMutationOptions(productId, mrpService))
   return {
     error: mutation.error,
     isPending: mutation.isPending,
-    adjustProductStock: mutation.mutateAsync,
+    adjustProductStock: createStockAdjustmentDispatcher(mutation.mutateAsync),
   }
 }

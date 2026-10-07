@@ -1,0 +1,11 @@
+export type ProductTelemetryFailureCode =
+  | 'invalid_input'
+  | 'insufficient_stock'
+  | 'dependency_unavailable'
+  | 'unauthorized'
+  | 'forbidden'
+  | 'conflict'
+  | 'rate_limited'
+  | 'network_error'
+  | 'server_error'
+  | 'unknown'

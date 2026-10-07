@@ -19,19 +19,20 @@ const handleSubmitMock = vi.fn()
 describe('StockAdjustmentDialog', () => {
   function fakeProps(
     overrides: Partial<ComponentProps<typeof StockAdjustmentDialog>> = {},
-  ) {
+  ): ComponentProps<typeof StockAdjustmentDialog> {
     return {
       allowNegativeStock: false,
       currentBalance: 10,
       isOpen: true,
       productId: 'product-1',
       type: 'entry' as const,
+      workflow: { occurrenceId: 'workflow-1' } as never,
       unit: 'kg' as const,
       brand: fakeBrandStock(),
       onOpenChange: vi.fn(),
       onSuccess: vi.fn(),
       ...overrides,
-    }
+    } as ComponentProps<typeof StockAdjustmentDialog>
   }
 
   function fakeStockAdjustmentDialog(

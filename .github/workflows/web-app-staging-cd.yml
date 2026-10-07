@@ -104,6 +104,9 @@ jobs:
             --build-arg "VITE_SCOOPS_WEB_APP_MODE=$VITE_SCOOPS_WEB_APP_MODE" \
             --build-arg "VITE_SENTRY_DSN=$VITE_SENTRY_DSN" \
             --build-arg "VITE_SCOOPS_RELEASE_SHA=$VITE_SCOOPS_RELEASE_SHA" \
+            --build-arg "VITE_POSTHOG_ENABLED=${VITE_POSTHOG_ENABLED:-false}" \
+            --build-arg "VITE_POSTHOG_PROJECT_TOKEN=${VITE_POSTHOG_PROJECT_TOKEN:-}" \
+            --build-arg "VITE_POSTHOG_API_HOST=${VITE_POSTHOG_API_HOST:-}" \
             --build-arg "SENTRY_ORG=$SENTRY_ORG" \
             --build-arg "SENTRY_PROJECT=$SENTRY_PROJECT" \
             --build-arg "SCOOPS_SERVER_PROXY_URL=$SCOOPS_SERVER_PROXY_URL" \

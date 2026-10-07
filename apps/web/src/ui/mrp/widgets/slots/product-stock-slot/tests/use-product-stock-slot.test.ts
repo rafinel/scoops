@@ -29,6 +29,14 @@ const useProductStockQueryMock = vi.mocked(useProductStockQuery)
 const useSetPrimaryProductBrandActionMock = vi.mocked(useSetPrimaryProductBrandAction)
 const useNavigationMock = vi.mocked(useNavigation)
 const showErrorToastMock = vi.mocked(showErrorToast)
+const analyticsMocks = vi.hoisted(() => ({
+  endWorkflow: vi.fn(),
+  startWorkflow: vi.fn(),
+}))
+
+vi.mock('@/ui/shared/hooks/use-analytics-context', () => ({
+  useAnalyticsContext: vi.fn(() => analyticsMocks),
+}))
 
 describe('useProductStockSlot', () => {
   const product = ProductFaker.fake({
@@ -56,6 +64,12 @@ describe('useProductStockSlot', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    analyticsMocks.startWorkflow.mockReset()
+    analyticsMocks.startWorkflow.mockReturnValue({ occurrenceId: 'workflow-default' })
+    analyticsMocks.startWorkflow
+      .mockReturnValueOnce({ occurrenceId: 'entry-1' })
+      .mockReturnValueOnce({ occurrenceId: 'write-off-1' })
+      .mockReturnValueOnce({ occurrenceId: 'entry-2' })
     refetchMock = vi.fn().mockResolvedValue(undefined)
     navigateToMock = vi.fn().mockResolvedValue(undefined)
     setPrimaryProductBrandMock = vi.fn().mockResolvedValue(undefined)
@@ -107,28 +121,50 @@ describe('useProductStockSlot', () => {
     expect(result.current.selectedAction).toEqual({
       kind: 'entry',
       brand: productBrandStock,
+      workflow: { occurrenceId: 'entry-1' },
+    })
+    act(() => result.current.handleActionOpenChange(false))
+    expect(analyticsMocks.endWorkflow).toHaveBeenCalledWith({
+      workflow: { occurrenceId: 'entry-1' },
     })
 
     act(() => result.current.handleWriteOff(productBrandStock))
     expect(result.current.selectedAction).toEqual({
       kind: 'write-off',
       brand: productBrandStock,
+      workflow: { occurrenceId: 'write-off-1' },
     })
 
     act(() => result.current.handleActionOpenChange(true))
     expect(result.current.selectedAction).toEqual({
       kind: 'write-off',
       brand: productBrandStock,
+      workflow: { occurrenceId: 'write-off-1' },
     })
 
     act(() => result.current.handleActionOpenChange(false))
     expect(result.current.selectedAction).toBeUndefined()
 
     act(() => result.current.handleEntry())
-    expect(result.current.selectedAction).toEqual({ kind: 'entry' })
+    expect(result.current.selectedAction).toEqual({
+      kind: 'entry',
+      workflow: { occurrenceId: 'entry-2' },
+    })
+    act(() => result.current.handleActionOpenChange(false))
     act(() => result.current.handleActionSuccess())
     expect(result.current.selectedAction).toBeUndefined()
     expect(refetchMock).toHaveBeenCalledOnce()
+  })
+
+  it('ends an open stock workflow when the slot unmounts', () => {
+    const { result, unmount } = renderHook(() => useProductStockSlot(product.id))
+
+    act(() => result.current.handleEntry(productBrandStock))
+    unmount()
+
+    expect(analyticsMocks.endWorkflow).toHaveBeenCalledWith({
+      workflow: { occurrenceId: 'entry-1' },
+    })
   })
 
   it('retries the stock query and navigates back to products', () => {

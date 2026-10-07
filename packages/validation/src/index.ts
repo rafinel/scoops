@@ -141,6 +141,14 @@ export {
 } from './analytics/analytics-interaction-schema.ts'
 export { establishmentTimezoneSchema } from './identity/establishment-timezone-schema.ts'
 export { shopTimezoneFormSchema } from './web/shop-timezone-form-schema.ts'
+export { featureVisitedTelemetrySchema } from './web/feature-visited-telemetry-schema.ts'
+export { onboardingTelemetryPayloadSchema } from './web/onboarding-telemetry-payload-schema.ts'
+export { productCreationTelemetryPayloadSchema } from './web/product-creation-telemetry-payload-schema.ts'
+export { stockEntryTelemetryPayloadSchema } from './web/stock-entry-telemetry-payload-schema.ts'
+export { stockWriteOffTelemetryPayloadSchema } from './web/stock-write-off-telemetry-payload-schema.ts'
+export { productionTelemetryPayloadSchema } from './web/production-telemetry-payload-schema.ts'
+export { productTelemetryWorkflowPayloadSchema } from './web/product-telemetry-workflow-payload-schema.ts'
+export { productTelemetryIdentityLinkSchema } from './web/product-telemetry-identity-link-schema.ts'
 export {
   salesChannelsSearchSchema,
   type SalesChannelAdjustmentFilter,

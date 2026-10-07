@@ -464,6 +464,7 @@ the technical capability is intentionally shared by several modules.
 | MinIO/S3 | Shared provision or owning module | Deferred object storage without provider-specific types. |
 | Inngest | Shared messaging plus feature jobs | Event publication and durable function execution. |
 | Sentry | Shared Web/Server telemetry provision | Environment-specific errors, sanitized logs, traces, metrics and browser replay. |
+| PostHog | Shared Web product-telemetry provision | Explicit browser feature visits and workflow observations behind a provider-neutral contract; independent of customer-facing Analytics reporting. |
 
 Adapters translate provider responses and errors into core contracts. Webhooks
 require signature verification, runtime validation, deduplication, and an
@@ -502,6 +503,23 @@ tokens, full financial identifiers, and unnecessary PII are excluded. Private
 source maps are uploaded during configured builds under the deployed Git SHA and
 removed from runtime images. Sentry account setup, alert delivery, and a
 production deployment workflow remain operator/deployment responsibilities.
+
+Product-usage telemetry uses a separate browser-only PostHog adapter behind the
+shared provision boundary. Owning UI consumers observe workflow and navigation
+occurrences; successful mutations are observed only after successful API responses.
+Anonymous onboarding may be associated with the internal user identifier only
+after authenticated account resolution. Establishment and role context comes from
+that account and is cleared when authentication ends. Approved persistent browser
+metadata is limited to analytics identifiers and safe workflow correlation/timing;
+session credentials and registration values never enter analytics storage or payloads.
+Explicit configuration enables collection in staging or production using separate
+projects; local and test modes never export to deployed projects. Provider failures
+must not interrupt user workflows. Autocapture and PostHog session replay are disabled,
+and outgoing payloads exclude unnecessary personal data, form values, raw errors,
+credentials, tokens, and sensitive URL/referrer contents. These browser observations
+are best-effort product measurements, not authoritative business or audit records.
+PostHog does not alter Sentry recording or own business rules from Identity, MRP,
+PDV, or the establishment-facing Analytics module.
 
 ## 17. Quality strategy
 

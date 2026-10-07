@@ -1,12 +1,9 @@
 import type { PropsWithChildren } from 'react'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ClientOnly, HeadContent, Scripts } from '@tanstack/react-router'
 
-import { AuthContextProvider } from '@/ui/shared/contexts/auth-context'
-import { RestContextProvider } from '@/ui/shared/contexts/rest-context'
-import { RouteTransitionStatus } from '@/ui/shared/widgets/components/route-transition-status'
-import { Toaster } from 'sonner'
+import { ApplicationProviders } from './application-providers'
+import { RootDocument } from './root-document'
 
 const queryClient = new QueryClient()
 
@@ -15,29 +12,9 @@ export type RootLayoutProps = PropsWithChildren
 export const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthContextProvider>
-        <RestContextProvider>
-          <html lang='pt-BR'>
-            <head>
-              <HeadContent />
-            </head>
-            <body className='antialiased [overflow-wrap:anywhere]'>
-              <ClientOnly fallback={null}>
-                {children}
-                <RouteTransitionStatus />
-              </ClientOnly>
-              <Toaster
-                containerAriaLabel='Notificações do Scoops'
-                expand
-                position='top-right'
-                richColors
-                visibleToasts={3}
-              />
-              <Scripts />
-            </body>
-          </html>
-        </RestContextProvider>
-      </AuthContextProvider>
+      <ApplicationProviders>
+        <RootDocument>{children}</RootDocument>
+      </ApplicationProviders>
     </QueryClientProvider>
   )
 }

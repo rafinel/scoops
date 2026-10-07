@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import type { RecipeDetails } from '@scoops/core/mrp/domain/structures'
+import { ConflictError } from '@scoops/core/shared/domain/errors'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useProductionPreviewQuery } from '@/ui/mrp/hooks/use-production-preview-query'
@@ -16,6 +17,17 @@ vi.mock('@/ui/mrp/hooks/use-register-production-action', () => ({
 const useProductionPreviewQueryMock = vi.mocked(useProductionPreviewQuery)
 const useRegisterProductionActionMock = vi.mocked(useRegisterProductionAction)
 const registerProductionMock = vi.fn()
+const analyticsMocks = vi.hoisted(() => ({
+  endWorkflow: vi.fn(),
+  recordBlock: vi.fn(),
+  recordFailure: vi.fn(),
+  startAttempt: vi.fn(),
+  startWorkflow: vi.fn(),
+}))
+
+vi.mock('@/ui/shared/hooks/use-analytics-context', () => ({
+  useAnalyticsContext: vi.fn(() => analyticsMocks),
+}))
 
 const recipe: RecipeDetails = {
   id: 'recipe-1',
@@ -44,6 +56,8 @@ const blockedPreview = {
 describe('useProduceProductDialog', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    analyticsMocks.startWorkflow.mockReturnValue({ occurrenceId: 'workflow-1' })
+    analyticsMocks.startAttempt.mockReturnValue({ attempt: 1 })
     registerProductionMock.mockReset()
     registerProductionMock.mockResolvedValue(undefined)
     useProductionPreviewQueryMock.mockReturnValue({
@@ -157,7 +171,7 @@ describe('useProduceProductDialog', () => {
 
     await act(async () => result.current.handleConfirm(onSuccess))
 
-    expect(registerProductionMock).toHaveBeenCalledWith({ quantity: 10 })
+    expect(registerProductionMock).toHaveBeenCalledWith({ quantity: 10 }, { attempt: 1 })
     expect(onSuccess).toHaveBeenCalledTimes(1)
     expect(result.current.error).toBeNull()
   })
@@ -174,6 +188,14 @@ describe('useProduceProductDialog', () => {
     expect(registerProductionMock).not.toHaveBeenCalled()
     expect(onSuccess).not.toHaveBeenCalled()
     expect(result.current.error).toBe('Informe um número inteiro positivo de lotes.')
+    expect(analyticsMocks.recordBlock).toHaveBeenCalledWith({
+      workflow: { occurrenceId: 'workflow-1' },
+      block: {
+        phase: 'validation',
+        failureCode: 'invalid_input',
+        fields: ['batches'],
+      },
+    })
   })
 
   it('does not register production when the preview blocks it', async () => {
@@ -196,6 +218,143 @@ describe('useProduceProductDialog', () => {
     expect(registerProductionMock).not.toHaveBeenCalled()
     expect(onSuccess).not.toHaveBeenCalled()
     expect(result.current.error).toBeNull()
+  })
+
+  it('records a settled preview block after the user changes production input', () => {
+    useProductionPreviewQueryMock.mockReturnValue({
+      data: blockedPreview,
+      isFetching: false,
+      isRefreshing: false,
+      isPending: false,
+      isError: false,
+      refetch: vi.fn(),
+    } as never)
+    const { result } = renderHook(() =>
+      useProduceProductDialog({ open: true, productId: 'product-1', recipe }),
+    )
+
+    act(() => result.current.setValue('2'))
+
+    expect(analyticsMocks.recordBlock).toHaveBeenCalledWith({
+      workflow: { occurrenceId: 'workflow-1' },
+      block: {
+        phase: 'preview',
+        failureCode: 'unknown',
+        fields: ['batches'],
+      },
+    })
+  })
+
+  it('keeps a preview block episode while the next preview request is pending', () => {
+    useProductionPreviewQueryMock.mockReturnValue({
+      data: blockedPreview,
+      isFetching: false,
+      isRefreshing: false,
+      isPending: false,
+      isError: false,
+      refetch: vi.fn(),
+    } as never)
+    const { result, rerender } = renderHook(() =>
+      useProduceProductDialog({ open: true, productId: 'product-1', recipe }),
+    )
+
+    act(() => result.current.setValue('2'))
+    expect(analyticsMocks.recordBlock).toHaveBeenCalledTimes(1)
+
+    useProductionPreviewQueryMock.mockReturnValue({
+      data: blockedPreview,
+      isFetching: true,
+      isRefreshing: true,
+      isPending: false,
+      isError: false,
+      refetch: vi.fn(),
+    } as never)
+    rerender()
+
+    expect(analyticsMocks.recordBlock).toHaveBeenCalledTimes(1)
+    expect(analyticsMocks.recordBlock).not.toHaveBeenLastCalledWith({
+      workflow: { occurrenceId: 'workflow-1' },
+      block: null,
+    })
+  })
+
+  it('records preview failures once with an opaque request key', () => {
+    const { rerender } = renderHook(() =>
+      useProduceProductDialog({ open: true, productId: 'product-1', recipe }),
+    )
+    useProductionPreviewQueryMock.mockReturnValue({
+      data: undefined,
+      isFetching: false,
+      isRefreshing: false,
+      isPending: false,
+      isError: true,
+      errorUpdatedAt: 100,
+      refetch: vi.fn(),
+    } as never)
+
+    rerender()
+    rerender()
+
+    expect(analyticsMocks.recordFailure).toHaveBeenCalledTimes(1)
+    expect(analyticsMocks.recordFailure).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workflow: { occurrenceId: 'workflow-1' },
+        phase: 'preview',
+        failureCode: 'unknown',
+        observationKey: expect.any(String),
+      }),
+    )
+    expect(analyticsMocks.recordFailure.mock.calls[0]?.[0]?.observationKey).not.toContain(
+      'product-1',
+    )
+  })
+
+  it('maps structured preview failures without using their message', () => {
+    const { rerender } = renderHook(() =>
+      useProduceProductDialog({ open: true, productId: 'product-1', recipe }),
+    )
+    useProductionPreviewQueryMock.mockReturnValue({
+      data: undefined,
+      error: new ConflictError('A mensagem é ignorada.'),
+      isFetching: false,
+      isRefreshing: false,
+      isPending: false,
+      isError: true,
+      errorUpdatedAt: 100,
+      refetch: vi.fn(),
+    } as never)
+
+    rerender()
+
+    expect(analyticsMocks.recordFailure).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workflow: { occurrenceId: 'workflow-1' },
+        phase: 'preview',
+        failureCode: 'conflict',
+        statusClass: '4xx',
+      }),
+    )
+  })
+
+  it('starts a distinct occurrence each time the dialog is opened', () => {
+    const { rerender } = renderHook(
+      ({ open }) => useProduceProductDialog({ open, productId: 'product-1', recipe }),
+      { initialProps: { open: false } },
+    )
+
+    expect(analyticsMocks.startWorkflow).not.toHaveBeenCalled()
+    rerender({ open: true })
+    const firstEntryKey = analyticsMocks.startWorkflow.mock.calls[0]?.[0]?.entryKey
+    rerender({ open: false })
+    rerender({ open: true })
+    const secondEntryKey = analyticsMocks.startWorkflow.mock.calls[1]?.[0]?.entryKey
+
+    expect(analyticsMocks.startWorkflow).toHaveBeenCalledTimes(2)
+    expect(firstEntryKey).toBeTypeOf('string')
+    expect(secondEntryKey).not.toBe(firstEntryKey)
+    expect(analyticsMocks.endWorkflow).toHaveBeenCalledWith({
+      workflow: { occurrenceId: 'workflow-1' },
+    })
   })
 
   it('maps mutation errors and supports the fallback error message', async () => {

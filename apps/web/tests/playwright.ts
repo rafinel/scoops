@@ -3,13 +3,26 @@ import { IdentityModuleFixture } from './fixtures/identity-module-fixture'
 import { CommunicationModuleFixture } from './fixtures/communication-module-fixture'
 import { MrpFixture } from './fixtures/mrp-module-fixture'
 import { PdvFixture } from './fixtures/pdv-module-fixture'
+import {
+  AnalyticsTransportFixture,
+  type AnalyticsTransportFixture as AnalyticsTransportFixtureType,
+} from './fixtures/analytics-transport-fixture'
 
 export const test = playwrightTest.extend<{
+  analyticsTransportFixture: AnalyticsTransportFixtureType
   identityFixture: IdentityModuleFixture
   communicationFixture: CommunicationModuleFixture
   mrpFixture: MrpFixture
   pdvFixture: PdvFixture
 }>({
+  analyticsTransportFixture: [
+    async ({ page }, use) => {
+      const fixture = AnalyticsTransportFixture(page)
+      await fixture.install()
+      await use(fixture)
+    },
+    { auto: true },
+  ],
   identityFixture: [
     async ({ page }, use) => {
       const fixture = IdentityModuleFixture(page)

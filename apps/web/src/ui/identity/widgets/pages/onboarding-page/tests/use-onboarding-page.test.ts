@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, renderHook, waitFor } from '@testing-library/react'
+import { StrictMode } from 'react'
 
 import { useOnboardingPage } from '../use-onboarding-page'
 
@@ -12,6 +13,7 @@ const {
   resendMock,
   saveSessionMock,
   clearSessionMock,
+  analyticsMock,
 } = vi.hoisted(() => ({
   actionStates: {
     correct: { error: null as Error | null, isPending: false },
@@ -26,6 +28,22 @@ const {
   resendMock: vi.fn(),
   saveSessionMock: vi.fn(),
   clearSessionMock: vi.fn(),
+  analyticsMock: {
+    startWorkflow: vi.fn(
+      (input: {
+        workflow: 'onboarding'
+        entryKey: string
+        restoredOccurrenceId?: string
+      }): { occurrenceId: string | undefined } => ({
+        occurrenceId: input.restoredOccurrenceId ?? 'onboarding-occurrence-1',
+      }),
+    ),
+    startAttempt: vi.fn(() => ({})),
+    recordValidationFailure: vi.fn(),
+    recordFailure: vi.fn(),
+    completeWorkflow: vi.fn(),
+    endWorkflow: vi.fn(),
+  },
 }))
 
 vi.mock('@/ui/identity/hooks/use-correct-ice-cream-shop-onboarding-email-action', () => ({
@@ -62,6 +80,10 @@ vi.mock('@/ui/identity/storage/onboarding-session-storage', () => ({
   saveOnboardingSession: saveSessionMock,
 }))
 
+vi.mock('@/ui/shared/hooks/use-analytics-context', () => ({
+  useAnalyticsContext: () => analyticsMock,
+}))
+
 const onboarding = {
   establishmentName: 'Gelato Central',
   managerName: 'Ana',
@@ -88,6 +110,17 @@ describe('useOnboardingPage', () => {
     })
 
     expect(registerMock).not.toHaveBeenCalled()
+    expect(analyticsMock.startAttempt).toHaveBeenCalledOnce()
+    expect(analyticsMock.recordValidationFailure).toHaveBeenCalledWith({
+      attempt: expect.any(Object),
+      fields: [
+        'establishmentName',
+        'managerName',
+        'email',
+        'password',
+        'passwordConfirmation',
+      ],
+    })
     expect(result.current.state).toBe('form')
     expect(result.current.error).toBe('Preencha os dados obrigatórios para continuar.')
   })
@@ -116,16 +149,40 @@ describe('useOnboardingPage', () => {
     expect(result.current.state).toBe('pending')
     expect(result.current.onboarding).toEqual(onboarding)
     expect(result.current.form.email).toBe('')
+    expect(analyticsMock.startWorkflow).toHaveBeenCalledWith({
+      workflow: 'onboarding',
+      entryKey: expect.any(String),
+    })
+    const attempt = analyticsMock.startAttempt.mock.results[0]?.value
+    expect(analyticsMock.completeWorkflow).toHaveBeenCalledWith({
+      attempt,
+      onboardingExpiresAt: onboarding.expiresAt.getTime(),
+    })
     expect(saveSessionMock).toHaveBeenCalledWith({
       version: 1,
       continuationToken: 'a'.repeat(43),
       onboarding,
+      analyticsOccurrenceId: 'onboarding-occurrence-1',
     })
   })
 
-  it('restores a saved continuation and refreshes its onboarding state', async () => {
+  it('reuses one caller-owned entry key across StrictMode effect replay', () => {
+    renderHook(() => useOnboardingPage(), { wrapper: StrictMode })
+
+    expect(analyticsMock.startWorkflow).toHaveBeenCalledTimes(2)
+    expect(analyticsMock.startWorkflow.mock.calls[0]?.[0].entryKey).toBe(
+      analyticsMock.startWorkflow.mock.calls[1]?.[0].entryKey,
+    )
+  })
+
+  it('restores matching onboarding timing only after refreshing pending state', async () => {
     const continuationToken = 'b'.repeat(43)
-    loadSessionMock.mockReturnValue({ version: 1, continuationToken, onboarding })
+    loadSessionMock.mockReturnValue({
+      version: 1,
+      continuationToken,
+      onboarding,
+      analyticsOccurrenceId: 'restored-occurrence-1',
+    })
     getMock.mockResolvedValue(onboarding)
 
     const { result } = renderHook(() => useOnboardingPage())
@@ -134,6 +191,59 @@ describe('useOnboardingPage', () => {
 
     expect(getMock).toHaveBeenCalledWith(continuationToken)
     expect(result.current.onboarding).toEqual(onboarding)
+    expect(analyticsMock.startWorkflow).toHaveBeenCalledWith({
+      workflow: 'onboarding',
+      entryKey: expect.any(String),
+      restoredOccurrenceId: 'restored-occurrence-1',
+    })
+    expect(getMock.mock.invocationCallOrder[0]).toBeLessThan(
+      analyticsMock.startWorkflow.mock.invocationCallOrder[0],
+    )
+    expect(saveSessionMock).toHaveBeenCalledWith({
+      version: 1,
+      continuationToken,
+      onboarding,
+      analyticsOccurrenceId: 'restored-occurrence-1',
+    })
+  })
+
+  it('keeps legacy pending envelopes valid without inventing a timing occurrence', async () => {
+    const continuationToken = 'z'.repeat(43)
+    loadSessionMock.mockReturnValue({ version: 1, continuationToken, onboarding })
+    getMock.mockResolvedValue(onboarding)
+
+    const { result } = renderHook(() => useOnboardingPage())
+
+    await waitFor(() => expect(result.current.state).toBe('pending'))
+
+    expect(analyticsMock.startWorkflow).not.toHaveBeenCalled()
+    expect(saveSessionMock).toHaveBeenCalledWith({
+      version: 1,
+      continuationToken,
+      onboarding,
+    })
+  })
+
+  it('drops a mismatched occurrence marker after pending status has been refreshed', async () => {
+    const continuationToken = 'm'.repeat(43)
+    loadSessionMock.mockReturnValue({
+      version: 1,
+      continuationToken,
+      onboarding,
+      analyticsOccurrenceId: 'stale-occurrence-1',
+    })
+    getMock.mockResolvedValue(onboarding)
+    analyticsMock.startWorkflow.mockReturnValueOnce({ occurrenceId: undefined })
+
+    const { result } = renderHook(() => useOnboardingPage())
+
+    await waitFor(() => expect(result.current.state).toBe('pending'))
+
+    expect(analyticsMock.startWorkflow).toHaveBeenCalledWith({
+      workflow: 'onboarding',
+      entryKey: expect.any(String),
+      restoredOccurrenceId: 'stale-occurrence-1',
+    })
     expect(saveSessionMock).toHaveBeenCalledWith({
       version: 1,
       continuationToken,
@@ -177,6 +287,22 @@ describe('useOnboardingPage', () => {
     expect(result.current.error).toBeNull()
   })
 
+  it('ends the prior occurrence and starts a fresh occurrence on restart', () => {
+    const { result } = renderHook(() => useOnboardingPage())
+
+    act(() => result.current.handleRestart())
+
+    expect(analyticsMock.endWorkflow).toHaveBeenCalledWith({
+      workflow: expect.any(Object),
+    })
+    expect(analyticsMock.startWorkflow).toHaveBeenCalledTimes(2)
+    expect(analyticsMock.startWorkflow.mock.calls[0]?.[0].entryKey).not.toBe(
+      analyticsMock.startWorkflow.mock.calls[1]?.[0].entryKey,
+    )
+    expect(clearSessionMock).toHaveBeenCalledOnce()
+    expect(result.current.state).toBe('form')
+  })
+
   it('reports password confirmation validation without registering', async () => {
     const { result } = renderHook(() => useOnboardingPage())
     act(() => {
@@ -192,12 +318,58 @@ describe('useOnboardingPage', () => {
     })
 
     expect(registerMock).not.toHaveBeenCalled()
+    expect(analyticsMock.recordValidationFailure).toHaveBeenCalledWith({
+      attempt: expect.any(Object),
+      fields: ['passwordConfirmation'],
+    })
     expect(result.current.error).toBe('As senhas precisam ser iguais.')
+  })
+
+  it('records failed registration attempts without treating a retry as the same request', async () => {
+    registerMock.mockRejectedValueOnce(new Error('private server detail'))
+    registerMock.mockResolvedValueOnce({ continuationToken: 'r'.repeat(43), onboarding })
+    const { result } = renderHook(() => useOnboardingPage())
+
+    act(() => {
+      result.current.updateForm('establishmentName', 'Gelato Central')
+      result.current.updateForm('managerName', 'Ana')
+      result.current.updateForm('email', 'ana@example.com')
+      result.current.updateForm('password', 'password123')
+      result.current.updateForm('confirmation', 'password123')
+    })
+    await act(async () =>
+      result.current.handleSubmit({ preventDefault: vi.fn() } as never),
+    )
+
+    expect(result.current.state).toBe('error')
+    expect(analyticsMock.recordFailure).toHaveBeenCalledWith({
+      attempt: expect.any(Object),
+      phase: 'submission',
+      failureCode: 'unknown',
+    })
+
+    await act(async () =>
+      result.current.handleSubmit({ preventDefault: vi.fn() } as never),
+    )
+
+    expect(analyticsMock.startAttempt).toHaveBeenCalledTimes(2)
+    expect(analyticsMock.startAttempt.mock.results[0]?.value).not.toBe(
+      analyticsMock.startAttempt.mock.results[1]?.value,
+    )
+    expect(analyticsMock.completeWorkflow).toHaveBeenCalledOnce()
+    expect(JSON.stringify(analyticsMock.recordFailure.mock.calls)).not.toContain(
+      'private server detail',
+    )
   })
 
   it('resends a pending confirmation and exposes a recoverable resend error', async () => {
     const continuationToken = 'e'.repeat(43)
-    loadSessionMock.mockReturnValue({ version: 1, continuationToken, onboarding })
+    loadSessionMock.mockReturnValue({
+      version: 1,
+      continuationToken,
+      onboarding,
+      analyticsOccurrenceId: 'resend-occurrence-1',
+    })
     getMock.mockResolvedValue(onboarding)
     resendMock.mockResolvedValue({ ...onboarding, email: 'new@example.com' })
     const { result } = renderHook(() => useOnboardingPage())
@@ -209,6 +381,12 @@ describe('useOnboardingPage', () => {
       'Uma nova confirmação foi enviada para seu e-mail.',
     )
     expect(result.current.onboarding?.email).toBe('new@example.com')
+    expect(saveSessionMock).toHaveBeenCalledWith({
+      version: 1,
+      continuationToken,
+      onboarding: { ...onboarding, email: 'new@example.com' },
+      analyticsOccurrenceId: 'resend-occurrence-1',
+    })
 
     resendMock.mockRejectedValueOnce(new Error('quota'))
     await act(async () => result.current.handleResend())
@@ -218,7 +396,12 @@ describe('useOnboardingPage', () => {
 
   it('corrects the confirmation email and returns to pending after canceling correction', async () => {
     const continuationToken = 'f'.repeat(43)
-    loadSessionMock.mockReturnValue({ version: 1, continuationToken, onboarding })
+    loadSessionMock.mockReturnValue({
+      version: 1,
+      continuationToken,
+      onboarding,
+      analyticsOccurrenceId: 'correction-occurrence-1',
+    })
     getMock.mockResolvedValue(onboarding)
     correctMock.mockResolvedValue({ ...onboarding, email: 'corrected@example.com' })
     const { result } = renderHook(() => useOnboardingPage())
@@ -253,6 +436,12 @@ describe('useOnboardingPage', () => {
       password: 'password123',
     })
     expect(result.current.state).toBe('pending')
+    expect(saveSessionMock).toHaveBeenCalledWith({
+      version: 1,
+      continuationToken,
+      onboarding: { ...onboarding, email: 'corrected@example.com' },
+      analyticsOccurrenceId: 'correction-occurrence-1',
+    })
   })
 
   it('keeps correction and registration failures at their owning recovery states', async () => {
