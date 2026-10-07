@@ -18,27 +18,14 @@ function setRouterStatus(status: 'idle' | 'pending') {
   useRouterStateMock.mockReturnValue(status as never)
 }
 
-function setReducedMotion(matches: boolean) {
-  const addEventListener = vi.fn()
-  const removeEventListener = vi.fn()
-  vi.stubGlobal('matchMedia', () => ({
-    matches,
-    addEventListener,
-    removeEventListener,
-  }))
-  return { addEventListener, removeEventListener }
-}
-
 describe('useRouteTransitionStatus', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     setRouterStatus('idle')
-    setReducedMotion(false)
   })
 
   afterEach(() => {
     vi.useRealTimers()
-    vi.unstubAllGlobals()
   })
 
   it('suppresses fast navigation feedback', () => {
@@ -66,15 +53,6 @@ describe('useRouteTransitionStatus', () => {
     setRouterStatus('idle')
     rerender()
     expect(result.current.isVisible).toBe(false)
-  })
-
-  it('keeps reduced-motion feedback static and cleans up observers', () => {
-    const mediaQuery = setReducedMotion(true)
-    const { result, unmount } = renderHook(() => useRouteTransitionStatus())
-
-    expect(result.current.isReducedMotion).toBe(true)
-    unmount()
-    expect(mediaQuery.removeEventListener).toHaveBeenCalledOnce()
   })
 
   it('cleans a pending timer when navigation is restarted or unmounted', () => {

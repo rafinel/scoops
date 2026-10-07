@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 const ROUTE_TRANSITION_DELAY = 300
 
 export type RouteTransitionStatusState = {
-  isReducedMotion: boolean
   isVisible: boolean
 }
 
@@ -12,23 +11,11 @@ export function useRouteTransitionStatus(): RouteTransitionStatusState {
   const routerStatus = useRouterState({
     select: (state) => state.status,
   })
-  const [isReducedMotion, setIsReducedMotion] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     setIsHydrated(true)
-
-    if (typeof window.matchMedia !== 'function') return
-
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    function handleChange() {
-      setIsReducedMotion(mediaQuery.matches)
-    }
-
-    handleChange()
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
   }, [])
 
   useEffect(() => {
@@ -42,7 +29,6 @@ export function useRouteTransitionStatus(): RouteTransitionStatusState {
   }, [routerStatus])
 
   return {
-    isReducedMotion,
     isVisible: isHydrated && isVisible,
   }
 }
