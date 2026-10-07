@@ -8,6 +8,11 @@ vi.mock('../use-route-transition-status', () => ({
   useRouteTransitionStatus: vi.fn(),
 }))
 
+vi.mock('@lottiefiles/dotlottie-react', () => ({
+  DotLottieReact: (props: Record<string, unknown>) => <canvas {...props} />,
+  setWasmUrl: vi.fn(),
+}))
+
 const useRouteTransitionStatusMock = vi.mocked(useRouteTransitionStatus)
 
 describe('RouteTransitionStatus', () => {
@@ -26,10 +31,10 @@ describe('RouteTransitionStatus', () => {
     render(<RouteTransitionStatus />)
 
     expect(screen.queryByRole('status')).toBeNull()
-    expect(document.querySelector('[data-route-transition-indicator]')).toBeNull()
+    expect(document.querySelector('[data-route-transition-artwork]')).toBeNull()
   })
 
-  it('renders an accessible top progress indicator during navigation', () => {
+  it('renders accessible delayed feedback with looping artwork during navigation', () => {
     useRouteTransitionStatusMock.mockReturnValue({
       isReducedMotion: false,
       isVisible: true,
@@ -39,11 +44,16 @@ describe('RouteTransitionStatus', () => {
 
     const status = screen.getByRole('status', { name: 'Carregando página…' })
     expect(status.getAttribute('aria-busy')).toBe('true')
-    expect(status.querySelector('[data-route-transition-indicator]')).not.toBeNull()
+    expect(
+      status.querySelector('[data-route-transition-artwork]')?.getAttribute('width'),
+    ).toBe('96')
+    expect(status.querySelector('[data-route-transition-card]')?.textContent).toContain(
+      'Carregando página…',
+    )
     expect(status.querySelectorAll('button,a,input')).toHaveLength(0)
   })
 
-  it('renders a static top progress indicator for reduced-motion clients', () => {
+  it('renders static delayed feedback without artwork for reduced-motion clients', () => {
     useRouteTransitionStatusMock.mockReturnValue({
       isReducedMotion: true,
       isVisible: true,
@@ -51,13 +61,10 @@ describe('RouteTransitionStatus', () => {
 
     render(<RouteTransitionStatus />)
 
-    expect(
-      screen.getByRole('status', { name: 'Carregando página…' }).getAttribute('role'),
-    ).toBe('status')
+    const status = screen.getByRole('status', { name: 'Carregando página…' })
+    expect(status.getAttribute('role')).toBe('status')
     expect(screen.getByText('Carregando página…').textContent).toBe('Carregando página…')
-    const indicator = document.querySelector<HTMLElement>(
-      '[data-route-transition-indicator]',
-    )
-    expect(indicator?.style.transform).toBe('scaleX(0.84)')
+    expect(status.querySelector('[data-route-transition-artwork]')).toBeNull()
+    expect(status.querySelector('[data-route-transition-card]')).not.toBeNull()
   })
 })
