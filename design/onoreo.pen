@@ -26724,16 +26724,6 @@
                                           "fontFamily": "$font-body",
                                           "fontSize": 12,
                                           "fontWeight": "600"
-                                        },
-                                        {
-                                          "type": "text",
-                                          "id": "MuaXE",
-                                          "name": "Acompanhamentos item Açaí",
-                                          "fill": "$text-tertiary",
-                                          "content": "Banana · Granola",
-                                          "fontFamily": "$font-body",
-                                          "fontSize": 11,
-                                          "fontWeight": "500"
                                         }
                                       ]
                                     },
@@ -26792,6 +26782,92 @@
                                               "fill": "$danger"
                                             }
                                           ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "M7LWN",
+                                  "name": "Acompanhamentos agrupados do Açaí",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 8,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "cVzpc",
+                                      "name": "Título Acompanhamentos no carrinho",
+                                      "fill": "$text-primary",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Acompanhamentos",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 12,
+                                      "fontWeight": "800"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "xbnq4",
+                                      "name": "Cobertura selecionada no carrinho",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 2,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "SWbuS",
+                                          "name": "Tipo Cobertura no carrinho",
+                                          "fill": "$text-secondary",
+                                          "content": "Cobertura",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 11,
+                                          "fontWeight": "600"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "MuaXE",
+                                          "name": "Granola selecionada no carrinho",
+                                          "fill": "$text-primary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Granola",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 12,
+                                          "fontWeight": "600"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "yZvCb",
+                                      "name": "Extra selecionado no carrinho",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 2,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "mHaMW",
+                                          "name": "Tipo Extra no carrinho",
+                                          "fill": "$text-secondary",
+                                          "content": "Extra",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 11,
+                                          "fontWeight": "600"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "o6xaSw",
+                                          "name": "Banana selecionada no carrinho",
+                                          "fill": "$text-primary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Banana",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 12,
+                                          "fontWeight": "600"
                                         }
                                       ]
                                     }
@@ -27531,7 +27607,7 @@
           "width": "fill_container",
           "height": "fill_container",
           "layout": "vertical",
-          "gap": 18,
+          "gap": 16,
           "padding": [
             18,
             24
@@ -28047,152 +28123,164 @@
                   "name": "Grade Acompanhamentos",
                   "width": "fill_container",
                   "layout": "vertical",
-                  "gap": 8,
+                  "gap": 12,
                   "children": [
                     {
                       "type": "frame",
-                      "id": "T3BIeh",
-                      "name": "Linha Acompanhamentos 1",
+                      "id": "Z9G93",
+                      "name": "Grupo Coberturas",
                       "width": "fill_container",
-                      "gap": 8,
+                      "layout": "vertical",
+                      "gap": 6,
                       "children": [
                         {
-                          "type": "frame",
-                          "id": "b2vlQ",
-                          "name": "Banana selecionada",
+                          "type": "text",
+                          "id": "tVtqj",
+                          "name": "Rótulo tipo Coberturas",
+                          "fill": "$text-secondary",
+                          "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "fill": "$primary-soft",
-                          "cornerRadius": 10,
-                          "stroke": "$primary",
-                          "strokeWidth": 1,
-                          "padding": [
-                            10,
-                            12
-                          ],
-                          "justifyContent": "space_between",
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "SknfC",
-                              "name": "Dados Banana",
-                              "gap": 8,
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "S65OUj",
-                                  "name": "Checkbox Banana",
-                                  "width": 20,
-                                  "height": 20,
-                                  "fill": "$primary",
-                                  "cornerRadius": 6,
-                                  "justifyContent": "center",
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "icon",
-                                      "id": "gxenQ",
-                                      "name": "Check Banana",
-                                      "width": 12,
-                                      "height": 12,
-                                      "icon": "check",
-                                      "library": "lucide",
-                                      "fill": "$bg-card"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "MM3nz",
-                                  "name": "Nome Banana",
-                                  "fill": "$text-primary",
-                                  "content": "Banana",
-                                  "fontFamily": "$font-body",
-                                  "fontSize": 12,
-                                  "fontWeight": "700"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "g8aVkB",
-                              "name": "Preço Banana",
-                              "fill": "$success",
-                              "content": "Grátis",
-                              "fontFamily": "$font-body",
-                              "fontSize": 11,
-                              "fontWeight": "800"
-                            }
-                          ]
+                          "content": "Cobertura",
+                          "fontFamily": "$font-body",
+                          "fontSize": 12,
+                          "fontWeight": "700"
                         },
                         {
                           "type": "frame",
-                          "id": "IHnsk",
-                          "name": "Granola selecionada",
+                          "id": "guj80",
+                          "name": "Opções Coberturas",
                           "width": "fill_container",
-                          "fill": "$primary-soft",
-                          "cornerRadius": 10,
-                          "stroke": "$primary",
-                          "strokeWidth": 1,
-                          "padding": [
-                            10,
-                            12
-                          ],
-                          "justifyContent": "space_between",
+                          "gap": 12,
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "frame",
-                              "id": "V4PGlf",
-                              "name": "Dados Granola",
-                              "gap": 8,
+                              "id": "IHnsk",
+                              "name": "Granola selecionada",
+                              "width": "fill_container",
+                              "height": 48,
+                              "fill": "$primary-soft",
+                              "cornerRadius": 10,
+                              "stroke": "$primary",
+                              "strokeWidth": 1,
+                              "padding": 12,
+                              "justifyContent": "space_between",
                               "alignItems": "center",
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "KGHJI",
-                                  "name": "Checkbox Granola",
-                                  "width": 20,
-                                  "height": 20,
-                                  "fill": "$primary",
-                                  "cornerRadius": 6,
-                                  "justifyContent": "center",
+                                  "id": "V4PGlf",
+                                  "name": "Dados Granola",
+                                  "width": "fill_container",
+                                  "gap": 8,
                                   "alignItems": "center",
                                   "children": [
                                     {
-                                      "type": "icon",
-                                      "id": "ZlWsW",
-                                      "name": "Check Granola",
-                                      "width": 12,
-                                      "height": 12,
-                                      "icon": "check",
-                                      "library": "lucide",
-                                      "fill": "$bg-card"
+                                      "type": "frame",
+                                      "id": "KGHJI",
+                                      "name": "Checkbox Granola",
+                                      "width": 16,
+                                      "height": 16,
+                                      "fill": "$primary",
+                                      "cornerRadius": 6,
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "ZlWsW",
+                                          "name": "Check Granola",
+                                          "width": 12,
+                                          "height": 12,
+                                          "icon": "check",
+                                          "library": "lucide",
+                                          "fill": "$bg-card"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "DxUKj",
+                                      "name": "Nome Granola",
+                                      "fill": "$text-primary",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Granola",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 13,
+                                      "fontWeight": "700"
                                     }
                                   ]
                                 },
                                 {
                                   "type": "text",
-                                  "id": "DxUKj",
-                                  "name": "Nome Granola",
-                                  "fill": "$text-primary",
-                                  "content": "Granola",
+                                  "id": "ntPDJ",
+                                  "name": "Preço Granola",
+                                  "fill": "$primary",
+                                  "content": "+ R$ 2,00",
                                   "fontFamily": "$font-body",
                                   "fontSize": 12,
-                                  "fontWeight": "700"
+                                  "fontWeight": "800"
                                 }
                               ]
                             },
                             {
-                              "type": "text",
-                              "id": "ntPDJ",
-                              "name": "Preço Granola",
-                              "fill": "$primary",
-                              "content": "+ R$ 2,00",
-                              "fontFamily": "$font-body",
-                              "fontSize": 11,
-                              "fontWeight": "800"
+                              "type": "frame",
+                              "id": "TdwFN",
+                              "name": "Paçoca indisponível",
+                              "width": "fill_container",
+                              "height": 48,
+                              "fill": "$bg-muted",
+                              "cornerRadius": 10,
+                              "stroke": "$border-soft",
+                              "strokeWidth": 1,
+                              "padding": 12,
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "DVSaN",
+                                  "name": "Dados Paçoca",
+                                  "width": "fill_container",
+                                  "gap": 8,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "wIFd8",
+                                      "name": "Ícone Paçoca indisponível",
+                                      "width": 18,
+                                      "height": 18,
+                                      "icon": "square",
+                                      "library": "lucide",
+                                      "fill": "$text-secondary"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "KII6w",
+                                      "name": "Nome Paçoca",
+                                      "fill": "$text-secondary",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Paçoca",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 13,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "EdwkX",
+                                  "name": "Motivo Paçoca",
+                                  "fill": "$text-secondary",
+                                  "content": "Sem estoque",
+                                  "fontFamily": "$font-body",
+                                  "fontSize": 11,
+                                  "fontWeight": "800"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -28200,124 +28288,180 @@
                     },
                     {
                       "type": "frame",
-                      "id": "Ad4Wb",
-                      "name": "Linha Acompanhamentos 2",
+                      "id": "x2atGm",
+                      "name": "Grupos Extra e Grátis",
                       "width": "fill_container",
-                      "gap": 8,
+                      "gap": 12,
                       "children": [
                         {
                           "type": "frame",
-                          "id": "BihPh",
-                          "name": "Leite em pó",
+                          "id": "vgBkd",
+                          "name": "Grupo Extras",
                           "width": "fill_container",
-                          "fill": "$bg-card",
-                          "cornerRadius": 10,
-                          "stroke": "$border",
-                          "strokeWidth": 1,
-                          "padding": [
-                            10,
-                            12
-                          ],
-                          "justifyContent": "space_between",
-                          "alignItems": "center",
+                          "layout": "vertical",
+                          "gap": 6,
                           "children": [
                             {
+                              "type": "text",
+                              "id": "GvzDk",
+                              "name": "Rótulo tipo Extras",
+                              "fill": "$text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Extra",
+                              "fontFamily": "$font-body",
+                              "fontSize": 12,
+                              "fontWeight": "700"
+                            },
+                            {
                               "type": "frame",
-                              "id": "sJwif",
-                              "name": "Dados Leite em pó",
-                              "gap": 8,
-                              "alignItems": "center",
+                              "id": "CkxtT",
+                              "name": "Options",
+                              "width": 552,
+                              "gap": 6,
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "BmBlE",
-                                  "name": "Checkbox Leite em pó",
-                                  "width": 20,
-                                  "height": 20,
+                                  "id": "BihPh",
+                                  "name": "Leite em pó",
+                                  "width": "fill_container",
+                                  "height": 48,
                                   "fill": "$bg-card",
-                                  "cornerRadius": 6,
+                                  "cornerRadius": 10,
                                   "stroke": "$border",
-                                  "strokeWidth": 1
+                                  "strokeWidth": 1,
+                                  "padding": 12,
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "sJwif",
+                                      "name": "Dados Leite em pó",
+                                      "width": "fill_container",
+                                      "gap": 8,
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "frame",
+                                          "id": "BmBlE",
+                                          "name": "Checkbox Leite em pó",
+                                          "width": 16,
+                                          "height": 16,
+                                          "fill": "$bg-card",
+                                          "cornerRadius": 6,
+                                          "stroke": "$border",
+                                          "strokeWidth": 1
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "bbJ9g",
+                                          "name": "Nome Leite em pó",
+                                          "fill": "$text-primary",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Leite em pó",
+                                          "fontFamily": "$font-body",
+                                          "fontSize": 13,
+                                          "fontWeight": "700"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "FWBa6",
+                                      "name": "Preço Leite em pó",
+                                      "fill": "$text-secondary",
+                                      "content": "+ R$ 2,00",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 12,
+                                      "fontWeight": "800"
+                                    }
+                                  ]
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "bbJ9g",
-                                  "name": "Nome Leite em pó",
-                                  "fill": "$text-primary",
-                                  "content": "Leite em pó",
-                                  "fontFamily": "$font-body",
-                                  "fontSize": 12,
-                                  "fontWeight": "700"
+                                  "type": "frame",
+                                  "id": "ADVBI",
+                                  "name": "Grupo Grátis",
+                                  "width": "fill_container",
+                                  "height": 47,
+                                  "layout": "vertical",
+                                  "gap": 6,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "D668pX",
+                                      "name": "Opções Grátis",
+                                      "width": "fill_container",
+                                      "gap": 8,
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "frame",
+                                          "id": "ts5el",
+                                          "name": "Banana selecionada",
+                                          "width": "fill_container",
+                                          "height": 48,
+                                          "fill": "$primary-soft",
+                                          "cornerRadius": 10,
+                                          "stroke": "$primary",
+                                          "strokeWidth": 1,
+                                          "padding": 12,
+                                          "justifyContent": "space_between",
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "frame",
+                                              "id": "E9Hqs",
+                                              "name": "Dados Banana",
+                                              "width": "fill_container",
+                                              "gap": 8,
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "PsfPl",
+                                                  "name": "Checkbox Banana",
+                                                  "width": 16,
+                                                  "height": 16,
+                                                  "fill": "$primary",
+                                                  "cornerRadius": 6,
+                                                  "justifyContent": "center",
+                                                  "alignItems": "center",
+                                                  "children": [
+                                                    {
+                                                      "type": "icon",
+                                                      "id": "ZO416",
+                                                      "name": "Check Banana",
+                                                      "width": 12,
+                                                      "height": 12,
+                                                      "icon": "check",
+                                                      "library": "lucide",
+                                                      "fill": "$bg-card"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "text",
+                                                  "id": "WoIV0",
+                                                  "name": "Nome Banana",
+                                                  "fill": "$text-primary",
+                                                  "textGrowth": "fixed-width",
+                                                  "width": "fill_container",
+                                                  "content": "Banana",
+                                                  "fontFamily": "$font-body",
+                                                  "fontSize": 13,
+                                                  "fontWeight": "700"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "FWBa6",
-                              "name": "Preço Leite em pó",
-                              "fill": "$text-secondary",
-                              "content": "+ R$ 2,00",
-                              "fontFamily": "$font-body",
-                              "fontSize": 11,
-                              "fontWeight": "800"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "TdwFN",
-                          "name": "Paçoca indisponível",
-                          "opacity": 0.68,
-                          "width": "fill_container",
-                          "fill": "$bg-muted",
-                          "cornerRadius": 10,
-                          "stroke": "$border-soft",
-                          "strokeWidth": 1,
-                          "padding": [
-                            10,
-                            12
-                          ],
-                          "justifyContent": "space_between",
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "DVSaN",
-                              "name": "Dados Paçoca",
-                              "gap": 8,
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "icon",
-                                  "id": "wIFd8",
-                                  "name": "Ícone Paçoca indisponível",
-                                  "width": 18,
-                                  "height": 18,
-                                  "icon": "circle-off",
-                                  "library": "lucide",
-                                  "fill": "$danger"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "KII6w",
-                                  "name": "Nome Paçoca",
-                                  "fill": "$text-secondary",
-                                  "content": "Paçoca",
-                                  "fontFamily": "$font-body",
-                                  "fontSize": 12,
-                                  "fontWeight": "700"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "EdwkX",
-                              "name": "Motivo Paçoca",
-                              "fill": "$danger",
-                              "content": "Sem estoque",
-                              "fontFamily": "$font-body",
-                              "fontSize": 10,
-                              "fontWeight": "800"
                             }
                           ]
                         }
@@ -45580,7 +45724,6 @@
                                   "id": "F6RLKj",
                                   "name": "Item Açaí tradicional",
                                   "width": "fill_container",
-                                  "height": 86,
                                   "stroke": "$border-soft",
                                   "strokeWidth": {
                                     "bottom": 1
@@ -45588,7 +45731,7 @@
                                   "strokeLinejoin": "round",
                                   "gap": 8,
                                   "padding": [
-                                    0,
+                                    16,
                                     18
                                   ],
                                   "alignItems": "center",
@@ -45598,9 +45741,7 @@
                                       "id": "Y5pP7j",
                                       "name": "Célula Produto Açaí tradicional",
                                       "width": "fill_container",
-                                      "height": "fill_container",
                                       "gap": 11,
-                                      "alignItems": "center",
                                       "children": [
                                         {
                                           "type": "frame",
@@ -45631,7 +45772,7 @@
                                           "name": "Descrição Produto Açaí tradicional",
                                           "width": "fill_container",
                                           "layout": "vertical",
-                                          "gap": 2,
+                                          "gap": 4,
                                           "children": [
                                             {
                                               "type": "text",
@@ -45648,10 +45789,94 @@
                                               "id": "gPzBK",
                                               "name": "Configuração Açaí tradicional",
                                               "fill": "$text-secondary",
-                                              "content": "Médio · 500 ml · Leite em pó e granola",
+                                              "content": "Médio · 500 ml",
                                               "fontFamily": "$font-body",
                                               "fontSize": 10,
                                               "fontWeight": "600"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "g949VR",
+                                              "name": "Acompanhamentos agrupados do pedido",
+                                              "width": "fill_container",
+                                              "layout": "vertical",
+                                              "gap": 8,
+                                              "children": [
+                                                {
+                                                  "type": "text",
+                                                  "id": "JeSFk",
+                                                  "name": "Título Acompanhamentos do pedido",
+                                                  "fill": "$text-primary",
+                                                  "content": "Acompanhamentos",
+                                                  "fontFamily": "$font-body",
+                                                  "fontSize": 11,
+                                                  "fontWeight": "800"
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "zCnyP",
+                                                  "name": "Grupo Cobertura do pedido",
+                                                  "width": "fill_container",
+                                                  "layout": "vertical",
+                                                  "gap": 2,
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "mAEKD",
+                                                      "name": "Tipo Cobertura do pedido",
+                                                      "fill": "$text-secondary",
+                                                      "content": "Cobertura",
+                                                      "fontFamily": "$font-body",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "600"
+                                                    },
+                                                    {
+                                                      "type": "text",
+                                                      "id": "zphWr",
+                                                      "name": "Granola no pedido",
+                                                      "fill": "$text-primary",
+                                                      "textGrowth": "fixed-width",
+                                                      "width": "fill_container",
+                                                      "content": "Granola",
+                                                      "fontFamily": "$font-body",
+                                                      "fontSize": 11,
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "VqZm0",
+                                                  "name": "Grupo Extra do pedido",
+                                                  "width": "fill_container",
+                                                  "layout": "vertical",
+                                                  "gap": 2,
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "Yh6q7",
+                                                      "name": "Tipo Extra do pedido",
+                                                      "fill": "$text-secondary",
+                                                      "content": "Extra",
+                                                      "fontFamily": "$font-body",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "600"
+                                                    },
+                                                    {
+                                                      "type": "text",
+                                                      "id": "ARNTq",
+                                                      "name": "Leite em pó no pedido",
+                                                      "fill": "$text-primary",
+                                                      "textGrowth": "fixed-width",
+                                                      "width": "fill_container",
+                                                      "content": "Leite em pó",
+                                                      "fontFamily": "$font-body",
+                                                      "fontSize": 11,
+                                                      "fontWeight": "600"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             },
                                             {
                                               "type": "text",
@@ -45672,7 +45897,6 @@
                                       "id": "a7UHu8",
                                       "name": "Célula Quantidade Açaí tradicional",
                                       "width": 70,
-                                      "height": "fill_container",
                                       "justifyContent": "center",
                                       "alignItems": "center",
                                       "children": [
@@ -45693,7 +45917,6 @@
                                       "id": "dfBiJ",
                                       "name": "Célula Unitário Açaí tradicional",
                                       "width": 105,
-                                      "height": "fill_container",
                                       "justifyContent": "end",
                                       "alignItems": "center",
                                       "children": [
@@ -45714,7 +45937,6 @@
                                       "id": "HOYVd",
                                       "name": "Célula Total Açaí tradicional",
                                       "width": 105,
-                                      "height": "fill_container",
                                       "justifyContent": "end",
                                       "alignItems": "center",
                                       "children": [
