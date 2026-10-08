@@ -41,6 +41,20 @@ const product: Product = {
   updatedAt: new Date('2026-01-01T00:00:00.000Z'),
 }
 
+const validSingleStockRequest: Parameters<RegisterProductUseCase['execute']>[0] = {
+  actor: {
+    id: 'manager-1',
+    name: 'Manager',
+    establishmentId: 'establishment-1',
+    profile: UserProfile.Manager,
+  },
+  name: 'Milk',
+  unit: ProductUnit.Liter,
+  categories: [ProductCategory.Ingredient],
+  stockControl: ProductStockControl.Single,
+  idealStock: 0,
+}
+
 describe('Register Product Use Case', () => {
   let database: MockProxy<MrpDatabase>
   let eventsRepository: MockProxy<EventsRepository>
@@ -117,6 +131,7 @@ describe('Register Product Use Case', () => {
       allowNegativeStock: false,
       idealStock: 10,
     })
+    expect(productsRepository.findByName).toHaveBeenCalledWith('establishment-1', 'Milk')
     expect(order).toEqual(['product', 'stock', 'event', 'event'])
     expect(eventsRepository.add).toHaveBeenNthCalledWith(
       1,
@@ -124,7 +139,14 @@ describe('Register Product Use Case', () => {
     )
     expect(eventsRepository.add).toHaveBeenNthCalledWith(
       2,
-      expect.any(ProductCreatedEvent),
+      expect.objectContaining({
+        name: ProductCreatedEvent._NAME,
+        payload: expect.objectContaining({
+          productId: product.id,
+          establishmentId: 'establishment-1',
+          createdAt: product.createdAt,
+        }),
+      }),
     )
   })
 
@@ -218,7 +240,8 @@ describe('Register Product Use Case', () => {
       initialStock: 3,
       brands: [
         {
-          name: 'A',
+          name: ' A ',
+          unit: ProductUnit.Unit,
           packageQuantity: 2,
           packageValue: 10,
           initialQuantity: 3,
@@ -236,7 +259,7 @@ describe('Register Product Use Case', () => {
 
     expect(brandsRepository.add).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ isPrimary: false }),
+      expect.objectContaining({ name: 'A', unit: ProductUnit.Unit, isPrimary: false }),
     )
     expect(brandsRepository.add).toHaveBeenNthCalledWith(
       2,
@@ -246,6 +269,7 @@ describe('Register Product Use Case', () => {
     expect(stockTransactionsRepository.add).toHaveBeenCalledTimes(1)
     expect(stockTransactionsRepository.add).toHaveBeenCalledWith(
       expect.objectContaining({
+        type: 'entry',
         brandName: 'A',
         quantity: 3,
         balanceAfter: 3,
@@ -395,6 +419,90 @@ describe('Register Product Use Case', () => {
     ).rejects.toBeInstanceOf(BadRequestError)
 
     expect(productsRepository.add).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['a blank name', { name: '   ' }],
+    ['a product without categories', { categories: [] }],
+    [
+      'a product classified as both portion and resale',
+      { categories: [ProductCategory.Portion, ProductCategory.Resale] },
+    ],
+    [
+      'a manufacturable product with brand stock',
+      {
+        categories: [ProductCategory.Manufacturable],
+        stockControl: ProductStockControl.ByBrand,
+        brands: [
+          {
+            name: 'House',
+            packageQuantity: 1,
+            packageValue: 5,
+            initialQuantity: 0,
+            isPrimary: true,
+          },
+        ],
+      },
+    ],
+    ['a missing ideal stock quantity', { idealStock: undefined }],
+    ['a negative ideal stock quantity', { idealStock: -1 }],
+    ['negative initial stock when negative stock is disabled', { initialStock: -1 }],
+    [
+      'a unit cost on a non-ingredient',
+      { categories: [ProductCategory.Portion], currentUnitCost: 2 },
+    ],
+    ['a unit cost with excess decimal places', { currentUnitCost: 1.1234567 }],
+  ])('rejects %s before starting registration', async (_description, overrides) => {
+    await expect(
+      useCase.execute({ ...validSingleStockRequest, ...overrides }),
+    ).rejects.toBeInstanceOf(BadRequestError)
+
+    expect(database.run).not.toHaveBeenCalled()
+    expect(productsRepository.add).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
+  })
+
+  it('omits an unspecified current unit cost and skips zero initial stock movements', async () => {
+    await useCase.execute({ ...validSingleStockRequest, initialStock: 0 })
+
+    const savedInput = productsRepository.add.mock.calls[0]?.[0]
+    expect(savedInput).toBeDefined()
+    expect(Object.hasOwn(savedInput ?? {}, 'currentUnitCost')).toBe(false)
+    expect(stockBalancesRepository.initialize).toHaveBeenCalledWith(product.id)
+    expect(stockBalancesRepository.add).not.toHaveBeenCalled()
+    expect(stockTransactionsRepository.add).not.toHaveBeenCalled()
+  })
+
+  it('records positive initial stock as an entry using the fixed event time', async () => {
+    stockBalancesRepository.add.mockResolvedValue({
+      productId: product.id,
+      quantity: 4,
+      situation: 'normal',
+    })
+
+    await useCase.execute({ ...validSingleStockRequest, initialStock: 4 })
+
+    expect(stockBalancesRepository.initialize).toHaveBeenCalledWith(product.id)
+    expect(stockBalancesRepository.add).toHaveBeenCalledWith({ productId: product.id }, 4)
+    expect(stockTransactionsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'entry',
+        quantity: 4,
+        balanceAfter: 4,
+        occurredAt: new Date('2026-01-01T00:00:00.000Z'),
+      }),
+    )
+  })
+
+  it('reports the duplicate product conflict with the actionable message', async () => {
+    productsRepository.findByName.mockResolvedValue(product)
+
+    await expect(useCase.execute(validSingleStockRequest)).rejects.toThrow(
+      'Já existe um produto com esse nome neste estabelecimento.',
+    )
+
+    expect(productsRepository.add).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
   })
 
   it.each([

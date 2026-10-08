@@ -39,6 +39,20 @@ describe('Mark Notifications Read Use Case', () => {
     expect(datetimeProvider.now).toHaveBeenCalledTimes(1)
   })
 
+  it('rejects batches larger than fifty normalized IDs before reading the clock', async () => {
+    await expect(
+      useCase.execute({
+        actor: NotificationActorFaker.fake(),
+        notificationIds: Array.from(
+          { length: 51 },
+          (_, index) => `notification-${index}`,
+        ),
+      }),
+    ).rejects.toThrow('Informe entre 1 e 50 notificações.')
+    expect(repository.markRead).not.toHaveBeenCalled()
+    expect(datetimeProvider.now).not.toHaveBeenCalled()
+  })
+
   it('does not write an empty batch', async () => {
     await expect(
       useCase.execute({

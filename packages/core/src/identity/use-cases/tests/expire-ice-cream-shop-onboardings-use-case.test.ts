@@ -60,6 +60,24 @@ describe('Expire Ice Cream Shop Onboardings Use Case', () => {
     })
     expect(provider.removeIdentity).toHaveBeenCalledWith('subject')
     expect(establishments.remove).toHaveBeenCalledWith('establishment')
+    const now = new Date('2026-01-09T00:00:00.000Z')
+    const staleBefore = new Date('2026-01-08T23:45:00.000Z')
+    expect(attempts.claimForCleanup).toHaveBeenCalledWith({
+      cutoff: now,
+      staleBefore,
+      claimedAt: now,
+      claimToken: 'claim',
+      limit: 100,
+    })
+    expect(attempts.findStaleInvitationOperations).toHaveBeenCalledWith({
+      staleBefore,
+      limit: 100,
+    })
+    expect(attempts.findPendingExpiredByType).toHaveBeenCalledWith({
+      type: RegistrationAttemptType.UserInvitation,
+      cutoff: now,
+      limit: 100,
+    })
   })
 
   it('claims expired user invitations through the invitation operation arbiter', async () => {
@@ -120,7 +138,7 @@ describe('Expire Ice Cream Shop Onboardings Use Case', () => {
       pendingEmail: 'new@example.com',
     })
     attempts.findStaleInvitationOperations.mockResolvedValue([claim])
-    userProvider.getIdentityEmail.mockResolvedValue('new@example.com')
+    userProvider.getIdentityEmail.mockResolvedValue('  NEW@Example.COM  ')
     attempts.finalizeInvitationOperation.mockResolvedValue({
       ...claim,
       email: 'new@example.com',

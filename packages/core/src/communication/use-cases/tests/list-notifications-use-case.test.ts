@@ -39,6 +39,56 @@ describe('List Notifications Use Case', () => {
     })
   })
 
+  it('forwards cursor and inclusive time bounds to the actor-scoped page query', async () => {
+    const actor = NotificationActorFaker.fake({
+      profile: NotificationActorProfile.Manager,
+    })
+    const occurredFrom = new Date('2026-01-01T00:00:00.000Z')
+    const occurredTo = new Date('2026-01-31T00:00:00.000Z')
+    const cursor = { occurredAt: new Date('2026-01-15T12:00:00.000Z'), id: 'cursor-1' }
+
+    await expect(
+      useCase.execute({ actor, limit: 1, occurredFrom, occurredTo, cursor }),
+    ).resolves.toBe(page)
+    expect(repository.findPage).toHaveBeenCalledWith({
+      establishmentId: actor.establishmentId,
+      recipientUserId: actor.id,
+      limit: 1,
+      occurredFrom,
+      occurredTo,
+      cursor,
+    })
+  })
+
+  it('rejects invalid cursors and backwards time bounds before reading', async () => {
+    const actor = NotificationActorFaker.fake({
+      profile: NotificationActorProfile.Manager,
+    })
+    await expect(
+      useCase.execute({
+        actor,
+        limit: 50,
+        cursor: { occurredAt: '2026-01-01' as unknown as Date, id: 'cursor-1' },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError)
+    await expect(
+      useCase.execute({
+        actor,
+        limit: 50,
+        cursor: { occurredAt: new Date('2026-01-01T00:00:00Z'), id: '  ' },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError)
+    await expect(
+      useCase.execute({
+        actor,
+        limit: 50,
+        occurredFrom: new Date('2026-02-01T00:00:00Z'),
+        occurredTo: new Date('2026-01-31T00:00:00Z'),
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError)
+    expect(repository.findPage).not.toHaveBeenCalled()
+  })
+
   it('rejects unauthorized actors and invalid bounds before reading', async () => {
     const actor = NotificationActorFaker.fake({
       profile: 'pending' as NotificationActorProfile,

@@ -13,6 +13,12 @@ on:
       - "pnpm-workspace.yaml"
       - "scripts/check-complexity.mjs"
       - "scripts/write-coverage-report.mjs"
+      - "scripts/test-mutation.mjs"
+      - "scripts/tests/test-mutation.test.mjs"
+      - "scripts/write-mutation-report.mjs"
+      - "scripts/tests/write-mutation-report.test.mjs"
+      - "scripts/check-mutation-score.mjs"
+      - "scripts/tests/check-mutation-score.test.mjs"
       - ".dependency-cruiser.mjs"
 
 permissions:
@@ -103,6 +109,124 @@ jobs:
         with:
           name: core-coverage-${{ github.run_id }}
           path: packages/core/coverage/
+          retention-days: 14
+
+  mutation:
+    name: Mutation ${{ matrix.variant }} (${{ matrix.shard }}/4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [baseline, candidate]
+        shard: [1, 2, 3, 4]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check mutation launcher
+        run: node --test scripts/tests/test-mutation.test.mjs scripts/tests/write-mutation-report.test.mjs scripts/tests/check-mutation-score.test.mjs
+
+      - name: Run Core use-case mutation shard
+        shell: bash
+        run: |
+          mutation_root="$GITHUB_WORKSPACE"
+          if [[ "${{ matrix.variant }}" == "baseline" ]]; then
+            base_worktree="$RUNNER_TEMP/core-mutation-base"
+            git worktree add --detach "$base_worktree" "${{ github.event.pull_request.base.sha }}"
+            cp .gitignore "$base_worktree/.gitignore"
+            cp packages/core/package.json "$base_worktree/packages/core/package.json"
+            cp packages/core/stryker.config.mjs "$base_worktree/packages/core/stryker.config.mjs"
+            cp packages/core/vitest.config.mts "$base_worktree/packages/core/vitest.config.mts"
+            cp packages/core/vitest.mutation.config.mts "$base_worktree/packages/core/vitest.mutation.config.mts"
+            ln -s "$GITHUB_WORKSPACE/node_modules" "$base_worktree/node_modules"
+            ln -s "$GITHUB_WORKSPACE/packages/core/node_modules" "$base_worktree/packages/core/node_modules"
+            mutation_root="$base_worktree"
+          fi
+          mutation_status=0
+          (cd "$mutation_root/packages/core" && node "$GITHUB_WORKSPACE/scripts/test-mutation.mjs" --all --shard "${{ matrix.shard }}/4" --force) || mutation_status=$?
+          if [[ "${{ matrix.variant }}" == "baseline" && -d "$mutation_root/packages/core/reports/mutation" ]]; then
+            mkdir -p packages/core/reports/mutation
+            cp -R "$mutation_root/packages/core/reports/mutation/." packages/core/reports/mutation/
+          fi
+          exit "$mutation_status"
+        # The launcher accepts its package directory as cwd; keep that consistent
+        # while selecting either the target branch or the candidate worktree.
+        working-directory: ${{ github.workspace }}
+
+      - name: Summarize mutation results by module
+        if: always() && hashFiles('packages/core/reports/mutation/mutation.json') != ''
+        run: node scripts/write-mutation-report.mjs packages/core/reports/mutation/mutation.json packages/core/reports/mutation/module-summary.md "${{ matrix.shard }}/4"
+
+      - name: Upload Core mutation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-mutation-${{ matrix.variant }}-${{ github.run_id }}-${{ matrix.shard }}
+          path: packages/core/reports/mutation/
+          if-no-files-found: warn
+          retention-days: 14
+
+  mutation-score:
+    name: Mutation score (70% per module, Billing temporarily excluded)
+    needs: mutation
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Download candidate Core mutation shard reports
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: core-mutation-candidate-${{ github.run_id }}-*
+          path: mutation-reports/candidate
+          merge-multiple: false
+
+      - name: Download target-branch Core mutation shard reports
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: core-mutation-baseline-${{ github.run_id }}-*
+          path: mutation-reports/baseline
+          merge-multiple: false
+
+      - name: Enforce minimum mutation score per module
+        run: node scripts/check-mutation-score.mjs mutation-reports/candidate --baseline-root mutation-reports/baseline --base-ref "${{ github.event.pull_request.base.sha }}" --head-ref "${{ github.event.pull_request.head.sha }}" --threshold 70 --exclude-modules billing --output mutation-score-summary.md
+
+      - name: Upload aggregated Core mutation score report
+        if: always() && hashFiles('mutation-score-summary.md') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-mutation-score-${{ github.run_id }}
+          path: mutation-score-summary.md
           retention-days: 14
 
   complexity:
