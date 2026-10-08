@@ -13,6 +13,12 @@ on:
       - "pnpm-workspace.yaml"
       - "scripts/check-complexity.mjs"
       - "scripts/write-coverage-report.mjs"
+      - "scripts/test-mutation.mjs"
+      - "scripts/tests/test-mutation.test.mjs"
+      - "scripts/write-mutation-report.mjs"
+      - "scripts/tests/write-mutation-report.test.mjs"
+      - "scripts/check-mutation-score.mjs"
+      - "scripts/tests/check-mutation-score.test.mjs"
       - ".dependency-cruiser.mjs"
 
 permissions:
@@ -103,6 +109,194 @@ jobs:
         with:
           name: core-coverage-${{ github.run_id }}
           path: packages/core/coverage/
+          retention-days: 14
+
+  mutation:
+    name: Mutation ${{ matrix.variant }} (${{ matrix.shard }}/4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [baseline, candidate]
+        shard: [1, 2, 3, 4]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        if: matrix.variant == 'candidate'
+        run: pnpm install --frozen-lockfile
+
+      - name: Resolve pinned Stryker versions
+        id: stryker
+        run: |
+          core_version="$(node -p "require('./packages/core/package.json').devDependencies['@stryker-mutator/core']")"
+          runner_version="$(node -p "require('./packages/core/package.json').devDependencies['@stryker-mutator/vitest-runner']")"
+          if [[ ! "$core_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || "$core_version" != "$runner_version" ]]; then
+            echo "Expected matching exact Stryker CLI and Vitest runner versions; got $core_version and $runner_version." >&2
+            exit 1
+          fi
+          echo "core=$core_version" >> "$GITHUB_OUTPUT"
+          echo "runner=$runner_version" >> "$GITHUB_OUTPUT"
+          echo "Candidate Stryker toolchain: @stryker-mutator/core@$core_version and @stryker-mutator/vitest-runner@$runner_version"
+
+      - name: Check mutation launcher
+        run: node --test scripts/tests/test-mutation.test.mjs scripts/tests/write-mutation-report.test.mjs scripts/tests/check-mutation-score.test.mjs
+
+      - name: Run Core use-case mutation shard
+        shell: bash
+        run: |
+          mutation_root="$GITHUB_WORKSPACE"
+          mutation_launcher="$GITHUB_WORKSPACE/scripts/test-mutation.mjs"
+          if [[ "${{ matrix.variant }}" == "baseline" ]]; then
+            base_worktree="$RUNNER_TEMP/core-mutation-base"
+            git worktree add --detach "$base_worktree" "${{ github.event.pull_request.base.sha }}"
+
+            echo "Candidate source revision: $(git rev-parse HEAD)"
+            echo "Baseline source revision: $(git -C "$base_worktree" rev-parse HEAD)"
+            echo "Baseline workspace lockfile: $base_worktree/pnpm-lock.yaml"
+            echo "Baseline regular Vitest config: $base_worktree/packages/core/vitest.config.mts"
+            echo "Installing baseline dependencies from the target revision's manifests and lockfile."
+            pnpm --dir "$base_worktree" install --frozen-lockfile
+
+            # The target revision predates the mutation gate. Add only its pinned
+            # Stryker CLI/runner after installing its regular, locked dependencies.
+            # This ephemeral worktree is discarded after the job, so its target
+            # manifest and lockfile remain untouched in Git history.
+            (
+              cd "$base_worktree/packages/core"
+              pnpm add --save-dev --save-exact \
+                "@stryker-mutator/core@${{ steps.stryker.outputs.core }}" \
+                "@stryker-mutator/vitest-runner@${{ steps.stryker.outputs.runner }}"
+            )
+
+            # Overlay only the mutation-specific harness from the candidate. The
+            # regular Vitest config, test discovery, source, and dependencies stay
+            # at the target revision.
+            mkdir -p "$base_worktree/scripts"
+            cp scripts/test-mutation.mjs "$base_worktree/scripts/test-mutation.mjs"
+            cp packages/core/stryker.config.mjs "$base_worktree/packages/core/stryker.config.mjs"
+            cp packages/core/vitest.mutation.config.mts "$base_worktree/packages/core/vitest.mutation.config.mts"
+            echo "Baseline regular dependencies and Vitest config remain from the target revision; only the pinned Stryker toolchain and mutation harness were overlaid."
+            mutation_root="$base_worktree"
+            mutation_launcher="$base_worktree/scripts/test-mutation.mjs"
+          fi
+          mutation_status=0
+          (cd "$mutation_root/packages/core" && node "$mutation_launcher" --all --shard "${{ matrix.shard }}/4" --force) || mutation_status=$?
+          if [[ "${{ matrix.variant }}" == "baseline" && -d "$mutation_root/packages/core/reports/mutation" ]]; then
+            mkdir -p packages/core/reports/mutation
+            cp -R "$mutation_root/packages/core/reports/mutation/." packages/core/reports/mutation/
+          fi
+          exit "$mutation_status"
+        # The launcher accepts its package directory as cwd; keep that consistent
+        # while selecting either the target branch or the candidate worktree.
+        working-directory: ${{ github.workspace }}
+
+      - name: Summarize mutation results by module
+        if: always() && hashFiles('packages/core/reports/mutation/mutation.json') != ''
+        run: node scripts/write-mutation-report.mjs packages/core/reports/mutation/mutation.json packages/core/reports/mutation/module-summary.md "${{ matrix.shard }}/4"
+
+      - name: Upload Core mutation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-mutation-${{ matrix.variant }}-${{ github.run_id }}-${{ matrix.shard }}
+          path: packages/core/reports/mutation/
+          if-no-files-found: warn
+          retention-days: 14
+
+  mutation-score:
+    name: Mutation score (70% per module, Billing temporarily excluded)
+    needs: mutation
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Download candidate Core mutation shard reports
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: core-mutation-candidate-${{ github.run_id }}-*
+          path: mutation-reports/candidate
+          merge-multiple: false
+
+      - name: Download target-branch Core mutation shard reports
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: core-mutation-baseline-${{ github.run_id }}-*
+          path: mutation-reports/baseline
+          merge-multiple: false
+
+      - name: Enforce minimum mutation score per module
+        run: node scripts/check-mutation-score.mjs mutation-reports/candidate --baseline-root mutation-reports/baseline --base-ref "${{ github.event.pull_request.base.sha }}" --head-ref "${{ github.event.pull_request.head.sha }}" --threshold 70 --exclude-modules billing --output mutation-score-summary.md
+
+      - name: Publish Core mutation report on pull request
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && hashFiles('mutation-score-summary.md') != ''
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('node:fs')
+            const marker = '<!-- mutation-report:core -->'
+            const report = fs.readFileSync('mutation-score-summary.md', 'utf8')
+            const moduleReport = report.split('\n## Core mutation score by use-case file')[0].trimEnd()
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const body = `${marker}\n${moduleReport}\n\n[View the full per-file mutation report artifact](${runUrl})`
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            })
+            const existing = comments.find(
+              (comment) => comment.user?.type === 'Bot' && comment.body?.includes(marker),
+            )
+            const request = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            }
+            if (existing) {
+              await github.rest.issues.updateComment({ ...request, comment_id: existing.id })
+            } else {
+              await github.rest.issues.createComment({
+                ...request,
+                issue_number: context.issue.number,
+              })
+            }
+
+      - name: Upload aggregated Core mutation score report
+        if: always() && hashFiles('mutation-score-summary.md') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-mutation-score-${{ github.run_id }}
+          path: mutation-score-summary.md
           retention-days: 14
 
   complexity:

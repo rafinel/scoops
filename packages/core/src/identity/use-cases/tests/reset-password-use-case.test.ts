@@ -91,4 +91,29 @@ describe('Reset password use case', () => {
       '00000000-0000-0000-0000-000000000002',
     )
   })
+
+  it('completes the password reset when session revocation is not configured', async () => {
+    const database = mock<IdentityDatabase>()
+    const provider = mock<PasswordRecoveryIdentityProvider>()
+    const scope: IdentityDatabaseRepositories = {
+      usersRepository: mock<UsersRepository>(),
+      registrationAttemptsRepository: mock<RegistrationAttemptsRepository>(),
+      establishmentsRepository: mock<EstablishmentsRepository>(),
+      eventsRepository: mock(),
+    }
+    database.run.mockImplementation((operation) => operation(scope))
+    provider.resetPassword.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      email: 'maria@example.com',
+    })
+    const useCase = new ResetPasswordUseCase(database, provider)
+
+    await expect(
+      useCase.execute({ token: 'recovery-token', password: 'password123' }),
+    ).resolves.toBeUndefined()
+    expect(provider.resetPassword).toHaveBeenCalledWith({
+      token: 'recovery-token',
+      password: 'password123',
+    })
+  })
 })

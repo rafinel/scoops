@@ -120,8 +120,8 @@ export const PortionConfigurationDialog = (props: PortionConfigurationDialogProp
                     className='rounded-xl bg-muted p-4 text-sm text-muted-foreground'
                     role='status'
                   >
-                    Este produto não possui acompanhamentos. Você pode continuar
-                    com a quantidade desejada.
+                    Este produto não possui acompanhamentos. Você pode continuar com a
+                    quantidade desejada.
                   </p>
                 ) : null}
                 {accompanimentGroups.map((group) => (

@@ -54,6 +54,7 @@ describe('Correct User Invitation Use Case', () => {
     const users = mock<UsersRepository>()
     const attempts = mock<RegistrationAttemptsRepository>()
     const actor = AccountFaker.fake({ profile: UserProfile.Manager })
+    const eventsRepository = mock<EventsRepository>()
     const user = UserFaker.fake({
       id: '00000000-0000-0000-0000-000000000001',
       establishmentId: actor.establishmentId,
@@ -71,7 +72,7 @@ describe('Correct User Invitation Use Case', () => {
       usersRepository: users,
       registrationAttemptsRepository: attempts,
       establishmentsRepository: mock<EstablishmentsRepository>(),
-      eventsRepository: mock<EventsRepository>(),
+      eventsRepository,
     }
     database.run.mockImplementation((operation) => operation(scope))
     users.findByIdInEstablishment.mockResolvedValue(user)
@@ -94,18 +95,17 @@ describe('Correct User Invitation Use Case', () => {
     const identifierProvider = mock<OnboardingIdentifierProvider>()
     identifierProvider.generate.mockReturnValue('operation-token')
     const provider = mock<UserAccessIdentityProvider>()
-    provider.correctPendingIdentity.mockResolvedValue(
-      new UserInvitationPreparedEvent({
-        userId: user.id,
-        establishmentId: user.establishmentId,
-        email: 'new@example.com',
-        name: 'New Name',
-        actionUrl: 'https://example.com/invitation?confirmationToken=new-token',
-        expiresAt: '2026-01-08T00:00:00.000Z',
-        occurredAt: '2026-01-02T00:00:00.000Z',
-        operation: 'corrected',
-      }),
-    )
+    const preparedEvent = new UserInvitationPreparedEvent({
+      userId: user.id,
+      establishmentId: user.establishmentId,
+      email: 'new@example.com',
+      name: 'New Name',
+      actionUrl: 'https://example.com/invitation?confirmationToken=new-token',
+      expiresAt: '2026-01-08T00:00:00.000Z',
+      occurredAt: '2026-01-02T00:00:00.000Z',
+      operation: 'corrected',
+    })
+    provider.correctPendingIdentity.mockResolvedValue(preparedEvent)
     const useCase = new CorrectUserInvitationUseCase(
       database,
       { now: () => new Date('2026-01-02T00:00:00.000Z') },
@@ -117,8 +117,8 @@ describe('Correct User Invitation Use Case', () => {
     await useCase.execute({
       actor,
       userId: user.id,
-      name: 'New Name',
-      email: 'new@example.com',
+      name: '  New Name  ',
+      email: '  New@Example.COM ',
       profile: UserProfile.Operator,
       invitationRedirectBaseUrl: 'https://example.com/invitation',
     })
@@ -127,7 +127,37 @@ describe('Correct User Invitation Use Case', () => {
       expect.objectContaining({
         providerSubject: user.id,
         establishmentId: user.establishmentId,
+        email: 'new@example.com',
+        name: 'New Name',
+        invitationRedirectTo:
+          'https://example.com/invitation?confirmationToken=new-token',
       }),
     )
+    expect(attempts.finalizeInvitationOperation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attemptId: attempt.id,
+        changes: expect.objectContaining({
+          email: 'new@example.com',
+          tokenHash: 'new-hash',
+          updatedAt: new Date('2026-01-02T00:00:00.000Z'),
+        }),
+      }),
+    )
+    expect(attempts.replace).toHaveBeenCalledWith(
+      attempt.id,
+      expect.objectContaining({
+        name: 'New Name',
+        email: 'new@example.com',
+        profile: UserProfile.Operator,
+        revision: attempt.revision + 1,
+      }),
+    )
+    expect(users.replace).toHaveBeenCalledWith(
+      actor.establishmentId,
+      user.id,
+      expect.objectContaining({ name: 'New Name', email: 'new@example.com' }),
+    )
+    expect(tokenProvider.issue).toHaveBeenCalledTimes(1)
+    expect(eventsRepository.add).toHaveBeenCalledWith(preparedEvent)
   })
 })

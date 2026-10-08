@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { AccountFaker, UserFaker } from '#identity/domain/entities/fakers/index.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import { ListUsersUseCase } from '#identity/use-cases/list-users-use-case.ts'
-import { AuthorizationError } from '#shared/domain/errors/authorization-error.ts'
 import { mock } from 'vitest-mock-extended'
 import type { IdentityDatabase } from '#identity/interfaces/identity-database.ts'
 import type { UsersRepository } from '#identity/interfaces/users-repository.ts'
@@ -62,7 +61,32 @@ describe('List Users Use Case', () => {
         page: 1,
         pageSize: 20,
       }),
-    ).rejects.toBeInstanceOf(AuthorizationError)
+    ).rejects.toThrow('É necessário ter acesso de gerente.')
     expect(database.run).not.toHaveBeenCalled()
+  })
+
+  it('normalizes an omitted search and paginates within the supported limits', async () => {
+    const database = mock<IdentityDatabase>()
+    const usersRepository = mock<UsersRepository>()
+    usersRepository.findMany.mockResolvedValue(
+      new UsersPage([], 2, 100, 0, 0, { total: 0, managers: 0, operators: 0 }),
+    )
+    database.run.mockImplementation((operation) =>
+      operation({ usersRepository } as never),
+    )
+    const actor = AccountFaker.fake({ profile: UserProfile.Manager })
+    const useCase = new ListUsersUseCase(database)
+
+    await useCase.execute({ actor, page: 2.9, pageSize: 500 })
+
+    expect(usersRepository.findMany).toHaveBeenCalledWith({
+      establishmentId: actor.establishmentId,
+      excludeUserId: actor.id,
+      search: undefined,
+      profile: undefined,
+      status: undefined,
+      page: 2,
+      pageSize: 100,
+    })
   })
 })

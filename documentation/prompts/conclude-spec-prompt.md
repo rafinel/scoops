@@ -62,6 +62,15 @@ according to the change. Delivery PRs must be ready for review; verify `isDraft:
 Only conclusion marks a PRD requirement implemented. Evaluation `ready` is permission to
 proceed with closure, not PRD delivery state.
 
+When business rules or correctness-critical logic in eligible Core use cases changed,
+require current mutation evidence for the Spec's scope and semantic pass conditions, including report paths and
+dispositions for surviving, uncovered and equivalent mutants. Reuse valid evidence and run
+only missing or invalidated checks. Successful Stryker execution, a dry run or an empty
+selection cannot substitute for accepted mutation proof; execution errors and actionable gaps
+remain correction work. Mutation targets are direct `src/**/use-cases/*-use-case.ts` files;
+supporting Core code is consumed by tests but is not mutated. This requirement does not
+introduce Web or Server mutation suites.
+
 ## Corrections and amendments
 
 A missing or invalidated check is run once for the current candidate. If it fails, record a
@@ -101,6 +110,21 @@ After publication, wait for all applicable checked-in GitHub Actions workflows o
 current PR head SHA. Determine applicability from their real path filters, including Core CI,
 Server CI and Web CI when their inputs changed. Record each applicable workflow/check name,
 result, run URL and tested SHA in Evaluation; state why any workflow is inapplicable.
+
+For applicable Core CI, include its separate `Mutation` job, which runs the full eligible
+Core use-case scope with `--all` across all four CI shards and uploads HTML/JSON
+reports even on failure. Verify
+execution success and the hybrid score gate separately from the Spec's semantic
+mutation acceptance. Require same-run target-branch and candidate reports: each
+included module (Analytics, Communication, Identity, MRP and PDV) and each changed
+or new eligible use-case source file in those modules must score at least 70%; every
+unchanged eligible use-case file in those modules must preserve or improve its exact
+target-branch score, without rounding or an allowed decrease. Billing's module and
+per-file thresholds are temporarily suspended pending related test coverage. Missing,
+invalid or incomplete reports, missing unchanged-file baselines and unscoreable
+included modules fail closed. A file that is N/A on both revisions remains N/A; when
+only one revision has a score, the candidate must meet 70%. Inspect relevant
+CI report discrepancies and reconcile them with current local mutation evidence.
 
 Pending, missing expected, cancelled or earlier-SHA checks are not passing evidence. A local
 check or branch-push run does not satisfy this PR gate. Poll to terminal results without ending

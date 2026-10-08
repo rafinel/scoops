@@ -477,6 +477,30 @@ effects, failures and UI recovery. Tests assert behavior rather than mirrored im
 Direct tests for `indirect` or `excluded` sources are forbidden; name the allowed consumer
 boundary instead. Respect actual coverage policy and thresholds.
 
+For changed business rules or correctness-critical logic in eligible Core use cases, require
+targeted Stryker mutation checks. Define use-case scope, mapped ACs, the exact command and
+semantic pass conditions, including how surviving, uncovered and equivalent mutants will be
+assessed. Use Tooling's changed-file selection or explicit package-relative `--files`; require
+an explicit scope when shared test/configuration changes make automatic selection insufficient.
+Targets must be direct files matching `src/**/use-cases/*-use-case.ts`; supporting helpers,
+entities, structures, events, errors, interfaces and shared code are consumed by tests but are
+not mutation targets. Do not add Web or Server mutation obligations. Core CI separately runs
+`--all` across four shards covering every eligible Core use case and publishes reports.
+Core CI measures the PR candidate and target branch in the same run and compares
+their merged reports. It enforces at least 70% for Analytics, Communication,
+Identity, MRP and PDV and for each changed or new eligible use-case source file in
+those modules. Every unchanged eligible use-case file in those modules must preserve
+or improve its exact target-branch score, without rounding or an allowed decrease.
+Billing's module and per-file thresholds are temporarily suspended until related
+tests make its mutants scoreable. Missing, invalid or incomplete reports, missing
+unchanged-file baselines and unscoreable included modules fail closed. A file that is
+N/A on both revisions remains N/A; when only one revision has a score, the candidate
+must meet 70%. CI execution success alone does not satisfy a Spec's
+semantic acceptance conditions.
+Keep expected scope and pass conditions here; actual results and justified dispositions belong
+in Evaluation's `EV-*` evidence and `FND-*` findings. Mutation checks supplement behavior tests
+and integration proof and must respect existing test-ownership boundaries.
+
 For each `MV-*`, specify mapped ACs, services/health checks, accounts/data, starting route and
 state, viewport, numbered actions and keyboard path, visible result, final URL and relevant
 network/persisted effect, console/failed-request checks, evidence and cleanup. Keep mocked

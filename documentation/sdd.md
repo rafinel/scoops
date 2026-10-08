@@ -147,6 +147,30 @@ HTTP route changes include route-complete examples in the owning
 parity separately; it cannot prove real HTTP integration. A delivery is incomplete
 while required examples or generated artifacts are missing, stale or untracked.
 
+Changed business rules and correctness-critical logic in eligible Core use cases
+require targeted Stryker mutation checks. Define their use-case scope, mapped ACs
+and semantic pass conditions in the Validation Contract. Mutation targets are only
+direct files matching `src/**/use-cases/*-use-case.ts`; supporting Core code is
+consumed by tests but is not mutated. Web and Server retain their existing checks.
+Follow Tooling for local changed-file selection or explicit use-case scope. Core CI
+always executes every eligible Core use case with `--all` across all four CI
+shards and publishes HTML/JSON reports, including on failure.
+The integrated CI suite measures the PR candidate and target branch in the same
+run and compares their merged reports. Each included Core module and each changed
+or new eligible use-case source file in an included module must score at least 70%.
+Each unchanged eligible use-case file in an included module must preserve or improve its exact target-branch score;
+rounding and score decreases are not allowed. Billing is temporarily excluded until
+related tests make its mutants scoreable; its module and per-file thresholds are
+temporarily suspended. Missing, invalid or incomplete reports, missing unchanged-file
+baselines and unscoreable included modules fail closed. A file that is N/A on both
+revisions remains N/A; when only one revision has a score, the candidate must meet
+70%. Passing that gate does not
+replace a Spec’s semantic pass conditions or evidence-based dispositions of
+surviving, uncovered and equivalent mutants.
+Execution errors and actionable assertion gaps require correction, not a blanket
+waiver or reduced scope. Keep mutation results in ordinary `EV-*` evidence rows
+and findings in `FND-*`; do not introduce another identifier or artifact system.
+
 `pnpm check:spec-implementation -- <spec-path>` remains available for legacy or
 new Specs that explicitly classify exact required artifact paths as `Create`,
 `Modify`, `Generate` or `Remove`. It proves only those declared artifacts, not
@@ -205,6 +229,8 @@ invent phase statuses. Existing historical identifiers, revisions and facts rema
    and affected checks until every applicable suite passes. Preserve configured
    coverage floors; required unavailable infrastructure is a recorded blocker.
    A zero-test selection, skipped suite or bare exit code is not proof of acceptance.
+   Run contracted Core mutation checks and assess their reports against the Spec's
+   pass conditions; retain valid unaffected mutation evidence after corrections.
 5. Execute the required manual journeys with the Playwright CLI and required
    services/seeded accounts. Capture and inspect fresh UI screenshots at relevant
    desktop/narrow states and keyboard paths, checking console, network, URL and

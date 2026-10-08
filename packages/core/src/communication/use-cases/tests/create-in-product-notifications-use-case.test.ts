@@ -99,6 +99,80 @@ describe('Create In Product Notifications Use Case', () => {
     ])
   })
 
+  it.each([
+    [
+      NotificationKind.UserPromoted,
+      'Usuário promovido',
+      'Ana agora possui o perfil Gerente.',
+    ],
+    [
+      NotificationKind.UserDemoted,
+      'Usuário alterado para Operador',
+      'Ana agora possui o perfil Operador.',
+    ],
+    [
+      NotificationKind.UserReactivated,
+      'Usuário reativado',
+      'O acesso de Ana foi reativado.',
+    ],
+  ] as const)(
+    'renders the %s membership change and includes its affected user',
+    async (kind, title, message) => {
+      audienceProvider.findManyActiveByEstablishment.mockResolvedValue([
+        { userId: 'manager-1', profile: 'manager' },
+        { userId: 'target-1', profile: 'operator' },
+        { userId: 'operator-2', profile: 'operator' },
+      ])
+
+      await useCase.execute({
+        fact: {
+          sourceEventId: `event-${kind}`,
+          establishmentId: 'establishment-1',
+          occurredAt,
+          kind,
+          affectedUserId: 'target-1',
+          affectedUserName: 'Ana',
+        },
+      })
+
+      expect(repository.addMany).toHaveBeenCalledWith([
+        expect.objectContaining({
+          sourceEventId: `event-${kind}`,
+          establishmentId: 'establishment-1',
+          recipientUserId: 'manager-1',
+          kind,
+          title,
+          message,
+          occurredAt,
+          createdAt,
+        }),
+        expect.objectContaining({ recipientUserId: 'target-1', title, message }),
+      ])
+      expect(repository.addMany.mock.calls.at(-1)?.[0]).toHaveLength(2)
+    },
+  )
+
+  it('does not write or capture a timestamp when no recipients are eligible', async () => {
+    audienceProvider.findManyActiveByEstablishment.mockResolvedValue([])
+
+    await useCase.execute({
+      fact: {
+        sourceEventId: 'event-empty-audience',
+        establishmentId: 'establishment-1',
+        occurredAt,
+        kind: NotificationKind.StockZero,
+        productId: 'product-1',
+        productName: 'Leite',
+        unit: ProductUnit.Liter,
+        availableQuantity: 0,
+        idealQuantity: 10,
+      },
+    })
+
+    expect(repository.addMany).not.toHaveBeenCalled()
+    expect(datetimeProvider.now).not.toHaveBeenCalled()
+  })
+
   it('stores the available zero quantity and unit in the stock-zero snapshot', async () => {
     audienceProvider.findManyActiveByEstablishment.mockResolvedValue([
       { userId: 'manager-1', profile: 'manager' },

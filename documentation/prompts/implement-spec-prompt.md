@@ -78,6 +78,25 @@ For changed HTTP route groups, update the matching
 labeled request per controller operation with current method, parameters, headers, body and
 reusable non-secret variables. Record route/example parity; it does not prove HTTP behavior.
 
+For changed business rules or correctness-critical logic in eligible Core use cases, execute
+the Spec's targeted Stryker checks using `pnpm --filter @scoops/core test:mutation` and the appropriate Tooling
+scope options. Targets must be direct files matching `src/**/use-cases/*-use-case.ts`;
+supporting Core code remains consumed by tests but is not mutated. Use explicit eligible
+package-relative `--files` when automatic selection cannot cover the affected claims.
+Inspect HTML/JSON reports and correct actionable survivors or uncovered
+logic with behavior-focused tests at allowed boundaries. Record actual scope, command, report
+paths, results and evidence-based equivalent/survivor dispositions in `EV-*`/`FND-*` rows.
+Dry runs, empty selections and execution errors are not passing mutation proof; successful
+execution alone does not satisfy the Spec's semantic pass conditions. No global score
+threshold or Web/Server mutation obligation is implied by the Spec's semantic acceptance.
+Core CI separately runs the full eligible Core use-case scope with `--all` across four
+balanced shards for both the PR target branch and candidate in the same workflow run. Its
+gate requires at least 70% per included module (Analytics, Communication, Identity, MRP
+and PDV), at least 70% for each changed/new eligible file in those modules, and no exact
+score drop for unchanged eligible files. Billing's module and per-file thresholds are
+temporarily suspended. It does not replace local assessment of the contracted scope.
+After corrections, rerun only invalidated mutation checks and preserve unaffected evidence.
+
 Preserve PRD Implemented checkboxes during implementation. Evaluation `ready` authorizes
 conclusion, not PRD closure. Only the approved material-amendment workflow may reset an
 affected requirement to unchecked here; `conclude-spec` owns marking delivered requirements.

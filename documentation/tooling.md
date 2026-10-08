@@ -358,6 +358,125 @@ The Core package uses Vitest for use-case unit tests:
 pnpm --filter @scoops/core test
 ```
 
+### Core mutation tests
+
+Core uses Stryker with the Vitest runner, related-test selection and per-test
+coverage analysis. Mutation commands require Node.js 22.18 or later (Node.js 22 is
+used by Core CI). The mutation-specific Vitest config extends the normal config
+with its experimental filesystem module cache disabled: enabling it can skip
+related tests on subsequent mutants and produce false survivors. Mutation testing
+targets only direct use-case files matching `src/**/use-cases/*-use-case.ts`.
+Helpers such as `order-pricing.ts`, entities, structures, events, errors,
+interfaces and shared supporting code remain consumed by use-case tests but are
+not mutation targets. Tests, fixtures, fakers, declarations, generated files and
+pure export barrels are also excluded. Web and Server do not have mutation suites.
+
+Run against changed eligible Core use cases locally, or preview the selected scope:
+
+```bash
+pnpm --filter @scoops/core test:mutation
+pnpm --filter @scoops/core test:mutation --dry-run
+pnpm --filter @scoops/core test:mutation --base origin/main
+```
+
+Use `--files` with exact eligible package-relative use-case paths to select a scope explicitly;
+globs are not accepted. `--all`, `--base` and `--files` are mutually exclusive.
+Shared test/configuration changes require an explicit scope rather than assuming
+that changed use-case files cover their impact. `--force` bypasses incremental
+reuse; otherwise unchanged inputs may reuse guarded incremental results.
+Supporting-code changes alone do not select mutation targets. When mutation proof
+is needed for their effect on use cases, name the affected eligible use cases with
+`--files`.
+
+```bash
+pnpm --filter @scoops/core test:mutation --files src/pdv/use-cases/update-sales-channel-use-case.ts
+pnpm --filter @scoops/core test:mutation --all
+pnpm --filter @scoops/core test:mutation --all --force
+```
+
+To reproduce one CI shard locally:
+
+```bash
+pnpm --filter @scoops/core test:mutation --all --shard 1/4 --force
+```
+
+`--shard N/M` requires `--all`, with a one-based index. Eligible files are assigned
+once to deterministic buckets, balancing source bytes as an estimate of mutation
+work. Their union is the complete use-case scope. Each shard needs a separate
+checkout when run concurrently because report paths are shared within a checkout.
+A single shard is partial mutation evidence, not proof for the complete package.
+
+HTML and JSON reports are ignored outputs under `packages/core/reports/mutation/`.
+A dry run is not executed mutation evidence. An empty selection fails with guidance
+to choose an explicit scope or `--all`; it never silently falls back to a full run.
+
+Core CI runs four parallel `Mutation` shards that collectively run every eligible
+Core use case, regardless of the local selection. Each uses
+`--all --shard N/4 --force` and uploads its own HTML/JSON reports even when
+execution fails.
+`fail-fast: false` lets the other shards finish if one fails. No static mutants or
+mutation operators are skipped. Sharding reduces elapsed CI time by using more
+runner resources; the actual result depends on runner capacity and queue time.
+Changes to the mutation launcher, report writers, score checker and their tests
+also trigger Core CI. The job fails when the Stryker process exits unsuccessfully;
+individual mutant `RuntimeError` results remain in reports and do not independently
+fail a shard command. CI measures both the PR candidate and its target branch in
+the same workflow run. Each revision uses its own source, workspace manifests,
+lockfile, regular Vitest configuration and dependencies. The target-branch run may
+use the same pinned Stryker CLI/runner and mutation-only harness required to execute
+the comparison, but it must not inherit candidate dependencies, regular test
+configuration or `node_modules`. After the shards finish, a separate `Mutation score` job
+combines each revision's JSON reports and applies a hybrid gate:
+
+- each included candidate module must score at least 70%;
+- each changed or new eligible use-case source file in an included module must score at least 70%;
+- every unchanged eligible use-case file in an included module must preserve or improve its target-branch
+  score, comparing exact scores without rounding or any allowed decrease.
+
+The included modules are Analytics, Communication, Identity, MRP and PDV. The job
+uploads its complete score/comparison report even when a gate fails. Billing
+is temporarily excluded from module and per-file thresholds because its current use-case mutants have no related tests
+and cannot produce a meaningful score. Remove this exclusion once Billing tests
+cover its use cases, and then require its score to meet the same threshold. For every
+included module, no scoreable mutants fails closed. A file that had no scoreable
+mutants on both revisions remains N/A; if only one revision is scoreable, the
+candidate must meet the 70% floor. Missing,
+incomplete or invalid base/candidate reports and a missing comparable baseline for
+an unchanged file also fail closed. A stale report from an earlier run cannot
+substitute for the same-run target-branch measurement.
+Scores use killed divided by all mutants except NoCoverage and Ignored; survivors,
+timeouts, runtime errors and other unresolved statuses count against the threshold.
+
+Each shard labels mutation results by module (Analytics, Billing, Communication,
+Identity, MRP and PDV) in the GitHub Actions summary and the artifact's
+`module-summary.md`. Rows show files, mutant totals, the shard-local mutation score,
+and separate outcome counts, including uncovered mutants and execution errors. Each summary covers only its
+shard; a module's full results span the four artifacts. This grouping does not
+change the deterministic source-size-balanced partition or mutation acceptance.
+When execution produces no JSON report, no module result is claimed.
+
+The package passes mutation CI only if all required base/candidate shard jobs and
+the hybrid score gate pass. The complete score and per-file comparison report is
+published as the `core-mutation-score-*` workflow artifact. The module score table
+is automatically posted as a pull request comment, and CI updates the same comment
+on later runs. Fork pull requests receive the Actions summary and artifact but skip
+the comment because their workflow token cannot safely receive pull-request write
+permission.
+
+The initial Stryker 10/Vitest 4.1.10 run exposed runner `RuntimeError` results for
+notification-stream loop mutations: the runner can fail to stringify an unhandled
+error with `TypeError: Cannot convert object to primitive value`. Keep those results
+visible as incomplete proof for the affected scope; do not count them as killed
+mutants or accepted semantic evidence.
+
+For changed business rules or correctness-critical logic in eligible Core use cases,
+the Spec must define the required targeted mutation scope and semantic pass conditions.
+Evaluation records the actual scope, command, results and report paths, with
+dispositions for surviving, uncovered and equivalent mutants and execution errors.
+Strengthen behavior assertions for actionable gaps without weakening ordinary test
+ownership or coverage gates. Stryker completing successfully proves execution,
+not acceptance; applicable mutation pass conditions must also be satisfied.
+
 ### Unit-test coverage
 
 Core, Server and Web use Vitest's V8 coverage provider. Coverage includes unimported production
