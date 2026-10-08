@@ -65,7 +65,7 @@ flowchart LR
   web["Scoops Web Application"]
   api["Scoops Server API"]
   auth["Better Auth in Scoops Server"]
-  db[("PostgreSQL\nNeon when deployed")]
+  db[("PostgreSQL\nSupabase when deployed")]
   jobs["Inngest"]
   billing["Billing Provider"]
   email["Email Provider"]
@@ -104,9 +104,9 @@ Neither `packages/core`, `packages/validation`, nor `packages/email` has a
 network boundary.
 Standard PostgreSQL, Mailpit, and Inngest run as local supporting containers.
 MinIO remains optional local infrastructure reserved for future object-storage
-work. Staging and production use Neon through the same `DATABASE_URL` contract,
-Resend for transactional email, and managed equivalents for the other services
-without changing application boundaries.
+work. Staging and production use Supabase PostgreSQL through the same
+`DATABASE_URL` contract, Resend for transactional email, and managed equivalents
+for the other services without changing application boundaries.
 
 ## 5. Technology decisions
 
@@ -353,10 +353,10 @@ not an authorization mechanism.
 ## 13. Persistence and consistency
 
 PostgreSQL is the system of record for Scoops business and authentication data.
-Deployed environments use Neon and local/integration environments use standard
-PostgreSQL through the same `DATABASE_URL` contract. The server accesses both
-the public business schema and the dedicated Better Auth schema through Drizzle
-ORM; the web application never connects directly.
+Deployed environments use Supabase PostgreSQL and local/integration
+environments use standard PostgreSQL through the same `DATABASE_URL` contract.
+The server accesses both the public business schema and the dedicated Better
+Auth schema through Drizzle ORM; the web application never connects directly.
 
 Persistence is organized by module:
 
@@ -561,8 +561,9 @@ replicas. In particular:
 
 Local development uses Docker Compose for standard PostgreSQL, Mailpit, and
 Inngest. MinIO is optional and reserved for future object-storage work. The web
-and server normally run as local pnpm processes. Staging and production use Neon
-through `DATABASE_URL` and Resend through server-only credentials.
+and server normally run as local pnpm processes. Staging and production use
+Supabase PostgreSQL through `DATABASE_URL` and Resend through server-only
+credentials.
 
 Environment configuration is separated by boundary:
 
