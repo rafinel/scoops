@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 import { ROUTES } from '../../src/constants/routes'
 import { mockAnalytics } from '../fixtures/analytics-module-fixture'
@@ -38,7 +38,6 @@ const PRODUCTS_PAGE = {
 
 type Diagnostics = {
   consoleErrors: string[]
-  expectedAnimationAbortErrors: string[]
   expectedAuthConsoleErrors: string[]
   expectedAuthResponses: string[]
   failedRequests: string[]
@@ -48,7 +47,6 @@ type Diagnostics = {
 function collectDiagnostics(page: Page) {
   const diagnostics: Diagnostics = {
     consoleErrors: [],
-    expectedAnimationAbortErrors: [],
     expectedAuthConsoleErrors: [],
     expectedAuthResponses: [],
     failedRequests: [],
@@ -60,14 +58,6 @@ function collectDiagnostics(page: Page) {
 
     if (message.text().includes('401 (Unauthorized)')) {
       diagnostics.expectedAuthConsoleErrors.push(message.text())
-      return
-    }
-
-    if (
-      message.text().includes('Failed to load animation data from URL') &&
-      message.text().includes('AbortError')
-    ) {
-      diagnostics.expectedAnimationAbortErrors.push(message.text())
       return
     }
 
@@ -90,37 +80,10 @@ function collectDiagnostics(page: Page) {
 
 function expectCleanDiagnostics(diagnostics: Diagnostics) {
   expect(diagnostics.consoleErrors).toEqual([])
-  expect(
-    diagnostics.expectedAnimationAbortErrors.every((error) =>
-      error.includes('/assets/lotties/ice-cream-loading.lottie'),
-    ),
-  ).toBe(true)
   expect(diagnostics.failedRequests).toEqual([])
   expect(diagnostics.httpErrors).toEqual([])
   expect(diagnostics.expectedAuthConsoleErrors).toHaveLength(1)
   expect(diagnostics.expectedAuthResponses).toHaveLength(1)
-}
-
-async function expectStatusCardNotToObscureControls(
-  page: Page,
-  controls: readonly Locator[],
-) {
-  const statusCardBox = await page.locator('[data-route-transition-card]').boundingBox()
-  expect(statusCardBox).not.toBeNull()
-  if (!statusCardBox) throw new Error('The route transition card must be visible.')
-
-  for (const control of controls) {
-    const controlBox = await control.boundingBox()
-    expect(controlBox).not.toBeNull()
-    if (!controlBox) throw new Error('The tested control must be visible.')
-
-    const overlaps =
-      statusCardBox.x < controlBox.x + controlBox.width &&
-      statusCardBox.x + statusCardBox.width > controlBox.x &&
-      statusCardBox.y < controlBox.y + controlBox.height &&
-      statusCardBox.y + statusCardBox.height > controlBox.y
-    expect(overlaps).toBe(false)
-  }
 }
 
 for (const viewport of VIEWPORTS) {
@@ -140,7 +103,9 @@ for (const viewport of VIEWPORTS) {
     await expect(page.getByRole('heading', { name: 'Recupere seu acesso' })).toHaveCount(
       1,
     )
-    await expect(page.getByRole('status', { name: 'Carregando página…' })).toHaveCount(0)
+    await expect(
+      page.getByRole('progressbar', { name: 'Carregando página…' }),
+    ).toHaveCount(0)
     await page.screenshot({
       fullPage: false,
       path: `test-results/route-transition/mv-03-fast-${viewport.name}-${viewport.width}x${viewport.height}.png`,
@@ -167,7 +132,9 @@ for (const viewport of VIEWPORTS) {
       1,
     )
     await expect(page.locator('body')).toHaveCSS('overflow-x', 'visible')
-    await expect(page.getByRole('status', { name: 'Carregando página…' })).toHaveCount(0)
+    await expect(
+      page.getByRole('progressbar', { name: 'Carregando página…' }),
+    ).toHaveCount(0)
     await page.screenshot({
       fullPage: false,
       path: `test-results/route-transition/mv-04-reduced-motion-${viewport.name}-${viewport.width}x${viewport.height}.png`,
@@ -270,7 +237,9 @@ for (const viewport of VIEWPORTS) {
 
     expect(new URL(page.url()).pathname).toBe(ROUTES.login)
     await expect(page.getByRole('heading', { name: 'Entre no Scoops' })).toBeVisible()
-    await expect(page.getByRole('status', { name: 'Carregando página…' })).toHaveCount(0)
+    await expect(
+      page.getByRole('progressbar', { name: 'Carregando página…' }),
+    ).toHaveCount(0)
     await expect(page.locator('body')).toContainText('Entre no Scoops')
     expect(signOutRequests).toBe(1)
     await page.screenshot({
@@ -302,7 +271,9 @@ test('swaps public routes immediately when View Transitions are unsupported', as
 
   await expect(page).toHaveURL(new RegExp(`${ROUTES.forgotPassword}/?$`))
   await expect(page.getByRole('heading', { name: 'Recupere seu acesso' })).toBeVisible()
-  await expect(page.getByRole('status', { name: 'Carregando página…' })).toHaveCount(0)
+  await expect(page.getByRole('progressbar', { name: 'Carregando página…' })).toHaveCount(
+    0,
+  )
   await page.screenshot({
     fullPage: false,
     path: 'test-results/route-transition/unsupported-view-transition.png',
@@ -329,17 +300,17 @@ for (const viewport of VIEWPORTS) {
       ]
     })
 
-    const status = page.getByRole('status', { name: 'Carregando página…' })
-    await expect(status).toBeVisible()
+    const progress = page.getByRole('progressbar', { name: 'Carregando página…' })
+    await expect(progress).toBeVisible()
     expect(
       await page.evaluate(
         () =>
           document.documentElement.scrollWidth <= document.documentElement.clientWidth,
       ),
     ).toBe(true)
-    await expect(status).toHaveCSS('pointer-events', 'none')
-    await expect(status).not.toHaveAttribute('aria-modal')
-    await expect(status.locator('button, a, input, textarea, select')).toHaveCount(0)
+    await expect(progress).toHaveCSS('pointer-events', 'none')
+    await expect(progress).not.toHaveAttribute('aria-modal')
+    await expect(progress.locator('button, a, input, textarea, select')).toHaveCount(0)
     expect(
       await page.evaluate(() => {
         const activeElement = document.activeElement
@@ -356,16 +327,7 @@ for (const viewport of VIEWPORTS) {
     await expect(submitButton).toBeFocused()
     await page.keyboard.press('Shift+Tab')
     await expect(forgotPassword).toBeFocused()
-    await expect(page.locator('[data-route-transition-artwork]')).toBeVisible()
-    await expect(page.locator('[data-route-transition-artwork]')).toHaveAttribute(
-      'width',
-      '96',
-    )
-    await expectStatusCardNotToObscureControls(page, [
-      page.getByRole('textbox', { name: 'E-mail' }),
-      page.getByRole('textbox', { name: 'Senha' }),
-      submitButton,
-    ])
+    await expect(progress.locator('[data-route-transition-indicator]')).toBeVisible()
     await page.screenshot({
       fullPage: false,
       path: `test-results/route-transition/mv-03-delayed-${viewport.name}-${viewport.width}x${viewport.height}.png`,
@@ -373,7 +335,7 @@ for (const viewport of VIEWPORTS) {
 
     release()
     await expect(page).toHaveURL(new RegExp(`${ROUTES.root}$`))
-    await expect(status).toHaveCount(0)
+    await expect(progress).toHaveCount(0)
     await expect(page.getByRole('banner')).toBeVisible()
     await page.screenshot({
       fullPage: false,
@@ -405,17 +367,17 @@ for (const viewport of VIEWPORTS) {
       ]
     })
 
-    const status = page.getByRole('status', { name: 'Carregando página…' })
-    await expect(status).toBeVisible()
+    const progress = page.getByRole('progressbar', { name: 'Carregando página…' })
+    await expect(progress).toBeVisible()
     expect(
       await page.evaluate(
         () =>
           document.documentElement.scrollWidth <= document.documentElement.clientWidth,
       ),
     ).toBe(true)
-    await expect(status).toHaveCSS('pointer-events', 'none')
-    await expect(status).not.toHaveAttribute('aria-modal')
-    await expect(status.locator('button, a, input, textarea, select')).toHaveCount(0)
+    await expect(progress).toHaveCSS('pointer-events', 'none')
+    await expect(progress).not.toHaveAttribute('aria-modal')
+    await expect(progress.locator('button, a, input, textarea, select')).toHaveCount(0)
     expect(
       await page.evaluate(() => {
         const activeElement = document.activeElement
@@ -432,12 +394,7 @@ for (const viewport of VIEWPORTS) {
     await expect(submitButton).toBeFocused()
     await page.keyboard.press('Shift+Tab')
     await expect(forgotPassword).toBeFocused()
-    await expect(page.locator('[data-route-transition-artwork]')).toHaveCount(0)
-    await expectStatusCardNotToObscureControls(page, [
-      page.getByRole('textbox', { name: 'E-mail' }),
-      page.getByRole('textbox', { name: 'Senha' }),
-      submitButton,
-    ])
+    await expect(progress.locator('[data-route-transition-indicator]')).toBeVisible()
     await page.screenshot({
       fullPage: false,
       path: `test-results/route-transition/mv-04-delayed-${viewport.name}-${viewport.width}x${viewport.height}.png`,
@@ -445,7 +402,7 @@ for (const viewport of VIEWPORTS) {
 
     release()
     await expect(page).toHaveURL(new RegExp(`${ROUTES.root}$`))
-    await expect(status).toHaveCount(0)
+    await expect(progress).toHaveCount(0)
     await expect(page.getByRole('banner')).toBeVisible()
     await page.screenshot({
       fullPage: false,
