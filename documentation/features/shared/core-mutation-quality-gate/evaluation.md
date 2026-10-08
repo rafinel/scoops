@@ -2,7 +2,7 @@
 feature: "shared/core-mutation-quality-gate"
 spec: ./spec.md
 spec_revision: 1
-status: ready
+status: completed
 updated_at: 2026-10-08
 ---
 
@@ -10,7 +10,7 @@ updated_at: 2026-10-08
 
 Evaluation of Spec revision `1` against implementation candidate `910e39b8745ddc64c7da75588fea3fe94d7259b3`.
 
-Current result: AC-01 through AC-04 pass. The initial PR CI failures have been fixed, and all applicable PR workflows pass on the integrated candidate. The final candidate gate is recorded in EV-08. The Spec is ready for formal conclusion.
+Outcome: The fail-closed mutation comparison and target-owned baseline are implemented. AC-01 through AC-04 pass, the initial PR CI failures are resolved, and all applicable workflows passed on the implementation candidate recorded in EV-08. The Spec is complete; final closure-head checks are linked from PR #52.
 
 ## Acceptance matrix
 
@@ -76,12 +76,12 @@ Current result: AC-01 through AC-04 pass. The initial PR CI failures have been f
 ## Continuation handoff
 
 - **Branch/candidate:** `codex/core-mutation-quality-gate`, implementation candidate `910e39b8745ddc64c7da75588fea3fe94d7259b3`, PR #52.
-- **Progress:** Spec revision 1 is ready for conclusion; AC-01 through AC-04 pass, both original PR review findings are resolved, and FND-05/FND-06 are resolved.
-- **Interrupted/uncommitted paths:** Closure documentation is being prepared; pre-existing `design/onoreo.pen` remains user-owned and untouched.
+- **Progress:** Spec revision 1 is completed; AC-01 through AC-04 pass, both original PR review findings are resolved, and FND-05/FND-06 are resolved.
+- **Interrupted/uncommitted paths:** Pre-existing `design/onoreo.pen` remains user-owned, untouched, and excluded from this delivery.
 - **Unfinished criteria:** None.
 - **Blockers and stale evidence:** None. The full implementation-candidate PR gate passes at `910e39b8745ddc64c7da75588fea3fe94d7259b3` (EV-08).
 - **Latest checkers:** EV-01 through EV-08; independent Spec and implementation reviews passed. The implementation reviewer confirmed the refreshed complexity baseline matches `origin/main` with no candidate-caused metric increase.
-- **Next useful action:** Close the Spec and Evaluation, publish the closure in PR #52, and verify the final PR head's checks.
+- **Next useful action:** Review the final closure-head check results on PR #52 before merge.
 
 ## History
 
@@ -91,3 +91,4 @@ Current result: AC-01 through AC-04 pass. The initial PR CI failures have been f
 | 2026-10-08 | Implemented status-aware comparison and target-owned baseline setup; independent review found and corrected Billing's missing-evidence bypass. |
 | 2026-10-08 | Current-head Core mutation shards and score gate passed; target baseline provenance verified in job logs. Recorded unrelated prior/current CI failures and kept final conclusion in progress. |
 | 2026-10-08 | Corrected inherited Core/Web/Server CI failures and aligned route-transition browser assertions with the top progressbar; all applicable PR CI checks passed on `910e39b8745ddc64c7da75588fea3fe94d7259b3`. |
+| 2026-10-08 | Closed Spec revision 1 after the implementation candidate passed all applicable CI gates; final closure-head checks are tracked on PR #52. |

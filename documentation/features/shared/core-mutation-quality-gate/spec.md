@@ -1,6 +1,6 @@
 ---
 title: Fail-closed Core mutation comparison
-status: in_progress
+status: completed
 revision: 1
 source:
   type: direct-request
@@ -20,6 +20,8 @@ last_updated_at: 2026-10-08
 **Baseline and gap:** PR #52 compares target-branch and candidate mutation reports. The current checker treats any changed use-case with no candidate result like a deletion, and the baseline workflow can run with the candidate's dependencies and Vitest configuration.
 
 **Depth:** Compact technical Spec. The change is limited to CI tooling and does not alter product behavior.
+
+**Outcome:** Implemented and verified on PR #52. Changed-file comparison is fail-closed, target baselines use target-owned dependencies/configuration, and the full mutation/score and application CI gates pass. See [Evaluation](./evaluation.md) for candidate evidence.
 
 **Scope:** Preserve changed-file statuses when comparing candidate scores; exempt only actual deletions; fail closed when added or modified eligible files lack candidate results. Run baseline mutation tests using the target revision's source, workspace manifests, lockfile, regular Vitest configuration and dependencies, sharing only the pinned Stryker CLI/runner and the minimum candidate mutation configuration/launcher needed to execute the same eligible-file and shard contract.
 
