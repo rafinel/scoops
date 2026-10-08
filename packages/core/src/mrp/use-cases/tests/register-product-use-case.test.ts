@@ -444,7 +444,6 @@ describe('Register Product Use Case', () => {
         ],
       },
     ],
-    ['a missing ideal stock quantity', { idealStock: undefined }],
     ['a negative ideal stock quantity', { idealStock: -1 }],
     ['negative initial stock when negative stock is disabled', { initialStock: -1 }],
     [
@@ -456,6 +455,19 @@ describe('Register Product Use Case', () => {
     await expect(
       useCase.execute({ ...validSingleStockRequest, ...overrides }),
     ).rejects.toBeInstanceOf(BadRequestError)
+
+    expect(database.run).not.toHaveBeenCalled()
+    expect(productsRepository.add).not.toHaveBeenCalled()
+    expect(eventsRepository.add).not.toHaveBeenCalled()
+  })
+
+  it('rejects a missing ideal stock quantity before starting registration', async () => {
+    const request = {
+      ...validSingleStockRequest,
+      idealStock: undefined,
+    } as unknown as Parameters<RegisterProductUseCase['execute']>[0]
+
+    await expect(useCase.execute(request)).rejects.toBeInstanceOf(BadRequestError)
 
     expect(database.run).not.toHaveBeenCalled()
     expect(productsRepository.add).not.toHaveBeenCalled()

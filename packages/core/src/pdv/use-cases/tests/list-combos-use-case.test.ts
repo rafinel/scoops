@@ -121,20 +121,28 @@ describe('ListCombosUseCase', () => {
     expect(database.run).not.toHaveBeenCalled()
   })
 
-  it.each([
-    ['too long search', { search: 'x'.repeat(121) }],
-    ['invalid discount type', { type: 'invalid' as DiscountType }],
-    ['invalid discount status', { status: 'invalid' as DiscountStatus }],
-  ])('rejects %s before querying', async (_label, filters) => {
+  it.each<
+    [string, { search?: string; type?: DiscountType; status?: DiscountStatus }, string]
+  >([
+    [
+      'too long search',
+      { search: 'x'.repeat(121) },
+      'A busca deve ter no máximo 120 caracteres.',
+    ],
+    [
+      'invalid discount type',
+      { type: 'invalid' as DiscountType },
+      'O tipo de desconto é inválido.',
+    ],
+    [
+      'invalid discount status',
+      { status: 'invalid' as DiscountStatus },
+      'O status do combo é inválido.',
+    ],
+  ])('rejects %s before querying', async (_label, filters, errorMessage) => {
     await expect(
       new ListCombosUseCase(database, catalog).execute({ actor, ...filters }),
-    ).rejects.toThrow(
-      filters.search
-        ? 'A busca deve ter no máximo 120 caracteres.'
-        : filters.type
-          ? 'O tipo de desconto é inválido.'
-          : 'O status do combo é inválido.',
-    )
+    ).rejects.toThrow(errorMessage)
 
     expect(database.run).not.toHaveBeenCalled()
     expect(catalog.findProductIdsByName).not.toHaveBeenCalled()

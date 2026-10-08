@@ -307,7 +307,7 @@ describe('Preview Production Use Case', () => {
     await expect(useCase.execute(request)).rejects.toThrow('O produto não é fabricável.')
 
     scope.productsRepository.findById.mockResolvedValue(
-      ProductFaker.fake({ ...product, stockControl: ProductStockControl.Brand }),
+      ProductFaker.fake({ ...product, stockControl: ProductStockControl.ByBrand }),
     )
     await expect(useCase.execute(request)).rejects.toThrow(
       'Produtos fabricáveis devem usar estoque único.',
