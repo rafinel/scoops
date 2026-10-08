@@ -256,6 +256,7 @@ export function renderMutationScoreTable(aggregate, threshold, excludedModules =
   const rows = MODULES.map((module) => {
     const { ignored, killed, noCoverage, denominator, totalMutants } =
       aggregate.modules.get(module)
+    const survived = denominator - killed
     const score = denominator === 0 ? null : (killed / denominator) * 100
     const scoreText = score === null ? 'N/A' : `${score.toFixed(2)}%`
     const isExcluded = excludedModules.includes(module.toLowerCase())
@@ -264,7 +265,7 @@ export function renderMutationScoreTable(aggregate, threshold, excludedModules =
       : score !== null && score >= threshold
         ? 'PASS'
         : 'FAIL'
-    return `| ${module} | ${killed}/${denominator} | ${noCoverage} | ${ignored} | ${totalMutants} | ${scoreText} | ${result} |`
+    return `| ${module} | ${killed} | ${survived} | ${noCoverage} | ${ignored} | ${totalMutants} | ${scoreText} | ${result} |`
   })
   const exclusionNote = excludedModules.length
     ? `Temporarily excluded from module and per-file thresholds: ${excludedModules.map((module) => MODULE_LABELS[module]).join(', ')}. Mutation results remain visible; remove the exclusion when module coverage is ready.`
@@ -275,8 +276,8 @@ export function renderMutationScoreTable(aggregate, threshold, excludedModules =
     `Required score: ${threshold}% per module. Score = killed / (all mutants except NoCoverage and Ignored).`,
     exclusionNote,
     '',
-    '| Module | Killed / scored mutants | NoCoverage | Ignored | Total mutants | Mutation score | Result |',
-    '| --- | ---: | ---: | ---: | ---: | ---: | --- |',
+    '| Module | Killed | Survived | NoCoverage | Ignored | Total mutants | Mutation score | Result |',
+    '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |',
     ...rows,
     '',
   ].join('\n')

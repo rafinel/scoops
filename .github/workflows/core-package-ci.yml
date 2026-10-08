@@ -221,6 +221,39 @@ jobs:
       - name: Enforce minimum mutation score per module
         run: node scripts/check-mutation-score.mjs mutation-reports/candidate --baseline-root mutation-reports/baseline --base-ref "${{ github.event.pull_request.base.sha }}" --head-ref "${{ github.event.pull_request.head.sha }}" --threshold 70 --exclude-modules billing --output mutation-score-summary.md
 
+      - name: Publish Core mutation report on pull request
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && hashFiles('mutation-score-summary.md') != ''
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('node:fs')
+            const marker = '<!-- mutation-report:core -->'
+            const report = fs.readFileSync('mutation-score-summary.md', 'utf8')
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const body = `${marker}\n${report}\n\n[View the full mutation report artifact](${runUrl})`
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            })
+            const existing = comments.find(
+              (comment) => comment.user?.type === 'Bot' && comment.body?.includes(marker),
+            )
+            const request = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            }
+            if (existing) {
+              await github.rest.issues.updateComment({ ...request, comment_id: existing.id })
+            } else {
+              await github.rest.issues.createComment({
+                ...request,
+                issue_number: context.issue.number,
+              })
+            }
+
       - name: Upload aggregated Core mutation score report
         if: always() && hashFiles('mutation-score-summary.md') != ''
         uses: actions/upload-artifact@v4

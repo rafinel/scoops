@@ -153,7 +153,9 @@ test('aggregates files spread over four reports and passes the exact 70 percent 
   ]) {
     assert.match(
       markdown,
-      new RegExp(`\\| ${module} \\| 7/10 \\| 0 \\| 0 \\| 10 \\| 70\\.00% \\| PASS \\|`),
+      new RegExp(
+        `\\| ${module} \\| 7 \\| 3 \\| 0 \\| 0 \\| 10 \\| 70\\.00% \\| PASS \\|`,
+      ),
     )
   }
 })
@@ -193,7 +195,7 @@ test('counts timeouts, errors, pending and unknown statuses while excluding unco
   assert.equal(analytics.denominator, 13)
   assert.match(
     renderMutationScoreTable(aggregate, 70),
-    /\| Analytics \| 7\/13 \| 1 \| 1 \| 15 \| 53\.85% \| FAIL \|/,
+    /\| Analytics \| 7 \| 6 \| 1 \| 1 \| 15 \| 53\.85% \| FAIL \|/,
   )
 })
 
@@ -219,8 +221,8 @@ test('fails scores below threshold and marks zero-scored modules N/A', (t) => {
 
   const aggregate = aggregateMutationReports(reports)
   const markdown = renderMutationScoreTable(aggregate, 70)
-  assert.match(markdown, /\| Analytics \| 7\/11 \| 0 \| 0 \| 11 \| 63\.64% \| FAIL \|/)
-  assert.match(markdown, /\| PDV \| 0\/0 \| 1 \| 1 \| 2 \| N\/A \| FAIL \|/)
+  assert.match(markdown, /\| Analytics \| 7 \| 4 \| 0 \| 0 \| 11 \| 63\.64% \| FAIL \|/)
+  assert.match(markdown, /\| PDV \| 0 \| 0 \| 1 \| 1 \| 2 \| N\/A \| FAIL \|/)
   assert.equal(aggregate.modules.get('PDV').denominator, 0)
 })
 
@@ -264,7 +266,7 @@ test('fails closed for absent module mutant data and malformed reports or status
   assert.deepEqual(aggregate.missingModules, ['PDV'])
   assert.match(
     renderMutationScoreTable(aggregate, 70),
-    /\| PDV \| 0\/0 \| 0 \| 0 \| 0 \| N\/A \| FAIL \|/,
+    /\| PDV \| 0 \| 0 \| 0 \| 0 \| 0 \| N\/A \| FAIL \|/,
   )
 
   writeFileSync(pdvPath, '{invalid')
@@ -387,7 +389,7 @@ test('CLI prints and appends the score table and exits nonzero when a module mis
   assert.equal(passing.status, 0, passing.stderr)
   assert.match(
     passing.stdout,
-    /\| Analytics \| 7\/10 \| 0 \| 0 \| 10 \| 70\.00% \| PASS \|/,
+    /\| Analytics \| 7 \| 3 \| 0 \| 0 \| 10 \| 70\.00% \| PASS \|/,
   )
   assert.match(readFileSync(summaryPath, 'utf8'), /Core mutation score by module/)
 
@@ -411,10 +413,10 @@ test('CLI prints and appends the score table and exits nonzero when a module mis
   assert.equal(failing.status, 1)
   assert.match(
     failing.stdout,
-    /\| Analytics \| 7\/11 \| 0 \| 0 \| 11 \| 63\.64% \| FAIL \|/,
+    /\| Analytics \| 7 \| 4 \| 0 \| 0 \| 11 \| 63\.64% \| FAIL \|/,
   )
   assert.equal(readFileSync(outputPath, 'utf8'), failing.stdout)
-  assert.match(readFileSync(outputPath, 'utf8'), /7\/11/)
+  assert.match(readFileSync(outputPath, 'utf8'), /\| Analytics \| 7 \| 4 \|/)
   const malformed = spawnSync(process.execPath, [...hybridArgs, '--threshold', '101'], {
     encoding: 'utf8',
   })
@@ -464,7 +466,7 @@ test('CLI can temporarily exclude Billing while keeping its result visible and v
   assert.equal(result.status, 0, result.stderr)
   assert.match(
     result.stdout,
-    /\| Billing \| 0\/0 \| 276 \| 0 \| 276 \| N\/A \| TEMPORARILY EXCLUDED \|/,
+    /\| Billing \| 0 \| 0 \| 276 \| 0 \| 276 \| N\/A \| TEMPORARILY EXCLUDED \|/,
   )
   assert.match(
     result.stdout,
