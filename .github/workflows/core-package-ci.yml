@@ -229,8 +229,9 @@ jobs:
             const fs = require('node:fs')
             const marker = '<!-- mutation-report:core -->'
             const report = fs.readFileSync('mutation-score-summary.md', 'utf8')
+            const moduleReport = report.split('\n## Core mutation score by use-case file')[0].trimEnd()
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
-            const body = `${marker}\n${report}\n\n[View the full mutation report artifact](${runUrl})`
+            const body = `${marker}\n${moduleReport}\n\n[View the full per-file mutation report artifact](${runUrl})`
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,

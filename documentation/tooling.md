@@ -453,10 +453,11 @@ When execution produces no JSON report, no module result is claimed.
 
 The package passes mutation CI only if all required base/candidate shard jobs and
 the hybrid score gate pass. The complete score and per-file comparison report is
-published as the `core-mutation-score-*` workflow artifact and automatically
-posted as a pull request comment. CI updates the same comment on later runs. Fork
-pull requests receive the Actions summary and artifact but skip the comment because
-their workflow token cannot safely receive pull-request write permission.
+published as the `core-mutation-score-*` workflow artifact. The module score table
+is automatically posted as a pull request comment, and CI updates the same comment
+on later runs. Fork pull requests receive the Actions summary and artifact but skip
+the comment because their workflow token cannot safely receive pull-request write
+permission.
 
 The initial Stryker 10/Vitest 4.1.10 run exposed runner `RuntimeError` results for
 notification-stream loop mutations: the runner can fail to stringify an unhandled
