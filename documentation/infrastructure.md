@@ -15,8 +15,8 @@ into the applications and are not deployed as services.
 | Environment | Applications | Database | Background jobs | Email |
 | --- | --- | --- | --- | --- |
 | Local | Web and server run with pnpm | Docker Compose PostgreSQL | Docker Compose Inngest Dev Server | Mailpit SMTP |
-| Staging | Separate Heroku Basic Dynos for web and server | Neon PostgreSQL | Staging branch in the free Inngest Cloud plan | Resend |
-| Production | Separate Heroku Basic Dynos for web and server | Neon PostgreSQL | Production branch in the free Inngest Cloud plan | Resend |
+| Staging | Separate Heroku Basic Dynos for web and server | Supabase PostgreSQL | Staging branch in the free Inngest Cloud plan | Resend |
+| Production | Separate Heroku Basic Dynos for web and server | Supabase PostgreSQL | Production branch in the free Inngest Cloud plan | Resend |
 
 The staging and production Inngest branches are separate. Each deployed server
 uses the event and signing credentials for its own branch so events and jobs stay
@@ -24,8 +24,10 @@ within the intended environment. The server exposes registered functions at
 `/api/inngest`.
 
 PostgreSQL is the system of record for business data and Better Auth sessions.
-Drizzle accesses it through `DATABASE_URL`. Business events that require durable
-publication are written to a PostgreSQL outbox in the originating transaction;
+Local development uses the Docker Compose PostgreSQL service; staging and
+production use Supabase PostgreSQL. Drizzle accesses each environment through
+`DATABASE_URL`. Business events that require durable publication are written to
+a PostgreSQL outbox in the originating transaction;
 the server publishes committed events to Inngest, where module-owned jobs handle
 side effects.
 

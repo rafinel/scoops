@@ -85,7 +85,7 @@ skill is available in the current agent environment.
 
 Use Context7 when implementation depends on current documentation for a library,
 framework, SDK, API, CLI, or cloud service. This is especially important for
-TanStack Start and Router, NestJS, Drizzle, Inngest, Better Auth, Neon, Resend,
+TanStack Start and Router, NestJS, Drizzle, Inngest, Better Auth, Supabase, Resend,
 Vite, Nitro, and
 other dependencies whose APIs evolve.
 
