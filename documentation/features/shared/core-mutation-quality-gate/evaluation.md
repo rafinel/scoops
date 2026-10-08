@@ -2,15 +2,15 @@
 feature: "shared/core-mutation-quality-gate"
 spec: ./spec.md
 spec_revision: 1
-status: in_progress
+status: ready
 updated_at: 2026-10-08
 ---
 
 # Evaluation
 
-Evaluation of Spec revision `1` against the integrated candidate at `87889899b40272f0d47024280e195ba7697b54bb`.
+Evaluation of Spec revision `1` against implementation candidate `910e39b8745ddc64c7da75588fea3fe94d7259b3`.
 
-Current result: AC-01 through AC-04 pass. Core's complete baseline/candidate mutation matrix and score gate passed on the current head. The overall PR CI remains red from Core type-check, Web formatting/complexity, and Server complexity failures that were also present on the prior PR head; these are outside the two feedback corrections and keep final Spec conclusion pending.
+Current result: AC-01 through AC-04 pass. The initial PR CI failures have been fixed, and all applicable PR workflows pass on the integrated candidate. The final candidate gate is recorded in EV-08. The Spec is ready for formal conclusion.
 
 ## Acceptance matrix
 
@@ -30,7 +30,9 @@ Current result: AC-01 through AC-04 pass. Core's complete baseline/candidate mut
 | EV-03 | Workflow static validation | `pnpm exec biome check scripts/check-mutation-score.mjs scripts/tests/check-mutation-score.test.mjs`; PyYAML parse of `.github/workflows/core-package-ci.yml`; workflow mutation shell block `bash -n`; `git diff --check` | Biome clean; YAML and shell syntax valid; diff whitespace check clean. | passed |
 | EV-04 | Core mutation CI | [Core CI run 37799984746](https://github.com/rafinel/scoops/actions/runs/37799984746), head `87889899b40272f0d47024280e195ba7697b54bb` | All four baseline shards, all four candidate shards, and the Mutation score job passed. Baseline logs show target SHA `0e5a79da37eac58280bcf345b5347be91f7c47db`, frozen target lockfile install, then Stryker 10.0.0 packages and mutation harness. | passed |
 | EV-05 | Validation CI | [Validation CI run 37799984715](https://github.com/rafinel/scoops/actions/runs/37799984715), same head | Workflow passed. | passed |
-| EV-06 | Other PR CI | [Core CI](https://github.com/rafinel/scoops/actions/runs/37799984746), [Web CI](https://github.com/rafinel/scoops/actions/runs/37799984712), and [Server CI](https://github.com/rafinel/scoops/actions/runs/37799984713), same head | Core type-check fails in existing MRP/PDV use-case tests; Web fails on a formatter violation plus complexity; Server's regular job passes, but the Server complexity job fails. The same failures were present at prior head `8f7f282abfc29cab63d85b40c8ef4f647e59f6d8`. | failed |
+| EV-06 | CI failure diagnosis | [PR checks at `0ce2bdf`](https://github.com/rafinel/scoops/commit/0ce2bdf92dcd01f179f64fe99cde179f668027aa/checks) | Core, Server, Validation, complexity, all eight mutation shards, and the mutation score gate passed. Web's 243 other browser tests passed; four delayed-transition cases queried `role=status` and removed artwork/card selectors after the UI changed to a top `role=progressbar` in `614c3f7d`. | resolved |
+| EV-07 | Focused Web validation | `pnpm --filter web test:integration --workers=1 tests/shared/route-transition-feedback.test.tsx`; `pnpm --filter web check:types`; `pnpm exec biome check apps/web/tests/shared/route-transition-feedback.test.tsx`; `git diff --check` | 11 route-transition browser tests passed; Web types, Biome, and whitespace checks passed on candidate `910e39b8745ddc64c7da75588fea3fe94d7259b3`. | passed |
+| EV-08 | Final PR CI gate | Candidate `910e39b8745ddc64c7da75588fea3fe94d7259b3`: [Core and mutation matrix](https://github.com/rafinel/scoops/actions/runs/37808649283), [Web](https://github.com/rafinel/scoops/actions/runs/37808649300), [Server](https://github.com/rafinel/scoops/actions/runs/37808649421), [Validation](https://github.com/rafinel/scoops/actions/runs/37808649468) | All applicable checks passed. Core regular CI, four target-baseline shards, four candidate shards, and the combined per-module mutation-score gate passed. Web's full 247-test browser suite passed. Server integration, coverage and build passed. Validation and all three package complexity gates passed. | passed |
 
 ## Manual evidence
 
@@ -47,7 +49,7 @@ Current result: AC-01 through AC-04 pass. Core's complete baseline/candidate mut
 | Authority | Reference | Result | Notes |
 | --- | --- | --- | --- |
 | Repository rules | `documentation/rules.md`, `documentation/rules/code-conventions-rules.md` | passed | Selected before checker implementation. |
-| Tooling and SDD | `documentation/tooling.md`, `documentation/sdd.md` | in progress | Tooling documents revision-specific baseline dependencies and the allowed mutation-tool overlay. Final PR checks outside this Spec remain failing as recorded in EV-06. |
+| Tooling and SDD | `documentation/tooling.md`, `documentation/sdd.md` | passed | Tooling documents revision-specific baseline dependencies and the allowed mutation-tool overlay. The final PR gate on the implementation candidate passes (EV-08). |
 
 ## Findings
 
@@ -57,7 +59,8 @@ Current result: AC-01 through AC-04 pass. Core's complete baseline/candidate mut
 | FND-02 | Correctness | [PR #52 review thread](https://github.com/rafinel/scoops/pull/52#discussion_r4220000098) | AC-04 | resolved | Workflow installs target dependencies from its frozen lockfile, adds only pinned Stryker packages, and overlays the mutation launcher/configs; it no longer copies candidate regular config or links candidate `node_modules`. EV-04 verifies target-side execution. |
 | FND-03 | Spec review | Independent Spec review | AC-01–AC-04 | resolved | Corrected the validation command, bounded the allowed overlay, required target-SHA/install evidence, and clarified that Billing exclusion skips score thresholds but not changed-file evidence completeness. |
 | FND-04 | Correctness | Independent implementation review | AC-01 | resolved | Missing A/M candidate evidence is checked before Billing threshold exclusion; tests verify missing Billing data fails while low Billing scores remain excluded. |
-| FND-05 | CI quality | PR CI on prior and current heads | final PR check gate | active | Core test type errors, Web formatting/complexity, and Server complexity remain from the prior PR head and are unrelated to these review findings. They are recorded as a PR delivery blocker; no unrelated source paths were changed in this task. |
+| FND-05 | CI quality | [PR checks at `8788989`](https://github.com/rafinel/scoops/commit/87889899b40272f0d47024280e195ba7697b54bb/checks) | final PR check gate | resolved | Fixed Core test typing errors, formatted the Web source, and regenerated the stale complexity snapshot using the official command. The refreshed snapshot captures warning-level functions already present on `origin/main`; independent review found no candidate-caused metric increase. All affected complexity workflows pass on `910e39b8`. |
+| FND-06 | Test contract drift | [UI change `614c3f7d`](https://github.com/rafinel/scoops/commit/614c3f7df2f1150b1b8f36295f90426cc37247a5), EV-06 | Web browser CI | resolved | Updated route-transition integration assertions to query the current accessible progressbar and indicator and removed checks for the deleted loading card and animation. The focused suite and full Web CI pass. |
 
 ## Lessons learned
 
@@ -67,20 +70,18 @@ Current result: AC-01 through AC-04 pass. Core's complete baseline/candidate mut
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
-| CI-01 | Core CI — mutation baseline/candidate shards and score | `87889899b40272f0d47024280e195ba7697b54bb` | Mutation matrix and score passed; regular Core job failed on type errors in MRP/PDV test files. | [Run 37799984746](https://github.com/rafinel/scoops/actions/runs/37799984746) |
-| CI-02 | Web CI | `87889899b40272f0d47024280e195ba7697b54bb` | Failed on an existing formatting violation and complexity gate. | [Run 37799984712](https://github.com/rafinel/scoops/actions/runs/37799984712) |
-| CI-03 | Server CI | `87889899b40272f0d47024280e195ba7697b54bb` | Server code, architecture, types, integration, coverage, and build passed; Server complexity gate failed. | [Run 37799984713](https://github.com/rafinel/scoops/actions/runs/37799984713) |
-| CI-04 | Validation CI | `87889899b40272f0d47024280e195ba7697b54bb` | Passed. | [Run 37799984715](https://github.com/rafinel/scoops/actions/runs/37799984715) |
+| CI-01 | Initial Core, Web, Server and Validation workflows | `87889899b40272f0d47024280e195ba7697b54bb` | Mutation gate and Validation passed; Core typecheck, Web formatting/complexity, and Server complexity exposed inherited CI failures. | [Core](https://github.com/rafinel/scoops/actions/runs/37799984746), [Web](https://github.com/rafinel/scoops/actions/runs/37799984712), [Server](https://github.com/rafinel/scoops/actions/runs/37799984713), [Validation](https://github.com/rafinel/scoops/actions/runs/37799984715) |
+| CI-02 | Core, Web, Server, Validation and complexity checks | `910e39b8745ddc64c7da75588fea3fe94d7259b3` | All applicable checks passed, including the complete mutation matrix and score gate, all 247 Web browser tests, Server integration/coverage/build, and Validation. | [Core and mutation](https://github.com/rafinel/scoops/actions/runs/37808649283), [Web](https://github.com/rafinel/scoops/actions/runs/37808649300), [Server](https://github.com/rafinel/scoops/actions/runs/37808649421), [Validation](https://github.com/rafinel/scoops/actions/runs/37808649468) |
 
 ## Continuation handoff
 
-- **Branch/candidate:** `codex/core-mutation-quality-gate`, implementation commit `87889899b40272f0d47024280e195ba7697b54bb`, PR #52.
-- **Progress:** Spec revision 1 is in progress; AC-01 through AC-04 pass, and both requested PR review threads are resolved.
-- **Interrupted/uncommitted paths:** This Evaluation update is uncommitted; pre-existing `design/onoreo.pen` remains user-owned and untouched.
-- **Unfinished criteria:** None for this Spec; final PR conclusion is pending while FND-05 remains active.
-- **Blockers and stale evidence:** Overall Core, Web, and Server check groups remain failed on both prior and current PR heads; see EV-06 and FND-05.
-- **Latest checkers:** EV-01 through EV-06; independent Spec and implementation reviews passed after the Billing clarification.
-- **Next useful action:** Publish this current Evaluation and Spec traceability in the existing PR; route FND-05 separately before claiming overall PR readiness.
+- **Branch/candidate:** `codex/core-mutation-quality-gate`, implementation candidate `910e39b8745ddc64c7da75588fea3fe94d7259b3`, PR #52.
+- **Progress:** Spec revision 1 is ready for conclusion; AC-01 through AC-04 pass, both original PR review findings are resolved, and FND-05/FND-06 are resolved.
+- **Interrupted/uncommitted paths:** Closure documentation is being prepared; pre-existing `design/onoreo.pen` remains user-owned and untouched.
+- **Unfinished criteria:** None.
+- **Blockers and stale evidence:** None. The full implementation-candidate PR gate passes at `910e39b8745ddc64c7da75588fea3fe94d7259b3` (EV-08).
+- **Latest checkers:** EV-01 through EV-08; independent Spec and implementation reviews passed. The implementation reviewer confirmed the refreshed complexity baseline matches `origin/main` with no candidate-caused metric increase.
+- **Next useful action:** Close the Spec and Evaluation, publish the closure in PR #52, and verify the final PR head's checks.
 
 ## History
 
@@ -89,3 +90,4 @@ Current result: AC-01 through AC-04 pass. Core's complete baseline/candidate mut
 | 2026-10-08 | Drafted Spec from direct request and two open P1 review threads; independent Spec review corrected the validation command and bounded the baseline tooling overlay. |
 | 2026-10-08 | Implemented status-aware comparison and target-owned baseline setup; independent review found and corrected Billing's missing-evidence bypass. |
 | 2026-10-08 | Current-head Core mutation shards and score gate passed; target baseline provenance verified in job logs. Recorded unrelated prior/current CI failures and kept final conclusion in progress. |
+| 2026-10-08 | Corrected inherited Core/Web/Server CI failures and aligned route-transition browser assertions with the top progressbar; all applicable PR CI checks passed on `910e39b8745ddc64c7da75588fea3fe94d7259b3`. |
