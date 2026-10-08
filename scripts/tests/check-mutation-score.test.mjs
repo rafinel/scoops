@@ -304,9 +304,9 @@ test('requires exact no-drop for unchanged files and a 70 percent floor for chan
   const comparison = compareFileScores(
     candidate,
     baseline,
-    new Set([
-      'src/analytics/use-cases/deleted-use-case.ts',
-      'src/analytics/use-cases/added-use-case.ts',
+    new Map([
+      ['src/analytics/use-cases/deleted-use-case.ts', 'D'],
+      ['src/analytics/use-cases/added-use-case.ts', 'A'],
     ]),
     70,
   )
@@ -342,9 +342,9 @@ test('extracts added, modified and deleted eligible source paths from NUL-delimi
     ].join('\0'),
   )
   assert.deepEqual([...changed].sort(), [
-    'src/identity/use-cases/new-use-case.ts',
-    'src/mrp/use-cases/removed-use-case.ts',
-    'src/pdv/use-cases/update-use-case.ts',
+    ['src/identity/use-cases/new-use-case.ts', 'A'],
+    ['src/mrp/use-cases/removed-use-case.ts', 'D'],
+    ['src/pdv/use-cases/update-use-case.ts', 'M'],
   ])
 })
 
@@ -356,11 +356,89 @@ test('fails closed when unchanged file data is missing on either side', () => {
         ['src/analytics/use-cases/a-use-case.ts', { denominator: 1, killed: 1 }],
       ]),
     },
-    new Set(),
+    new Map(),
     70,
   )
   assert.equal(comparison.failures.length, 1)
   assert.match(comparison.failures[0], /missing candidate mutation data/)
+})
+
+test('fails closed when added or modified use-case files have no candidate mutation result', () => {
+  const changedFiles = new Map([
+    ['src/analytics/use-cases/added-use-case.ts', 'A'],
+    ['src/analytics/use-cases/modified-use-case.ts', 'M'],
+  ])
+  const comparison = compareFileScores(
+    { files: new Map() },
+    { files: new Map() },
+    changedFiles,
+    70,
+  )
+
+  assert.equal(comparison.failures.length, 2)
+  assert.deepEqual(
+    comparison.rows.map(({ path, passed, policy }) => [path, passed, policy]),
+    [
+      ['src/analytics/use-cases/added-use-case.ts', false, 'missing candidate data'],
+      ['src/analytics/use-cases/modified-use-case.ts', false, 'missing candidate data'],
+    ],
+  )
+  assert.ok(
+    comparison.failures.every((failure) =>
+      /missing candidate mutation data/.test(failure),
+    ),
+  )
+})
+
+test('exempts an actually deleted use-case file without candidate mutation data', () => {
+  const path = 'src/analytics/use-cases/deleted-use-case.ts'
+  const comparison = compareFileScores(
+    { files: new Map() },
+    { files: new Map([[path, { denominator: 10, killed: 8 }]]) },
+    new Map([[path, 'D']]),
+    70,
+  )
+
+  assert.deepEqual(comparison.failures, [])
+  assert.deepEqual(comparison.rows, [
+    {
+      path,
+      current: undefined,
+      previous: { denominator: 10, killed: 8 },
+      passed: true,
+      policy: 'deleted',
+    },
+  ])
+})
+
+test('requires candidate data for changed Billing files while excluding its score threshold', () => {
+  const missingPath = 'src/billing/use-cases/missing-use-case.ts'
+  const lowScorePath = 'src/billing/use-cases/low-score-use-case.ts'
+  const comparison = compareFileScores(
+    {
+      files: new Map([[lowScorePath, { denominator: 10, killed: 1 }]]),
+    },
+    { files: new Map() },
+    new Map([
+      [missingPath, 'M'],
+      [lowScorePath, 'M'],
+    ]),
+    70,
+    ['billing'],
+  )
+
+  assert.equal(comparison.failures.length, 1)
+  assert.match(
+    comparison.failures[0],
+    /billing\/use-cases\/missing-use-case.*missing candidate mutation data/,
+  )
+  assert.deepEqual(
+    comparison.rows.map(({ path, passed, policy }) => [path, passed, policy]),
+    [
+      [lowScorePath, true, 'temporarily excluded'],
+      [missingPath, false, 'missing candidate data'],
+    ],
+  )
 })
 
 test('CLI prints and appends the score table and exits nonzero when a module misses the threshold', (t) => {

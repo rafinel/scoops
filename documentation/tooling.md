@@ -421,7 +421,11 @@ Changes to the mutation launcher, report writers, score checker and their tests
 also trigger Core CI. The job fails when the Stryker process exits unsuccessfully;
 individual mutant `RuntimeError` results remain in reports and do not independently
 fail a shard command. CI measures both the PR candidate and its target branch in
-the same workflow run. After the shards finish, a separate `Mutation score` job
+the same workflow run. Each revision uses its own source, workspace manifests,
+lockfile, regular Vitest configuration and dependencies. The target-branch run may
+use the same pinned Stryker CLI/runner and mutation-only harness required to execute
+the comparison, but it must not inherit candidate dependencies, regular test
+configuration or `node_modules`. After the shards finish, a separate `Mutation score` job
 combines each revision's JSON reports and applies a hybrid gate:
 
 - each included candidate module must score at least 70%;

@@ -140,7 +140,21 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
+        if: matrix.variant == 'candidate'
         run: pnpm install --frozen-lockfile
+
+      - name: Resolve pinned Stryker versions
+        id: stryker
+        run: |
+          core_version="$(node -p "require('./packages/core/package.json').devDependencies['@stryker-mutator/core']")"
+          runner_version="$(node -p "require('./packages/core/package.json').devDependencies['@stryker-mutator/vitest-runner']")"
+          if [[ ! "$core_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ || "$core_version" != "$runner_version" ]]; then
+            echo "Expected matching exact Stryker CLI and Vitest runner versions; got $core_version and $runner_version." >&2
+            exit 1
+          fi
+          echo "core=$core_version" >> "$GITHUB_OUTPUT"
+          echo "runner=$runner_version" >> "$GITHUB_OUTPUT"
+          echo "Candidate Stryker toolchain: @stryker-mutator/core@$core_version and @stryker-mutator/vitest-runner@$runner_version"
 
       - name: Check mutation launcher
         run: node --test scripts/tests/test-mutation.test.mjs scripts/tests/write-mutation-report.test.mjs scripts/tests/check-mutation-score.test.mjs
@@ -149,20 +163,42 @@ jobs:
         shell: bash
         run: |
           mutation_root="$GITHUB_WORKSPACE"
+          mutation_launcher="$GITHUB_WORKSPACE/scripts/test-mutation.mjs"
           if [[ "${{ matrix.variant }}" == "baseline" ]]; then
             base_worktree="$RUNNER_TEMP/core-mutation-base"
             git worktree add --detach "$base_worktree" "${{ github.event.pull_request.base.sha }}"
-            cp .gitignore "$base_worktree/.gitignore"
-            cp packages/core/package.json "$base_worktree/packages/core/package.json"
+
+            echo "Candidate source revision: $(git rev-parse HEAD)"
+            echo "Baseline source revision: $(git -C "$base_worktree" rev-parse HEAD)"
+            echo "Baseline workspace lockfile: $base_worktree/pnpm-lock.yaml"
+            echo "Baseline regular Vitest config: $base_worktree/packages/core/vitest.config.mts"
+            echo "Installing baseline dependencies from the target revision's manifests and lockfile."
+            pnpm --dir "$base_worktree" install --frozen-lockfile
+
+            # The target revision predates the mutation gate. Add only its pinned
+            # Stryker CLI/runner after installing its regular, locked dependencies.
+            # This ephemeral worktree is discarded after the job, so its target
+            # manifest and lockfile remain untouched in Git history.
+            (
+              cd "$base_worktree/packages/core"
+              pnpm add --save-dev --save-exact \
+                "@stryker-mutator/core@${{ steps.stryker.outputs.core }}" \
+                "@stryker-mutator/vitest-runner@${{ steps.stryker.outputs.runner }}"
+            )
+
+            # Overlay only the mutation-specific harness from the candidate. The
+            # regular Vitest config, test discovery, source, and dependencies stay
+            # at the target revision.
+            mkdir -p "$base_worktree/scripts"
+            cp scripts/test-mutation.mjs "$base_worktree/scripts/test-mutation.mjs"
             cp packages/core/stryker.config.mjs "$base_worktree/packages/core/stryker.config.mjs"
-            cp packages/core/vitest.config.mts "$base_worktree/packages/core/vitest.config.mts"
             cp packages/core/vitest.mutation.config.mts "$base_worktree/packages/core/vitest.mutation.config.mts"
-            ln -s "$GITHUB_WORKSPACE/node_modules" "$base_worktree/node_modules"
-            ln -s "$GITHUB_WORKSPACE/packages/core/node_modules" "$base_worktree/packages/core/node_modules"
+            echo "Baseline regular dependencies and Vitest config remain from the target revision; only the pinned Stryker toolchain and mutation harness were overlaid."
             mutation_root="$base_worktree"
+            mutation_launcher="$base_worktree/scripts/test-mutation.mjs"
           fi
           mutation_status=0
-          (cd "$mutation_root/packages/core" && node "$GITHUB_WORKSPACE/scripts/test-mutation.mjs" --all --shard "${{ matrix.shard }}/4" --force) || mutation_status=$?
+          (cd "$mutation_root/packages/core" && node "$mutation_launcher" --all --shard "${{ matrix.shard }}/4" --force) || mutation_status=$?
           if [[ "${{ matrix.variant }}" == "baseline" && -d "$mutation_root/packages/core/reports/mutation" ]]; then
             mkdir -p packages/core/reports/mutation
             cp -R "$mutation_root/packages/core/reports/mutation/." packages/core/reports/mutation/

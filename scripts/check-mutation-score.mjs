@@ -129,7 +129,7 @@ function fileScore(result) {
 
 export function parseChangedUseCaseFiles(output) {
   const fields = output.split('\0').filter(Boolean)
-  const changed = new Set()
+  const changed = new Map()
   for (let index = 0; index < fields.length; ) {
     const status = fields[index++]
     const path = fields[index++]
@@ -139,7 +139,7 @@ export function parseChangedUseCaseFiles(output) {
     const packagePath = path.replaceAll('\\', '/')
     const sourcePath = packagePath.replace(/^packages\/core\//, '')
     if (/(?:^|\/)src\/[^/]+\/use-cases\/[^/]+-use-case\.ts$/.test(sourcePath)) {
-      changed.add(sourcePath)
+      changed.set(sourcePath, status)
     }
   }
   return changed
@@ -173,7 +173,7 @@ export function compareFileScores(
   const paths = new Set([
     ...candidate.files.keys(),
     ...baseline.files.keys(),
-    ...changedFiles,
+    ...changedFiles.keys(),
   ])
   const rows = []
   const failures = []
@@ -181,12 +181,24 @@ export function compareFileScores(
     const current = candidate.files.get(path)
     const previous = baseline.files.get(path)
     const moduleName = path.match(/^src\/([^/]+)\/use-cases\//)?.[1]
+    if (changedFiles.has(path) && changedFiles.get(path) !== 'D' && !current) {
+      rows.push({
+        path,
+        current,
+        previous,
+        passed: false,
+        policy: 'missing candidate data',
+      })
+      failures.push(`${path}: missing candidate mutation data for changed/new file`)
+      continue
+    }
     if (excludedModules.includes(moduleName)) {
       rows.push({ path, current, previous, passed: true, policy: 'temporarily excluded' })
       continue
     }
     if (changedFiles.has(path)) {
-      if (!current) {
+      const status = changedFiles.get(path)
+      if (status === 'D') {
         rows.push({ path, current, previous, passed: true, policy: 'deleted' })
         continue
       }
