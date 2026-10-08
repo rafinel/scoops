@@ -205,7 +205,7 @@ and a mapped correction; the Orchestrator verifies them.
 | Spec | `in_progress` | Implementation or conclusion active. |
 | Spec | `completed` | Final PR CI passed and closure recorded. |
 | Evaluation | `in_progress` | Progress and evidence being gathered or corrected. |
-| Evaluation | `ready` | All required proof accepted; ready for conclusion, not PRD closure. |
+| Evaluation | `ready` | All required proof accepted locally and ready for conclusion, not PRD closure. This transition need not be published as a standalone PR update. |
 | Evaluation | `completed` | Final PR CI and delivery closure recorded. |
 
 Executed validation outcomes are `passed`, `failed` or `blocked`. Evidence lifecycle
@@ -244,7 +244,8 @@ invent phase statuses. Existing historical identifiers, revisions and facts rema
    and comparisons; preserve passed evidence for unaffected behavior. Material
    contract changes route through amendment before dependent implementation.
 8. When all applicable criteria/checkers have accepted current evidence and no
-   verified blocker remains, set Evaluation `ready` and proceed to conclusion.
+   verified blocker remains, set Evaluation `ready` locally and proceed to conclusion.
+   Do not publish a separate PR commit solely for this status transition.
 
 Later implementation, fixture, configuration or source-contract changes reopen
 proof whose claims/dependencies they affect. Record the changed scope and retained
@@ -288,8 +289,9 @@ and changed product behavior uses a new change Spec.
 
 ## Publication, CI and closure
 
-`conclude-spec` requires Spec `in_progress`, Evaluation `ready`, current accepted
-evidence and no verified blocker. Reconcile source authority, generated artifacts,
+`conclude-spec` requires Spec `in_progress`, Evaluation `ready` in the local working
+tree, current accepted evidence and no verified blocker. The `ready` transition does
+not need a separate PR commit. Reconcile source authority, generated artifacts,
 migrations, saved design coverage, REST parity and scope. Reuse valid local checks;
 run missing or invalidated proof. Corrections immediately re-enter implementation
 and conclusion, subject to documented external blockers and bounded retry limits.
@@ -304,18 +306,19 @@ With authorization to commit, push and publish:
    unless explicitly authorized, recording its disposition;
 3. invoke `create-pr` when the delivery PR is missing or its publication details
    are stale; update the same PR and record its URL;
-4. require every applicable checked-in GitHub Actions workflow to pass on the
-   current PR head, recording workflow/result/run URL/tested SHA in Evaluation;
-5. after candidate CI passes, set Spec/Evaluation `completed` and commit scoped
-   closure artifacts to that PR; verify applicable live checks on the closure head.
+4. publish the integrated implementation candidate and require every applicable
+   checked-in GitHub Actions workflow to pass on that candidate PR head;
+5. after candidate CI passes, record those gate results, set Spec/Evaluation
+   `completed`, and publish the accumulated evidence and closure state in one scoped
+   documentation commit; verify applicable live checks on that final closure head.
 
 A local pass, earlier SHA or missing expected workflow does not satisfy final PR CI.
-Record the CI that authorized closure before the closure commit; report live
+Record the candidate CI that authorized closure before the closure commit; report live
 closure-head results without writing them back into Evaluation and creating another
-untested head. Product failures return affected PRD requirements to unchecked;
-transient infrastructure failures preserve verified product disposition. Explicit
-waivers are recorded honestly and never reported as passed proof. Do not merge
-or deploy without an explicit request.
+untested head. Do not publish an intermediate `ready`-only update. Product failures
+return affected PRD requirements to unchecked; transient infrastructure failures
+preserve verified product disposition. Explicit waivers are recorded honestly and
+never reported as passed proof. Do not merge or deploy without an explicit request.
 
 ## Workflow registry
 

@@ -117,7 +117,8 @@ file. When it explicitly classifies artifact paths as `Create`, `Modify`, `Gener
 require current structural-check evidence for those paths; otherwise record that checker as not
 applicable. If validation fails, record the finding, invoke `implement-spec` for correction and
 integrated verification, then resume publication automatically after Evaluation returns `ready`.
-Do not repair implementation directly in the PR workflow.
+Publish the corrected candidate with its related evidence; do not push a standalone commit solely
+to publish the `ready` status. Do not repair implementation directly in the PR workflow.
 When HTTP routes are affected, include the matching `.rest` files in that scope review and
 confirm their route/example parity is recorded in Evaluation. Do not omit a REST-client file
 from the delivery diff merely because it is manually executed or not compiled by the workspace.
@@ -170,8 +171,9 @@ attempt or unavailable Docker/Testcontainers environment as a passing check.
 
 For every implementation or visual discrepancy found during PR preparation, immediately record
 the finding, invalidate its dependent evidence, invoke `implement-spec`, and continue the
-current delivery automatically after the correction returns Evaluation to `ready`. Do not ask
-the user whether an in-Contract discrepancy should be fixed.
+current delivery automatically after the correction returns Evaluation to `ready`. Publish the
+corrected candidate without a separate `ready`-only commit. Do not ask the user whether an
+in-Contract discrepancy should be fixed.
 
 ## PR contract
 

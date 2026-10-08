@@ -757,6 +757,9 @@ broad integration suites after the candidate is integrated; fix failures and rer
 failed and affected checks until passing. Review and conclusion reuse valid local
 evidence. Later changes reopen checks whose claims or dependencies they affect;
 role transitions, status updates and documentation-only handoffs do not require
-another behavioral run. Required coverage floors and actual PR-head CI remain
-mandatory. Record commands, test counts, fixtures and evidence limits in Evaluation;
-mocked browser routes cannot establish real authenticated, persisted behavior.
+another behavioral run. Keep Evaluation `ready` as a local checkpoint rather than
+pushing a standalone status-only commit. After candidate PR CI passes, batch its
+recorded results and the completed Spec/Evaluation state into one closure commit.
+Required coverage floors and actual candidate- and final-head PR CI remain mandatory.
+Record commands, test counts, fixtures and evidence limits in Evaluation; mocked
+browser routes cannot establish real authenticated, persisted behavior.

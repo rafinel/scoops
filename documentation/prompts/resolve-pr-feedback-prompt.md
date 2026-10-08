@@ -62,8 +62,9 @@ Spec or Rules while the PR remains open:
    and product behavior remains verified, preserve the current checkbox state;
 4. invoke `implement-spec` for autonomous correction and integrated verification;
 5. let that implementation workflow own fixes, invalidated evidence and manual validation;
-6. after it returns evaluation to `ready`, invoke `conclude-spec` to commit, update the
-   existing PR, run the final PR CI gate and close the Spec again.
+6. after it returns Evaluation to `ready`, invoke `conclude-spec` to publish the corrected
+   candidate, run its PR CI gate, and close the Spec again. Do not publish a separate commit
+   solely for the `ready` status transition.
 
 Never apply the correction directly from this workflow, even when the comment appears small.
 The resumed `implement-spec` run owns decomposition and delegation, verifies the integrated

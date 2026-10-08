@@ -12,9 +12,11 @@ implementation or local validation merely because conclusion has started.
 ## Preconditions and authority
 
 Read the current Spec, `evaluation.md`, `documentation/sdd.md`, applicable Rule Pack and
-`documentation/tooling.md`. Require Spec `in_progress`, Evaluation `ready`, evidence for the
-current Spec revision and integrated candidate, and no blocking finding or unfinished
-acceptance criterion. Preserve actual GitHub Issue or direct-request traceability.
+`documentation/tooling.md`. Require Spec `in_progress`, Evaluation `ready` in the local
+working tree, evidence for the current Spec revision and integrated candidate, and no
+blocking finding or unfinished acceptance criterion. Evaluation need not have its `ready`
+status published as a separate PR head. Preserve actual GitHub Issue or direct-request
+traceability.
 
 Require authority to commit, push and create or update the PR. Reuse authorization already
 provided in the task. Complete local preparation before asking once for missing publication
@@ -106,10 +108,12 @@ Record the branch and PR URL in Evaluation when needed. Do not invent approvals 
 
 ## Final PR CI gate
 
-After publication, wait for all applicable checked-in GitHub Actions workflows on the actual
-current PR head SHA. Determine applicability from their real path filters, including Core CI,
-Server CI and Web CI when their inputs changed. Record each applicable workflow/check name,
-result, run URL and tested SHA in Evaluation; state why any workflow is inapplicable.
+Publish the implementation candidate and wait for all applicable checked-in GitHub Actions
+workflows on its actual PR head SHA. Do not push a standalone documentation commit solely to
+publish Evaluation's `ready` transition. Determine applicability from real path filters,
+including Core CI, Server CI and Web CI when their inputs changed. Record each applicable
+workflow/check name, result, run URL and tested SHA in Evaluation; state why any workflow is
+inapplicable.
 
 For applicable Core CI, include its separate `Mutation` job, which runs the full eligible
 Core use-case scope with `--all` across all four CI shards and uploads HTML/JSON
@@ -132,10 +136,11 @@ the task while required checks are pending.
 
 On failure, record the observed cause and keep the Spec `in_progress`. Invoke `implement-spec`
 for an in-contract implementation or checked-in CI correction, or the amendment route for a
-Contract change. After Evaluation returns `ready`, use `commit-code`, update the existing PR
-with `create-pr`, and verify its new head. A same-SHA rerun is allowed only for a concretely
-documented transient infrastructure failure; wait for its terminal result. Repeat until passing
-or an actual authority/external blocker prevents progress.
+Contract change. After Evaluation returns `ready`, use `commit-code` and `create-pr` to publish
+the corrected candidate; do not publish a separate commit solely for the `ready` transition.
+Verify its new head and repeat the candidate gate. A same-SHA rerun is allowed only for a
+concretely documented transient infrastructure failure; wait for its terminal result. Repeat
+until passing or an actual authority/external blocker prevents progress.
 
 ## Evidence and documentation closure
 
@@ -159,10 +164,13 @@ canonical prompts or agent definitions with the documented repository commands w
 
 ## Complete the delivery
 
-After implementation-candidate PR CI passes and no blocking finding remains, set Evaluation and
-Spec `completed`, preserve the full Spec contract and detailed evidence, and add a concise outcome
-and Evaluation link. Use `commit-code` for the scoped closure documentation, then `create-pr`
-to publish it to the same PR. Require every applicable live check to pass on this final head.
+After implementation-candidate PR CI passes and no blocking finding remains, record those
+candidate gate results in Evaluation, set Evaluation and Spec `completed`, preserve the full Spec
+contract and detailed evidence, and add a concise outcome and Evaluation link. Publish these
+closure changes together in one scoped documentation commit with `commit-code`, then use
+`create-pr` to update the same PR. Require every applicable live check to pass on this final
+head. This batches the readiness evidence and completion record; it does not waive the final-head
+CI gate.
 
 Record the implementation-candidate gate in Evaluation before the closure commit. Report the
 final closure-head check results and URLs directly from GitHub; do not append those run IDs to
