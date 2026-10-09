@@ -61,7 +61,7 @@ describe('useOrderPrintDocument', () => {
     expect(result.current.metadata).toContainEqual(['Canal', 'Delivery · +12,00%'])
     expect(result.current.lines[0]).toEqual({
       name: 'Açaí histórico',
-      configurations: ['Médio', 'Marca histórica', 'Leite em pó'],
+      configurations: ['Médio', 'Marca histórica', 'Leite em pó · R$\u00a00,00'],
       quantity: '2',
       unitPrice: 'R$ 17,92',
       subtotal: 'R$ 35,84',
@@ -70,7 +70,7 @@ describe('useOrderPrintDocument', () => {
       name: 'Combo histórico',
       savings: '− R$ 3,84',
     })
-    expect(result.current.subtotal).toBe('R$ 42,56')
+    expect(result.current.subtotal).toBe('R$ 20,00')
     expect(result.current.totalDiscount).toBe('− R$ 3,84')
     expect(result.current.total).toBe('R$ 38,72')
     expect(result.current.count).toBe('1 produto · 2 unidades')

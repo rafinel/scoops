@@ -104,6 +104,7 @@ export const NewSalePage = () => {
             onRegister={handleRegister}
             onRemoveLine={handleRemoveLine}
             previewCart={previewCart}
+            previewError={previewError}
             products={catalogProducts}
             selectedChannelId={channelId}
           />

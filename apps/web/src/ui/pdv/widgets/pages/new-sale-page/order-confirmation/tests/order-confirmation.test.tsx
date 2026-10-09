@@ -21,6 +21,7 @@ const useOrderConfirmationMock = vi.mocked(useOrderConfirmation)
 describe('OrderConfirmation', () => {
   beforeEach(() =>
     useOrderConfirmationMock.mockReturnValue({
+      breakdown: [['Subtotal', 'R$ 20,00']],
       sequence: '0042',
       metadata: [['Canal de venda', 'Sem canal']],
       lines: [{ name: 'Pote pronto', details: 'Unidade · 1 un.', subtotal: 'R$ 20,00' }],

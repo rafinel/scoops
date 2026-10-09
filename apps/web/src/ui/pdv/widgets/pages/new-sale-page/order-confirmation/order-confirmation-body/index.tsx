@@ -14,6 +14,7 @@ export type OrderConfirmationBodyProps = {
   metadata: OrderConfirmationCardProps['metadata']
   lines: OrderConfirmationCardProps['lines']
   total: OrderConfirmationCardProps['total']
+  breakdown?: OrderConfirmationCardProps['breakdown']
   onNewSale: OrderConfirmationActionsProps['onNewSale']
 }
 

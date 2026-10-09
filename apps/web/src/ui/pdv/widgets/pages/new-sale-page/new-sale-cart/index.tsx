@@ -32,6 +32,8 @@ const PERCENTAGE_FORMATTER = new Intl.NumberFormat('pt-BR', { maximumFractionDig
 export const NewSaleCart = (props: NewSaleCartProps) => {
   const formatCurrency = useFormatCurrency()
   const {
+    baseSubtotal,
+    channelAdjustment,
     handleClearConfirmationChange,
     handleConfirmClear,
     handleEditLine,
@@ -48,7 +50,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
   const selectedChannel = props.channels.find(
     (channel) => channel.id === selectedChannelId,
   )
-  const visibleLines = previewCart?.lines ?? lineInputs
+  const visibleLines = lineInputs
   const hasLines = visibleLines.length > 0
 
   return (
@@ -115,11 +117,19 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
 
         {hasLines ? (
           <div className='mt-5 space-y-3'>
-            {visibleLines.map((line) => {
+            {visibleLines.map((line, lineIndex) => {
               const product = productsById.get(line.productId)
-              const lineWithPrice = previewCart?.lines.find(
-                (candidate) => candidate.productId === line.productId,
-              )
+              const lineWithPrice = previewCart?.lines[lineIndex]
+              const pricedLineMatchesInput = lineWithPrice
+                ? lineWithPrice.productId === line.productId &&
+                  lineWithPrice.kind === line.kind &&
+                  lineWithPrice.sizeId === line.sizeId &&
+                  lineWithPrice.brandId === line.brandId &&
+                  lineWithPrice.accompanimentIds.length === line.accompanimentIds.length &&
+                  line.accompanimentIds.every((id) =>
+                    lineWithPrice.accompanimentIds.includes(id),
+                  )
+                : false
               const configuration =
                 line.kind === 'portion'
                   ? product?.sizes.find((size) => size.sizeId === line.sizeId)?.name
@@ -136,7 +146,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
               return (
                 <article
                   className='rounded-xl border border-border-soft bg-muted/45 p-3'
-                  key={line.productId}
+                  key={`${line.productId}-${lineIndex}`}
                 >
                   <div className='flex items-start gap-3'>
                     <div className='min-w-0 flex-1'>
@@ -151,7 +161,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                     <Button
                       aria-label={`Editar ${product?.name ?? 'item'}`}
                       className='size-8'
-                      onClick={() => handleEditLine(line)}
+                      onClick={() => handleEditLine(line, lineIndex)}
                       size='icon'
                       type='button'
                       variant='outline'
@@ -161,7 +171,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                     <Button
                       aria-label={`Remover ${product?.name ?? 'item'}`}
                       className='size-8 text-danger'
-                      onClick={() => handleRemoveLine(line.productId)}
+                      onClick={() => handleRemoveLine(lineIndex)}
                       size='icon'
                       type='button'
                       variant='outline'
@@ -177,7 +187,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                         className='size-8 rounded-r-none border-0'
                         disabled={line.quantity <= 1}
                         onClick={() =>
-                          handleQuantityChange(line.productId, line.quantity - 1)
+                          handleQuantityChange(lineIndex, line.quantity - 1)
                         }
                         size='icon'
                         type='button'
@@ -198,7 +208,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                         className='size-8 rounded-l-none border-0'
                         disabled={line.quantity >= 999}
                         onClick={() =>
-                          handleQuantityChange(line.productId, line.quantity + 1)
+                          handleQuantityChange(lineIndex, line.quantity + 1)
                         }
                         size='icon'
                         type='button'
@@ -208,7 +218,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                       </Button>
                     </div>
                     <div className='text-right'>
-                      {lineWithPrice ? (
+                      {lineWithPrice && pricedLineMatchesInput ? (
                         <>
                           <p className='text-xs text-muted-foreground'>
                             {formatCurrency(lineWithPrice.finalUnitPrice)} cada
@@ -219,7 +229,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                         </>
                       ) : (
                         <p className='text-xs font-bold text-muted-foreground'>
-                          Atualizando valor…
+                          {props.previewError ? 'Valor indisponível' : 'Atualizando valor…'}
                         </p>
                       )}
                     </div>
@@ -257,7 +267,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
           <div className='space-y-2 text-sm'>
             <div className='flex justify-between gap-3'>
               <span className='text-muted-foreground'>Subtotal</span>
-              <strong>{formatCurrency(previewCart.subtotal)}</strong>
+              <strong>{formatCurrency(baseSubtotal)}</strong>
             </div>
             {selectedChannel ? (
               <div className='flex justify-between gap-3 text-primary'>
@@ -265,7 +275,10 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                   {selectedChannel.name} · {selectedChannel.percentage > 0 ? '+' : ''}
                   {PERCENTAGE_FORMATTER.format(selectedChannel.percentage)}%
                 </span>
-                <strong>Aplicado</strong>
+                <strong>
+                  {channelAdjustment > 0 ? '+ ' : channelAdjustment < 0 ? '− ' : ''}
+                  {formatCurrency(Math.abs(channelAdjustment))}
+                </strong>
               </div>
             ) : null}
             {previewCart.discounts.map((discount) => (

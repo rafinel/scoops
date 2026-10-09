@@ -36,7 +36,30 @@ function getConfirmationDisplay(
   const total = formatters.currency(order.total)
   const metadata = getMetadata(order, formatters)
   const lines = getConfirmationLines(order, formatters)
-  return { sequence, metadata, lines, total, handleNewSale: onNewSale }
+  const baseSubtotalCents = order.lines.reduce(
+    (sum, line) => sum + Math.round(line.baseUnitPrice * 100) * line.quantity,
+    0,
+  )
+  const adjustedSubtotalCents = order.lines.reduce(
+    (sum, line) => sum + Math.round(line.subtotal * 100),
+    0,
+  )
+  const adjustment = (adjustedSubtotalCents - baseSubtotalCents) / 100
+  const breakdown: OrderConfirmationMetadataItem[] = [
+    ['Subtotal', formatters.currency(baseSubtotalCents / 100)],
+    ...(order.channel
+      ? [
+          [
+            getChannelLabel(order),
+            `${adjustment > 0 ? '+ ' : adjustment < 0 ? '− ' : ''}${formatters.currency(Math.abs(adjustment))}`,
+          ] as const,
+        ]
+      : []),
+    ...order.discounts.map(
+      (item) => [item.discount.name, `− ${formatters.currency(item.savings)}`] as const,
+    ),
+  ]
+  return { sequence, metadata, lines, total, breakdown, handleNewSale: onNewSale }
 }
 
 function getMetadata(
@@ -75,7 +98,7 @@ function getLineDisplay(
   return {
     name: line.product.name,
     details: getLineDetails(line, formatters.quantity),
-    ...getLineAccompaniments(line),
+    ...getLineAccompaniments(line, formatters.currency),
     subtotal: formatters.currency(line.subtotal),
   }
 }
@@ -90,9 +113,13 @@ function getLineDetails(
 
 function getLineAccompaniments(
   line: OrderDetails['lines'][number],
+  currency: ConfirmationFormatters['currency'],
 ): Partial<Pick<OrderConfirmationLineView, 'accompaniments'>> {
   if (line.accompaniments.length === 0) return {}
   return {
-    accompaniments: line.accompaniments.map((accompaniment) => accompaniment.name),
+    accompaniments: line.accompaniments.map(
+      (accompaniment) =>
+        `${accompaniment.name} · ${accompaniment.basePrice > 0 ? '+ ' : ''}${currency(accompaniment.basePrice)}`,
+    ),
   }
 }

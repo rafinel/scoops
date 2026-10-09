@@ -9,11 +9,12 @@ export type OrderConfirmationProps = {
 }
 
 export const OrderConfirmation = (props: OrderConfirmationProps) => {
-  const { sequence, metadata, lines, total, handleNewSale } = useOrderConfirmation(props)
+  const { sequence, metadata, lines, total, breakdown, handleNewSale } =
+    useOrderConfirmation(props)
   return (
     <OrderConfirmationBody
       {...props}
-      {...{ sequence, metadata, lines, total, onNewSale: handleNewSale }}
+      {...{ sequence, metadata, lines, total, breakdown, onNewSale: handleNewSale }}
     />
   )
 }

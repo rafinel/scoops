@@ -230,14 +230,18 @@ export const NewSaleCatalog = (props: NewSaleCatalogProps) => {
                       </Badge>
                     </div>
                     <Button
-                      aria-label={`${isAdded ? 'Editar' : 'Adicionar'} ${product.name}`}
+                      aria-label={`${isAdded ? 'Adicionar outra configuração de' : 'Adicionar'} ${product.name}`}
                       className='mt-3 w-full'
-                      disabled={isUnavailable || isAdded}
+                      disabled={isUnavailable}
                       onClick={() => handleSelectProduct(product)}
                       type='button'
-                      variant={isAdded ? 'outline' : 'default'}
+                      variant='default'
                     >
-                      {isAdded ? 'No pedido' : 'Adicionar'}
+                      {isAdded
+                        ? product.kind === 'portion'
+                          ? 'Adicionar outra porção'
+                          : 'Adicionar outra unidade'
+                        : 'Adicionar'}
                     </Button>
                   </CardContent>
                 </Card>

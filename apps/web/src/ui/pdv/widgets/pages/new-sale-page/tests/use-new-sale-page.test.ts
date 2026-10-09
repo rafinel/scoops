@@ -94,7 +94,7 @@ describe('useNewSalePage', () => {
 
     act(() => result.current.handleSelectProduct(product))
     act(() => result.current.handleSaveLine(line))
-    act(() => result.current.handleQuantityChange(product.productId, 2))
+    act(() => result.current.handleQuantityChange(0, 2))
 
     await waitFor(() => expect(result.current.lineInputs[0]?.quantity).toBe(2))
     await waitFor(() => expect(previewOrder).toHaveBeenCalled())
@@ -160,6 +160,50 @@ describe('useNewSalePage', () => {
         lines: [{ kind: 'resale', productId: product.productId, quantity: 2 }],
       }),
     )
+  })
+
+  it('keeps repeated portion products as separate lines by accompaniment configuration', async () => {
+    useActiveSalesChannelsQueryMock.mockReturnValue({
+      activeSalesChannels: [],
+      isActiveSalesChannelsError: false,
+      isLoadingActiveSalesChannels: false,
+      isRefreshingActiveSalesChannels: false,
+    } as never)
+    usePreviewOrderActionMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      previewOrder: vi.fn().mockResolvedValue({
+        response: { body: {}, isFailure: false, statusCode: 200 },
+      }),
+    } as never)
+    useRegisterOrderActionMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      registerOrder: vi.fn(),
+    } as never)
+
+    const { result } = renderHook(() => useNewSalePage())
+    const firstLine = {
+      accompanimentIds: ['granola'],
+      kind: 'portion' as const,
+      productId: 'acai',
+      quantity: 1,
+      sizeId: 'large',
+    }
+    const secondLine = {
+      ...firstLine,
+      accompanimentIds: ['banana'],
+    }
+
+    act(() => result.current.handleSaveLine(firstLine))
+    act(() => result.current.handleSaveLine(secondLine))
+
+    expect(result.current.lineInputs).toEqual([firstLine, secondLine])
+    act(() => result.current.handleQuantityChange(1, 3))
+    expect(result.current.lineInputs).toEqual([
+      firstLine,
+      { ...secondLine, quantity: 3 },
+    ])
   })
 
   it('removes the persisted cart when the current order is cleared', async () => {
@@ -248,7 +292,7 @@ describe('useNewSalePage', () => {
 
     act(() => result.current.handleSaveLine(line))
     const afterAdd = result.current.idempotencyKey
-    act(() => result.current.handleQuantityChange(product.productId, 2))
+    act(() => result.current.handleQuantityChange(0, 2))
     const afterQuantity = result.current.idempotencyKey
     act(() => result.current.handleChannelChange('channel-1'))
     const afterChannel = result.current.idempotencyKey
@@ -413,11 +457,11 @@ describe('useNewSalePage', () => {
     }
 
     act(() => result.current.handleSaveLine(line))
-    act(() => result.current.handleQuantityChange(product.productId, 0))
-    act(() => result.current.handleQuantityChange(product.productId, 1000))
+    act(() => result.current.handleQuantityChange(0, 0))
+    act(() => result.current.handleQuantityChange(0, 1000))
     expect(result.current.lineInputs).toEqual([line])
 
-    act(() => result.current.handleEditLine(line, undefined))
+    act(() => result.current.handleEditLine(line, undefined, 0))
     expect(result.current.selectedProduct).toBeUndefined()
     act(() => result.current.handleDialogOpenChange(false))
     expect(result.current.editingLine).toBeUndefined()

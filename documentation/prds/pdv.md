@@ -237,9 +237,7 @@ of sale.
   disabled.
 - **Stock not reserved:** viewing or adding a product to the cart is not
   reserve balance.
-- **One-time inclusion:** a product that is already in the cart cannot be
-  added again, even if the operator intends to choose another size,
-  brand or set of accompaniments.
+- **Repeated inclusion:** available products can be added again with independent configurations.
 - **Multi-tenancy:** only products from the current ice cream shop can be displayed.
 
 #### Experience
@@ -292,6 +290,8 @@ PRQ-05 and PRQ-13.
 - **Side dishes:** are optional and can be multiple.
 - **Contextual pricing:** the base price for accompaniment depends on the configuration
   `product + size + accompaniment`.
+- **Portion price:** add the size price and each selected accompaniment's configured
+  price once per portion. Quantity consumed from stock does not multiply the sale price.
 - **Free monitoring:** keeps the price equal to zero on any channel.
 - **Portion Consumption:** corresponds to
   `size_quantity × sold_quantity`.
@@ -393,13 +393,8 @@ by PRQ-06, PRQ-07, PRQ-08 and PRQ-14.
 - **Direct editing:** size, brand, accompaniments and quantity can be
   changed from the item.
 - **Revalidation in editing:** any change recalculates price and consumption.
-- **Uniqueness per product:** each product can occupy a maximum of one line in the
-  cart, regardless of size, brand or accompaniments.
-- **New inclusion blocked:** try to add a product already present in the
-  cart does not create a line, does not add quantity and does not change the configuration
-  existing.
-- **Quantity in cart:** new units of a product already added must
-  be informed by the quantity controls of the existing line.
+- **Independent lines:** each addition creates a separate configured line, including
+  products already present. Editing, quantity changes and removal affect only that line.
 - **Product immutable in editing:** editing a line can change size,
   brand, accompaniments and quantity, but you cannot replace the product with
   another.
@@ -419,16 +414,17 @@ by PRQ-06, PRQ-07, PRQ-08 and PRQ-14.
   directly the quantity of the product.
 - **Correspondence with the catalog:** while a line exists, the card of the
   corresponding product must remain identified with `Added` and
-  blocked for new selection; removing it should re-enable the card.
+  available for another selection while stock permits.
 - **Total:** must remain highlighted.
+- **Cart total composition:** display the sum of base unit prices times quantities as
+  Subtotal, followed by the channel adjustment as a signed monetary amount and any
+  Combo discounts. Total remains the sum of rounded channel-adjusted line subtotals
+  minus Combo savings. Compute the channel amount from those rounded line prices.
 - **Channel:** optional selection must remain visible during assembly.
 - **Empty state:** should display `Add products to start sale`.
 - **Output:** must warn that unregistered items will be lost.
 - **Feedback:** edits, removals and recalculations should update the interface
   immediately.
-- **Duplicate attempt:** if an add is requested from a view
-  outdated, it should display `Product already added. Adjust it in the cart` without
-  modify the cart.
 - **Action blocked:** `Register order` is disabled when the cart
   is empty or has an invalid configuration.
 - **Narrow screens:** the cart can take on a dedicated panel, preserving
@@ -1251,7 +1247,7 @@ flowchart LR
 4. The Operator searches or filters products.
 5. Out-of-stock products remain visible as unavailable.
 6. Products already present in the cart remain visible with the seal
-   `Added` and locked for reselection.
+   `Added` and available for another configuration.
 7. The journey continues to Portion or Resale configuration.
 
 ### Journey F — Operator adds a Portion
@@ -1262,10 +1258,8 @@ flowchart LR
 4. The system calculates price, consumption and subtotal.
 5. Operator selects `Add to Cart`.
 6. The system validates:
-   - Product missing from cart: creates a single line and marks your card as
-     `Added`.
-   - Product already present: blocks inclusion, preserves the existing line and
-     guides the adjustment of the cart.
+   - Valid configuration: creates an independent line and marks the card as
+     `Added`, including products already present in the cart.
    - Failure: preserves the choices and explains the necessary correction.
 7. The journey returns to the assembly.
 
@@ -1277,10 +1271,8 @@ flowchart LR
 4. The system calculates price, consumption and subtotal.
 5. Operator selects `Add to Cart`.
 6. The system validates:
-   - Product missing from cart: creates a single line and marks your card as
-     `Added`.
-   - Product already present: blocks inclusion, preserves the existing line and
-     guides the adjustment of the cart.
+   - Valid configuration: creates an independent line and marks the card as
+     `Added`, including products already present in the cart.
    - Failure: preserves the data and explains the necessary correction.
 7. The journey returns to the assembly.
 
@@ -1455,9 +1447,6 @@ flowchart LR
 
 ### Discarded during definition
 
-- **Multiple lines or grouping of the same product:** discarded; each product
-  can only occupy one line, and new units or configurations must be
-  adjusted to the existing item in the cart.
 - **Name `POS`:** replaced by `New sale`.
 - **Navigation group `Sales`:** discarded; `New Sale`, `Orders` and
   `Sales channels` are independent inputs.

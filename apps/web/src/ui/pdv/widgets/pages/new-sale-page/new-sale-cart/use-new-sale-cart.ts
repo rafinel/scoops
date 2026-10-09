@@ -14,13 +14,18 @@ export type NewSaleCartProps = {
   lineInputs: readonly CartLineInput[]
   products: readonly SalesCatalogProduct[]
   previewCart?: Cart
+  previewError?: string
   selectedChannelId?: string
   onChannelChange: (channelId: string | undefined) => void
   onClear: () => void
-  onEditLine: (line: CartLineInput, product: SalesCatalogProduct | undefined) => void
-  onQuantityChange: (productId: string, quantity: number) => void
+  onEditLine: (
+    line: CartLineInput,
+    product: SalesCatalogProduct | undefined,
+    lineIndex: number,
+  ) => void
+  onQuantityChange: (lineIndex: number, quantity: number) => void
   onRegister: () => void
-  onRemoveLine: (productId: string) => void
+  onRemoveLine: (lineIndex: number) => void
 }
 
 export function useNewSaleCart({
@@ -34,6 +39,14 @@ export function useNewSaleCart({
   ...props
 }: NewSaleCartProps) {
   const [isClearConfirmationOpen, setIsClearConfirmationOpen] = useState(false)
+  const baseSubtotalCents = (previewCart?.lines ?? []).reduce(
+    (total, line) => total + Math.round(line.baseUnitPrice * 100) * line.quantity,
+    0,
+  )
+  const baseSubtotal = baseSubtotalCents / 100
+  const channelAdjustment = previewCart
+    ? (Math.round(previewCart.subtotal * 100) - baseSubtotalCents) / 100
+    : 0
   const productsById = useMemo(
     () => new Map(props.products.map((product) => [product.productId, product])),
     [props.products],
@@ -52,16 +65,16 @@ export function useNewSaleCart({
     setIsClearConfirmationOpen(false)
   }
 
-  function handleEditLine(line: CartLineInput) {
-    onEditLine(line, productsById.get(line.productId))
+  function handleEditLine(line: CartLineInput, lineIndex: number) {
+    onEditLine(line, productsById.get(line.productId), lineIndex)
   }
 
-  function handleRemoveLine(productId: string) {
-    onRemoveLine(productId)
+  function handleRemoveLine(lineIndex: number) {
+    onRemoveLine(lineIndex)
   }
 
-  function handleQuantityChange(productId: string, quantity: number) {
-    onQuantityChange(productId, quantity)
+  function handleQuantityChange(lineIndex: number, quantity: number) {
+    onQuantityChange(lineIndex, quantity)
   }
 
   function handleRegister() {
@@ -69,6 +82,8 @@ export function useNewSaleCart({
   }
 
   return {
+    baseSubtotal,
+    channelAdjustment,
     handleClearConfirmationChange,
     handleConfirmClear,
     handleEditLine,

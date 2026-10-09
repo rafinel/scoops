@@ -93,7 +93,13 @@ export function expandComboCandidates(
   combos: readonly Combo[],
 ): readonly ComboCandidate[] {
   const candidates: ComboCandidate[] = []
-  const linesByProductId = new Map(cart.lines.map((line) => [line.productId, line]))
+  const linesByConfiguration = new Map<string, CartLine>()
+  const capacities = new Map<string, number>()
+  for (const line of cart.lines) {
+    const key = getConfigurationKey(line)
+    linesByConfiguration.set(key, line)
+    capacities.set(key, (capacities.get(key) ?? 0) + line.quantity)
+  }
 
   for (const discount of sortCombos(combos)) {
     const requirements = new Map<string, number>()
@@ -103,24 +109,24 @@ export function expandComboCandidates(
     let isMatch = true
 
     for (const component of discount.components) {
-      const line = linesByProductId.get(component.productId)
+      const key = getConfigurationKey(component)
+      const line = linesByConfiguration.get(key)
       if (!line || !matchDiscountComponent(line, component)) {
         isMatch = false
         break
       }
 
-      const requiredQuantity =
-        (requirements.get(component.productId) ?? 0) + component.quantity
-      if (requiredQuantity > line.quantity) {
+      const requiredQuantity = (requirements.get(key) ?? 0) + component.quantity
+      if (requiredQuantity > (capacities.get(key) ?? 0)) {
         isMatch = false
         break
       }
 
-      requirements.set(component.productId, requiredQuantity)
+      requirements.set(key, requiredQuantity)
       lineProductIds.push(component.productId)
       normalPrice = money(normalPrice + money(line.finalUnitPrice * component.quantity))
       for (let tokenIndex = 0; tokenIndex < component.quantity; tokenIndex += 1) {
-        tokenSequence.push(`${component.productId}:${tokenIndex}`)
+        tokenSequence.push(`${key}:${tokenIndex}`)
       }
     }
 
@@ -148,7 +154,11 @@ export function allocateCombos(
   const candidates = expandComboCandidates(cart, combos)
   if (candidates.length === 0) return []
 
-  const capacities = new Map(cart.lines.map((line) => [line.productId, line.quantity]))
+  const capacities = new Map<string, number>()
+  for (const line of cart.lines) {
+    const key = getConfigurationKey(line)
+    capacities.set(key, (capacities.get(key) ?? 0) + line.quantity)
+  }
   const memo = new Map<string, Allocation>()
   const allocation = selectAllocation(candidates, capacities, 0, memo)
 
@@ -161,6 +171,17 @@ export function allocateCombos(
     components: candidate.discount.components,
     lineProductIds: candidate.lineProductIds,
   }))
+}
+
+function getConfigurationKey(
+  line: RegistrationLine | CartLine | DiscountComponent,
+): string {
+  return JSON.stringify([
+    line.productId,
+    line.kind,
+    line.kind === 'portion' ? line.sizeId : (line.brandId ?? null),
+    line.kind === 'portion' ? [...line.accompanimentIds].sort() : [],
+  ])
 }
 
 export function compareAllocations(
@@ -425,7 +446,7 @@ function calculatePortionUnitPrice(
 ): number {
   const accompanimentsPrice = accompaniments.reduce(
     (sum, accompaniment) =>
-      sum + accompaniment.basePrice * accompaniment.quantityPerPortion,
+      sum + accompaniment.basePrice,
     0,
   )
   return money((size?.basePrice ?? 0) + accompanimentsPrice)
@@ -506,11 +527,7 @@ export function validateOrderPreviewInput(input: OrderPreviewInput): void {
   if (!Array.isArray(input.lines) || input.lines.length < 1 || input.lines.length > 50)
     throw new BadRequestError('O pedido deve possuir entre 1 e 50 itens.')
 
-  const productIds = new Set<string>()
   for (const line of input.lines) {
-    if (productIds.has(line.productId))
-      throw new BadRequestError('Um produto só pode aparecer uma vez no pedido.')
-    productIds.add(line.productId)
     if (!Object.values(SaleItemKind).includes(line.kind))
       throw new BadRequestError('O tipo do item é inválido.')
     if (!Number.isInteger(line.quantity) || line.quantity < 1 || line.quantity > 999)

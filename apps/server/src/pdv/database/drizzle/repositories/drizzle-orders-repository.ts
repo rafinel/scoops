@@ -1,6 +1,7 @@
 import type { Order, OrderCreate } from '@scoops/core/pdv/domain/entities'
 import { OrderStatus } from '@scoops/core/pdv/domain/structures'
 import type {
+  DiscountComponent,
   OrderCancellation,
   OrderLine,
   OrderListParams,
@@ -124,12 +125,11 @@ export class DrizzleOrdersRepository
             .values(costRows)
             .returning()
         : []
-      const lineIdsByProductId = new Map(
-        lineRecords.map((line) => [line.productId, line.id]),
-      )
-      const linesByProductId = new Map(
-        input.lines.map((line) => [line.product.productId, line]),
-      )
+      const discountLines = input.lines.map((line, position) => ({
+        line,
+        orderLineId: lineRecords[position]?.id,
+        remainingQuantity: line.quantity,
+      }))
 
       const lineAccompanimentRows = input.lines.flatMap((line, linePosition) => {
         const orderLineId = lineRecords[linePosition]?.id
@@ -171,13 +171,7 @@ export class DrizzleOrdersRepository
         : []
 
       const discountRows = input.discounts.map((discount, position) =>
-        this.toDiscountRows(
-          orderId,
-          discount,
-          position,
-          linesByProductId,
-          lineIdsByProductId,
-        ),
+        this.toDiscountRows(orderId, discount, position, discountLines),
       )
       const discountRecords = discountRows.length
         ? await this.database
@@ -458,18 +452,32 @@ export class DrizzleOrdersRepository
     orderId: string,
     orderDiscount: Order['discounts'][number],
     position: number,
-    linesByProductId: ReadonlyMap<string, OrderLine>,
-    lineIdsByProductId: ReadonlyMap<string, string>,
+    lines: {
+      line: OrderLine
+      orderLineId: string | undefined
+      remainingQuantity: number
+    }[],
   ) {
     const id = crypto.randomUUID()
     const linkedProductIds = new Set(orderDiscount.lineProductIds)
     const components = orderDiscount.discount.components.map(
       (component, componentPosition) => {
-        const line = linesByProductId.get(component.productId)
-        const unitPrice = this.findComponentUnitPrice(
-          component.productId,
-          linesByProductId,
+        const matchingLines = lines.filter(({ line }) =>
+          this.matchesComponent(line, component),
         )
+        const unitPrice = matchingLines[0]?.line.finalUnitPrice ?? 0
+        let remainingQuantity = component.quantity
+        const orderLineIds: string[] = []
+        if (linkedProductIds.has(component.productId)) {
+          for (const linkedLine of matchingLines) {
+            if (!linkedLine.orderLineId || linkedLine.remainingQuantity <= 0) continue
+            const usedQuantity = Math.min(remainingQuantity, linkedLine.remainingQuantity)
+            if (usedQuantity <= 0) break
+            orderLineIds.push(linkedLine.orderLineId)
+            linkedLine.remainingQuantity -= usedQuantity
+            remainingQuantity -= usedQuantity
+          }
+        }
         return {
           id: crypto.randomUUID(),
           orderDiscountId: id,
@@ -481,10 +489,7 @@ export class DrizzleOrdersRepository
           unitPrice: String(unitPrice),
           subtotal: String(unitPrice * component.quantity),
           position: componentPosition,
-          lineProductId:
-            line && linkedProductIds.has(component.productId)
-              ? component.productId
-              : undefined,
+          orderLineIds,
         }
       },
     )
@@ -503,7 +508,7 @@ export class DrizzleOrdersRepository
         position,
       },
       components: components.map(
-        ({ lineProductId: _lineProductId, ...component }) => component,
+        ({ orderLineIds: _orderLineIds, ...component }) => component,
       ),
       componentAccompaniments: components.flatMap((component, componentPosition) => {
         const source = orderDiscount.discount.components[componentPosition]
@@ -515,23 +520,26 @@ export class DrizzleOrdersRepository
         }))
       }),
       discountLines: components.flatMap((component) =>
-        component.lineProductId && lineIdsByProductId.has(component.lineProductId)
-          ? [
-              {
-                componentId: component.id,
-                orderLineId: lineIdsByProductId.get(component.lineProductId) as string,
-              },
-            ]
-          : [],
+        component.orderLineIds.map((orderLineId) => ({
+          componentId: component.id,
+          orderLineId,
+        })),
       ),
     }
   }
 
-  private findComponentUnitPrice(
-    productId: string,
-    linesByProductId: ReadonlyMap<string, OrderLine>,
-  ): number {
-    return linesByProductId.get(productId)?.finalUnitPrice ?? 0
+  private matchesComponent(line: OrderLine, component: DiscountComponent): boolean {
+    if (
+      line.product.productId !== component.productId ||
+      line.product.kind !== component.kind
+    )
+      return false
+    if (component.kind === 'resale') return line.brand?.brandId === component.brandId
+    return (
+      line.size?.sizeId === component.sizeId &&
+      JSON.stringify(line.accompaniments.map((item) => item.accompanimentId).sort()) ===
+        JSON.stringify([...component.accompanimentIds].sort())
+    )
   }
 
   private async toDomain(

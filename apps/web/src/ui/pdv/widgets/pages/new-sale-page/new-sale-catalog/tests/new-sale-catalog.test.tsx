@@ -95,4 +95,39 @@ describe('NewSaleCatalog', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }))
     expect(refetchCatalog).toHaveBeenCalledOnce()
   })
+
+  it('allows adding the same portion product again after it is already in the order', () => {
+    const handleSelectProduct = vi.fn()
+    useNewSaleCatalogMock.mockReturnValue({
+      catalogError: undefined,
+      catalogPage: { items: [product], page: 1, pageSize: 20, total: 1, totalPages: 1 },
+      handleClearFilters: vi.fn(),
+      handleKindChange: vi.fn(),
+      handlePageChange: vi.fn(),
+      handleSearchChange: vi.fn(),
+      handleSelectProduct,
+      isCatalogError: false,
+      isLoadingCatalog: false,
+      isRefreshingCatalog: false,
+      kind: undefined,
+      page: 1,
+      refetchCatalog: vi.fn(),
+      search: '',
+    } as never)
+
+    render(
+      <NewSaleCatalog
+        addedProductIds={[product.productId]}
+        onSelectProduct={handleSelectProduct}
+      />,
+    )
+
+    const addButton = screen.getByRole('button', {
+      name: 'Adicionar outra configuração de Morango especial',
+    })
+    expect(addButton.hasAttribute('disabled')).toBe(false)
+    expect(addButton.textContent).toBe('Adicionar outra porção')
+    fireEvent.click(addButton)
+    expect(handleSelectProduct).toHaveBeenCalledWith(product)
+  })
 })

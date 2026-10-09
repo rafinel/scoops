@@ -15,7 +15,7 @@ export const OrderConfirmationActions = ({
   onNewSale,
 }: OrderConfirmationActionsProps) => (
   <>
-    <div className='mt-6 flex flex-col justify-center gap-3 sm:flex-row'>
+    <div className='mx-auto mt-6 grid w-full gap-3 sm:w-fit sm:grid-cols-3 [&>a]:h-10 [&>a]:w-full [&>button]:h-10 [&>button]:w-full'>
       <Anchor
         className={buttonVariants({ variant: 'outline' })}
         params={{ orderId: order.id }}

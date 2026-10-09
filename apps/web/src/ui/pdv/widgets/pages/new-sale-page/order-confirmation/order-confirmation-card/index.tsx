@@ -14,6 +14,7 @@ export type OrderConfirmationCardProps = {
   metadata: OrderConfirmationMetadataProps['metadata']
   lines: OrderConfirmationLinesProps['lines']
   total: string
+  breakdown?: readonly (readonly [string, string])[]
 }
 
 export const OrderConfirmationCard = ({
@@ -21,6 +22,7 @@ export const OrderConfirmationCard = ({
   metadata,
   lines,
   total,
+  breakdown,
 }: OrderConfirmationCardProps) => (
   <Card className='mt-8 rounded-2xl shadow-card'>
     <div className='border-b border-border-soft p-5 sm:p-6'>
@@ -33,6 +35,14 @@ export const OrderConfirmationCard = ({
     <div className='p-5 sm:p-6'>
       <h2 className='font-extrabold'>Itens do pedido</h2>
       <OrderConfirmationLines lines={lines} />
+      <dl className='mt-3 space-y-2 border-t border-border-soft pt-4 text-sm'>
+        {breakdown?.map(([label, value], index) => (
+          <div className='flex justify-between gap-4' key={`${label}-${index}`}>
+            <dt className='text-muted-foreground'>{label}</dt>
+            <dd className='font-semibold'>{value}</dd>
+          </div>
+        ))}
+      </dl>
       <div className='mt-3 flex items-center justify-between gap-4 border-t border-border-soft pt-4'>
         <span className='font-extrabold'>Total do pedido</span>
         <strong className='text-2xl font-black'>{total}</strong>

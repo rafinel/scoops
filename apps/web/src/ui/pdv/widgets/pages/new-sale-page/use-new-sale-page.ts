@@ -29,6 +29,7 @@ export function useNewSalePage() {
   )
   const [selectedProduct, setSelectedProduct] = useState<SalesCatalogProduct>()
   const [editingLine, setEditingLine] = useState<CartLineInput>()
+  const [editingLineIndex, setEditingLineIndex] = useState<number>()
   const [channelId, setChannelId] = useState<string>()
   const [previewCart, setPreviewCart] = useState<Cart>()
   const [previewToken, setPreviewToken] = useState<string>()
@@ -105,7 +106,6 @@ export function useNewSalePage() {
 
     let isCancelled = false
     const request = previewRequest.request
-    setPreviewCart(undefined)
     setPreviewToken(undefined)
     setPreviewError(undefined)
 
@@ -147,9 +147,14 @@ export function useNewSalePage() {
     }))
     setSelectedProduct(product)
     setEditingLine(undefined)
+    setEditingLineIndex(undefined)
   }
 
-  function handleEditLine(line: CartLineInput, product: SalesCatalogProduct | undefined) {
+  function handleEditLine(
+    line: CartLineInput,
+    product: SalesCatalogProduct | undefined,
+    lineIndex: number,
+  ) {
     if (!product) return
     setProductsById((currentProducts) => ({
       ...currentProducts,
@@ -157,46 +162,46 @@ export function useNewSalePage() {
     }))
     setSelectedProduct(product)
     setEditingLine(line)
+    setEditingLineIndex(lineIndex)
   }
 
   function handleDialogOpenChange(open: boolean) {
     if (!open) {
       setSelectedProduct(undefined)
       setEditingLine(undefined)
+      setEditingLineIndex(undefined)
     }
   }
 
   function handleSaveLine(line: CartLineInput) {
     setLineInputs((currentLines) => {
-      const existingLine = currentLines.some(
-        (currentLine) => currentLine.productId === line.productId,
-      )
-      if (!existingLine) return [...currentLines, line]
-      return currentLines.map((currentLine) =>
-        currentLine.productId === line.productId ? line : currentLine,
+      if (editingLineIndex === undefined) return [...currentLines, line]
+      return currentLines.map((currentLine, index) =>
+        index === editingLineIndex ? line : currentLine,
       )
     })
     startNewRegistrationRequest()
     setSelectedProduct(undefined)
     setEditingLine(undefined)
+    setEditingLineIndex(undefined)
   }
 
-  function handleRemoveLine(productId: string) {
-    if (lineInputs.length === 1 && lineInputs[0]?.productId === productId) {
+  function handleRemoveLine(lineIndex: number) {
+    if (lineInputs.length === 1 && lineIndex === 0) {
       newSaleCartStorage.clear(establishmentId)
     }
     setLineInputs((currentLines) =>
-      currentLines.filter((line) => line.productId !== productId),
+      currentLines.filter((_, index) => index !== lineIndex),
     )
     startNewRegistrationRequest()
     setRegistrationResult(undefined)
   }
 
-  function handleQuantityChange(productId: string, quantity: number) {
+  function handleQuantityChange(lineIndex: number, quantity: number) {
     if (quantity < 1 || quantity > 999) return
     setLineInputs((currentLines) =>
-      currentLines.map((line) =>
-        line.productId === productId ? { ...line, quantity } : line,
+      currentLines.map((line, index) =>
+        index === lineIndex ? { ...line, quantity } : line,
       ),
     )
     startNewRegistrationRequest()

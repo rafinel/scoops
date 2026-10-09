@@ -93,30 +93,29 @@ function getLineDisplay(
   quantity: PrintFormatters['quantity'],
 ): OrderPrintLineView {
   return {
-    ...getLineIdentity(line),
+    ...getLineIdentity(line, currency),
     quantity: quantity(line.quantity, '').trim(),
     unitPrice: currency(line.finalUnitPrice),
     subtotal: currency(line.subtotal),
   }
 }
 
-function getLineIdentity(line: SavedLine) {
-  return { name: line.product.name, configurations: getConfigurations(line) }
+function getLineIdentity(line: SavedLine, currency: PrintFormatters['currency']) {
+  return { name: line.product.name, configurations: getConfigurations(line, currency) }
 }
 
-function getConfigurations(line: SavedLine) {
-  const names = [line.size?.name, line.brand?.name, getAccompaniments(line)]
+function getConfigurations(line: SavedLine, currency: PrintFormatters['currency']) {
+  const names = [
+    line.size?.name,
+    line.brand?.name,
+    ...line.accompaniments.map(
+      (item) =>
+        `${item.name} · ${item.basePrice > 0 ? '+ ' : ''}${currency(item.basePrice)}`,
+    ),
+  ]
   return names.filter(function isPresent(value): value is string {
     return Boolean(value)
   })
-}
-
-function getAccompaniments(line: SavedLine) {
-  return line.accompaniments
-    .map(function accompanimentName(item) {
-      return item.name
-    })
-    .join(', ')
 }
 
 function getCancellation(order: OrderDetails, formatDate: PrintFormatters['date']) {
@@ -178,7 +177,24 @@ type MoneyDisplay = { subtotal: string; totalDiscount: string | null; total: str
 function getFinancials(order: OrderDetails, currency: PrintFormatters['currency']) {
   const discounts = getDiscounts(order, currency)
   const money = getMoneyDisplay(order, currency)
-  return { ...money, discounts, totals: getFinancialRows(money, discounts) }
+  const totals = getFinancialRows(money, discounts)
+  if (order.channel) {
+    const adjustedCents = order.lines.reduce(
+      (sum, line) => sum + Math.round(line.subtotal * 100),
+      0,
+    )
+    const baseCents = order.lines.reduce(
+      (sum, line) => sum + Math.round(line.baseUnitPrice * 100) * line.quantity,
+      0,
+    )
+    const adjustment = (adjustedCents - baseCents) / 100
+    totals.splice(1, 0, {
+      label: `${order.channel.name} · ${order.channel.percentage > 0 ? '+' : ''}${order.channel.percentage}%`,
+      value: `${adjustment > 0 ? '+ ' : adjustment < 0 ? '− ' : ''}${currency(Math.abs(adjustment))}`,
+      isTotal: false,
+    })
+  }
+  return { ...money, discounts, totals }
 }
 
 function getMoneyDisplay(
@@ -186,7 +202,12 @@ function getMoneyDisplay(
   currency: PrintFormatters['currency'],
 ): MoneyDisplay {
   return {
-    subtotal: currency(order.subtotal),
+    subtotal: currency(
+      order.lines.reduce(
+        (sum, line) => sum + Math.round(line.baseUnitPrice * 100) * line.quantity,
+        0,
+      ) / 100,
+    ),
     totalDiscount: getTotalDiscount(order, currency),
     total: currency(order.total),
   }
