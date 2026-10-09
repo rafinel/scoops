@@ -420,6 +420,9 @@ by PRQ-06, PRQ-07, PRQ-08 and PRQ-14.
   Subtotal, followed by the channel adjustment as a signed monetary amount and any
   Combo discounts. Total remains the sum of rounded channel-adjusted line subtotals
   minus Combo savings. Compute the channel amount from those rounded line prices.
+- **Displayed item prices:** cart, confirmation, order details and print show base
+  unit prices and base line subtotals. Show the channel adjustment only in the
+  order total composition; preserve server calculations and saved financial facts.
 - **Channel:** optional selection must remain visible during assembly.
 - **Empty state:** should display `Add products to start sale`.
 - **Output:** must warn that unregistered items will be lost.

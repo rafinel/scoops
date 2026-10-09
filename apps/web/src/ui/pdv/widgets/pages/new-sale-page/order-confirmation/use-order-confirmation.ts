@@ -99,7 +99,9 @@ function getLineDisplay(
     name: line.product.name,
     details: getLineDetails(line, formatters.quantity),
     ...getLineAccompaniments(line, formatters.currency),
-    subtotal: formatters.currency(line.subtotal),
+    subtotal: formatters.currency(
+      (Math.round(line.baseUnitPrice * 100) * line.quantity) / 100,
+    ),
   }
 }
 

@@ -63,8 +63,8 @@ describe('useOrderPrintDocument', () => {
       name: 'Açaí histórico',
       configurations: ['Médio', 'Marca histórica', 'Leite em pó · R$\u00a00,00'],
       quantity: '2',
-      unitPrice: 'R$ 17,92',
-      subtotal: 'R$ 35,84',
+      unitPrice: 'R$ 10,00',
+      subtotal: 'R$ 20,00',
     })
     expect(result.current.discounts[0]).toMatchObject({
       name: 'Combo histórico',

@@ -221,10 +221,14 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                       {lineWithPrice && pricedLineMatchesInput ? (
                         <>
                           <p className='text-xs text-muted-foreground'>
-                            {formatCurrency(lineWithPrice.finalUnitPrice)} cada
+                            {formatCurrency(lineWithPrice.baseUnitPrice)} cada
                           </p>
                           <p className='font-extrabold'>
-                            {formatCurrency(lineWithPrice.subtotal)}
+                            {formatCurrency(
+                              (Math.round(lineWithPrice.baseUnitPrice * 100) *
+                                line.quantity) /
+                                100,
+                            )}
                           </p>
                         </>
                       ) : (

@@ -95,8 +95,8 @@ function getLineDisplay(
   return {
     ...getLineIdentity(line, currency),
     quantity: quantity(line.quantity, '').trim(),
-    unitPrice: currency(line.finalUnitPrice),
-    subtotal: currency(line.subtotal),
+    unitPrice: currency(line.baseUnitPrice),
+    subtotal: currency((Math.round(line.baseUnitPrice * 100) * line.quantity) / 100),
   }
 }
 

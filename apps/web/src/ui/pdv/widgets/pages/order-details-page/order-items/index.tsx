@@ -38,7 +38,6 @@ export const OrderItems = ({ order }: OrderItemsProps) => {
           const configuration = [line.size?.name, line.brand?.name]
             .filter(Boolean)
             .join(' · ')
-          const channelAdjustment = line.finalUnitPrice - line.baseUnitPrice
 
           return (
             <article
@@ -93,14 +92,6 @@ export const OrderItems = ({ order }: OrderItemsProps) => {
                       ))}
                     </fieldset>
                   ) : null}
-                  {order.channel ? (
-                    <p className='mt-1 truncate text-xs text-primary'>
-                      {order.channel.name}
-                      {channelAdjustment !== 0
-                        ? ` · ${channelAdjustment > 0 ? 'acréscimo' : 'desconto'} de ${formatCurrency(Math.abs(channelAdjustment))}`
-                        : ''}
-                    </p>
-                  ) : null}
                 </div>
               </div>
               <div className='sm:text-right'>
@@ -114,12 +105,16 @@ export const OrderItems = ({ order }: OrderItemsProps) => {
                   Unitário{' '}
                 </span>
                 <span className='font-semibold'>
-                  {formatCurrency(line.finalUnitPrice)}
+                  {formatCurrency(line.baseUnitPrice)}
                 </span>
               </div>
               <div className='sm:text-right'>
                 <span className='text-xs text-muted-foreground sm:sr-only'>Total </span>
-                <span className='font-extrabold'>{formatCurrency(line.subtotal)}</span>
+                <span className='font-extrabold'>
+                  {formatCurrency(
+                    (Math.round(line.baseUnitPrice * 100) * line.quantity) / 100,
+                  )}
+                </span>
               </div>
             </article>
           )
