@@ -16,7 +16,7 @@ module.
 ### Confirmed commercial offer
 
 - **Plan:** `Complete Scoops`.
-- **Price:** R$59.90 per month, taxes included.
+- **Price:** R$79.90 per month, taxes included.
 - **Frequency:** exclusively monthly.
 - **Scope:** all Scoops features.
 - **Limits:** unlimited users, products, orders and movements.
@@ -67,10 +67,10 @@ cycle in its [April and May 2026 changelog](https://docs.abacatepay.com/pages/ch
 No unequivocal public documentation of Automatic Pix was identified for Appmax
 in the sources consulted.
 
-Source-based inference: the R$59.90 price places Scoops near the entry price of
-general-purpose solutions, while vertical specialization in production, stock
-and sale of ice cream and açaí supports its value. A single unlimited offer also
-reduces comparison effort and avoids incentives to share accounts or interrupt
+Source-based inference: the R$79.90 price places Scoops within the range of
+entry-level paid plans in the comparison above, while vertical specialization in
+production, stock and sale of ice cream and açaí supports its value. A single
+unlimited offer also reduces comparison effort and avoids incentives to share accounts or interrupt
 operations because of user or volume limits.
 
 ---
@@ -186,7 +186,7 @@ PRQ-17
 #### Capabilities
 
 - **Plan:** the only plan must be called `Complete Scoops`.
-- **Price:** the monthly fee must be R$59.90, taxes included.
+- **Price:** the monthly fee must be R$79.90, taxes included.
 - **Frequency:** the charge must be monthly and there must be no contracting
   annual at MVP.
 - **Scope:** the plan must release all Scoops modules and functionalities.
@@ -338,7 +338,7 @@ to PRQ-05, PRQ-06, PRQ-07, PRQ-09, PRQ-10, PRQ-11 and PRQ-13
 - **Pix:** the recurrence must use Automatic Pix with unique authorization from the
   payer; Monthly manual Pix does not meet the confirmed rule.
 - **First charge:** contracting during the test must immediately charge R$
-  59.90.
+  79.90.
 - **Activation:** only received and validated financial confirmation should activate
   the plan; the return URL is not proof of payment.
 - **Security:** Scoops must not receive or store complete numbers,
@@ -1161,7 +1161,7 @@ flowchart LR
 ### Journey B — Subscribe during trial
 
 1. The Manager selects `Subscribe Now`.
-2. The system presents `Complete Scoops`, R$59.90/month and the conditions.
+2. The system presents `Complete Scoops`, R$79.90/month and the conditions.
 3. The Manager provides billing data and accepts current documents.
 4. The system creates the Asaas checkout and redirects the Manager.
 5. The Manager chooses a card or authorizes Automatic Pix.
@@ -1318,8 +1318,10 @@ flowchart LR
 ### Discarded during definition
 
 - **Freemium:** discarded; there will only be temporary trial and paid subscription.
-- **Price of R$49.90:** replaced by R$59.90 due to positioning
-  vertical and the impact of subscription revenue.
+- **Price of R$49.90:** initially replaced by R$59.90 due to vertical
+  positioning and the impact of subscription revenue.
+- **Price of R$59.90:** replaced by the approved R$79.90 monthly offer; the
+  14-day trial without a payment method remains unchanged.
 - **Multiple plans:** dropped to reduce comparison, permissions and
   migrations in MVP.
 - **Annual plan:** postponed until retention and price data is available.
