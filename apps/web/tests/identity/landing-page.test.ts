@@ -569,22 +569,21 @@ test.describe('LandingClosing', () => {
     await expect(page.getByRole('heading', { name: 'Crie sua sorveteria' })).toBeVisible()
   })
 
-  test('navigates to price and login and preserves legal placeholders', async ({
+  test('navigates to price and login and exposes the legal document routes', async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.goto(ROUTES.root)
     const footer = page.getByRole('contentinfo')
     await footer.scrollIntoViewIfNeeded()
-    await expect(footer.getByRole('link')).toHaveCount(3)
-    await expect(footer.getByText('Em breve', { exact: true })).toHaveCount(2)
-    await expect(footer.getByText('Termos de uso', { exact: true })).toHaveAttribute(
-      'aria-disabled',
-      'true',
+    await expect(footer.getByRole('link')).toHaveCount(5)
+    await expect(footer.getByRole('link', { name: 'Termos de uso' })).toHaveAttribute(
+      'href',
+      ROUTES.termsOfUse,
     )
-    await expect(footer.getByText('Privacidade', { exact: true })).toHaveAttribute(
-      'aria-disabled',
-      'true',
+    await expect(footer.getByRole('link', { name: 'Privacidade' })).toHaveAttribute(
+      'href',
+      ROUTES.privacyPolicy,
     )
     await footer.getByRole('link', { name: 'Preço', exact: true }).click()
     await expect(page).toHaveURL(/#landing-pricing-title$/)

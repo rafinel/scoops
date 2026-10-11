@@ -14,14 +14,8 @@ export const LandingFooter = () => (
     <nav aria-label='Navegação do rodapé' className='landing-footer-links'>
       <a href='#landing-pricing-title'>Preço</a>
       <Anchor route='login'>Entrar</Anchor>
-      <span className='landing-footer-pending'>
-        <span aria-disabled='true'>Termos de uso</span>
-        <small className='text-xs'>Em breve</small>
-      </span>
-      <span className='landing-footer-pending'>
-        <span aria-disabled='true'>Privacidade</span>
-        <small className='text-xs'>Em breve</small>
-      </span>
+      <Anchor route='termsOfUse'>Termos de uso</Anchor>
+      <Anchor route='privacyPolicy'>Privacidade</Anchor>
     </nav>
   </footer>
 )

@@ -811,3 +811,39 @@ and placeholder variants additionally checked through types, browser and CLI.
 No real authenticated integration claim or full-regression cleanliness claim.
 Commit hooks remain enabled. Excluded working changes and Specin_progress
 state preserved; no PRD implemented-checkbox closure.
+
+
+Revision10 legal inclusion — user explicitly approves including the previously
+excluded draft legal pages, superseding the placeholder-only commit disposition.
+FR15/AC15 footer links and FR16/AC16 public documents verified. Terms of Use
+and Privacy Policy retain supplied draft text/provider values, version/date and
+Minuta para revisão. Public leaf routes and regenerated tree, shared document
+renderer, responsible/contact widget, reciprocal navigation and footer links
+are included; server/core PDV, seed, Pencil/export assets and unrelated lock
+normalization remain excluded. Extracted responsible widget preserves DOM/text
+and fixes legal renderer complexity (Halstead813.02→532.7).
+
+Validation: `pnpm --filter web generate-routes` passed; scoped Biome15files
+passed (`/tmp/scoops-legal-code.log`); web types passed
+(`/tmp/scoops-legal-refactor-types.log`); production build passed
+(`/tmp/scoops-legal-build.log`). `pnpm --filter web test:integration
+tests/identity/legal-pages.test.ts` passed9cases in2.0m
+(`/tmp/scoops-legal-pages-browser.log`); focused landing-footer case also passed
+1case in24.6s (`/tmp/scoops-legal-browser.log`). The initial grep selected only
+that footer case; corrected separate legal suite supplies the nine-case evidence.
+Full complexity remains failed only for two pre-existing unchanged PDV functions
+(`/tmp/scoops-legal-refactor-complexity.log`); no scoped failure or threshold change.
+
+Fresh CLI `/tmp/scoops-legal-cli.log` verifies direct public pages, draft labels,
+skip-to-main focus, keyboard fragments/reload, footer/cross-document navigation,
+390/320px without overflow and no page errors. Fresh captures
+`test-results/landing-hero/legal-terms-desktop.png`, `legal-privacy-desktop.png`,
+`legal-terms-390.png`, `legal-terms-320.png`, `legal-privacy-390.png` and
+`legal-privacy-320.png`; desktop and320px inspected: clear reading hierarchy,
+visible draft notice, wrapping header and prose. Independent implementation
+review found no material findings. Expected anonymous session401 and existing
+landing WebGL warnings remain; no new hydration/runtime error. Mocked profile
+tests prove public route composition, not real authenticated server integration.
+No full-regression or legal-sufficiency claim; draft status preserved.
+Task CLI browser closed; shared development services retained. Commit/push
+requested, Spec remains in_progress; no PRD delivery-checkbox edits.

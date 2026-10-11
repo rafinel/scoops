@@ -57,10 +57,3 @@
     gap: 20px;
   }
 }
-
-.landing-footer-pending {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-secondary);
-}

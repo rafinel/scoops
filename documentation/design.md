@@ -636,8 +636,15 @@ large centered Manrope heading and permanently visible support/trialCTA/note.
 Desktop words illuminate with scroll over a readable muted base; narrow and
 initial/live reduced motion render white text and static stars. Stars are inert,
 aria-hidden, deterministic and bounded, paused offscreen/hidden with cleanup.
-Footer uses brand/root, price anchor and login. Termos de uso and Privacidade
-remain visible, noninteractive placeholders until their documents are approved.
+Footer uses brand/root, price anchor, login and working Termos de uso/Privacidade
+links to public `/terms-of-use` and `/privacy-policy` routes. Legal documents use a
+white reading surface, Manrope, dark headings and muted prose with purple navigation
+and focus treatment. A shared header, document-version/date metadata, table of
+contents and reciprocal document links support reading. Desktop places the contents
+beside the article; narrow screens stack them without horizontal overflow. Draft
+documents prominently identify their review status and pending legal identity,
+contact, supplier-location/transfer and retention information. Creating these pages
+does not implement checkout acceptance, data disposal or provider integrations.
 
 Connected overview visual refinement: a white editorial surface with purple second
 heading line, four open horizontal stages≥1024px, soft56px brand icon tiles,

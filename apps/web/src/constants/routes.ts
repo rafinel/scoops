@@ -2,6 +2,8 @@ import type { GlobalSearchPageKey } from '@scoops/core/identity/domain/structure
 
 export const ROUTES = {
   root: '/',
+  termsOfUse: '/terms-of-use',
+  privacyPolicy: '/privacy-policy',
   login: '/login',
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',

@@ -204,3 +204,11 @@ progress0.65–0.85 and are hidden/inert when covered; scrolling back restores t
 Results stays opaque because it has no successor. Narrow/reduced presentations
 retain all content. Fresh `test-results/landing-hero/showcase-exit-desktop.png`
 confirms the previous production panel no longer remains behind the last card.
+
+
+Legal-page inclusion amendment: user approves replacing the pending labels
+with working public Termos de uso/Privacidade links. White reading surfaces,
+Manrope, purple active/focus treatment, desktop contents sidebar and narrow
+stacked reading preserve the existing design tokens. Version/date and explicit
+Minuta para revisão remain visible; document content is preserved as supplied.
+This supersedes the prior placeholder disposition.

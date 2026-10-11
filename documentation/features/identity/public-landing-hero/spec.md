@@ -1,7 +1,7 @@
 ---
 title: Public landing hero, connected overview and dashboard route
 status: in_progress
-revision: 9
+revision: 10
 source:
   type: direct-request
   ref: "Current chat: implement approved Scoops hero; use /dashboard for dashboard"
@@ -292,3 +292,14 @@ Showcase stack correction: prior cards must fade completely as the next card
 enters, and restore when scrolling back. Apply covered/exit treatment only when
 a successor exists, preserving the final Results card. Narrow and reduced-motion
 layouts keep every panel opaque and readable. No content, domain or route change.
+
+
+Revision10 — user explicitly approves including the existing legal pages after
+the landing commit. This supersedes FR15/AC15 pending-label behavior: footer
+Termos de uso and Privacidade open public /terms-of-use and /privacy-policy.
+FR16/AC16: documents render directly for anonymous, Manager and Operator
+visitors; identify version/date and Minuta para revisão, provide contact and
+contents/fragment links, keyboard skip-to-main, reciprocal navigation and
+responsive320/390px reading without overflow. Static draft presentation only;
+no checkout acceptance, legal-finalization or data lifecycle implementation.
+Prior business rules, commercial offer and module PRDs remain unchanged.

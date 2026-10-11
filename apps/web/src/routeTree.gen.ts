@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TermsOfUseIndexRouteImport } from './routes/terms-of-use/index'
 import { Route as ResetPasswordIndexRouteImport } from './routes/reset-password/index'
+import { Route as PrivacyPolicyIndexRouteImport } from './routes/privacy-policy/index'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as ForgotPasswordIndexRouteImport } from './routes/forgot-password/index'
@@ -52,9 +54,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsOfUseIndexRoute = TermsOfUseIndexRouteImport.update({
+  id: '/terms-of-use/',
+  path: '/terms-of-use/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordIndexRoute = ResetPasswordIndexRouteImport.update({
   id: '/reset-password/',
   path: '/reset-password/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyIndexRoute = PrivacyPolicyIndexRouteImport.update({
+  id: '/privacy-policy/',
+  path: '/privacy-policy/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingIndexRoute = OnboardingIndexRouteImport.update({
@@ -238,7 +250,9 @@ export interface FileRoutesByFullPath {
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/privacy-policy/': typeof PrivacyPolicyIndexRoute
   '/reset-password/': typeof ResetPasswordIndexRoute
+  '/terms-of-use/': typeof TermsOfUseIndexRoute
   '/products/$productId': typeof AuthenticatedProductsProductIdRouteRouteWithChildren
   '/discounts/$discountId': typeof AuthenticatedDiscountsDiscountIdRoute
   '/discounts/new': typeof AuthenticatedDiscountsNewRoute
@@ -272,7 +286,9 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordIndexRoute
   '/login': typeof LoginIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
+  '/privacy-policy': typeof PrivacyPolicyIndexRoute
   '/reset-password': typeof ResetPasswordIndexRoute
+  '/terms-of-use': typeof TermsOfUseIndexRoute
   '/discounts/$discountId': typeof AuthenticatedDiscountsDiscountIdRoute
   '/discounts/new': typeof AuthenticatedDiscountsNewRoute
   '/orders/$orderId': typeof AuthenticatedOrdersOrderIdRoute
@@ -307,7 +323,9 @@ export interface FileRoutesById {
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/privacy-policy/': typeof PrivacyPolicyIndexRoute
   '/reset-password/': typeof ResetPasswordIndexRoute
+  '/terms-of-use/': typeof TermsOfUseIndexRoute
   '/_authenticated/products/$productId': typeof AuthenticatedProductsProductIdRouteRouteWithChildren
   '/_authenticated/discounts/$discountId': typeof AuthenticatedDiscountsDiscountIdRoute
   '/_authenticated/discounts/new': typeof AuthenticatedDiscountsNewRoute
@@ -343,7 +361,9 @@ export interface FileRouteTypes {
     | '/forgot-password/'
     | '/login/'
     | '/onboarding/'
+    | '/privacy-policy/'
     | '/reset-password/'
+    | '/terms-of-use/'
     | '/products/$productId'
     | '/discounts/$discountId'
     | '/discounts/new'
@@ -377,7 +397,9 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/onboarding'
+    | '/privacy-policy'
     | '/reset-password'
+    | '/terms-of-use'
     | '/discounts/$discountId'
     | '/discounts/new'
     | '/orders/$orderId'
@@ -411,7 +433,9 @@ export interface FileRouteTypes {
     | '/forgot-password/'
     | '/login/'
     | '/onboarding/'
+    | '/privacy-policy/'
     | '/reset-password/'
+    | '/terms-of-use/'
     | '/_authenticated/products/$productId'
     | '/_authenticated/discounts/$discountId'
     | '/_authenticated/discounts/new'
@@ -447,7 +471,9 @@ export interface RootRouteChildren {
   ForgotPasswordIndexRoute: typeof ForgotPasswordIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
   OnboardingIndexRoute: typeof OnboardingIndexRoute
+  PrivacyPolicyIndexRoute: typeof PrivacyPolicyIndexRoute
   ResetPasswordIndexRoute: typeof ResetPasswordIndexRoute
+  TermsOfUseIndexRoute: typeof TermsOfUseIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -466,11 +492,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms-of-use/': {
+      id: '/terms-of-use/'
+      path: '/terms-of-use'
+      fullPath: '/terms-of-use/'
+      preLoaderRoute: typeof TermsOfUseIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password/': {
       id: '/reset-password/'
       path: '/reset-password'
       fullPath: '/reset-password/'
       preLoaderRoute: typeof ResetPasswordIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy/': {
+      id: '/privacy-policy/'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy/'
+      preLoaderRoute: typeof PrivacyPolicyIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding/': {
@@ -772,7 +812,9 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordIndexRoute: ForgotPasswordIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
   OnboardingIndexRoute: OnboardingIndexRoute,
+  PrivacyPolicyIndexRoute: PrivacyPolicyIndexRoute,
   ResetPasswordIndexRoute: ResetPasswordIndexRoute,
+  TermsOfUseIndexRoute: TermsOfUseIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
