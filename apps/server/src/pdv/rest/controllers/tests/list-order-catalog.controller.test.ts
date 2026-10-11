@@ -72,4 +72,75 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
     expect(response.status).toBe(422)
     expect(response.body).not.toHaveProperty('items')
   })
+
+  it('returns a rounded accompaniment price for the quantity consumed by one portion', async () => {
+    const product = await fixture.addProduct({
+      establishmentId: PdvModuleFixture.accounts.establishmentId,
+      name: 'Portion with topping',
+      unit: ProductUnit.Unit,
+      categories: [ProductCategory.Portion],
+      stockControl: ProductStockControl.Single,
+      status: ProductStatus.Active,
+      allowNegativeStock: false,
+      idealStock: 0,
+      currentUnitCost: 2,
+    })
+    const size = await fixture.addProductSize({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      name: 'Regular',
+      quantity: 1,
+      price: 10,
+      isActive: true,
+    })
+    const topping = await fixture.addProduct({
+      establishmentId: product.establishmentId,
+      name: 'Topping',
+      unit: ProductUnit.Unit,
+      categories: [ProductCategory.Accompaniment],
+      stockControl: ProductStockControl.Single,
+      status: ProductStatus.Active,
+      allowNegativeStock: false,
+      idealStock: 0,
+      currentUnitCost: 0.03,
+    })
+    const type = await fixture.addAccompanimentType({
+      establishmentId: product.establishmentId,
+      name: 'Toppings',
+    })
+    const accompaniment = await fixture.addProductAccompaniment({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      accompanimentProductId: topping.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 2.5,
+    })
+
+    const response = await request(fixture.app.getHttpServer())
+      .get('/orders/catalog?page=1&pageSize=20')
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(response.status).toBe(200)
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          productId: product.id,
+          sizes: [
+            expect.objectContaining({
+              sizeId: size.id,
+              basePrice: 10,
+              accompaniments: [
+                expect.objectContaining({
+                  accompanimentId: accompaniment.id,
+                  quantityPerPortion: 2.5,
+                  basePrice: 0.08,
+                  isActive: true,
+                }),
+              ],
+            }),
+          ],
+        }),
+      ]),
+    )
+  })
 })

@@ -349,11 +349,15 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
       name: product?.name ?? 'Acompanhamento indisponível',
       type: type?.name ?? 'Tipo indisponível',
       quantityPerPortion: link.quantityPerPortion,
-      basePrice: source?.price ?? 0,
+      basePrice: this.roundToCents((source?.price ?? 0) * link.quantityPerPortion),
       isActive,
       isAvailable: isActive && availableQuantity >= link.quantityPerPortion,
       availableQuantity,
     }
+  }
+
+  private roundToCents(value: number): number {
+    return Math.round((value + Number.EPSILON) * 100) / 100
   }
 
   private resolveAccompanimentSource(

@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mock, type MockProxy } from 'vitest-mock-extended'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
+import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
+import { ComboFaker } from '#pdv/domain/entities/fakers/combo-faker.ts'
 import type { DiscountStatus } from '#pdv/domain/structures/discount-status.ts'
 import type { DiscountType } from '#pdv/domain/structures/discount-type.ts'
 import type { PdvDatabase } from '#pdv/interfaces/pdv-database.ts'
@@ -10,7 +12,7 @@ import { ListCombosUseCase } from '#pdv/use-cases/list-combos-use-case.ts'
 
 const actor = { establishmentId: 'e1', profile: UserProfile.Operator }
 const _expectedUpdatedAt = new Date('2026-01-01T00:00:00.000Z')
-describe('ListCombosUseCase', () => {
+describe('List Combos Use Case', () => {
   let database: MockProxy<PdvDatabase>
   let catalog: MockProxy<SalesCatalogProvider>
   let findPage: ReturnType<typeof vi.fn>
@@ -62,6 +64,88 @@ describe('ListCombosUseCase', () => {
       expect.objectContaining({ page: 1, pageSize: 20 }),
       undefined,
     )
+  })
+
+  it('uses the rounded accompaniment price per portion without multiplying consumption again', async () => {
+    const combo = ComboFaker.fake({
+      establishmentId: actor.establishmentId,
+      fixedPrice: 10,
+      components: [
+        {
+          kind: 'portion',
+          productId: 'portion-1',
+          quantity: 1,
+          sizeId: 'size-1',
+          accompanimentIds: ['accompaniment-1'],
+        },
+        { kind: 'resale', productId: 'resale-1', quantity: 1 },
+      ],
+    })
+    findPage.mockResolvedValue({
+      items: [combo],
+      page: 1,
+      pageSize: 10,
+      total: 1,
+      totalPages: 1,
+    })
+    catalog.findByProductIds.mockResolvedValue([
+      {
+        productId: 'portion-1',
+        name: 'Portion',
+        kind: 'portion',
+        stockControl: ProductStockControl.Single,
+        isActive: true,
+        isAvailable: true,
+        resaleBrands: [],
+        sizes: [
+          {
+            sizeId: 'size-1',
+            name: 'Regular',
+            quantity: 1,
+            basePrice: 10,
+            isActive: true,
+            isAvailable: true,
+            accompaniments: [
+              {
+                accompanimentId: 'accompaniment-1',
+                name: 'Topping',
+                type: 'Toppings',
+                quantityPerPortion: 2.5,
+                basePrice: 0.08,
+                isActive: true,
+                isAvailable: true,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        productId: 'resale-1',
+        name: 'Drink',
+        kind: 'resale',
+        stockControl: ProductStockControl.Single,
+        isActive: true,
+        isAvailable: true,
+        resalePrice: 2,
+        resaleBrands: [],
+        sizes: [],
+      },
+    ])
+
+    const result = await new ListCombosUseCase(database, catalog).execute({ actor })
+
+    expect(result.items[0]).toMatchObject({
+      normalPrice: 12.08,
+      savings: 2.08,
+      components: [
+        { unitPrice: 10.08, subtotal: 10.08, validity: 'valid' },
+        { unitPrice: 2, subtotal: 2, validity: 'valid' },
+      ],
+    })
+    expect(catalog.findByProductIds).toHaveBeenCalledWith(actor.establishmentId, [
+      'portion-1',
+      'resale-1',
+    ])
   })
 
   it('accepts the minimum and maximum page sizes', async () => {

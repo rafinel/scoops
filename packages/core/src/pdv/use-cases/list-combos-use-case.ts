@@ -145,10 +145,7 @@ export class ListCombosUseCase
         unitPrice: valid
           ? ListCombosUseCase.money(
               (size?.basePrice ?? 0) +
-                accompaniments.reduce(
-                  (sum, item) => sum + item.basePrice * item.quantityPerPortion,
-                  0,
-                ),
+                accompaniments.reduce((sum, item) => sum + item.basePrice, 0),
             )
           : 0,
         configurationName: size?.name ?? 'Configuração indisponível',
