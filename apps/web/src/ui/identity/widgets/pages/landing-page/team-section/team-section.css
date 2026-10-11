@@ -1,0 +1,259 @@
+.landing-team {
+  position: relative;
+  isolation: isolate;
+  margin: 0;
+  padding: 96px 32px 96px;
+  border-radius: var(--radius-xl);
+  background: var(--landing-ink);
+  color: var(--bg-card);
+  text-align: center;
+}
+
+.landing-team::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse 40% 32% at 50% 18%,
+    color-mix(in srgb, var(--primary) 24%, transparent),
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.landing-team-fan {
+  position: relative;
+  width: min(100%, 720px);
+  height: 340px;
+  margin: 0 auto 48px;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.landing-team-card-position {
+  position: absolute;
+  top: 32px;
+  left: calc(50% - 120px);
+  width: 240px;
+  z-index: 1;
+}
+.landing-team-card-position[data-position="0"] {
+  left: calc(50% - 284px);
+}
+.landing-team-card-position[data-position="2"] {
+  left: calc(50% + 44px);
+}
+.landing-team-card-position[data-selected="true"] {
+  z-index: 3;
+}
+.landing-team-card-motion {
+  transform-origin: 50% 85%;
+}
+.landing-team[data-reduced-motion="true"] .landing-team-card-motion {
+  /* biome-ignore lint/complexity/noImportantStyles: Immediately override Motion's inline transform without replacing the focused button. */
+  transform: none !important;
+}
+
+.landing-team-card {
+  width: 100%;
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 0;
+  border: 1px solid color-mix(in srgb, var(--primary-soft) 22%, transparent);
+  border-radius: var(--radius-xl);
+  color: var(--bg-card);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--landing-deep) 74%, var(--landing-ink)),
+    var(--landing-ink)
+  );
+  transition:
+    border-color 0.3s,
+    background-color 0.3s;
+  white-space: normal;
+  text-align: left;
+}
+.landing-team-card:hover,
+.landing-team-card[aria-pressed="true"] {
+  color: var(--bg-card);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--primary) 60%, var(--landing-ink)),
+    var(--landing-ink)
+  );
+  border-color: color-mix(in srgb, var(--primary-soft) 70%, transparent);
+}
+.landing-team-card:focus-visible {
+  outline: 2px solid var(--bg-card);
+  outline-offset: 6px;
+  box-shadow: none;
+}
+.landing-team-card-face {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px;
+}
+.landing-team-card-icon {
+  width: 32px;
+  height: 32px;
+}
+.landing-team-card-name {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.landing-team-card-tag {
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 13px;
+  color: var(--primary-soft);
+  border-top: 1px solid color-mix(in srgb, var(--primary-soft) 16%, transparent);
+}
+.landing-team-title {
+  max-width: 1160px;
+  margin: 0 auto;
+  font-size: clamp(
+    var(--text-landing-display-mobile),
+    6.2vw,
+    var(--text-landing-display)
+  );
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  font-weight: 500;
+  text-wrap: balance;
+}
+.landing-team-support {
+  max-width: 600px;
+  margin: 24px auto 0;
+  color: var(--primary-soft);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.landing-team-detail {
+  max-width: 620px;
+  min-height: 188px;
+  margin: 48px auto 0;
+}
+.landing-team-detail h3 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+.landing-team-detail > p {
+  color: var(--primary-soft);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.landing-team-history {
+  display: flex;
+  gap: 12px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 24px auto 0;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.landing-team-history p + p {
+  color: var(--primary-soft);
+  font-size: 12px;
+}
+.landing-team-history span {
+  display: block;
+  margin-top: 6px;
+  color: var(--primary-soft);
+  font-size: 12px;
+}
+
+@media (max-width: 767px) {
+  .landing-team {
+    margin: 0;
+    padding: 64px 20px;
+  }
+  .landing-team-fan {
+    height: 220px;
+    margin-bottom: 32px;
+  }
+  .landing-team-card-position {
+    width: 96px;
+    top: 24px;
+    left: calc(50% - 48px);
+  }
+  .landing-team-card-position[data-position="0"] {
+    left: calc(50% - 112px);
+  }
+  .landing-team-card-position[data-position="2"] {
+    left: calc(50% + 16px);
+  }
+  .landing-team-card {
+    height: 164px;
+    padding: 6px;
+    border-radius: var(--radius-lg);
+  }
+  .landing-team-card-face {
+    padding: 12px 6px;
+  }
+  .landing-team-card-icon {
+    width: 24px;
+    height: 24px;
+  }
+  .landing-team-card-name {
+    font-size: 14px;
+  }
+  .landing-team-card-tag {
+    padding: 12px 6px;
+    font-size: 12px;
+  }
+  .landing-team-title {
+    font-size: var(--text-landing-display-mobile);
+    line-height: 1.14;
+  }
+  .landing-team-support {
+    font-size: 14px;
+  }
+  .landing-team-detail {
+    margin-top: 32px;
+    min-height: 216px;
+  }
+  .landing-team-detail h3 {
+    font-size: 16px;
+  }
+  .landing-team[data-reduced-motion="true"] .landing-team-fan {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    align-items: start;
+    padding-top: 24px;
+  }
+  .landing-team[data-reduced-motion="true"] .landing-team-card-position {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    min-width: 0;
+  }
+  .landing-team[data-reduced-motion="true"] .landing-team-card-face {
+    padding-inline: 0;
+  }
+  .landing-team[data-reduced-motion="true"] .landing-team-card-name {
+    white-space: nowrap;
+  }
+  .landing-team[data-reduced-motion="true"] .landing-team-card-tag {
+    padding-inline: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-team-card {
+    transition: none;
+  }
+}

@@ -523,3 +523,138 @@ Large centered button with explicit CTA (e.g. "Add first brand") when the list i
 - Two different sources (only Manrope).
 - Colors by type in the Type column of the linked accompaniments table (neutral text remains).
 - Purple in number of override value in the monitoring table (it stays the same as the others — all in `$text-primary`).
+
+## 8. Public landing presentation
+
+The approved public landing uses a marketing surface distinct from the operational app:
+`--landing-deep: #2E1065` for its opening panel, white text and controls, and existing
+`--primary` / `--primary-soft` for the order illustration stage and supporting text.
+Operational app surfaces retain the neutral treatment above. The landing uses Manrope
+500 for display headings (80px desktop, 34px narrow, line-height 1.12–1.14, tracking
+−0.03em), with intrinsic height and 24px desktop / 12px narrow outer margins. Its
+order preview contains labeled illustrative data and is a static image. Controls
+remain keyboard accessible; white focus outlines contrast against the deep-purple
+surface. See the saved public-landing-hero design handoff for measured layout values.
+
+The hero uses an animated mesh gradient inspired by the supplied NestJS reference:
+near-black `--landing-ink: #08050D`, organic purple regions derived from existing
+brand tokens, defined color transitions, and low-intensity procedural grain. A decorative WebGL field evolves at up
+to 30fps; Motion springs smooth pointer-driven displacement and deformation of
+the purple regions, with a localized highlight that makes the mouse response
+clearer while remaining subdued behind the heading. The field returns smoothly when the
+mouse leaves. The canvas
+is inert, hidden from assistive technology, and cannot intercept controls. Pause
+rendering outside the viewport or while the document is hidden. Touch/coarse
+pointers and reduced-motion users receive a static frame, including live preference
+changes; a CSS gradient remains available when WebGL initialization or context
+fails. This marketing-only exception does not apply to operational app surfaces.
+
+
+The public hero also has a single Motion entrance on mount: navigation, headline,
+copy, actions and order preview arrive over 1.85s, starting at opacity zero,
+with decelerating movement and a bounded reveal of the preview. The mounted
+page initializes opacity before paint; markup has visible defaults without
+the animation lifecycle. Reduced-motion users skip the entrance. Activating
+reduced motion, focus entering the page, keyboard input or pointer activation
+completes it immediately.
+Resize and mouse movement do not replay the sequence.
+
+
+The connected-operation overview follows the hero on the white/card surface,
+using the supplied Nest enterprise-support section as a structural reference. Use dark
+headings, muted supporting text and purple line icons. A centered 1152px content
+width places the two-line headline left and supporting copy right, above one rounded
+bordered grid with generous cell padding and shared thin dividers. The four stages
+Organize, Produza, Venda, Acompanhe use two columns on desktop/tablet and one on narrow
+screens. Preserve the existing copy without adding testimonials or support claims.
+Narrow layouts stack the content with20px
+horizontal padding. This presentation adds no controls. Its title, support and four stages reveal once
+on viewport entry, with a 0.6s opacity-zero entrance and20px rise. Desktop stages
+stagger by0.12s; narrow stages trigger independently without delay. Initial/live
+reduced motion skips the entrance; server markup and observer fallbacks stay visible.
+
+
+The public landing continues with three NestJS-inspired showcases: Vendas,
+Produção and Resultados. Purple/landing-deep gradients and the dark landing-ink
+panel are marketing-only surfaces. Large inset app-style illustrations use the
+existing neutral operational tokens and visibly label data as illustrative.
+Desktop fine-pointer viewports at least1024×700 pin successive panels40px from
+the top; previous panels scale to0.88 and rotate7°/-2° as scrolling advances.
+Normal document scrolling remains native. Narrow/coarse/reduced-motion users
+receive normal flow, no pinning or perspective. Three selectable feature buttons
+rotate previews every8s with a synchronized2px progress line and pause/resume
+control. Suspend rotation while offscreen/covered, hidden or keyboard-focused;
+reduced motion disables it. Use visible white focus outlines and inert covered
+panels. Illustrations are decorative with named figure alternatives; their
+visual app controls are inert. No live operational data is exposed.
+
+
+The team section following the public showcases adapts the supplied NestJS course
+fan: three overlapping Gerente, Operador and Histórico cards, centered oversized
+white heading, landing-ink surface and soft localized primary-purple lighting.
+Cards select on pointer hover/click and keyboard focus; the selected readable
+description is separate from the deck. No timed rotation. Use shared Buttons,
+Icons, visible white focus and existing radii/type tokens. Narrow320/390px must
+retain a recognizable fan without tiny scaled type or horizontal overflow.
+Initial/live reduced motion removes spatial transforms while retaining selection.
+History examples are explicitly illustrative administrative changes of team access,
+not a universal activity log. This exception is confined to the public landing.
+
+
+The public landing price section follows the team section with a pale lavender
+primary-soft/card surface, dark left copy/action and white right offer panel.
+Use existing brand/text/radius/shadow tokens and large legible monthly price.
+Two restrained purple radial light layers move slowly behind the panel using
+Motion; decoration is inert and hidden from assistive technology. No visible animation control;
+offscreen/document-hidden suspension and initial/live reduced-motion static light
+are required. Narrow320/390stacked layouts keep panel/CTA within viewport. This
+marketing exception introduces no billing API or checkout; offer copy follows
+BillingPRQ-01/02 and trial links to existing onboarding.
+
+Pricing title, support, trial CTA and offer panel reveal once on scroll: opacity
+0→1,20px upward movement over0.7s, desktop stagger0.16s. Narrow elements trigger
+individually without delay. Default markup and observer fallback stay visible;
+initial/live reduced motion and focus/pointer activation complete the entrance.
+Keep entrance controls separate from looping lights. The trial CTA transitions
+colors/shadow only so its focus reveal does not inherit an opacity transition.
+
+The public FAQ follows pricing with a white/card surface, large dark heading,
+primary-purple crescent with a defined thin core, soft halo and four question Buttons. Muted body text and
+neutral dividers support purple selected/hover states and visible purple focus.
+The light FAQ separates pricing from the dark closing invitation. All questions stay
+visible; exactly one answer is active, initially the first. Desktop uses questions
+left/answer right; narrow puts the answer directly after the selected question.
+Use expanded/control relationships and visible purple focus, manual selection only.
+A short opacity response transition preserves visible initial content. The inert
+arc sweeps into place with a finite rotational arrival≤4s, with no new pause control
+or automatic answer rotation. Narrow layouts soften its core to protect the text;
+initial/live reduced motion completes to a static arc, and offscreen/hidden motion is suspended.
+Copy follows existing Billing/Identity/MRP/PDV requirements.
+
+Public landing closing follows FAQ: sparse animated starfield on landing-ink,
+large centered Manrope heading and permanently visible support/trialCTA/note.
+Desktop words illuminate with scroll over a readable muted base; narrow and
+initial/live reduced motion render white text and static stars. Stars are inert,
+aria-hidden, deterministic and bounded, paused offscreen/hidden with cleanup.
+Footer uses brand/root, price anchor and login. Termos de uso and Privacidade
+remain visible, noninteractive placeholders until their documents are approved.
+
+Connected overview visual refinement: a white editorial surface with purple second
+heading line, four open horizontal stages≥1024px, soft56px brand icon tiles,
+01–04sequence and a thin decorative rail/arrows. Tablet2columns and narrow
+vertical icon/copy rows keep the original text and ordering. This supersedes
+the large bordered2×2block composition; no new controls or product claim. Existing
+once-on-entry opacity/rise and initial/live reduced-motion fallback remain.
+
+Later connected-flow refinement removes stage numerals. The three desktop
+connector rails show a directional purple light pulse toward their arrows.
+Decoration is inert; offscreen/hidden playback suspension, static reduced-motion
+and narrow layouts, listener/animation cleanup preserve accessibility and runtime
+efficiency. This replaces the numbered treatment only, keeping prior typography,
+icon tiles, ordering and entrance behavior.
+
+
+Showcase stack exit correction: previous panels fade out over the existing
+scroll transition and become fully invisible when covered. Reverse scrolling
+restores their appearance. The final Results panel has no successor and remains
+opaque; narrow and reduced-motion presentations retain all visible panels.

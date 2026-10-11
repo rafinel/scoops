@@ -1,3 +1,4 @@
+import { ROUTES } from '../../src/constants/routes'
 import { expect, test } from '../playwright'
 
 const CONFIRMATION_TOKEN = 'c'.repeat(43)
@@ -97,7 +98,7 @@ test.describe('OnboardingConfirmationPage', () => {
       `/onboarding/confirm?confirmationToken=${CONFIRMATION_TOKEN}#type=signup`,
     )
 
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL(ROUTES.app)
     await expect(
       page.getByRole('navigation', { name: 'Navegação principal' }),
     ).toBeVisible()

@@ -1,3 +1,4 @@
+import { ROUTES } from '../../src/constants/routes'
 import type { Page } from '@playwright/test'
 
 import { expect, test } from '../playwright'
@@ -230,11 +231,11 @@ test.describe('NotificationsPage', () => {
     const communication = CommunicationModuleFixture(page)
     await communication.mockNotifications({ managerNotifications: MANAGER_NOTIFICATIONS })
 
-    await page.goto('/')
+    await page.goto(ROUTES.app)
     await page.goto('/notifications')
     await page.getByRole('link', { name: 'Voltar para página anterior' }).click()
 
-    await expect(page).toHaveURL(/\/$/)
+    await expect(page).toHaveURL(ROUTES.app)
   })
 
   test('loads the next cursor page and retries a next-page failure', async ({

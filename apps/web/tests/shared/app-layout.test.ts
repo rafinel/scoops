@@ -1,11 +1,12 @@
+import { ROUTES } from '../../src/constants/routes'
 import { expect, test } from '../playwright'
 
 test.describe.configure({ mode: 'serial' })
 test.describe('AppLayout', () => {
   test('redirects anonymous users with a sanitized return path', async ({ page }) => {
-    await page.goto('/')
+    await page.goto(ROUTES.app)
 
-    await expect(page).toHaveURL(/\/login\?returnTo=%2F?$/)
+    await expect(page).toHaveURL(/\/login\?returnTo=%2Fdashboard$/)
     await expect(page.getByRole('heading', { name: 'Entre no Scoops' })).toBeVisible()
     await expect(page.getByRole('textbox', { name: 'E-mail' })).toBeVisible()
     expect(await page.content()).not.toContain('Bem-vindo,')
@@ -18,9 +19,9 @@ test.describe('AppLayout', () => {
     await identityFixture.mockManagerSession()
     await identityFixture.mockManagerAccount()
 
-    await page.goto('/')
+    await page.goto(ROUTES.app)
 
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL(ROUTES.app)
     await expect(
       page.getByRole('navigation', { name: 'Navegação principal' }),
     ).toBeVisible()
@@ -34,7 +35,7 @@ test.describe('AppLayout', () => {
     await identityFixture.mockManagerSession()
     await identityFixture.mockManagerAccount()
     await page.setViewportSize({ width: 375, height: 854 })
-    await page.goto('/')
+    await page.goto(ROUTES.app)
 
     const menuButton = page.getByRole('button', { name: 'Abrir menu' })
     await expect(menuButton).toBeVisible()

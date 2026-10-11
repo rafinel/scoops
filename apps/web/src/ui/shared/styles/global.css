@@ -22,6 +22,11 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-landing-deep: var(--landing-deep);
+  --container-landing-copy: 620px;
+  --container-landing-preview: 736px;
+  --text-landing-display: 80px;
+  --text-landing-display-mobile: 34px;
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -80,6 +85,8 @@
   /* Brand */
   --primary: #6d28d9;
   --primary-soft: #ede9fe;
+  --landing-deep: #2e1065;
+  --landing-ink: #08050d;
 
   /* Surfaces and text */
   --bg-page: #f7f7f8;
@@ -148,6 +155,34 @@
   border-color: var(--border);
 }
 
+.landing-surface {
+  background-color: var(--landing-ink);
+  background-image:
+    radial-gradient(
+      ellipse at 0% 0%,
+      color-mix(in srgb, var(--primary) 65%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 100% 90%,
+      color-mix(in srgb, var(--landing-deep) 75%, transparent),
+      transparent 55%
+    );
+}
+
+.landing-title {
+  font-size: var(--text-landing-display-mobile);
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+}
+
+@media (min-width: 768px) {
+  .landing-title {
+    font-size: clamp(48px, 5.56vw, var(--text-landing-display));
+    line-height: 1.12;
+  }
+}
+
 main {
   view-transition-name: main-content;
 }
@@ -204,6 +239,11 @@ button:disabled,
 :focus-visible:not([data-focus-ring="delegated"]) {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+
+.landing-panel :focus-visible {
+  outline: 2px solid var(--primary-foreground);
+  outline-offset: 4px;
 }
 
 [data-route-transition-indicator] {

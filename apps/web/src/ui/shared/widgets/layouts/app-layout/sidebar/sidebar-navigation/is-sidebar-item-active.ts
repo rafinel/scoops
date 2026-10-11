@@ -6,6 +6,7 @@ export function isSidebarItemActive(
   item: Pick<SidebarItem, 'route' | 'activePrefixes'>,
 ): boolean {
   const normalizedPathname = normalizePathname(pathname)
+  if (item.route === 'app') return normalizedPathname === ROUTES.app
   return [ROUTES[item.route], ...(item.activePrefixes ?? [])].some((route) =>
     isPathActive(normalizedPathname, route),
   )

@@ -3,6 +3,8 @@ import { mkdir } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 import type { Browser, Page } from '@playwright/test'
 
+import { ROUTES } from '../src/constants/routes'
+
 import { PLAYWRIGHT_AUTH_STATE_PATHS, SCOOPS_SESSION_COOKIE_NAME } from './auth-state'
 
 const AUTH_STATE_DIRECTORY = 'playwright/.auth'
@@ -41,7 +43,7 @@ async function fakeStorageState(
 
   try {
     const page = await context.newPage()
-    const destination = account.name === 'operator' ? '/sales/new' : '/'
+    const destination = account.name === 'operator' ? ROUTES.newSale : ROUTES.app
     await signIn(page, account.email, account.password, destination)
     const state = await context.storageState()
     expect(
@@ -58,9 +60,9 @@ async function signIn(
   page: Page,
   email: string,
   password: string,
-  destination: '/' | '/sales/new',
+  destination: typeof ROUTES.app | typeof ROUTES.newSale,
 ): Promise<void> {
-  await page.goto('/login?returnTo=%2F')
+  await page.goto(`${ROUTES.login}?returnTo=${encodeURIComponent(ROUTES.app)}`)
   await page.getByLabel('E-mail').fill(email)
   await page.getByRole('textbox', { name: 'Senha' }).fill(password)
   await page.getByRole('button', { name: 'Entrar no Scoops' }).click()

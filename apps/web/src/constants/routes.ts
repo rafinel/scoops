@@ -6,7 +6,7 @@ export const ROUTES = {
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
   accessDenied: '/access-denied',
-  app: '/',
+  app: '/dashboard',
   onboarding: '/onboarding',
   onboardingConfirm: '/onboarding/confirm',
   users: '/users',

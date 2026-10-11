@@ -1,3 +1,4 @@
+import { ROUTES } from '../../src/constants/routes'
 import { expect, test } from '../playwright'
 import { mockAnalytics } from '../fixtures/analytics-module-fixture'
 
@@ -10,8 +11,9 @@ test.describe('DashboardPage', () => {
     await identityFixture.mockManagerAccount()
     await mockAnalytics(page)
     await page.setViewportSize({ width: 1481, height: 1232 })
-    await page.goto('/')
+    await page.goto(ROUTES.app)
 
+    await expect(page).toHaveURL(ROUTES.app)
     await expect(
       page.getByRole('heading', { name: 'Dashboard', exact: true }),
     ).toBeVisible()
@@ -60,19 +62,33 @@ test.describe('DashboardPage', () => {
   })
 
   test('redirects an anonymous visitor to login', async ({ page }) => {
-    await page.goto('/')
-    await expect(page).toHaveURL(/\/login\?returnTo=%2F/)
+    await page.goto(ROUTES.app)
+    await expect(page).toHaveURL(/\/login\?returnTo=%2Fdashboard$/)
   })
 
-  test('redirects an Operator from Dashboard root to New Sale', async ({
+  test('redirects an Operator from Dashboard to New Sale', async ({
     page,
     identityFixture,
   }) => {
     await identityFixture.mockOperatorSession()
     await identityFixture.mockOperatorAccount()
-    await page.goto('/')
+    await page.goto(ROUTES.app)
     await expect(page).toHaveURL(/\/sales\/new\/?$/)
     await expect(page.getByRole('heading', { name: 'Nova venda' })).toBeVisible()
+  })
+
+  test('keeps the unavailable-auth boundary on the protected dashboard', async ({
+    page,
+    identityFixture,
+  }) => {
+    await identityFixture.mockSessionUnavailable()
+    await page.goto(ROUTES.app)
+
+    await expect(page).toHaveURL(ROUTES.app)
+    await expect(
+      page.getByRole('heading', { name: 'Acesso temporariamente indisponível' }),
+    ).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Tentar novamente' })).toBeVisible()
   })
 
   test('keeps dashboard controls readable at a narrow viewport', async ({
@@ -83,7 +99,7 @@ test.describe('DashboardPage', () => {
     await identityFixture.mockManagerAccount()
     await mockAnalytics(page)
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/')
+    await page.goto(ROUTES.app)
 
     await expect(
       page.getByRole('heading', { name: 'Dashboard', exact: true }),
@@ -127,7 +143,7 @@ test.describe('DashboardPage', () => {
       if (request.url().endsWith('/analytics/stock-attention')) stockRequests += 1
     })
 
-    await page.goto('/')
+    await page.goto(ROUTES.app)
     await expect(
       page.getByRole('heading', { name: 'Dashboard', exact: true }),
     ).toBeVisible()

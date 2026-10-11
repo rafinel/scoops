@@ -1,3 +1,4 @@
+import { ROUTES } from '../../src/constants/routes'
 import { expect, test } from '../playwright'
 
 const LOGIN_CREDENTIALS = {
@@ -85,9 +86,41 @@ test.describe('LoginPage', () => {
 
     await expect(page).toHaveURL('/')
     await expect(
-      page.getByRole('navigation', { name: 'Navegação principal' }),
+      page.getByRole('heading', {
+        name: 'Sua sorveteria organizada. Do estoque à venda.',
+      }),
     ).toBeVisible()
     expect(credentials).toMatchObject(LOGIN_CREDENTIALS)
+  })
+
+  test('opens the canonical dashboard after login without a return destination', async ({
+    page,
+    identityFixture,
+  }) => {
+    await identityFixture.mockManagerAccount()
+    await page.route('**/api/auth/sign-in/email*', async (route) => {
+      expect(route.request().method()).toBe('POST')
+      expect(route.request().postDataJSON()).toMatchObject(LOGIN_CREDENTIALS)
+      await route.fulfill({
+        contentType: 'application/json',
+        status: 200,
+        headers: {
+          'set-cookie':
+            'scoops.session_token=browser-manager-session; Path=/; HttpOnly; SameSite=Lax',
+        },
+        body: JSON.stringify(AUTH_SESSION),
+      })
+    })
+
+    await page.goto(ROUTES.login)
+    await page.getByRole('textbox', { name: 'E-mail' }).fill(LOGIN_CREDENTIALS.email)
+    await page.getByRole('textbox', { name: 'Senha' }).fill(LOGIN_CREDENTIALS.password)
+    await page.getByRole('button', { name: 'Entrar no Scoops' }).click()
+
+    await expect(page).toHaveURL(ROUTES.app)
+    await expect(
+      page.getByRole('heading', { name: 'Dashboard', exact: true }),
+    ).toBeVisible()
   })
 
   test('shows a neutral error when the provider rejects credentials', async ({

@@ -1,3 +1,4 @@
+import { ROUTES } from '@/constants/routes'
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useNavigate } from '@tanstack/react-router'
@@ -106,7 +107,7 @@ describe('useGlobalSearch', () => {
 
   it('routes every typed result to its canonical destination', () => {
     const hits: Array<[GlobalSearchHit, Record<string, unknown>]> = [
-      [{ kind: 'page', pageKey: 'dashboard', label: 'Dashboard' }, { to: '/' }],
+      [{ kind: 'page', pageKey: 'dashboard', label: 'Dashboard' }, { to: ROUTES.app }],
       [{ kind: 'page', pageKey: 'products', label: 'Produtos' }, { to: '/products' }],
       [{ kind: 'page', pageKey: 'newSale', label: 'Nova venda' }, { to: '/sales/new' }],
       [{ kind: 'page', pageKey: 'orders', label: 'Pedidos' }, { to: '/orders' }],

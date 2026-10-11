@@ -14,7 +14,7 @@ export const AccessDeniedPage = () => {
         </p>
         <Anchor
           className='mt-6 inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-extrabold text-primary-foreground shadow-primary'
-          route='root'
+          route='app'
         >
           Voltar para o início
         </Anchor>

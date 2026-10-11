@@ -1,0 +1,115 @@
+.landing-closing {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 144px 64px 112px;
+  border-radius: var(--radius-xl);
+  background: var(--landing-ink);
+  color: var(--bg-card);
+  text-align: center;
+}
+.landing-closing-content {
+  position: relative;
+  max-width: 1152px;
+  margin: 0 auto;
+}
+.landing-closing h2 {
+  max-width: 1040px;
+  margin: 0 auto;
+  font-size: clamp(var(--text-landing-display-mobile), 6vw, var(--text-landing-display));
+  font-weight: 500;
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.landing-closing-word {
+  position: relative;
+  display: inline-block;
+  margin-right: 0.24em;
+}
+.landing-closing-word:last-child {
+  margin-right: 0;
+}
+.landing-closing-word-base {
+  color: var(--bg-card);
+}
+.landing-closing[data-highlight="true"] .landing-closing-word-base {
+  color: color-mix(in srgb, var(--primary-soft) 55%, var(--landing-ink));
+}
+.landing-closing-word-highlight {
+  position: absolute;
+  inset: 0;
+  color: var(--bg-card);
+  pointer-events: none;
+}
+.landing-closing-support {
+  max-width: 560px;
+  margin: 40px auto 0;
+  color: var(--primary-soft);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.landing-closing-cta {
+  height: 56px;
+  margin-top: 32px;
+  padding-inline: 24px;
+  background: var(--bg-card);
+  color: var(--primary);
+  font-size: 16px;
+  font-weight: 700;
+}
+.landing-closing-cta:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.landing-closing-cta:focus-visible {
+  outline: 2px solid var(--bg-card);
+  outline-offset: 6px;
+  box-shadow: none;
+}
+.landing-closing-trial {
+  margin-top: 16px;
+  color: var(--primary-soft);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.landing-closing-stars {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.landing-closing-star-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.landing-closing-star {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  pointer-events: none;
+}
+@media (max-width: 1023px) {
+  .landing-closing {
+    padding: 112px 32px 96px;
+  }
+}
+@media (max-width: 767px) {
+  .landing-closing {
+    padding: 96px 20px 80px;
+  }
+  .landing-closing h2 {
+    font-size: var(--text-landing-display-mobile);
+    line-height: 1.2;
+  }
+  .landing-closing-support {
+    margin-top: 32px;
+    font-size: 14px;
+  }
+  .landing-closing-cta {
+    width: 100%;
+    font-size: 14px;
+  }
+}

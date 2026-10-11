@@ -57,7 +57,7 @@ const useNotificationShellProviderMock = vi.mocked(useNotificationShellProvider)
 
 describe('AppLayout', () => {
   beforeEach(() => {
-    useUrlPathnameMock.mockReturnValue({ pathname: '/' })
+    useUrlPathnameMock.mockReturnValue({ pathname: ROUTES.app })
     useAppLayoutMock.mockReturnValue({
       account: null,
       error: null,
@@ -130,8 +130,10 @@ describe('AppLayout', () => {
 
     expect(products && isSidebarItemActive('/products/portion-1/', products)).toBe(true)
     expect(products && isSidebarItemActive('/products-old/', products)).toBe(false)
-    expect(home && isSidebarItemActive('/', home)).toBe(true)
-    expect(home && isSidebarItemActive('/nested', home)).toBe(false)
+    expect(home && isSidebarItemActive(ROUTES.app, home)).toBe(true)
+    expect(home && isSidebarItemActive(`${ROUTES.app}/`, home)).toBe(true)
+    expect(home && isSidebarItemActive(ROUTES.root, home)).toBe(false)
+    expect(home && isSidebarItemActive(`${ROUTES.app}/nested`, home)).toBe(false)
   })
 
   it('exposes the current route through accessible navigation state', () => {

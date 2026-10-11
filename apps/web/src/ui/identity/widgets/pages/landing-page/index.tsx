@@ -1,26 +1,41 @@
-import { AppLayout } from '@/ui/shared/widgets/layouts/app-layout'
-
+import { LandingShowcase } from './showcase'
+import { LandingTeamSection } from './team-section'
+import { LandingPricingSection } from './pricing-section'
+import { LandingFaqSection } from './faq-section'
+import { LandingClosingSection } from './closing-section'
+import { LandingFooter } from './footer'
+import { LandingHero } from './hero'
+import { LandingNavigation } from './navigation'
+import { LandingSurface } from './surface'
 import { useLandingPage } from './use-landing-page'
 
 export const LandingPage = () => {
-  useLandingPage()
+  const { scope, handleEntranceComplete } = useLandingPage()
 
   return (
-    <AppLayout>
-      <section className='flex flex-1 items-center justify-center'>
-        <div className='max-w-2xl text-center'>
-          <p className='mb-3 text-sm font-extrabold uppercase tracking-[0.18em] text-primary'>
-            Ice cream · Açaí · Frozen treats
-          </p>
-          <h1 className='text-4xl font-extrabold tracking-tight sm:text-6xl'>
-            Welcome to Scoops
-          </h1>
-          <p className='mx-auto mt-5 max-w-xl text-base text-muted-foreground sm:text-lg'>
-            The operational platform for managing your store, inventory, production,
-            sales, and subscription.
-          </p>
-        </div>
-      </section>
-    </AppLayout>
+    <div
+      ref={scope}
+      onFocusCapture={handleEntranceComplete}
+      onKeyDownCapture={handleEntranceComplete}
+      onPointerDownCapture={handleEntranceComplete}
+      className='landing-page min-h-screen bg-card p-3 font-sans md:p-6'
+    >
+      <div className='flex flex-col gap-3 md:gap-6'>
+        <LandingSurface>
+          <LandingNavigation />
+          <main>
+            <LandingHero />
+          </main>
+        </LandingSurface>
+        <LandingConnectedSection />
+        <LandingShowcase />
+        <LandingTeamSection />
+        <LandingPricingSection />
+        <LandingFaqSection />
+        <LandingClosingSection />
+        <LandingFooter />
+      </div>
+    </div>
   )
 }
+import { LandingConnectedSection } from './connected-section'

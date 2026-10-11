@@ -169,7 +169,7 @@ async function holdAuthenticatedRouteNavigation(
       }),
     })
   })
-  await page.goto(`${ROUTES.login}?returnTo=${encodeURIComponent(ROUTES.root)}`)
+  await page.goto(`${ROUTES.login}?returnTo=${encodeURIComponent(ROUTES.app)}`)
   const forgotPassword = page.getByRole('link', { name: 'Esqueci minha senha' })
   await page.route('**/_serverFn/**', async (route) => {
     if (!shouldHoldServerFunction) {
@@ -334,7 +334,7 @@ for (const viewport of VIEWPORTS) {
     })
 
     release()
-    await expect(page).toHaveURL(new RegExp(`${ROUTES.root}$`))
+    await expect(page).toHaveURL(new RegExp(`${ROUTES.app}$`))
     await expect(progress).toHaveCount(0)
     await expect(page.getByRole('banner')).toBeVisible()
     await page.screenshot({
@@ -401,7 +401,7 @@ for (const viewport of VIEWPORTS) {
     })
 
     release()
-    await expect(page).toHaveURL(new RegExp(`${ROUTES.root}$`))
+    await expect(page).toHaveURL(new RegExp(`${ROUTES.app}$`))
     await expect(progress).toHaveCount(0)
     await expect(page.getByRole('banner')).toBeVisible()
     await page.screenshot({

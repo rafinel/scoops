@@ -10,12 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetPasswordIndexRouteImport } from './routes/reset-password/index'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as ForgotPasswordIndexRouteImport } from './routes/forgot-password/index'
 import { Route as AccessDeniedIndexRouteImport } from './routes/access-denied/index'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as OnboardingConfirmRouteImport } from './routes/onboarding/confirm'
 import { Route as InvitationAcceptRouteImport } from './routes/invitation/accept'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
@@ -26,6 +26,7 @@ import { Route as AuthenticatedProductsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders/index'
 import { Route as AuthenticatedNotificationsIndexRouteImport } from './routes/_authenticated/notifications/index'
 import { Route as AuthenticatedDiscountsIndexRouteImport } from './routes/_authenticated/discounts/index'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account/index'
 import { Route as AuthenticatedAccompanimentTypesIndexRouteImport } from './routes/_authenticated/accompaniment-types/index'
 import { Route as AuthenticatedUsersUserIdRouteImport } from './routes/_authenticated/users/$userId'
@@ -44,6 +45,11 @@ import { Route as AuthenticatedProductsProductIdAccompanimentsRouteImport } from
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordIndexRoute = ResetPasswordIndexRouteImport.update({
@@ -70,11 +76,6 @@ const AccessDeniedIndexRoute = AccessDeniedIndexRouteImport.update({
   id: '/access-denied/',
   path: '/access-denied/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const OnboardingConfirmRoute = OnboardingConfirmRouteImport.update({
   id: '/onboarding/confirm',
@@ -131,6 +132,12 @@ const AuthenticatedDiscountsIndexRoute =
   AuthenticatedDiscountsIndexRouteImport.update({
     id: '/discounts/',
     path: '/discounts/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAccountIndexRoute =
@@ -224,7 +231,7 @@ const AuthenticatedProductsProductIdAccompanimentsRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthenticatedIndexRoute
+  '/': typeof IndexRoute
   '/invitation/accept': typeof InvitationAcceptRoute
   '/onboarding/confirm': typeof OnboardingConfirmRoute
   '/access-denied/': typeof AccessDeniedIndexRoute
@@ -241,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/accompaniment-types/': typeof AuthenticatedAccompanimentTypesIndexRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/discounts/': typeof AuthenticatedDiscountsIndexRoute
   '/notifications/': typeof AuthenticatedNotificationsIndexRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
@@ -257,9 +265,9 @@ export interface FileRoutesByFullPath {
   '/products/$productId/': typeof AuthenticatedProductsProductIdIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/invitation/accept': typeof InvitationAcceptRoute
   '/onboarding/confirm': typeof OnboardingConfirmRoute
-  '/': typeof AuthenticatedIndexRoute
   '/access-denied': typeof AccessDeniedIndexRoute
   '/forgot-password': typeof ForgotPasswordIndexRoute
   '/login': typeof LoginIndexRoute
@@ -273,6 +281,7 @@ export interface FileRoutesByTo {
   '/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/accompaniment-types': typeof AuthenticatedAccompanimentTypesIndexRoute
   '/account': typeof AuthenticatedAccountIndexRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/discounts': typeof AuthenticatedDiscountsIndexRoute
   '/notifications': typeof AuthenticatedNotificationsIndexRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
@@ -290,10 +299,10 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/invitation/accept': typeof InvitationAcceptRoute
   '/onboarding/confirm': typeof OnboardingConfirmRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
   '/access-denied/': typeof AccessDeniedIndexRoute
   '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
@@ -308,6 +317,7 @@ export interface FileRoutesById {
   '/_authenticated/users/$userId': typeof AuthenticatedUsersUserIdRoute
   '/_authenticated/accompaniment-types/': typeof AuthenticatedAccompanimentTypesIndexRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/discounts/': typeof AuthenticatedDiscountsIndexRoute
   '/_authenticated/notifications/': typeof AuthenticatedNotificationsIndexRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
@@ -343,6 +353,7 @@ export interface FileRouteTypes {
     | '/users/$userId'
     | '/accompaniment-types/'
     | '/account/'
+    | '/dashboard/'
     | '/discounts/'
     | '/notifications/'
     | '/orders/'
@@ -359,9 +370,9 @@ export interface FileRouteTypes {
     | '/products/$productId/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/invitation/accept'
     | '/onboarding/confirm'
-    | '/'
     | '/access-denied'
     | '/forgot-password'
     | '/login'
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/users/$userId'
     | '/accompaniment-types'
     | '/account'
+    | '/dashboard'
     | '/discounts'
     | '/notifications'
     | '/orders'
@@ -391,10 +403,10 @@ export interface FileRouteTypes {
     | '/products/$productId'
   id:
     | '__root__'
+    | '/'
     | '/_authenticated'
     | '/invitation/accept'
     | '/onboarding/confirm'
-    | '/_authenticated/'
     | '/access-denied/'
     | '/forgot-password/'
     | '/login/'
@@ -409,6 +421,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users/$userId'
     | '/_authenticated/accompaniment-types/'
     | '/_authenticated/account/'
+    | '/_authenticated/dashboard/'
     | '/_authenticated/discounts/'
     | '/_authenticated/notifications/'
     | '/_authenticated/orders/'
@@ -426,6 +439,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   InvitationAcceptRoute: typeof InvitationAcceptRoute
   OnboardingConfirmRoute: typeof OnboardingConfirmRoute
@@ -443,6 +457,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password/': {
@@ -479,13 +500,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/access-denied/'
       preLoaderRoute: typeof AccessDeniedIndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/': {
-      id: '/_authenticated/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/onboarding/confirm': {
       id: '/onboarding/confirm'
@@ -555,6 +569,13 @@ declare module '@tanstack/react-router' {
       path: '/discounts'
       fullPath: '/discounts/'
       preLoaderRoute: typeof AuthenticatedDiscountsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/account/': {
@@ -696,7 +717,6 @@ const AuthenticatedProductsProductIdRouteRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedProductsProductIdRouteRoute: typeof AuthenticatedProductsProductIdRouteRouteWithChildren
   AuthenticatedDiscountsDiscountIdRoute: typeof AuthenticatedDiscountsDiscountIdRoute
   AuthenticatedDiscountsNewRoute: typeof AuthenticatedDiscountsNewRoute
@@ -706,6 +726,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUsersUserIdRoute: typeof AuthenticatedUsersUserIdRoute
   AuthenticatedAccompanimentTypesIndexRoute: typeof AuthenticatedAccompanimentTypesIndexRoute
   AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedDiscountsIndexRoute: typeof AuthenticatedDiscountsIndexRoute
   AuthenticatedNotificationsIndexRoute: typeof AuthenticatedNotificationsIndexRoute
   AuthenticatedOrdersIndexRoute: typeof AuthenticatedOrdersIndexRoute
@@ -717,7 +738,6 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedProductsProductIdRouteRoute:
     AuthenticatedProductsProductIdRouteRouteWithChildren,
   AuthenticatedDiscountsDiscountIdRoute: AuthenticatedDiscountsDiscountIdRoute,
@@ -729,6 +749,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccompanimentTypesIndexRoute:
     AuthenticatedAccompanimentTypesIndexRoute,
   AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
+  AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedDiscountsIndexRoute: AuthenticatedDiscountsIndexRoute,
   AuthenticatedNotificationsIndexRoute: AuthenticatedNotificationsIndexRoute,
   AuthenticatedOrdersIndexRoute: AuthenticatedOrdersIndexRoute,
@@ -743,6 +764,7 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   InvitationAcceptRoute: InvitationAcceptRoute,
   OnboardingConfirmRoute: OnboardingConfirmRoute,

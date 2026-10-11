@@ -1,0 +1,66 @@
+.landing-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+  padding: 48px 64px;
+  color: var(--text-primary);
+}
+.landing-footer-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--primary);
+  font-size: var(--text-xl);
+  font-weight: 900;
+  font-style: italic;
+}
+.landing-footer-brand p {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.landing-footer-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.landing-footer-links a {
+  padding-block: 12px;
+}
+.landing-footer-links a:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.landing-footer a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 6px;
+  border-radius: var(--radius-sm);
+}
+@media (max-width: 1023px) {
+  .landing-footer {
+    padding: 40px 32px;
+    align-items: start;
+  }
+}
+@media (max-width: 767px) {
+  .landing-footer {
+    flex-direction: column;
+    gap: 24px;
+    padding: 40px 20px;
+  }
+  .landing-footer-links {
+    gap: 20px;
+  }
+}
+
+.landing-footer-pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
