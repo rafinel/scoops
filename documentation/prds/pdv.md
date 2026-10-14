@@ -486,18 +486,19 @@ PRQ-09 and PRQ-14.
 
 ---
 
-### PRQ-07 — Channel, Combo and Stock Revalidation
+### PRQ-07 — Channel, Combo, Price and Stock Revalidation
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
-**Outcome:** The Operator can register an order only after its channel, Combos, configurations
-and consolidated stock consumption have been revalidated against current authoritative facts.
+**Outcome:** The Operator can register an order only after its channel, Combos, product prices,
+configurations and consolidated stock consumption have been revalidated against current
+authoritative facts.
 
 **Actors:** Operator, Manager
 
 **Consumes:** current channel configuration from PRQ-01, the cart from PRQ-05, calculated prices
 from PRQ-06, active Combo definitions from PRQ-13, applied Combo facts from PRQ-14 and current
-product, brand and stock availability from the MRP module.
+product, brand, price and stock availability from the MRP module.
 
 **Provides:** a current, all-or-nothing registration decision and reviewed order values consumed
 by PRQ-08.
@@ -508,6 +509,10 @@ by PRQ-08.
 - **Updated channel:** registration uses the current channel configuration.
 - **Channel changed:** if name or percentage changed, the cart is recalculated and
   requires new confirmation.
+- **Updated accompaniment price:** before registration, revalidate each selected Accompaniment's
+  current MRP price. If it changed while the item was in an unregistered cart, recalculate the
+  affected prices and totals using the current value and require the Operator to review and confirm
+  the updated cart. Registered order snapshots remain unchanged.
 - **Inactive or deleted channel:** the selection is removed; the operator can proceed
   without channel or choose another one.
 - **Current combos:** eligibility, composition, price, status and best
@@ -529,6 +534,8 @@ by PRQ-08.
 #### Experience
 
 - **Channel changed:** must inform the previous and current percentage.
+- **Accompaniment price changed:** must show the updated item price and total, preserve the cart,
+  and request confirmation before registration.
 - **Channel removed:** must explain that the order is using base prices until another channel is
   selected.
 - **Combo changed:** must inform that the discounts have been recalculated and
