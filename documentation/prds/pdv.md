@@ -288,10 +288,10 @@ PRQ-05 and PRQ-13.
 - **Required size:** every Portion requires an active size.
 - **Mandatory quantity:** must be an integer greater than zero.
 - **Side dishes:** are optional and can be multiple.
-- **Contextual pricing:** the base price for accompaniment depends on the configuration
-  `product + size + accompaniment`.
-- **Portion price:** add the size price and each selected accompaniment's configured
-  price once per portion. Quantity consumed from stock does not multiply the sale price.
+- **Accompaniment price:** each selected accompaniment uses its Accompaniment product's sale
+  price from MRP, shared across every linked Portion and size.
+- **Portion price:** add the Portion size price and each selected Accompaniment product's sale
+  price once per Portion. Quantity consumed from stock does not multiply the sale price.
 - **Free monitoring:** keeps the price equal to zero on any channel.
 - **Portion Consumption:** corresponds to
   `size_quantity × sold_quantity`.
