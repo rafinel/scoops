@@ -695,10 +695,11 @@ The repository contains four path-filtered GitHub Actions validation workflows. 
 files are authoritative for their exact triggers, path filters and commands; this section provides
 the maintained summary:
 
-- `.github/workflows/core-package-ci.yml` (`Core CI`) runs Core code, architecture and
-  type checks plus tests for Core and shared tooling inputs;
+- `.github/workflows/core-package-ci.yml` (`Core CI`) runs Core code, architecture, type
+  and coverage checks as parallel jobs, alongside mutation testing and its score gate for
+  Core and shared tooling inputs;
 - `.github/workflows/validation-package-ci.yml` (`Validation CI`) runs Validation code,
-  architecture and type checks for Validation or Core inputs;
+  architecture and type checks as parallel jobs for Validation or Core inputs;
 - `.github/workflows/server-app-ci.yml` (`Server CI`) runs Server code, architecture,
   type, Inngest integration, coverage and build checks as parallel jobs for Server,
   Validation or Core inputs;
@@ -707,9 +708,11 @@ the maintained summary:
   jobs for Web, Validation or Core inputs. Real-service browser scenarios are validated
   separately with their required Server/PostgreSQL environment.
 
-Each app workflow finishes with an aggregate `Web` or `Server` job that requires all
-of its split validation jobs to pass. These aggregate check names remain stable for
-branch protection; the individual jobs expose the failing validation directly.
+Each app and package workflow finishes its primary checks with an aggregate `Web`,
+`Server`, `Core` or `Validation` job that requires all split validation jobs to pass.
+These aggregate check names remain stable for branch protection; the individual jobs
+expose the failing validation directly. Core mutation shards and their score gate remain
+separate checks.
 
 Each workflow also has a separate `Complexity` job that runs the scoped
 CodeMultiVitals baseline quality gate alongside the app/package-specific
