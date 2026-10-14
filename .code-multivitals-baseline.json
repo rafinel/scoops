@@ -133450,8 +133450,8 @@
         },
         {
           "name": "createLine",
-          "startLine": 455,
-          "endLine": 480,
+          "startLine": 454,
+          "endLine": 479,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -133491,8 +133491,8 @@
         },
         {
           "name": "buildConsumptions",
-          "startLine": 482,
-          "endLine": 497,
+          "startLine": 481,
+          "endLine": 496,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -133532,8 +133532,8 @@
         },
         {
           "name": "buildPortionConsumptions",
-          "startLine": 499,
-          "endLine": 516,
+          "startLine": 498,
+          "endLine": 515,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -133573,8 +133573,8 @@
         },
         {
           "name": "validateOrderPreviewInput",
-          "startLine": 526,
-          "endLine": 546,
+          "startLine": 525,
+          "endLine": 545,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -133625,8 +133625,8 @@
         },
         {
           "name": "validateProductConfiguration",
-          "startLine": 548,
-          "endLine": 611,
+          "startLine": 547,
+          "endLine": 610,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -133677,8 +133677,8 @@
         },
         {
           "name": "selectAllocation",
-          "startLine": 630,
-          "endLine": 665,
+          "startLine": 629,
+          "endLine": 664,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -133718,8 +133718,8 @@
         },
         {
           "name": "isPreferred",
-          "startLine": 677,
-          "endLine": 698,
+          "startLine": 676,
+          "endLine": 697,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
