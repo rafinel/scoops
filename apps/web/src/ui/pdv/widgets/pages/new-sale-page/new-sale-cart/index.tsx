@@ -125,7 +125,8 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                   lineWithPrice.kind === line.kind &&
                   lineWithPrice.sizeId === line.sizeId &&
                   lineWithPrice.brandId === line.brandId &&
-                  lineWithPrice.accompanimentIds.length === line.accompanimentIds.length &&
+                  lineWithPrice.accompanimentIds.length ===
+                    line.accompanimentIds.length &&
                   line.accompanimentIds.every((id) =>
                     lineWithPrice.accompanimentIds.includes(id),
                   )
@@ -186,9 +187,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                         aria-label={`Diminuir quantidade de ${product?.name ?? 'item'}`}
                         className='size-8 rounded-r-none border-0'
                         disabled={line.quantity <= 1}
-                        onClick={() =>
-                          handleQuantityChange(lineIndex, line.quantity - 1)
-                        }
+                        onClick={() => handleQuantityChange(lineIndex, line.quantity - 1)}
                         size='icon'
                         type='button'
                         variant='ghost'
@@ -207,9 +206,7 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                         aria-label={`Aumentar quantidade de ${product?.name ?? 'item'}`}
                         className='size-8 rounded-l-none border-0'
                         disabled={line.quantity >= 999}
-                        onClick={() =>
-                          handleQuantityChange(lineIndex, line.quantity + 1)
-                        }
+                        onClick={() => handleQuantityChange(lineIndex, line.quantity + 1)}
                         size='icon'
                         type='button'
                         variant='ghost'
@@ -233,7 +230,9 @@ export const NewSaleCart = (props: NewSaleCartProps) => {
                         </>
                       ) : (
                         <p className='text-xs font-bold text-muted-foreground'>
-                          {props.previewError ? 'Valor indisponível' : 'Atualizando valor…'}
+                          {props.previewError
+                            ? 'Valor indisponível'
+                            : 'Atualizando valor…'}
                         </p>
                       )}
                     </div>

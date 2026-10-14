@@ -200,10 +200,7 @@ describe('useNewSalePage', () => {
 
     expect(result.current.lineInputs).toEqual([firstLine, secondLine])
     act(() => result.current.handleQuantityChange(1, 3))
-    expect(result.current.lineInputs).toEqual([
-      firstLine,
-      { ...secondLine, quantity: 3 },
-    ])
+    expect(result.current.lineInputs).toEqual([firstLine, { ...secondLine, quantity: 3 }])
   })
 
   it('removes the persisted cart when the current order is cleared', async () => {
