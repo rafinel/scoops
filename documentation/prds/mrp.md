@@ -339,7 +339,9 @@ PRQ-09, and PRQ-10.
 - PDV consumes size and Resale commercial facts without transferring sales-rule ownership to MRP.
 - An Accompaniment product's Prices page owns its sale price when the product is used as an
   accompaniment. This price is separate from acquisition cost and any Resale price, and applies
-  uniformly across every linked Portion and size.
+  uniformly across every linked Portion and size. When first configured, initialize it once from
+  the applicable existing Resale price when available; otherwise a Manager enters it. Later
+  Resale-price changes do not change the Accompaniment price.
 - A category in use cannot be removed until its dependencies are resolved.
 - Unit changes affect product-owned balances, ideal stock, costs, recipes, sizes, consumption,
   and product-dependent operations and require impact review before confirmation. Existing brand
@@ -567,6 +569,12 @@ for PRQ-10, PDV, and Analytics.
   from acquisition cost and Resale price. The price is non-negative and allows at most two decimal
   places. A zero price represents a free accompaniment; the accompaniment type is descriptive and
   does not change the price.
+- When an Accompaniment price is first configured, initialize it once from the existing Resale
+  price when available: use the product's single Resale price for Single stock control, or the
+  current main brand's configured Resale price for By-brand stock control. If the applicable
+  Resale price is not configured, require the Manager to enter the Accompaniment price. After it
+  is initialized, the Accompaniment price is independent; later Resale-price changes do not update
+  it.
 - Before an Accompaniment product can be linked to a Portion, its sale price must be set.
 - The Accompaniment product's sale price applies uniformly across every link and Portion size.
   Linking the product or adding a Portion size does not create a separate accompaniment price.
@@ -591,8 +599,9 @@ for PRQ-10, PDV, and Analytics.
   Resale. A product with multiple categories exposes each applicable pricing surface.
 - The size table displays Name, Quantity, Operating Cost, Price, available Profit/Margin values,
   and Movements.
-- The Accompaniment Prices page displays and edits the product's sale price. The Portion
-  Prices—Sizes area displays and edits each Portion size's sale price.
+- The Accompaniment Prices page displays and edits the product's sale price, initially populated
+  from the applicable existing Resale price when available. Otherwise the Manager enters the
+  required value. The Portion Prices—Sizes area displays and edits each Portion size's sale price.
 - The Accompaniments table displays each linked Accompaniment product's sale price. The same
   product-owned price applies to every Portion size and every link for that product.
 - Sizes and Resale brand configurations can be activated or deactivated without automatically
@@ -799,7 +808,9 @@ flowchart LR
 
 ### Journey G — Manager configures accompaniments
 
-1. The Manager sets the Accompaniment product's sale price on its Prices page.
+1. The Manager opens Prices—Accompaniment. Its initial value is copied once from the applicable
+   configured Resale price when available; otherwise the Manager enters the required price. Later
+   Resale-price changes do not change this independent Accompaniment price.
 2. The Manager opens a Portion and selects Accompaniments, then `Link accompaniment`.
 3. The Manager selects an eligible product, type, quantity per portion, and applicable main brand.
 4. The system shows the expected cost and saves the link; the Accompaniment product's sale price

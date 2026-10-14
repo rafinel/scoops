@@ -270,7 +270,7 @@ of sale.
 
 ### PRQ-03 — Portion Item Configuration
 
-- [x] **Implemented**
+- [ ] **Implemented**
 
 **Outcome:** The Operator can select size, accompaniments and
 quantity before adding a Portion to the cart.
