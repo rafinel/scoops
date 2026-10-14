@@ -90,11 +90,11 @@ Visual evidence uses `VIS-*` identifiers with `Type = visual`.
 
 - **Branch/candidate:** `fix/acompaniment-dialog`; includes the existing bug/PRD commits, approved pricing clarifications, focused regression tests and this evaluation.
 - **Progress:** All branch changes are validated for PR review; pricing behavior remains a separate open feature.
-- **Interrupted/uncommitted paths:** The two focused test files and this evaluation are uncommitted and belong to this delivery.
+- **Interrupted/uncommitted paths:** None; all delivery paths are committed on the current branch head.
 - **Unfinished criteria:** None for issue #55.
 - **Blockers and stale evidence:** `FND-01` through `FND-04` are accepted non-blocking limitations; `FND-05` through `FND-07` are resolved. Exact-head GitHub CI remains pending.
 - **Latest checkers:** `EV-001`, `EV-002`, `EV-003`, `EV-006`, `EV-007`, `EV-008`, and `EV-009` passed; `EV-004` and `EV-005` failed as recorded.
-- **Next useful action:** Commit this evidence and regression coverage, then publish the review-ready PR and inspect exact-head checks.
+- **Next useful action:** Publish the review-ready PR, then inspect exact-head checks and review status.
 
 ## History
 
@@ -103,3 +103,4 @@ Visual evidence uses `VIS-*` identifiers with `Type = visual`.
 | 2026-10-14 | Added focused label/fallback regression coverage and recorded issue #55 delivery evidence for all existing branch changes. |
 | 2026-10-14 | Recorded the one-time Resale-price default in MRP/PDV traceability and aligned open issue #56 after the user's clarification. |
 | 2026-10-14 | Clarified that PDV refreshes an unregistered cart to the current Accompaniment price before registration, and aligned issue #56 and PRQ-07. |
+| 2026-10-14 | Corrected the continuation handoff after the evidence and regression tests were committed to the delivery branch. |
