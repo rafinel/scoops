@@ -61,6 +61,7 @@ const createForm = (isEdit = false) => ({
   selectedStockError: false,
   selectedStockLoading: false,
   source: { name: 'Marca atual', unitCost: 0.45 },
+  selectedTypeName: type.name,
   typeId: type.id,
   types: [{ type, usageCount: 0 }],
   typesError: false,
@@ -86,7 +87,9 @@ describe('ProductAccompanimentDialog', () => {
 
     expect(screen.getByRole('dialog', { name: 'Vincular acompanhamento' })).toBeTruthy()
     expect(screen.getByRole('combobox', { name: 'Acompanhamento' })).toBeTruthy()
-    expect(screen.getByRole('combobox', { name: 'Tipo' })).toBeTruthy()
+    const typeSelector = screen.getByRole('combobox', { name: 'Tipo' })
+    expect(typeSelector.textContent).toContain(type.name)
+    expect(typeSelector.textContent).not.toContain(type.id)
     expect(screen.getByLabelText('Marca atual').getAttribute('value')).toBe('Marca atual')
     expect(screen.getByRole('link', { name: 'Gerenciar tipos →' }).textContent).toContain(
       'Gerenciar tipos',

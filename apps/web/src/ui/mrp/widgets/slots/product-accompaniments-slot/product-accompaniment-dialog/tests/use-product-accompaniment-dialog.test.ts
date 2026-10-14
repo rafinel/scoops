@@ -168,4 +168,39 @@ describe('useProductAccompanimentDialog', () => {
     })
     expect(result.current.actionError).toBe('request failed')
   })
+
+  it('keeps the selected type ID while exposing its registered name', () => {
+    const { result } = renderHook(() =>
+      useProductAccompanimentDialog({
+        item: editItem,
+        onSuccess: vi.fn(),
+        open: true,
+        productId: 'product-1',
+      }),
+    )
+
+    expect(result.current.typeId).toBe(type.id)
+    expect(result.current.selectedTypeName).toBe(type.name)
+  })
+
+  it('uses the linked type name when it is missing from the loaded page', () => {
+    useAccompanimentTypesQueryMock.mockReturnValue({
+      data: { items: [] },
+      isError: false,
+      isFetching: false,
+      isPending: false,
+    } as never)
+
+    const { result } = renderHook(() =>
+      useProductAccompanimentDialog({
+        item: editItem,
+        onSuccess: vi.fn(),
+        open: true,
+        productId: 'product-1',
+      }),
+    )
+
+    expect(result.current.typeId).toBe(type.id)
+    expect(result.current.selectedTypeName).toBe(type.name)
+  })
 })
