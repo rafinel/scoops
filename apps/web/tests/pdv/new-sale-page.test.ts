@@ -615,6 +615,11 @@ test.describe('NewSalePage', () => {
                   previous: { label: 'Total do pedido', amount: 23 },
                   current: { label: 'Total do pedido', amount: 24 },
                 },
+                ...Array.from({ length: 24 }, (_, index) => ({
+                  kind: 'catalog' as const,
+                  previous: { label: `Item ${index + 1}`, amount: index + 1 },
+                  current: { label: `Item ${index + 1}`, amount: index + 2 },
+                })),
               ],
             }),
             status: 409,
@@ -646,6 +651,11 @@ test.describe('NewSalePage', () => {
                   previous: { label: 'Total do pedido', amount: 24 },
                   current: { label: 'Total do pedido', amount: 25 },
                 },
+                ...Array.from({ length: 24 }, (_, index) => ({
+                  kind: 'catalog' as const,
+                  previous: { label: `Item ${index + 1}`, amount: index + 2 },
+                  current: { label: `Item ${index + 1}`, amount: index + 3 },
+                })),
               ],
             }),
             status: 409,
@@ -719,6 +729,35 @@ test.describe('NewSalePage', () => {
       })
 
       const reviewButton = reviewDialog.getByRole('button', { name: 'Revisar valores' })
+      if (viewport.name === 'narrow') {
+        const summary = reviewDialog.getByRole('region', {
+          name: 'Resumo dos novos valores',
+        })
+        await expect
+          .poll(() =>
+            reviewButton.evaluate((element) => {
+              const bounds = element.getBoundingClientRect()
+              return bounds.top >= 0 && bounds.bottom <= window.innerHeight
+            }),
+          )
+          .toBe(true)
+        await expect
+          .poll(() =>
+            summary.evaluate((element) => element.scrollHeight > element.clientHeight),
+          )
+          .toBe(true)
+        await summary.evaluate((element) => {
+          element.scrollTop = element.scrollHeight
+        })
+        await expect
+          .poll(() =>
+            reviewButton.evaluate((element) => {
+              const bounds = element.getBoundingClientRect()
+              return bounds.top >= 0 && bounds.bottom <= window.innerHeight
+            }),
+          )
+          .toBe(true)
+      }
       await reviewButton.focus()
       await expect(reviewButton).toBeFocused()
       await reviewButton.press('Enter')

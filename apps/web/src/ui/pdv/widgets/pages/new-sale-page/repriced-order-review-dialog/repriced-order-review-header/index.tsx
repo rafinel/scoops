@@ -6,7 +6,7 @@ export const RepricedOrderReviewHeader = ({
 }: {
   hasAccompanimentPriceChange: boolean
 }) => (
-  <DialogHeader className='border-b border-border-soft p-6 pr-16'>
+  <DialogHeader className='shrink-0 border-b border-border-soft p-6 pr-16'>
     <span className='row-span-2 grid size-11 place-items-center rounded-xl bg-warning-soft text-warning'>
       <Icon className='size-6' name='triangle-alert' />
     </span>

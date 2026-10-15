@@ -18,18 +18,23 @@ export const RepricedOrderReviewDialog = ({
   onReview,
 }: RepricedOrderReviewDialogProps) => (
   <Dialog open onOpenChange={(open) => (open ? undefined : onReview())}>
-    <DialogContent className='w-[calc(100vw-2rem)] sm:max-w-[560px]'>
+    <DialogContent className='flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] flex-col sm:max-w-[560px]'>
       <RepricedOrderReviewHeader
         hasAccompanimentPriceChange={changes.some(
           (change) => change.cause === 'accompaniment-price',
         )}
       />
-      <RepricedOrderReviewSummary
-        formatCurrency={useFormatCurrency()}
-        newTotal={newTotal}
-        {...useRepricedOrderReviewDialog(changes)}
-      />
-      <DialogFooter className='border-t border-border-soft p-6'>
+      <section
+        aria-label='Resumo dos novos valores'
+        className='min-h-0 flex-1 overflow-y-auto'
+      >
+        <RepricedOrderReviewSummary
+          formatCurrency={useFormatCurrency()}
+          newTotal={newTotal}
+          {...useRepricedOrderReviewDialog(changes)}
+        />
+      </section>
+      <DialogFooter className='shrink-0 border-t border-border-soft p-6'>
         <Button onClick={onReview} type='button'>
           <Icon name='arrow-left' /> Revisar valores
         </Button>

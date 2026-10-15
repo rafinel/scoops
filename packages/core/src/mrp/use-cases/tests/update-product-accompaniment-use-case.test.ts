@@ -282,6 +282,9 @@ describe('Update Product Accompaniment Use Case', () => {
       `event:${owner.id}`,
       `event:${anotherOwner.id}`,
     ])
+    expect(
+      scope.productAccompanimentsRepository.findManyByAccompanimentProductId,
+    ).toHaveBeenCalledWith(establishmentId, target.id)
     expect(publishedEvents[0]?.payload).toMatchObject({
       productId: owner.id,
       configuration: {
@@ -390,14 +393,6 @@ describe('Update Product Accompaniment Use Case', () => {
       targetProduct: { ...target, categories: [ProductCategory.Ingredient] },
       error: BadRequestError,
     },
-    {
-      description: 'a target that is also a Portion',
-      targetProduct: {
-        ...target,
-        categories: [ProductCategory.Accompaniment, ProductCategory.Portion],
-      },
-      error: BadRequestError,
-    },
   ])(
     'rejects $description before changing the link or price',
     async ({ targetProduct, error }) => {
@@ -419,6 +414,37 @@ describe('Update Product Accompaniment Use Case', () => {
       expect(scope.eventsRepository.add).not.toHaveBeenCalled()
     },
   )
+
+  it('updates a retained legacy link whose target also has the Portion category', async () => {
+    currentTarget = {
+      ...target,
+      categories: [ProductCategory.Accompaniment, ProductCategory.Portion],
+      accompanimentPrice: undefined,
+    }
+
+    await expect(
+      useCase.execute({
+        actor: { id: 'manager-1', establishmentId, profile: UserProfile.Manager },
+        productId: owner.id,
+        linkId: link.id,
+        input: {
+          accompanimentTypeId: type.id,
+          quantityPerPortion: 0.75,
+          accompanimentPrice: 4.99,
+        },
+      }),
+    ).resolves.toMatchObject({
+      accompanimentProductId: target.id,
+      salePrice: 4.99,
+    })
+
+    expect(scope.productsRepository.replace).toHaveBeenCalledWith(
+      establishmentId,
+      target.id,
+      { accompanimentPrice: 4.99 },
+    )
+    expect(scope.productAccompanimentsRepository.replace).toHaveBeenCalledOnce()
+  })
 
   it('rejects a ByBrand target without its own primary brand before writing', async () => {
     currentTarget = { ...target, stockControl: ProductStockControl.ByBrand }

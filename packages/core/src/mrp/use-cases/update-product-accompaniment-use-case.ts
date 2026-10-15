@@ -84,6 +84,8 @@ export class UpdateProductAccompanimentUseCase
       establishmentId,
       productId: owner.id,
       affectedProductIds,
+      accompanimentProductIdForInverseLookup:
+        affectedProductIds === undefined ? savedTarget.id : undefined,
     })
     await publishAffectedProductSalesConfigurations({
       scope,
@@ -170,8 +172,7 @@ export class UpdateProductAccompanimentUseCase
     }
     if (
       product.status !== ProductStatus.Active ||
-      !product.categories.includes(ProductCategory.Accompaniment) ||
-      product.categories.includes(ProductCategory.Portion)
+      !product.categories.includes(ProductCategory.Accompaniment)
     ) {
       throw new BadRequestError('O produto selecionado não é um acompanhamento elegível.')
     }

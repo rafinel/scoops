@@ -83,6 +83,8 @@ export class LinkProductAccompanimentUseCase
       establishmentId,
       productId: owner.id,
       affectedProductIds,
+      accompanimentProductIdForInverseLookup:
+        affectedProductIds === undefined ? savedTarget.id : undefined,
     })
     await publishAffectedProductSalesConfigurations({
       scope,

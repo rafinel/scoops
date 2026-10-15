@@ -34590,15 +34590,15 @@
       "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 180,
-        "endLine": 190,
+        "startLine": 181,
+        "endLine": 191,
         "lines": 11
       },
       "blockB": {
         "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 138,
-        "endLine": 148,
+        "startLine": 145,
+        "endLine": 155,
         "lines": 11
       }
     },
@@ -34624,15 +34624,15 @@
       "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 180,
-        "endLine": 190,
+        "startLine": 181,
+        "endLine": 191,
         "lines": 11
       },
       "blockB": {
         "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 132,
-        "endLine": 142,
+        "startLine": 150,
+        "endLine": 160,
         "lines": 11
       }
     },
@@ -34658,8 +34658,8 @@
       "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 138,
-        "endLine": 148,
+        "startLine": 145,
+        "endLine": 155,
         "lines": 11
       },
       "blockB": {
@@ -34675,15 +34675,15 @@
       "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 138,
-        "endLine": 148,
+        "startLine": 145,
+        "endLine": 155,
         "lines": 11
       },
       "blockB": {
         "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 132,
-        "endLine": 142,
+        "startLine": 150,
+        "endLine": 160,
         "lines": 11
       }
     },
@@ -34988,8 +34988,8 @@
       "blockB": {
         "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 132,
-        "endLine": 142,
+        "startLine": 150,
+        "endLine": 160,
         "lines": 11
       }
     },
@@ -39095,8 +39095,8 @@
       "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 138,
-        "endLine": 148,
+        "startLine": 145,
+        "endLine": 155,
         "lines": 11
       },
       "blockB": {
@@ -39112,8 +39112,8 @@
       "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 138,
-        "endLine": 148,
+        "startLine": 145,
+        "endLine": 155,
         "lines": 11
       },
       "blockB": {
@@ -39129,8 +39129,8 @@
       "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 138,
-        "endLine": 148,
+        "startLine": 145,
+        "endLine": 155,
         "lines": 11
       },
       "blockB": {
@@ -39146,8 +39146,8 @@
       "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 138,
-        "endLine": 148,
+        "startLine": 145,
+        "endLine": 155,
         "lines": 11
       },
       "blockB": {
@@ -39187,8 +39187,8 @@
       "blockB": {
         "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 132,
-        "endLine": 142,
+        "startLine": 150,
+        "endLine": 160,
         "lines": 11
       }
     },
@@ -39255,8 +39255,8 @@
       "blockB": {
         "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 132,
-        "endLine": 142,
+        "startLine": 150,
+        "endLine": 160,
         "lines": 11
       }
     },
@@ -39272,8 +39272,8 @@
       "blockB": {
         "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 132,
-        "endLine": 142,
+        "startLine": 150,
+        "endLine": 160,
         "lines": 11
       }
     },
@@ -39282,8 +39282,8 @@
       "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
-        "startLine": 132,
-        "endLine": 142,
+        "startLine": 150,
+        "endLine": 160,
         "lines": 11
       },
       "blockB": {
@@ -41774,40 +41774,6 @@
         "startLine": 39,
         "endLine": 70,
         "lines": 32
-      }
-    },
-    {
-      "similarity": 0.905,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/remove-product-accompaniment-use-case.ts",
-        "functionName": "execute",
-        "startLine": 27,
-        "endLine": 96,
-        "lines": 70
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
-        "functionName": "execute",
-        "startLine": 34,
-        "endLine": 123,
-        "lines": 90
-      }
-    },
-    {
-      "similarity": 0.905,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/remove-product-size-use-case.ts",
-        "functionName": "execute",
-        "startLine": 27,
-        "endLine": 99,
-        "lines": 73
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
-        "functionName": "execute",
-        "startLine": 34,
-        "endLine": 123,
-        "lines": 90
       }
     },
     {
@@ -54884,23 +54850,6 @@
       }
     },
     {
-      "similarity": 0.843,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
-        "functionName": "execute",
-        "startLine": 37,
-        "endLine": 129,
-        "lines": 93
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
-        "functionName": "execute",
-        "startLine": 34,
-        "endLine": 123,
-        "lines": 90
-      }
-    },
-    {
       "similarity": 0.842,
       "blockA": {
         "filePath": "apps/server/src/pdv/rest/dtos/combo-page-response.dto.ts",
@@ -55255,74 +55204,6 @@
         "startLine": 6,
         "endLine": 25,
         "lines": 20
-      }
-    },
-    {
-      "similarity": 0.839,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 180,
-        "endLine": 190,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
-        "functionName": "validateTarget",
-        "startLine": 150,
-        "endLine": 167,
-        "lines": 18
-      }
-    },
-    {
-      "similarity": 0.839,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 138,
-        "endLine": 148,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
-        "functionName": "validateTarget",
-        "startLine": 150,
-        "endLine": 167,
-        "lines": 18
-      }
-    },
-    {
-      "similarity": 0.839,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
-        "functionName": "validateTarget",
-        "startLine": 150,
-        "endLine": 167,
-        "lines": 18
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/remove-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 105,
-        "endLine": 115,
-        "lines": 11
-      }
-    },
-    {
-      "similarity": 0.839,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
-        "functionName": "validateTarget",
-        "startLine": 150,
-        "endLine": 167,
-        "lines": 18
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 132,
-        "endLine": 142,
-        "lines": 11
       }
     },
     {
@@ -58706,23 +58587,6 @@
         "startLine": 25,
         "endLine": 67,
         "lines": 43
-      }
-    },
-    {
-      "similarity": 0.829,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/change-product-unit-use-case.ts",
-        "functionName": "execute",
-        "startLine": 30,
-        "endLine": 109,
-        "lines": 80
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
-        "functionName": "execute",
-        "startLine": 34,
-        "endLine": 123,
-        "lines": 90
       }
     },
     {
@@ -62451,23 +62315,6 @@
     {
       "similarity": 0.809,
       "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
-        "functionName": "execute",
-        "startLine": 37,
-        "endLine": 129,
-        "lines": 93
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
-        "functionName": "execute",
-        "startLine": 39,
-        "endLine": 131,
-        "lines": 93
-      }
-    },
-    {
-      "similarity": 0.809,
-      "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/register-product-brand-use-case.ts",
         "functionName": "validateInput",
         "startLine": 164,
@@ -62718,23 +62565,6 @@
         "startLine": 12,
         "endLine": 60,
         "lines": 49
-      }
-    },
-    {
-      "similarity": 0.805,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/change-product-unit-use-case.ts",
-        "functionName": "execute",
-        "startLine": 30,
-        "endLine": 109,
-        "lines": 80
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
-        "functionName": "execute",
-        "startLine": 37,
-        "endLine": 129,
-        "lines": 93
       }
     },
     {
@@ -64639,6 +64469,312 @@
         "startLine": 4,
         "endLine": 9,
         "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/get-affected-product-sales-configurations-use-case.ts",
+        "functionName": "buildSizeConfigurations",
+        "startLine": 185,
+        "endLine": 196,
+        "lines": 12
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/get-affected-product-sales-configurations-use-case.ts",
+        "functionName": "buildResaleConfigurations",
+        "startLine": 213,
+        "endLine": 225,
+        "lines": 13
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "execute",
+        "startLine": 49,
+        "endLine": 54,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "execute",
+        "startLine": 48,
+        "endLine": 53,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "validateAccompanimentPrice",
+        "startLine": 207,
+        "endLine": 215,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "validateAccompanimentPrice",
+        "startLine": 181,
+        "endLine": 189,
+        "lines": 9
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "requireMainBrand",
+        "startLine": 217,
+        "endLine": 225,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "requireMainBrand",
+        "startLine": 216,
+        "endLine": 224,
+        "lines": 9
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "buildDetails",
+        "startLine": 227,
+        "endLine": 263,
+        "lines": 37
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "buildDetails",
+        "startLine": 226,
+        "endLine": 262,
+        "lines": 37
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "resolveCurrentSource",
+        "startLine": 265,
+        "endLine": 290,
+        "lines": 26
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "resolveCurrentSource",
+        "startLine": 264,
+        "endLine": 289,
+        "lines": 26
+      }
+    },
+    {
+      "similarity": 0.947,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "link",
+        "startLine": 56,
+        "endLine": 98,
+        "lines": 43
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "update",
+        "startLine": 55,
+        "endLine": 99,
+        "lines": 45
+      }
+    },
+    {
+      "similarity": 0.935,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
+        "functionName": "buildDetails",
+        "startLine": 102,
+        "endLine": 146,
+        "lines": 45
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "buildDetails",
+        "startLine": 227,
+        "endLine": 263,
+        "lines": 37
+      }
+    },
+    {
+      "similarity": 0.935,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
+        "functionName": "buildDetails",
+        "startLine": 102,
+        "endLine": 146,
+        "lines": 45
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "buildDetails",
+        "startLine": 226,
+        "endLine": 262,
+        "lines": 37
+      }
+    },
+    {
+      "similarity": 0.903,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "resolveLinkContext",
+        "startLine": 100,
+        "endLine": 137,
+        "lines": 38
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "resolveUpdateContext",
+        "startLine": 101,
+        "endLine": 142,
+        "lines": 42
+      }
+    },
+    {
+      "similarity": 0.87,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "execute",
+        "startLine": 49,
+        "endLine": 54,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/pdv/use-cases/register-order-use-case.ts",
+        "functionName": "execute",
+        "startLine": 88,
+        "endLine": 94,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 0.87,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "execute",
+        "startLine": 48,
+        "endLine": 53,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/pdv/use-cases/register-order-use-case.ts",
+        "functionName": "execute",
+        "startLine": 88,
+        "endLine": 94,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 0.857,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "execute",
+        "startLine": 49,
+        "endLine": 54,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/register-production-use-case.ts",
+        "functionName": "execute",
+        "startLine": 57,
+        "endLine": 64,
+        "lines": 8
+      }
+    },
+    {
+      "similarity": 0.857,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/register-production-use-case.ts",
+        "functionName": "execute",
+        "startLine": 57,
+        "endLine": 64,
+        "lines": 8
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "execute",
+        "startLine": 48,
+        "endLine": 53,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 0.848,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
+        "functionName": "resolveCurrentSource",
+        "startLine": 148,
+        "endLine": 173,
+        "lines": 26
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "resolveCurrentSource",
+        "startLine": 265,
+        "endLine": 290,
+        "lines": 26
+      }
+    },
+    {
+      "similarity": 0.848,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
+        "functionName": "resolveCurrentSource",
+        "startLine": 148,
+        "endLine": 173,
+        "lines": 26
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "resolveCurrentSource",
+        "startLine": 264,
+        "endLine": 289,
+        "lines": 26
+      }
+    },
+    {
+      "similarity": 0.829,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "validateTarget",
+        "startLine": 157,
+        "endLine": 177,
+        "lines": 21
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "validateTarget",
+        "startLine": 162,
+        "endLine": 179,
+        "lines": 18
+      }
+    },
+    {
+      "similarity": 0.821,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "saveAccompanimentPrice",
+        "startLine": 195,
+        "endLine": 205,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "saveAccompanimentPrice",
+        "startLine": 203,
+        "endLine": 214,
+        "lines": 12
       }
     }
   ],
@@ -125375,18 +125511,18 @@
       "functions": [
         {
           "name": "execute",
-          "startLine": 30,
-          "endLine": 51,
+          "startLine": 48,
+          "endLine": 69,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 4,
+              "value": 5,
               "threshold": 15,
               "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 4,
+              "value": 5,
               "threshold": 25,
               "severity": "ok"
             },
@@ -125404,20 +125540,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 236.35,
+              "value": 257.84,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 53.6,
+          "maintainabilityIndex": 53.2,
           "maintainabilityRating": "warn",
-          "healthScore": 69,
+          "healthScore": 66,
           "smells": []
         },
         {
           "name": "findInverseOwnerIds",
-          "startLine": 53,
-          "endLine": 69,
+          "startLine": 71,
+          "endLine": 87,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -125457,26 +125593,26 @@
         },
         {
           "name": "buildConfiguration",
-          "startLine": 71,
-          "endLine": 159,
+          "startLine": 89,
+          "endLine": 107,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 14,
+              "value": 3,
               "threshold": 15,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 6,
+              "value": 2,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 85,
+              "value": 15,
               "threshold": 70,
-              "severity": "error"
+              "severity": "ok"
             },
             {
               "name": "nestingDepth",
@@ -125486,20 +125622,143 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 961.07,
+              "value": 270.51,
               "threshold": 800,
-              "severity": "error"
+              "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 35.1,
+          "maintainabilityIndex": 56.9,
           "maintainabilityRating": "warn",
-          "healthScore": 35,
+          "healthScore": 77,
           "smells": []
         },
         {
-          "name": "<anonymous>",
-          "startLine": 145,
-          "endLine": 156,
+          "name": "loadConfigurationSource",
+          "startLine": 109,
+          "endLine": 134,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 4,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 3,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 22,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 362.22,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 52.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 74,
+          "smells": []
+        },
+        {
+          "name": "toConfigurationData",
+          "startLine": 162,
+          "endLine": 183,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 18,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 254.37,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 55.6,
+          "maintainabilityRating": "warn",
+          "healthScore": 84,
+          "smells": []
+        },
+        {
+          "name": "toSizeConfiguration",
+          "startLine": 198,
+          "endLine": 211,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 11,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 78.87,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 63.9,
+          "maintainabilityRating": "warn",
+          "healthScore": 88,
+          "smells": []
+        },
+        {
+          "name": "toResaleConfiguration",
+          "startLine": 227,
+          "endLine": 240,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -125515,7 +125774,7 @@
             },
             {
               "name": "functionLength",
-              "value": 12,
+              "value": 11,
               "threshold": 70,
               "severity": "ok"
             },
@@ -125532,15 +125791,15 @@
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 61,
+          "maintainabilityIndex": 61.8,
           "maintainabilityRating": "warn",
           "healthScore": 82,
           "smells": []
         },
         {
           "name": "buildAccompaniment",
-          "startLine": 161,
-          "endLine": 199,
+          "startLine": 242,
+          "endLine": 280,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -125580,8 +125839,8 @@
         },
         {
           "name": "publishAffectedProductSalesConfigurations",
-          "startLine": 210,
-          "endLine": 237,
+          "startLine": 291,
+          "endLine": 318,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -125621,10 +125880,10 @@
         }
       ],
       "summary": {
-        "totalLines": 238,
-        "weightedMI": 51.3,
-        "weightedHealthScore": 60.3,
-        "worstSeverity": "error",
+        "totalLines": 319,
+        "weightedMI": 60.2,
+        "weightedHealthScore": 78,
+        "worstSeverity": "warn",
         "smellIds": []
       }
     },
@@ -126866,11 +127125,11 @@
         {
           "name": "link",
           "startLine": 56,
-          "endLine": 96,
+          "endLine": 98,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 2,
+              "value": 3,
               "threshold": 15,
               "severity": "ok"
             },
@@ -126882,7 +127141,7 @@
             },
             {
               "name": "functionLength",
-              "value": 38,
+              "value": 40,
               "threshold": 70,
               "severity": "warn"
             },
@@ -126894,26 +127153,26 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 554.53,
+              "value": 605.26,
               "threshold": 800,
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 46.1,
+          "maintainabilityIndex": 45.2,
           "maintainabilityRating": "warn",
-          "healthScore": 74,
+          "healthScore": 72,
           "smells": [
             {
               "id": "bloated",
               "label": "Bloated",
-              "reason": "Large function (38 lines) with high vocabulary (Halstead volume 554.53) but low branching — consider extracting helpers."
+              "reason": "Large function (40 lines) with high vocabulary (Halstead volume 605.26) but low branching — consider extracting helpers."
             }
           ]
         },
         {
           "name": "resolveLinkContext",
-          "startLine": 98,
-          "endLine": 135,
+          "startLine": 100,
+          "endLine": 137,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -126959,8 +127218,8 @@
         },
         {
           "name": "validateTarget",
-          "startLine": 155,
-          "endLine": 175,
+          "startLine": 157,
+          "endLine": 177,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127000,8 +127259,8 @@
         },
         {
           "name": "validateQuantity",
-          "startLine": 177,
-          "endLine": 187,
+          "startLine": 179,
+          "endLine": 189,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127041,8 +127300,8 @@
         },
         {
           "name": "buildDetails",
-          "startLine": 225,
-          "endLine": 261,
+          "startLine": 227,
+          "endLine": 263,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127088,8 +127347,8 @@
         },
         {
           "name": "resolveCurrentSource",
-          "startLine": 263,
-          "endLine": 288,
+          "startLine": 265,
+          "endLine": 290,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -127135,9 +127394,9 @@
         }
       ],
       "summary": {
-        "totalLines": 290,
-        "weightedMI": 54.3,
-        "weightedHealthScore": 69.1,
+        "totalLines": 292,
+        "weightedMI": 54,
+        "weightedHealthScore": 68.8,
         "worstSeverity": "warn",
         "smellIds": [
           "bloated",
@@ -130995,11 +131254,11 @@
         {
           "name": "update",
           "startLine": 55,
-          "endLine": 97,
+          "endLine": 99,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 2,
+              "value": 3,
               "threshold": 15,
               "severity": "ok"
             },
@@ -131011,7 +131270,7 @@
             },
             {
               "name": "functionLength",
-              "value": 40,
+              "value": 42,
               "threshold": 70,
               "severity": "warn"
             },
@@ -131023,26 +131282,26 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 549.45,
+              "value": 600.13,
               "threshold": 800,
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 45.6,
+          "maintainabilityIndex": 44.7,
           "maintainabilityRating": "warn",
-          "healthScore": 74,
+          "healthScore": 71,
           "smells": [
             {
               "id": "bloated",
               "label": "Bloated",
-              "reason": "Large function (40 lines) with high vocabulary (Halstead volume 549.45) but low branching — consider extracting helpers."
+              "reason": "Large function (42 lines) with high vocabulary (Halstead volume 600.13) but low branching — consider extracting helpers."
             }
           ]
         },
         {
           "name": "resolveUpdateContext",
-          "startLine": 99,
-          "endLine": 140,
+          "startLine": 101,
+          "endLine": 142,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -131082,24 +131341,24 @@
         },
         {
           "name": "validateTarget",
-          "startLine": 160,
-          "endLine": 178,
+          "startLine": 162,
+          "endLine": 179,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 7,
+              "value": 6,
               "threshold": 15,
               "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 6,
+              "value": 5,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 15,
+              "value": 14,
               "threshold": 70,
               "severity": "ok"
             },
@@ -131111,20 +131370,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 263.22,
+              "value": 213.62,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 56.5,
+          "maintainabilityIndex": 57.9,
           "maintainabilityRating": "warn",
-          "healthScore": 66,
+          "healthScore": 70,
           "smells": []
         },
         {
           "name": "validateQuantity",
-          "startLine": 190,
-          "endLine": 200,
+          "startLine": 191,
+          "endLine": 201,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -131164,8 +131423,8 @@
         },
         {
           "name": "buildDetails",
-          "startLine": 225,
-          "endLine": 261,
+          "startLine": 226,
+          "endLine": 262,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -131211,8 +131470,8 @@
         },
         {
           "name": "resolveCurrentSource",
-          "startLine": 263,
-          "endLine": 288,
+          "startLine": 264,
+          "endLine": 289,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -131258,9 +131517,9 @@
         }
       ],
       "summary": {
-        "totalLines": 290,
-        "weightedMI": 53.4,
-        "weightedHealthScore": 67.6,
+        "totalLines": 291,
+        "weightedMI": 53.3,
+        "weightedHealthScore": 67.4,
         "worstSeverity": "warn",
         "smellIds": [
           "bloated",

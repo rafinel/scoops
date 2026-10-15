@@ -420,6 +420,9 @@ describe('Link Product Accompaniment Use Case', () => {
         : undefined,
     )
     expect(publishedIds).toEqual(expect.arrayContaining([owner.id, anotherPortion.id]))
+    expect(
+      scope.productAccompanimentsRepository.findManyByAccompanimentProductId,
+    ).toHaveBeenCalledWith(establishmentId, target.id)
   })
 
   it('rejects missing or invalid prices before writing the Product or link', async () => {
