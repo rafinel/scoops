@@ -54,6 +54,9 @@ export function useProductAccompanimentDialog({
     () => candidatesQuery.data?.find((candidate) => candidate.id === productIdValue),
     [candidatesQuery.data, productIdValue],
   )
+  const types = typesQuery.data?.items ?? []
+  const selectedTypeName =
+    types.find(({ type }) => type.id === typeId)?.type.name ?? item?.accompanimentTypeName
   const selectedBrand = selectedStockQuery.data?.brands.find(
     ({ brand }) => brand.isPrimary,
   )
@@ -122,8 +125,9 @@ export function useProductAccompanimentDialog({
     selectedStockError: selectedStockQuery.isError,
     selectedStockLoading: selectedStockQuery.isPending,
     source,
+    selectedTypeName,
     typeId,
-    types: typesQuery.data?.items ?? [],
+    types,
     typesError: typesQuery.isError,
     typesLoading: typesQuery.isPending,
     isRefreshing,

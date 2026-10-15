@@ -90,11 +90,28 @@ describe('NewSaleCart', () => {
   })
 
   it('shows the last matching prices while recalculating repeated product lines', () => {
-    const firstLine = { ...line, kind: 'portion' as const, sizeId: 'size-1', accompanimentIds: ['cream'] }
+    const firstLine = {
+      ...line,
+      kind: 'portion' as const,
+      sizeId: 'size-1',
+      accompanimentIds: ['cream'],
+    }
     const secondLine = { ...firstLine, accompanimentIds: ['granola'] }
     const previewLines = [
-      { ...firstLine, baseUnitPrice: 20, finalUnitPrice: 20, subtotal: 20, consumptions: [] },
-      { ...secondLine, baseUnitPrice: 22, finalUnitPrice: 22, subtotal: 22, consumptions: [] },
+      {
+        ...firstLine,
+        baseUnitPrice: 20,
+        finalUnitPrice: 20,
+        subtotal: 20,
+        consumptions: [],
+      },
+      {
+        ...secondLine,
+        baseUnitPrice: 22,
+        finalUnitPrice: 22,
+        subtotal: 22,
+        consumptions: [],
+      },
     ]
     useNewSaleCartMock.mockReturnValue({
       handleClearConfirmationChange: vi.fn(),
@@ -107,10 +124,33 @@ describe('NewSaleCart', () => {
       isClearConfirmationOpen: false,
       lineInputs: [firstLine, secondLine],
       previewCart: {
-        establishmentId: 'establishment-1', lines: previewLines, discounts: [],
-        subtotal: 42, totalDiscount: 0, total: 42,
+        establishmentId: 'establishment-1',
+        lines: previewLines,
+        discounts: [],
+        subtotal: 42,
+        totalDiscount: 0,
+        total: 42,
       },
-      productsById: new Map([[product.productId, { ...product, name: 'Açaí tropical', kind: 'portion', sizes: [{ sizeId: 'size-1', name: '300 g', accompaniments: [{ accompanimentId: 'cream', name: 'Creme' }, { accompanimentId: 'granola', name: 'Granola' }] }] }]]),
+      productsById: new Map([
+        [
+          product.productId,
+          {
+            ...product,
+            name: 'Açaí tropical',
+            kind: 'portion',
+            sizes: [
+              {
+                sizeId: 'size-1',
+                name: '300 g',
+                accompaniments: [
+                  { accompanimentId: 'cream', name: 'Creme' },
+                  { accompanimentId: 'granola', name: 'Granola' },
+                ],
+              },
+            ],
+          },
+        ],
+      ]),
     } as never)
 
     render(

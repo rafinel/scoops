@@ -259,8 +259,8 @@ test.describe('NewSalePage', () => {
       await expect(cart.getByText('Acompanhamentos', { exact: true })).toBeVisible()
       await expect(cart.getByRole('term')).toHaveText(['Cobertura', 'Extra'])
       await expect(cart.getByRole('definition')).toHaveText([
-        'Granola · Paçoca',
-        'Leite em pó · Banana',
+        'Granola · + R$ 2,00Paçoca · + R$ 2,00',
+        'Leite em pó · + R$ 2,00Banana · R$ 0,00',
       ])
       await expect
         .poll(() => previewRequests)
@@ -281,6 +281,7 @@ test.describe('NewSalePage', () => {
             document.documentElement.scrollWidth <= document.documentElement.clientWidth,
         ),
       ).resolves.toBe(true)
+      await cart.getByText('Acompanhamentos', { exact: true }).scrollIntoViewIfNeeded()
       await page.screenshot({
         path: testInfo.outputPath(`accompaniments-cart-${viewport.name}.png`),
       })

@@ -30,8 +30,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  core:
-    name: Core
+  core_code:
+    name: Core code
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -56,11 +56,80 @@ jobs:
       - name: Check code
         run: pnpm --filter @scoops/core check:code
 
+  core_architecture:
+    name: Core architecture
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Check architecture
         run: pnpm --filter @scoops/core check:architecture
 
+  core_types:
+    name: Core types
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Check types
         run: pnpm --filter @scoops/core check:types
+
+  core_coverage:
+    name: Core tests and coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests with coverage
         id: coverage
@@ -110,6 +179,31 @@ jobs:
           name: core-coverage-${{ github.run_id }}
           path: packages/core/coverage/
           retention-days: 14
+
+  core:
+    name: Core
+    if: ${{ always() }}
+    needs:
+      - core_code
+      - core_architecture
+      - core_types
+      - core_coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all Core checks
+        env:
+          CORE_CODE_RESULT: ${{ needs.core_code.result }}
+          CORE_ARCHITECTURE_RESULT: ${{ needs.core_architecture.result }}
+          CORE_TYPES_RESULT: ${{ needs.core_types.result }}
+          CORE_COVERAGE_RESULT: ${{ needs.core_coverage.result }}
+        run: |
+          if [[ "$CORE_CODE_RESULT" != "success" || "$CORE_ARCHITECTURE_RESULT" != "success" || "$CORE_TYPES_RESULT" != "success" || "$CORE_COVERAGE_RESULT" != "success" ]]; then
+            echo "Core code result: $CORE_CODE_RESULT"
+            echo "Core architecture result: $CORE_ARCHITECTURE_RESULT"
+            echo "Core types result: $CORE_TYPES_RESULT"
+            echo "Core tests and coverage result: $CORE_COVERAGE_RESULT"
+            exit 1
+          fi
 
   mutation:
     name: Mutation ${{ matrix.variant }} (${{ matrix.shard }}/4)

@@ -695,22 +695,31 @@ The repository contains four path-filtered GitHub Actions validation workflows. 
 files are authoritative for their exact triggers, path filters and commands; this section provides
 the maintained summary:
 
-- `.github/workflows/core-package-ci.yml` (`Core CI`) runs Core code, architecture and
-  type checks plus tests for Core and shared tooling inputs;
+- `.github/workflows/core-package-ci.yml` (`Core CI`) runs Core code, architecture, type
+  and coverage checks as parallel jobs, alongside mutation testing and its score gate for
+  Core and shared tooling inputs;
 - `.github/workflows/validation-package-ci.yml` (`Validation CI`) runs Validation code,
-  architecture and type checks for Validation or Core inputs;
-- `.github/workflows/server-app-ci.yml` (`Server CI`) runs Server code, architecture and
-  type checks, tests and build for Server, Validation or Core inputs;
-- `.github/workflows/web-app-ci.yml` (`Web CI`) generates routes and runs Web code,
-  architecture and type checks, unit tests, the mocked Playwright route suite and build
-  for Web, Validation or Core inputs. Real-service browser scenarios are validated
+  architecture and type checks as parallel jobs for Validation or Core inputs;
+- `.github/workflows/server-app-ci.yml` (`Server CI`) runs Server code, architecture,
+  type, Inngest integration, coverage and build checks as parallel jobs for Server,
+  Validation or Core inputs;
+- `.github/workflows/web-app-ci.yml` (`Web CI`) runs route generation with Web code,
+  architecture, type, coverage, mocked Playwright route and build checks in parallel
+  jobs for Web, Validation or Core inputs. Real-service browser scenarios are validated
   separately with their required Server/PostgreSQL environment.
+
+Each app and package workflow finishes its primary checks with an aggregate `Web`,
+`Server`, `Core` or `Validation` job that requires all split validation jobs to pass.
+These aggregate check names remain stable for branch protection; the individual jobs
+expose the failing validation directly. Core mutation shards and their score gate remain
+separate checks.
 
 Each workflow also has a separate `Complexity` job that runs the scoped
 CodeMultiVitals baseline quality gate alongside the app/package-specific
 validation job.
 
-The validation workflows run on matching pushes and pull requests. Separate
+Core, Server and Web validation run on matching pull requests. Validation also runs on
+matching pushes to `main`. Separate
 [`server-app-staging-cd.yml`](../.github/workflows/server-app-staging-cd.yml) and
 [`web-app-staging-cd.yml`](../.github/workflows/web-app-staging-cd.yml) workflows
 deploy matching pushes to `main` to Heroku staging. The repository does not

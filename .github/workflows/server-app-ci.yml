@@ -29,22 +29,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  server:
-    name: Server
+  server_code:
+    name: Server code
     runs-on: ubuntu-latest
     timeout-minutes: 40
-    services:
-      mailpit:
-        image: axllent/mailpit:v1.21
-        ports:
-          - 54324:8025
-          - 54325:1025
-    env:
-      INNGEST_BASE_URL: http://127.0.0.1:8288
-      SCOOPS_PDV_PREVIEW_TOKEN_SECRET: scoops-ci-preview-token-secret-at-least-32-characters
-      BETTER_AUTH_SECRET: scoops-ci-better-auth-secret-at-least-32-characters
-      SCOOPS_EMAIL_SENDER: no-reply@scoops.local
-
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -66,14 +54,124 @@ jobs:
       - name: Check code
         run: pnpm --filter server check:code
 
+  server_architecture:
+    name: Server architecture
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Check architecture
         run: pnpm --filter server check:architecture
+
+  server_types:
+    name: Server types
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Check types
         run: pnpm --filter server check:types
 
+  server_integration:
+    name: Server Inngest integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      mailpit:
+        image: axllent/mailpit:v1.21
+        ports:
+          - 54324:8025
+          - 54325:1025
+    env:
+      INNGEST_BASE_URL: http://127.0.0.1:8288
+      SCOOPS_PDV_PREVIEW_TOKEN_SECRET: scoops-ci-preview-token-secret-at-least-32-characters
+      BETTER_AUTH_SECRET: scoops-ci-better-auth-secret-at-least-32-characters
+      SCOOPS_EMAIL_SENDER: no-reply@scoops.local
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Run Inngest integration tests
         run: pnpm --filter server test:inngest
+
+  server_coverage:
+    name: Server unit tests and coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      mailpit:
+        image: axllent/mailpit:v1.21
+        ports:
+          - 54324:8025
+          - 54325:1025
+    env:
+      INNGEST_BASE_URL: http://127.0.0.1:8288
+      SCOOPS_PDV_PREVIEW_TOKEN_SECRET: scoops-ci-preview-token-secret-at-least-32-characters
+      BETTER_AUTH_SECRET: scoops-ci-better-auth-secret-at-least-32-characters
+      SCOOPS_EMAIL_SENDER: no-reply@scoops.local
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests with coverage
         id: coverage
@@ -124,8 +222,61 @@ jobs:
           path: apps/server/coverage/
           retention-days: 14
 
+  server_build:
+    name: Server build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Build
         run: pnpm --filter server build
+
+  server:
+    name: Server
+    if: ${{ always() }}
+    needs:
+      - server_code
+      - server_architecture
+      - server_types
+      - server_integration
+      - server_coverage
+      - server_build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all Server checks
+        env:
+          SERVER_CODE_RESULT: ${{ needs.server_code.result }}
+          SERVER_ARCHITECTURE_RESULT: ${{ needs.server_architecture.result }}
+          SERVER_TYPES_RESULT: ${{ needs.server_types.result }}
+          SERVER_INTEGRATION_RESULT: ${{ needs.server_integration.result }}
+          SERVER_COVERAGE_RESULT: ${{ needs.server_coverage.result }}
+          SERVER_BUILD_RESULT: ${{ needs.server_build.result }}
+        run: |
+          if [[ "$SERVER_CODE_RESULT" != "success" || "$SERVER_ARCHITECTURE_RESULT" != "success" || "$SERVER_TYPES_RESULT" != "success" || "$SERVER_INTEGRATION_RESULT" != "success" || "$SERVER_COVERAGE_RESULT" != "success" || "$SERVER_BUILD_RESULT" != "success" ]]; then
+            echo "Server code result: $SERVER_CODE_RESULT"
+            echo "Server architecture result: $SERVER_ARCHITECTURE_RESULT"
+            echo "Server types result: $SERVER_TYPES_RESULT"
+            echo "Server integration result: $SERVER_INTEGRATION_RESULT"
+            echo "Server coverage result: $SERVER_COVERAGE_RESULT"
+            echo "Server build result: $SERVER_BUILD_RESULT"
+            exit 1
+          fi
 
   complexity:
     name: Complexity

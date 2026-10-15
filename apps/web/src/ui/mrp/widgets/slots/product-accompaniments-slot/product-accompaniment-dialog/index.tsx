@@ -52,6 +52,7 @@ export const ProductAccompanimentDialog = ({
     selectedProduct,
     selectedStockError,
     selectedStockLoading,
+    selectedTypeName,
     source,
     typeId,
     types,
@@ -135,7 +136,9 @@ export const ProductAccompanimentDialog = ({
               value={typeId || null}
             >
               <SelectTrigger aria-label='Tipo' className='w-full'>
-                <SelectValue placeholder='Selecione um tipo' />
+                <SelectValue placeholder='Selecione um tipo'>
+                  {typeId ? (selectedTypeName ?? 'Carregando tipo…') : undefined}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {types.map(({ type }) => (

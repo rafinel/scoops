@@ -445,8 +445,7 @@ function calculatePortionUnitPrice(
   accompaniments: readonly ProductAccompaniment[],
 ): number {
   const accompanimentsPrice = accompaniments.reduce(
-    (sum, accompaniment) =>
-      sum + accompaniment.basePrice,
+    (sum, accompaniment) => sum + accompaniment.basePrice,
     0,
   )
   return money((size?.basePrice ?? 0) + accompanimentsPrice)

@@ -158,8 +158,8 @@ test.describe('OrderPage', () => {
         .filter({ has: page.getByRole('term').filter({ hasText: /^Extra$/ }) })
       await expect(groups.getByRole('term')).toHaveText(['Extra', 'Cobertura'])
       await expect(groups.getByRole('definition')).toHaveText([
-        'Leite em pó · Banana',
-        'Granola',
+        'Leite em pó · + R$\u00a02,00Banana · R$\u00a00,00',
+        'Granola · R$\u00a00,00',
       ])
       await expect(main.getByText('Açaí', { exact: true })).toBeVisible()
       expect(
@@ -326,7 +326,8 @@ test.describe('OrderPage', () => {
       wideItemRowBoxes.at(0)?.bottom ?? Number.NEGATIVE_INFINITY,
     )
     await expect(orderTotalsSection).toContainText('Subtotal dos produtos')
-    await expect(orderTotalsSection).toContainText('Acrescimo do canal')
+    await expect(orderTotalsSection).toContainText('Delivery próprio · +12%')
+    await expect(orderTotalsSection).toContainText('+ R$\u00a02,00')
     await expect(orderTotalsSection).toContainText('Total do pedido')
     await expect(desktopChannelModifier).toBeVisible()
     await expect(desktopChannelModifier).toContainText('Acrescimo do canal')

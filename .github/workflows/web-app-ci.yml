@@ -29,13 +29,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  web:
-    name: Web
+  web_code:
+    name: Web code
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       VITE_SCOOPS_SERVER_APP_URL: http://127.0.0.1:3336
-
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -60,11 +59,92 @@ jobs:
       - name: Check code
         run: pnpm --filter web check:code
 
+  web_architecture:
+    name: Web architecture
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VITE_SCOOPS_SERVER_APP_URL: http://127.0.0.1:3336
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate routes
+        run: pnpm --filter web generate-routes
+
       - name: Check architecture
         run: pnpm --filter web check:architecture
 
+  web_types:
+    name: Web types
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VITE_SCOOPS_SERVER_APP_URL: http://127.0.0.1:3336
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate routes
+        run: pnpm --filter web generate-routes
+
       - name: Check types
         run: pnpm --filter web check:types
+
+  web_coverage:
+    name: Web unit tests and coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VITE_SCOOPS_SERVER_APP_URL: http://127.0.0.1:3336
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate routes
+        run: pnpm --filter web generate-routes
 
       - name: Run tests with coverage
         id: coverage
@@ -115,14 +195,99 @@ jobs:
           path: apps/web/coverage/
           retention-days: 14
 
+  web_integration:
+    name: Web browser integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VITE_SCOOPS_SERVER_APP_URL: http://127.0.0.1:3336
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate routes
+        run: pnpm --filter web generate-routes
+
       - name: Install Playwright Chromium
         run: pnpm --filter web exec playwright install --with-deps chromium
 
       - name: Run browser integration tests
         run: pnpm --filter web test:integration --workers=1
 
+  web_build:
+    name: Web build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VITE_SCOOPS_SERVER_APP_URL: http://127.0.0.1:3336
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate routes
+        run: pnpm --filter web generate-routes
+
       - name: Build
         run: pnpm --filter web build
+
+  web:
+    name: Web
+    if: ${{ always() }}
+    needs:
+      - web_code
+      - web_architecture
+      - web_types
+      - web_coverage
+      - web_integration
+      - web_build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all Web checks
+        env:
+          WEB_CODE_RESULT: ${{ needs.web_code.result }}
+          WEB_ARCHITECTURE_RESULT: ${{ needs.web_architecture.result }}
+          WEB_TYPES_RESULT: ${{ needs.web_types.result }}
+          WEB_COVERAGE_RESULT: ${{ needs.web_coverage.result }}
+          WEB_INTEGRATION_RESULT: ${{ needs.web_integration.result }}
+          WEB_BUILD_RESULT: ${{ needs.web_build.result }}
+        run: |
+          if [[ "$WEB_CODE_RESULT" != "success" || "$WEB_ARCHITECTURE_RESULT" != "success" || "$WEB_TYPES_RESULT" != "success" || "$WEB_COVERAGE_RESULT" != "success" || "$WEB_INTEGRATION_RESULT" != "success" || "$WEB_BUILD_RESULT" != "success" ]]; then
+            echo "Web code result: $WEB_CODE_RESULT"
+            echo "Web architecture result: $WEB_ARCHITECTURE_RESULT"
+            echo "Web types result: $WEB_TYPES_RESULT"
+            echo "Web coverage result: $WEB_COVERAGE_RESULT"
+            echo "Web integration result: $WEB_INTEGRATION_RESULT"
+            echo "Web build result: $WEB_BUILD_RESULT"
+            exit 1
+          fi
 
   complexity:
     name: Complexity
