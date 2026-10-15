@@ -16,17 +16,52 @@ export type CostEstimateProps = {
   state: ProductAccompanimentDialogState
 }
 
-export const useCostEstimate = ({ item, state }: CostEstimateProps) => {
+export type CostEstimateViewModel = {
+  estimate: string
+  formattedQuantity: string
+  formattedUnitCost: string
+  unit: string
+}
+
+export const useCostEstimate = ({
+  item,
+  state,
+}: CostEstimateProps): CostEstimateViewModel => {
   const formatCurrency = useFormatCurrency()
   const formatQuantity = useFormatQuantity()
-  const unit = item?.unit ?? state.selectedProduct?.unit ?? 'un'
+  return getCostEstimate(item, state, formatCurrency, formatQuantity)
+}
 
+function getCostEstimate(
+  item: ProductAccompanimentDetails | undefined,
+  state: ProductAccompanimentDialogState,
+  formatCurrency: (amount: number) => string,
+  formatQuantity: (quantity: number, unit: string) => string,
+): CostEstimateViewModel {
+  const unit = getCostUnit(item, state)
   return {
     estimate: getEstimatedCostLabel(state, formatCurrency),
-    formattedQuantity: formatQuantity(state.numericQuantity, unit),
-    formattedUnitCost: UNIT_COST_FORMATTER.format(state.source?.unitCost ?? 0),
+    ...getCostDetails(state, formatQuantity, unit),
     unit,
   }
+}
+
+function getCostDetails(
+  state: ProductAccompanimentDialogState,
+  formatQuantity: (quantity: number, unit: string) => string,
+  unit: string,
+): Pick<CostEstimateViewModel, 'formattedQuantity' | 'formattedUnitCost'> {
+  return {
+    formattedQuantity: formatQuantity(state.numericQuantity, unit),
+    formattedUnitCost: UNIT_COST_FORMATTER.format(state.source?.unitCost ?? 0),
+  }
+}
+
+function getCostUnit(
+  item: ProductAccompanimentDetails | undefined,
+  state: ProductAccompanimentDialogState,
+) {
+  return item?.unit ?? state.selectedProduct?.unit ?? 'un'
 }
 
 function getEstimatedCostLabel(
