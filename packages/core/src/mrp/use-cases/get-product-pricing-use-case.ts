@@ -89,6 +89,23 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
       return GetProductPricingUseCase.buildPortionDetails(scope, establishmentId, product)
     }
 
+    if (
+      product.categories.includes(ProductCategory.Accompaniment) &&
+      !product.categories.includes(ProductCategory.Resale)
+    ) {
+      return {
+        product,
+        mode: 'accompaniment',
+        sizes: [],
+        resale: [],
+        ...(await GetProductPricingUseCase.getAccompanimentPriceProjection(
+          scope,
+          establishmentId,
+          product,
+        )),
+      }
+    }
+
     if (!product.categories.includes(ProductCategory.Resale)) {
       throw new BadRequestError('O produto não possui uma categoria com preços.')
     }
@@ -139,6 +156,11 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
         GetProductPricingUseCase.buildSizePricing(size, unitCost),
       ),
       resale: [],
+      ...(await GetProductPricingUseCase.getAccompanimentPriceProjection(
+        scope,
+        establishmentId,
+        product,
+      )),
     }
   }
 
@@ -168,6 +190,11 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
       resale: [
         GetProductPricingUseCase.buildResalePricing(ownedConfiguration, undefined, 1),
       ],
+      ...(await GetProductPricingUseCase.getAccompanimentPriceProjection(
+        scope,
+        establishmentId,
+        product,
+      )),
     }
   }
 
@@ -205,7 +232,94 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
           brand.packageQuantity,
         )
       }),
+      ...(await GetProductPricingUseCase.getAccompanimentPriceProjection(
+        scope,
+        establishmentId,
+        product,
+      )),
     }
+  }
+
+  private static async getAccompanimentPriceProjection(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<
+    Pick<ProductPricingDetails, 'accompanimentPrice' | 'suggestedAccompanimentPrice'>
+  > {
+    const isAccompaniment = product.categories.includes(ProductCategory.Accompaniment)
+    const accompanimentPrice = isAccompaniment
+      ? (product.accompanimentPrice ?? null)
+      : null
+    const suggestedAccompanimentPrice =
+      isAccompaniment &&
+      accompanimentPrice === null &&
+      product.categories.includes(ProductCategory.Resale)
+        ? await GetProductPricingUseCase.findResalePriceSuggestion(
+            scope,
+            establishmentId,
+            product,
+          )
+        : null
+
+    return { accompanimentPrice, suggestedAccompanimentPrice }
+  }
+
+  private static async findResalePriceSuggestion(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<number | null> {
+    if (product.stockControl === ProductStockControl.Single) {
+      const configuration =
+        await scope.resaleConfigurationsRepository.findByProductAndBrand(
+          establishmentId,
+          product.id,
+        )
+      if (
+        GetProductPricingUseCase.isOwnedConfiguration(
+          configuration,
+          establishmentId,
+          product.id,
+          undefined,
+        ) &&
+        Number.isFinite(configuration.price) &&
+        configuration.price >= 0
+      ) {
+        return configuration.price
+      }
+      return null
+    }
+
+    if (product.stockControl !== ProductStockControl.ByBrand) return null
+
+    const [brands, configurations] = await Promise.all([
+      scope.brandsRepository.findManyByProductId(product.id),
+      scope.resaleConfigurationsRepository.findManyByProductId(
+        establishmentId,
+        product.id,
+      ),
+    ])
+    const primaryBrand = brands.find(
+      (brand) => brand.productId === product.id && brand.isPrimary,
+    )
+    if (!primaryBrand) return null
+
+    const configuration = configurations.find(
+      (candidate) =>
+        candidate.brandId === primaryBrand.id &&
+        GetProductPricingUseCase.isOwnedConfiguration(
+          candidate,
+          establishmentId,
+          product.id,
+          primaryBrand.id,
+        ),
+    )
+    return configuration &&
+      Number.isFinite(configuration.price) &&
+      configuration.price >= 0
+      ? configuration.price
+      : null
   }
 
   private static buildSizePricing(
@@ -243,28 +357,53 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
     establishmentId: string,
     product: Product,
   ): Promise<number | undefined> {
-    if (
-      product.currentUnitCost !== undefined &&
-      Number.isFinite(product.currentUnitCost) &&
-      product.currentUnitCost >= 0
-    ) {
+    if (GetProductPricingUseCase.isValidUnitCost(product.currentUnitCost)) {
       return product.currentUnitCost
     }
 
-    const recipe = await scope.recipesRepository.findByProductId(
+    const recipe = await GetProductPricingUseCase.findOwnedRecipe(
+      scope,
       establishmentId,
       product.id,
+    )
+    if (!recipe) return undefined
+
+    const totalCost = await GetProductPricingUseCase.calculateRecipeCost(
+      scope,
+      establishmentId,
+      recipe,
+    )
+    return totalCost === undefined ? undefined : totalCost / recipe.yieldQuantity
+  }
+
+  private static async findOwnedRecipe(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    productId: string,
+  ) {
+    const recipe = await scope.recipesRepository.findByProductId(
+      establishmentId,
+      productId,
     )
     if (
       !recipe ||
       recipe.establishmentId !== establishmentId ||
-      recipe.productId !== product.id ||
+      recipe.productId !== productId ||
       !Number.isFinite(recipe.yieldQuantity) ||
       recipe.yieldQuantity <= 0
     ) {
       return undefined
     }
+    return recipe
+  }
 
+  private static async calculateRecipeCost(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    recipe: NonNullable<
+      Awaited<ReturnType<typeof GetProductPricingUseCase.findOwnedRecipe>>
+    >,
+  ): Promise<number | undefined> {
     const ingredients = await scope.recipeIngredientsRepository.findByRecipeId(
       establishmentId,
       recipe.id,
@@ -295,7 +434,11 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
       totalCost += ingredient.quantity * ingredientUnitCost
     }
 
-    return totalCost / recipe.yieldQuantity
+    return totalCost
+  }
+
+  private static isValidUnitCost(value: number | undefined): value is number {
+    return value !== undefined && Number.isFinite(value) && value >= 0
   }
 
   private static async resolveIngredientUnitCost(
@@ -304,25 +447,38 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
     establishmentId: string,
     selectedBrandId?: string,
   ): Promise<number | undefined> {
-    if (
-      !product ||
-      product.establishmentId !== establishmentId ||
-      product.status !== 'active' ||
-      !product.categories.includes(ProductCategory.Ingredient)
-    ) {
+    if (!GetProductPricingUseCase.isEligibleIngredient(product, establishmentId)) {
       return undefined
     }
 
     if (product.stockControl === ProductStockControl.Single) {
-      return product.currentUnitCost !== undefined &&
-        Number.isFinite(product.currentUnitCost) &&
-        product.currentUnitCost >= 0
+      return GetProductPricingUseCase.isValidUnitCost(product.currentUnitCost)
         ? product.currentUnitCost
         : undefined
     }
 
     if (product.stockControl !== ProductStockControl.ByBrand) return undefined
 
+    return GetProductPricingUseCase.resolveBrandUnitCost(scope, product, selectedBrandId)
+  }
+
+  private static isEligibleIngredient(
+    product: Product | undefined,
+    establishmentId: string,
+  ): product is Product {
+    return Boolean(
+      product &&
+        product.establishmentId === establishmentId &&
+        product.status === 'active' &&
+        product.categories.includes(ProductCategory.Ingredient),
+    )
+  }
+
+  private static async resolveBrandUnitCost(
+    scope: MrpDatabaseRepositories,
+    product: Product,
+    selectedBrandId?: string,
+  ): Promise<number | undefined> {
     const brands = await scope.brandsRepository.findManyByProductId(product.id)
     const brand =
       (selectedBrandId
@@ -331,7 +487,7 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
     if (!brand || brand.packageQuantity <= 0) return undefined
 
     const unitCost = brand.packagePrice / brand.packageQuantity
-    return Number.isFinite(unitCost) && unitCost >= 0 ? unitCost : undefined
+    return GetProductPricingUseCase.isValidUnitCost(unitCost) ? unitCost : undefined
   }
 
   private static isOwnedConfiguration(
@@ -363,7 +519,8 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
     }
     if (
       !product.categories.includes(ProductCategory.Portion) &&
-      !product.categories.includes(ProductCategory.Resale)
+      !product.categories.includes(ProductCategory.Resale) &&
+      !product.categories.includes(ProductCategory.Accompaniment)
     ) {
       throw new BadRequestError('O produto não possui uma categoria com preços.')
     }

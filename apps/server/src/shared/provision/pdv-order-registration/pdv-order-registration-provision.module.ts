@@ -1,8 +1,8 @@
 import { DynamicModule, InjectionToken, Module, Provider, Type } from '@nestjs/common'
 
-import { MrpOrderCostProvider } from './mrp-order-cost-provider'
-import { MrpSalesCatalogProvider } from './mrp-sales-catalog-provider'
-import { MrpStockProvider } from './mrp-stock-provider'
+import { MrpOrderCostProvider } from '@/shared/provision/pdv-order-registration/mrp-order-cost/mrp-order-cost-provider'
+import { MrpSalesCatalogProvider } from '@/shared/provision/pdv-order-registration/mrp-sales-catalog/mrp-sales-catalog-provider'
+import { MrpStockProvider } from '@/shared/provision/pdv-order-registration/mrp-stock/mrp-stock-provider'
 
 @Module({})
 export class PdvOrderRegistrationProvisionModule {

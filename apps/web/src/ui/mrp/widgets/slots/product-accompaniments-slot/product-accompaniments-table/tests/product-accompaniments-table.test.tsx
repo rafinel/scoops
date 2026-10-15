@@ -6,7 +6,7 @@ import { ProductAccompanimentsTable } from '../index'
 describe('ProductAccompanimentsTable', () => {
   afterEach(cleanup)
 
-  it('exposes unavailable source and price without hiding the row', () => {
+  it('shows a saved product price and keeps manager row actions', () => {
     const onEdit = vi.fn()
     const onRemove = vi.fn()
 
@@ -21,6 +21,7 @@ describe('ProductAccompanimentsTable', () => {
             accompanimentTypeName: 'Cobertura',
             unit: 'g',
             quantityPerPortion: 20,
+            salePrice: 3,
             estimatedCost: 0.45,
           },
         ]}
@@ -29,10 +30,7 @@ describe('ProductAccompanimentsTable', () => {
       />,
     )
     expect(screen.getByText('Granola').textContent).toBe('Granola')
-    expect(screen.getAllByText('Não disponível')).toHaveLength(1)
-    expect(
-      screen.getByLabelText(/preço comercial é configurado por tamanho no PDV/i),
-    ).toBeTruthy()
+    expect(screen.getByText('R$ 3,00')).toBeTruthy()
     expect(screen.getByText('Indisponível')).toBeTruthy()
 
     fireEvent.click(screen.getByRole('button', { name: 'Editar Granola' }))
@@ -55,6 +53,7 @@ describe('ProductAccompanimentsTable', () => {
             accompanimentTypeName: 'Cobertura',
             unit: 'g',
             quantityPerPortion: 20,
+            salePrice: 0,
             estimatedCost: 0.45,
           },
         ]}
@@ -63,6 +62,7 @@ describe('ProductAccompanimentsTable', () => {
       />,
     )
     expect(screen.getByText('Granola')).toBeTruthy()
+    expect(screen.getByText('Grátis')).toBeTruthy()
     expect(screen.getByRole('columnheader', { name: 'ACOMPANHAMENTO' })).toBeTruthy()
     expect(screen.queryByRole('columnheader', { name: 'AÇÕES' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Editar Granola' })).toBeNull()

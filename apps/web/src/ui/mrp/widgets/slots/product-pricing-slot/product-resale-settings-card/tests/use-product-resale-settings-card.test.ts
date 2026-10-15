@@ -35,6 +35,8 @@ const createDetails = (): ProductPricingDetails => ({
     },
   ],
   sizes: [],
+  accompanimentPrice: null,
+  suggestedAccompanimentPrice: null,
 })
 
 const details = createDetails()

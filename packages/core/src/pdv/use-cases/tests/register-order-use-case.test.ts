@@ -226,7 +226,18 @@ describe('Register Order Use Case', () => {
     await expect(useCase.execute(request)).resolves.toMatchObject({
       kind: 'repriced',
       previewToken: 'fresh-preview-token',
-      changes: [{ kind: 'catalog' }],
+      changes: expect.arrayContaining([
+        {
+          kind: 'catalog',
+          previous: { label: 'Produto', amount: 0 },
+          current: { label: 'Produto', amount: 12.5 },
+        },
+        {
+          kind: 'catalog',
+          previous: { label: 'Total do pedido', amount: 0 },
+          current: { label: 'Total do pedido', amount: 12.5 },
+        },
+      ]),
     })
 
     expect(tokenService.issue).toHaveBeenCalledTimes(1)
@@ -234,6 +245,117 @@ describe('Register Order Use Case', () => {
     expect(orderSequences.next).not.toHaveBeenCalled()
     expect(orders.add).not.toHaveBeenCalled()
     expect(stockProvider.consume).not.toHaveBeenCalled()
+  })
+
+  it('uses current product, size and accompaniment names in stale Portion changes', async () => {
+    tokenService.verify.mockReturnValue('stale')
+    tokenService.issue.mockReturnValue('fresh-preview-token')
+    tokenService.getFacts.mockReturnValue({
+      cart: {
+        establishmentId: 'establishment-1',
+        lines: [
+          {
+            productId: 'portion-1',
+            kind: 'portion',
+            quantity: 1,
+            sizeId: 'size-1',
+            accompanimentIds: ['granola-1'],
+            baseUnitPrice: 12,
+            finalUnitPrice: 12,
+            subtotal: 12,
+            consumptions: [
+              {
+                productId: 'granola-product-1',
+                accompanimentId: 'granola-1',
+                quantity: 1,
+              },
+            ],
+          },
+        ],
+        discounts: [],
+        subtotal: 12,
+        totalDiscount: 0,
+        total: 12,
+      },
+      selectedAccompanimentPrices: [
+        {
+          productId: 'portion-1',
+          sizeId: 'size-1',
+          accompanimentId: 'granola-1',
+          name: 'Granola',
+          basePrice: 2,
+        },
+      ],
+    })
+    catalog.findByProductIds.mockResolvedValue([
+      {
+        productId: 'portion-1',
+        name: 'Açaí',
+        kind: 'portion',
+        stockControl: 'single',
+        isActive: true,
+        isAvailable: true,
+        availableQuantity: 10,
+        sizes: [
+          {
+            sizeId: 'size-1',
+            name: 'Médio',
+            quantity: 1,
+            basePrice: 10,
+            isActive: true,
+            isAvailable: true,
+            accompaniments: [
+              {
+                accompanimentId: 'granola-1',
+                productId: 'granola-product-1',
+                name: 'Granola',
+                type: 'Complemento',
+                quantityPerPortion: 1,
+                basePrice: 2.5,
+                isActive: true,
+                isAvailable: true,
+                availableQuantity: 10,
+              },
+            ],
+          },
+        ],
+        resaleBrands: [],
+      },
+    ])
+    const portionRequest = {
+      ...request,
+      lines: [
+        {
+          productId: 'portion-1',
+          kind: 'portion',
+          quantity: 1,
+          sizeId: 'size-1',
+          accompanimentIds: ['granola-1'],
+        },
+      ],
+    } satisfies OrderRegistrationInput & { actor: Actor }
+
+    await expect(useCase.execute(portionRequest)).resolves.toMatchObject({
+      kind: 'repriced',
+      changes: expect.arrayContaining([
+        {
+          kind: 'catalog',
+          cause: 'accompaniment-price',
+          previous: { label: 'Granola', amount: 2 },
+          current: { label: 'Granola', amount: 2.5 },
+        },
+        {
+          kind: 'catalog',
+          previous: { label: 'Açaí · Médio · Granola', amount: 12 },
+          current: { label: 'Açaí · Médio · Granola', amount: 12.5 },
+        },
+        {
+          kind: 'catalog',
+          previous: { label: 'Total do pedido', amount: 12 },
+          current: { label: 'Total do pedido', amount: 12.5 },
+        },
+      ]),
+    })
   })
 
   it('reports actual previous and current channel and Combo monetary facts when stale', async () => {
@@ -292,6 +414,75 @@ describe('Register Order Use Case', () => {
       'establishment-1',
       expect.any(Object),
     )
+    expect(orderSequences.next).not.toHaveBeenCalled()
+    expect(orders.add).not.toHaveBeenCalled()
+  })
+
+  it('reports unavailable Portion size and accompaniment shortages in order', async () => {
+    catalog.findByProductIds.mockResolvedValue([
+      {
+        ...product,
+        productId: 'portion-1',
+        name: 'Açaí',
+        kind: 'portion',
+        sizes: [
+          {
+            sizeId: 'size-1',
+            name: 'Médio',
+            quantity: 300,
+            basePrice: 20,
+            isActive: true,
+            isAvailable: false,
+            availableQuantity: 200,
+            accompaniments: [
+              {
+                accompanimentId: 'granola',
+                productId: 'granola-product',
+                name: 'Granola',
+                type: 'Extra',
+                quantityPerPortion: 30,
+                basePrice: 2,
+                isActive: true,
+                isAvailable: false,
+                availableQuantity: 10,
+              },
+            ],
+          },
+        ],
+      },
+    ])
+
+    await expect(
+      useCase.execute({
+        ...request,
+        lines: [
+          {
+            productId: 'portion-1',
+            kind: 'portion',
+            quantity: 2,
+            sizeId: 'size-1',
+            accompanimentIds: ['granola'],
+          },
+        ],
+      }),
+    ).resolves.toMatchObject({
+      kind: 'review-required',
+      shortages: [
+        {
+          productId: 'portion-1',
+          productName: 'Açaí',
+          requiredQuantity: 600,
+          availableQuantity: 200,
+        },
+        {
+          productId: 'granola-product',
+          productName: 'Granola',
+          requiredQuantity: 60,
+          availableQuantity: 10,
+        },
+      ],
+    })
+
     expect(orderSequences.next).not.toHaveBeenCalled()
     expect(orders.add).not.toHaveBeenCalled()
   })

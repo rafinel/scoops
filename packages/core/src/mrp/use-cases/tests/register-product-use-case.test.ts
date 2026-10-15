@@ -192,6 +192,24 @@ describe('Register Product Use Case', () => {
     )
   })
 
+  it('allows Accompaniment and Resale while leaving its price unset at registration', async () => {
+    const requestWithAccompanimentPrice = {
+      ...validSingleStockRequest,
+      categories: [ProductCategory.Accompaniment, ProductCategory.Resale],
+      accompanimentPrice: 2.9,
+    }
+    await useCase.execute(requestWithAccompanimentPrice)
+
+    expect(productsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        categories: [ProductCategory.Accompaniment, ProductCategory.Resale],
+      }),
+    )
+    expect(productsRepository.add.mock.calls[0]?.[0]).not.toHaveProperty(
+      'accompanimentPrice',
+    )
+  })
+
   it('persists the selected main brand and records only positive initial stock', async () => {
     productsRepository.add.mockResolvedValue({
       ...product,
@@ -427,6 +445,10 @@ describe('Register Product Use Case', () => {
     [
       'a product classified as both portion and resale',
       { categories: [ProductCategory.Portion, ProductCategory.Resale] },
+    ],
+    [
+      'a product classified as both portion and accompaniment',
+      { categories: [ProductCategory.Portion, ProductCategory.Accompaniment] },
     ],
     [
       'a manufacturable product with brand stock',

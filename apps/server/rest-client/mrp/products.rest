@@ -190,7 +190,8 @@ Content-Type: application/json
 {
   "accompanimentProductId": "{{accompanimentProductId}}",
   "accompanimentTypeId": "{{accompanimentTypeId}}",
-  "quantityPerPortion": 1.25
+  "quantityPerPortion": 1.25,
+  "accompanimentPrice": 7.5
 }
 
 ### Update a product accompaniment
@@ -200,7 +201,8 @@ Content-Type: application/json
 
 {
   "accompanimentTypeId": "{{accompanimentTypeId}}",
-  "quantityPerPortion": 1.5
+  "quantityPerPortion": 1.5,
+  "accompanimentPrice": 0
 }
 
 ### Remove a product accompaniment

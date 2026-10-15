@@ -176,14 +176,14 @@ export class GetAffectedProductSalesConfigurationsUseCase {
       throw new NotFoundError('A configuração de acompanhamento não foi encontrada.')
     }
 
-    const basePrice = await this.resolveBasePrice(scope, establishmentId, product)
+    const basePrice = this.resolveAccompanimentPrice(product)
     return {
       accompanimentId: link.id,
       productId: product.id,
       name: product.name,
       type: type.name,
-      basePrice,
-      isActive: product.status === 'active',
+      basePrice: basePrice ?? 0,
+      isActive: product.status === 'active' && basePrice !== undefined,
       updatedAt: this.findLatestUpdatedAt([
         link.updatedAt,
         product.updatedAt,
@@ -192,28 +192,17 @@ export class GetAffectedProductSalesConfigurationsUseCase {
     }
   }
 
-  private async resolveBasePrice(
-    scope: MrpDatabaseRepositories,
-    establishmentId: string,
-    product: Product,
-  ): Promise<number> {
+  private resolveAccompanimentPrice(product: Product): number | undefined {
+    const price = product.accompanimentPrice
     if (
-      product.currentUnitCost !== undefined &&
-      Number.isFinite(product.currentUnitCost) &&
-      product.currentUnitCost >= 0
+      price === undefined ||
+      !Number.isFinite(price) ||
+      price < 0 ||
+      Number(price.toFixed(2)) !== price
     ) {
-      return product.currentUnitCost
+      return undefined
     }
-
-    if (product.stockControl !== ProductStockControl.ByBrand) return 0
-
-    const brands =
-      (await scope.brandsRepository.findManyByProductId(establishmentId, product.id)) ??
-      []
-    const primaryBrand = brands.find((brand) => brand.isPrimary)
-    if (!primaryBrand || primaryBrand.packageQuantity <= 0) return 0
-
-    return primaryBrand.packagePrice / primaryBrand.packageQuantity
+    return price
   }
 
   private uniqueProductIds(productIds: readonly string[]): readonly string[] {

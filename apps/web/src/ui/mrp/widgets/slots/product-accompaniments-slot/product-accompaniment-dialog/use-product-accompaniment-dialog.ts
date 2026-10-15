@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
@@ -9,6 +9,7 @@ import type { ProductAccompanimentDetails } from '@scoops/core/mrp/domain/struct
 import { useAccompanimentCandidatesQuery } from '@/ui/mrp/hooks/use-accompaniment-candidates-query'
 import { useAccompanimentTypesQuery } from '@/ui/mrp/hooks/use-accompaniment-types-query'
 import { useLinkProductAccompanimentAction } from '@/ui/mrp/hooks/use-link-product-accompaniment-action'
+import { useProductPricingQuery } from '@/ui/mrp/hooks/use-product-pricing-query'
 import { useProductStockQuery } from '@/ui/mrp/hooks/use-product-stock-query'
 import { useUpdateProductAccompanimentAction } from '@/ui/mrp/hooks/use-update-product-accompaniment-action'
 
@@ -36,12 +37,15 @@ export function useProductAccompanimentDialog({
   const typeId = useWatch({ control: form.control, name: 'accompanimentTypeId' })
   const quantity = useWatch({ control: form.control, name: 'quantityPerPortion' })
   const isEdit = Boolean(item)
+  const pricingProductId = isEdit ? (item?.accompanimentProductId ?? '') : productIdValue
   const candidatesQuery = useAccompanimentCandidatesQuery(productId, open && !isEdit)
   const typesQuery = useAccompanimentTypesQuery({ page: 1, pageSize: 100 })
+  const pricingQuery = useProductPricingQuery(pricingProductId)
   const selectedStockQuery = useProductStockQuery(isEdit ? '' : productIdValue)
   const linkAction = useLinkProductAccompanimentAction(productId)
   const updateAction = useUpdateProductAccompanimentAction(productId)
   const [actionError, setActionError] = useState<string | null>(null)
+  const lastPricingProductId = useRef<string | undefined>(undefined)
 
   useEffect(() => {
     if (open) {
@@ -49,6 +53,33 @@ export function useProductAccompanimentDialog({
       setActionError(null)
     }
   }, [form, item, open])
+
+  useEffect(() => {
+    if (!open) {
+      lastPricingProductId.current = undefined
+      return
+    }
+
+    const hasChangedTarget = lastPricingProductId.current !== pricingProductId
+    const savedPrice = pricingQuery.pricing?.accompanimentPrice ?? null
+    const initialPrice =
+      savedPrice !== null
+        ? savedPrice
+        : (pricingQuery.pricing?.suggestedAccompanimentPrice ?? null)
+    const defaultValue = initialPrice === null ? '' : formatPriceInput(initialPrice)
+
+    if (hasChangedTarget || !form.formState.dirtyFields.accompanimentPrice) {
+      form.resetField('accompanimentPrice', { defaultValue })
+    }
+
+    lastPricingProductId.current = pricingProductId
+  }, [
+    form,
+    form.formState.dirtyFields.accompanimentPrice,
+    open,
+    pricingProductId,
+    pricingQuery.pricing,
+  ])
 
   const selectedProduct = useMemo(
     () => candidatesQuery.data?.find((candidate) => candidate.id === productIdValue),
@@ -71,9 +102,13 @@ export function useProductAccompanimentDialog({
     source?.unitCost !== undefined && numericQuantity > 0
       ? source.unitCost * numericQuantity
       : undefined
-  const isRefreshing = [candidatesQuery, typesQuery, selectedStockQuery].some(
-    hasRefreshableData,
-  )
+  const isRefreshing =
+    [candidatesQuery, typesQuery, selectedStockQuery].some(hasRefreshableData) ||
+    pricingQuery.isRefreshingPricing
+  const isPriceLoading = Boolean(pricingProductId) && pricingQuery.isLoadingPricing
+  const selectedStockLoading = !isEdit && selectedStockQuery.isPending
+  const selectedStockError = !isEdit && selectedStockQuery.isError
+  const savedPrice = pricingQuery.pricing?.accompanimentPrice ?? null
 
   function handleValueChange(
     name: 'accompanimentProductId' | 'accompanimentTypeId',
@@ -88,6 +123,10 @@ export function useProductAccompanimentDialog({
       const input = {
         accompanimentTypeId: values.accompanimentTypeId,
         quantityPerPortion: Number(values.quantityPerPortion.replace(',', '.')),
+        ...(savedPrice === null ||
+        Number(values.accompanimentPrice.replace(',', '.')) !== savedPrice
+          ? { accompanimentPrice: Number(values.accompanimentPrice.replace(',', '.')) }
+          : {}),
       }
       if (item) {
         await updateAction.updateProductAccompaniment({ linkId: item.id, input })
@@ -109,21 +148,29 @@ export function useProductAccompanimentDialog({
 
   return {
     actionError,
+    accompanimentPriceError: pricingQuery.pricingError,
+    accompanimentPriceLoading: isPriceLoading,
+    accompanimentPriceIsSaved: savedPrice !== null,
+    accompanimentPriceSuggestion:
+      pricingQuery.pricing?.suggestedAccompanimentPrice ?? null,
+    accompanimentPriceSuggestionMode: pricingQuery.pricing?.mode,
     candidates: candidatesQuery.data ?? [],
-    candidatesError: candidatesQuery.isError,
-    candidatesLoading: candidatesQuery.isPending,
+    candidatesError: !isEdit && candidatesQuery.isError,
+    candidatesLoading: !isEdit && candidatesQuery.isPending,
     errors: form.formState.errors,
     estimatedCost,
     handleSubmit: form.handleSubmit(handleValidSubmit),
     handleValueChange,
     isPending: linkAction.isPending || updateAction.isPending,
     isEdit,
+    numericQuantity,
     productIdValue,
     selectedProduct,
     retryCandidates: candidatesQuery.refetch,
+    retryAccompanimentPrice: pricingQuery.retryPricing,
     retrySelectedStock: selectedStockQuery.refetch,
-    selectedStockError: selectedStockQuery.isError,
-    selectedStockLoading: selectedStockQuery.isPending,
+    selectedStockError,
+    selectedStockLoading,
     source,
     selectedTypeName,
     typeId,
@@ -132,6 +179,7 @@ export function useProductAccompanimentDialog({
     typesLoading: typesQuery.isPending,
     isRefreshing,
     register: form.register,
+    canSave: !pricingProductId || (!pricingQuery.pricingError && !isPriceLoading),
   }
 }
 
@@ -140,7 +188,12 @@ function getDefaultValues(item?: ProductAccompanimentDetails): FormValues {
     accompanimentProductId: item?.accompanimentProductId ?? '',
     accompanimentTypeId: item?.accompanimentTypeId ?? '',
     quantityPerPortion: item ? String(item.quantityPerPortion) : '',
+    accompanimentPrice: '',
   }
+}
+
+function formatPriceInput(value: number) {
+  return value.toFixed(2).replace('.', ',')
 }
 
 function getAccompanimentSource({

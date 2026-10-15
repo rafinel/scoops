@@ -12,6 +12,7 @@ export type ProductUpdate = Partial<
       | 'allowNegativeStock'
       | 'idealStock'
       | 'currentUnitCost'
+      | 'accompanimentPrice'
       | 'internalNotes'
     >,
     'idealStock' | 'internalNotes'

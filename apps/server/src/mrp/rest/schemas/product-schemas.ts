@@ -1,4 +1,5 @@
 export {
+  accompanimentPriceSchema,
   listAccompanimentTypesQuerySchema,
   linkProductAccompanimentSchema,
   saveAccompanimentTypeSchema,

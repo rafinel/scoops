@@ -8,6 +8,7 @@ export type ProductAccompanimentDetails = {
   readonly accompanimentTypeName: string
   readonly unit: ProductUnit
   readonly quantityPerPortion: number
+  readonly salePrice: number | null
   readonly brandId?: string
   readonly brandName?: string
   readonly unitCost?: number

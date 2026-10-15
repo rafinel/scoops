@@ -10,6 +10,7 @@ import {
 import { useAccompanimentCandidatesQuery } from '@/ui/mrp/hooks/use-accompaniment-candidates-query'
 import { useAccompanimentTypesQuery } from '@/ui/mrp/hooks/use-accompaniment-types-query'
 import { useLinkProductAccompanimentAction } from '@/ui/mrp/hooks/use-link-product-accompaniment-action'
+import { useProductPricingQuery } from '@/ui/mrp/hooks/use-product-pricing-query'
 import { useProductStockQuery } from '@/ui/mrp/hooks/use-product-stock-query'
 import { useUpdateProductAccompanimentAction } from '@/ui/mrp/hooks/use-update-product-accompaniment-action'
 
@@ -24,6 +25,9 @@ vi.mock('@/ui/mrp/hooks/use-accompaniment-types-query', () => ({
 vi.mock('@/ui/mrp/hooks/use-link-product-accompaniment-action', () => ({
   useLinkProductAccompanimentAction: vi.fn(),
 }))
+vi.mock('@/ui/mrp/hooks/use-product-pricing-query', () => ({
+  useProductPricingQuery: vi.fn(),
+}))
 vi.mock('@/ui/mrp/hooks/use-product-stock-query', () => ({
   useProductStockQuery: vi.fn(),
 }))
@@ -34,6 +38,7 @@ vi.mock('@/ui/mrp/hooks/use-update-product-accompaniment-action', () => ({
 const useAccompanimentCandidatesQueryMock = vi.mocked(useAccompanimentCandidatesQuery)
 const useAccompanimentTypesQueryMock = vi.mocked(useAccompanimentTypesQuery)
 const useLinkProductAccompanimentActionMock = vi.mocked(useLinkProductAccompanimentAction)
+const useProductPricingQueryMock = vi.mocked(useProductPricingQuery)
 const useProductStockQueryMock = vi.mocked(useProductStockQuery)
 const useUpdateProductAccompanimentActionMock = vi.mocked(
   useUpdateProductAccompanimentAction,
@@ -51,6 +56,7 @@ const editItem = {
   accompanimentProductName: candidate.name,
   accompanimentTypeName: type.name,
   unit: 'g' as const,
+  salePrice: 3,
   estimatedCost: 0.45,
 }
 
@@ -76,6 +82,17 @@ describe('useProductAccompanimentDialog', () => {
       isFetching: true,
       isPending: false,
       refetch: vi.fn(),
+    } as never)
+    useProductPricingQueryMock.mockReturnValue({
+      pricing: {
+        accompanimentPrice: null,
+        suggestedAccompanimentPrice: 3,
+        mode: 'resale-single',
+      },
+      pricingError: false,
+      isLoadingPricing: false,
+      isRefreshingPricing: false,
+      retryPricing: vi.fn(),
     } as never)
     useLinkProductAccompanimentActionMock.mockReturnValue({
       isPending: false,
@@ -114,6 +131,11 @@ describe('useProductAccompanimentDialog', () => {
     quantityField.name = quantity.name
     document.body.append(quantityField)
     quantity.ref(quantityField)
+    const price = result.current.register('accompanimentPrice')
+    const priceField = document.createElement('input')
+    priceField.name = price.name
+    document.body.append(priceField)
+    price.ref(priceField)
 
     act(() => {
       result.current.handleValueChange('accompanimentProductId', candidate.id)
@@ -122,11 +144,14 @@ describe('useProductAccompanimentDialog', () => {
     await act(async () => {
       quantityField.value = '20,5'
       await quantity.onChange({ target: quantityField })
+      priceField.value = '3,00'
+      await price.onChange({ target: priceField })
       await result.current.handleSubmit({ preventDefault: vi.fn() } as never)
     })
 
     expect(linkProductAccompaniment).toHaveBeenCalledWith({
       accompanimentProductId: candidate.id,
+      accompanimentPrice: 3,
       accompanimentTypeId: type.id,
       quantityPerPortion: 20.5,
     })
@@ -140,6 +165,17 @@ describe('useProductAccompanimentDialog', () => {
     useUpdateProductAccompanimentActionMock.mockReturnValue({
       isPending: false,
       updateProductAccompaniment,
+    } as never)
+    useProductPricingQueryMock.mockReturnValue({
+      pricing: {
+        accompanimentPrice: 3,
+        suggestedAccompanimentPrice: null,
+        mode: 'accompaniment',
+      },
+      pricingError: false,
+      isLoadingPricing: false,
+      isRefreshingPricing: false,
+      retryPricing: vi.fn(),
     } as never)
 
     const { result } = renderHook(() =>
@@ -155,10 +191,17 @@ describe('useProductAccompanimentDialog', () => {
     quantityField.name = quantity.name
     document.body.append(quantityField)
     quantity.ref(quantityField)
+    const price = result.current.register('accompanimentPrice')
+    const priceField = document.createElement('input')
+    priceField.name = price.name
+    document.body.append(priceField)
+    price.ref(priceField)
 
     await act(async () => {
       quantityField.value = '25'
       await quantity.onChange({ target: quantityField })
+      priceField.value = '3,00'
+      await price.onChange({ target: priceField })
       await result.current.handleSubmit({ preventDefault: vi.fn() } as never)
     })
 
@@ -167,6 +210,54 @@ describe('useProductAccompanimentDialog', () => {
       input: { accompanimentTypeId: type.id, quantityPerPortion: 25 },
     })
     expect(result.current.actionError).toBe('request failed')
+  })
+
+  it('sends an intentional zero price while keeping zero distinct from unset', async () => {
+    const updateProductAccompaniment = vi.fn().mockResolvedValue(undefined)
+    useUpdateProductAccompanimentActionMock.mockReturnValue({
+      isPending: false,
+      updateProductAccompaniment,
+    } as never)
+    useProductPricingQueryMock.mockReturnValue({
+      pricing: {
+        accompanimentPrice: 3,
+        suggestedAccompanimentPrice: null,
+        mode: 'accompaniment',
+      },
+      pricingError: false,
+      isLoadingPricing: false,
+      isRefreshingPricing: false,
+      retryPricing: vi.fn(),
+    } as never)
+
+    const { result } = renderHook(() =>
+      useProductAccompanimentDialog({
+        item: editItem,
+        onSuccess: vi.fn(),
+        open: true,
+        productId: 'product-1',
+      }),
+    )
+    const price = result.current.register('accompanimentPrice')
+    const priceField = document.createElement('input')
+    priceField.name = price.name
+    document.body.append(priceField)
+    price.ref(priceField)
+
+    await act(async () => {
+      priceField.value = '0'
+      await price.onChange({ target: priceField })
+      await result.current.handleSubmit({ preventDefault: vi.fn() } as never)
+    })
+
+    expect(updateProductAccompaniment).toHaveBeenCalledWith({
+      linkId: 'link-1',
+      input: {
+        accompanimentPrice: 0,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 20,
+      },
+    })
   })
 
   it('keeps the selected type ID while exposing its registered name', () => {
@@ -202,5 +293,27 @@ describe('useProductAccompanimentDialog', () => {
 
     expect(result.current.typeId).toBe(type.id)
     expect(result.current.selectedTypeName).toBe(type.name)
+  })
+
+  it('does not show the disabled candidate query as loading while editing', () => {
+    useAccompanimentCandidatesQueryMock.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isFetching: false,
+      isPending: true,
+      refetch: vi.fn(),
+    } as never)
+
+    const { result } = renderHook(() =>
+      useProductAccompanimentDialog({
+        item: editItem,
+        onSuccess: vi.fn(),
+        open: true,
+        productId: 'product-1',
+      }),
+    )
+
+    expect(result.current.candidatesLoading).toBe(false)
+    expect(result.current.candidatesError).toBe(false)
   })
 })

@@ -17,6 +17,7 @@ const details: ProductAccompanimentsDetails = {
       accompanimentTypeName: 'Cobertura',
       unit: 'g',
       quantityPerPortion: 20,
+      salePrice: 3,
       brandName: 'Marca atual',
       estimatedCost: 0.45,
     },
@@ -48,5 +49,28 @@ describe('ProductAccompanimentsCard', () => {
     expect(onAdd).toHaveBeenCalledTimes(1)
     expect(onEdit).toHaveBeenCalledWith(details.accompaniments[0])
     expect(onRemove).toHaveBeenCalledWith(details.accompaniments[0])
+  })
+
+  it('distinguishes free and unconfigured shared product prices', () => {
+    const accompaniment = details.accompaniments[0]
+    if (!accompaniment) throw new Error('Expected an accompaniment fixture')
+
+    render(
+      <ProductAccompanimentsCard
+        details={{
+          ...details,
+          accompaniments: [
+            { ...accompaniment, id: 'free-link', salePrice: 0 },
+            { ...accompaniment, id: 'unset-link', salePrice: null },
+          ],
+        }}
+        onAdd={vi.fn()}
+        onEdit={vi.fn()}
+        onRemove={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('Grátis')).toBeTruthy()
+    expect(screen.getByText('Não configurado')).toBeTruthy()
   })
 })

@@ -276,6 +276,14 @@ export class ChangeProductCategoriesUseCase
     ) {
       throw new BadRequestError('Porção e Revenda não podem ser selecionadas juntas.')
     }
+    if (
+      input.categories.includes(ProductCategory.Portion) &&
+      input.categories.includes(ProductCategory.Accompaniment)
+    ) {
+      throw new BadRequestError(
+        'Porção e acompanhamento não podem ser selecionados juntos.',
+      )
+    }
   }
 
   private validateVersion(currentUpdatedAt: Date, expectedUpdatedAt: Date): void {

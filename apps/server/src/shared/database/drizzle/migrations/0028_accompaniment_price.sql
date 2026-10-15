@@ -1,0 +1,2 @@
+ALTER TABLE "products" ADD COLUMN "accompaniment_price" numeric(18, 2);--> statement-breakpoint
+ALTER TABLE "products" ADD CONSTRAINT "mrp_products_accompaniment_price_non_negative" CHECK ("products"."accompaniment_price" is null or "products"."accompaniment_price" >= 0);

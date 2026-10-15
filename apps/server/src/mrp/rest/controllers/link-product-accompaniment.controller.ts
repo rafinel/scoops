@@ -7,7 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
 } from '@nestjs/common'
-import { ApiParam, ApiResponse } from '@nestjs/swagger'
+import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger'
 import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { MrpDatabase } from '@scoops/core/mrp/interfaces'
@@ -35,6 +35,30 @@ export class LinkProductAccompanimentController {
   @HttpCode(HttpStatus.CREATED)
   @RequiredProfiles([UserProfile.Manager])
   @ApiParam({ name: 'productId', format: 'uuid', description: 'The Portion product.' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['accompanimentProductId', 'accompanimentTypeId', 'quantityPerPortion'],
+      properties: {
+        accompanimentProductId: { type: 'string', format: 'uuid' },
+        accompanimentTypeId: { type: 'string', format: 'uuid' },
+        quantityPerPortion: {
+          type: 'number',
+          minimum: 0,
+          exclusiveMinimum: true,
+          multipleOf: 0.001,
+        },
+        accompanimentPrice: {
+          type: 'number',
+          minimum: 0,
+          multipleOf: 0.01,
+          description:
+            'Optional saved product-wide sale price. Required the first time an unpriced target is linked; zero is allowed.',
+        },
+      },
+    },
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Product accompaniment linked.',
@@ -47,7 +71,7 @@ export class LinkProductAccompanimentController {
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'The product, target, or quantity is invalid.',
+    description: 'The product, target, quantity, or accompaniment sale price is invalid.',
     type: ErrorResponseDto,
   })
   @ApiResponse({

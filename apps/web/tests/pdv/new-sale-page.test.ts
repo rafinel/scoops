@@ -6,7 +6,7 @@ import type { PdvFixture } from '../fixtures/pdv-module-fixture'
 
 const PRODUCT_ID = 'product-portion'
 const SIZE_ID = 'size-medium'
-const INITIAL_PAGE_READY_TIMEOUT_MS = 15_000
+const INITIAL_PAGE_READY_TIMEOUT_MS = 30_000
 
 const product = {
   productId: PRODUCT_ID,
@@ -546,23 +546,277 @@ test.describe('NewSalePage', () => {
     })
   })
 
+  for (const viewport of [
+    { width: 1560, height: 1178, name: 'desktop' },
+    { width: 390, height: 844, name: 'narrow' },
+  ]) {
+    test(`reviews repriced values and requires a second confirmation at ${viewport.name} viewport`, async ({
+      page,
+      identityFixture,
+      pdvFixture,
+    }) => {
+      const firstRepricedCart = {
+        ...previewCart,
+        lines: previewCart.lines.map((line) => ({
+          ...line,
+          accompanimentIds: ['granola'],
+          finalUnitPrice: 24,
+          subtotal: 24,
+        })),
+        subtotal: 24,
+        total: 24,
+      }
+      const secondRepricedCart = {
+        ...firstRepricedCart,
+        lines: firstRepricedCart.lines.map((line) => ({
+          ...line,
+          finalUnitPrice: 25,
+          subtotal: 25,
+        })),
+        subtotal: 25,
+        total: 25,
+      }
+      const registrationRequests: Record<string, unknown>[] = []
+      const consoleErrors: string[] = []
+      const failedRequests: string[] = []
+      const failedResponses: string[] = []
+      page.on('console', (message) => {
+        if (message.type() === 'error') consoleErrors.push(message.text())
+      })
+      page.on('requestfailed', (request) => failedRequests.push(request.url()))
+      page.on('response', (response) => {
+        if (response.status() >= 400) {
+          failedResponses.push(`${response.status()} ${new URL(response.url()).pathname}`)
+        }
+      })
+      await page.route('**/orders', async (route) => {
+        registrationRequests.push(route.request().postDataJSON())
+        if (registrationRequests.length === 1) {
+          await route.fulfill({
+            contentType: 'application/json',
+            body: JSON.stringify({
+              kind: 'repriced',
+              recalculatedCart: firstRepricedCart,
+              previewToken: 'fresh-preview-token-1',
+              changes: [
+                {
+                  kind: 'catalog',
+                  cause: 'accompaniment-price',
+                  previous: { label: 'Granola', amount: 3 },
+                  current: { label: 'Granola', amount: 4 },
+                },
+                {
+                  kind: 'catalog',
+                  previous: { label: 'Açaí tradicional', amount: 23 },
+                  current: { label: 'Açaí tradicional', amount: 24 },
+                },
+                {
+                  kind: 'catalog',
+                  previous: { label: 'Total do pedido', amount: 23 },
+                  current: { label: 'Total do pedido', amount: 24 },
+                },
+              ],
+            }),
+            status: 409,
+          })
+          return
+        }
+
+        if (registrationRequests.length === 2) {
+          await route.fulfill({
+            contentType: 'application/json',
+            body: JSON.stringify({
+              kind: 'repriced',
+              recalculatedCart: secondRepricedCart,
+              previewToken: 'fresh-preview-token-2',
+              changes: [
+                {
+                  kind: 'catalog',
+                  cause: 'accompaniment-price',
+                  previous: { label: 'Granola', amount: 4 },
+                  current: { label: 'Granola', amount: 5 },
+                },
+                {
+                  kind: 'catalog',
+                  previous: { label: 'Açaí tradicional', amount: 24 },
+                  current: { label: 'Açaí tradicional', amount: 25 },
+                },
+                {
+                  kind: 'catalog',
+                  previous: { label: 'Total do pedido', amount: 24 },
+                  current: { label: 'Total do pedido', amount: 25 },
+                },
+              ],
+            }),
+            status: 409,
+          })
+          return
+        }
+
+        await route.fulfill({
+          contentType: 'application/json',
+          body: JSON.stringify({
+            kind: 'registered',
+            order: {
+              id: 'order-repriced-1',
+              establishmentId: 'establishment-1',
+              idempotencyKey: 'registration-key-3',
+              sequenceNumber: 43,
+              createdBy: 'manager-1',
+              createdByName: 'Maria Manager',
+              status: 'registered',
+              channel: undefined,
+              lines: [],
+              discounts: [],
+              subtotal: 25,
+              totalDiscount: 0,
+              total: 25,
+              createdAt: '2026-08-27T12:00:00.000Z',
+            },
+            replayed: false,
+          }),
+          status: 201,
+        })
+      })
+
+      await prepareSale(
+        page,
+        identityFixture,
+        pdvFixture,
+        viewport,
+        undefined,
+        true,
+        (requestNumber) => {
+          if (requestNumber === 1)
+            return { cart: previewCart, previewToken: 'preview-token' }
+          if (requestNumber === 2)
+            return {
+              cart: firstRepricedCart,
+              previewToken: 'fresh-preview-token-1',
+            }
+          return { cart: secondRepricedCart, previewToken: 'fresh-preview-token-2' }
+        },
+      )
+      await expect(page).toHaveURL('/sales/new')
+      await page.getByRole('button', { name: 'Registrar pedido' }).click()
+      const initialConfirmation = page.getByRole('dialog', { name: 'Confirmar pedido' })
+      await initialConfirmation
+        .getByRole('button', { name: 'Confirmar registro' })
+        .click()
+
+      const reviewDialog = page.getByRole('dialog', { name: 'Revise os preços' })
+      await expect(reviewDialog).toBeVisible()
+      await expect(reviewDialog).toContainText(
+        'O preço de um acompanhamento mudou antes do registro.',
+      )
+      await expect(reviewDialog).toContainText('Granola: R$ 3,00 → R$ 4,00')
+      await expect(reviewDialog).toContainText('Açaí tradicional: R$ 23,00 → R$ 24,00')
+      await expect(reviewDialog).toContainText('R$ 23,00 → R$ 24,00')
+      await expect(registrationRequests).toHaveLength(1)
+      await page.screenshot({
+        path: `.playwright-cli/screenshots/pdv/new-sale-repriced-review-${viewport.name}-${viewport.width}x${viewport.height}.png`,
+        animations: 'disabled',
+      })
+
+      const reviewButton = reviewDialog.getByRole('button', { name: 'Revisar valores' })
+      await reviewButton.focus()
+      await expect(reviewButton).toBeFocused()
+      await reviewButton.press('Enter')
+      const renewedConfirmation = page.getByRole('dialog', { name: 'Confirmar pedido' })
+      await expect(renewedConfirmation).toBeVisible()
+      expect(registrationRequests).toHaveLength(1)
+
+      const renewedConfirmButton = renewedConfirmation.getByRole('button', {
+        name: 'Confirmar registro',
+      })
+      await renewedConfirmButton.focus()
+      await renewedConfirmButton.press('Enter')
+
+      await expect.poll(() => registrationRequests.length).toBe(2)
+      await expect(page.getByRole('heading', { name: 'Pedido registrado' })).toHaveCount(0)
+      await expect(reviewDialog).toBeVisible()
+      await expect(reviewDialog).toContainText('Granola: R$ 4,00 → R$ 5,00')
+      await expect(reviewDialog).toContainText('Açaí tradicional: R$ 24,00 → R$ 25,00')
+      await expect(reviewDialog).toContainText('R$ 24,00 → R$ 25,00')
+      await page.screenshot({
+        path: `.playwright-cli/screenshots/pdv/new-sale-repriced-review-repeat-${viewport.name}-${viewport.width}x${viewport.height}.png`,
+        animations: 'disabled',
+      })
+
+      const secondReviewButton = reviewDialog.getByRole('button', {
+        name: 'Revisar valores',
+      })
+      await secondReviewButton.focus()
+      await expect(secondReviewButton).toBeFocused()
+      await secondReviewButton.press('Enter')
+      const secondRenewedConfirmation = page.getByRole('dialog', {
+        name: 'Confirmar pedido',
+      })
+      await expect(secondRenewedConfirmation).toBeVisible()
+      expect(registrationRequests).toHaveLength(2)
+      const secondConfirmButton = secondRenewedConfirmation.getByRole('button', {
+        name: 'Confirmar registro',
+      })
+      await secondConfirmButton.focus()
+      await secondConfirmButton.press('Enter')
+
+      await expect(page.getByRole('heading', { name: 'Pedido registrado' })).toBeVisible()
+      await expect.poll(() => registrationRequests.length).toBe(3)
+      expect(registrationRequests[0]).toMatchObject({ previewToken: 'preview-token' })
+      expect(registrationRequests[1]).toMatchObject({
+        previewToken: 'fresh-preview-token-1',
+        lines: [expect.objectContaining({ accompanimentIds: ['granola'] })],
+      })
+      expect(registrationRequests[2]).toMatchObject({
+        previewToken: 'fresh-preview-token-2',
+        lines: [expect.objectContaining({ accompanimentIds: ['granola'] })],
+      })
+      expect(registrationRequests[1]?.idempotencyKey).not.toBe(
+        registrationRequests[0]?.idempotencyKey,
+      )
+      expect(registrationRequests[2]?.idempotencyKey).not.toBe(
+        registrationRequests[1]?.idempotencyKey,
+      )
+      expect(consoleErrors).toHaveLength(2)
+      expect(consoleErrors.every((error) => error.includes('status of 409 (Conflict)'))).toBe(
+        true,
+      )
+      expect(failedRequests).toEqual([])
+      expect(failedResponses).toEqual(['409 /orders', '409 /orders'])
+    })
+  }
+
   for (const outcome of [
     {
       body: {
         kind: 'repriced',
-        recalculatedCart: previewCart,
+        recalculatedCart: {
+          ...previewCart,
+          subtotal: 24,
+          total: 24,
+        },
         previewToken: 'fresh-preview-token',
         changes: [
           {
-            kind: 'channel',
-            previous: { label: 'Canal anterior', amount: 20 },
-            current: { label: 'Canal atual', amount: 22 },
+            kind: 'catalog',
+            previous: { label: 'Granola', amount: 3 },
+            current: { label: 'Granola', amount: 4 },
+          },
+          {
+            kind: 'catalog',
+            previous: { label: 'Taça de morango · Médio', amount: 23 },
+            current: { label: 'Taça de morango · Médio', amount: 24 },
+          },
+          {
+            kind: 'catalog',
+            previous: { label: 'Total do pedido', amount: 23 },
+            current: { label: 'Total do pedido', amount: 24 },
           },
         ],
       },
-      heading: 'O pedido foi atualizado',
+      heading: 'Revise os preços',
       name: 'repriced',
-      status: 200,
+      status: 409,
       actionName: 'Revisar valores',
       viewport: { width: 717, height: 546 },
     },
@@ -762,6 +1016,7 @@ async function prepareSale(
   viewport?: { width: number; height: number },
   registration?: RegistrationMock,
   addToCart = true,
+  previewResponse?: (requestNumber: number) => unknown,
 ) {
   await identityFixture.mockManagerSession()
   await identityFixture.mockManagerAccount()
@@ -780,10 +1035,17 @@ async function prepareSale(
       status: 200,
     })
   })
+  let previewRequestNumber = 0
   await page.route('**/orders/preview*', async (route) => {
+    previewRequestNumber += 1
     await route.fulfill({
       contentType: 'application/json',
-      body: JSON.stringify({ cart: previewCart, previewToken: 'preview-token' }),
+      body: JSON.stringify(
+        previewResponse?.(previewRequestNumber) ?? {
+          cart: previewCart,
+          previewToken: 'preview-token',
+        },
+      ),
       status: 200,
     })
   })

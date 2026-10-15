@@ -4,7 +4,9 @@ import type { ResalePricing } from '#mrp/domain/structures/resale-pricing.ts'
 
 export type ProductPricingDetails = {
   product: Product
-  mode: 'portion' | 'resale-single' | 'resale-by-brand'
+  mode: 'portion' | 'resale-single' | 'resale-by-brand' | 'accompaniment'
   sizes: readonly ProductSizePricing[]
   resale: readonly ResalePricing[]
+  accompanimentPrice: number | null
+  suggestedAccompanimentPrice: number | null
 }

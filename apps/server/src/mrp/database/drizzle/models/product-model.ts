@@ -39,6 +39,7 @@ export const productModel = pgTable(
     allowNegativeStock: boolean('allow_negative_stock').notNull().default(false),
     idealStock: numeric('ideal_stock', { precision: 18, scale: 3 }),
     currentUnitCost: numeric('current_unit_cost', { precision: 18, scale: 6 }),
+    accompanimentPrice: numeric('accompaniment_price', { precision: 18, scale: 2 }),
     internalNotes: text('internal_notes'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull(),
@@ -69,6 +70,10 @@ export const productModel = pgTable(
     check(
       'mrp_products_current_unit_cost_non_negative',
       sql`${table.currentUnitCost} is null or ${table.currentUnitCost} >= 0`,
+    ),
+    check(
+      'mrp_products_accompaniment_price_non_negative',
+      sql`${table.accompanimentPrice} is null or ${table.accompanimentPrice} >= 0`,
     ),
   ],
 )

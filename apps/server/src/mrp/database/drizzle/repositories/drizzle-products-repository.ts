@@ -47,6 +47,7 @@ export class DrizzleProductsRepository
         categories: [...input.categories],
         idealStock: this.toNumericValue(input.idealStock) ?? null,
         currentUnitCost: this.toNumericValue(input.currentUnitCost) ?? null,
+        accompanimentPrice: this.toNumericValue(input.accompanimentPrice) ?? null,
         createdAt: now,
         updatedAt: now,
       })
@@ -66,6 +67,7 @@ export class DrizzleProductsRepository
           categories: [...input.categories],
           idealStock: this.toNumericValue(input.idealStock) ?? null,
           currentUnitCost: this.toNumericValue(input.currentUnitCost) ?? null,
+          accompanimentPrice: this.toNumericValue(input.accompanimentPrice) ?? null,
           createdAt: now,
           updatedAt: now,
         })),
@@ -386,6 +388,7 @@ function toNumericStockValues(
   return {
     idealStock: toNumericValue(changes.idealStock),
     currentUnitCost: toNumericValue(changes.currentUnitCost),
+    accompanimentPrice: toNumericValue(changes.accompanimentPrice),
   }
 }
 

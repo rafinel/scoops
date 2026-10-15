@@ -20,18 +20,18 @@ import type { ProductSizeSnapshot } from '#pdv/domain/structures/product-size-sn
 import type { ProductSnapshot } from '#pdv/domain/structures/product-snapshot.ts'
 import type { SalesChannelSnapshot } from '#pdv/domain/structures/sales-channel-snapshot.ts'
 import type { SalesCatalogProduct } from '#pdv/domain/structures/sales-catalog-product.ts'
+import type { SalesChannel } from '#pdv/domain/entities/sales-channel.ts'
 import type { PdvDatabase } from '#pdv/interfaces/pdv-database.ts'
 import type { PdvDatabaseRepositories } from '#pdv/interfaces/pdv-database.ts'
 import type { OrderPreviewTokenService } from '#pdv/interfaces/order-preview-token-service.ts'
 import type { OrderCostProvider } from '#pdv/interfaces/order-cost-provider.ts'
 import type { SalesCatalogProvider } from '#pdv/interfaces/sales-catalog-provider.ts'
 import type { StockProvider } from '#pdv/interfaces/stock-provider.ts'
+import { OrderCartPricingStrategy } from '#pdv/domain/strategies/order-cart-pricing-strategy.ts'
+import { OrderMoneyRoundingStrategy } from '#pdv/domain/strategies/order-money-rounding-strategy.ts'
+import { OrderPreviewAccompanimentPriceSnapshotStrategy } from '#pdv/domain/strategies/order-preview-accompaniment-price-snapshot-strategy.ts'
+import { OrderPreviewInputValidationStrategy } from '#pdv/domain/strategies/order-preview-input-validation-strategy.ts'
 import { SalesChannelStatus } from '#pdv/domain/structures/sales-channel-status.ts'
-import {
-  adjustUnitPrice,
-  rebuildCartWithIssues,
-  validateOrderRegistrationInput,
-} from '#pdv/use-cases/order-pricing.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -50,7 +50,27 @@ type Request = OrderRegistrationInput & {
   }
 }
 
+type RegistrationProviders = {
+  readonly catalog: SalesCatalogProvider
+  readonly cost?: OrderCostProvider
+  readonly stock: StockProvider
+}
+
+type RegistrationRebuild = {
+  readonly products: readonly SalesCatalogProduct[]
+  readonly channel: SalesChannel | undefined
+  readonly pricing: ReturnType<OrderCartPricingStrategy['execute']>
+  readonly previewInput: OrderPreviewInput
+  readonly facts: OrderPreviewFacts
+}
+
 export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationResult> {
+  private readonly cartPricing = new OrderCartPricingStrategy()
+  private readonly moneyRounding = new OrderMoneyRoundingStrategy()
+  private readonly accompanimentPriceSnapshot =
+    new OrderPreviewAccompanimentPriceSnapshotStrategy()
+  private readonly inputValidation = new OrderPreviewInputValidationStrategy()
+
   constructor(
     private readonly database: PdvDatabase,
     private readonly datetimeProvider: DatetimeProvider,
@@ -62,131 +82,178 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
 
   async execute(request: Request): Promise<OrderRegistrationResult> {
     this.validateActor(request.actor.profile)
-    validateOrderRegistrationInput(request)
-    return this.database.run(
-      async ({
-        salesCatalogProvider,
-        salesChannelsRepository,
-        discountsRepository,
-        ordersRepository,
-        orderSequencesRepository,
-        stockProvider,
-        orderCostProvider: scopedOrderCostProvider,
-        eventsRepository,
-      }: PdvDatabaseRepositories) => {
-        const catalogProvider = this.salesCatalogProvider ?? salesCatalogProvider
-        const costProvider = this.orderCostProvider ?? scopedOrderCostProvider
-        const provider = this.stockProvider ?? stockProvider
-        if (!catalogProvider || !provider)
-          throw new ConflictError(
-            'As dependências do registro de pedido não estão disponíveis.',
-          )
-        const scope = {
-          salesCatalogProvider,
-          salesChannelsRepository,
-          discountsRepository,
-          ordersRepository,
-          orderSequencesRepository,
-          stockProvider,
-          eventsRepository,
-        }
-        const replay = await ordersRepository.findByIdempotencyKey(
-          request.actor.establishmentId,
-          request.idempotencyKey,
-        )
-        if (replay && replay.establishmentId !== request.actor.establishmentId)
-          throw new NotFoundError('Pedido não encontrado.')
-        if (replay)
-          if (!this.matchesReplay(replay, request))
-            throw new ConflictError(
-              'A chave de idempotência já foi usada em outro pedido.',
-            )
-        if (replay)
-          return {
-            kind: 'registered',
-            order: this.toOrderDetails(replay),
-            replayed: true,
-          }
-
-        const products = await catalogProvider.findByProductIds(
-          request.actor.establishmentId,
-          request.lines.map((line) => line.productId),
-        )
-        const channel = await this.findChannel(scope, request)
-        const combos = await discountsRepository.findActive(request.actor.establishmentId)
-        const rebuilt = rebuildCartWithIssues(
-          request,
-          products,
-          channel,
-          combos,
-          request.actor.establishmentId,
-        )
-        const previewInput = this.toPreviewInput(request)
-        const facts = this.toFacts(rebuilt.cart, channel)
-        const verification = this.tokenService.verify(
-          request.previewToken,
-          previewInput,
-          request.actor.establishmentId,
-          facts,
-        )
-        if (verification === 'invalid')
-          throw new BadRequestError('A prévia do pedido expirou ou não é válida.')
-
-        const previousFacts =
-          verification === 'stale'
-            ? this.tokenService.getFacts(request.previewToken)
-            : undefined
-        if (verification === 'stale' && !previousFacts)
-          throw new BadRequestError('A prévia do pedido não pode ser atualizada.')
-        const changes = previousFacts
-          ? this.staleChanges(previousFacts, facts)
-          : ([] as const)
-        const outcome = this.resolveIssues(rebuilt, changes)
-        if (outcome) return outcome
-        if (verification === 'stale')
-          return {
-            kind: 'repriced',
-            recalculatedCart: rebuilt.cart,
-            previewToken: this.tokenService.issue(
-              previewInput,
-              request.actor.establishmentId,
-              facts,
-            ),
-            changes,
-          }
-
-        const sequenceNumber = await orderSequencesRepository.next(
-          request.actor.establishmentId,
-        )
-        const costs = costProvider
-          ? await costProvider.resolve({
-              establishmentId: request.actor.establishmentId,
-              lines: request.lines,
-            })
-          : []
-        const order = await ordersRepository.add(
-          this.toOrderCreate(request, rebuilt.cart, products, channel, costs),
-        )
-        const occurredAt = this.datetimeProvider.now()
-        const event = new OrderRegisteredEvent({
-          orderId: order.id,
-          establishmentId: order.establishmentId,
-          sequenceNumber,
-          createdAt: order.createdAt,
-          actorId: request.actor.id,
-          actorName: request.actor.name,
-          occurredAt,
-          consumptions: consolidateConsumptions(rebuilt.cart),
-        })
-        await provider.consume(event)
-
-        return {
-          kind: 'registered',
-          order: this.toOrderDetails(order),
-          replayed: false,
-        }
-      },
+    this.validateRegistrationInput(request)
+    return this.database.run((repositories) =>
+      this.registerWithinScope(request, repositories),
     )
+  }
+
+  private async registerWithinScope(
+    request: Request,
+    repositories: PdvDatabaseRepositories,
+  ): Promise<OrderRegistrationResult> {
+    const providers = this.resolveProviders(repositories)
+    const replay = await this.findReplay(request, repositories.ordersRepository)
+    if (replay) return replay
+
+    const rebuilt = await this.rebuildRegistration(
+      request,
+      repositories,
+      providers.catalog,
+    )
+    const staleResult = this.resolveStalePreview(request, rebuilt)
+    if (staleResult) return staleResult
+
+    return this.persistOrder(request, rebuilt, repositories, providers)
+  }
+
+  private resolveProviders(repositories: PdvDatabaseRepositories): RegistrationProviders {
+    const catalog = this.salesCatalogProvider ?? repositories.salesCatalogProvider
+    const stock = this.stockProvider ?? repositories.stockProvider
+    if (!catalog || !stock)
+      throw new ConflictError(
+        'As dependências do registro de pedido não estão disponíveis.',
+      )
+
+    return {
+      catalog,
+      stock,
+      cost: this.orderCostProvider ?? repositories.orderCostProvider,
+    }
+  }
+
+  private async findReplay(
+    request: Request,
+    ordersRepository: PdvDatabaseRepositories['ordersRepository'],
+  ): Promise<OrderRegistrationResult | undefined> {
+    const replay = await ordersRepository.findByIdempotencyKey(
+      request.actor.establishmentId,
+      request.idempotencyKey,
+    )
+    if (!replay) return undefined
+    if (replay.establishmentId !== request.actor.establishmentId)
+      throw new NotFoundError('Pedido não encontrado.')
+    if (!this.matchesReplay(replay, request))
+      throw new ConflictError('A chave de idempotência já foi usada em outro pedido.')
+
+    return {
+      kind: 'registered',
+      order: this.toOrderDetails(replay),
+      replayed: true,
+    }
+  }
+
+  private async rebuildRegistration(
+    request: Request,
+    repositories: PdvDatabaseRepositories,
+    catalogProvider: SalesCatalogProvider,
+  ): Promise<RegistrationRebuild> {
+    const products = await catalogProvider.findByProductIds(
+      request.actor.establishmentId,
+      request.lines.map((line) => line.productId),
+    )
+    const channel = await this.findChannel(repositories, request)
+    const combos = await repositories.discountsRepository.findActive(
+      request.actor.establishmentId,
+    )
+    const pricing = this.cartPricing.execute({
+      input: request,
+      products,
+      channel,
+      combos,
+      establishmentId: request.actor.establishmentId,
+    })
+    const previewInput = this.toPreviewInput(request)
+
+    return {
+      products,
+      channel,
+      pricing,
+      previewInput,
+      facts: this.toFacts(pricing.cart, channel, products),
+    }
+  }
+
+  private resolveStalePreview(
+    request: Request,
+    rebuilt: RegistrationRebuild,
+  ): OrderRegistrationResult | undefined {
+    const verification = this.tokenService.verify(
+      request.previewToken,
+      rebuilt.previewInput,
+      request.actor.establishmentId,
+      rebuilt.facts,
+    )
+    if (verification === 'invalid')
+      throw new BadRequestError('A prévia do pedido expirou ou não é válida.')
+
+    const previousFacts =
+      verification === 'stale'
+        ? this.tokenService.getFacts(request.previewToken)
+        : undefined
+    if (verification === 'stale' && !previousFacts)
+      throw new BadRequestError('A prévia do pedido não pode ser atualizada.')
+    const changes = previousFacts
+      ? this.staleChanges(previousFacts, rebuilt.facts, rebuilt.products)
+      : []
+    const outcome = this.resolveIssues(rebuilt.pricing, changes)
+    if (outcome) return outcome
+    if (verification !== 'stale') return undefined
+
+    return {
+      kind: 'repriced',
+      recalculatedCart: rebuilt.pricing.cart,
+      previewToken: this.tokenService.issue(
+        rebuilt.previewInput,
+        request.actor.establishmentId,
+        rebuilt.facts,
+      ),
+      changes,
+    }
+  }
+
+  private async persistOrder(
+    request: Request,
+    rebuilt: RegistrationRebuild,
+    repositories: PdvDatabaseRepositories,
+    providers: RegistrationProviders,
+  ): Promise<OrderRegistrationResult> {
+    const sequenceNumber = await repositories.orderSequencesRepository.next(
+      request.actor.establishmentId,
+    )
+    const costs = providers.cost
+      ? await providers.cost.resolve({
+          establishmentId: request.actor.establishmentId,
+          lines: request.lines,
+        })
+      : []
+    const order = await repositories.ordersRepository.add(
+      this.toOrderCreate(
+        request,
+        rebuilt.pricing.cart,
+        rebuilt.products,
+        rebuilt.channel,
+        costs,
+      ),
+    )
+    const occurredAt = this.datetimeProvider.now()
+    const event = new OrderRegisteredEvent({
+      orderId: order.id,
+      establishmentId: order.establishmentId,
+      sequenceNumber,
+      createdAt: order.createdAt,
+      actorId: request.actor.id,
+      actorName: request.actor.name,
+      occurredAt,
+      consumptions: consolidateConsumptions(rebuilt.pricing.cart),
+    })
+    await providers.stock.consume(event)
+
+    return {
+      kind: 'registered',
+      order: this.toOrderDetails(order),
+      replayed: false,
+    }
   }
 
   private async findChannel(scope: PdvDatabaseRepositories, request: Request) {
@@ -203,7 +270,7 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
   }
 
   private resolveIssues(
-    issues: ReturnType<typeof rebuildCartWithIssues>,
+    issues: ReturnType<OrderCartPricingStrategy['execute']>,
     changes: readonly OrderRegistrationChange[],
   ): OrderRegistrationResult | undefined {
     if (issues.invalidConfigurations.length > 0)
@@ -225,12 +292,26 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
   private staleChanges(
     previous: OrderPreviewFacts,
     current: OrderPreviewFacts,
+    products: readonly SalesCatalogProduct[],
   ): readonly OrderRegistrationChange[] {
-    const changes: OrderRegistrationChange[] = []
+    const changes = [
+      ...this.channelChanges(previous, current),
+      ...this.comboChanges(previous, current),
+      ...this.catalogChanges(previous, current, products),
+    ]
+    return changes.length > 0 ? changes : [this.totalChange(previous, current)]
+  }
+
+  private channelChanges(
+    previous: OrderPreviewFacts,
+    current: OrderPreviewFacts,
+  ): readonly OrderRegistrationChange[] {
     if (
-      JSON.stringify(previous.channel ?? null) !== JSON.stringify(current.channel ?? null)
+      JSON.stringify(previous.channel ?? null) === JSON.stringify(current.channel ?? null)
     )
-      changes.push({
+      return []
+    return [
+      {
         kind: 'channel',
         previous: {
           label: previous.channel?.name ?? 'Sem canal',
@@ -240,10 +321,18 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
           label: current.channel?.name ?? 'Sem canal',
           amount: current.cart.total,
         },
-      })
+      },
+    ]
+  }
 
-    if (this.serializeDiscounts(previous.cart) !== this.serializeDiscounts(current.cart))
-      changes.push({
+  private comboChanges(
+    previous: OrderPreviewFacts,
+    current: OrderPreviewFacts,
+  ): readonly OrderRegistrationChange[] {
+    if (this.serializeDiscounts(previous.cart) === this.serializeDiscounts(current.cart))
+      return []
+    return [
+      {
         kind: 'combo',
         previous: {
           label: this.discountLabel(previous.cart),
@@ -253,31 +342,189 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
           label: this.discountLabel(current.cart),
           amount: current.cart.totalDiscount,
         },
-      })
+      },
+    ]
+  }
 
-    if (this.serializeCatalog(previous.cart) !== this.serializeCatalog(current.cart))
+  private catalogChanges(
+    previous: OrderPreviewFacts,
+    current: OrderPreviewFacts,
+    products: readonly SalesCatalogProduct[],
+  ): readonly OrderRegistrationChange[] {
+    const accompanimentChanges = this.accompanimentPriceChanges(
+      previous.selectedAccompanimentPrices ?? [],
+      current.selectedAccompanimentPrices ?? [],
+    )
+    const catalogChanged =
+      this.serializeCatalog(previous.cart) !== this.serializeCatalog(current.cart)
+    if (!catalogChanged && accompanimentChanges.length === 0) return []
+
+    return [
+      ...accompanimentChanges,
+      ...this.catalogLineChanges(previous.cart, current.cart, products),
+      this.totalChange(previous, current),
+    ]
+  }
+
+  private totalChange(
+    previous: OrderPreviewFacts,
+    current: OrderPreviewFacts,
+  ): OrderRegistrationChange {
+    return {
+      kind: 'catalog',
+      previous: { label: 'Total do pedido', amount: previous.cart.total },
+      current: { label: 'Total do pedido', amount: current.cart.total },
+    }
+  }
+
+  private accompanimentPriceChanges(
+    previousPrices: NonNullable<OrderPreviewFacts['selectedAccompanimentPrices']>,
+    currentPrices: NonNullable<OrderPreviewFacts['selectedAccompanimentPrices']>,
+  ): readonly OrderRegistrationChange[] {
+    const keyOf = (price: (typeof previousPrices)[number]) =>
+      JSON.stringify([price.productId, price.sizeId, price.accompanimentId])
+    const previousByKey = new Map(previousPrices.map((price) => [keyOf(price), price]))
+    const currentByKey = new Map(currentPrices.map((price) => [keyOf(price), price]))
+    const changes: OrderRegistrationChange[] = []
+
+    for (const key of [...previousByKey.keys()].sort()) {
+      const previous = previousByKey.get(key)
+      const current = currentByKey.get(key)
+      if (!previous || !current || previous.basePrice === current.basePrice) continue
+
       changes.push({
         kind: 'catalog',
-        previous: {
-          label: this.catalogLabel(previous.cart),
-          amount: previous.cart.subtotal,
-        },
-        current: {
-          label: this.catalogLabel(current.cart),
-          amount: current.cart.subtotal,
-        },
+        cause: 'accompaniment-price',
+        previous: { label: previous.name, amount: previous.basePrice },
+        current: { label: current.name, amount: current.basePrice },
       })
+    }
 
-    if (changes.length === 0)
-      changes.push({
-        kind: 'catalog',
-        previous: {
-          label: this.catalogLabel(previous.cart),
-          amount: previous.cart.total,
-        },
-        current: { label: this.catalogLabel(current.cart), amount: current.cart.total },
-      })
     return changes
+  }
+
+  private catalogLineChanges(
+    previous: Cart,
+    current: Cart,
+    products: readonly SalesCatalogProduct[],
+  ): readonly OrderRegistrationChange[] {
+    const previousByKey = this.linesByCatalogKey(previous.lines)
+    const currentByKey = this.linesByCatalogKey(current.lines)
+    const keys = [...new Set([...previousByKey.keys(), ...currentByKey.keys()])].sort()
+    const changes: OrderRegistrationChange[] = []
+
+    for (const key of keys) {
+      changes.push(
+        ...this.catalogLineChangesForKey(
+          previousByKey.get(key) ?? [],
+          currentByKey.get(key) ?? [],
+          products,
+        ),
+      )
+    }
+
+    return changes
+  }
+
+  private catalogLineChangesForKey(
+    previousLines: readonly CartLine[],
+    currentLines: readonly CartLine[],
+    products: readonly SalesCatalogProduct[],
+  ): readonly OrderRegistrationChange[] {
+    const changes: OrderRegistrationChange[] = []
+    const lineCount = Math.max(previousLines.length, currentLines.length)
+    for (let index = 0; index < lineCount; index += 1) {
+      const change = this.catalogLineChange(
+        previousLines[index],
+        currentLines[index],
+        products,
+      )
+      if (change) changes.push(change)
+    }
+    return changes
+  }
+
+  private catalogLineChange(
+    previousLine: CartLine | undefined,
+    currentLine: CartLine | undefined,
+    products: readonly SalesCatalogProduct[],
+  ): OrderRegistrationChange | undefined {
+    if (
+      previousLine &&
+      currentLine &&
+      this.serializeCatalogLine(previousLine) === this.serializeCatalogLine(currentLine)
+    ) {
+      return undefined
+    }
+
+    const productId = currentLine?.productId ?? previousLine?.productId ?? ''
+    return {
+      kind: 'catalog',
+      previous: {
+        label: this.catalogLineLabel(previousLine ?? currentLine, products) || productId,
+        amount: previousLine?.subtotal ?? 0,
+      },
+      current: {
+        label: this.catalogLineLabel(currentLine ?? previousLine, products) || productId,
+        amount: currentLine?.subtotal ?? 0,
+      },
+    }
+  }
+
+  private catalogLineLabel(
+    line: CartLine | undefined,
+    products: readonly SalesCatalogProduct[],
+  ): string {
+    if (!line) return ''
+    const product = products.find((candidate) => candidate.productId === line.productId)
+    if (!product) return line.productId
+    const labels = [product.name]
+    if (line.kind === 'portion') {
+      const size = product.sizes.find((candidate) => candidate.sizeId === line.sizeId)
+      labels.push(size?.name ?? line.sizeId ?? '')
+      const selectedAccompaniments = line.accompanimentIds.map(
+        (accompanimentId) =>
+          size?.accompaniments.find(
+            (accompaniment) => accompaniment.accompanimentId === accompanimentId,
+          )?.name ?? accompanimentId,
+      )
+      labels.push(...selectedAccompaniments)
+    } else if (line.brandId) {
+      labels.push(
+        product.resaleBrands.find((brand) => brand.brandId === line.brandId)?.name ??
+          line.brandId,
+      )
+    }
+    return labels.filter((label) => label.length > 0).join(' · ')
+  }
+
+  private linesByCatalogKey(lines: readonly CartLine[]): Map<string, CartLine[]> {
+    const result = new Map<string, CartLine[]>()
+    for (const line of lines) {
+      const key = JSON.stringify([
+        line.productId,
+        line.kind,
+        line.kind === 'portion' ? line.sizeId : null,
+        line.kind === 'resale' ? (line.brandId ?? null) : null,
+        line.kind === 'portion' ? [...line.accompanimentIds].sort() : [],
+      ])
+      const matching = result.get(key) ?? []
+      matching.push(line)
+      result.set(key, matching)
+    }
+    return result
+  }
+
+  private serializeCatalogLine(line: CartLine): string {
+    return JSON.stringify({
+      quantity: line.quantity,
+      baseUnitPrice: line.baseUnitPrice,
+      finalUnitPrice: line.finalUnitPrice,
+      subtotal: line.subtotal,
+      consumptions: [...line.consumptions].sort((left, right) =>
+        JSON.stringify(left).localeCompare(JSON.stringify(right)),
+      ),
+    })
   }
 
   private serializeDiscounts(cart: Cart): string {
@@ -321,15 +568,6 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
     )
   }
 
-  private catalogLabel(cart: Cart): string {
-    return (
-      [...cart.lines]
-        .sort((left, right) => left.productId.localeCompare(right.productId))
-        .map((line) => `${line.productId} (${line.baseUnitPrice.toFixed(2)})`)
-        .join(', ') || 'Catálogo vazio'
-    )
-  }
-
   private matchesReplay(order: Order, request: Request): boolean {
     if ((order.channel?.channelId ?? undefined) !== request.channelId) return false
     const storedLines = order.lines
@@ -368,15 +606,23 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
   private toFacts(
     cart: Cart,
     channel: Awaited<ReturnType<RegisterOrderUseCase['findChannel']>>,
+    products: readonly SalesCatalogProduct[],
   ): OrderPreviewFacts {
-    if (!channel) return { cart }
     return {
       cart,
-      channel: {
-        channelId: channel.id,
-        name: channel.name,
-        percentage: channel.percentage,
-      },
+      ...(channel
+        ? {
+            channel: {
+              channelId: channel.id,
+              name: channel.name,
+              percentage: channel.percentage,
+            },
+          }
+        : {}),
+      selectedAccompanimentPrices: this.accompanimentPriceSnapshot.execute({
+        cart,
+        products,
+      }),
     }
   }
 
@@ -467,7 +713,10 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
             type: accompaniment.type,
             quantity: accompaniment.quantityPerPortion,
             basePrice: accompaniment.basePrice,
-            finalPrice: adjustUnitPrice(accompaniment.basePrice, channelPercentage),
+            finalPrice: this.moneyRounding.execute({
+              amount: accompaniment.basePrice,
+              percentage: channelPercentage,
+            }),
           }))
       : []
     return {
@@ -493,6 +742,14 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
 
   private toOrderDetails(order: Order): OrderDetails {
     return order
+  }
+
+  private validateRegistrationInput(input: OrderRegistrationInput): void {
+    this.inputValidation.execute(input)
+    if (!input.idempotencyKey || typeof input.idempotencyKey !== 'string')
+      throw new BadRequestError('A chave de idempotência é obrigatória.')
+    if (!input.previewToken || typeof input.previewToken !== 'string')
+      throw new BadRequestError('O token da prévia é obrigatório.')
   }
 
   private validateActor(profile: UserProfile): void {

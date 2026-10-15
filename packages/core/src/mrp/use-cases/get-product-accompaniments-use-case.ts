@@ -135,6 +135,7 @@ export class GetProductAccompanimentsUseCase
       accompanimentTypeName: type.name,
       unit: accompanimentProduct.unit,
       quantityPerPortion: link.quantityPerPortion,
+      salePrice: accompanimentProduct.accompanimentPrice ?? null,
       ...(source?.brandId ? { brandId: source.brandId } : {}),
       ...(source?.brandName ? { brandName: source.brandName } : {}),
       ...(source?.unitCost !== undefined ? { unitCost: source.unitCost } : {}),

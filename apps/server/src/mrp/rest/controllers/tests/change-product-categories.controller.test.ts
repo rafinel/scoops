@@ -40,6 +40,45 @@ describe('Change Product Categories Controller [PATCH /products/:productId/categ
     ])
   })
 
+  it('rejects Portion plus Accompaniment and keeps Accompaniment plus Resale valid', async () => {
+    const portionCandidate = await fixture.addProduct(
+      createProduct({ name: 'Portion Candidate' }),
+    )
+    const rejected = await request(fixture.app.getHttpServer())
+      .patch(`/products/${portionCandidate.id}/categories`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        categories: [
+          ProductCategory.Ingredient,
+          ProductCategory.Portion,
+          ProductCategory.Accompaniment,
+        ],
+        expectedUpdatedAt: expectedUpdatedAt(portionCandidate),
+      })
+
+    expect(rejected.status).toBe(400)
+    await expect(
+      fixture.products.findById(portionCandidate.establishmentId, portionCandidate.id),
+    ).resolves.toMatchObject({ categories: [ProductCategory.Ingredient] })
+
+    const validCandidate = await fixture.addProduct(
+      createProduct({ name: 'Resale Accompaniment Candidate' }),
+    )
+    const allowed = await request(fixture.app.getHttpServer())
+      .patch(`/products/${validCandidate.id}/categories`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        categories: [ProductCategory.Accompaniment, ProductCategory.Resale],
+        expectedUpdatedAt: expectedUpdatedAt(validCandidate),
+      })
+
+    expect(allowed.status).toBe(200)
+    expect(allowed.body.product.categories).toEqual([
+      ProductCategory.Accompaniment,
+      ProductCategory.Resale,
+    ])
+  })
+
   it('rechecks current dependencies and rolls back a blocked removal', async () => {
     const product = await fixture.addProduct(
       createProduct({

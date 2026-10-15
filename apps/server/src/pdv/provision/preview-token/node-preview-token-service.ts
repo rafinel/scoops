@@ -149,6 +149,12 @@ export class NodePreviewTokenService implements OrderPreviewTokenService {
         ),
       },
       channel: facts.channel ?? null,
+      selectedAccompanimentPrices: [...(facts.selectedAccompanimentPrices ?? [])].sort(
+        (left, right) =>
+          left.productId.localeCompare(right.productId) ||
+          left.sizeId.localeCompare(right.sizeId) ||
+          left.accompanimentId.localeCompare(right.accompanimentId),
+      ),
     })
   }
 

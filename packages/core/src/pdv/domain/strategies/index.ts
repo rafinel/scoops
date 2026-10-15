@@ -1,0 +1,6 @@
+export * from '#pdv/domain/strategies/combo-allocation-strategy.ts'
+export * from '#pdv/domain/strategies/order-cart-pricing-strategy.ts'
+export * from '#pdv/domain/strategies/order-line-price-strategy.ts'
+export * from '#pdv/domain/strategies/order-money-rounding-strategy.ts'
+export * from '#pdv/domain/strategies/order-preview-accompaniment-price-snapshot-strategy.ts'
+export * from '#pdv/domain/strategies/order-preview-input-validation-strategy.ts'

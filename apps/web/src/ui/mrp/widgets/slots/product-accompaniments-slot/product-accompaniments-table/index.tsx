@@ -9,6 +9,7 @@ import {
   TableRow,
 } from '@/ui/shadcn/table'
 import { useFormatQuantity } from '@/ui/shared/hooks/use-format-quantity'
+import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { AccompanimentRow } from './accompaniment-row'
 
 export type ProductAccompanimentsTableProps = {
@@ -25,6 +26,7 @@ export const ProductAccompanimentsTable = ({
   onRemove,
 }: ProductAccompanimentsTableProps) => {
   const formatQuantity = useFormatQuantity()
+  const formatCurrency = useFormatCurrency()
 
   return (
     <section
@@ -40,7 +42,7 @@ export const ProductAccompanimentsTable = ({
               'TIPO',
               'MARCA',
               'QTD POR PORÇÃO',
-              'PREÇO',
+              'PREÇO DO PRODUTO',
               ...(canManage ? ['AÇÕES'] : []),
             ].map((label) => (
               <TableHead
@@ -56,6 +58,7 @@ export const ProductAccompanimentsTable = ({
           {items.map((item) => (
             <AccompanimentRow
               canManage={canManage}
+              formatCurrency={formatCurrency}
               formatQuantity={formatQuantity}
               item={item}
               key={item.id}

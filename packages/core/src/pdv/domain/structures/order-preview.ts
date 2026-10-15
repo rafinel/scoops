@@ -25,11 +25,23 @@ export interface OrderPreviewInput {
   readonly lines: readonly (PortionPreviewLine | ResalePreviewLine)[]
 }
 
+export type OrderPreviewAccompanimentPrice = {
+  readonly productId: string
+  readonly sizeId: string
+  readonly accompanimentId: string
+  readonly name: string
+  readonly basePrice: number
+}
+
 export interface OrderPreviewFacts {
   readonly cart: Cart
   readonly channel?: SalesChannelSnapshot
+  /** Signed token facts used to explain an accompaniment price change on revalidation. */
+  readonly selectedAccompanimentPrices?: readonly OrderPreviewAccompanimentPrice[]
 }
 
-export interface OrderPreview extends OrderPreviewFacts {
+export interface OrderPreview {
+  readonly cart: Cart
+  readonly channel?: SalesChannelSnapshot
   readonly previewToken: string
 }

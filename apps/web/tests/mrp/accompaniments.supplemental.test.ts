@@ -42,12 +42,109 @@ const LINKED_ACCOMPANIMENT = {
   accompanimentTypeName: TYPE.name,
   unit: 'g',
   quantityPerPortion: 20,
+  salePrice: 3,
   brandName: 'Estoque único',
   unitCost: 0.009,
   estimatedCost: 0.18,
 }
 
+const REFERENCE_LINKED_ACCOMPANIMENTS = [
+  {
+    ...LINKED_ACCOMPANIMENT,
+    id: 'link-granola',
+    accompanimentProductId: 'granola-product',
+    accompanimentProductName: 'Granola',
+    brandName: 'Mãe Terra',
+    quantityPerPortion: 50,
+    salePrice: 3,
+    estimatedCost: 0.45,
+  },
+  {
+    ...LINKED_ACCOMPANIMENT,
+    id: 'link-milk-powder',
+    accompanimentProductId: 'milk-powder-product',
+    accompanimentProductName: 'Leite em pó',
+    brandName: 'Ninho',
+    quantityPerPortion: 30,
+    salePrice: 4.5,
+    estimatedCost: 0.36,
+  },
+  {
+    ...LINKED_ACCOMPANIMENT,
+    id: 'link-peanut-candy',
+    accompanimentProductId: 'peanut-candy-product',
+    accompanimentProductName: 'Paçoca',
+    brandName: 'Doce Sabor',
+    quantityPerPortion: 10,
+    salePrice: 2.75,
+    estimatedCost: 0.2,
+  },
+  {
+    ...LINKED_ACCOMPANIMENT,
+    id: 'link-strawberry',
+    accompanimentProductId: 'strawberry-product',
+    accompanimentProductName: 'Morango',
+    accompanimentTypeName: 'Fruta',
+    unit: 'un',
+    brandName: 'Hortifruti',
+    quantityPerPortion: 1,
+    salePrice: 1.5,
+    estimatedCost: 0.8,
+  },
+  {
+    ...LINKED_ACCOMPANIMENT,
+    id: 'link-chocolate-syrup',
+    accompanimentProductId: 'chocolate-syrup-product',
+    accompanimentProductName: 'Calda de chocolate',
+    accompanimentTypeName: 'Cobertura',
+    brandName: 'Nestlé',
+    quantityPerPortion: 15,
+    salePrice: 3.25,
+    estimatedCost: 0.3,
+  },
+]
+
 test.describe('MRP supplemental browser coverage', () => {
+  test('captures the five-priced-row accompaniment table reference state', async ({
+    page,
+    mrpFixture,
+    identityFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    await mrpFixture.mockProductStock({
+      respond: (_request) => ({
+        body: {
+          product: PRODUCT,
+          stockQuantity: 1,
+          stockSituation: 'normal',
+          brands: [],
+        },
+      }),
+    })
+    await mrpFixture.mockProductAccompaniments({
+      respond: (_request) => ({
+        body: {
+          product: PRODUCT,
+          accompaniments: REFERENCE_LINKED_ACCOMPANIMENTS,
+        },
+      }),
+    })
+
+    await page.setViewportSize({ width: 1560, height: 1178 })
+    await page.goto(`/products/${PRODUCT_ID}/accompaniments`)
+    await expect(page.getByRole('heading', { name: 'Acompanhamentos' })).toBeVisible()
+    await expect(page.getByRole('cell', { name: 'R$ 3,00' })).toBeVisible()
+    await expect(page.getByRole('cell', { name: 'R$ 4,50' })).toBeVisible()
+    await expect(page.getByRole('row')).toHaveCount(6)
+    await page
+      .getByText(/Itens oferecidos junto a este produto no PDV/)
+      .locator('xpath=../../..')
+      .screenshot({
+        path: '.playwright-cli/screenshots/mrp/accompaniment-price-populated-table-1560x1178.png',
+      })
+  })
+
   test('shows the Manager contextual Types link on Products without a global sidebar entry', async ({
     page,
     mrpFixture,
@@ -390,15 +487,60 @@ test.describe('MRP supplemental browser coverage', () => {
       linkDialog.getByRole('combobox', { name: 'Acompanhamento' }),
     ).toBeVisible()
     await page.screenshot({
+    })
+    await page.setViewportSize({ width: 390, height: 844 })
+    await linkDialog.getByRole('textbox', { name: 'Preço do acompanhamento' }).focus()
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Tab')
+    const linkCancel = linkDialog.getByRole('button', { name: 'Cancelar' })
+    await expect(linkCancel).toBeFocused()
+    await expect
+      .poll(() =>
+        linkCancel.evaluate((button) => {
+          const dialogRect = button
+            .closest('[data-slot="dialog-content"]')
+            ?.getBoundingClientRect()
+          const buttonRect = button.getBoundingClientRect()
+          return Boolean(
+            dialogRect &&
+              buttonRect.top >= dialogRect.top &&
+              buttonRect.bottom <= dialogRect.bottom,
+          )
+        }),
+      )
+      .toBe(true)
+    await page.screenshot({
       path: 'test-results/mrp/supplemental/product-accompaniment-link-dialog-320x900.png',
     })
-    await linkDialog.getByRole('button', { name: 'Cancelar' }).click()
+    await linkCancel.click()
 
     await page.getByRole('button', { name: 'Editar Granola' }).click()
     const editDialog = page.getByRole('dialog', { name: 'Editar acompanhamento' })
     await expect(editDialog).toBeVisible()
     await page.screenshot({
       path: 'test-results/mrp/supplemental/product-accompaniment-edit-dialog-320x900.png',
+    })
+    await page.setViewportSize({ width: 390, height: 844 })
+    await editDialog.getByRole('textbox', { name: /Quantidade por porção/ }).focus()
+    await page.keyboard.press('Tab')
+    const editCancel = editDialog.getByRole('button', { name: 'Cancelar' })
+    await expect(editCancel).toBeFocused()
+    await expect
+      .poll(() =>
+        editCancel.evaluate((button) => {
+          const dialogRect = button
+            .closest('[data-slot="dialog-content"]')
+            ?.getBoundingClientRect()
+          const buttonRect = button.getBoundingClientRect()
+          return Boolean(
+            dialogRect &&
+              buttonRect.top >= dialogRect.top &&
+              buttonRect.bottom <= dialogRect.bottom,
+          )
+        }),
+      )
+      .toBe(true)
+    await page.screenshot({
     })
   })
 
@@ -461,7 +603,20 @@ test.describe('MRP supplemental browser coverage', () => {
         },
       }),
     })
-
+    await page.route(`**/products/${ACCOMPANIMENT.id}/pricing`, async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        status: 200,
+        body: JSON.stringify({
+          product: ACCOMPANIMENT,
+          mode: 'accompaniment',
+          sizes: [],
+          resale: [],
+          accompanimentPrice: 3,
+          suggestedAccompanimentPrice: null,
+        }),
+      })
+    })
     await page.goto(`/products/${PRODUCT_ID}/accompaniments`)
     await page.getByRole('button', { name: 'Vincular acompanhamento' }).click()
     const linkDialog = page.getByRole('dialog', { name: 'Vincular acompanhamento' })
@@ -479,6 +634,9 @@ test.describe('MRP supplemental browser coverage', () => {
     await linkQuantity.fill('25')
     await linkDialog.getByRole('button', { name: 'Vincular' }).click()
     await expect(linkDialog.getByRole('button', { name: 'Salvando…' })).toBeDisabled()
+    await linkDialog
+      .getByRole('textbox', { name: 'Preço do acompanhamento' })
+      .fill('3,00')
     await page.screenshot({
       path: 'test-results/mrp/supplemental/product-accompaniment-link-saving-676x843.png',
     })

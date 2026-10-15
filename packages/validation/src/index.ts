@@ -78,6 +78,7 @@ export {
   linkProductAccompanimentSchema,
   updateProductAccompanimentSchema,
 } from './mrp/product-accompaniment-schema.ts'
+export { accompanimentPriceSchema } from './mrp/accompaniment-price-schema.ts'
 export { saveAccompanimentTypeSchema } from './mrp/accompaniment-type-schema.ts'
 export { listAccompanimentTypesQuerySchema } from './mrp/list-accompaniment-types-query-schema.ts'
 export { accountNameFormSchema } from './web/account-name-form-schema.ts'

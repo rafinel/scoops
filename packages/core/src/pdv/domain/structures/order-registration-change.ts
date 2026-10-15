@@ -5,6 +5,7 @@ type OrderRegistrationValue = {
 
 export type OrderRegistrationChange = {
   readonly kind: 'channel' | 'combo' | 'catalog'
+  readonly cause?: 'accompaniment-price'
   readonly previous: OrderRegistrationValue
   readonly current: OrderRegistrationValue
 }
