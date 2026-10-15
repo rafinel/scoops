@@ -509,18 +509,24 @@ context for PRQ-09, PRQ-10, and PDV.
   renaming updates its existing links.
 - Quantity per portion defines consumption for each unit sold.
 - MRP owns the Accompaniment product's sale price; PDV uses that same price for every linked
-  Portion and size. The price is not configured on the link.
+  Portion and size. The link dialog can edit this product-owned price, but a link never has its own
+  price.
 - When accompaniment stock is By brand, consumption uses its current main brand.
 - Removing a link does not change current balances and requires confirmation.
 
 #### Experience
 
 - The link table displays Accompaniment, Type, Brand, Quantity per portion, the product's sale
-  price, and Actions.
-  `Link accompaniment` opens a modal for Accompaniment, Type, Quantity per portion, applicable
-  Brand, and cost preview.
+  price, and Actions. `Link accompaniment` opens a modal for Accompaniment, Type, the product's
+  sale price, Quantity per portion, applicable Brand, and cost preview.
+- The modal's price field is prefilled with the selected Accompaniment product's current sale
+  price. The Manager can edit the product-owned price there; the change applies to every link and
+  Portion size for future sales. If the price has not been configured, the Manager must enter a
+  valid price before linking. The field uses the Accompaniment price rules in PRQ-09, and the cost
+  preview remains separate from the sale price.
 - The current main brand is visible. The link table displays the Accompaniment product's sale
-  price; it applies to every linked Portion size and is managed on the product's Prices page.
+  price; it applies to every linked Portion size and is managed on the product's Prices page or in
+  the Link accompaniment modal.
 - The type selector offers `Manage types`, which opens the dedicated `Accompaniment types` page.
 - The types page displays registered types, usage status, and removal only for unused types, with
   `New type` opening creation. Pagination shows visible range, total count, previous, next, and
@@ -578,8 +584,9 @@ for PRQ-10, PDV, and Analytics.
 - Before an Accompaniment product can be linked to a Portion, its sale price must be set.
 - The Accompaniment product's sale price applies uniformly across every link and Portion size.
   Linking the product or adding a Portion size does not create a separate accompaniment price.
-  Managers change the price on the Accompaniment product's Prices page, and the updated price
-  applies to future sales across all links and sizes.
+  Managers can change the price on the Accompaniment product's Prices page or in the Link
+  accompaniment modal; either surface updates the same product-owned price for future sales across
+  all links and sizes.
 - Configuration changes affect future PDV behavior and do not rewrite previous orders.
 - A size name is trimmed, mandatory, and unique within its product without case sensitivity.
   Quantity is positive with at most three decimal places, and sale price is non-negative with at
@@ -601,7 +608,9 @@ for PRQ-10, PDV, and Analytics.
   and Movements.
 - The Accompaniment Prices page displays and edits the product's sale price, initially populated
   from the applicable existing Resale price when available. Otherwise the Manager enters the
-  required value. The Portion Prices—Sizes area displays and edits each Portion size's sale price.
+  required value. The Link accompaniment modal also displays and edits that same price, prefilled
+  when configured and required before the link can be saved. The Portion Prices—Sizes area
+  displays and edits each Portion size's sale price.
 - The Accompaniments table displays each linked Accompaniment product's sale price. The same
   product-owned price applies to every Portion size and every link for that product.
 - Sizes and Resale brand configurations can be activated or deactivated without automatically
@@ -813,13 +822,13 @@ flowchart LR
    Resale-price changes do not change this independent Accompaniment price.
 2. The Manager opens a Portion and selects Accompaniments, then `Link accompaniment`.
 3. The Manager selects an eligible product, type, quantity per portion, and applicable main brand.
-4. The system shows the expected cost and saves the link; the Accompaniment product's sale price
-   applies automatically to that link and every Portion size.
-5. The Accompaniments table displays the product-owned sale price. The Manager changes it on the
-   Accompaniment product's Prices page, and the updated price applies to future sales across links
-   and sizes.
+4. The modal shows the product-owned sale price. The Manager may edit this one price here, and must
+   enter it if it has not been configured; the expected cost remains a separate preview.
+5. When the link is saved, the product-owned price applies to every link and Portion size for
+   future sales. The Accompaniments table displays that shared price. Managers may also change it
+   on the Accompaniment product's Prices page.
 6. PDV uses the same product-owned price regardless of Portion size; a zero price is displayed as
-   `Grátis`.
+   `Grátis`, and registered orders retain their original prices.
 
 ### Journey H — Manager changes a product unit
 
