@@ -339,6 +339,7 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
     ])
     const source = this.resolveAccompanimentSource(product, brands)
     const availableQuantity = this.getStockQuantity(balances, source?.brandId)
+
     const hasConfiguredPrice = product?.accompanimentPrice !== undefined
     const isActive = Boolean(
       type?.establishmentId === establishmentId && source?.isActive && hasConfiguredPrice,

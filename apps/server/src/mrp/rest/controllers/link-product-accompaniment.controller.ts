@@ -52,6 +52,7 @@ export class LinkProductAccompanimentController {
         accompanimentPrice: {
           type: 'number',
           minimum: 0,
+          maximum: 9_999_999_999_999_998,
           multipleOf: 0.01,
           description:
             'Optional saved product-wide sale price. Required the first time an unpriced target is linked; zero is allowed.',

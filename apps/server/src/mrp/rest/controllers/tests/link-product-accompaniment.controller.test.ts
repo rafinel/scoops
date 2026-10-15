@@ -277,6 +277,10 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
       .post(`/products/${owner.id}/accompaniments`)
       .set('Cookie', managerRequestAuthorization())
       .send({ ...body, accompanimentPrice: 1.001 })
+    const exceedsNumericPrecision = await request(fixture.app.getHttpServer())
+      .post(`/products/${owner.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ ...body, accompanimentPrice: 10_000_000_000_000_000 })
     const nullPrice = await request(fixture.app.getHttpServer())
       .post(`/products/${owner.id}/accompaniments`)
       .set('Cookie', managerRequestAuthorization())
@@ -291,6 +295,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
       .send({ ...body, accompanimentPrice: 0 })
 
     expect(excessivePrecision.status).toBe(422)
+    expect(exceedsNumericPrecision.status).toBe(422)
     expect(nullPrice.status).toBe(422)
     expect(negative.status).toBe(422)
     expect(free.status).toBe(201)

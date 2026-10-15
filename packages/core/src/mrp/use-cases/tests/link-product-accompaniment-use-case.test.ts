@@ -425,6 +425,28 @@ describe('Link Product Accompaniment Use Case', () => {
     ).toHaveBeenCalledWith(establishmentId, target.id)
   })
 
+  it('accepts the largest representable accompaniment price below the numeric column limit', async () => {
+    currentTarget = { ...target, accompanimentPrice: undefined }
+
+    await expect(
+      useCase.execute({
+        actor: { id: 'manager-1', establishmentId, profile: UserProfile.Manager },
+        productId: owner.id,
+        input: {
+          accompanimentProductId: target.id,
+          accompanimentTypeId: type.id,
+          quantityPerPortion: 1,
+          accompanimentPrice: 9_999_999_999_999_998,
+        },
+      }),
+    ).resolves.toMatchObject({ salePrice: 9_999_999_999_999_998 })
+    expect(scope.productsRepository.replace).toHaveBeenCalledWith(
+      establishmentId,
+      target.id,
+      { accompanimentPrice: 9_999_999_999_999_998 },
+    )
+  })
+
   it('rejects missing or invalid prices before writing the Product or link', async () => {
     currentTarget = { ...target, accompanimentPrice: undefined }
     await expect(
@@ -453,7 +475,7 @@ describe('Link Product Accompaniment Use Case', () => {
     ).rejects.toBeInstanceOf(BadRequestError)
 
     currentTarget = { ...target, accompanimentPrice: undefined }
-    for (const accompanimentPrice of [-0.01, 1.234, Number.NaN]) {
+    for (const accompanimentPrice of [-0.01, 1.234, Number.NaN, 10_000_000_000_000_000]) {
       await expect(
         useCase.execute({
           actor: { id: 'manager-1', establishmentId, profile: UserProfile.Manager },

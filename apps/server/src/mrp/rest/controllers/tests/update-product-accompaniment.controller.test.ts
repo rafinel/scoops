@@ -108,6 +108,14 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
       .patch(`/products/${owner.id}/accompaniments/${link.id}`)
       .set('Cookie', managerRequestAuthorization())
       .send({ accompanimentTypeId: type.id, quantityPerPortion: 1.1234 })
+    const exceedsNumericPrecision = await request(fixture.app.getHttpServer())
+      .patch(`/products/${owner.id}/accompaniments/${link.id}`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 1,
+        accompanimentPrice: 10_000_000_000_000_000,
+      })
     const immutableTarget = await request(fixture.app.getHttpServer())
       .patch(`/products/${owner.id}/accompaniments/${link.id}`)
       .set('Cookie', managerRequestAuthorization())
@@ -130,6 +138,7 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
       .send({ accompanimentTypeId: type.id, quantityPerPortion: 2 })
 
     expect(malformed.status).toBe(422)
+    expect(exceedsNumericPrecision.status).toBe(422)
     expect(immutableTarget.status).toBe(422)
     expect(operator.status).toBe(403)
     expect(foreign.status).toBe(404)

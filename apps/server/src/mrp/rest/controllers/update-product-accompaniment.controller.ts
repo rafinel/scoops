@@ -43,6 +43,7 @@ export class UpdateProductAccompanimentController {
         accompanimentPrice: {
           type: 'number',
           minimum: 0,
+          maximum: 9_999_999_999_999_998,
           multipleOf: 0.01,
           description:
             'Optional intentional product-wide price change. Omit to keep the latest saved price; zero is allowed.',

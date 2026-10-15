@@ -550,7 +550,7 @@ describe('Update Product Accompaniment Use Case', () => {
       ).rejects.toBeInstanceOf(BadRequestError)
     }
     expect(scope.productAccompanimentsRepository.replace).not.toHaveBeenCalled()
-    for (const accompanimentPrice of [-0.01, 1.234, Number.NaN]) {
+    for (const accompanimentPrice of [-0.01, 1.234, Number.NaN, 10_000_000_000_000_000]) {
       await expect(
         useCase.execute({
           ...request,
