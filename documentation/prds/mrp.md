@@ -503,7 +503,10 @@ context for PRQ-09, PRQ-10, and PDV.
 #### Capabilities
 
 - A Portion may have zero or more accompaniments, and an Accompaniment may link to multiple
-  Portions. Only products in the Accompaniment category are eligible.
+  Portions. New links require an active Accompaniment product without the Portion category. An
+  existing retained link remains editable while its active target still has Accompaniment, even if
+  its legacy category set also includes Portion; product registration and category changes still
+  reject the Portion+Accompaniment combination.
 - Each link has a contextual type, such as Coverage, Extra, or Free; the same Accompaniment may
   have different types for different Portions.
 - Accompaniment types are managed on a dedicated MRP page and are available only within the same

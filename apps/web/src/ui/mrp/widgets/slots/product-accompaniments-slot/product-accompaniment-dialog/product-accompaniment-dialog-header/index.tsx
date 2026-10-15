@@ -11,7 +11,7 @@ export const ProductAccompanimentDialogHeader = ({
   isRefreshing,
 }: ProductAccompanimentDialogHeaderProps) => {
   return (
-    <>
+    <div className='grid gap-2'>
       <DialogHeader className='border-b border-border-soft p-4 pr-14 sm:p-6 sm:pr-14'>
         <DialogTitle>
           {isEdit ? 'Editar acompanhamento' : 'Vincular acompanhamento'}
@@ -20,7 +20,9 @@ export const ProductAccompanimentDialogHeader = ({
           Configure como este item aparece no PDV.
         </DialogDescription>
       </DialogHeader>
-      <QueryRefreshStatus isRefreshing={isRefreshing} />
-    </>
+      <div className='px-4 sm:px-6'>
+        <QueryRefreshStatus isRefreshing={isRefreshing} />
+      </div>
+    </div>
   )
 }

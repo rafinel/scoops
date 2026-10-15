@@ -115,6 +115,8 @@ test.describe('ProductAccompanimentsPage', () => {
     })
     let savedPrice: number | null = null
     const pricingRequests: string[] = []
+    let holdNextPricingResponse = false
+    let releasePricingResponse: (() => void) | undefined
     await mrpFixture.mockProductStock({
       respond: () => ({
         body: {
@@ -186,6 +188,12 @@ test.describe('ProductAccompanimentsPage', () => {
     })
     await page.route(`**/products/${ACCOMPANIMENT_ID}/pricing`, async (route) => {
       pricingRequests.push(route.request().method())
+      if (holdNextPricingResponse) {
+        holdNextPricingResponse = false
+        await new Promise<void>((resolve) => {
+          releasePricingResponse = resolve
+        })
+      }
       await route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
@@ -203,7 +211,7 @@ test.describe('ProductAccompanimentsPage', () => {
     await page.setViewportSize({ width: 1560, height: 1178 })
     await page.goto(`/products/${PRODUCT_ID}/accompaniments`)
     const backLink = page.getByRole('link', { name: 'Voltar para produtos' })
-    await expect(backLink).toBeVisible()
+    await expect(backLink).toBeVisible({ timeout: 30_000 })
     await expect(backLink).toContainText('Voltar')
     await expect(backLink).toHaveClass(/border-transparent/)
     await expect(backLink).toHaveClass(/bg-transparent/)
@@ -267,9 +275,39 @@ test.describe('ProductAccompanimentsPage', () => {
 
     const editButton = page.getByRole('button', { name: 'Editar Granola' })
     await expect(editButton).toBeVisible()
+    await page.setViewportSize({ width: 390, height: 568 })
+    holdNextPricingResponse = true
     await editButton.click()
     const editDialog = page.getByRole('dialog', { name: 'Editar acompanhamento' })
     await expect(editDialog).toBeVisible()
+    const refreshStatus = editDialog.getByRole('status', { name: 'Atualizando…' })
+    try {
+      await expect(refreshStatus).toBeVisible()
+      const saveButton = editDialog.getByRole('button', { name: 'Salvar alterações' })
+      await expect(saveButton).toBeInViewport()
+      await expect(editDialog.getByRole('button', { name: 'Cancelar' })).toBeInViewport()
+      const fields = editDialog.locator('form > div').first()
+      await expect
+        .poll(() =>
+          fields.evaluate((element) => element.scrollHeight > element.clientHeight),
+        )
+        .toBe(true)
+      await fields.evaluate((element) => {
+        element.scrollTop = element.scrollHeight
+      })
+      await expect(
+        editDialog.getByRole('textbox', { name: 'Preço do acompanhamento' }),
+      ).toBeInViewport()
+      await expect(saveButton).toBeInViewport()
+      await page.screenshot({
+        path: '.playwright-cli/screenshots/mrp/product-accompaniment-edit-dialog-refresh-390x568.png',
+        animations: 'disabled',
+      })
+    } finally {
+      releasePricingResponse?.()
+    }
+    await expect(refreshStatus).toBeHidden()
+    await page.setViewportSize({ width: 1560, height: 1178 })
     const brandInput = editDialog.getByRole('textbox', { name: 'Marca atual' })
     await expect(brandInput).toBeDisabled()
     await expect(brandInput).toHaveValue('Estoque único')

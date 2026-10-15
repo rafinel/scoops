@@ -155,9 +155,12 @@ describe('ProductAccompanimentDialog', () => {
       />,
     )
 
-    expect(screen.getByRole('status', { name: 'Atualizando…' }).textContent).toBe(
-      'Atualizando…',
-    )
+    const dialog = screen.getByRole('dialog', { name: 'Vincular acompanhamento' })
+    const status = screen.getByRole('status', { name: 'Atualizando…' })
+    expect(status.textContent).toBe('Atualizando…')
+    const form = dialog.querySelector('form')
+    expect(dialog.children[0]?.contains(status)).toBe(true)
+    expect(form).toBe(dialog.children[1])
     expect(
       screen
         .getByRole('combobox', { name: 'Acompanhamento' })
