@@ -12,11 +12,16 @@ export class OrderMoneyRoundingStrategy
   implements BusinessRuleStrategy<OrderMoneyInput, number>
 {
   execute(input: OrderMoneyInput): number {
-    const amount =
-      typeof input === 'number'
-        ? input
-        : input.amount * (1 + (input.percentage ?? 0) / 100)
+    const amount = typeof input === 'number' ? input : this.applyPercentage(input)
 
+    return this.roundToCents(amount)
+  }
+
+  private applyPercentage(input: Exclude<OrderMoneyInput, number>): number {
+    return input.amount * (1 + (input.percentage ?? 0) / 100)
+  }
+
+  private roundToCents(amount: number): number {
     return Math.round((amount + Number.EPSILON) * 100) / 100
   }
 }

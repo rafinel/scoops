@@ -548,31 +548,22 @@ Durable outbox rows are the reliability boundary. The existing shared relay deli
 
 | Path | Change |
 | --- | --- |
-| `apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog/mrp-sales-catalog-provider.ts` | Create |
-| `apps/server/src/shared/provision/pdv-order-registration/mrp-order-cost/mrp-order-cost-provider.ts` | Create |
-| `apps/server/src/shared/provision/pdv-order-registration/mrp-stock/mrp-stock-provider.ts` | Create |
-| `apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts` | Remove |
-| `apps/server/src/shared/provision/pdv-order-registration/mrp-order-cost-provider.ts` | Remove |
-| `apps/server/src/shared/provision/pdv-order-registration/mrp-stock-provider.ts` | Remove |
-| `apps/server/src/shared/provision/pdv-order-registration/pdv-order-registration-provision.module.ts` | Modify |
+| `apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts` | Modify |
 
-Each provider move is represented by its exact destination as Create and its exact flat source as Remove for file-path validation. The sales-catalog destination also changes pricing; the other moves preserve behavior. Update every affected import alongside the listed module.
+Only the sales-catalog provider changes: it reads the saved Product price while preserving the existing shared provision boundary. The cost and stock providers and their module bindings are reused at their existing paths.
 
 
 **Expected files and dependency direction.**
 
 ```text
 apps/server/src/shared/provision/pdv-order-registration/
-├── mrp-sales-catalog/
-│   └── mrp-sales-catalog-provider.ts                  [move + M] live sale-price translation
-├── mrp-order-cost/
-│   └── mrp-order-cost-provider.ts                     [move] preserve cost behavior
-├── mrp-stock/
-│   └── mrp-stock-provider.ts                          [move] preserve stock behavior
-└── pdv-order-registration-provision.module.ts         [M] update provider imports; keep bindings
+├── mrp-sales-catalog-provider.ts                      [M] live sale-price translation
+├── mrp-order-cost-provider.ts                         [reuse] preserve cost behavior
+├── mrp-stock-provider.ts                              [reuse] preserve stock behavior
+└── pdv-order-registration-provision.module.ts         [reuse] preserve provider bindings
 ```
 
-Each provider has its own subdirectory under the existing focused provision boundary. These are expected implementation moves from the current flat directory, not already-existing paths. Move the three provider files, update the module and all affected imports using the server alias, and remove the old flat files rather than keeping duplicate implementations. Preserve the existing provider classes, consuming tokens, singleton registrations and exports; only the sales-catalog provider gains the pricing behavior change. Cost and stock provider moves preserve their behavior. Verify the moved wiring through the existing catalog/preview/registration consumer tests, without dedicated provider tests.
+Keep all three providers in the existing shared provision directory. Preserve provider classes, consuming tokens, singleton registrations, exports and module imports. Only the sales-catalog provider gains the pricing behavior change. Verify the wiring through the existing catalog/preview/registration consumer tests, without dedicated provider tests.
 
 `MrpSalesCatalogProvider` implements PDV's `SalesCatalogProvider` and receives the exported MRP database contract. Its scoped reader reloads current MRP facts through existing exported repositories; shared infrastructure translates facts and does not take ownership of MRP price/eligibility policy. Keep current focused provision module/token wiring; do not instantiate providers in controllers or create a new root composition tree.
 

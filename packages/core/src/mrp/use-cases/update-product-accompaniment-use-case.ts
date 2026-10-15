@@ -1,19 +1,19 @@
 import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
-import type { Brand } from '#mrp/domain/entities/brand.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import type { ProductAccompaniment } from '#mrp/domain/entities/product-accompaniment.ts'
-import type { ProductSize } from '#mrp/domain/entities/product-size.ts'
-import type { ResaleConfiguration } from '#mrp/domain/entities/resale-configuration.ts'
 import type { ProductAccompanimentDetails } from '#mrp/domain/structures/product-accompaniment-details.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { UpdateProductAccompanimentInput } from '#mrp/domain/structures/update-product-accompaniment-input.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
-import type { ProductSalesConfiguration } from '#mrp/domain/structures/product-sales-configuration.ts'
+import { AccompanimentPriceValidationStrategy } from '#mrp/domain/strategies/accompaniment-price-validation-strategy.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
-import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
 import { ProductStatus } from '#mrp/domain/structures/product-status.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
+import {
+  GetAffectedProductSalesConfigurationsUseCase,
+  publishAffectedProductSalesConfigurations,
+} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -35,22 +35,14 @@ type UpdateContext = {
   readonly accompanimentTypeId: string
 }
 
-type AccompanimentSalesSnapshot =
-  ProductSalesConfiguration['sizes'][number]['accompaniments'][number] & {
-    readonly updatedAt: Date
-  }
-
-type PortionSalesConfigurationSource = {
-  readonly portion: Product
-  readonly sizes: readonly ProductSize[]
-  readonly links: readonly ProductAccompaniment[]
-  readonly resaleConfigurations: readonly ResaleConfiguration[]
-  readonly brands: readonly Brand[]
-}
-
 export class UpdateProductAccompanimentUseCase
   implements UseCase<Request, ProductAccompanimentDetails>
 {
+  private readonly accompanimentPriceValidation =
+    new AccompanimentPriceValidationStrategy()
+  private readonly getAffectedProductSalesConfigurations =
+    new GetAffectedProductSalesConfigurationsUseCase()
+
   constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<ProductAccompanimentDetails> {
@@ -85,13 +77,22 @@ export class UpdateProductAccompanimentUseCase
     )
 
     const result = await this.buildDetails(scope, establishmentId, updated)
-    await this.publishAffectedOwners(
+    const affectedProductIds =
+      savedTarget.accompanimentPrice === target.accompanimentPrice ? [] : undefined
+    const configurations = await this.getAffectedProductSalesConfigurations.execute({
       scope,
       establishmentId,
-      owner.id,
-      target,
-      savedTarget,
-    )
+      productId: owner.id,
+      affectedProductIds,
+    })
+    await publishAffectedProductSalesConfigurations({
+      scope,
+      establishmentId,
+      productId: owner.id,
+      configurations: configurations.filter((configuration) =>
+        configuration.categories.includes(ProductCategory.Portion),
+      ),
+    })
     return result
   }
 
@@ -132,27 +133,10 @@ export class UpdateProductAccompanimentUseCase
     if (target.stockControl === ProductStockControl.ByBrand) {
       await this.requireMainBrand(scope, target)
     }
-    this.validateAccompanimentPrice(target, request.input.accompanimentPrice)
-    return { owner, link, target, accompanimentTypeId: type.id }
-  }
-
-  private async publishAffectedOwners(
-    scope: MrpDatabaseRepositories,
-    establishmentId: string,
-    ownerId: string,
-    previousTarget: Product,
-    savedTarget: Product,
-  ): Promise<void> {
-    const inverseOwnerIds =
-      savedTarget.accompanimentPrice !== previousTarget.accompanimentPrice
-        ? await this.findAffectedPortionIds(scope, establishmentId, savedTarget.id)
-        : [ownerId]
-    const configurations = await this.buildAffectedPortionConfigurations(
-      scope,
-      establishmentId,
-      [ownerId, ...inverseOwnerIds],
+    this.validateAccompanimentPrice(
+      request.input.accompanimentPrice ?? target.accompanimentPrice,
     )
-    await this.publishConfigurations(scope, establishmentId, configurations)
+    return { owner, link, target, accompanimentTypeId: type.id }
   }
 
   private validateActor(actor: ProductActor): void {
@@ -193,6 +177,16 @@ export class UpdateProductAccompanimentUseCase
     }
   }
 
+  private validateAccompanimentPrice(price: number | undefined): void {
+    const result = this.accompanimentPriceValidation.execute(price)
+    if (typeof result === 'number') return
+    throw new BadRequestError(
+      result === 'missing'
+        ? 'Informe o preço de venda do acompanhamento.'
+        : 'O preço deve ser maior ou igual a zero e ter até duas casas decimais.',
+    )
+  }
+
   private validateQuantity(quantity: number): void {
     if (
       !Number.isFinite(quantity) ||
@@ -201,21 +195,6 @@ export class UpdateProductAccompanimentUseCase
     ) {
       throw new BadRequestError(
         'A quantidade deve ser positiva e ter até três casas decimais.',
-      )
-    }
-  }
-
-  private validateAccompanimentPrice(target: Product, price: number | undefined): void {
-    const resolvedPrice = price ?? target.accompanimentPrice
-    if (resolvedPrice === undefined)
-      throw new BadRequestError('Informe o preço de venda do acompanhamento.')
-    if (
-      !Number.isFinite(resolvedPrice) ||
-      resolvedPrice < 0 ||
-      Number(resolvedPrice.toFixed(2)) !== resolvedPrice
-    ) {
-      throw new BadRequestError(
-        'O preço deve ser maior ou igual a zero e ter até duas casas decimais.',
       )
     }
   }
@@ -241,25 +220,6 @@ export class UpdateProductAccompanimentUseCase
     if (!brands.some((brand) => brand.productId === product.id && brand.isPrimary)) {
       throw new BadRequestError('O acompanhamento não possui marca principal.')
     }
-  }
-
-  private async findAffectedPortionIds(
-    scope: MrpDatabaseRepositories,
-    establishmentId: string,
-    accompanimentProductId: string,
-  ): Promise<readonly string[]> {
-    const links =
-      (await scope.productAccompanimentsRepository.findManyByAccompanimentProductId(
-        establishmentId,
-        accompanimentProductId,
-      )) ?? []
-    return [
-      ...new Set(
-        links
-          .filter((link) => link.establishmentId === establishmentId)
-          .map((link) => link.productId),
-      ),
-    ]
   }
 
   private async buildDetails(
@@ -324,210 +284,6 @@ export class UpdateProductAccompanimentUseCase
       brandId: mainBrand.id,
       brandName: mainBrand.name,
       unitCost: mainBrand.packagePrice / mainBrand.packageQuantity,
-    }
-  }
-
-  private async buildAffectedPortionConfigurations(
-    scope: MrpDatabaseRepositories,
-    establishmentId: string,
-    portionIds: readonly string[],
-  ): Promise<readonly ProductSalesConfiguration[]> {
-    const configurations: ProductSalesConfiguration[] = []
-    for (const portionId of new Set(portionIds)) {
-      const configuration = await this.buildPortionSalesConfiguration(
-        scope,
-        establishmentId,
-        portionId,
-      )
-      if (configuration) configurations.push(configuration)
-    }
-    return configurations
-  }
-
-  private async buildPortionSalesConfiguration(
-    scope: MrpDatabaseRepositories,
-    establishmentId: string,
-    portionId: string,
-  ): Promise<ProductSalesConfiguration | undefined> {
-    const portion = await scope.productsRepository.findById(establishmentId, portionId)
-    if (
-      !portion ||
-      portion.establishmentId !== establishmentId ||
-      !portion.categories.includes(ProductCategory.Portion)
-    ) {
-      return undefined
-    }
-
-    const [sizes, links, resaleConfigurations, brands] = await Promise.all([
-      scope.productSizesRepository.findManyByProductId(establishmentId, portion.id),
-      scope.productAccompanimentsRepository.findManyByProductId(
-        establishmentId,
-        portion.id,
-      ),
-      scope.resaleConfigurationsRepository.findManyByProductId(
-        establishmentId,
-        portion.id,
-      ),
-      portion.stockControl === ProductStockControl.ByBrand
-        ? scope.brandsRepository.findManyByProductId(portion.id)
-        : Promise.resolve([]),
-    ])
-    return this.projectPortionSalesConfiguration(scope, establishmentId, {
-      portion,
-      sizes: sizes ?? [],
-      links: links ?? [],
-      resaleConfigurations: resaleConfigurations ?? [],
-      brands: brands ?? [],
-    })
-  }
-
-  private async projectPortionSalesConfiguration(
-    scope: MrpDatabaseRepositories,
-    establishmentId: string,
-    source: PortionSalesConfigurationSource,
-  ): Promise<ProductSalesConfiguration> {
-    const { portion } = source
-    const sizes = source.sizes.filter(
-      (size) => size.establishmentId === establishmentId && size.productId === portion.id,
-    )
-    const links = source.links.filter(
-      (link) => link.establishmentId === establishmentId && link.productId === portion.id,
-    )
-    const resaleConfigurations = source.resaleConfigurations.filter(
-      (configuration) =>
-        configuration.establishmentId === establishmentId &&
-        configuration.productId === portion.id,
-    )
-    const brands = source.brands.filter((brand) => brand.productId === portion.id)
-    const accompaniments = await Promise.all(
-      links.map((link) =>
-        this.buildAccompanimentSalesSnapshot(scope, establishmentId, link),
-      ),
-    )
-    const updatedAt = this.findLatestUpdatedAt([
-      portion.updatedAt,
-      ...sizes.map((size) => size.updatedAt),
-      ...links.map((link) => link.updatedAt),
-      ...accompaniments.map((accompaniment) => accompaniment.updatedAt),
-      ...resaleConfigurations.map((configuration) => configuration.updatedAt),
-      ...brands.map((brand) => brand.updatedAt),
-    ])
-    return this.toPortionSalesConfiguration(
-      establishmentId,
-      portion,
-      sizes,
-      resaleConfigurations,
-      brands,
-      accompaniments,
-      updatedAt,
-    )
-  }
-
-  private toPortionSalesConfiguration(
-    establishmentId: string,
-    portion: Product,
-    sizes: readonly ProductSize[],
-    resaleConfigurations: readonly ResaleConfiguration[],
-    brands: readonly Brand[],
-    accompaniments: readonly AccompanimentSalesSnapshot[],
-    updatedAt: Date,
-  ): ProductSalesConfiguration {
-    return {
-      establishmentId,
-      productId: portion.id,
-      name: portion.name,
-      categories: portion.categories,
-      status: portion.status,
-      stockControl: portion.stockControl,
-      sizes: sizes.map((size) => ({
-        sizeId: size.id,
-        name: size.name,
-        price: size.price,
-        isActive: size.isActive,
-        accompaniments: accompaniments.map(({ updatedAt: _updatedAt, ...item }) => item),
-      })),
-      resaleConfigurations: resaleConfigurations.map((configuration) => {
-        const brand = configuration.brandId
-          ? brands.find((candidate) => candidate.id === configuration.brandId)
-          : undefined
-        return {
-          ...(configuration.brandId ? { brandId: configuration.brandId } : {}),
-          ...(brand ? { brandName: brand.name } : {}),
-          price: configuration.price,
-          isActive: configuration.isActive,
-        }
-      }),
-      updatedAt,
-    }
-  }
-
-  private async buildAccompanimentSalesSnapshot(
-    scope: MrpDatabaseRepositories,
-    establishmentId: string,
-    link: ProductAccompaniment,
-  ): Promise<AccompanimentSalesSnapshot> {
-    const [product, type] = await Promise.all([
-      scope.productsRepository.findById(establishmentId, link.accompanimentProductId),
-      scope.accompanimentTypesRepository.findById(
-        establishmentId,
-        link.accompanimentTypeId,
-      ),
-    ])
-    if (
-      !product ||
-      product.establishmentId !== establishmentId ||
-      !type ||
-      type.establishmentId !== establishmentId
-    ) {
-      throw new NotFoundError('A configuração de acompanhamento não foi encontrada.')
-    }
-    const price = this.resolveAccompanimentSalesPrice(product)
-    return {
-      accompanimentId: link.id,
-      productId: product.id,
-      name: product.name,
-      type: type.name,
-      basePrice: price ?? 0,
-      isActive: product.status === ProductStatus.Active && price !== undefined,
-      updatedAt: this.findLatestUpdatedAt([
-        link.updatedAt,
-        product.updatedAt,
-        type.updatedAt,
-      ]),
-    }
-  }
-
-  private resolveAccompanimentSalesPrice(product: Product): number | undefined {
-    const price = product.accompanimentPrice
-    if (
-      price === undefined ||
-      !Number.isFinite(price) ||
-      price < 0 ||
-      Number(price.toFixed(2)) !== price
-    ) {
-      return undefined
-    }
-    return price
-  }
-
-  private findLatestUpdatedAt(updatedAts: readonly Date[]): Date {
-    return new Date(Math.max(...updatedAts.map((updatedAt) => updatedAt.getTime())))
-  }
-
-  private async publishConfigurations(
-    scope: MrpDatabaseRepositories,
-    establishmentId: string,
-    configurations: readonly ProductSalesConfiguration[],
-  ): Promise<void> {
-    for (const configuration of configurations) {
-      await scope.eventsRepository.add(
-        new ProductSalesConfigurationChangedEvent({
-          establishmentId,
-          productId: configuration.productId,
-          state: 'available',
-          configuration,
-        }),
-      )
     }
   }
 }

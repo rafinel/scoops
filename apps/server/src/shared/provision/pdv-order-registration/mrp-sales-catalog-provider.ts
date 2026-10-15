@@ -363,20 +363,13 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
     brands: Awaited<ReturnType<BrandsRepository['findManyByProductId']>>,
   ): { readonly brandId?: string; readonly isActive: boolean } | undefined {
     if (
-      !product ||
-      product.status !== ProductStatus.Active ||
+      product?.status !== ProductStatus.Active ||
       !product.categories.includes(ProductCategory.Accompaniment)
     )
       return undefined
-
     if (product.stockControl === ProductStockControl.Single) return { isActive: true }
-
     const primaryBrand = brands.find((brand) => brand.isPrimary)
-    if (!primaryBrand) return undefined
-    return {
-      brandId: primaryBrand.id,
-      isActive: true,
-    }
+    return primaryBrand && { brandId: primaryBrand.id, isActive: true }
   }
 
   private getProductKind(product: Product): SaleItemKind | undefined {
@@ -401,20 +394,16 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
     return this.getTotalStockQuantity(stockBalances)
   }
 
-  private async loadProductPages(
+  private loadProductPages(
     query: Parameters<ProductsRepository['findMany']>[0],
     firstPage: ProductCatalogPage,
   ): Promise<readonly ProductCatalogPage[]> {
-    if (firstPage.totalPages <= 1) return [firstPage]
-    const remainingPages = await Promise.all(
-      Array.from({ length: firstPage.totalPages - 1 }, (_, index) =>
-        this.productsRepository.findMany({
-          ...query,
-          page: index + 2,
-        }),
+    return Promise.all([
+      firstPage,
+      ...Array.from({ length: firstPage.totalPages - 1 }, (_, index) =>
+        this.productsRepository.findMany({ ...query, page: index + 2 }),
       ),
-    )
-    return [firstPage, ...remainingPages]
+    ])
   }
 
   private async runSafely<Result>(operation: () => Promise<Result>): Promise<Result> {

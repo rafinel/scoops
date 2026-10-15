@@ -6,6 +6,7 @@ import {
   numeric,
   pgEnum,
   pgTable,
+  type AnyPgColumn,
   text,
   timestamp,
   uniqueIndex,
@@ -71,9 +72,13 @@ export const productModel = pgTable(
       'mrp_products_current_unit_cost_non_negative',
       sql`${table.currentUnitCost} is null or ${table.currentUnitCost} >= 0`,
     ),
-    check(
-      'mrp_products_accompaniment_price_non_negative',
-      sql`${table.accompanimentPrice} is null or ${table.accompanimentPrice} >= 0`,
-    ),
+    createAccompanimentPriceConstraint(table),
   ],
 )
+
+function createAccompanimentPriceConstraint(table: { accompanimentPrice: AnyPgColumn }) {
+  return check(
+    'mrp_products_accompaniment_price_non_negative',
+    sql`${table.accompanimentPrice} is null or ${table.accompanimentPrice} >= 0`,
+  )
+}

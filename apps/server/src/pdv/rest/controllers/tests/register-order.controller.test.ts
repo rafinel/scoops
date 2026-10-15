@@ -1,3 +1,5 @@
+import { createHash, createHmac } from 'node:crypto'
+
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
@@ -9,6 +11,7 @@ import {
 } from '@scoops/core/mrp/domain/structures'
 import { ProductStockAlertStateEnteredEvent } from '@scoops/core/mrp/domain/events'
 import { AppError, ServiceUnavailableError } from '@scoops/core/shared/domain/errors'
+import type { OrderPreviewFacts } from '@scoops/core/pdv/domain/structures'
 import { eq } from 'drizzle-orm'
 
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
@@ -119,6 +122,115 @@ describe('Register Order Controller [POST /orders]', () => {
         }),
       ]),
     )
+  })
+
+  it('accepts legacy version 1 preview claims for carts without accompaniments', async () => {
+    const { product, size } = await addRegisterablePortion(
+      fixture,
+      'Legacy Token Portion',
+    )
+    const lines = [
+      {
+        productId: product.id,
+        kind: 'portion' as const,
+        quantity: 1,
+        sizeId: size.id,
+        accompanimentIds: [],
+      },
+    ]
+    const preview = await request(fixture.app.getHttpServer())
+      .post('/orders/preview')
+      .set('Cookie', managerRequestAuthorization())
+      .send({ lines })
+    const claims = readPreviewTokenClaims(preview.body.previewToken)
+    const legacyToken = signLegacyPreviewToken(claims)
+    const legacyClaims = readPreviewTokenClaims(legacyToken)
+
+    expect(preview.status).toBe(200)
+    expect(claims.version).toBe(1)
+    expect(claims.factsDigest).toBe(legacyFactsDigest(claims.facts))
+    expect(legacyClaims.facts).not.toHaveProperty('selectedAccompanimentPrices')
+
+    const response = await request(fixture.app.getHttpServer())
+      .post('/orders')
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        idempotencyKey: '55000000-0000-4000-8000-00000000000e',
+        previewToken: legacyToken,
+        lines,
+      })
+
+    expect(response.status).toBe(201)
+    expect(response.body).toMatchObject({ kind: 'registered', replayed: false })
+  })
+
+  it('issues version 2 claims that bind selected accompaniment prices', async () => {
+    const { product, size } = await addRegisterablePortion(
+      fixture,
+      'Versioned Token Portion',
+    )
+    const accompanimentProduct = await fixture.addProduct({
+      establishmentId: product.establishmentId,
+      name: 'Versioned Token Topping',
+      unit: ProductUnit.Unit,
+      categories: [ProductCategory.Accompaniment],
+      stockControl: ProductStockControl.Single,
+      status: ProductStatus.Active,
+      allowNegativeStock: false,
+      idealStock: 0,
+      currentUnitCost: 1,
+      accompanimentPrice: 3,
+    })
+    const accompanimentType = await fixture.addAccompanimentType({
+      establishmentId: product.establishmentId,
+      name: 'Toppings',
+    })
+    const accompaniment = await fixture.addProductAccompaniment({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      accompanimentProductId: accompanimentProduct.id,
+      accompanimentTypeId: accompanimentType.id,
+      quantityPerPortion: 1,
+    })
+    await fixture.stockBalances.initialize(accompanimentProduct.id)
+    await fixture.stockBalances.add({ productId: accompanimentProduct.id }, 2)
+    const lines = [
+      {
+        productId: product.id,
+        kind: 'portion' as const,
+        quantity: 1,
+        sizeId: size.id,
+        accompanimentIds: [accompaniment.id],
+      },
+    ]
+    const preview = await request(fixture.app.getHttpServer())
+      .post('/orders/preview')
+      .set('Cookie', managerRequestAuthorization())
+      .send({ lines })
+    const claims = readPreviewTokenClaims(preview.body.previewToken)
+
+    expect(preview.status).toBe(200)
+    expect(claims.version).toBe(2)
+    expect(claims.facts.selectedAccompanimentPrices).toEqual([
+      expect.objectContaining({
+        productId: product.id,
+        sizeId: size.id,
+        accompanimentId: accompaniment.id,
+        basePrice: 3,
+      }),
+    ])
+
+    const response = await request(fixture.app.getHttpServer())
+      .post('/orders')
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        idempotencyKey: '55000000-0000-4000-8000-00000000000f',
+        previewToken: preview.body.previewToken,
+        lines,
+      })
+
+    expect(response.status).toBe(201)
+    expect(response.body).toMatchObject({ kind: 'registered', replayed: false })
   })
 
   it('rejects a conflicting idempotency key without creating another order', async () => {
@@ -571,6 +683,69 @@ describe('Register Order Controller [POST /orders]', () => {
     expect(orders.total).toBe(1)
   })
 })
+
+type PreviewTokenClaimsForTest = {
+  readonly version: number
+  readonly establishmentId: string
+  readonly inputDigest: string
+  readonly factsDigest: string
+  readonly facts: OrderPreviewFacts
+  readonly issuedAt: number
+  readonly expiresAt: number
+}
+
+function readPreviewTokenClaims(token: string): PreviewTokenClaimsForTest {
+  const [encodedClaims] = token.split('.')
+  if (!encodedClaims) throw new Error('Preview token is malformed.')
+  return JSON.parse(
+    Buffer.from(encodedClaims, 'base64url').toString('utf8'),
+  ) as PreviewTokenClaimsForTest
+}
+
+function signLegacyPreviewToken(claims: PreviewTokenClaimsForTest): string {
+  const { selectedAccompanimentPrices: _selectedAccompanimentPrices, ...facts } =
+    claims.facts
+  const legacyClaims = {
+    ...claims,
+    version: 1,
+    facts,
+    factsDigest: legacyFactsDigest(facts),
+  }
+  const encodedClaims = Buffer.from(JSON.stringify(legacyClaims), 'utf8').toString(
+    'base64url',
+  )
+  const secret = process.env.SCOOPS_PDV_PREVIEW_TOKEN_SECRET
+  if (!secret) throw new Error('The preview token secret is not configured.')
+  const signature = createHmac('sha256', secret).update(encodedClaims).digest('base64url')
+  return `${encodedClaims}.${signature}`
+}
+
+function legacyFactsDigest(facts: OrderPreviewFacts): string {
+  const canonicalFacts = JSON.stringify({
+    cart: {
+      ...facts.cart,
+      lines: [...facts.cart.lines]
+        .map((line) => ({
+          ...line,
+          accompanimentIds:
+            'accompanimentIds' in line ? [...line.accompanimentIds].sort() : undefined,
+          consumptions: [...line.consumptions].sort((left, right) =>
+            JSON.stringify(left).localeCompare(JSON.stringify(right)),
+          ),
+        }))
+        .sort(
+          (left, right) =>
+            left.productId.localeCompare(right.productId) ||
+            left.kind.localeCompare(right.kind),
+        ),
+      discounts: [...facts.cart.discounts].sort((left, right) =>
+        left.discountId.localeCompare(right.discountId),
+      ),
+    },
+    channel: facts.channel ?? null,
+  })
+  return createHash('sha256').update(canonicalFacts).digest('base64url')
+}
 
 async function addRegisterablePortion(fixture: PdvModuleFixture, name: string) {
   const product = await fixture.addProduct({

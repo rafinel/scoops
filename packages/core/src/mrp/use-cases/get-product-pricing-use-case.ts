@@ -27,6 +27,17 @@ type Request = {
   readonly productId: string
 }
 
+type PriceSuggestionContext = {
+  readonly scope: MrpDatabaseRepositories
+  readonly establishmentId: string
+  readonly product: Product
+}
+
+type AccompanimentPriceProjection = Pick<
+  ProductPricingDetails,
+  'accompanimentPrice' | 'suggestedAccompanimentPrice'
+>
+
 export class GetProductPricingUseCase implements UseCase<Request, ProductPricingDetails> {
   constructor(private readonly database: MrpDatabase) {}
 
@@ -98,11 +109,11 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
         mode: 'accompaniment',
         sizes: [],
         resale: [],
-        ...(await GetProductPricingUseCase.getAccompanimentPriceProjection(
+        ...(await GetProductPricingUseCase.getAccompanimentPriceProjection({
           scope,
           establishmentId,
           product,
-        )),
+        })),
       }
     }
 
@@ -156,11 +167,11 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
         GetProductPricingUseCase.buildSizePricing(size, unitCost),
       ),
       resale: [],
-      ...(await GetProductPricingUseCase.getAccompanimentPriceProjection(
+      ...(await GetProductPricingUseCase.getAccompanimentPriceProjection({
         scope,
         establishmentId,
         product,
-      )),
+      })),
     }
   }
 
@@ -190,11 +201,11 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
       resale: [
         GetProductPricingUseCase.buildResalePricing(ownedConfiguration, undefined, 1),
       ],
-      ...(await GetProductPricingUseCase.getAccompanimentPriceProjection(
+      ...(await GetProductPricingUseCase.getAccompanimentPriceProjection({
         scope,
         establishmentId,
         product,
-      )),
+      })),
     }
   }
 
@@ -232,92 +243,183 @@ export class GetProductPricingUseCase implements UseCase<Request, ProductPricing
           brand.packageQuantity,
         )
       }),
-      ...(await GetProductPricingUseCase.getAccompanimentPriceProjection(
+      ...(await GetProductPricingUseCase.getAccompanimentPriceProjection({
         scope,
         establishmentId,
         product,
-      )),
+      })),
     }
   }
 
   private static async getAccompanimentPriceProjection(
-    scope: MrpDatabaseRepositories,
-    establishmentId: string,
-    product: Product,
-  ): Promise<
-    Pick<ProductPricingDetails, 'accompanimentPrice' | 'suggestedAccompanimentPrice'>
-  > {
-    const isAccompaniment = product.categories.includes(ProductCategory.Accompaniment)
-    const accompanimentPrice = isAccompaniment
+    context: PriceSuggestionContext,
+  ): Promise<AccompanimentPriceProjection> {
+    return GetProductPricingUseCase.projectAccompanimentPrice(
+      context,
+      GetProductPricingUseCase.getAccompanimentPrice(context.product),
+    )
+  }
+
+  private static async projectAccompanimentPrice(
+    context: PriceSuggestionContext,
+    accompanimentPrice: number | null,
+  ): Promise<AccompanimentPriceProjection> {
+    return {
+      accompanimentPrice,
+      suggestedAccompanimentPrice:
+        await GetProductPricingUseCase.getSuggestedAccompanimentPrice(
+          context,
+          accompanimentPrice,
+        ),
+    }
+  }
+
+  private static getAccompanimentPrice(product: Product): number | null {
+    return product.categories.includes(ProductCategory.Accompaniment)
       ? (product.accompanimentPrice ?? null)
       : null
-    const suggestedAccompanimentPrice =
-      isAccompaniment &&
+  }
+
+  private static async getSuggestedAccompanimentPrice(
+    context: PriceSuggestionContext,
+    accompanimentPrice: number | null,
+  ): Promise<number | null> {
+    return GetProductPricingUseCase.shouldSuggestAccompanimentPrice(
+      context.product,
+      accompanimentPrice,
+    )
+      ? GetProductPricingUseCase.findResalePriceSuggestion(context)
+      : null
+  }
+
+  private static shouldSuggestAccompanimentPrice(
+    product: Product,
+    accompanimentPrice: number | null,
+  ): boolean {
+    return (
+      product.categories.includes(ProductCategory.Accompaniment) &&
       accompanimentPrice === null &&
       product.categories.includes(ProductCategory.Resale)
-        ? await GetProductPricingUseCase.findResalePriceSuggestion(
-            scope,
-            establishmentId,
-            product,
-          )
-        : null
-
-    return { accompanimentPrice, suggestedAccompanimentPrice }
+    )
   }
 
   private static async findResalePriceSuggestion(
-    scope: MrpDatabaseRepositories,
-    establishmentId: string,
-    product: Product,
+    context: PriceSuggestionContext,
   ): Promise<number | null> {
-    if (product.stockControl === ProductStockControl.Single) {
-      const configuration =
-        await scope.resaleConfigurationsRepository.findByProductAndBrand(
-          establishmentId,
-          product.id,
-        )
-      if (
-        GetProductPricingUseCase.isOwnedConfiguration(
-          configuration,
-          establishmentId,
-          product.id,
-          undefined,
-        ) &&
-        Number.isFinite(configuration.price) &&
-        configuration.price >= 0
-      ) {
-        return configuration.price
-      }
-      return null
-    }
+    if (context.product.stockControl === ProductStockControl.Single)
+      return GetProductPricingUseCase.findSingleResalePriceSuggestion(context)
+    if (context.product.stockControl === ProductStockControl.ByBrand)
+      return GetProductPricingUseCase.findBrandedResalePriceSuggestion(context)
+    return null
+  }
 
-    if (product.stockControl !== ProductStockControl.ByBrand) return null
+  private static async findSingleResalePriceSuggestion(
+    context: PriceSuggestionContext,
+  ): Promise<number | null> {
+    const configuration =
+      await GetProductPricingUseCase.findSingleResaleConfiguration(context)
+    return GetProductPricingUseCase.getSuggestedResalePrice(
+      GetProductPricingUseCase.findOwnedConfiguration(configuration, context),
+    )
+  }
 
-    const [brands, configurations] = await Promise.all([
-      scope.brandsRepository.findManyByProductId(product.id),
-      scope.resaleConfigurationsRepository.findManyByProductId(
-        establishmentId,
-        product.id,
+  private static findSingleResaleConfiguration(context: PriceSuggestionContext) {
+    return context.scope.resaleConfigurationsRepository.findByProductAndBrand(
+      context.establishmentId,
+      context.product.id,
+    )
+  }
+
+  private static async findBrandedResalePriceSuggestion(
+    context: PriceSuggestionContext,
+  ): Promise<number | null> {
+    return GetProductPricingUseCase.getSuggestedResalePrice(
+      GetProductPricingUseCase.findPrimaryBrandConfiguration(
+        await GetProductPricingUseCase.findBrandedPriceData(context),
+        context,
       ),
-    ])
-    const primaryBrand = brands.find(
-      (brand) => brand.productId === product.id && brand.isPrimary,
     )
-    if (!primaryBrand) return null
+  }
 
-    const configuration = configurations.find(
-      (candidate) =>
-        candidate.brandId === primaryBrand.id &&
-        GetProductPricingUseCase.isOwnedConfiguration(
-          candidate,
-          establishmentId,
-          product.id,
-          primaryBrand.id,
-        ),
+  private static findBrandProducts(context: PriceSuggestionContext) {
+    return context.scope.brandsRepository.findManyByProductId(context.product.id)
+  }
+
+  private static findResaleConfigurations(context: PriceSuggestionContext) {
+    return context.scope.resaleConfigurationsRepository.findManyByProductId(
+      context.establishmentId,
+      context.product.id,
     )
-    return configuration &&
-      Number.isFinite(configuration.price) &&
-      configuration.price >= 0
+  }
+
+  private static findBrandedPriceData(context: PriceSuggestionContext) {
+    return Promise.all([
+      GetProductPricingUseCase.findBrandProducts(context),
+      GetProductPricingUseCase.findResaleConfigurations(context),
+    ])
+  }
+
+  private static findPrimaryBrand(brands: readonly Brand[], productId: string) {
+    return brands.find((brand) => brand.productId === productId && brand.isPrimary)
+  }
+
+  private static findBrandConfiguration(
+    configurations: readonly ResaleConfiguration[],
+    context: PriceSuggestionContext,
+    brandId: string | undefined,
+  ): ResaleConfiguration | undefined {
+    if (brandId === undefined) return undefined
+    return GetProductPricingUseCase.findOwnedBrandConfiguration(
+      configurations,
+      context,
+      brandId,
+    )
+  }
+
+  private static findOwnedBrandConfiguration(
+    configurations: readonly ResaleConfiguration[],
+    context: PriceSuggestionContext,
+    brandId: string,
+  ): ResaleConfiguration | undefined {
+    return configurations.find((configuration) =>
+      GetProductPricingUseCase.isOwnedConfiguration(
+        configuration,
+        context.establishmentId,
+        context.product.id,
+        brandId,
+      ),
+    )
+  }
+
+  private static findPrimaryBrandConfiguration(
+    [brands, configurations]: readonly [readonly Brand[], readonly ResaleConfiguration[]],
+    context: PriceSuggestionContext,
+  ): ResaleConfiguration | undefined {
+    return GetProductPricingUseCase.findBrandConfiguration(
+      configurations,
+      context,
+      GetProductPricingUseCase.findPrimaryBrand(brands, context.product.id)?.id,
+    )
+  }
+
+  private static findOwnedConfiguration(
+    configuration: ResaleConfiguration | undefined,
+    context: PriceSuggestionContext,
+  ): ResaleConfiguration | undefined {
+    return GetProductPricingUseCase.isOwnedConfiguration(
+      configuration,
+      context.establishmentId,
+      context.product.id,
+      undefined,
+    )
+      ? configuration
+      : undefined
+  }
+
+  private static getSuggestedResalePrice(
+    configuration: ResaleConfiguration | undefined,
+  ): number | null {
+    return configuration && GetProductPricingUseCase.isValidUnitCost(configuration.price)
       ? configuration.price
       : null
   }

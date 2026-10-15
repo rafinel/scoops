@@ -293,7 +293,6 @@ test.describe('ProductAccompanimentsPage', () => {
       accompanimentTypeId: TYPE_ID,
       quantityPerPortion: 25,
       accompanimentPrice: 0,
-      path: 'test-results/mrp/product-accompaniment-edit-dialog-676x843.png',
     })
     await editButton.click()
     const zeroPriceDialog = page.getByRole('dialog', { name: 'Editar acompanhamento' })

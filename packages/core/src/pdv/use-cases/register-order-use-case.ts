@@ -64,6 +64,11 @@ type RegistrationRebuild = {
   readonly facts: OrderPreviewFacts
 }
 
+type SelectedAccompanimentPrices = NonNullable<
+  OrderPreviewFacts['selectedAccompanimentPrices']
+>
+type SelectedAccompanimentPrice = SelectedAccompanimentPrices[number]
+
 export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationResult> {
   private readonly cartPricing = new OrderCartPricingStrategy()
   private readonly moneyRounding = new OrderMoneyRoundingStrategy()
@@ -378,29 +383,52 @@ export class RegisterOrderUseCase implements UseCase<Request, OrderRegistrationR
   }
 
   private accompanimentPriceChanges(
-    previousPrices: NonNullable<OrderPreviewFacts['selectedAccompanimentPrices']>,
-    currentPrices: NonNullable<OrderPreviewFacts['selectedAccompanimentPrices']>,
+    previousPrices: SelectedAccompanimentPrices,
+    currentPrices: SelectedAccompanimentPrices,
   ): readonly OrderRegistrationChange[] {
-    const keyOf = (price: (typeof previousPrices)[number]) =>
-      JSON.stringify([price.productId, price.sizeId, price.accompanimentId])
-    const previousByKey = new Map(previousPrices.map((price) => [keyOf(price), price]))
-    const currentByKey = new Map(currentPrices.map((price) => [keyOf(price), price]))
-    const changes: OrderRegistrationChange[] = []
+    const previousByKey = this.accompanimentPricesByKey(previousPrices)
+    const currentByKey = this.accompanimentPricesByKey(currentPrices)
+    return [...previousByKey].flatMap(([key, previous]) =>
+      this.createAccompanimentPriceChange(previous, currentByKey.get(key)),
+    )
+  }
 
-    for (const key of [...previousByKey.keys()].sort()) {
-      const previous = previousByKey.get(key)
-      const current = currentByKey.get(key)
-      if (!previous || !current || previous.basePrice === current.basePrice) continue
+  private accompanimentPricesByKey(
+    prices: SelectedAccompanimentPrices,
+  ): Map<string, SelectedAccompanimentPrice> {
+    return new Map(prices.map((price) => [this.accompanimentPriceKey(price), price]))
+  }
 
-      changes.push({
-        kind: 'catalog',
-        cause: 'accompaniment-price',
-        previous: { label: previous.name, amount: previous.basePrice },
-        current: { label: current.name, amount: current.basePrice },
-      })
+  private accompanimentPriceKey(price: SelectedAccompanimentPrice): string {
+    return JSON.stringify([price.productId, price.sizeId, price.accompanimentId])
+  }
+
+  private createAccompanimentPriceChange(
+    previous: SelectedAccompanimentPrice,
+    current: SelectedAccompanimentPrice | undefined,
+  ): readonly OrderRegistrationChange[] {
+    return current && previous.basePrice !== current.basePrice
+      ? [this.toAccompanimentPriceChange(previous, current)]
+      : []
+  }
+
+  private toAccompanimentPriceChange(
+    previous: SelectedAccompanimentPrice,
+    current: SelectedAccompanimentPrice,
+  ): OrderRegistrationChange {
+    return {
+      kind: 'catalog',
+      cause: 'accompaniment-price',
+      previous: this.toAccompanimentPriceChangeValue(previous),
+      current: this.toAccompanimentPriceChangeValue(current),
     }
+  }
 
-    return changes
+  private toAccompanimentPriceChangeValue(price: SelectedAccompanimentPrice): {
+    readonly label: string
+    readonly amount: number
+  } {
+    return { label: price.name, amount: price.basePrice }
   }
 
   private catalogLineChanges(

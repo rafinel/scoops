@@ -1,10 +1,10 @@
-import type { Product } from '#mrp/domain/entities/product.ts'
 import type { ProductAccompaniment } from '#mrp/domain/entities/product-accompaniment.ts'
 import type { ProductSalesConfiguration } from '#mrp/domain/structures/product-sales-configuration.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
 import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
 import { NotFoundError } from '#shared/domain/errors/index.ts'
 import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { AccompanimentPriceValidationStrategy } from '#mrp/domain/strategies/accompaniment-price-validation-strategy.ts'
 
 type Request = {
   readonly scope: MrpDatabaseRepositories
@@ -24,6 +24,9 @@ type AccompanimentSnapshot = {
 }
 
 export class GetAffectedProductSalesConfigurationsUseCase {
+  private readonly accompanimentPriceValidation =
+    new AccompanimentPriceValidationStrategy()
+
   async execute(request: Request): Promise<readonly ProductSalesConfiguration[]> {
     const inverseOwnerIds =
       request.affectedProductIds ??
@@ -176,7 +179,10 @@ export class GetAffectedProductSalesConfigurationsUseCase {
       throw new NotFoundError('A configuração de acompanhamento não foi encontrada.')
     }
 
-    const basePrice = this.resolveAccompanimentPrice(product)
+    const validatedPrice = this.accompanimentPriceValidation.execute(
+      product.accompanimentPrice,
+    )
+    const basePrice = typeof validatedPrice === 'number' ? validatedPrice : undefined
     return {
       accompanimentId: link.id,
       productId: product.id,
@@ -190,19 +196,6 @@ export class GetAffectedProductSalesConfigurationsUseCase {
         type.updatedAt,
       ]),
     }
-  }
-
-  private resolveAccompanimentPrice(product: Product): number | undefined {
-    const price = product.accompanimentPrice
-    if (
-      price === undefined ||
-      !Number.isFinite(price) ||
-      price < 0 ||
-      Number(price.toFixed(2)) !== price
-    ) {
-      return undefined
-    }
-    return price
   }
 
   private uniqueProductIds(productIds: readonly string[]): readonly string[] {

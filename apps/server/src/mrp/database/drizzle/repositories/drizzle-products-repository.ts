@@ -42,12 +42,11 @@ export class DrizzleProductsRepository
     const [record] = await this.database
       .insert(productModel)
       .values({
-        ...input,
+        ...this.withNumericAccompanimentPrice(input),
         id: crypto.randomUUID(),
         categories: [...input.categories],
         idealStock: this.toNumericValue(input.idealStock) ?? null,
         currentUnitCost: this.toNumericValue(input.currentUnitCost) ?? null,
-        accompanimentPrice: this.toNumericValue(input.accompanimentPrice) ?? null,
         createdAt: now,
         updatedAt: now,
       })
@@ -62,12 +61,11 @@ export class DrizzleProductsRepository
       .insert(productModel)
       .values(
         inputs.map((input) => ({
-          ...input,
+          ...this.withNumericAccompanimentPrice(input),
           id: crypto.randomUUID(),
           categories: [...input.categories],
           idealStock: this.toNumericValue(input.idealStock) ?? null,
           currentUnitCost: this.toNumericValue(input.currentUnitCost) ?? null,
-          accompanimentPrice: this.toNumericValue(input.accompanimentPrice) ?? null,
           createdAt: now,
           updatedAt: now,
         })),
@@ -296,6 +294,13 @@ export class DrizzleProductsRepository
   private toNumericValue(value: number | null | undefined): string | null | undefined {
     if (value === undefined || value === null) return value
     return String(value)
+  }
+
+  private withNumericAccompanimentPrice(input: ProductCreate) {
+    return {
+      ...input,
+      accompanimentPrice: this.toNumericValue(input.accompanimentPrice) ?? null,
+    }
   }
 
   private async replaceProductRecord(
