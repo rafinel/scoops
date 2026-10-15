@@ -183,8 +183,32 @@ test.describe('ProductPricesPage', () => {
         }
       },
     })
+    await page.route('**/products/**', async (route) => {
+      const { pathname } = new URL(route.request().url())
+      if (pathname === `/products/${accompanimentOnlyProduct.id}/stock`) {
+        await route.fulfill({
+          contentType: 'application/json',
+          body: JSON.stringify({
+            product: accompanimentOnlyProduct,
+            stockQuantity: 0,
+            stockSituation: 'normal',
+            brands: [],
+          }),
+        })
+        return
+      }
+      if (pathname === `/products/${accompanimentOnlyProduct.id}/stock-transactions`) {
+        await route.fulfill({
+          contentType: 'application/json',
+          body: JSON.stringify({ items: [], page: 1, limit: 5, total: 0 }),
+        })
+        return
+      }
+      await route.fallback()
+    })
 
     await page.goto(`/products/${accompanimentOnlyProduct.id}/prices`)
+    await expect(page).toHaveURL(`/products/${accompanimentOnlyProduct.id}/stock`)
     await expect(
       page.getByRole('heading', { name: accompanimentOnlyProduct.name }),
     ).toBeVisible()

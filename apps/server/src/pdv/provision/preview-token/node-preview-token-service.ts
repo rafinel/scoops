@@ -151,14 +151,20 @@ export class NodePreviewTokenService implements OrderPreviewTokenService {
       channel: facts.channel ?? null,
       ...(version === TOKEN_VERSION
         ? {
-            selectedAccompanimentPrices: [
-              ...(facts.selectedAccompanimentPrices ?? []),
-            ].sort(
-              (left, right) =>
-                left.productId.localeCompare(right.productId) ||
-                left.sizeId.localeCompare(right.sizeId) ||
-                left.accompanimentId.localeCompare(right.accompanimentId),
-            ),
+            selectedAccompanimentPrices: [...(facts.selectedAccompanimentPrices ?? [])]
+              .sort(
+                (left, right) =>
+                  left.productId.localeCompare(right.productId) ||
+                  left.sizeId.localeCompare(right.sizeId) ||
+                  left.accompanimentId.localeCompare(right.accompanimentId) ||
+                  left.basePrice - right.basePrice,
+              )
+              .map(({ productId, sizeId, accompanimentId, basePrice }) => ({
+                productId,
+                sizeId,
+                accompanimentId,
+                basePrice,
+              })),
           }
         : {}),
     })

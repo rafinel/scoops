@@ -188,7 +188,7 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
           accompanimentId: legacyAccompaniment.id,
           quantityPerPortion: 3,
           basePrice: 0,
-          isActive: true,
+          isActive: false,
           isAvailable: false,
         }),
         expect.objectContaining({

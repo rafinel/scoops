@@ -341,7 +341,7 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
     const availableQuantity = this.getStockQuantity(balances, source?.brandId)
     const hasConfiguredPrice = product?.accompanimentPrice !== undefined
     const isActive = Boolean(
-      type?.establishmentId === establishmentId && source?.isActive,
+      type?.establishmentId === establishmentId && source?.isActive && hasConfiguredPrice,
     )
     return {
       accompanimentId: link.id,
@@ -352,8 +352,7 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
       quantityPerPortion: link.quantityPerPortion,
       basePrice: product?.accompanimentPrice ?? 0,
       isActive,
-      isAvailable:
-        isActive && hasConfiguredPrice && availableQuantity >= link.quantityPerPortion,
+      isAvailable: isActive && availableQuantity >= link.quantityPerPortion,
       availableQuantity,
     }
   }

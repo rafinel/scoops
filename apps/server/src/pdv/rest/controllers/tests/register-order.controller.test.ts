@@ -164,7 +164,7 @@ describe('Register Order Controller [POST /orders]', () => {
     expect(response.body).toMatchObject({ kind: 'registered', replayed: false })
   })
 
-  it('issues version 2 claims that bind selected accompaniment prices', async () => {
+  it('keeps selected accompaniment previews valid after name changes but reprices after price changes', async () => {
     const { product, size } = await addRegisterablePortion(
       fixture,
       'Versioned Token Portion',
@@ -216,9 +216,14 @@ describe('Register Order Controller [POST /orders]', () => {
         productId: product.id,
         sizeId: size.id,
         accompanimentId: accompaniment.id,
+        name: 'Versioned Token Topping',
         basePrice: 3,
       }),
     ])
+
+    await fixture.products.replace(product.establishmentId, accompanimentProduct.id, {
+      name: 'Renamed Versioned Token Topping',
+    })
 
     const response = await request(fixture.app.getHttpServer())
       .post('/orders')
@@ -231,6 +236,28 @@ describe('Register Order Controller [POST /orders]', () => {
 
     expect(response.status).toBe(201)
     expect(response.body).toMatchObject({ kind: 'registered', replayed: false })
+
+    const repricingPreview = await request(fixture.app.getHttpServer())
+      .post('/orders/preview')
+      .set('Cookie', managerRequestAuthorization())
+      .send({ lines })
+    await fixture.products.replace(product.establishmentId, accompanimentProduct.id, {
+      accompanimentPrice: 4,
+    })
+
+    const repriced = await request(fixture.app.getHttpServer())
+      .post('/orders')
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        idempotencyKey: '55000000-0000-4000-8000-000000000010',
+        previewToken: repricingPreview.body.previewToken,
+        lines,
+      })
+
+    expect(repricingPreview.status).toBe(200)
+    expect(repriced.status).toBe(200)
+    expect(repriced.body).toMatchObject({ kind: 'repriced' })
+    expect(repriced.body.previewToken).toEqual(expect.any(String))
   })
 
   it('rejects a conflicting idempotency key without creating another order', async () => {
