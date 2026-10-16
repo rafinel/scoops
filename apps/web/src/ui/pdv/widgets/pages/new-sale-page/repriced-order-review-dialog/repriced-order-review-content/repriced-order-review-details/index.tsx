@@ -8,7 +8,20 @@ export type RepricedOrderReviewDetailsProps = {
   newTotal: number
 }
 
-export const RepricedOrderReviewDetails = (props: RepricedOrderReviewDetailsProps) => {
-  const details = useRepricedOrderReviewDetails(props.changes)
-  return <RepricedOrderReviewDetailsView details={details} newTotal={props.newTotal} />
+export const RepricedOrderReviewDetails = ({
+  changes,
+  newTotal,
+}: RepricedOrderReviewDetailsProps) => {
+  const { formatCurrency, hasAccompanimentPriceChange, totalChange, valueChanges } =
+    useRepricedOrderReviewDetails(changes)
+
+  return (
+    <RepricedOrderReviewDetailsView
+      formatCurrency={formatCurrency}
+      hasAccompanimentPriceChange={hasAccompanimentPriceChange}
+      newTotal={newTotal}
+      totalChange={totalChange}
+      valueChanges={valueChanges}
+    />
+  )
 }

@@ -6,13 +6,12 @@ import { RepricedOrderReviewContent } from './repriced-order-review-content'
 export type { RepricedOrderReviewDialogProps }
 
 export const RepricedOrderReviewDialog = (props: RepricedOrderReviewDialogProps) => (
-  <Dialog open onOpenChange={getOpenChangeHandler(props.onReview)}>
+  <Dialog
+    open
+    onOpenChange={(open) => {
+      if (!open) props.onReview()
+    }}
+  >
     <RepricedOrderReviewContent {...props} />
   </Dialog>
 )
-
-function getOpenChangeHandler(onReview: () => void) {
-  return (open: boolean) => {
-    if (!open) onReview()
-  }
-}

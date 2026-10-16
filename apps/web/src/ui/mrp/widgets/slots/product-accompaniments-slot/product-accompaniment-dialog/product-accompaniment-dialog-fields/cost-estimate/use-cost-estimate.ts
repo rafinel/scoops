@@ -31,7 +31,7 @@ export type CostEstimateViewModel = {
   unit: string
 }
 
-export const useCostEstimate = (props: CostEstimateProps): CostEstimateViewModel => {
+export function useCostEstimate(props: CostEstimateProps): CostEstimateViewModel {
   const formatCurrency = useFormatCurrency()
   const formatQuantity = useFormatQuantity()
   return getCostEstimate(props, formatCurrency, formatQuantity)

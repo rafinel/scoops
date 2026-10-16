@@ -6,9 +6,11 @@ export type RepricedOrderReviewDialogProps = {
   onReview: () => void
 }
 
-export const useRepricedOrderReviewDialog = (
+export function useRepricedOrderReviewDialog(
   changes: readonly OrderRegistrationChange[],
-) => ({
-  totalChange: changes.find((change) => change.current.label === 'Total do pedido'),
-  valueChanges: changes.filter((change) => change.current.label !== 'Total do pedido'),
-})
+) {
+  return {
+    totalChange: changes.find((change) => change.current.label === 'Total do pedido'),
+    valueChanges: changes.filter((change) => change.current.label !== 'Total do pedido'),
+  }
+}

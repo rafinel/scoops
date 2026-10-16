@@ -1,11 +1,11 @@
 {
-  "analysedAt": "2026-10-14T21:16:39.535Z",
-  "totalFiles": 1858,
-  "totalFunctions": 6247,
-  "warnCount": 1350,
-  "errorCount": 201,
-  "averageMI": 56,
-  "averageHealthScore": 70.2,
+  "analysedAt": "2026-10-16T04:36:23.476Z",
+  "totalFiles": 1913,
+  "totalFunctions": 6443,
+  "warnCount": 1399,
+  "errorCount": 187,
+  "averageMI": 56.6,
+  "averageHealthScore": 71,
   "clones": [
     {
       "similarity": 1,
@@ -140127,6 +140127,112 @@
         "totalLines": 421,
         "weightedMI": 60.8,
         "weightedHealthScore": 82.1,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/mrp/widgets/slots/product-accompaniments-slot/product-accompaniment-dialog/product-accompaniment-dialog-fields/cost-estimate/index.tsx",
+      "functions": [
+        {
+          "name": "CostEstimate",
+          "startLine": 6,
+          "endLine": 19,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 14,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 60.23,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 62.4,
+          "maintainabilityRating": "warn",
+          "healthScore": 87,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 20,
+        "weightedMI": 62.4,
+        "weightedHealthScore": 87,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/pdv/widgets/pages/new-sale-page/repriced-order-review-dialog/repriced-order-review-content/repriced-order-review-details/index.tsx",
+      "functions": [
+        {
+          "name": "RepricedOrderReviewDetails",
+          "startLine": 11,
+          "endLine": 27,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 14,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 53.89,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 62.7,
+          "maintainabilityRating": "warn",
+          "healthScore": 88,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 28,
+        "weightedMI": 62.7,
+        "weightedHealthScore": 88,
         "worstSeverity": "warn",
         "smellIds": []
       }
