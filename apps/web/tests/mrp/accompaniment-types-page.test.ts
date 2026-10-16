@@ -48,9 +48,6 @@ test.describe('AccompanimentTypesPage', () => {
     await backLink.focus()
     await expect(backLink).toBeFocused()
     await page.setViewportSize({ width: 1560, height: 956 })
-    await page.screenshot({
-      path: 'test-results/mrp/accompaniment-types-populated-1560x956.png',
-    })
 
     await page.setViewportSize({ width: 676, height: 562 })
     await page.getByRole('button', { name: 'Editar Cobertura' }).click()
@@ -61,9 +58,6 @@ test.describe('AccompanimentTypesPage', () => {
     await expect(editDialog.getByRole('textbox', { name: 'Nome do tipo' })).toHaveValue(
       'Cobertura',
     )
-    await page.screenshot({
-      path: 'test-results/mrp/accompaniment-type-edit-dialog-676x562.png',
-    })
     await editDialog.getByRole('button', { name: 'Cancelar' }).click()
 
     await page.getByRole('button', { name: 'Próxima página' }).click()
@@ -209,13 +203,7 @@ test.describe('AccompanimentTypesPage', () => {
     await expect(page.getByRole('button', { name: 'Remover Cobertura' })).toHaveClass(
       /text-destructive/,
     )
-    await page.screenshot({
-      path: 'test-results/mrp/accompaniment-types-available-remove-1560x956.png',
-    })
     await page.setViewportSize({ width: 320, height: 900 })
-    await page.screenshot({
-      path: 'test-results/mrp/accompaniment-types-lifecycle-320x900.png',
-    })
 
     const headerAdd = page
       .getByRole('main')
@@ -224,9 +212,6 @@ test.describe('AccompanimentTypesPage', () => {
     await headerAdd.click()
     const createDialog = page.getByRole('dialog', { name: 'Novo tipo de acompanhamento' })
     await expect(createDialog).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/accompaniment-type-create-dialog-320x900.png',
-    })
     await createDialog.getByRole('textbox', { name: 'Nome do tipo' }).fill('AAA Criado')
     await createDialog.getByRole('button', { name: 'Adicionar tipo' }).click()
     await expect(page.getByText('AAA Criado', { exact: true })).toBeVisible()
@@ -302,9 +287,6 @@ test.describe('AccompanimentTypesPage', () => {
       .click()
     const dialog = page.getByRole('dialog', { name: 'Novo tipo de acompanhamento' })
     await expect(dialog.getByRole('textbox', { name: 'Nome do tipo' })).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/accompaniment-type-create-dialog-676x562.png',
-    })
     await dialog.getByRole('textbox', { name: 'Nome do tipo' }).fill('Cobertura')
     await dialog.getByRole('button', { name: 'Adicionar tipo' }).click()
     await expect(dialog).toBeVisible()

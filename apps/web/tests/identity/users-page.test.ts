@@ -119,9 +119,6 @@ test.describe('UsersPage', () => {
       .toBe('inactive')
     expect(listRequests.at(-1)?.searchParams.get('page')).toBe('1')
     await expect(page.getByText('Ana Operator')).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/users-filtered-global-summary-1481x900.png',
-    })
 
     expect(listRequests).toHaveLength(4)
     expect(consoleErrors).toEqual([])

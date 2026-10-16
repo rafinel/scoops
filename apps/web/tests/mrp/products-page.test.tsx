@@ -302,7 +302,6 @@ test.describe('ProductsPage', () => {
     await expect(page.getByRole('link', { name: /Tipos de acompanhamento/ })).toHaveCount(
       0,
     )
-    await page.screenshot({ path: 'test-results/f10-operator-products-1440x900.png' })
   })
 
   if (process.env.SCOOPS_PLAYWRIGHT_ANALYTICS_FIXTURE === '1') {

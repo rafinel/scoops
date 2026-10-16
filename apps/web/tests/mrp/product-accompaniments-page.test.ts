@@ -222,9 +222,6 @@ test.describe('ProductAccompanimentsPage', () => {
     await expect(
       page.getByRole('heading', { name: 'Nenhum acompanhamento vinculado' }),
     ).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/product-accompaniments-populated-1560x1097.png',
-    })
 
     await page.setViewportSize({ width: 1560, height: 1178 })
     await page.getByRole('button', { name: 'Vincular acompanhamento' }).click()
@@ -237,15 +234,7 @@ test.describe('ProductAccompanimentsPage', () => {
     await expect(
       dialog.getByText('Sugestão baseada no preço de revenda único.'),
     ).toBeVisible()
-    await page.screenshot({
-      animations: 'disabled',
-      path: 'test-results/mrp/product-accompaniment-link-dialog-676x843.png',
-    })
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.screenshot({
-      animations: 'disabled',
-      path: 'test-results/mrp/product-accompaniment-link-dialog-596x353.png',
-    })
     await dialog.getByRole('combobox', { name: 'Tipo' }).click()
     await page.getByRole('option', { name: 'Cobertura' }).click()
     await dialog.getByRole('textbox', { name: /Quantidade por porção/ }).fill('25')
@@ -268,10 +257,6 @@ test.describe('ProductAccompanimentsPage', () => {
       accompanimentPrice: 3,
     })
     expect(pricingRequests).toHaveLength(2)
-    await page.screenshot({
-      path: '.playwright-cli/screenshots/mrp/product-accompaniments-populated-1560x1178.png',
-      animations: 'disabled',
-    })
 
     const editButton = page.getByRole('button', { name: 'Editar Granola' })
     await expect(editButton).toBeVisible()
@@ -301,10 +286,6 @@ test.describe('ProductAccompanimentsPage', () => {
         editDialog.getByRole('textbox', { name: 'Preço do acompanhamento' }),
       ).toBeInViewport()
       await expect(saveButton).toBeInViewport()
-      await page.screenshot({
-        path: '.playwright-cli/screenshots/mrp/product-accompaniment-edit-dialog-refresh-390x568.png',
-        animations: 'disabled',
-      })
     } finally {
       releasePricingResponse?.()
     }
@@ -314,13 +295,7 @@ test.describe('ProductAccompanimentsPage', () => {
     await expect(brandInput).toBeDisabled()
     await expect(brandInput).toHaveValue('Estoque único')
     await expect(editPrice).toHaveValue('3,00')
-    await page.screenshot({
-      animations: 'disabled',
-    })
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.screenshot({
-      animations: 'disabled',
-    })
     await editPrice.fill('0')
     await editDialog.getByRole('button', { name: 'Salvar alterações' }).click()
     await expect(editDialog).toBeHidden()
@@ -384,9 +359,6 @@ test.describe('ProductAccompanimentsPage', () => {
           document.documentElement.scrollWidth <= document.documentElement.clientWidth,
       ),
     ).toBe(true)
-    await page.screenshot({
-      path: 'test-results/mrp-accompaniments-320x900.png',
-    })
   })
 
   test('shows candidate and stock recovery states without hiding source failures', async ({
@@ -604,8 +576,8 @@ test.describe('ProductAccompanimentsPage', () => {
                 accompanimentTypeName: 'Cobertura',
                 unit: 'g',
                 quantityPerPortion: 20,
-                brandName: 'Estoque único',
                 salePrice: 3,
+                brandName: 'Estoque único',
                 unitCost: 0.009,
                 estimatedCost: 0.18,
               },
@@ -636,7 +608,6 @@ test.describe('ProductAccompanimentsPage', () => {
         },
       }),
     })
-
     await page.route(`**/products/${ACCOMPANIMENT_ID}/pricing`, async (route) => {
       await route.fulfill({
         contentType: 'application/json',
@@ -651,6 +622,7 @@ test.describe('ProductAccompanimentsPage', () => {
         }),
       })
     })
+
     await page.goto(`/products/${PRODUCT_ID}/accompaniments`)
     await page.getByRole('button', { name: 'Vincular acompanhamento' }).click()
     const linkDialog = page.getByRole('dialog', { name: 'Vincular acompanhamento' })
@@ -662,10 +634,10 @@ test.describe('ProductAccompanimentsPage', () => {
     await linkDialog.getByRole('combobox', { name: 'Tipo' }).click()
     await page.getByRole('option', { name: 'Cobertura' }).click()
     await linkDialog.getByRole('textbox', { name: /Quantidade por porção/ }).fill('25')
-    await linkDialog.getByRole('button', { name: 'Vincular' }).click()
     await linkDialog
       .getByRole('textbox', { name: 'Preço do acompanhamento' })
       .fill('3,00')
+    await linkDialog.getByRole('button', { name: 'Vincular' }).click()
     await expect(linkDialog.getByRole('button', { name: 'Salvando…' })).toBeDisabled()
     await expect(linkDialog).toBeVisible()
     await expect(linkDialog.getByRole('alert')).toContainText('Não foi possível salvar')

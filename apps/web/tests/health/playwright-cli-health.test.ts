@@ -65,10 +65,6 @@ test.describe('Playwright CLI health check', () => {
     await page.keyboard.press('Tab')
     await expect(passwordInput).toBeFocused()
 
-    await page.screenshot({
-      path: 'test-results/playwright-cli-health-login.png',
-      fullPage: true,
-    })
 
     expect(consoleErrors).toEqual([])
     expect(failedRequests).toEqual([])

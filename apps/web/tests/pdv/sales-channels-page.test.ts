@@ -6,7 +6,6 @@ import { expect, test } from '../playwright'
 
 const DESKTOP = { height: 1050, width: 1481 }
 const NARROW = { height: 1024, width: 768 }
-const SCREENSHOT_DIR = 'test-results/pdv'
 // The first browser navigation can wait for Vite's cold client compilation after
 // the URL commits; keep the semantic heading assertion while allowing that startup.
 const INITIAL_PAGE_READY_TIMEOUT_MS = 15_000
@@ -97,9 +96,6 @@ test.describe('SalesChannelsPage', () => {
       await expect(channelResult('Balcão')).toHaveCount(0)
       await expect(channelResult('Promoção local')).toHaveCount(0)
       await expect(page.getByText('2 de 4 canais · 2 ativos · 0 inativos')).toBeVisible()
-      await page.screenshot({
-        path: `${SCREENSHOT_DIR}/vis-11-adjustment-filter-${viewport.width}x${viewport.height}.png`,
-      })
 
       await page.keyboard.press('Enter')
       await expect(increaseFilter).toHaveAttribute('aria-pressed', 'false')
@@ -209,9 +205,6 @@ test.describe('SalesChannelsPage', () => {
     await expect(page.getByRole('row', { name: /Delivery próprio/ })).toBeVisible()
     await page.getByRole('button', { name: 'Novo canal' }).focus()
     await expect(page.getByRole('button', { name: 'Novo canal' })).toBeFocused()
-    await page.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-01-sales-channels-1481x1050.png`,
-    })
 
     const deliveryRow = () => page.getByRole('row', { name: /Delivery próprio/ })
     await deliveryRow()
@@ -225,20 +218,11 @@ test.describe('SalesChannelsPage', () => {
     await expect(
       activeMenu.getByRole('menuitem', { name: 'Excluir canal' }),
     ).toBeVisible()
-    await activeMenu.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-04-channel-actions-menu.png`,
-    })
     await page.keyboard.press('Escape')
 
     await page.getByRole('button', { name: 'Novo canal' }).click()
     const createDialog = page.getByRole('dialog', { name: 'Novo canal' })
     await expect(createDialog).toBeVisible()
-    await page.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-02-create-dialog-1481x1050.png`,
-    })
-    await createDialog.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-02-create-channel-dialog.png`,
-    })
     await createDialog
       .getByRole('textbox', { name: 'Nome do canal' })
       .fill('Delivery teste')
@@ -262,10 +246,6 @@ test.describe('SalesChannelsPage', () => {
     await page.getByRole('menuitem', { name: 'Editar canal' }).click()
     const editDialog = page.getByRole('dialog', { name: 'Editar canal' })
     await expect(editDialog).toBeVisible()
-    await page.screenshot({ path: `${SCREENSHOT_DIR}/vis-03-edit-dialog-1481x1050.png` })
-    await editDialog.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-03-edit-channel-dialog.png`,
-    })
     await editDialog
       .getByRole('textbox', { name: 'Nome do canal' })
       .fill('Delivery ajustado')
@@ -289,12 +269,6 @@ test.describe('SalesChannelsPage', () => {
     const inactivateDialog = page.getByRole('alertdialog', { name: 'Inativar canal?' })
     await expect(inactivateDialog).toBeVisible()
     await expect(inactivateDialog).toContainText('continuarão no histórico')
-    await page.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-05-inactivate-dialog-1481x1050.png`,
-    })
-    await inactivateDialog.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-05-deactivate-channel-dialog.png`,
-    })
     await inactivateDialog.getByRole('button', { name: 'Inativar canal' }).click()
     await waitForRequest(
       pdv.requests,
@@ -311,9 +285,6 @@ test.describe('SalesChannelsPage', () => {
     await expect(
       inactiveMenu.getByRole('menuitem', { name: 'Reativar canal' }),
     ).toBeVisible()
-    await page.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-09-inactive-row-reactivate-1481x1050.png`,
-    })
     await inactiveMenu.getByRole('menuitem', { name: 'Reativar canal' }).click()
     await waitForRequest(
       pdv.requests,
@@ -329,12 +300,6 @@ test.describe('SalesChannelsPage', () => {
     await page.getByRole('menuitem', { name: 'Excluir canal' }).click()
     const deleteDialog = page.getByRole('alertdialog', { name: 'Excluir canal?' })
     await expect(deleteDialog).toBeVisible()
-    await page.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-06-delete-dialog-1481x1050.png`,
-    })
-    await deleteDialog.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-06-delete-channel-dialog.png`,
-    })
     await deleteDialog.getByRole('button', { name: 'Excluir canal' }).click()
     await waitForRequest(
       pdv.requests,
@@ -372,18 +337,12 @@ test.describe('SalesChannelsPage', () => {
     ).toBeFocused()
     await card.getByRole('button', { name: 'Abrir ações de Delivery próprio' }).click()
     await expect(page.getByRole('menuitem', { name: 'Inativar canal' })).toBeVisible()
-    await page.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-07-sales-channels-768x1024.png`,
-    })
     await page.keyboard.press('Escape')
     const inactiveCard = page.locator('article').filter({ hasText: 'Promoção local' })
     await inactiveCard
       .getByRole('button', { name: 'Abrir ações de Promoção local' })
       .click()
     await expect(page.getByRole('menuitem', { name: 'Reativar canal' })).toBeVisible()
-    await page.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-09-inactive-row-reactivate-768x1024.png`,
-    })
     await page.keyboard.press('Escape')
     expect(
       await page.evaluate(
@@ -412,12 +371,10 @@ test.describe('SalesChannelsPage', () => {
     await expect(
       page.getByRole('heading', { name: 'Nenhum canal cadastrado' }),
     ).toBeVisible()
-    await page.screenshot({ path: `${SCREENSHOT_DIR}/vis-08-empty-1481x1050.png` })
     await page.setViewportSize(NARROW)
     await expect(
       page.getByRole('heading', { name: 'Nenhum canal cadastrado' }),
     ).toBeVisible()
-    await page.screenshot({ path: `${SCREENSHOT_DIR}/vis-08-empty-768x1024.png` })
     expect(diagnostics.unexpectedConsoleErrors()).toEqual([])
     expect(
       diagnostics.expectedAnimationAbortErrors.every((error) =>
@@ -453,9 +410,6 @@ test.describe('SalesChannelsPage', () => {
     await expect(dialog).toContainText(
       'Informe uma porcentagem válida, com até duas casas decimais.',
     )
-    await page.screenshot({
-      path: `${SCREENSHOT_DIR}/vis-10-validation-error-1481x1050.png`,
-    })
     expect(pdv.requests.filter((request) => request.method === 'POST')).toHaveLength(0)
     expect(diagnostics.unexpectedConsoleErrors()).toEqual([])
     expect(
@@ -493,9 +447,6 @@ test.describe('SalesChannelsPage', () => {
       await expect(
         page.getByRole('status', { name: 'Carregando canais de venda' }),
       ).toBeVisible()
-      await page.screenshot({
-        path: `${SCREENSHOT_DIR}/vis-08-loading-${viewport.width}x${viewport.height}.png`,
-      })
       release()
       await expect(
         page.getByRole('heading', { name: 'Nenhum canal cadastrado' }),
@@ -526,9 +477,6 @@ test.describe('SalesChannelsPage', () => {
       })
       await page.goto('/sales-channels')
       await expect(page.getByText('Não foi possível carregar os canais')).toBeVisible()
-      await page.screenshot({
-        path: `${SCREENSHOT_DIR}/vis-08-error-${viewport.width}x${viewport.height}.png`,
-      })
       await page.getByRole('button', { name: 'Tentar novamente' }).click()
       const recoveredChannel =
         viewport.width < 1024
@@ -565,9 +513,6 @@ test.describe('SalesChannelsPage', () => {
       page.getByRole('button', { name: 'Abrir ações de Delivery próprio' }),
     ).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Canais de venda' })).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/f10-operator-sales-channels-1440x900.png',
-    })
     expect(pdv.requests.some((request) => request.method === 'GET')).toBe(true)
     expect(pdv.requests.some((request) => request.method !== 'GET')).toBe(false)
     expect(diagnostics.unexpectedConsoleErrors()).toEqual([])

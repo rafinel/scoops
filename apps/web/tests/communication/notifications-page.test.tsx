@@ -49,7 +49,6 @@ const PAGINATED_NOTIFICATIONS = Array.from({ length: 22 }, (_, index) =>
   ),
 )
 
-const SCREENSHOT_DIRECTORY = 'test-results/communication'
 
 function addDiagnostics(page: Page) {
   const consoleErrors: string[] = []
@@ -97,10 +96,6 @@ test.describe('NotificationsPage', () => {
       }),
     ).toBeVisible()
     await expect(page.getByRole('list', { name: /notificações de hoje/i })).toBeVisible()
-    await page.screenshot({
-      path: `${SCREENSHOT_DIRECTORY}/notification-center-page-populated.png`,
-      fullPage: false,
-    })
     await expect
       .poll(() =>
         communication.listRequests.some((url) => url.searchParams.get('limit') === '20'),
@@ -130,10 +125,6 @@ test.describe('NotificationsPage', () => {
       .scrollIntoViewIfNeeded()
     await expect.poll(() => communication.readRequests.length).toBeGreaterThan(0)
     expect(communication.readRequests[0]?.ids.length).toBeLessThanOrEqual(50)
-    await page.screenshot({
-      path: `${SCREENSHOT_DIRECTORY}/notification-center-dropdown-populated.png`,
-      fullPage: false,
-    })
     await page.keyboard.press('Escape')
     await expect(bell).toBeFocused()
 
@@ -151,10 +142,6 @@ test.describe('NotificationsPage', () => {
           document.documentElement.scrollWidth <= document.documentElement.clientWidth,
       ),
     ).resolves.toBe(true)
-    await page.screenshot({
-      path: `${SCREENSHOT_DIRECTORY}/notification-center-populated-narrow.png`,
-      fullPage: false,
-    })
     await bell.focus()
     await page.keyboard.press('Enter')
     const narrowDropdown = page.getByRole('dialog', { name: 'Notificações' })
@@ -177,10 +164,6 @@ test.describe('NotificationsPage', () => {
           document.documentElement.scrollWidth <= document.documentElement.clientWidth,
       ),
     ).resolves.toBe(true)
-    await page.screenshot({
-      path: `${SCREENSHOT_DIRECTORY}/notification-center-dropdown-populated-narrow.png`,
-      fullPage: false,
-    })
     await page.keyboard.press('Escape')
     await expect(bell).toBeFocused()
     expect(consoleErrors).toEqual([])
@@ -284,10 +267,6 @@ test.describe('NotificationsPage', () => {
     await expect(
       page.getByRole('status', { name: 'Carregando notificações' }),
     ).toBeVisible()
-    await page.screenshot({
-      path: `${SCREENSHOT_DIRECTORY}/notification-center-loading.png`,
-      fullPage: false,
-    })
     await navigation
     await expect(page.getByText('Estoque abaixo do ideal')).toBeVisible()
 
@@ -299,10 +278,6 @@ test.describe('NotificationsPage', () => {
     await emptyFixture.mockNotifications({ managerNotifications: [] })
     await page.goto('/notifications?period=all')
     await expect(page.getByText('Nenhuma notificação ainda')).toBeVisible()
-    await page.screenshot({
-      path: `${SCREENSHOT_DIRECTORY}/notification-center-empty.png`,
-      fullPage: false,
-    })
 
     await page.unroute('**/notifications**')
     const errorFixture = CommunicationModuleFixture(page)
@@ -310,10 +285,6 @@ test.describe('NotificationsPage', () => {
     errorFixture.failNextListRequest(2)
     await page.goto('/notifications?period=last-90-days')
     await expect(page.getByRole('alert')).toBeVisible()
-    await page.screenshot({
-      path: `${SCREENSHOT_DIRECTORY}/notification-center-error-retry.png`,
-      fullPage: false,
-    })
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
     await expect(page.getByText('Estoque abaixo do ideal')).toBeVisible()
   })

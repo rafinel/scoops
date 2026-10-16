@@ -34,7 +34,7 @@ const GLOBAL_SEARCH_RESULTS = {
 
 test.describe.configure({ mode: 'serial' })
 test.describe('AccountPage', () => {
-  test('captures global-search states and verifies keyboard navigation and request contract', async ({
+  test('covers global-search states and verifies keyboard navigation and request contract', async ({
     page,
     identityFixture,
     pdvFixture,
@@ -108,7 +108,6 @@ test.describe('AccountPage', () => {
     await input.fill('delivery')
     await expect(page.getByRole('group', { name: 'Páginas' })).toBeVisible()
     await expect(page.getByRole('group', { name: 'Produtos' })).toBeVisible()
-    await page.screenshot({ path: 'test-results/global-search/gs-desktop-header.png' })
     await expect(
       page.getByRole('option', {
         name: 'Pedido: #1042, Ana Silva · Registrado',
@@ -120,22 +119,9 @@ test.describe('AccountPage', () => {
     await expect(page.locator('[role="listbox"]')).toContainText('Esc fechar')
     expect(requests.at(-1)?.pathname).toBe('/global-search')
     expect(requests.at(-1)?.searchParams.get('q')).toBe('delivery')
-    await page.locator('[role="listbox"]').screenshot({
-      path: 'test-results/global-search/gs-desktop-results.png',
-    })
-    await page
-      .getByRole('option', {
-        name: 'Produto: Leite integral, Ativo',
-      })
-      .screenshot({
-        path: 'test-results/global-search/gs-record-row.png',
-      })
 
     await input.fill('load')
     await expect(page.getByRole('status', { name: 'Buscando resultados' })).toBeVisible()
-    await page.locator('[role="listbox"]').screenshot({
-      path: 'test-results/global-search/gs-loading.png',
-    })
     releaseLoading()
     await expect(
       page.getByRole('option', { name: 'Página: Canais de venda' }),
@@ -147,15 +133,9 @@ test.describe('AccountPage', () => {
         exact: true,
       }),
     ).toBeVisible()
-    await page.locator('[role="listbox"]').screenshot({
-      path: 'test-results/global-search/gs-empty.png',
-    })
 
     await input.fill('fails')
     await expect(page.getByRole('alert')).toContainText('A busca falhou')
-    await page.locator('[role="listbox"]').screenshot({
-      path: 'test-results/global-search/gs-error.png',
-    })
 
     await input.fill('keyboard')
     await expect(
@@ -165,9 +145,6 @@ test.describe('AccountPage', () => {
     await expect(
       page.getByRole('option', { name: 'Produto: Leite integral, Ativo' }),
     ).toHaveAttribute('aria-selected', 'true')
-    await page.locator('[role="listbox"]').screenshot({
-      path: 'test-results/global-search/gs-keyboard-focus.png',
-    })
     await input.press('Escape')
     await expect(input).toBeFocused()
     await input.press('ArrowDown')
@@ -202,10 +179,6 @@ test.describe('AccountPage', () => {
     await expect(
       page.getByRole('option', { name: 'Página: Canais de venda' }),
     ).toBeVisible()
-    await page.screenshot({ path: 'test-results/global-search/gs-mobile-header.png' })
-    await page.locator('[role="listbox"]').screenshot({
-      path: 'test-results/global-search/gs-mobile-results.png',
-    })
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(320)
@@ -229,14 +202,8 @@ test.describe('AccountPage', () => {
     await page.goto('/account')
     await expect(page.getByRole('heading', { name: 'Minha conta' })).toBeVisible()
     await page.setViewportSize({ width: 1481, height: 1050 })
-    await page.screenshot({
-      path: 'test-results/my-account-desktop-1481x1050.png',
-    })
     await page.getByRole('button', { name: 'Corrigir meu nome' }).click()
     await page.setViewportSize({ width: 676, height: 502 })
-    await page.screenshot({
-      path: 'test-results/my-account-name-dialog-676x502.png',
-    })
     await page
       .getByRole('dialog')
       .getByRole('textbox', { name: 'Nome completo' })

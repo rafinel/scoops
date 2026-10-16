@@ -1,6 +1,4 @@
-import path from 'node:path'
 
-import type { Page } from '@playwright/test'
 import { ProductFaker } from '@scoops/core/mrp/domain/entities/fakers'
 
 import { expect, test } from '../playwright'
@@ -8,7 +6,6 @@ import { expect, test } from '../playwright'
 const PRODUCT_ID = 'product-1'
 const PRIMARY_BRAND_ID = 'brand-primary'
 const SECONDARY_BRAND_ID = 'brand-secondary'
-const SCREENSHOT_DIRECTORY = path.resolve(process.cwd(), 'test-results')
 
 const PRODUCT = ProductFaker.fake({
   id: PRODUCT_ID,
@@ -100,13 +97,6 @@ test.describe('ProductStockPage', () => {
     await expect(page).toHaveURL(`/products/${PRODUCT_ID}/stock`)
     await expect(page.getByRole('heading', { name: PRODUCT.name })).toBeVisible()
     await expect(page.getByRole('tab', { name: 'Receita' })).toHaveCount(0)
-    await page.screenshot({
-      fullPage: true,
-      path: path.join(
-        SCREENSHOT_DIRECTORY,
-        'products-category-blocked-stock-1560x1200.png',
-      ),
-    })
   })
 
   test('redirects anonymous access and preserves the semantic product path', async ({
@@ -149,7 +139,7 @@ test.describe('ProductStockPage', () => {
     ).toHaveCount(0)
   })
 
-  test('loads the canonical populated route and captures exact detail and history requests', async ({
+  test('loads the canonical populated route and covers exact detail and history requests', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -187,13 +177,6 @@ test.describe('ProductStockPage', () => {
     const historyRequest = requests[1]?.url
     expect(historyRequest?.searchParams.get('page')).toBe('1')
     expect(historyRequest?.searchParams.get('limit')).toBe('5')
-    await page.screenshot({
-      path: path.join(
-        SCREENSHOT_DIRECTORY,
-        'products-details-by-brand-stock-1560x1320.png',
-      ),
-      fullPage: true,
-    })
     expect(consoleErrors).toEqual([])
     expect(failedRequests).toEqual([])
   })
@@ -225,20 +208,9 @@ test.describe('ProductStockPage', () => {
     await page.setViewportSize({ width: 1280, height: 900 })
     await navigateToProductStock(page)
     await expect(page.getByText('Não foi possível carregar o estoque')).toBeVisible()
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-error-1280x900.png'),
-      fullPage: true,
-    })
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
     await expect(page.getByRole('heading', { name: PRODUCT.name })).toBeVisible()
     await expect(page.getByText('Não foi possível carregar o histórico.')).toBeVisible()
-    await page.screenshot({
-      path: path.join(
-        SCREENSHOT_DIRECTORY,
-        'products-details-history-error-1280x900.png',
-      ),
-      fullPage: true,
-    })
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
     await expect(page.getByRole('cell', { name: 'Maria Silva' })).toBeVisible()
     expect(detailRequests).toBe(2)
@@ -280,13 +252,6 @@ test.describe('ProductStockPage', () => {
     const toDateInput = page.getByLabel('Até')
     await toDateInput.focus()
     await expect(toDateInput).toBeFocused()
-    await page.screenshot({
-      path: path.join(
-        SCREENSHOT_DIRECTORY,
-        'products-details-history-filtered-empty-1280x900.png',
-      ),
-      fullPage: true,
-    })
   })
 
   test('adds a brand without client-owned primary state and refreshes the page', async ({
@@ -317,9 +282,6 @@ test.describe('ProductStockPage', () => {
     await dialog.getByRole('textbox', { name: 'Estoque inicial (opcional)' }).fill('3')
     await dialog.getByRole('textbox', { name: 'Nome da marca' }).focus()
     await expect(dialog.getByRole('textbox', { name: 'Nome da marca' })).toBeFocused()
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-add-brand-676x771.png'),
-    })
     await dialog.getByRole('button', { name: 'Confirmar' }).click()
     await expect(dialog).toBeHidden()
     const request = requests.find(
@@ -406,13 +368,9 @@ test.describe('ProductStockPage', () => {
           document.documentElement.scrollWidth <= document.documentElement.clientWidth,
       ),
     ).toBe(true)
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-narrow-page-320x900.png'),
-      fullPage: true,
-    })
   })
 
-  test('captures the remaining brand dialog and menu reference states', async ({
+  test('covers the remaining brand dialog and menu reference states', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -434,9 +392,6 @@ test.describe('ProductStockPage', () => {
     await page.setViewportSize({ width: 293, height: 188 })
     await secondaryActions.click()
     await expect(page.getByRole('menuitem', { name: 'Editar marca' })).toBeVisible()
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-brand-actions-293x188.png'),
-    })
     await page.keyboard.press('Escape')
 
     await page.setViewportSize({ width: 676, height: 771 })
@@ -447,32 +402,20 @@ test.describe('ProductStockPage', () => {
     const packageValueInput = editDialog.getByLabel('Valor por embalagem')
     await packageValueInput.focus()
     await expect(packageValueInput).toBeFocused()
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-edit-brand-676x771.png'),
-    })
     await page.keyboard.press('Escape')
 
     await page.setViewportSize({ width: 596, height: 353 })
     await secondaryActions.click()
     await page.getByRole('menuitem', { name: 'Excluir marca' }).click()
     await expect(page.getByRole('alertdialog', { name: 'Excluir marca?' })).toBeVisible()
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-delete-brand-596x353.png'),
-    })
 
     await page.setViewportSize({ width: 320, height: 900 })
     await page.getByRole('button', { name: 'Cancelar' }).click()
     await secondaryActions.click()
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-narrow-menu-320x900.png'),
-    })
     await page.getByRole('menuitem', { name: 'Editar marca' }).click()
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-narrow-dialog-320x900.png'),
-    })
   })
 
-  test('captures single, package, insufficient, and empty states', async ({
+  test('covers single, package, insufficient, and empty states', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -494,12 +437,6 @@ test.describe('ProductStockPage', () => {
     const packageDialog = page.getByRole('dialog', { name: 'Entrada de estoque' })
     await packageDialog.getByRole('button', { name: 'Embalagens' }).click()
     await packageDialog.getByLabel('Quantidade').fill('2')
-    await page.screenshot({
-      path: path.join(
-        SCREENSHOT_DIRECTORY,
-        'products-details-package-adjustment-success-676x771.png',
-      ),
-    })
     await page.keyboard.press('Escape')
     await expect(packageDialog).toBeHidden()
     await page.getByRole('button', { name: 'Baixa de estoque' }).first().click()
@@ -507,12 +444,6 @@ test.describe('ProductStockPage', () => {
     await writeOffDialog.getByRole('button', { name: 'Embalagens' }).click()
     await writeOffDialog.getByLabel('Quantidade').fill('7')
     await expect(writeOffDialog.getByText(/Estoque insuficiente/)).toBeVisible()
-    await page.screenshot({
-      path: path.join(
-        SCREENSHOT_DIRECTORY,
-        'products-details-package-adjustment-insufficient-676x771.png',
-      ),
-    })
     await page.keyboard.press('Escape')
 
     stockResponse = {
@@ -528,13 +459,6 @@ test.describe('ProductStockPage', () => {
       .getByRole('dialog', { name: 'Entrada de estoque' })
       .getByLabel('Quantidade')
       .fill('2')
-    await page.screenshot({
-      path: path.join(
-        SCREENSHOT_DIRECTORY,
-        'products-details-single-adjustment-1280x900.png',
-      ),
-      fullPage: true,
-    })
     await page.keyboard.press('Escape')
 
     stockResponse = {
@@ -548,26 +472,15 @@ test.describe('ProductStockPage', () => {
     await expect(page.getByText('Nenhuma marca cadastrada')).toBeVisible()
     await expect(page.getByText('Abaixo do ideal', { exact: true })).toBeVisible()
     await expect(page.getByText('Nenhuma movimentação registrada.')).toBeVisible()
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-empty-brands-1280x900.png'),
-      fullPage: true,
-    })
 
     stockResponse = fakeStockResponse()
     await page.reload()
     await expect(page.getByText('Normal', { exact: true })).toBeVisible()
     await expect(page.getByRole('cell', { name: /^Frooty/ })).toBeVisible()
     await expect(page.getByText('Nenhuma movimentação registrada.')).toBeVisible()
-    await page.screenshot({
-      path: path.join(
-        SCREENSHOT_DIRECTORY,
-        'products-details-history-empty-1280x900.png',
-      ),
-      fullPage: true,
-    })
   })
 
-  test('captures independent detail and history loading states', async ({
+  test('covers independent detail and history loading states', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -601,22 +514,11 @@ test.describe('ProductStockPage', () => {
     await expect(
       page.getByRole('status', { name: 'Carregando estoque do produto' }),
     ).toBeVisible()
-    await page.screenshot({
-      path: path.join(SCREENSHOT_DIRECTORY, 'products-details-loading-1280x900.png'),
-      fullPage: true,
-    })
     releaseDetail()
     await navigation
     await expect(
       page.getByRole('status', { name: 'Carregando histórico de movimentações' }),
     ).toBeVisible()
-    await page.screenshot({
-      path: path.join(
-        SCREENSHOT_DIRECTORY,
-        'products-details-history-loading-1280x900.png',
-      ),
-      fullPage: true,
-    })
     historyDelayed = false
     await expect(page.getByRole('cell', { name: 'Maria Silva' })).toBeVisible()
   })

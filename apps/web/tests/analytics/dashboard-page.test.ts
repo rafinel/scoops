@@ -55,10 +55,6 @@ test.describe('DashboardPage', () => {
       'aria-pressed',
       'true',
     )
-    await page.screenshot({
-      path: 'test-results/dashboard-page-desktop.png',
-      fullPage: true,
-    })
   })
 
   test('redirects an anonymous visitor to login', async ({ page }) => {
@@ -113,19 +109,11 @@ test.describe('DashboardPage', () => {
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(390)
-    await page.screenshot({
-      path: 'test-results/dashboard-page-narrow.png',
-      fullPage: true,
-    })
     await page.setViewportSize({ width: 320, height: 720 })
     await page.waitForFunction(() => document.documentElement.scrollWidth <= 320)
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(320)
-    await page.screenshot({
-      path: 'test-results/dashboard-page-minimum.png',
-      fullPage: true,
-    })
   })
 
   test('refetches dashboard data after a page reload', async ({

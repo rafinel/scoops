@@ -118,7 +118,7 @@ test.describe('OrderPage', () => {
       page,
       identityFixture,
       pdvFixture,
-    }, testInfo) => {
+    }) => {
       const diagnostics: string[] = []
       page.on('console', (message) => {
         if (message.type() === 'error') diagnostics.push(message.text())
@@ -174,10 +174,6 @@ test.describe('OrderPage', () => {
             document.documentElement.scrollWidth <= document.documentElement.clientWidth,
         ),
       ).resolves.toBe(true)
-      await page.screenshot({
-        path: testInfo.outputPath(`accompaniments-order-${viewport.name}.png`),
-        fullPage: true,
-      })
       expect(diagnostics).toEqual([])
     })
   }
@@ -202,15 +198,7 @@ test.describe('OrderPage', () => {
     await expect(page.getByRole('button', { name: 'Tentar novamente' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Voltar para pedidos' })).toBeVisible()
     await page.setViewportSize({ width: 1481, height: 1050 })
-    await page.screenshot({
-      path: 'test-results/pdv-orders-detail-not-found-1481x1050.png',
-      fullPage: false,
-    })
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.screenshot({
-      path: 'test-results/pdv-orders-detail-not-found-390x844.png',
-      fullPage: false,
-    })
   })
 
   test('renders Manager details, retries cancellation, and preserves the canceled snapshot', async ({
@@ -372,10 +360,6 @@ test.describe('OrderPage', () => {
     )
     await expect(page.getByRole('main').getByText('Maria Manager')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Cancelar pedido' })).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/pdv-orders-detail-registered-1481x1050.png',
-      fullPage: false,
-    })
 
     await page.getByRole('button', { name: 'Cancelar pedido' }).click()
     const dialog = page.getByRole('dialog', { name: 'Cancelar pedido?' })
@@ -425,10 +409,6 @@ test.describe('OrderPage', () => {
       'rgb(220, 252, 231)',
       'rgb(22, 101, 52)',
     )
-    await page.screenshot({
-      path: 'test-results/order-cancellation-stock-disposition/dialog-desktop-pointer.png',
-      fullPage: false,
-    })
     await lossChoices.first().click()
     await expect(lossChoices.first()).toBeChecked()
     await expectPointerChoiceColors(
@@ -436,10 +416,6 @@ test.describe('OrderPage', () => {
       'rgb(254, 226, 226)',
       'rgb(153, 27, 27)',
     )
-    await page.screenshot({
-      path: 'test-results/order-cancellation-stock-disposition/dialog-desktop-loss.png',
-      fullPage: false,
-    })
     await dialog.getByRole('button', { name: 'Fechar cancelamento' }).focus()
     await page.keyboard.press('Tab')
     const keyboardFocusedChoices = dialog.locator('input[type="radio"]:focus-visible')
@@ -450,10 +426,6 @@ test.describe('OrderPage', () => {
     )
     expect(desktopFocusRing).not.toBe('none')
     expect(desktopFocusRing).toMatch(/109[, ]+40[, ]+217/)
-    await page.screenshot({
-      path: 'test-results/order-cancellation-stock-disposition/dialog-desktop-keyboard.png',
-      fullPage: false,
-    })
     await dialog.getByRole('button', { name: 'Fechar cancelamento' }).click()
     await expect(dialog).toBeHidden()
     await page.setViewportSize({ width: 375, height: 812 })
@@ -469,10 +441,6 @@ test.describe('OrderPage', () => {
       'rgb(254, 226, 226)',
       'rgb(153, 27, 27)',
     )
-    await page.screenshot({
-      path: 'test-results/order-cancellation-stock-disposition/dialog-mobile-pointer.png',
-      fullPage: false,
-    })
     await mobileDialog.getByRole('button', { name: 'Fechar cancelamento' }).focus()
     await page.keyboard.press('Tab')
     const mobileKeyboardFocusedChoices = mobileDialog.locator(
@@ -485,19 +453,11 @@ test.describe('OrderPage', () => {
     )
     expect(mobileFocusRing).not.toBe('none')
     expect(mobileFocusRing).toMatch(/109[, ]+40[, ]+217/)
-    await page.screenshot({
-      path: 'test-results/order-cancellation-stock-disposition/dialog-mobile-keyboard.png',
-      fullPage: false,
-    })
     await mobileDialog.getByRole('button', { name: 'Fechar cancelamento' }).click()
     await expect(mobileDialog).toBeHidden()
     await page.setViewportSize({ width: 1481, height: 1050 })
     await page.getByRole('main').getByRole('button', { name: 'Cancelar pedido' }).click()
     await page.setViewportSize({ width: 657, height: 602 })
-    await page.screenshot({
-      path: 'test-results/pdv-orders-cancellation-dialog-657x602.png',
-      fullPage: false,
-    })
     await page.setViewportSize({ width: 1481, height: 1050 })
     const reason = dialog.getByRole('textbox', {
       name: 'Motivo do cancelamento (opcional)',
@@ -529,10 +489,6 @@ test.describe('OrderPage', () => {
       ),
     ).toBe(true)
 
-    await page.screenshot({
-      path: 'test-results/pdv-orders-detail-canceled-1481x1050.png',
-      fullPage: false,
-    })
     await page.setViewportSize({ width: 390, height: 844 })
     await expect(
       page.evaluate(
@@ -575,15 +531,7 @@ test.describe('OrderPage', () => {
         )
       }),
     ).resolves.toBe(true)
-    await page.screenshot({
-      path: 'test-results/pdv-orders-detail-canceled-390x844.png',
-      fullPage: false,
-    })
     await page.setViewportSize({ width: 359, height: 820 })
-    await page.screenshot({
-      path: 'test-results/pdv-orders-detail-summary-first-359x820.png',
-      fullPage: false,
-    })
     expect(consoleErrors).toHaveLength(1)
     expect(consoleErrors[0]).toContain('503')
     expect(failedRequests).toEqual([])
@@ -681,10 +629,6 @@ test.describe('OrderPage', () => {
     await expect(
       page.getByRole('alert').filter({ hasText: 'Pedido cancelado' }),
     ).toHaveCount(0)
-    await page.screenshot({
-      path: 'test-results/pdv-orders-detail-no-channel-canceled-1481x1050.png',
-      fullPage: false,
-    })
 
     await page.setViewportSize({ width: 390, height: 844 })
     await expect(
@@ -703,13 +647,9 @@ test.describe('OrderPage', () => {
     await expect(
       page.getByRole('button', { name: 'Sem canal', exact: true }),
     ).toHaveCount(0)
-    await page.screenshot({
-      path: 'test-results/pdv-orders-detail-no-channel-canceled-390x844.png',
-      fullPage: false,
-    })
   })
 
-  test('captures the detail loading state at desktop and narrow viewports', async ({
+  test('covers the detail loading state at desktop and narrow viewports', async ({
     page,
     identityFixture,
     pdvFixture,
@@ -737,15 +677,7 @@ test.describe('OrderPage', () => {
     await page.setViewportSize({ width: 1481, height: 1050 })
     const navigation = page.goto(`/orders/${ORDER_ID}`, { waitUntil: 'commit' })
     await expect(page.getByLabel('Carregando detalhes do pedido')).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/pdv-orders-detail-loading-1481x1050.png',
-      fullPage: false,
-    })
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.screenshot({
-      path: 'test-results/pdv-orders-detail-loading-390x844.png',
-      fullPage: false,
-    })
     releaseDetailRequest()
     await navigation
     await page.unroute('**/orders**')
@@ -799,9 +731,6 @@ test.describe('Order printing', () => {
         await expect(action).toBeVisible()
         const box = await action.boundingBox()
         expect(box!.x + box!.width).toBeLessThanOrEqual(390)
-        await page.screenshot({
-          path: `test-results/order-print-${actor}-${status}-mobile.png`,
-        })
         await page.goto('/orders')
         await expect(page.locator('body > .order-print-document')).toHaveCount(0)
       })

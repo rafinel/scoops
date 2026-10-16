@@ -163,9 +163,6 @@ test.describe('NewSalePage', () => {
         )
         .toBe(true)
       await expect(page.getByRole('main').getByText('R$ 20,00').last()).toBeVisible()
-      await page.screenshot({
-        path: `test-results/pdv/new-sale-${viewport.name}-${viewport.width}x${viewport.height}.png`,
-      })
 
       expect(
         requests.some(
@@ -185,7 +182,7 @@ test.describe('NewSalePage', () => {
       page,
       identityFixture,
       pdvFixture,
-    }, testInfo) => {
+    }) => {
       const diagnostics: string[] = []
       page.on('console', (message) => {
         if (message.type() === 'error') diagnostics.push(message.text())
@@ -251,9 +248,6 @@ test.describe('NewSalePage', () => {
       await banana.focus()
       await banana.press('Space')
       await expect(banana).toBeChecked()
-      await page.screenshot({
-        path: testInfo.outputPath(`accompaniments-dialog-${viewport.name}.png`),
-      })
       await dialog.getByRole('button', { name: 'Adicionar ao carrinho' }).click()
       const cart = page.getByRole('main')
       await expect(cart.getByText('Acompanhamentos', { exact: true })).toBeVisible()
@@ -282,9 +276,6 @@ test.describe('NewSalePage', () => {
         ),
       ).resolves.toBe(true)
       await cart.getByText('Acompanhamentos', { exact: true }).scrollIntoViewIfNeeded()
-      await page.screenshot({
-        path: testInfo.outputPath(`accompaniments-cart-${viewport.name}.png`),
-      })
       expect(diagnostics).toEqual([])
     })
   }
@@ -349,9 +340,6 @@ test.describe('NewSalePage', () => {
     const loadingState = page.getByRole('status', { name: 'Carregando produtos' })
     await expect(loadingState).toBeVisible()
     await expect(loadingState.locator(':scope > *')).toHaveCount(4)
-    await page.screenshot({
-      path: 'test-results/pdv/new-sale-catalog-loading-1106x575.png',
-    })
     await expect(loadingState).toBeHidden({ timeout: INITIAL_PAGE_READY_TIMEOUT_MS })
   })
 
@@ -360,7 +348,7 @@ test.describe('NewSalePage', () => {
     await expect(page).toHaveURL(/\/login/, { timeout: INITIAL_PAGE_READY_TIMEOUT_MS })
   })
 
-  test('captures the portion and resale configuration states at their reference viewports', async ({
+  test('covers the portion and resale configuration states at their reference viewports', async ({
     page,
     identityFixture,
     pdvFixture,
@@ -398,9 +386,6 @@ test.describe('NewSalePage', () => {
     const portionSizeButton = portionDialog.getByRole('button', { name: /Médio/ })
     await portionSizeButton.focus()
     await expect(portionSizeButton).toBeFocused()
-    await page.screenshot({
-      path: 'test-results/pdv/new-sale-portion-dialog-756x966.png',
-    })
     const portionCancelButton = portionDialog.getByRole('button', { name: 'Cancelar' })
     await portionCancelButton.focus()
     await expect(portionCancelButton).toBeFocused()
@@ -420,9 +405,6 @@ test.describe('NewSalePage', () => {
     const brandButton = resaleDialog.getByRole('button', { name: /Marca Frooty/ })
     await brandButton.focus()
     await expect(brandButton).toBeFocused()
-    await page.screenshot({
-      path: 'test-results/pdv/new-sale-resale-dialog-756x866.png',
-    })
     const resaleCancelButton = resaleDialog.getByRole('button', { name: 'Cancelar' })
     await resaleCancelButton.focus()
     await expect(resaleCancelButton).toBeFocused()
@@ -434,7 +416,7 @@ test.describe('NewSalePage', () => {
     expect(responseDiagnostics).toEqual([])
   })
 
-  test('captures the registered-order confirmation at the desktop reference viewport', async ({
+  test('covers the registered-order confirmation at the desktop reference viewport', async ({
     page,
     identityFixture,
     pdvFixture,
@@ -541,9 +523,6 @@ test.describe('NewSalePage', () => {
     expect(consoleErrors).toEqual([])
     expect(failedRequests).toEqual([])
     expect(failedResponses).toEqual([])
-    await page.screenshot({
-      path: 'test-results/pdv/new-sale-registered-1481x1050.png',
-    })
   })
 
   for (const viewport of [
@@ -723,10 +702,6 @@ test.describe('NewSalePage', () => {
       await expect(reviewDialog).toContainText('Açaí tradicional: R$ 23,00 → R$ 24,00')
       await expect(reviewDialog).toContainText('R$ 23,00 → R$ 24,00')
       await expect(registrationRequests).toHaveLength(1)
-      await page.screenshot({
-        path: `.playwright-cli/screenshots/pdv/new-sale-repriced-review-${viewport.name}-${viewport.width}x${viewport.height}.png`,
-        animations: 'disabled',
-      })
 
       const reviewButton = reviewDialog.getByRole('button', { name: 'Revisar valores' })
       if (viewport.name === 'narrow') {
@@ -785,10 +760,6 @@ test.describe('NewSalePage', () => {
       await expect(reviewDialog).toContainText('Granola: R$ 4,00 → R$ 5,00')
       await expect(reviewDialog).toContainText('Açaí tradicional: R$ 24,00 → R$ 25,00')
       await expect(reviewDialog).toContainText('R$ 24,00 → R$ 25,00')
-      await page.screenshot({
-        path: `.playwright-cli/screenshots/pdv/new-sale-repriced-review-repeat-${viewport.name}-${viewport.width}x${viewport.height}.png`,
-        animations: 'disabled',
-      })
 
       const secondReviewButton = reviewDialog.getByRole('button', {
         name: 'Revisar valores',
@@ -918,7 +889,7 @@ test.describe('NewSalePage', () => {
       viewport: { width: 717, height: 420 },
     },
   ] as const) {
-    test(`captures the ${outcome.name} registration state`, async ({
+    test(`covers the ${outcome.name} registration state`, async ({
       page,
       identityFixture,
       pdvFixture,
@@ -972,9 +943,6 @@ test.describe('NewSalePage', () => {
       }
       expect(failedRequests).toEqual([])
       await page.waitForTimeout(500)
-      await page.screenshot({
-        path: `test-results/pdv/new-sale-${outcome.name}-${outcome.viewport.width}x${outcome.viewport.height}.png`,
-      })
     })
   }
 
@@ -982,7 +950,7 @@ test.describe('NewSalePage', () => {
     { width: 717, height: 420, name: 'desktop' },
     { width: 390, height: 844, name: 'narrow' },
   ]) {
-    test(`captures neutral verification at ${viewport.name} viewport`, async ({
+    test(`covers neutral verification at ${viewport.name} viewport`, async ({
       page,
       identityFixture,
       pdvFixture,
@@ -1039,9 +1007,6 @@ test.describe('NewSalePage', () => {
       expect(consoleErrors.filter((error) => !error.includes('ERR_FAILED'))).toEqual([])
       expect(failedRequests).toHaveLength(1)
       expect(failedRequests[0]).toContain('/orders')
-      await page.screenshot({
-        path: `test-results/pdv/new-sale-neutral-verification-${viewport.name}-${viewport.width}x${viewport.height}.png`,
-      })
       releaseReplay?.()
     })
   }

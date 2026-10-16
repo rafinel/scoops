@@ -135,12 +135,8 @@ async function expectToast(page: Page, notification: NotificationJson) {
   return toast
 }
 
-async function settleToastAnimation(page: Page) {
-  await page.waitForTimeout(500)
-}
-
 test.describe('Realtime notification toast route', () => {
-  test('captures the stock-below-ideal toast and selected dropdown on desktop', async ({
+  test('shows the stock-below-ideal toast and selected dropdown on desktop', async ({
     page,
     identityFixture,
   }) => {
@@ -155,28 +151,16 @@ test.describe('Realtime notification toast route', () => {
     const toast = await expectToast(page, notification)
     await expect(page.getByRole('button', { name: 'Fechar notificação' })).toBeVisible()
     expect(communication.readRequests).toHaveLength(0)
-    await settleToastAnimation(page)
-    await page.screenshot({
-      path: 'test-results/communication/notification-toast-single-desktop.png',
-      fullPage: false,
-    })
-
     await toast.getByRole('button', { name: 'Abrir notificação' }).click()
     const dropdown = page.getByRole('dialog', { name: 'Notificações' })
     await expect(dropdown).toBeVisible()
     await expect(dropdown.getByText(notification.title, { exact: true })).toBeVisible()
     await expect(page).toHaveURL(/\/notifications\?period=last-30-days$/)
-    await settleToastAnimation(page)
-    await page.screenshot({
-      path: 'test-results/communication/notification-toast-selected-dropdown-desktop.png',
-      fullPage: false,
-    })
-
     await page.keyboard.press('Escape')
     expectCleanDiagnostics(diagnostics)
   })
 
-  test('captures the toast and selected dropdown at the narrow viewport', async ({
+  test('shows the toast and selected dropdown at the narrow viewport', async ({
     page,
     identityFixture,
   }) => {
@@ -190,21 +174,9 @@ test.describe('Realtime notification toast route', () => {
 
     const toast = await expectToast(page, notification)
     expect(communication.readRequests).toHaveLength(0)
-    await settleToastAnimation(page)
-    await page.screenshot({
-      path: 'test-results/communication/notification-toast-narrow.png',
-      fullPage: false,
-    })
-
     await toast.getByRole('button', { name: 'Abrir notificação' }).click()
     await expect(page.getByRole('dialog', { name: 'Notificações' })).toBeVisible()
     await expect(page).toHaveURL(/\/notifications\?period=last-30-days$/)
-    await settleToastAnimation(page)
-    await page.screenshot({
-      path: 'test-results/communication/notification-toast-dropdown-narrow.png',
-      fullPage: false,
-    })
-
     await page.keyboard.press('Escape')
     expectCleanDiagnostics(diagnostics)
   })
@@ -213,7 +185,7 @@ test.describe('Realtime notification toast route', () => {
     ['desktop', DESKTOP_VIEWPORT],
     ['narrow', NARROW_VIEWPORT],
   ] as const) {
-    test(`captures a keyboard-focused toast on ${label}`, async ({
+    test(`supports keyboard focus on a toast at the ${label} viewport`, async ({
       page,
       identityFixture,
     }) => {
@@ -230,12 +202,6 @@ test.describe('Realtime notification toast route', () => {
       await openButton.focus()
       await expect(openButton).toBeFocused()
       expect(diagnostics.communication.readRequests).toHaveLength(0)
-      await settleToastAnimation(page)
-      await page.screenshot({
-        path: `test-results/communication/notification-toast-keyboard-focus-${label}.png`,
-        fullPage: false,
-      })
-
       await page.keyboard.press('Escape')
       await expect(toast).not.toBeVisible()
       expectCleanDiagnostics(diagnostics)
@@ -246,7 +212,7 @@ test.describe('Realtime notification toast route', () => {
     ['desktop', DESKTOP_VIEWPORT],
     ['narrow', NARROW_VIEWPORT],
   ] as const) {
-    test(`captures the three-toast stack on ${label}`, async ({
+    test(`shows the three-toast stack on ${label}`, async ({
       page,
       identityFixture,
     }) => {
@@ -278,11 +244,6 @@ test.describe('Realtime notification toast route', () => {
         expect.stringContaining('Primeira notificação'),
       ])
       expect(diagnostics.communication.readRequests).toHaveLength(0)
-      await settleToastAnimation(page)
-      await page.screenshot({
-        path: `test-results/communication/notification-toast-stack-${label}.png`,
-        fullPage: false,
-      })
       expectCleanDiagnostics(diagnostics)
     })
   }
@@ -291,7 +252,7 @@ test.describe('Realtime notification toast route', () => {
     ['desktop', DESKTOP_VIEWPORT],
     ['narrow', NARROW_VIEWPORT],
   ] as const) {
-    test(`captures long-copy toast content on ${label}`, async ({
+    test(`shows long-copy toast content on ${label}`, async ({
       page,
       identityFixture,
     }) => {
@@ -312,11 +273,6 @@ test.describe('Realtime notification toast route', () => {
         `${notification.title}. ${notification.message}`,
       )
       expect(diagnostics.communication.readRequests).toHaveLength(0)
-      await settleToastAnimation(page)
-      await page.screenshot({
-        path: `test-results/communication/notification-toast-long-copy-${label}.png`,
-        fullPage: false,
-      })
       expectCleanDiagnostics(diagnostics)
     })
   }
@@ -325,7 +281,7 @@ test.describe('Realtime notification toast route', () => {
     ['desktop', DESKTOP_VIEWPORT],
     ['narrow', NARROW_VIEWPORT],
   ] as const) {
-    test(`captures stock and identity semantic variants on ${label}`, async ({
+    test(`shows stock and identity semantic variants on ${label}`, async ({
       page,
       identityFixture,
     }) => {
@@ -361,11 +317,6 @@ test.describe('Realtime notification toast route', () => {
         )
       }
       expect(diagnostics.communication.readRequests).toHaveLength(0)
-      await settleToastAnimation(page)
-      await page.screenshot({
-        path: `test-results/communication/notification-toast-semantic-${label}.png`,
-        fullPage: false,
-      })
       expectCleanDiagnostics(diagnostics)
     })
   }
