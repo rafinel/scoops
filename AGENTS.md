@@ -117,6 +117,18 @@ the behavioral assertions and do not replace them. Non-visual changes do not
 require a new screenshot. Mocked transport coverage must not be presented as
 evidence that a real authenticated, server-backed flow works.
 
+Automated Playwright tests under `apps/web/tests` must not capture screenshots or
+use visual snapshot assertions. The agent may capture screenshots separately
+with the Playwright CLI for visual review.
+
+Keep browser artifacts under `apps/web/.playwright-cli/`: page screenshots in
+`screenshots/`, page snapshots in `snapshots/`, browser logs and traces in
+`logs/`, and authentication state in `states/`. Do not write artifacts to
+`apps/web/test-results/` or `apps/web/test-results-evidence/`. In
+`apps/web/playwright.config.ts`, place Playwright's `outputDir` and HTML report
+under `.playwright-cli/logs/`. Keep CLI-captured screenshots in
+`.playwright-cli/screenshots/`.
+
 ## CodeGraph MCP
 
 In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the repo root), reach for it BEFORE grep/find or reading files when you need to understand or locate code:
