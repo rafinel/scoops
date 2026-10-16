@@ -3,12 +3,14 @@ import { Input } from '@/ui/shadcn/input'
 import type { ProductAccompanimentDialogState } from '../../use-product-accompaniment-dialog'
 
 export type PriceInputProps = {
+  ariaDescribedBy: ProductAccompanimentDialogState['fields']['priceDescribedBy']
   accompanimentPriceError: boolean
   priceError?: string
   register: ProductAccompanimentDialogState['register']
 }
 
 export const PriceInput = ({
+  ariaDescribedBy,
   accompanimentPriceError,
   priceError,
   register,
@@ -19,7 +21,7 @@ export const PriceInput = ({
     </span>
     <Input
       {...register('accompanimentPrice')}
-      aria-describedby={getPriceDescription(priceError, accompanimentPriceError)}
+      aria-describedby={ariaDescribedBy}
       aria-invalid={Boolean(priceError || accompanimentPriceError)}
       aria-label='Preço do acompanhamento'
       className='h-10 border-0 shadow-none focus-visible:ring-0'
@@ -28,7 +30,3 @@ export const PriceInput = ({
     />
   </div>
 )
-
-function getPriceDescription(priceError: string | undefined, hasReadError: boolean) {
-  return `accompaniment-price-help${priceError ? ' accompaniment-price-validation-error' : ''}${hasReadError ? ' accompaniment-price-read-error' : ''}`
-}

@@ -22,6 +22,7 @@ export const ProductAccompanimentDialogFields = ({
   accompanimentPriceLoading,
   accompanimentPriceSuggestion,
   accompanimentPriceSuggestionMode,
+  brandName,
   candidates,
   candidatesError,
   candidatesLoading,
@@ -30,6 +31,7 @@ export const ProductAccompanimentDialogFields = ({
   item,
   numericQuantity,
   priceError,
+  priceDescribedBy,
   productError,
   productIdValue,
   quantityError,
@@ -42,7 +44,6 @@ export const ProductAccompanimentDialogFields = ({
   selectedStockError,
   selectedStockLoading,
   selectedTypeName,
-  sourceName,
   sourceUnitCost,
   typeError,
   typeId,
@@ -72,14 +73,12 @@ export const ProductAccompanimentDialogFields = ({
       typesLoading={typesLoading}
     />
     <BrandField
-      item={item}
+      brandName={brandName}
       retrySelectedStock={retrySelectedStock}
-      selectedProductUnit={selectedProductUnit}
       selectedStockError={selectedStockError}
-      selectedStockLoading={selectedStockLoading}
-      sourceName={sourceName}
     />
     <PriceField
+      priceDescribedBy={priceDescribedBy}
       accompanimentPriceError={accompanimentPriceError}
       accompanimentPriceIsSaved={accompanimentPriceIsSaved}
       accompanimentPriceLoading={accompanimentPriceLoading}

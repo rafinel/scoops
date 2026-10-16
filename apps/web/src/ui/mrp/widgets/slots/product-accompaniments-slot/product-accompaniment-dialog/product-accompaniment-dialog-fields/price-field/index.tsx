@@ -6,6 +6,7 @@ import { PriceInput } from '../price-input'
 import type { ProductAccompanimentDialogState } from '../../use-product-accompaniment-dialog'
 
 export type PriceFieldProps = {
+  priceDescribedBy: ProductAccompanimentDialogState['fields']['priceDescribedBy']
   accompanimentPriceError: boolean
   accompanimentPriceIsSaved: boolean
   accompanimentPriceLoading: boolean
@@ -17,6 +18,7 @@ export type PriceFieldProps = {
 }
 
 export const PriceField = ({
+  priceDescribedBy,
   accompanimentPriceError,
   accompanimentPriceIsSaved,
   accompanimentPriceLoading,
@@ -29,6 +31,7 @@ export const PriceField = ({
   <Label className='grid gap-2 font-bold'>
     Preço do acompanhamento
     <PriceInput
+      ariaDescribedBy={priceDescribedBy}
       accompanimentPriceError={accompanimentPriceError}
       priceError={priceError}
       register={register}

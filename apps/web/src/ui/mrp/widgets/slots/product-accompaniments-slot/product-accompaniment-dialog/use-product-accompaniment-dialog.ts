@@ -157,11 +157,17 @@ function getProductDialogFields(
   derived: ReturnType<typeof useProductAccompanimentDerivedState>,
 ) {
   return {
+    brandName: getBrandName(derived),
     selectedProductName: derived.selectedProduct?.name,
     selectedProductUnit: derived.selectedProduct?.unit,
     selectedTypeName: derived.selectedTypeName,
     types: derived.types,
   }
+}
+
+function getBrandName(derived: ReturnType<typeof useProductAccompanimentDerivedState>) {
+  if (derived.selectedStockLoading && derived.selectedProduct?.unit) return 'Carregando…'
+  return derived.source?.name ?? 'Não disponível'
 }
 
 function getCostDialogFields(
@@ -180,7 +186,6 @@ function getStockDialogFields(
   return {
     selectedStockError: derived.selectedStockError,
     selectedStockLoading: derived.selectedStockLoading,
-    sourceName: derived.source?.name,
   }
 }
 
@@ -213,8 +218,26 @@ function getDialogState(
     ...formState,
     ...queryState,
     ...submitState,
-    fields: { ...formState.fields, ...queryState },
+    fields: getStateFields(formState.fields, queryState),
   }
+}
+
+function getStateFields(
+  formFields: ReturnType<typeof getFormState>['fields'],
+  queryState: ReturnType<typeof getQueryState>,
+) {
+  return {
+    ...formFields,
+    ...queryState,
+    priceDescribedBy: getPriceDescription(
+      formFields.priceError,
+      queryState.accompanimentPriceError,
+    ),
+  }
+}
+
+function getPriceDescription(priceError: string | undefined, hasReadError: boolean) {
+  return `accompaniment-price-help${priceError ? ' accompaniment-price-validation-error' : ''}${hasReadError ? ' accompaniment-price-read-error' : ''}`
 }
 
 export type ProductAccompanimentDialogState = ReturnType<

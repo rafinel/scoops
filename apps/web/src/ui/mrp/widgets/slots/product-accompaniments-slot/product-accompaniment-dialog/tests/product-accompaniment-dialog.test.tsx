@@ -52,6 +52,7 @@ const createDialogFields = () => ({
   accompanimentPriceLoading: false,
   accompanimentPriceSuggestion: 3,
   accompanimentPriceSuggestionMode: 'resale-single',
+  brandName: 'Marca atual',
   candidates: [candidate],
   candidatesError: false,
   candidatesLoading: false,
@@ -59,6 +60,7 @@ const createDialogFields = () => ({
   handleValueChange: vi.fn(),
   numericQuantity: 20,
   priceError: undefined,
+  priceDescribedBy: 'accompaniment-price-help',
   productError: undefined,
   productIdValue: candidate.id,
   quantityError: undefined,
@@ -74,7 +76,6 @@ const createDialogFields = () => ({
   selectedStockError: false,
   selectedStockLoading: false,
   selectedTypeName: type.name,
-  sourceName: 'Marca atual',
   sourceUnitCost: 0.45,
   typeError: undefined,
   typeId: type.id,
@@ -143,7 +144,9 @@ describe('ProductAccompanimentDialog', () => {
     const typeSelector = screen.getByRole('combobox', { name: 'Tipo' })
     expect(typeSelector.textContent).toContain(type.name)
     expect(typeSelector.textContent).not.toContain(type.id)
-    expect(screen.getByLabelText('Marca atual').getAttribute('value')).toBe('Marca atual')
+    expect((screen.getByLabelText('Marca atual') as HTMLInputElement).value).toBe(
+      'Marca atual',
+    )
     expect(
       (
         screen.getByRole('textbox', {
@@ -151,6 +154,11 @@ describe('ProductAccompanimentDialog', () => {
         }) as HTMLInputElement
       ).value,
     ).toBe('3,00')
+    expect(
+      screen
+        .getByRole('textbox', { name: 'Preço do acompanhamento' })
+        .getAttribute('aria-describedby'),
+    ).toBe('accompaniment-price-help')
     expect(screen.getByText(/vale para todos os vínculos e tamanhos/)).toBeTruthy()
     expect(screen.getByText(/Sugestão baseada no preço de revenda único/)).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Gerenciar tipos →' }).textContent).toContain(
@@ -287,6 +295,7 @@ describe('ProductAccompanimentDialog', () => {
         ...createDialogFields(),
         canSave: false,
         priceError: errorMessage,
+        priceDescribedBy: 'accompaniment-price-help accompaniment-price-validation-error',
       },
     } as never)
 
