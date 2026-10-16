@@ -12,65 +12,81 @@ const UNIT_COST_FORMATTER = new Intl.NumberFormat('pt-BR', {
 })
 
 export type CostEstimateProps = {
+  estimatedCost: ProductAccompanimentDialogState['estimatedCost']
   item?: ProductAccompanimentDetails
-  state: ProductAccompanimentDialogState
+  numericQuantity: ProductAccompanimentDialogState['numericQuantity']
+  selectedProductUnit?: NonNullable<
+    ProductAccompanimentDialogState['selectedProduct']
+  >['unit']
+  selectedStockError: boolean
+  selectedStockLoading: boolean
+  sourceUnitCost?: number
 }
 
 export type CostEstimateViewModel = {
   estimate: string
   formattedQuantity: string
   formattedUnitCost: string
+  hasDetails: boolean
   unit: string
 }
 
-export const useCostEstimate = ({
-  item,
-  state,
-}: CostEstimateProps): CostEstimateViewModel => {
+export const useCostEstimate = (props: CostEstimateProps): CostEstimateViewModel => {
   const formatCurrency = useFormatCurrency()
   const formatQuantity = useFormatQuantity()
-  return getCostEstimate(item, state, formatCurrency, formatQuantity)
+  return getCostEstimate(props, formatCurrency, formatQuantity)
 }
 
 function getCostEstimate(
-  item: ProductAccompanimentDetails | undefined,
-  state: ProductAccompanimentDialogState,
+  {
+    estimatedCost,
+    item,
+    numericQuantity,
+    selectedProductUnit,
+    selectedStockError,
+    selectedStockLoading,
+    sourceUnitCost,
+  }: CostEstimateProps,
   formatCurrency: (amount: number) => string,
   formatQuantity: (quantity: number, unit: string) => string,
 ): CostEstimateViewModel {
-  const unit = getCostUnit(item, state)
+  const unit = item?.unit ?? selectedProductUnit ?? 'un'
   return {
-    estimate: getEstimatedCostLabel(state, formatCurrency),
-    ...getCostDetails(state, formatQuantity, unit),
+    estimate: getEstimatedCostLabel(
+      estimatedCost,
+      selectedStockError,
+      selectedStockLoading,
+      selectedProductUnit !== undefined,
+      formatCurrency,
+    ),
+    ...getCostDetails(numericQuantity, sourceUnitCost, formatQuantity, unit),
+    hasDetails: sourceUnitCost !== undefined && numericQuantity > 0,
     unit,
   }
 }
 
 function getCostDetails(
-  state: ProductAccompanimentDialogState,
+  numericQuantity: number,
+  sourceUnitCost: number | undefined,
   formatQuantity: (quantity: number, unit: string) => string,
   unit: string,
 ): Pick<CostEstimateViewModel, 'formattedQuantity' | 'formattedUnitCost'> {
   return {
-    formattedQuantity: formatQuantity(state.numericQuantity, unit),
-    formattedUnitCost: UNIT_COST_FORMATTER.format(state.source?.unitCost ?? 0),
+    formattedQuantity: formatQuantity(numericQuantity, unit),
+    formattedUnitCost: UNIT_COST_FORMATTER.format(sourceUnitCost ?? 0),
   }
 }
 
-function getCostUnit(
-  item: ProductAccompanimentDetails | undefined,
-  state: ProductAccompanimentDialogState,
-) {
-  return item?.unit ?? state.selectedProduct?.unit ?? 'un'
-}
-
 function getEstimatedCostLabel(
-  state: ProductAccompanimentDialogState,
+  estimatedCost: number | undefined,
+  selectedStockError: boolean,
+  selectedStockLoading: boolean,
+  hasSelectedProduct: boolean,
   formatCurrency: (amount: number) => string,
 ) {
-  if (state.selectedStockError && state.selectedProduct)
+  if (selectedStockError && hasSelectedProduct)
     return 'Não foi possível carregar o custo.'
-  if (state.selectedStockLoading && state.selectedProduct) return 'Carregando…'
-  if (state.estimatedCost === undefined) return 'Não disponível'
-  return formatCurrency(state.estimatedCost)
+  if (selectedStockLoading && hasSelectedProduct) return 'Carregando…'
+  if (estimatedCost === undefined) return 'Não disponível'
+  return formatCurrency(estimatedCost)
 }

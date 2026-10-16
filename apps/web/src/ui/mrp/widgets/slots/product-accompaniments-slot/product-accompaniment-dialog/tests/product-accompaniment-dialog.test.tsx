@@ -202,6 +202,27 @@ describe('ProductAccompanimentDialog', () => {
     expect(retryAccompanimentPrice).toHaveBeenCalledTimes(1)
   })
 
+  it('disables Save while cached pricing is being refreshed', () => {
+    useProductAccompanimentDialogMock.mockReturnValue({
+      ...createForm(),
+      canSave: false,
+      isRefreshing: true,
+    } as never)
+
+    render(
+      <ProductAccompanimentDialog
+        onOpenChange={vi.fn()}
+        onSuccess={vi.fn()}
+        open
+        productId='product-1'
+      />,
+    )
+
+    expect(
+      screen.getByRole('button', { name: 'Vincular' }).hasAttribute('disabled'),
+    ).toBe(true)
+  })
+
   it('associates the price validation error with its field', () => {
     const errorMessage = 'Informe um preço válido.'
     useProductAccompanimentDialogMock.mockReturnValue({

@@ -9,22 +9,32 @@ import {
 import type { ProductAccompanimentDialogState } from '../../use-product-accompaniment-dialog'
 
 export type CandidateSelectProps = {
-  state: ProductAccompanimentDialogState
+  candidates: ProductAccompanimentDialogState['candidates']
+  candidatesLoading: boolean
+  handleValueChange: ProductAccompanimentDialogState['handleValueChange']
+  productIdValue: string
+  selectedProductName?: string
 }
 
-export const CandidateSelect = ({ state }: CandidateSelectProps) => (
+export const CandidateSelect = ({
+  candidates,
+  candidatesLoading,
+  handleValueChange,
+  productIdValue,
+  selectedProductName,
+}: CandidateSelectProps) => (
   <Select
-    disabled={state.candidatesLoading}
-    onValueChange={(value) => state.handleValueChange('accompanimentProductId', value)}
-    value={state.productIdValue || null}
+    disabled={candidatesLoading}
+    onValueChange={(value) => handleValueChange('accompanimentProductId', value)}
+    value={productIdValue || null}
   >
     <SelectTrigger aria-label='Acompanhamento' className='w-full'>
       <SelectValue placeholder='Selecione um acompanhamento'>
-        {state.selectedProduct?.name}
+        {selectedProductName}
       </SelectValue>
     </SelectTrigger>
     <SelectContent>
-      {state.candidates.map((candidate) => (
+      {candidates.map((candidate) => (
         <SelectItem key={candidate.id} value={candidate.id}>
           {candidate.name}
         </SelectItem>

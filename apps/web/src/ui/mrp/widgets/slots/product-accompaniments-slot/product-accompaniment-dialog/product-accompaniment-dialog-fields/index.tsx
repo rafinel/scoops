@@ -10,23 +10,136 @@ import type { ProductAccompanimentDialogState } from '../use-product-accompanime
 
 export type ProductAccompanimentDialogFieldsProps = {
   item?: ProductAccompanimentDetails
-  state: ProductAccompanimentDialogState
-}
+  priceError?: string
+  productError?: string
+  quantityError?: string
+  selectedProductName?: string
+  selectedProductUnit?: NonNullable<
+    ProductAccompanimentDialogState['selectedProduct']
+  >['unit']
+  sourceName?: string
+  sourceUnitCost?: number
+  typeError?: string
+} & Pick<
+  ProductAccompanimentDialogState,
+  | 'actionError'
+  | 'accompanimentPriceError'
+  | 'accompanimentPriceIsSaved'
+  | 'accompanimentPriceLoading'
+  | 'accompanimentPriceSuggestion'
+  | 'accompanimentPriceSuggestionMode'
+  | 'candidates'
+  | 'candidatesError'
+  | 'candidatesLoading'
+  | 'estimatedCost'
+  | 'handleValueChange'
+  | 'numericQuantity'
+  | 'productIdValue'
+  | 'register'
+  | 'retryAccompanimentPrice'
+  | 'retryCandidates'
+  | 'retrySelectedStock'
+  | 'selectedStockError'
+  | 'selectedStockLoading'
+  | 'selectedTypeName'
+  | 'typeId'
+  | 'types'
+  | 'typesError'
+  | 'typesLoading'
+>
 
 export const ProductAccompanimentDialogFields = ({
+  actionError,
+  accompanimentPriceError,
+  accompanimentPriceIsSaved,
+  accompanimentPriceLoading,
+  accompanimentPriceSuggestion,
+  accompanimentPriceSuggestionMode,
+  candidates,
+  candidatesError,
+  candidatesLoading,
+  estimatedCost,
+  handleValueChange,
   item,
-  state,
+  numericQuantity,
+  priceError,
+  productError,
+  productIdValue,
+  quantityError,
+  register,
+  retryAccompanimentPrice,
+  retryCandidates,
+  retrySelectedStock,
+  selectedProductName,
+  selectedProductUnit,
+  selectedStockError,
+  selectedStockLoading,
+  selectedTypeName,
+  sourceName,
+  sourceUnitCost,
+  typeError,
+  typeId,
+  types,
+  typesError,
+  typesLoading,
 }: ProductAccompanimentDialogFieldsProps) => (
   <div className='grid min-h-0 gap-3 overflow-y-auto p-4 sm:gap-5 sm:p-6'>
-    <ProductField item={item} state={state} />
-    <TypeField state={state} />
-    <BrandField item={item} state={state} />
-    <PriceField state={state} />
-    <QuantityField item={item} state={state} />
-    <CostEstimate item={item} state={state} />
-    {state.actionError ? (
+    <ProductField
+      candidates={candidates}
+      candidatesError={candidatesError}
+      candidatesLoading={candidatesLoading}
+      handleValueChange={handleValueChange}
+      item={item}
+      productError={productError}
+      productIdValue={productIdValue}
+      retryCandidates={retryCandidates}
+      selectedProductName={selectedProductName}
+    />
+    <TypeField
+      handleValueChange={handleValueChange}
+      selectedTypeName={selectedTypeName}
+      typeError={typeError}
+      typeId={typeId}
+      types={types}
+      typesError={typesError}
+      typesLoading={typesLoading}
+    />
+    <BrandField
+      item={item}
+      retrySelectedStock={retrySelectedStock}
+      selectedProductUnit={selectedProductUnit}
+      selectedStockError={selectedStockError}
+      selectedStockLoading={selectedStockLoading}
+      sourceName={sourceName}
+    />
+    <PriceField
+      accompanimentPriceError={accompanimentPriceError}
+      accompanimentPriceIsSaved={accompanimentPriceIsSaved}
+      accompanimentPriceLoading={accompanimentPriceLoading}
+      accompanimentPriceSuggestion={accompanimentPriceSuggestion}
+      accompanimentPriceSuggestionMode={accompanimentPriceSuggestionMode}
+      priceError={priceError}
+      register={register}
+      retryAccompanimentPrice={retryAccompanimentPrice}
+    />
+    <QuantityField
+      item={item}
+      quantityError={quantityError}
+      register={register}
+      selectedProductUnit={selectedProductUnit}
+    />
+    <CostEstimate
+      estimatedCost={estimatedCost}
+      item={item}
+      numericQuantity={numericQuantity}
+      selectedProductUnit={selectedProductUnit}
+      selectedStockError={selectedStockError}
+      selectedStockLoading={selectedStockLoading}
+      sourceUnitCost={sourceUnitCost}
+    />
+    {actionError ? (
       <p className='text-sm font-semibold text-destructive' role='alert'>
-        {state.actionError}
+        {actionError}
       </p>
     ) : null}
   </div>

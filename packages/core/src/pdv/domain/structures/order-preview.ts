@@ -1,4 +1,5 @@
 import type { Cart } from '#pdv/domain/structures/cart.ts'
+import type { OrderPreviewAccompanimentPrice } from '#pdv/domain/structures/order-preview-accompaniment-price.ts'
 import type { SaleItemKind } from '#pdv/domain/structures/sale-item-kind.ts'
 import type { SalesChannelSnapshot } from '#pdv/domain/structures/sales-channel-snapshot.ts'
 
@@ -23,14 +24,6 @@ type ResalePreviewLine = {
 export interface OrderPreviewInput {
   readonly channelId?: string
   readonly lines: readonly (PortionPreviewLine | ResalePreviewLine)[]
-}
-
-export type OrderPreviewAccompanimentPrice = {
-  readonly productId: string
-  readonly sizeId: string
-  readonly accompanimentId: string
-  readonly name: string
-  readonly basePrice: number
 }
 
 export interface OrderPreviewFacts {

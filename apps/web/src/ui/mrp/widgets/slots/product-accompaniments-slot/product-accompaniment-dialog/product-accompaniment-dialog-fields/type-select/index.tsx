@@ -9,21 +9,29 @@ import {
 import type { ProductAccompanimentDialogState } from '../../use-product-accompaniment-dialog'
 
 export type TypeSelectProps = {
-  state: ProductAccompanimentDialogState
+  handleValueChange: ProductAccompanimentDialogState['handleValueChange']
+  selectedTypeName: ProductAccompanimentDialogState['selectedTypeName']
+  typeId: ProductAccompanimentDialogState['typeId']
+  types: ProductAccompanimentDialogState['types']
 }
 
-export const TypeSelect = ({ state }: TypeSelectProps) => (
+export const TypeSelect = ({
+  handleValueChange,
+  selectedTypeName,
+  typeId,
+  types,
+}: TypeSelectProps) => (
   <Select
-    onValueChange={(value) => state.handleValueChange('accompanimentTypeId', value)}
-    value={state.typeId || null}
+    onValueChange={(value) => handleValueChange('accompanimentTypeId', value)}
+    value={typeId || null}
   >
     <SelectTrigger aria-label='Tipo' className='w-full'>
       <SelectValue placeholder='Selecione um tipo'>
-        {state.typeId ? (state.selectedTypeName ?? 'Carregando tipo…') : undefined}
+        {typeId ? (selectedTypeName ?? 'Carregando tipo…') : undefined}
       </SelectValue>
     </SelectTrigger>
     <SelectContent>
-      {state.types.map(({ type }) => (
+      {types.map(({ type }) => (
         <SelectItem key={type.id} value={type.id}>
           {type.name}
         </SelectItem>

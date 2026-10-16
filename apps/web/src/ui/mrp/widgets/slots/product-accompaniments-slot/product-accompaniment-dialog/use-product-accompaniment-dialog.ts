@@ -86,7 +86,9 @@ function getQueryState(
     accompanimentPriceSuggestionMode: queries.pricingQuery.pricing?.mode,
     canSave:
       !queries.pricingProductId ||
-      (!queries.pricingQuery.pricingError && !derived.isPriceLoading),
+      (!queries.pricingQuery.pricingError &&
+        !derived.isPriceLoading &&
+        !queries.pricingQuery.isRefreshingPricing),
     candidates: queries.candidatesQuery.data ?? [],
     candidatesError: !isEdit && queries.candidatesQuery.isError,
     candidatesLoading: !isEdit && queries.candidatesQuery.isPending,

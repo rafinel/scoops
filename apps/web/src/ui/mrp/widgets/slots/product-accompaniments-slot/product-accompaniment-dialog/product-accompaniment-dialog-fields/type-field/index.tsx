@@ -6,10 +6,24 @@ import { TypeSelect } from '../type-select'
 import type { ProductAccompanimentDialogState } from '../../use-product-accompaniment-dialog'
 
 export type TypeFieldProps = {
-  state: ProductAccompanimentDialogState
+  handleValueChange: ProductAccompanimentDialogState['handleValueChange']
+  selectedTypeName: ProductAccompanimentDialogState['selectedTypeName']
+  typeError?: string
+  typeId: ProductAccompanimentDialogState['typeId']
+  types: ProductAccompanimentDialogState['types']
+  typesError: boolean
+  typesLoading: boolean
 }
 
-export const TypeField = ({ state }: TypeFieldProps) => (
+export const TypeField = ({
+  handleValueChange,
+  selectedTypeName,
+  typeError,
+  typeId,
+  types,
+  typesError,
+  typesLoading,
+}: TypeFieldProps) => (
   <Label className='grid gap-2 font-bold'>
     <span className='flex items-center justify-between gap-3'>
       Tipo
@@ -17,7 +31,16 @@ export const TypeField = ({ state }: TypeFieldProps) => (
         Gerenciar tipos →
       </Anchor>
     </span>
-    <TypeSelect state={state} />
-    <TypeFeedback state={state} />
+    <TypeSelect
+      handleValueChange={handleValueChange}
+      selectedTypeName={selectedTypeName}
+      typeId={typeId}
+      types={types}
+    />
+    <TypeFeedback
+      typeError={typeError}
+      typesError={typesError}
+      typesLoading={typesLoading}
+    />
   </Label>
 )

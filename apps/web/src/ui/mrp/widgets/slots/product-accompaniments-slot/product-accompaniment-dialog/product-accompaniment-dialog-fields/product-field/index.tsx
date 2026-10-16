@@ -8,29 +8,50 @@ import { CandidateSelect } from '../candidate-select'
 import type { ProductAccompanimentDialogState } from '../../use-product-accompaniment-dialog'
 
 export type ProductFieldProps = {
+  candidatesError: boolean
+  candidatesLoading: boolean
+  handleValueChange: ProductAccompanimentDialogState['handleValueChange']
   item?: ProductAccompanimentDetails
-  state: ProductAccompanimentDialogState
+  productError?: string
+  productIdValue: string
+  retryCandidates: ProductAccompanimentDialogState['retryCandidates']
+  selectedProductName?: string
+  candidates: ProductAccompanimentDialogState['candidates']
 }
 
-export const ProductField = ({ item, state }: ProductFieldProps) => (
+export const ProductField = ({
+  candidates,
+  candidatesError,
+  candidatesLoading,
+  handleValueChange,
+  item,
+  productError,
+  productIdValue,
+  retryCandidates,
+  selectedProductName,
+}: ProductFieldProps) => (
   <Label className='grid gap-2 font-bold'>
     Acompanhamento
     {item ? (
       <Input disabled value={item.accompanimentProductName} />
-    ) : state.candidatesError ? (
-      <CandidateLoadError onRetry={state.retryCandidates} />
+    ) : candidatesError ? (
+      <CandidateLoadError onRetry={retryCandidates} />
     ) : (
-      <CandidateSelect state={state} />
+      <CandidateSelect
+        candidates={candidates}
+        candidatesLoading={candidatesLoading}
+        handleValueChange={handleValueChange}
+        productIdValue={productIdValue}
+        selectedProductName={selectedProductName}
+      />
     )}
-    {state.candidatesLoading ? (
+    {candidatesLoading ? (
       <span aria-live='polite' className='text-xs text-muted-foreground'>
         Carregando acompanhamentos…
       </span>
     ) : null}
-    {state.errors.accompanimentProductId ? (
-      <span className='text-sm font-semibold text-destructive'>
-        {state.errors.accompanimentProductId.message}
-      </span>
+    {productError ? (
+      <span className='text-sm font-semibold text-destructive'>{productError}</span>
     ) : null}
   </Label>
 )

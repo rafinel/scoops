@@ -1,23 +1,25 @@
-import type { ProductAccompanimentDialogState } from '../../use-product-accompaniment-dialog'
-
 export type TypeFeedbackProps = {
-  state: ProductAccompanimentDialogState
+  typeError?: string
+  typesError: boolean
+  typesLoading: boolean
 }
 
-export const TypeFeedback = ({ state }: TypeFeedbackProps) => (
+export const TypeFeedback = ({
+  typeError,
+  typesError,
+  typesLoading,
+}: TypeFeedbackProps) => (
   <>
-    {state.typesLoading ? (
+    {typesLoading ? (
       <span className='text-xs text-muted-foreground'>Carregando tipos…</span>
     ) : null}
-    {state.typesError ? (
+    {typesError ? (
       <span className='text-sm font-semibold text-destructive'>
         Não foi possível carregar os tipos.
       </span>
     ) : null}
-    {state.errors.accompanimentTypeId ? (
-      <span className='text-sm font-semibold text-destructive'>
-        {state.errors.accompanimentTypeId.message}
-      </span>
+    {typeError ? (
+      <span className='text-sm font-semibold text-destructive'>{typeError}</span>
     ) : null}
   </>
 )

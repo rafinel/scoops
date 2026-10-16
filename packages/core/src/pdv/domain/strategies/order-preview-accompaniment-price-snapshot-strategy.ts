@@ -1,5 +1,5 @@
 import type { Cart } from '#pdv/domain/structures/cart.ts'
-import type { OrderPreviewAccompanimentPrice } from '#pdv/domain/structures/order-preview.ts'
+import type { OrderPreviewAccompanimentPrice } from '#pdv/domain/structures/order-preview-accompaniment-price.ts'
 import type { SalesCatalogProduct } from '#pdv/domain/structures/sales-catalog-product.ts'
 import type { SalesCatalogSize } from '#pdv/domain/structures/sales-catalog-size.ts'
 import type { BusinessRuleStrategy } from '#shared/domain/strategies/business-rule-strategy.ts'

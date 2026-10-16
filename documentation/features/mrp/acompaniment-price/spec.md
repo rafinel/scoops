@@ -45,7 +45,7 @@ Journey G supplies the end-to-end Manager scenario; PDV Journeys E/H/K and confl
 | --- | --- | --- |
 | FR-01 | MRP PRQ-01 | New link creation and category changes reject Portion+Accompaniment together. Accompaniment+Resale remains valid. An existing link remains editable when its retained target has both Portion and Accompaniment categories, provided Accompaniment is still present. Existing product categories are not automatically rewritten. |
 | FR-02 | MRP PRQ-05, PRQ-09 | Accompaniment alone adds no Prices tab. Accompaniment+Resale retains its Resale Prices page without an Accompaniment price field. Managers configure Accompaniment price only through Link/Edit; Operators inspect it read-only in linked Portion tables. |
-| FR-03 | MRP PRQ-08, PRQ-09 | One price belongs to the Accompaniment product, separate from acquisition cost and Resale price. It is finite, non-negative, and has at most two decimal places. Unset differs from zero; zero means free. |
+| FR-03 | MRP PRQ-08, PRQ-09 | One price belongs to the Accompaniment product, separate from acquisition cost and Resale price. It is finite, non-negative, has at most two decimal places, and is below `10^16` so it fits `numeric(18,2)` as a JavaScript number; the largest accepted value is `9_999_999_999_999_998`. Unset differs from zero; zero means free. |
 | FR-04 | MRP PRQ-08, PRQ-09 | Link/Edit prefill the saved price. Before first save, propose the configured Single Resale price or current main brand's configured By-brand Resale price, if available. Otherwise require entry. Opening/closing a dialog writes nothing; after save, Resale/main-brand changes do not synchronize this price. |
 | FR-05 | MRP PRQ-08, PRQ-09 | A first link requires a valid saved or entered price. Saving an entered/edited price and a new or edited link is atomic, including affected commercial publication. Failure/cancel preserves data and usable editing context. |
 | FR-06 | MRP PRQ-08, PRQ-09 | Every table/link/Portion size uses the same current product price. Quantity, type and brand cost do not scale it. Cost preview stays separate. Either Link/Edit price change updates future commercial facts for every affected Portion. |
@@ -132,7 +132,11 @@ packages/core/src/
 │   │   │   ├── order-preview-input-validation-strategy.ts      [change: shared request validation]
 │   │   │   ├── order-preview-accompaniment-price-snapshot-strategy.ts [change: accompaniment price snapshot]
 │   │   │   └── index.ts                                        [change: Strategy exports]
-│   │   └── structures/sales-catalog-accompaniment.ts           [reuse shape; saved-price meaning]
+│   │   ├── structures/
+│   │   │   ├── sales-catalog-accompaniment.ts                 [reuse shape; saved-price meaning]
+│   │   │   ├── order-preview.ts                              [change: compose preview facts]
+│   │   │   ├── order-preview-accompaniment-price.ts           [create: named preview price fact]
+│   │   │   └── index.ts                                       [change: export preview price fact]
 │   ├── interfaces/sales-catalog-provider.ts                   [reuse]
 │   └── use-cases/
 │       ├── order-pricing.ts                                   [remove after moving its calculations]
@@ -179,6 +183,9 @@ their own Strategies because both preview and registration consume those rules.
 | `packages/core/src/pdv/domain/strategies/order-preview-input-validation-strategy.ts` | Create |
 | `packages/core/src/pdv/domain/strategies/order-preview-accompaniment-price-snapshot-strategy.ts` | Create |
 | `packages/core/src/pdv/domain/strategies/index.ts` | Create |
+| `packages/core/src/pdv/domain/structures/order-preview.ts` | Modify |
+| `packages/core/src/pdv/domain/structures/order-preview-accompaniment-price.ts` | Create |
+| `packages/core/src/pdv/domain/structures/index.ts` | Modify |
 | `packages/core/src/shared/domain/strategies/business-rule-strategy.ts` | Create: shared domain execution contract |
 | `packages/core/src/shared/domain/strategies/index.ts` | Create: shared Strategy contract export |
 | `packages/core/src/pdv/use-cases/order-pricing.ts` | Remove after moving its calculations into Strategies |
@@ -390,7 +397,7 @@ The current `mrp/product-accompaniment-schema.ts` defines both Link and Update s
 
 | Input | Required syntax and behavior |
 | --- | --- |
-| REST `accompanimentPrice` | Optional JSON number; when supplied finite, nonnegative, at most two decimal places. `0` is valid. Reject strings, `null`, negatives, NaN/non-finite values and excess precision rather than rounding. Omission means no requested price write; it does not mean zero or clear. |
+| REST `accompanimentPrice` | Optional JSON number; when supplied finite, nonnegative, below `10^16` (maximum accepted JavaScript number `9_999_999_999_999_998`) and at most two decimal places. `0` is valid. Reject strings, `null`, negatives, over-limit/non-finite values and excess precision rather than rounding. Omission means no requested price write; it does not mean zero or clear. |
 | Browser price | Required valid decimal text before submitting Link/Edit, allowing the established pt-BR comma convention; normalize only valid input to the numeric REST field. Empty input cannot become `Number('') === 0`. Do not convert invalid punctuation/precision into a silently rounded amount. |
 | Link identity | Preserve valid `accompanimentProductId`, `accompanimentTypeId` UUIDs and positive `quantityPerPortion` at current maximum three decimals. Price scale two and quantity scale three are independent. |
 | Edit identity | Preserve immutable target by keeping it out of the editable request shape. Existing type/quantity and optional price are the only relevant extensions. |
@@ -589,6 +596,16 @@ Preserve ServiceUnavailable translation for failed catalog loads, current active
 | `apps/web/src/ui/pdv/widgets/pages/new-sale-page/repriced-order-review-dialog/use-repriced-order-review-dialog.ts` | Create |
 
 These rows identify changed owners, including the extracted price-review widget. Extend the corresponding permitted consumer suites described in the Verification Contract; unchanged navigation/transport infrastructure is omitted.
+
+#### Browser Test Artifact Isolation
+
+Playwright reports, traces, logs and screenshots live under `apps/web/.playwright-cli/`. Exclude that generated subtree from Vite's development watcher so test output cannot trigger application reloads while browser scenarios are running.
+
+**Expected file actions**
+
+| Path | Change |
+| --- | --- |
+| `apps/web/vite.config.ts` | Modify |
 
 
 **Existing owners and expected affected tree:**

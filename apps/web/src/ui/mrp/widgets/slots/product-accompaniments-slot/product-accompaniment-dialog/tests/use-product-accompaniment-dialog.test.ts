@@ -295,6 +295,35 @@ describe('useProductAccompanimentDialog', () => {
     expect(result.current.selectedTypeName).toBe(type.name)
   })
 
+  it('blocks saving while cached accompaniment pricing is refreshing', () => {
+    useProductPricingQueryMock.mockReturnValue({
+      pricing: {
+        accompanimentPrice: null,
+        suggestedAccompanimentPrice: 3,
+        mode: 'resale-single',
+      },
+      pricingError: false,
+      isLoadingPricing: false,
+      isRefreshingPricing: true,
+      retryPricing: vi.fn(),
+    } as never)
+
+    const { result } = renderHook(() =>
+      useProductAccompanimentDialog({
+        onSuccess: vi.fn(),
+        open: true,
+        productId: 'product-1',
+      }),
+    )
+
+    act(() => {
+      result.current.handleValueChange('accompanimentProductId', candidate.id)
+    })
+
+    expect(useProductPricingQueryMock).toHaveBeenLastCalledWith(candidate.id)
+    expect(result.current.canSave).toBe(false)
+  })
+
   it('does not show the disabled candidate query as loading while editing', () => {
     useAccompanimentCandidatesQueryMock.mockReturnValue({
       data: undefined,

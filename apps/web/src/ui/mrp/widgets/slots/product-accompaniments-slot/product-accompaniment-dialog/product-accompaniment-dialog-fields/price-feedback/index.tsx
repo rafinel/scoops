@@ -3,22 +3,30 @@ import { PriceLoading } from '../price-loading'
 import type { ProductAccompanimentDialogState } from '../../use-product-accompaniment-dialog'
 
 export type PriceFeedbackProps = {
-  state: ProductAccompanimentDialogState
+  accompanimentPriceError: boolean
+  accompanimentPriceLoading: boolean
+  priceError?: string
+  retryAccompanimentPrice: ProductAccompanimentDialogState['retryAccompanimentPrice']
 }
 
-export const PriceFeedback = ({ state }: PriceFeedbackProps) => (
+export const PriceFeedback = ({
+  accompanimentPriceError,
+  accompanimentPriceLoading,
+  priceError,
+  retryAccompanimentPrice,
+}: PriceFeedbackProps) => (
   <>
-    {state.accompanimentPriceLoading ? <PriceLoading /> : null}
-    {state.accompanimentPriceError ? (
-      <PriceLoadError onRetry={state.retryAccompanimentPrice} />
+    {accompanimentPriceLoading ? <PriceLoading /> : null}
+    {accompanimentPriceError ? (
+      <PriceLoadError onRetry={retryAccompanimentPrice} />
     ) : null}
-    {state.errors.accompanimentPrice ? (
+    {priceError ? (
       <span
         className='text-sm font-semibold text-destructive'
         id='accompaniment-price-validation-error'
         role='alert'
       >
-        {state.errors.accompanimentPrice.message}
+        {priceError}
       </span>
     ) : null}
   </>

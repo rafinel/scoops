@@ -6,14 +6,43 @@ import { PriceInput } from '../price-input'
 import type { ProductAccompanimentDialogState } from '../../use-product-accompaniment-dialog'
 
 export type PriceFieldProps = {
-  state: ProductAccompanimentDialogState
+  accompanimentPriceError: boolean
+  accompanimentPriceIsSaved: boolean
+  accompanimentPriceLoading: boolean
+  accompanimentPriceSuggestion: number | null
+  accompanimentPriceSuggestionMode: ProductAccompanimentDialogState['accompanimentPriceSuggestionMode']
+  priceError?: string
+  register: ProductAccompanimentDialogState['register']
+  retryAccompanimentPrice: ProductAccompanimentDialogState['retryAccompanimentPrice']
 }
 
-export const PriceField = ({ state }: PriceFieldProps) => (
+export const PriceField = ({
+  accompanimentPriceError,
+  accompanimentPriceIsSaved,
+  accompanimentPriceLoading,
+  accompanimentPriceSuggestion,
+  accompanimentPriceSuggestionMode,
+  priceError,
+  register,
+  retryAccompanimentPrice,
+}: PriceFieldProps) => (
   <Label className='grid gap-2 font-bold'>
     Preço do acompanhamento
-    <PriceInput state={state} />
-    <PriceHelp state={state} />
-    <PriceFeedback state={state} />
+    <PriceInput
+      accompanimentPriceError={accompanimentPriceError}
+      priceError={priceError}
+      register={register}
+    />
+    <PriceHelp
+      accompanimentPriceIsSaved={accompanimentPriceIsSaved}
+      accompanimentPriceSuggestion={accompanimentPriceSuggestion}
+      accompanimentPriceSuggestionMode={accompanimentPriceSuggestionMode}
+    />
+    <PriceFeedback
+      accompanimentPriceError={accompanimentPriceError}
+      accompanimentPriceLoading={accompanimentPriceLoading}
+      priceError={priceError}
+      retryAccompanimentPrice={retryAccompanimentPrice}
+    />
   </Label>
 )

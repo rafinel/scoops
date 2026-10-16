@@ -8,23 +8,40 @@ import type { ProductAccompanimentDialogState } from '../../use-product-accompan
 
 export type BrandFieldProps = {
   item?: ProductAccompanimentDetails
-  state: ProductAccompanimentDialogState
+  retrySelectedStock: ProductAccompanimentDialogState['retrySelectedStock']
+  selectedProductUnit?: NonNullable<
+    ProductAccompanimentDialogState['selectedProduct']
+  >['unit']
+  selectedStockError: boolean
+  selectedStockLoading: boolean
+  sourceName?: string
 }
 
-export const BrandField = ({ item, state }: BrandFieldProps) => (
+export const BrandField = ({
+  item,
+  retrySelectedStock,
+  selectedProductUnit,
+  selectedStockError,
+  selectedStockLoading,
+  sourceName,
+}: BrandFieldProps) => (
   <Label className='grid gap-2 font-bold'>
     Marca atual
-    {state.selectedStockError ? (
-      <StockLoadError onRetry={state.retrySelectedStock} />
-    ) : null}
-    <Input aria-label='Marca atual' disabled value={getBrandName(item, state)} />
+    {selectedStockError ? <StockLoadError onRetry={retrySelectedStock} /> : null}
+    <Input
+      aria-label='Marca atual'
+      disabled
+      value={getBrandName(item, selectedProductUnit, selectedStockLoading, sourceName)}
+    />
   </Label>
 )
 
 function getBrandName(
   item: ProductAccompanimentDetails | undefined,
-  state: ProductAccompanimentDialogState,
+  selectedProductUnit: BrandFieldProps['selectedProductUnit'],
+  selectedStockLoading: boolean,
+  sourceName: string | undefined,
 ) {
-  if (state.selectedStockLoading && state.selectedProduct) return 'Carregando…'
-  return state.source?.name ?? item?.brandName ?? 'Não disponível'
+  if (selectedStockLoading && selectedProductUnit) return 'Carregando…'
+  return sourceName ?? item?.brandName ?? 'Não disponível'
 }
