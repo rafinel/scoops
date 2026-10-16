@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 
 import type { ProductAccompanimentDetails } from '@scoops/core/mrp/domain/structures'
@@ -29,7 +29,17 @@ export function useProductAccompanimentQueries({
   const typesQuery = useAccompanimentTypesQuery({ page: 1, pageSize: 100 })
   const pricingQuery = useProductPricingQuery(pricingProductId)
   const selectedStockQuery = useProductStockQuery(isEdit ? '' : productIdValue)
-  useProductAccompanimentPriceSync(form, open, pricingProductId, pricingQuery.pricing)
+  const priceSyncOptions = useMemo(
+    () => ({
+      fallbackPrice: item?.salePrice,
+      form,
+      open,
+      pricing: pricingQuery.pricing,
+      pricingProductId,
+    }),
+    [form, item?.salePrice, open, pricingQuery.pricing, pricingProductId],
+  )
+  useProductAccompanimentPriceSync(priceSyncOptions)
 
   return {
     candidatesQuery,
@@ -49,39 +59,57 @@ type PricingForm = Pick<
   'formState' | 'resetField'
 >
 
-function useProductAccompanimentPriceSync(
-  form: PricingForm,
-  open: boolean,
-  pricingProductId: string,
+type PriceSyncOptions = {
+  fallbackPrice: number | null | undefined
+  form: PricingForm
+  open: boolean
   pricing:
     | { accompanimentPrice?: number | null; suggestedAccompanimentPrice?: number | null }
-    | undefined,
-) {
+    | undefined
+  pricingProductId: string
+}
+function useProductAccompanimentPriceSync(options: PriceSyncOptions) {
   const lastPricingProductId = useRef<string | undefined>(undefined)
-  useEffect(() => {
-    if (!open) {
-      lastPricingProductId.current = undefined
-      return
-    }
-    updatePriceDefault(form, pricingProductId, pricing, lastPricingProductId)
-  }, [form, open, pricing, pricingProductId])
+  useEffect(() => updatePriceDefault(options, lastPricingProductId), [options])
 }
 
 function updatePriceDefault(
-  form: PricingForm,
-  pricingProductId: string,
+  { fallbackPrice, form, open, pricing, pricingProductId }: PriceSyncOptions,
+  lastPricingProductId: { current: string | undefined },
+) {
+  if (open && shouldResetPriceDefault(form, pricingProductId, lastPricingProductId))
+    resetPriceDefault(form, getInitialPrice(pricing, fallbackPrice))
+  lastPricingProductId.current = open ? pricingProductId : undefined
+}
+
+function resetPriceDefault(form: PricingForm, price: number | null | undefined) {
+  form.resetField('accompanimentPrice', {
+    defaultValue: formatDefaultPrice(price),
+  })
+}
+
+function getInitialPrice(
   pricing:
     | { accompanimentPrice?: number | null; suggestedAccompanimentPrice?: number | null }
     | undefined,
+  fallbackPrice: number | null | undefined,
+) {
+  return (
+    pricing?.accompanimentPrice ?? pricing?.suggestedAccompanimentPrice ?? fallbackPrice
+  )
+}
+
+function formatDefaultPrice(price: number | null | undefined) {
+  return price === null || price === undefined ? '' : price.toFixed(2).replace('.', ',')
+}
+
+function shouldResetPriceDefault(
+  form: PricingForm,
+  pricingProductId: string,
   lastPricingProductId: { current: string | undefined },
 ) {
-  const savedPrice = pricing?.accompanimentPrice ?? null
-  const initialPrice = savedPrice ?? pricing?.suggestedAccompanimentPrice ?? null
-  const defaultValue =
-    initialPrice === null ? '' : initialPrice.toFixed(2).replace('.', ',')
-  const hasChangedTarget = lastPricingProductId.current !== pricingProductId
-  if (hasChangedTarget || !form.formState.dirtyFields.accompanimentPrice) {
-    form.resetField('accompanimentPrice', { defaultValue })
-  }
-  lastPricingProductId.current = pricingProductId
+  return (
+    lastPricingProductId.current !== pricingProductId ||
+    !form.formState.dirtyFields.accompanimentPrice
+  )
 }

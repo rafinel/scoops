@@ -44,6 +44,45 @@ const item = {
   estimatedCost: 0.45,
 }
 
+const createDialogFields = () => ({
+  actionError: null,
+  canSave: true,
+  accompanimentPriceError: false,
+  accompanimentPriceIsSaved: false,
+  accompanimentPriceLoading: false,
+  accompanimentPriceSuggestion: 3,
+  accompanimentPriceSuggestionMode: 'resale-single',
+  candidates: [candidate],
+  candidatesError: false,
+  candidatesLoading: false,
+  estimatedCost: 0.45,
+  handleValueChange: vi.fn(),
+  numericQuantity: 20,
+  priceError: undefined,
+  productError: undefined,
+  productIdValue: candidate.id,
+  quantityError: undefined,
+  register: vi.fn((name: string) => ({
+    name,
+    defaultValue: name === 'accompanimentPrice' ? '3,00' : undefined,
+  })),
+  retryAccompanimentPrice: vi.fn(),
+  retryCandidates: vi.fn(),
+  retrySelectedStock: vi.fn(),
+  selectedProductName: candidate.name,
+  selectedProductUnit: candidate.unit,
+  selectedStockError: false,
+  selectedStockLoading: false,
+  selectedTypeName: type.name,
+  sourceName: 'Marca atual',
+  sourceUnitCost: 0.45,
+  typeError: undefined,
+  typeId: type.id,
+  types: [{ type, usageCount: 0 }],
+  typesError: false,
+  typesLoading: false,
+})
+
 const createForm = (isEdit = false) => ({
   actionError: null,
   accompanimentPriceError: false,
@@ -68,6 +107,7 @@ const createForm = (isEdit = false) => ({
   selectedProduct: candidate,
   selectedStockError: false,
   selectedStockLoading: false,
+  fields: createDialogFields(),
   source: { name: 'Marca atual', unitCost: 0.45 },
   selectedTypeName: type.name,
   typeId: type.id,
@@ -122,6 +162,10 @@ describe('ProductAccompanimentDialog', () => {
     useProductAccompanimentDialogMock.mockReturnValue({
       ...createForm(true),
       accompanimentPriceIsSaved: true,
+      fields: {
+        ...createDialogFields(),
+        accompanimentPriceIsSaved: true,
+      },
     } as never)
 
     render(
@@ -144,6 +188,7 @@ describe('ProductAccompanimentDialog', () => {
     useProductAccompanimentDialogMock.mockReturnValue({
       ...createForm(),
       isRefreshing: true,
+      fields: createDialogFields(),
     } as never)
 
     render(
@@ -176,6 +221,12 @@ describe('ProductAccompanimentDialog', () => {
       accompanimentPriceError: true,
       canSave: false,
       retryAccompanimentPrice,
+      fields: {
+        ...createDialogFields(),
+        accompanimentPriceError: true,
+        canSave: false,
+        retryAccompanimentPrice,
+      },
     } as never)
 
     render(
@@ -207,6 +258,7 @@ describe('ProductAccompanimentDialog', () => {
       ...createForm(),
       canSave: false,
       isRefreshing: true,
+      fields: { ...createDialogFields(), canSave: false },
     } as never)
 
     render(
@@ -230,6 +282,11 @@ describe('ProductAccompanimentDialog', () => {
       canSave: false,
       errors: {
         accompanimentPrice: { message: errorMessage, type: 'custom' },
+      },
+      fields: {
+        ...createDialogFields(),
+        canSave: false,
+        priceError: errorMessage,
       },
     } as never)
 

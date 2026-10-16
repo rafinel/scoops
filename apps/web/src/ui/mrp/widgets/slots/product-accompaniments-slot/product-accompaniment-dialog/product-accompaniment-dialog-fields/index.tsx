@@ -8,45 +8,12 @@ import { QuantityField } from './quantity-field'
 import { TypeField } from './type-field'
 import type { ProductAccompanimentDialogState } from '../use-product-accompaniment-dialog'
 
-export type ProductAccompanimentDialogFieldsProps = {
+export type ProductAccompanimentDialogFieldsProps = Omit<
+  ProductAccompanimentDialogState['fields'],
+  'canSave'
+> & {
   item?: ProductAccompanimentDetails
-  priceError?: string
-  productError?: string
-  quantityError?: string
-  selectedProductName?: string
-  selectedProductUnit?: NonNullable<
-    ProductAccompanimentDialogState['selectedProduct']
-  >['unit']
-  sourceName?: string
-  sourceUnitCost?: number
-  typeError?: string
-} & Pick<
-  ProductAccompanimentDialogState,
-  | 'actionError'
-  | 'accompanimentPriceError'
-  | 'accompanimentPriceIsSaved'
-  | 'accompanimentPriceLoading'
-  | 'accompanimentPriceSuggestion'
-  | 'accompanimentPriceSuggestionMode'
-  | 'candidates'
-  | 'candidatesError'
-  | 'candidatesLoading'
-  | 'estimatedCost'
-  | 'handleValueChange'
-  | 'numericQuantity'
-  | 'productIdValue'
-  | 'register'
-  | 'retryAccompanimentPrice'
-  | 'retryCandidates'
-  | 'retrySelectedStock'
-  | 'selectedStockError'
-  | 'selectedStockLoading'
-  | 'selectedTypeName'
-  | 'typeId'
-  | 'types'
-  | 'typesError'
-  | 'typesLoading'
->
+}
 
 export const ProductAccompanimentDialogFields = ({
   actionError,

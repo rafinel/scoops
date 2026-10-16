@@ -281,8 +281,10 @@ test.describe('ProductAccompanimentsPage', () => {
     const editDialog = page.getByRole('dialog', { name: 'Editar acompanhamento' })
     await expect(editDialog).toBeVisible()
     const refreshStatus = editDialog.getByRole('status', { name: 'Atualizando…' })
+    const editPrice = editDialog.getByRole('textbox', { name: 'Preço do acompanhamento' })
     try {
       await expect(refreshStatus).toBeVisible()
+      await expect(editPrice).toHaveValue('3,00')
       const saveButton = editDialog.getByRole('button', { name: 'Salvar alterações' })
       await expect(saveButton).toBeInViewport()
       await expect(editDialog.getByRole('button', { name: 'Cancelar' })).toBeInViewport()
@@ -311,7 +313,6 @@ test.describe('ProductAccompanimentsPage', () => {
     const brandInput = editDialog.getByRole('textbox', { name: 'Marca atual' })
     await expect(brandInput).toBeDisabled()
     await expect(brandInput).toHaveValue('Estoque único')
-    const editPrice = editDialog.getByRole('textbox', { name: 'Preço do acompanhamento' })
     await expect(editPrice).toHaveValue('3,00')
     await page.screenshot({
       animations: 'disabled',

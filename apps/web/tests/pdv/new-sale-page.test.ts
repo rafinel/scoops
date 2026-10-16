@@ -733,6 +733,11 @@ test.describe('NewSalePage', () => {
         const summary = reviewDialog.getByRole('region', {
           name: 'Resumo dos novos valores',
         })
+        const changedValues = summary.getByRole('status', { name: 'Valores atualizados' })
+        await expect(summary.getByText('Total do pedido')).toBeInViewport()
+        await expect(
+          summary.getByText('Revise os novos valores e confirme o pedido novamente.'),
+        ).toBeInViewport()
         await expect
           .poll(() =>
             reviewButton.evaluate((element) => {
@@ -743,10 +748,12 @@ test.describe('NewSalePage', () => {
           .toBe(true)
         await expect
           .poll(() =>
-            summary.evaluate((element) => element.scrollHeight > element.clientHeight),
+            changedValues.evaluate(
+              (element) => element.scrollHeight > element.clientHeight,
+            ),
           )
           .toBe(true)
-        await summary.evaluate((element) => {
+        await changedValues.evaluate((element) => {
           element.scrollTop = element.scrollHeight
         })
         await expect
@@ -757,6 +764,7 @@ test.describe('NewSalePage', () => {
             }),
           )
           .toBe(true)
+        await expect(summary.getByText('Total do pedido')).toBeInViewport()
       }
       await reviewButton.focus()
       await expect(reviewButton).toBeFocused()

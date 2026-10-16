@@ -38,52 +38,43 @@ export const useCostEstimate = (props: CostEstimateProps): CostEstimateViewModel
 }
 
 function getCostEstimate(
-  {
-    estimatedCost,
-    item,
-    numericQuantity,
-    selectedProductUnit,
-    selectedStockError,
-    selectedStockLoading,
-    sourceUnitCost,
-  }: CostEstimateProps,
+  props: CostEstimateProps,
   formatCurrency: (amount: number) => string,
   formatQuantity: (quantity: number, unit: string) => string,
 ): CostEstimateViewModel {
-  const unit = item?.unit ?? selectedProductUnit ?? 'un'
+  const unit = props.item?.unit ?? props.selectedProductUnit ?? 'un'
   return {
-    estimate: getEstimatedCostLabel(
-      estimatedCost,
-      selectedStockError,
-      selectedStockLoading,
-      selectedProductUnit !== undefined,
-      formatCurrency,
-    ),
-    ...getCostDetails(numericQuantity, sourceUnitCost, formatQuantity, unit),
-    hasDetails: sourceUnitCost !== undefined && numericQuantity > 0,
-    unit,
+    estimate: getEstimatedCostLabel(props, formatCurrency),
+    ...getCostDetails(props, formatQuantity, unit),
   }
 }
 
 function getCostDetails(
-  numericQuantity: number,
-  sourceUnitCost: number | undefined,
+  props: Pick<CostEstimateProps, 'numericQuantity' | 'sourceUnitCost'>,
   formatQuantity: (quantity: number, unit: string) => string,
   unit: string,
-): Pick<CostEstimateViewModel, 'formattedQuantity' | 'formattedUnitCost'> {
+): Pick<
+  CostEstimateViewModel,
+  'formattedQuantity' | 'formattedUnitCost' | 'hasDetails' | 'unit'
+> {
   return {
-    formattedQuantity: formatQuantity(numericQuantity, unit),
-    formattedUnitCost: UNIT_COST_FORMATTER.format(sourceUnitCost ?? 0),
+    formattedQuantity: formatQuantity(props.numericQuantity, unit),
+    formattedUnitCost: UNIT_COST_FORMATTER.format(props.sourceUnitCost ?? 0),
+    hasDetails: props.sourceUnitCost !== undefined && props.numericQuantity > 0,
+    unit,
   }
 }
 
 function getEstimatedCostLabel(
-  estimatedCost: number | undefined,
-  selectedStockError: boolean,
-  selectedStockLoading: boolean,
-  hasSelectedProduct: boolean,
+  {
+    estimatedCost,
+    selectedProductUnit,
+    selectedStockError,
+    selectedStockLoading,
+  }: CostEstimateProps,
   formatCurrency: (amount: number) => string,
 ) {
+  const hasSelectedProduct = selectedProductUnit !== undefined
   if (selectedStockError && hasSelectedProduct)
     return 'Não foi possível carregar o custo.'
   if (selectedStockLoading && hasSelectedProduct) return 'Carregando…'

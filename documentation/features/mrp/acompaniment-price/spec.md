@@ -594,6 +594,11 @@ Preserve ServiceUnavailable translation for failed catalog loads, current active
 | `apps/web/src/ui/pdv/widgets/pages/new-sale-page/index.tsx` | Modify |
 | `apps/web/src/ui/pdv/widgets/pages/new-sale-page/repriced-order-review-dialog/index.tsx` | Create |
 | `apps/web/src/ui/pdv/widgets/pages/new-sale-page/repriced-order-review-dialog/use-repriced-order-review-dialog.ts` | Create |
+| `apps/web/src/ui/pdv/widgets/pages/new-sale-page/repriced-order-review-dialog/repriced-order-review-content/index.tsx` | Create |
+| `apps/web/src/ui/pdv/widgets/pages/new-sale-page/repriced-order-review-dialog/repriced-order-review-content/repriced-order-review-action/index.tsx` | Create |
+| `apps/web/src/ui/pdv/widgets/pages/new-sale-page/repriced-order-review-dialog/repriced-order-review-content/repriced-order-review-details/index.tsx` | Create |
+| `apps/web/src/ui/pdv/widgets/pages/new-sale-page/repriced-order-review-dialog/repriced-order-review-content/repriced-order-review-details/use-repriced-order-review-details.ts` | Create |
+| `apps/web/src/ui/pdv/widgets/pages/new-sale-page/repriced-order-review-dialog/repriced-order-review-content/repriced-order-review-details/repriced-order-review-details-view/index.tsx` | Create |
 
 These rows identify changed owners, including the extracted price-review widget. Extend the corresponding permitted consumer suites described in the Verification Contract; unchanged navigation/transport infrastructure is omitted.
 
@@ -647,7 +652,14 @@ apps/web/src/ui/
     ├── order-registration-dialog/index.tsx
     ├── repriced-order-review-dialog/
     │   ├── index.tsx
-    │   └── use-repriced-order-review-dialog.ts
+    │   ├── use-repriced-order-review-dialog.ts
+    │   └── repriced-order-review-content/
+    │       ├── index.tsx
+    │       ├── repriced-order-review-action/index.tsx
+    │       └── repriced-order-review-details/
+    │           ├── index.tsx
+    │           ├── use-repriced-order-review-details.ts
+    │           └── repriced-order-review-details-view/index.tsx
     └── new-sale-cart/
         ├── index.tsx
         └── use-new-sale-cart.ts

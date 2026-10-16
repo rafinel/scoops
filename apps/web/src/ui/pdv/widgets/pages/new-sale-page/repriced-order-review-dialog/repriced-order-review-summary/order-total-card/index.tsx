@@ -13,7 +13,13 @@ export const OrderTotalCard = ({
   newTotal,
   totalChange,
 }: OrderTotalCardProps) => (
-  <section className='rounded-xl border !border-warning bg-warning-soft p-3 text-sm text-warning'>
+  <section
+    aria-atomic='true'
+    aria-label='Total atualizado do pedido'
+    aria-live='polite'
+    className='rounded-xl border !border-warning bg-warning-soft p-3 text-sm text-warning'
+    role='status'
+  >
     <div className='flex items-start gap-3'>
       <span className='grid size-9 shrink-0 place-items-center rounded-lg border !border-warning bg-card'>
         <Icon className='size-4' name='package' />

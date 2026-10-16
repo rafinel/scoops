@@ -166,7 +166,12 @@ describe('NewSalePage', () => {
     expect(dialog).toBeTruthy()
     expect(screen.getAllByRole('dialog')).toHaveLength(1)
     if (kind === 'repriced') {
-      expect(screen.getByRole('status')).toBeTruthy()
+      expect(screen.getByRole('status', { name: 'Valores atualizados' })).toBeTruthy()
+      expect(
+        screen
+          .getByRole('status', { name: 'Total atualizado do pedido' })
+          .textContent?.replaceAll('\u00a0', ' '),
+      ).toContain('R$ 20,00 → R$ 21,00')
       const dialogText = dialog.textContent?.replaceAll('\u00a0', ' ')
       expect(dialogText).toContain('O pedido mudou antes do registro.')
       expect(dialogText).toContain('Balcão → Sem canal: R$ 20,00 → R$ 21,00')

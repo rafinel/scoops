@@ -40,11 +40,11 @@ export function useProductAccompanimentDialog({
     setActionError: formState.setActionError,
   })
 
-  return {
-    ...getFormState(formState, derived, isEdit),
-    ...getQueryState(queries, derived, isEdit),
-    ...getSubmitState(formState, submit),
-  }
+  return getDialogState(
+    getFormState(formState, derived, isEdit),
+    getQueryState(queries, derived, isEdit),
+    getSubmitState(formState, submit),
+  )
 }
 
 function getFormState(
@@ -68,7 +68,7 @@ function getFormState(
     source: derived.source,
     typeId: formState.typeId,
     types: derived.types,
-    isRefreshing: derived.isRefreshing,
+    ...getDialogProjection(formState, derived),
   }
 }
 
@@ -84,11 +84,12 @@ function getQueryState(
     accompanimentPriceSuggestion:
       queries.pricingQuery.pricing?.suggestedAccompanimentPrice ?? null,
     accompanimentPriceSuggestionMode: queries.pricingQuery.pricing?.mode,
-    canSave:
-      !queries.pricingProductId ||
-      (!queries.pricingQuery.pricingError &&
-        !derived.isPriceLoading &&
-        !queries.pricingQuery.isRefreshingPricing),
+    canSave: isPriceReadyToSave(
+      queries.pricingProductId,
+      queries.pricingQuery.pricingError,
+      derived.isPriceLoading,
+      queries.pricingQuery.isRefreshingPricing,
+    ),
     candidates: queries.candidatesQuery.data ?? [],
     candidatesError: !isEdit && queries.candidatesQuery.isError,
     candidatesLoading: !isEdit && queries.candidatesQuery.isPending,
@@ -100,6 +101,99 @@ function getQueryState(
   }
 }
 
+function getDialogProjection(
+  formState: ReturnType<typeof useProductAccompanimentForm>,
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+) {
+  return {
+    fields: getDialogFields(formState, derived),
+    isRefreshing: derived.isRefreshing,
+  }
+}
+
+type ProductAccompanimentFormErrors = ReturnType<
+  typeof useProductAccompanimentForm
+>['form']['formState']['errors']
+
+function getDialogFields(
+  formState: ReturnType<typeof useProductAccompanimentForm>,
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+) {
+  return {
+    ...getFormDialogFields(formState),
+    ...getProductDialogFields(derived),
+    ...getCostDialogFields(derived),
+    ...getStockDialogFields(derived),
+  }
+}
+
+function getFormDialogFields(formState: ReturnType<typeof useProductAccompanimentForm>) {
+  return {
+    ...getFormInputFields(formState),
+    ...getFormErrorFields(formState.form.formState.errors),
+  }
+}
+
+function getFormInputFields(formState: ReturnType<typeof useProductAccompanimentForm>) {
+  return {
+    actionError: formState.actionError,
+    handleValueChange: formState.handleValueChange,
+    productIdValue: formState.productIdValue,
+    register: formState.form.register,
+    typeId: formState.typeId,
+  }
+}
+
+function getFormErrorFields(errors: ProductAccompanimentFormErrors) {
+  return {
+    priceError: errors.accompanimentPrice?.message,
+    productError: errors.accompanimentProductId?.message,
+    quantityError: errors.quantityPerPortion?.message,
+    typeError: errors.accompanimentTypeId?.message,
+  }
+}
+
+function getProductDialogFields(
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+) {
+  return {
+    selectedProductName: derived.selectedProduct?.name,
+    selectedProductUnit: derived.selectedProduct?.unit,
+    selectedTypeName: derived.selectedTypeName,
+    types: derived.types,
+  }
+}
+
+function getCostDialogFields(
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+) {
+  return {
+    estimatedCost: derived.estimatedCost,
+    numericQuantity: derived.numericQuantity,
+    sourceUnitCost: derived.source?.unitCost,
+  }
+}
+
+function getStockDialogFields(
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+) {
+  return {
+    selectedStockError: derived.selectedStockError,
+    selectedStockLoading: derived.selectedStockLoading,
+    sourceName: derived.source?.name,
+  }
+}
+
+function isPriceReadyToSave(
+  pricingProductId: string | undefined,
+  pricingError: boolean,
+  priceLoading: boolean,
+  pricingRefreshing: boolean,
+) {
+  if (!pricingProductId) return true
+  return !pricingError && !priceLoading && !pricingRefreshing
+}
+
 function getSubmitState(
   formState: ReturnType<typeof useProductAccompanimentForm>,
   submit: ReturnType<typeof useProductAccompanimentSubmit>,
@@ -107,6 +201,19 @@ function getSubmitState(
   return {
     handleSubmit: formState.form.handleSubmit(submit.handleValidSubmit),
     isPending: submit.isPending,
+  }
+}
+
+function getDialogState(
+  formState: ReturnType<typeof getFormState>,
+  queryState: ReturnType<typeof getQueryState>,
+  submitState: ReturnType<typeof getSubmitState>,
+) {
+  return {
+    ...formState,
+    ...queryState,
+    ...submitState,
+    fields: { ...formState.fields, ...queryState },
   }
 }
 
