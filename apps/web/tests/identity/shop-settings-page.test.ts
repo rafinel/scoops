@@ -34,9 +34,6 @@ test.describe('ShopSettingsPage', () => {
     ).toBeVisible()
     await expect(page.getByText('America/Sao_Paulo')).toBeVisible()
     await page.setViewportSize({ width: 1551, height: 1050 })
-    await page.screenshot({
-      path: 'test-results/shop-settings-desktop-1551x1050.png',
-    })
     await page.getByRole('button', { name: 'Corrigir nome' }).click()
     await page
       .getByRole('dialog')

@@ -105,7 +105,7 @@ const REFERENCE_LINKED_ACCOMPANIMENTS = [
 ]
 
 test.describe('MRP supplemental browser coverage', () => {
-  test('captures the five-priced-row accompaniment table reference state', async ({
+  test('covers the five-priced-row accompaniment table reference state', async ({
     page,
     mrpFixture,
     identityFixture,
@@ -137,12 +137,6 @@ test.describe('MRP supplemental browser coverage', () => {
     await expect(page.getByRole('cell', { name: 'R$ 3,00' })).toBeVisible()
     await expect(page.getByRole('cell', { name: 'R$ 4,50' })).toBeVisible()
     await expect(page.getByRole('row')).toHaveCount(6)
-    await page
-      .getByText(/Itens oferecidos junto a este produto no PDV/)
-      .locator('xpath=../../..')
-      .screenshot({
-        path: '.playwright-cli/screenshots/mrp/accompaniment-price-populated-table-1560x1178.png',
-      })
   })
 
   test('shows the Manager contextual Types link on Products without a global sidebar entry', async ({
@@ -196,7 +190,7 @@ test.describe('MRP supplemental browser coverage', () => {
     ).toHaveCount(0)
   })
 
-  test('captures the narrow Types page and create dialog', async ({
+  test('covers the narrow Types page and create dialog', async ({
     page,
     mrpFixture,
     identityFixture,
@@ -222,9 +216,6 @@ test.describe('MRP supplemental browser coverage', () => {
       page.getByRole('heading', { name: 'Tipos de acompanhamento' }),
     ).toBeVisible()
     await expect(page.getByText(TYPE.name)).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/accompaniment-types-page-320x900.png',
-    })
 
     await page
       .getByRole('main')
@@ -237,9 +228,6 @@ test.describe('MRP supplemental browser coverage', () => {
     })
     await expect(dialog).toBeVisible()
     await expect(dialog.getByRole('textbox', { name: 'Nome do tipo' })).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/accompaniment-type-create-dialog-320x900.png',
-    })
 
     await dialog.getByRole('button', { name: 'Cancelar' }).click()
     await expect(dialog).toBeHidden()
@@ -283,16 +271,10 @@ test.describe('MRP supplemental browser coverage', () => {
     await expect(
       page.getByRole('status', { name: 'Carregando acompanhamentos' }),
     ).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/product-accompaniments-loading-1560x1097.png',
-    })
 
     await expect(page.getByRole('alert')).toContainText(
       'Não foi possível carregar os acompanhamentos',
     )
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/product-accompaniments-error-1560x1097.png',
-    })
 
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
     await expect(page.getByText('Nenhum acompanhamento vinculado')).toBeVisible()
@@ -346,9 +328,6 @@ test.describe('MRP supplemental browser coverage', () => {
     })
     await expect(dialog).toBeVisible()
     await expect(dialog).toContainText('O estoque e o histórico permanecem intactos.')
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/product-accompaniment-remove-confirmation-596x353.png',
-    })
 
     await dialog.getByRole('button', { name: 'Cancelar' }).click()
     await expect(dialog).toBeHidden()
@@ -392,41 +371,26 @@ test.describe('MRP supplemental browser coverage', () => {
     await expect(
       page.getByRole('status', { name: 'Carregando tipos de acompanhamento' }),
     ).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/accompaniment-types-loading-1560x956.png',
-    })
 
     await expect(page.getByRole('alert')).toContainText(
       'Não foi possível carregar os tipos',
     )
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/accompaniment-types-error-1560x956.png',
-    })
 
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
     await expect(
       page.getByRole('heading', { name: 'Nenhum tipo cadastrado' }),
     ).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/accompaniment-types-empty-1560x956.png',
-    })
 
     await page.reload()
     await expect(page.getByText(TYPE.name, { exact: true })).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/accompaniment-types-page-1-1560x956.png',
-    })
 
     await page.getByRole('button', { name: 'Próxima página' }).click()
     await expect(page).toHaveURL(/page=2/)
     await expect(page.getByText('Extra', { exact: true })).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/accompaniment-types-page-2-1560x956.png',
-    })
     expect(types.requests.at(-1)?.url.searchParams.get('page')).toBe('2')
   })
 
-  test('captures narrow link and edit accompaniment dialogs', async ({
+  test('covers narrow link and edit accompaniment dialogs', async ({
     page,
     mrpFixture,
     identityFixture,
@@ -486,8 +450,6 @@ test.describe('MRP supplemental browser coverage', () => {
     await expect(
       linkDialog.getByRole('combobox', { name: 'Acompanhamento' }),
     ).toBeVisible()
-    await page.screenshot({
-    })
     await page.setViewportSize({ width: 390, height: 844 })
     await linkDialog.getByRole('textbox', { name: 'Preço do acompanhamento' }).focus()
     await page.keyboard.press('Tab')
@@ -509,17 +471,11 @@ test.describe('MRP supplemental browser coverage', () => {
         }),
       )
       .toBe(true)
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/product-accompaniment-link-dialog-320x900.png',
-    })
     await linkCancel.click()
 
     await page.getByRole('button', { name: 'Editar Granola' }).click()
     const editDialog = page.getByRole('dialog', { name: 'Editar acompanhamento' })
     await expect(editDialog).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/product-accompaniment-edit-dialog-320x900.png',
-    })
     await page.setViewportSize({ width: 390, height: 844 })
     await editDialog.getByRole('textbox', { name: /Quantidade por porção/ }).focus()
     await page.keyboard.press('Tab')
@@ -540,8 +496,6 @@ test.describe('MRP supplemental browser coverage', () => {
         }),
       )
       .toBe(true)
-    await page.screenshot({
-    })
   })
 
   test('retains link and edit forms through validation, pending, and server failures', async ({
@@ -632,20 +586,14 @@ test.describe('MRP supplemental browser coverage', () => {
       name: /Quantidade por porção/,
     })
     await linkQuantity.fill('25')
-    await linkDialog.getByRole('button', { name: 'Vincular' }).click()
-    await expect(linkDialog.getByRole('button', { name: 'Salvando…' })).toBeDisabled()
     await linkDialog
       .getByRole('textbox', { name: 'Preço do acompanhamento' })
       .fill('3,00')
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/product-accompaniment-link-saving-676x843.png',
-    })
+    await linkDialog.getByRole('button', { name: 'Vincular' }).click()
+    await expect(linkDialog.getByRole('button', { name: 'Salvando…' })).toBeDisabled()
     await expect(linkDialog.getByRole('alert')).toContainText('Não foi possível salvar')
     await expect(linkDialog).toBeVisible()
     await expect(linkQuantity).toHaveValue('25')
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/product-accompaniment-link-failure-676x843.png',
-    })
 
     await linkDialog.getByRole('button', { name: 'Cancelar' }).click()
     await page.getByRole('button', { name: 'Editar Granola' }).click()
@@ -656,15 +604,9 @@ test.describe('MRP supplemental browser coverage', () => {
     await editQuantity.fill('2')
     await editDialog.getByRole('button', { name: 'Salvar alterações' }).click()
     await expect(editDialog.getByRole('button', { name: 'Salvando…' })).toBeDisabled()
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/product-accompaniment-edit-saving-676x843.png',
-    })
     await expect(editDialog.getByRole('alert')).toContainText('Não foi possível salvar')
     await expect(editDialog).toBeVisible()
     await expect(editQuantity).toHaveValue('2')
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/product-accompaniment-edit-failure-676x843.png',
-    })
   })
 
   test('retains the Type remove dialog after an in-use rejection', async ({
@@ -696,15 +638,9 @@ test.describe('MRP supplemental browser coverage', () => {
       name: 'Remover tipo de acompanhamento?',
     })
     await expect(removeDialog).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/accompaniment-type-remove-confirmation-596x353.png',
-    })
 
     await removeDialog.getByRole('button', { name: 'Remover' }).click()
     await expect(removeDialog).toBeVisible()
     await expect(removeDialog.getByRole('alert')).toContainText('Tipos em uso')
-    await page.screenshot({
-      path: 'test-results/mrp/supplemental/accompaniment-type-remove-in-use-596x353.png',
-    })
   })
 })

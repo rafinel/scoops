@@ -1,5 +1,3 @@
-import path from 'node:path'
-import type { Page } from '@playwright/test'
 
 import { ProductFaker, ProductSizeFaker } from '@scoops/core/mrp/domain/entities/fakers'
 
@@ -7,28 +5,7 @@ import { expect, test } from '../playwright'
 
 const PRODUCT_ID = 'product-pricing-1'
 const SIZE_ID = 'size-small'
-const SCREENSHOT_DIRECTORY = path.resolve(process.cwd(), 'test-results')
 
-async function captureViewport(page: Page, filename: string) {
-  const viewport = page.viewportSize()
-  if (!viewport) throw new Error('Playwright viewport is not configured')
-
-  await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.evaluate(() => {
-    for (const animation of document.getAnimations()) {
-      try {
-        animation.finish()
-      } catch {
-        // An animation may already be complete when the screenshot settles.
-      }
-    }
-  })
-  await page.evaluate(() => document.fonts.ready)
-  await page.screenshot({
-    clip: { x: 0, y: 0, width: viewport.width, height: viewport.height },
-    path: path.join(SCREENSHOT_DIRECTORY, filename),
-  })
-}
 
 const PORTION_PRODUCT = ProductFaker.fake({
   id: PRODUCT_ID,
@@ -105,7 +82,6 @@ test.describe('ProductPricesPage', () => {
     await expect(page.getByRole('button', { name: 'Editar 300 ml' })).toBeVisible()
     expect(requests[0]?.method).toBe('GET')
     expect(requests[0]?.url.pathname).toBe(`/products/${PRODUCT_ID}/pricing`)
-    await captureViewport(page, 'pricing-portion-populated-1560x1178.png')
     expect(consoleErrors).toEqual([])
     expect(failedRequests).toEqual([])
   })
@@ -243,7 +219,7 @@ test.describe('ProductPricesPage', () => {
     await expect(heading.locator('xpath=ancestor::section[1]')).toBeFocused()
   })
 
-  test('captures a populated Portion table with horizontal scrolling at 390x844', async ({
+  test('covers a populated Portion table with horizontal scrolling at 390x844', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -265,10 +241,9 @@ test.describe('ProductPricesPage', () => {
         tableViewport.evaluate((element) => element.scrollWidth > element.clientWidth),
       )
       .toBe(true)
-    await captureViewport(page, 'f4-fnd011-portion-populated-scroll-390x844.png')
   })
 
-  test('captures the supplied Portion references after the label correction', async ({
+  test('covers the supplied Portion references after the label correction', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -283,13 +258,11 @@ test.describe('ProductPricesPage', () => {
     await page.goto(`/products/${PRODUCT_ID}/prices`)
     await expect(page.getByRole('heading', { name: PORTION_PRODUCT.name })).toBeVisible()
     await expect(page.getByRole('row', { name: /300 ml.*300 ml/ })).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-X1avQ-1560x1178.png')
 
     const addButton = page.getByRole('button', { name: 'Adicionar tamanho' })
     await addButton.click()
     const addDialog = page.getByRole('dialog', { name: 'Adicionar tamanho' })
     await expect(addDialog).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-yX4RY-add-1560x1178.png')
     await addDialog.getByRole('button', { name: 'Cancelar' }).click()
     await expect(addDialog).toBeHidden()
     await expect(addButton).toBeFocused()
@@ -298,7 +271,6 @@ test.describe('ProductPricesPage', () => {
     await editButton.click()
     const editDialog = page.getByRole('dialog', { name: 'Editar tamanho' })
     await expect(editDialog).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-hqaUm-edit-1560x1178.png')
     await editDialog.getByRole('button', { name: 'Cancelar' }).click()
     await expect(editDialog).toBeHidden()
     await expect(editButton).toBeFocused()
@@ -307,10 +279,9 @@ test.describe('ProductPricesPage', () => {
     await removeButton.click()
     const removeDialog = page.getByRole('dialog', { name: 'Remover tamanho?' })
     await expect(removeDialog).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-uQYUR-remove-1560x1178.png')
   })
 
-  test('captures the supplied Single-stock Resale reference', async ({
+  test('covers the supplied Single-stock Resale reference', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -325,10 +296,9 @@ test.describe('ProductPricesPage', () => {
     await page.goto(`/products/${PRODUCT_ID}/prices`)
     await expect(page.getByRole('heading', { name: 'Preço de Revenda' })).toBeVisible()
     await expect(page.getByLabel('Preço de venda')).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-JwtuK-single-1560x1178.png')
   })
 
-  test('captures Portion loading at desktop', async ({
+  test('covers Portion loading at desktop', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -348,12 +318,11 @@ test.describe('ProductPricesPage', () => {
     await expect(
       page.getByRole('status', { name: 'Carregando preços do produto' }),
     ).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-portion-loading-1560x1178.png')
     finishLoading?.()
     await expect(page.getByRole('heading', { name: 'Tamanhos e preços' })).toBeVisible()
   })
 
-  test('captures Portion loading at 390x844', async ({
+  test('covers Portion loading at 390x844', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -373,12 +342,11 @@ test.describe('ProductPricesPage', () => {
     await expect(
       page.getByRole('status', { name: 'Carregando preços do produto' }),
     ).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-portion-loading-390x844.png')
     finishLoading?.()
     await expect(page.getByRole('heading', { name: 'Tamanhos e preços' })).toBeVisible()
   })
 
-  test('captures Portion read error/retry and empty at desktop', async ({
+  test('covers Portion read error/retry and empty at desktop', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -398,13 +366,11 @@ test.describe('ProductPricesPage', () => {
     await page.setViewportSize({ width: 1560, height: 1178 })
     await page.goto(`/products/${PRODUCT_ID}/prices`)
     await expect(page.getByText('Não foi possível carregar os preços')).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-portion-error-retry-1560x1178.png')
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
     await expect(page.getByText('Nenhum tamanho cadastrado')).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-portion-empty-1560x1178.png')
   })
 
-  test('captures Portion read error/retry and empty at 390x844', async ({
+  test('covers Portion read error/retry and empty at 390x844', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -424,13 +390,11 @@ test.describe('ProductPricesPage', () => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto(`/products/${PRODUCT_ID}/prices`)
     await expect(page.getByText('Não foi possível carregar os preços')).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-portion-error-retry-390x844.png')
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
     await expect(page.getByText('Nenhum tamanho cadastrado')).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-portion-empty-390x844.png')
   })
 
-  test('captures size validation, pending and mutation-error recovery at 390x844', async ({
+  test('covers size validation, pending and mutation-error recovery at 390x844', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -475,14 +439,12 @@ test.describe('ProductPricesPage', () => {
     await dialog.getByLabel('Preço').fill('-1')
     await dialog.getByRole('button', { name: 'Adicionar tamanho' }).click()
     await expect(dialog.getByRole('alert')).toHaveCount(3)
-    await captureViewport(page, 'f4-fnd003-size-validation-390x844.png')
 
     await dialog.getByLabel('Nome').fill('500 ml')
     await dialog.getByLabel('Quantidade').fill('500')
     await dialog.getByLabel('Preço').fill('22,50')
     await dialog.getByRole('button', { name: 'Adicionar tamanho' }).click()
     await expect(dialog.getByRole('button', { name: 'Salvando…' })).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-size-pending-390x844.png')
 
     finishPending?.()
     await expect(dialog).toBeHidden()
@@ -493,7 +455,6 @@ test.describe('ProductPricesPage', () => {
     await mutationErrorDialog.getByLabel('Preço').fill('24,50')
     await mutationErrorDialog.getByRole('button', { name: 'Adicionar tamanho' }).click()
     await expect(mutationErrorDialog.getByRole('alert')).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-size-mutation-error-390x844.png')
   })
 
   test('retains invalid add values and submits a new size through the mocked REST contract', async ({
@@ -661,10 +622,9 @@ test.describe('ProductPricesPage', () => {
     const request = requests.find(({ method }) => method === 'PUT')
     expect(request?.url.pathname).toBe(`/products/${PRODUCT_ID}/resale-configuration`)
     expect(request?.body).toEqual({ price: 15.5, isActive: false })
-    await captureViewport(page, 'f4-fnd003-single-unavailable-390x844.png')
   })
 
-  test('captures Single-stock validation at 390x844', async ({
+  test('covers Single-stock validation at 390x844', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -680,7 +640,6 @@ test.describe('ProductPricesPage', () => {
     await page.getByLabel('Preço de venda').fill('-1')
     await page.getByRole('button', { name: 'Salvar' }).click()
     await expect(page.getByRole('alert')).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-single-validation-390x844.png')
   })
 
   test('renders By-brand no-brands guidance without an unbranded fallback', async ({
@@ -705,15 +664,13 @@ test.describe('ProductPricesPage', () => {
       ),
     ).toBeVisible()
     await expect(page.getByLabel('Quantidade por embalagem')).toHaveCount(0)
-    await captureViewport(page, 'f4-fnd003-by-brand-no-brands-1560x1178.png')
 
     await page.setViewportSize({ width: 390, height: 844 })
     await page.reload()
     await expect(page.getByText('Nenhuma marca cadastrada')).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-by-brand-no-brands-390x844.png')
   })
 
-  test('captures By-brand failed row save and recovery at desktop', async ({
+  test('covers By-brand failed row save and recovery at desktop', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -738,7 +695,6 @@ test.describe('ProductPricesPage', () => {
     await page.getByLabel('Preço Frooty').fill('28,00')
     await page.getByRole('button', { name: 'Salvar' }).click()
     await expect(page.getByRole('alert')).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-by-brand-failed-row-1560x1178.png')
     await page.getByRole('button', { name: 'Salvar' }).click()
     await expect(page.getByRole('alert')).toHaveCount(0)
     expect(
@@ -750,10 +706,9 @@ test.describe('ProductPricesPage', () => {
             `/products/${PRODUCT_ID}/brands/brand-frooty/resale-configuration`,
         ),
     ).toBe(true)
-    await captureViewport(page, 'f4-fnd003-by-brand-recovered-row-1560x1178.png')
   })
 
-  test('captures By-brand failed row save and recovery at 390x844', async ({
+  test('covers By-brand failed row save and recovery at 390x844', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -778,7 +733,6 @@ test.describe('ProductPricesPage', () => {
     await page.getByLabel('Preço Frooty').fill('28,00')
     await page.getByRole('button', { name: 'Salvar' }).click()
     await expect(page.getByRole('alert')).toBeVisible()
-    await captureViewport(page, 'f4-fnd003-by-brand-failed-row-390x844.png')
     await page.getByRole('button', { name: 'Salvar' }).click()
     await expect(page.getByRole('alert')).toHaveCount(0)
     expect(
@@ -790,7 +744,6 @@ test.describe('ProductPricesPage', () => {
             `/products/${PRODUCT_ID}/brands/brand-frooty/resale-configuration`,
         ),
     ).toBe(true)
-    await captureViewport(page, 'f4-fnd003-by-brand-recovered-row-390x844.png')
   })
 })
 

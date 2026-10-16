@@ -1,34 +1,19 @@
 name: Validation CI
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/validation-package-ci.yml'
-      - 'biome.json'
-      - '.code-multivitals-baseline.json'
-      - '.code-multivitals.json'
-      - 'package.json'
-      - 'packages/core/**'
-      - 'packages/validation/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'scripts/check-complexity.mjs'
-      - '.dependency-cruiser.mjs'
   pull_request:
     paths:
-      - '.github/workflows/validation-package-ci.yml'
-      - 'biome.json'
-      - '.code-multivitals-baseline.json'
-      - '.code-multivitals.json'
-      - 'package.json'
-      - 'packages/core/**'
-      - 'packages/validation/**'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'scripts/check-complexity.mjs'
-      - '.dependency-cruiser.mjs'
+      - ".github/workflows/validation-package-ci.yml"
+      - "biome.json"
+      - ".code-multivitals-baseline.json"
+      - ".code-multivitals.json"
+      - "package.json"
+      - "packages/core/**"
+      - "packages/validation/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "scripts/check-complexity.mjs"
+      - ".dependency-cruiser.mjs"
 
 permissions:
   contents: read

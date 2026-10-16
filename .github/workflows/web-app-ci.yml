@@ -196,9 +196,13 @@ jobs:
           retention-days: 14
 
   web_integration:
-    name: Web browser integration
+    name: Web browser integration (${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     env:
       VITE_SCOOPS_SERVER_APP_URL: http://127.0.0.1:3336
     steps:
@@ -226,7 +230,7 @@ jobs:
         run: pnpm --filter web exec playwright install --with-deps chromium
 
       - name: Run browser integration tests
-        run: pnpm --filter web test:integration --workers=1
+        run: pnpm --filter web test:integration --shard=${{ matrix.shard }}/4 --workers=1
 
   web_build:
     name: Web build

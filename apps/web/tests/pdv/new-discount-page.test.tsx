@@ -34,9 +34,6 @@ test('renders the Combo create page for a Manager', async ({
     'aria-pressed',
     'false',
   )
-  await productDialog.screenshot({
-    path: 'test-results/pdv/combo-product-filter-primary-portion.png',
-  })
 })
 
 test('configures a single-stock resale product with its seeded default price', async ({
@@ -79,9 +76,6 @@ test('configures a single-stock resale product with its seeded default price', a
   await expect(
     productDialog.getByRole('button', { name: 'Adicionar produto' }),
   ).toBeEnabled()
-  await productDialog.screenshot({
-    path: 'test-results/pdv/combo-product-resale-single-price.png',
-  })
 })
 
 test('selects one active resale brand with checkbox controls', async ({
@@ -150,9 +144,6 @@ test('selects one active resale brand with checkbox controls', async ({
   await aveiaCheckbox.check()
   await expect(nutellaCheckbox).toHaveAttribute('aria-checked', 'false')
   await expect(aveiaCheckbox).toHaveAttribute('aria-checked', 'true')
-  await productDialog.screenshot({
-    path: 'test-results/pdv/combo-product-brand-checkboxes.png',
-  })
 })
 
 test('configures a portion product with its active filter state', async ({
@@ -203,9 +194,6 @@ test('configures a portion product with its active filter state', async ({
   await expect(portionsFilter).toHaveClass(/bg-primary/)
   await productDialog.getByRole('button', { name: 'Açaí 500 ml' }).click()
   await expect(productDialog.getByRole('button', { name: /500 ml R\$ 14,00/ })).toBeVisible()
-  await productDialog.screenshot({
-    path: 'test-results/pdv/combo-product-portion-active-filter.png',
-  })
   await productDialog.getByRole('button', { name: '500 ml R$ 14,00' }).click()
   await productDialog.getByRole('button', { name: 'Adicionar produto' }).click()
 
@@ -217,9 +205,6 @@ test('configures a portion product with its active filter state', async ({
   await expect(removalDialog).toContainText(
     'O produto Açaí 500 ml será removido da composição.',
   )
-  await removalDialog.screenshot({
-    path: 'test-results/pdv/combo-product-removal-confirmation.png',
-  })
   await removalDialog.getByRole('button', { name: 'Cancelar' }).click()
   await expect(removeButton).toBeVisible()
 

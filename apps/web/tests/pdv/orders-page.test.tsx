@@ -88,10 +88,6 @@ test.describe('OrdersPage', () => {
     await expect(page.getByRole('cell', { name: 'Delivery próprio' })).toBeVisible()
     await expect(page.getByRole('cell', { name: '#00124' })).toBeVisible()
     await expect(page.getByRole('button', { name: /Ver pedido 124/ })).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/pdv-orders-index-populated-1481x1050.png',
-      fullPage: false,
-    })
 
     const expectedOrderPeriod = await page.evaluate(() => {
       const today = new Date()
@@ -155,10 +151,6 @@ test.describe('OrdersPage', () => {
     await page.getByRole('textbox', { name: 'Buscar pedidos' }).focus()
     await page.keyboard.press('Tab')
     await expect(channelFilter).toBeFocused()
-    await page.screenshot({
-      path: 'test-results/pdv-orders-index-390x844.png',
-      fullPage: false,
-    })
 
     expect(channelsMock.requests.some((request) => request.method === 'GET')).toBe(true)
     expect(consoleErrors).toEqual([])
@@ -195,15 +187,7 @@ test.describe('OrdersPage', () => {
       'Não foi possível carregar os pedidos.',
     )
     await page.setViewportSize({ width: 1481, height: 1050 })
-    await page.screenshot({
-      path: 'test-results/pdv-orders-index-error-1481x1050.png',
-      fullPage: false,
-    })
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.screenshot({
-      path: 'test-results/pdv-orders-index-error-390x844.png',
-      fullPage: false,
-    })
     await page.setViewportSize({ width: 1481, height: 1050 })
     await expect(page).toHaveURL(/\/orders\/?(?:\?[^#]*)?$/)
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
@@ -230,10 +214,6 @@ test.describe('OrdersPage', () => {
     ).toBeVisible()
     await expect(page.getByRole('button', { name: 'Iniciar nova venda' })).toBeVisible()
     await page.setViewportSize({ width: 1481, height: 1050 })
-    await page.screenshot({
-      path: 'test-results/pdv-orders-index-empty-1481x1050.png',
-      fullPage: false,
-    })
 
     await page.goto('/orders?search=pedido-inexistente')
     await expect(
@@ -242,15 +222,11 @@ test.describe('OrdersPage', () => {
     await expect(
       page.getByRole('button', { name: 'Limpar filtros' }).last(),
     ).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/pdv-orders-index-filtered-empty-1481x1050.png',
-      fullPage: false,
-    })
     await page.getByRole('button', { name: 'Limpar filtros' }).last().click()
     await expect(page).toHaveURL(/\/orders\/?\?search=&period=last-30-days&page=1$/)
   })
 
-  test('captures the list loading state at desktop and narrow viewports', async ({
+  test('covers the list loading state at desktop and narrow viewports', async ({
     page,
     identityFixture,
     pdvFixture,
@@ -280,15 +256,7 @@ test.describe('OrdersPage', () => {
     await page.setViewportSize({ width: 1481, height: 1050 })
     const navigation = page.goto('/orders', { waitUntil: 'commit' })
     await expect(page.getByLabel('Carregando pedidos')).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/pdv-orders-index-loading-1481x1050.png',
-      fullPage: false,
-    })
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.screenshot({
-      path: 'test-results/pdv-orders-index-loading-390x844.png',
-      fullPage: false,
-    })
     releaseListRequest()
     await navigation
     await page.unroute('**/orders**')

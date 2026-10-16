@@ -1,6 +1,6 @@
 ---
 name: create-spec
-description: Create or refine an implementation-ready feature Spec from a PRD, GitHub Issue, report, existing reference, or direct request, grounded in repository rules and real code paths.
+description: Create or refine an implementation-ready feature Spec and interactive HTML explanation from a PRD, GitHub Issue, report, reference, or direct request, grounded in repository rules and real code paths.
 ---
 
 # Create a Spec
@@ -235,6 +235,8 @@ Spec, reread the Rule and rebuild the Rule Pack.
 Create `documentation/features/<domain>/<feature>/spec.md` using short kebab-case names.
 For a distinct change to a concluded feature, use
 `documentation/features/<domain>/<feature>/changes/<change-name>/spec.md`.
+Generate `interactive-spec.html` beside `spec.md` after the contract choices are settled,
+following **Interactive Spec generation** below. Refresh it whenever the Spec changes.
 Create saved `design/handoff.md` and references when UI is design-backed. Evaluation starts
 at implementation kickoff and owns actual results, findings, unfinished ACs and the short
 continuation handoff. Do not create a Plan.
@@ -270,7 +272,7 @@ included behavior, exclusions, accepted assumptions and resolved product decisio
 Map applicable PRQ IDs or source statements to `full`, `partial` or `deferred` coverage.
 Partial delivery never weakens the PRD or checks its Implemented box.
 
-### 2. Implementation Contract
+### 2. Behavior Contract
 
 Define observable requirements as `FR-*`. Keep internal paths and algorithms out of them.
 When the authoritative PRD/source defines `PRQ-*` requirements, map every FR to one or more
@@ -429,9 +431,44 @@ bundle when the Design Contract changes.
 
 ### 3. Technical Contract
 
-Describe affected modules/applications, existing integration surfaces and proposed runtime
-and data flow. Cite existing repository paths to establish ownership, reusable patterns or
-public boundaries; do not prescribe every future file or declaration.
+Organize this section by affected Scoops workspace, then its actual technical layers.
+Omit unchanged workspaces and layers instead of adding “No changes” sections. Preserve an
+unchanged dependency or integration guarantee briefly within the affected layer that consumes
+it. Describe ownership, existing integration surfaces and proposed runtime/data flow.
+
+Use the applicable workspace/layer structure:
+
+| Workspace | Layer sections when affected |
+| --- | --- |
+| `packages/core` | Domain (Entities, Structures, Errors, Events); Use cases; Interfaces |
+| `packages/validation` | Shared schemas and their consumers |
+| `packages/email` | Templates/rendering only when changed |
+| `apps/server` | REST; Database; Messaging; Provision |
+| `apps/web` | UI; Routes; REST; Provision |
+
+Errors and events belong under Domain. Business rules are implemented exclusively in owning
+Core use-case classes; do not create a separate Business rules layer or put executable rules
+in entities/structures. Keep a cross-layer flow and consequential decision table when useful.
+
+Within each affected layer, provide source-backed detail proportional to risk:
+
+- show an expected file tree and an **Action | Path** table for known changes; distinguish
+  `Modify`, `Create`, `Move`, `Move + Modify`, `Generate` and `Remove` as applicable;
+- verify existing paths; label proposed files and move destinations explicitly, identify move
+  sources, and let generation commands assign unknown migration/snapshot filenames;
+- document applicable physical database tables, fields, types, relations, tenant scope,
+  constraints/indexes, changed versus preserved data, mappings and migration semantics;
+- include illustrative Core TypeScript snippets where they clarify changed data contracts,
+  use-case decisions or orchestration. Base them on actual repository types/signatures and
+  mark partial snippets; do not invent entity classes, SDK APIs or implemented behavior;
+- explain affected UI state, request/cache flow, permissions, error recovery and accessibility,
+  rather than relying only on file trees or screenshots.
+
+These are expected changes, not completed implementation. A reused interface may expose changed
+underlying data types without requiring an artificial edit to its declaration. Keep proposed
+private filenames/decomposition adjustable under Rules; do not manufacture file changes just
+to fill a table. Show approved provider-directory organization when applicable without turning
+an unrelated existing provider layout into a mandatory refactor.
 
 Include applicable contracts:
 
@@ -448,9 +485,10 @@ Include applicable contracts:
 Give exact details where compatibility or correctness depends on them. Public names,
 payload fields and required migration/artifact locations may be contracts. New internal
 paths, private signatures, widget trees, hook names, task ownership and phase order remain
-agent decisions governed by Rules. Do not require exhaustive layer/path ledgers, unchanged
-entity schemas, per-file test plans or duplicate wiring inventories. A missing invented
-future internal path is not a material ambiguity.
+agent decisions governed by Rules. Keep the requested trees and Action/Path tables focused
+on affected contracts; do not inventory unchanged schemas, duplicate wiring or require
+per-file execution plans. A missing
+invented future private path is not a material ambiguity.
 
 Record only consequential choices with credible alternatives:
 
@@ -461,7 +499,7 @@ Record only consequential choices with credible alternatives:
 Omit this table when authority fixes the approach. Unresolved material decisions return to
 clarification rather than becoming defaults.
 
-### 4. Validation Contract
+### 4. Verification Contract
 
 Make every AC checkable through a concrete allowed automated boundary and/or executable
 manual checker, prerequisites, observable assertion and evidence destination. Name existing
@@ -534,6 +572,83 @@ contract revisions, dates and reasons; omit implementation attempts and test res
 | --- | --- | --- |
 | `1` | `YYYY-MM-DD` | `<source decision>` |
 
+## Interactive Spec generation
+
+Generate and maintain `interactive-spec.html` in the same directory as `spec.md`, including
+under `changes/<change-name>/` for a distinct change Spec. It is a derived, interactive
+explanation of the current Markdown contract, not a second authority or an implementation.
+Author it only after the same clarification gate as the Spec. If generation exposes a new
+material choice, resolve that choice in the Spec workflow before encoding it in the HTML.
+
+### Header and contract navigation
+
+- Use the actual Spec frontmatter for the page title/header: `title`, `status`, `revision`,
+  `source.type`, `source.ref`, `scope` and `last_updated_at`. Use this metadata directly;
+  do not replace it with an invented marketing headline or imply an open/draft Spec is delivered.
+- Give each present contract its own top-level tab: **Behavior Contract**, **Design Contract**
+  when present, **Technical Contract**, and **Verification Contract**. Also provide **Context &
+  scope** and **Documentation & history** tabs for those Spec sections. The Markdown Design
+  Contract may remain nested under Behavior while having its own HTML tab.
+- Keep scenarios, screen/state explorers and technical selectors within the owning contract.
+  Do not use feature scenarios as substitutes for the contract tabs. Detail may vary across
+  tabs; omit absent optional contracts rather than inventing empty sections.
+- Technical navigation uses **Package/application → Layer** with the same affected workspace
+  and layer sections as the Markdown. Omit unchanged layers and show Action/Path tables,
+  file trees, database details and illustrative snippets with the same meaning as the Spec.
+
+### Content and interactions
+
+- Derive all content from the approved/current Spec, saved design handoff and references.
+  Preserve FR/AC/MV identifiers, permissions, null/zero/omission distinctions, API shapes,
+  transaction/side-effect timing and error/recovery semantics. Keep metadata, tables and
+  examples synchronized with the same revision; a local illustrative example is not a new rule.
+- Add useful local interactions proportional to the feature: scenario/state selectors,
+  input previews, role views, payload explorers, or transaction/review walkthroughs. A compact
+  Spec may need only a few controls. Do not invent product controls, actors or states merely
+  to make every tab equally interactive.
+- Show UI explanations under Design, with required states/roles, focus/keyboard behavior,
+  responsive expectations and saved references. Distinguish design node/export dimensions
+  from browser viewports. References are design inputs, not runtime screenshots.
+- Verification explains acceptance criteria, manual journeys, allowed checker boundaries,
+  prerequisites, actual commands and semantic pass conditions. Label simulations as
+  illustrative and required proof as expected; do not mark backend ACs or implementation
+  checks passed because an HTML simulation works.
+- Carry the authority alignment and revision history into Documentation & history. Link to
+  `spec.md` and the saved handoff when present, and link real source references appropriately.
+
+### Standalone output and browser check
+
+Use one standalone HTML file with embedded CSS/JavaScript and repository design tokens.
+Do not require a build, CDN, external font service, backend, authentication or network fetch
+to use the explanation. Embed saved images when needed for offline use; optional source links
+may navigate externally. Never read encrypted `.pen` contents with filesystem tools or treat
+live Pencil as an HTML runtime dependency. Escape text, code, URLs and embedded JSON safely;
+no secrets, live product mutations or external publication are part of this generation step.
+
+Keep headings, code and tables readable on desktop and narrow screens. Use proper tab/panel
+semantics, selected/focus states, arrow/Home/End keyboard navigation, accessible form labels,
+visible focus and dialog dismissal/focus return where applicable. Contain wide trees, code
+and tables without page-level horizontal overflow; respect reduced motion.
+
+Validate the generated file with the Playwright CLI, serving its directory through a local
+static HTTP server if direct file navigation is unsupported. Check:
+
+1. frontmatter/content parity with the current Spec and links/reference availability;
+2. all contract tabs, package/layer views and meaningful local interactions, including failure
+   and recovery states actually represented by the explanation;
+3. a desktop and at least one narrow viewport, keyboard navigation/focus, console errors and
+   failed requests; and
+4. fresh desktop/narrow screenshots, visually inspected for wrapping, overflow and readability.
+
+Keep browser captures under ignored `test-results/` or CI artifacts, not the saved design
+reference bundle. These are authoring checks for the HTML; do not create Evaluation before
+implementation kickoff or present them as real authenticated/server-backed feature proof.
+Stop task-owned browser/static-server processes after validation. If browser validation is
+unavailable, report its precise limitation without fabricating a passing result.
+
+Refresh the HTML after final review corrections and status/revision changes before handoff.
+Include both clickable `spec.md` and `interactive-spec.html` paths in the final response.
+
 ## Independent Spec review
 
 Before changing any draft Spec to `open`, activate one read-only
@@ -568,15 +683,17 @@ Before setting the Spec to `open`, verify:
 - commands/prerequisites are real, checker ownership follows Rules, and mocked evidence
   cannot be mistaken for real integration proof;
 - authority links, tables and artifact structure are valid;
+- `interactive-spec.html` exists, matches current frontmatter/contracts and affected layers,
+  and its local interactions/browser checks are verified or have a precise reported limitation;
 - the current draft passed independent compatibility review with verified blockers resolved.
 
-Return the clickable Spec path, revision/status, outcome and exclusions, important decisions,
+Return clickable Spec and interactive HTML paths, revision/status, outcome and exclusions, important decisions,
 design/checker coverage and accepted risks. The next workflow is `implement-spec`.
 
 ## Material amendments
 
 Before conclusion, amend the same Spec: set `draft`, increment revision, clarify material
-choices, update approved authority first, refresh affected contracts/design/checkers and
+choices, update approved authority first, refresh affected contracts/design/checkers and the derived interactive HTML, and
 mark affected evidence historical. Repeat authoring integrity and independent Spec review,
 then return to `open` for autonomous implementation and integrated verification.
 Evidence unaffected by the amendment remains reusable when its claims and prerequisites

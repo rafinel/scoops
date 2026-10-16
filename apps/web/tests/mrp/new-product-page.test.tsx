@@ -61,7 +61,7 @@ async function assertDiagnostics(
 }
 
 test.describe('NewProductPage', () => {
-  test('captures the single-stock desktop and narrow states with keyboard focus', async ({
+  test('covers the single-stock desktop and narrow states with keyboard focus', async ({
     page,
     identityFixture,
   }) => {
@@ -71,10 +71,6 @@ test.describe('NewProductPage', () => {
     await page.setViewportSize({ width: 1440, height: 900 })
     await page.getByRole('checkbox', { name: 'Ingrediente' }).check()
     await expect(page.getByRole('button', { name: 'Criar produto' })).toBeVisible()
-    await page.screenshot({
-      path: 'test-results/f5-k4tYU-single-desktop-1440x900.png',
-      fullPage: false,
-    })
 
     await page.setViewportSize({ width: 390, height: 844 })
     const nameInput = page.getByRole('textbox', { name: 'Nome', exact: true })
@@ -82,15 +78,11 @@ test.describe('NewProductPage', () => {
     expect(
       await page.evaluate(() => document.activeElement?.getAttribute('placeholder')),
     ).toBe('Ex: Polpa de Açaí')
-    await page.screenshot({
-      path: 'test-results/f5-g9l12m-single-narrow-390x844.png',
-      fullPage: false,
-    })
 
     await assertDiagnostics(page, consoleErrors, failedRequests)
   })
 
-  test('captures the by-brand desktop and narrow states without clipping', async ({
+  test('covers the by-brand desktop and narrow states without clipping', async ({
     page,
     identityFixture,
   }) => {
@@ -109,10 +101,6 @@ test.describe('NewProductPage', () => {
     await page
       .getByText('Total calculado pelas quantidades iniciais das marcas.')
       .scrollIntoViewIfNeeded()
-    await page.screenshot({
-      path: 'test-results/f5-lZGJu-by-brand-desktop-1440x900.png',
-      fullPage: false,
-    })
 
     await page.setViewportSize({ width: 390, height: 844 })
     const createButton = page.getByRole('button', { name: 'Criar produto' })
@@ -123,10 +111,6 @@ test.describe('NewProductPage', () => {
     expect(
       await page.evaluate(() => document.activeElement?.getAttribute('aria-label')),
     ).toBe('Marca principal 2')
-    await page.screenshot({
-      path: 'test-results/f5-z41Sbx-by-brand-narrow-390x844.png',
-      fullPage: false,
-    })
 
     await assertDiagnostics(page, consoleErrors, failedRequests)
   })

@@ -1,5 +1,3 @@
-import path from 'node:path'
-
 import type { Page } from '@playwright/test'
 import {
   ProductFaker,
@@ -11,7 +9,6 @@ import type { MrpFixture } from '../fixtures/mrp-module-fixture'
 import { expect, test } from '../playwright'
 
 const PRODUCT_ID = 'product-1'
-const SCREENSHOT_DIRECTORY = path.resolve(process.cwd(), 'test-results')
 const EXPECTED_UNMOUNTED_WARNING =
   /Can't perform a React state update on a component that hasn't mounted yet/
 
@@ -92,12 +89,7 @@ test.describe('ProductRecipePage', () => {
     await expect
       .poll(() => requests[0]?.url.pathname)
       .toBe(`/products/${PRODUCT_ID}/recipe`)
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-populated-1560x1200.png',
-      true,
-    )
+    await assertCleanRecipeState(client)
 
     await page.getByRole('button', { name: 'Adicionar ingrediente' }).click()
     const addDialog = page.getByRole('dialog', { name: 'Adicionar ingrediente' })
@@ -119,7 +111,7 @@ test.describe('ProductRecipePage', () => {
     await expect(addDialog.getByText('R$ 7,00 · 43,75%')).toBeVisible()
     await expect(addDialog.getByText('8 kg')).toBeVisible()
     await page.setViewportSize({ width: 676, height: 682 })
-    await captureCleanRecipeState(page, client, 'products-recipe-add-676x682.png')
+    await assertCleanRecipeState(client)
     await addDialog.getByRole('button', { name: 'Cancelar' }).click()
 
     await page.setViewportSize({ width: 676, height: 684 })
@@ -131,7 +123,7 @@ test.describe('ProductRecipePage', () => {
     const brandSelect = editDialog.getByRole('combobox', { name: 'Marca' })
     await expect(brandSelect).toBeVisible()
     await expect(brandSelect).toContainText('Marca principal')
-    await captureCleanRecipeState(page, client, 'products-recipe-edit-676x684.png')
+    await assertCleanRecipeState(client)
     await brandSelect.click()
     await page.getByRole('option', { name: 'Marca alternativa' }).click()
     await expect(brandSelect).toContainText('Marca alternativa')
@@ -160,7 +152,7 @@ test.describe('ProductRecipePage', () => {
     await expect(
       page.getByRole('alertdialog', { name: 'Remover ingrediente?' }),
     ).toBeVisible()
-    await captureCleanRecipeState(page, client, 'products-recipe-remove-596x335.png')
+    await assertCleanRecipeState(client)
   })
 
   test('validates a zero ingredient quantity before issuing a recipe mutation', async ({
@@ -199,11 +191,7 @@ test.describe('ProductRecipePage', () => {
           method === 'POST' && url.pathname.endsWith('/recipe/ingredients'),
       ),
     ).toHaveLength(0)
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-add-quantity-validation-676x682.png',
-    )
+    await assertCleanRecipeState(client)
   })
 
   test('covers Recipe loading, error retry, unsaved yield, and saved-empty states', async ({
@@ -272,12 +260,7 @@ test.describe('ProductRecipePage', () => {
     await productStockResponse
     await pendingRecipeRequest
     await expect(page.getByRole('status', { name: 'Carregando receita' })).toBeVisible()
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-loading-1560x1200.png',
-      true,
-    )
+    await assertCleanRecipeState(client)
     releaseRecipe()
     await (await recipeResponse).finished()
     await expect(
@@ -292,13 +275,7 @@ test.describe('ProductRecipePage', () => {
       'aria-selected',
       'true',
     )
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-error-1560x1200.png',
-      true,
-      [/503 \(Service Unavailable\)/],
-    )
+    await assertCleanRecipeState(client, [/503 \(Service Unavailable\)/])
     await page.getByRole('button', { name: 'Tentar novamente' }).click()
     await expect(page.getByText('Comece a montar sua receita')).toBeVisible()
     const yieldInput = page.getByRole('spinbutton', {
@@ -307,24 +284,13 @@ test.describe('ProductRecipePage', () => {
     await yieldInput.fill('0')
     await page.getByRole('button', { name: 'Salvar' }).click()
     await expect(page.getByRole('alert')).toContainText('Informe um rendimento positivo')
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-yield-validation-1560x1200.png',
-      true,
-    )
+    await assertCleanRecipeState(client)
     await yieldInput.fill('1000')
     await page.getByRole('button', { name: 'Salvar' }).click()
     await expect(page.getByText('Comece a montar sua receita')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Produzir' })).toBeDisabled()
     await page.setViewportSize({ width: 1201, height: 538 })
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-empty-1201x538.png',
-      false,
-      [EXPECTED_UNMOUNTED_WARNING],
-    )
+    await assertCleanRecipeState(client, [EXPECTED_UNMOUNTED_WARNING])
   })
 
   test('covers production preview states, confirmation, and narrow keyboard access', async ({
@@ -390,13 +356,7 @@ test.describe('ProductRecipePage', () => {
     await expect(
       produceDialog.getByRole('button', { name: 'Confirmar produção' }),
     ).toBeEnabled()
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-produce-796x790.png',
-      false,
-      [EXPECTED_UNMOUNTED_WARNING],
-    )
+    await assertCleanRecipeState(client, [EXPECTED_UNMOUNTED_WARNING])
     const previewRequestsBeforeInvalidBatch = requests.filter(
       ({ method, url }) =>
         method === 'POST' && url.pathname.endsWith('/production-preview'),
@@ -438,11 +398,7 @@ test.describe('ProductRecipePage', () => {
       produceDialog.getByRole('button', { name: 'Confirmar produção' }),
     ).toBeDisabled()
     await page.setViewportSize({ width: 640, height: 760 })
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-produce-shortage-640x760.png',
-    )
+    await assertCleanRecipeState(client)
     await produceDialog.getByRole('button', { name: 'Cancelar' }).click()
 
     previewState = 'no-main-brand'
@@ -460,11 +416,7 @@ test.describe('ProductRecipePage', () => {
     await expect(produceDialog.getByRole('spinbutton', { name: 'Lotes' })).toHaveValue(
       '1',
     )
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-produce-no-main-brand-640x760.png',
-    )
+    await assertCleanRecipeState(client)
     await produceDialog.getByRole('button', { name: 'Cancelar' }).click()
 
     previewState = 'failure'
@@ -478,13 +430,7 @@ test.describe('ProductRecipePage', () => {
         .getByRole('alert')
         .filter({ hasText: 'Não foi possível calcular a produção' }),
     ).toBeVisible()
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-produce-preview-error-640x760.png',
-      false,
-      [/503 \(Service Unavailable\)/],
-    )
+    await assertCleanRecipeState(client, [/503 \(Service Unavailable\)/])
     previewState = 'sufficient'
     await produceDialog.getByRole('button', { name: 'Tentar novamente' }).click()
     await expect(produceDialog.getByText('CUSTO DA PRODUÇÃO')).toBeVisible()
@@ -497,11 +443,7 @@ test.describe('ProductRecipePage', () => {
     ).toBeVisible()
     await page.getByRole('button', { name: 'Produzir' }).click()
     await expect(produceDialog.getByRole('status')).toContainText('Calculando projeção')
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-produce-pending-640x760.png',
-    )
+    await assertCleanRecipeState(client)
     releasePreview()
     await expect(produceDialog.getByText('CUSTO DA PRODUÇÃO')).toBeVisible()
     await produceDialog.getByRole('button', { name: 'Cancelar' }).click()
@@ -524,12 +466,7 @@ test.describe('ProductRecipePage', () => {
         (dialog) => dialog.scrollWidth <= dialog.clientWidth,
       ),
     ).toBe(true)
-    await captureCleanRecipeState(
-      page,
-      client,
-      'products-recipe-produce-narrow-320x900.png',
-      true,
-    )
+    await assertCleanRecipeState(client)
     await narrowProduceDialog.getByRole('button', { name: 'Cancelar' }).click()
   })
 })
@@ -865,11 +802,8 @@ function observeClient(page: Page) {
   return { consoleErrors, failedRequests }
 }
 
-async function captureCleanRecipeState(
-  page: Page,
+async function assertCleanRecipeState(
   client: ReturnType<typeof observeClient>,
-  name: string,
-  fullPage = false,
   expectedConsoleErrors: readonly RegExp[] = [],
 ) {
   const unexpectedConsoleErrors = client.consoleErrors.filter(
@@ -877,7 +811,6 @@ async function captureCleanRecipeState(
   )
   expect(unexpectedConsoleErrors).toEqual([])
   expect(client.failedRequests).toEqual([])
-  await page.screenshot({ path: path.join(SCREENSHOT_DIRECTORY, name), fullPage })
   client.consoleErrors.length = 0
   client.failedRequests.length = 0
 }

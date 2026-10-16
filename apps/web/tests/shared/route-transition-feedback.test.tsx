@@ -87,7 +87,7 @@ function expectCleanDiagnostics(diagnostics: Diagnostics) {
 }
 
 for (const viewport of VIEWPORTS) {
-  test(`MV-03 captures fast route navigation at ${viewport.name} ${viewport.width}x${viewport.height}`, async ({
+  test(`MV-03 covers fast route navigation at ${viewport.name} ${viewport.width}x${viewport.height}`, async ({
     page,
   }) => {
     const diagnostics = collectDiagnostics(page)
@@ -106,16 +106,12 @@ for (const viewport of VIEWPORTS) {
     await expect(
       page.getByRole('progressbar', { name: 'Carregando página…' }),
     ).toHaveCount(0)
-    await page.screenshot({
-      fullPage: false,
-      path: `test-results/route-transition/mv-03-fast-${viewport.name}-${viewport.width}x${viewport.height}.png`,
-    })
     expectCleanDiagnostics(diagnostics)
   })
 }
 
 for (const viewport of VIEWPORTS) {
-  test(`MV-04 captures reduced-motion route navigation at ${viewport.name} ${viewport.width}x${viewport.height}`, async ({
+  test(`MV-04 covers reduced-motion route navigation at ${viewport.name} ${viewport.width}x${viewport.height}`, async ({
     page,
   }) => {
     const diagnostics = collectDiagnostics(page)
@@ -135,10 +131,6 @@ for (const viewport of VIEWPORTS) {
     await expect(
       page.getByRole('progressbar', { name: 'Carregando página…' }),
     ).toHaveCount(0)
-    await page.screenshot({
-      fullPage: false,
-      path: `test-results/route-transition/mv-04-reduced-motion-${viewport.name}-${viewport.width}x${viewport.height}.png`,
-    })
     expectCleanDiagnostics(diagnostics)
   })
 }
@@ -242,10 +234,6 @@ for (const viewport of VIEWPORTS) {
     ).toHaveCount(0)
     await expect(page.locator('body')).toContainText('Entre no Scoops')
     expect(signOutRequests).toBe(1)
-    await page.screenshot({
-      fullPage: false,
-      path: `test-results/route-transition/mv-03-authenticated-exit-${viewport.name}-${viewport.width}x${viewport.height}.png`,
-    })
     expect(diagnostics.consoleErrors).toEqual([])
     expect(diagnostics.failedRequests).toEqual([])
     expect(diagnostics.httpErrors).toEqual([])
@@ -274,15 +262,11 @@ test('swaps public routes immediately when View Transitions are unsupported', as
   await expect(page.getByRole('progressbar', { name: 'Carregando página…' })).toHaveCount(
     0,
   )
-  await page.screenshot({
-    fullPage: false,
-    path: 'test-results/route-transition/unsupported-view-transition.png',
-  })
   expectCleanDiagnostics(diagnostics)
 })
 
 for (const viewport of VIEWPORTS) {
-  test(`MV-03 captures delayed route status at ${viewport.name} ${viewport.width}x${viewport.height}`, async ({
+  test(`MV-03 covers delayed route status at ${viewport.name} ${viewport.width}x${viewport.height}`, async ({
     page,
     identityFixture,
   }) => {
@@ -328,19 +312,11 @@ for (const viewport of VIEWPORTS) {
     await page.keyboard.press('Shift+Tab')
     await expect(forgotPassword).toBeFocused()
     await expect(progress.locator('[data-route-transition-indicator]')).toBeVisible()
-    await page.screenshot({
-      fullPage: false,
-      path: `test-results/route-transition/mv-03-delayed-${viewport.name}-${viewport.width}x${viewport.height}.png`,
-    })
 
     release()
     await expect(page).toHaveURL(new RegExp(`${ROUTES.app}$`))
     await expect(progress).toHaveCount(0)
     await expect(page.getByRole('banner')).toBeVisible()
-    await page.screenshot({
-      fullPage: false,
-      path: `test-results/route-transition/mv-03-delayed-destination-${viewport.name}-${viewport.width}x${viewport.height}.png`,
-    })
     expect(diagnostics.consoleErrors).toEqual([])
     expect(diagnostics.failedRequests).toEqual([])
     expect(diagnostics.httpErrors).toEqual([])
@@ -348,7 +324,7 @@ for (const viewport of VIEWPORTS) {
 }
 
 for (const viewport of VIEWPORTS) {
-  test(`MV-04 captures delayed reduced-motion route status at ${viewport.name} ${viewport.width}x${viewport.height}`, async ({
+  test(`MV-04 covers delayed reduced-motion route status at ${viewport.name} ${viewport.width}x${viewport.height}`, async ({
     page,
     identityFixture,
   }) => {
@@ -395,19 +371,11 @@ for (const viewport of VIEWPORTS) {
     await page.keyboard.press('Shift+Tab')
     await expect(forgotPassword).toBeFocused()
     await expect(progress.locator('[data-route-transition-indicator]')).toBeVisible()
-    await page.screenshot({
-      fullPage: false,
-      path: `test-results/route-transition/mv-04-delayed-${viewport.name}-${viewport.width}x${viewport.height}.png`,
-    })
 
     release()
     await expect(page).toHaveURL(new RegExp(`${ROUTES.app}$`))
     await expect(progress).toHaveCount(0)
     await expect(page.getByRole('banner')).toBeVisible()
-    await page.screenshot({
-      fullPage: false,
-      path: `test-results/route-transition/mv-04-delayed-destination-${viewport.name}-${viewport.width}x${viewport.height}.png`,
-    })
     expect(diagnostics.consoleErrors).toEqual([])
     expect(diagnostics.failedRequests).toEqual([])
     expect(diagnostics.httpErrors).toEqual([])

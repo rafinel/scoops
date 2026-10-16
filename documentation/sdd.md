@@ -70,7 +70,7 @@ enter conclusion; it is not PRD closure and does not authorize a checkbox change
 | Identifier | Meaning | Owner or use |
 | --- | --- | --- |
 | `PRQ-*` | Product Requirement | Module PRDs |
-| `FR-*` | Functional Requirement | Spec Implementation Contract |
+| `FR-*` | Functional Requirement | Spec Behavior Contract |
 | `AC-*` | Acceptance Criterion | Spec acceptance and traceability |
 | `MV-*` | Manual Validation | Executable user-visible validation scenario |
 | `EV-*` | Evidence | Automated, runtime, manual-supporting or visual evidence; use a `Type` field for visual evidence |
@@ -87,6 +87,7 @@ evidence only to rename an identifier.
 ```text
 documentation/features/<domain>/<feature>/
 ├── spec.md                 # contracts and checkers
+├── interactive-spec.html   # derived interactive explanation of the current Spec
 ├── evaluation.md           # progress, evidence, findings and current handoff
 └── design/                 # saved references when material
     ├── handoff.md
@@ -97,6 +98,16 @@ Use the [Spec](./templates/sdd/spec.md) and [Evaluation](./templates/sdd/evaluat
 templates. New behavior for an already concluded feature uses
 `changes/<change-name>/` under that feature. Existing design bundles may retain
 `design/manifest.md`; do not create a duplicate handoff solely to rename it.
+
+`create-spec` generates `interactive-spec.html` beside `spec.md`, including for a
+change Spec. Use the actual Spec frontmatter for its header and give each contract
+a separate tab, with additional navigation only where useful. Preserve applicable
+scope, behavior, design, technical, verification and revision detail; illustrative
+interactions explain contracted outcomes. The HTML is derived documentation, not
+independent contract authority, production implementation or runtime proof. Keep
+its frontmatter, revision, status and content aligned when authoring or amending
+the Spec; simulated results never become Evaluation evidence for the feature.
+Evaluation is created at implementation kickoff, not during Spec authoring.
 
 There is no separate `plan.md` or `create-plan` step. Execution order, decomposition,
 dependencies and delegation belong to the agent's working context. Existing Plans
@@ -114,8 +125,8 @@ implementation evidence directories under feature documentation.
 
 ## Contract and checkers
 
-The Spec has five sections: Context and scope, Implementation Contract, Technical
-Contract, Validation Contract, and Documentation alignment and revision history.
+The Spec has five sections: Context and scope, Behavior Contract, Technical
+Contract, Verification Contract, and Documentation alignment and revision history.
 It defines:
 
 - the problem, selected `PRQ-*`, actors, scope, exclusions and accepted assumptions;
@@ -126,6 +137,18 @@ It defines:
 - concrete proof for every criterion: commands or test selectors, expected assertions,
   environment/fixtures, manual steps or visual comparisons and evidence limits;
 - the exact Rule Pack and material contract revisions.
+
+Organize the Technical Contract by affected Scoops workspace and layer: Core
+Domain (entities, structures, errors and events), Use cases and Interfaces;
+Validation schemas; Server REST, Database, Messaging and Provision; Web UI,
+Routes, REST and Provision; Email composition only when affected. Omit unchanged
+workspaces and layers rather than adding empty or "No changes" inventories.
+Document ownership, public contracts, runtime flow and consequential constraints
+inside their owning sections, connecting cross-layer flows where needed.
+Expected file trees and Action/Path tables may clarify affected artifacts; mark
+proposed names and illustrative, source-backed Core snippets explicitly. Include
+applicable database tables, fields, constraints, mappings and migration semantics.
+These details do not require an exhaustive future private-file inventory.
 
 Specify constraints that affect correctness. Ordinary helper names, internal file
 placement, widget decomposition, exhaustive declaration inventories, task lists
@@ -149,7 +172,7 @@ while required examples or generated artifacts are missing, stale or untracked.
 
 Changed business rules and correctness-critical logic in eligible Core use cases
 require targeted Stryker mutation checks. Define their use-case scope, mapped ACs
-and semantic pass conditions in the Validation Contract. Mutation targets are only
+and semantic pass conditions in the Verification Contract. Mutation targets are only
 direct files matching `src/**/use-cases/*-use-case.ts`; supporting Core code is
 consumed by tests but is not mutated. Web and Server retain their existing checks.
 Follow Tooling for local changed-file selection or explicit use-case scope. Core CI

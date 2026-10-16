@@ -1,5 +1,3 @@
-import path from 'node:path'
-import type { Page } from '@playwright/test'
 
 import { ProductFaker } from '@scoops/core/mrp/domain/entities/fakers'
 
@@ -76,7 +74,6 @@ const REMOVAL_IMPACT = {
   retainedHistory: { stockTransactions: 3, productions: 1, orders: 2 },
 }
 
-const SCREENSHOT_DIRECTORY = path.resolve(process.cwd(), 'test-results')
 
 const CATEGORY_BLOCKER_SCENARIOS = [
   {
@@ -186,25 +183,6 @@ const CATEGORY_BLOCKER_SCENARIOS = [
   },
 ] as const
 
-async function captureViewport(page: Page, filename: string) {
-  const viewport = page.viewportSize()
-  if (!viewport) throw new Error('Playwright viewport is not configured')
-  await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.evaluate(() => {
-    for (const animation of document.getAnimations()) {
-      try {
-        animation.finish()
-      } catch {
-        // Animation may already be complete.
-      }
-    }
-  })
-  await page.evaluate(() => document.fonts.ready)
-  await page.screenshot({
-    clip: { x: 0, y: 0, width: viewport.width, height: viewport.height },
-    path: path.join(SCREENSHOT_DIRECTORY, filename),
-  })
-}
 
 test.describe('ProductSettingsPage', () => {
   test('redirects anonymous access and preserves validated retry state', async ({
@@ -287,7 +265,7 @@ test.describe('ProductSettingsPage', () => {
   })
 
   for (const scenario of CATEGORY_BLOCKER_SCENARIOS) {
-    test(`captures ${scenario.label} blocker ${scenario.reference} at 1560x1450`, async ({
+    test(`covers ${scenario.label} blocker ${scenario.reference} at 1560x1450`, async ({
       page,
       identityFixture,
       mrpFixture,
@@ -319,10 +297,6 @@ test.describe('ProductSettingsPage', () => {
       await expect(
         page.getByRole('heading', { name: `${scenario.label} em uso` }),
       ).toBeVisible()
-      await captureViewport(
-        page,
-        `f6-fnd014-category-${scenario.category}-${scenario.reference}-1560x1450.png`,
-      )
       expect(
         requests.some((request) =>
           request.url.pathname.endsWith('/category-removal-impact'),
@@ -366,19 +340,17 @@ test.describe('ProductSettingsPage', () => {
     await expect(
       page.getByRole('checkbox', { name: 'Permitir estoque negativo' }),
     ).toBeVisible()
-    await captureViewport(page, 'f6-fnd014-settings-populated-1560x1450.png')
 
     await page.setViewportSize({ width: 390, height: 844 })
     await expect(page.getByRole('heading', { name: PRODUCT.name })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Remover produto' })).toBeVisible()
-    await captureViewport(page, 'f6-fnd014-settings-populated-390x844.png')
     expect(requests[0]?.method).toBe('GET')
     expect(requests[0]?.url.pathname).toBe(`/products/${PRODUCT_ID}/settings`)
     expect(consoleErrors).toEqual([])
     expect(failedRequests).toEqual([])
   })
 
-  test('captures loading and recoverable read failure states', async ({
+  test('covers loading and recoverable read failure states', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -401,7 +373,6 @@ test.describe('ProductSettingsPage', () => {
     await expect(
       page.getByRole('status', { name: 'Carregando configurações do produto' }),
     ).toBeVisible()
-    await captureViewport(page, 'f6-fnd014-settings-loading-1560x1450.png')
     finishLoading?.()
     await navigation
     await expect(page.getByRole('heading', { name: PRODUCT.name })).toBeVisible()
@@ -411,7 +382,6 @@ test.describe('ProductSettingsPage', () => {
     await expect(
       page.getByRole('status', { name: 'Carregando configurações do produto' }),
     ).toBeVisible()
-    await captureViewport(page, 'f6-fnd014-settings-loading-390x844.png')
     finishLoading?.()
     await narrowNavigation
     await expect(page.getByRole('heading', { name: PRODUCT.name })).toBeVisible()
@@ -427,12 +397,10 @@ test.describe('ProductSettingsPage', () => {
     await expect(
       page.getByRole('heading', { name: 'Não foi possível carregar as configurações' }),
     ).toBeVisible()
-    await captureViewport(page, 'f6-fnd014-settings-error-1560x1450.png')
     await page.setViewportSize({ width: 390, height: 844 })
-    await captureViewport(page, 'f6-fnd014-settings-error-390x844.png')
   })
 
-  test('captures pending save, dependency recovery and removal impact dialogs', async ({
+  test('covers pending save, dependency recovery and removal impact dialogs', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -469,7 +437,6 @@ test.describe('ProductSettingsPage', () => {
       .poll(() => requests.some((request) => request.method === 'PATCH'))
       .toBe(true)
     await expect(page.getByRole('status')).toContainText('Salvando alteração…')
-    await captureViewport(page, 'f6-fnd014-settings-save-pending-390x844.png')
     finishSave?.()
 
     const categoryRegion = page.getByRole('region', { name: 'Categorias do produto' })
@@ -479,19 +446,17 @@ test.describe('ProductSettingsPage', () => {
     ).toBeEnabled()
     await categoryRegion.getByRole('button', { name: 'Ingrediente' }).click()
     await expect(page.getByRole('heading', { name: 'Ingrediente em uso' })).toBeVisible()
-    await captureViewport(page, 'f6-fnd014-category-dependency-390x844.png')
     await page.getByRole('button', { name: 'Entendi' }).click()
 
     await page.getByRole('button', { name: 'Remover produto' }).click()
     await expect(page.getByRole('heading', { name: 'Remover produto?' })).toBeVisible()
     await expect(page.getByText(/Nenhuma remoção parcial será feita/)).toBeVisible()
-    await captureViewport(page, 'f6-fnd014-removal-impact-390x844.png')
     expect(
       requests.some((request) => request.url.pathname.endsWith('/removal-impact')),
     ).toBe(true)
   })
 
-  test('captures save-pending at the exact desktop and narrow viewports', async ({
+  test('covers save-pending at the exact desktop and narrow viewports', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -519,7 +484,6 @@ test.describe('ProductSettingsPage', () => {
     await name.blur()
     await expect.poll(() => patchCount).toBe(1)
     await expect(page.getByRole('status')).toContainText('Salvando alteração…')
-    await captureViewport(page, 'f6-fnd014-settings-save-pending-1560x1450.png')
     finishSave?.()
 
     await page.setViewportSize({ width: 390, height: 844 })
@@ -528,7 +492,6 @@ test.describe('ProductSettingsPage', () => {
     await name.blur()
     await expect.poll(() => patchCount).toBe(2)
     await expect(page.getByRole('status')).toContainText('Salvando alteração…')
-    await captureViewport(page, 'f6-fnd014-settings-save-pending-390x844.png')
     finishSave?.()
   })
 
@@ -582,7 +545,7 @@ test.describe('ProductSettingsPage', () => {
     })
   })
 
-  test('captures the destructive removal reference at the exact desktop viewport', async ({
+  test('covers the destructive removal reference at the exact desktop viewport', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -600,10 +563,9 @@ test.describe('ProductSettingsPage', () => {
     await page.goto(`/products/${PRODUCT_ID}/settings`)
     await page.getByRole('button', { name: 'Remover produto' }).click()
     await expect(page.getByRole('heading', { name: 'Remover produto?' })).toBeVisible()
-    await captureViewport(page, 'f6-fnd014-removal-O11tq-1560x1450.png')
   })
 
-  test('captures unit preview and confirms cross-dimension numeric preservation', async ({
+  test('covers unit preview and confirms cross-dimension numeric preservation', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -639,7 +601,6 @@ test.describe('ProductSettingsPage', () => {
     await expect(
       page.getByRole('heading', { name: 'Alterar unidade de estoque' }),
     ).toBeVisible()
-    await captureViewport(page, 'f6-fnd014-unit-warning-x4MQHd-1560x1450.png')
     await page.getByRole('button', { name: 'Cancelar' }).click()
     await expect(unit).toBeFocused()
 
@@ -666,7 +627,6 @@ test.describe('ProductSettingsPage', () => {
       page.getByText(/sem alterar os valores numéricos existentes/i),
     ).toBeVisible()
     await expect(page.getByRole('button', { name: 'Alterar unidade' })).toBeVisible()
-    await captureViewport(page, 'f8-unit-preservation-dialog-1560x1450.png')
     await page.getByRole('button', { name: 'Alterar unidade' }).click()
     await expect(
       page.getByRole('heading', { name: 'Alterar unidade de estoque' }),
@@ -709,7 +669,7 @@ test.describe('ProductSettingsPage', () => {
     await expect(status).toBeEnabled()
   })
 
-  test('captures recoverable removal failure at 390x844', async ({
+  test('covers recoverable removal failure at 390x844', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -734,10 +694,9 @@ test.describe('ProductSettingsPage', () => {
     await expect(
       page.getByRole('alert').filter({ hasText: 'Não foi possível remover o produto' }),
     ).toBeVisible()
-    await captureViewport(page, 'f6-fnd014-removal-failure-390x844.png')
   })
 
-  test('captures the narrow keyboard dialog path', async ({
+  test('covers the narrow keyboard dialog path', async ({
     page,
     identityFixture,
     mrpFixture,
@@ -760,7 +719,6 @@ test.describe('ProductSettingsPage', () => {
     await categoryButton.focus()
     await page.keyboard.press('Enter')
     await expect(page.getByRole('heading', { name: 'Ingrediente em uso' })).toBeVisible()
-    await captureViewport(page, 'f6-fnd014-narrow-keyboard-390x844.png')
     await page.keyboard.press('Escape')
     await expect(page.getByRole('heading', { name: 'Ingrediente em uso' })).toBeHidden()
   })

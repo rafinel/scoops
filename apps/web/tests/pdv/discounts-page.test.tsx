@@ -104,9 +104,6 @@ test.describe('DiscountsPage', () => {
     await page.getByRole('option', { name: 'Ativo', exact: true }).click()
     await expect(statusFilter).toContainText('Ativo')
     await expect.poll(() => new URL(page.url()).searchParams.get('status')).toBe('active')
-    await page.screenshot({
-      path: 'test-results/combo-runtime-list-populated-1481x1050.png',
-    })
 
     await page.setViewportSize({ height: 844, width: 390 })
     const searchControl = page.locator('label[for="discount-search"]')
@@ -137,9 +134,6 @@ test.describe('DiscountsPage', () => {
     expect(Math.abs(statusBox.width - availableFiltersWidth)).toBeLessThanOrEqual(1)
     expect(typeBox.y).toBeGreaterThan(searchBox.y + searchBox.height)
     expect(statusBox.y).toBeGreaterThan(typeBox.y + typeBox.height)
-    await page.screenshot({
-      path: 'test-results/combo-runtime-list-mobile-filters-390x844.png',
-    })
     await page.getByRole('textbox', { name: 'Buscar descontos' }).focus()
     await page.keyboard.press('Tab')
     await expect(typeFilter).toBeFocused()
@@ -205,8 +199,5 @@ test.describe('DiscountsPage', () => {
     await expect(page.getByText('Combo Açaí + Brownie').first()).toBeVisible()
     await expect(page.getByRole('button', { name: 'Criar desconto' })).toHaveCount(0)
     await expect(page.getByRole('link', { name: /Novo desconto/ })).toHaveCount(0)
-    await page.screenshot({
-      path: 'test-results/f10-operator-discounts-1440x900.png',
-    })
   })
 })

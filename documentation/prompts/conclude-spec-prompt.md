@@ -50,10 +50,13 @@ according to the change. Delivery PRs must be ready for review; verify `isDraft:
    current parameters, headers, representative bodies and reusable non-secret variables.
    For UI, require fresh inspected captures for the changed state/viewport and the applicable
    Playwright behavior, console, network, keyboard, accessibility and responsive evidence.
-5. Inspect all changed documentation in status and staged/unstaged diffs. Include delivery-owned
-   and required factual documentation in the normal commits, PR traceability and Evaluation;
-   preserve unrelated user work and explicitly record exclusions. Spec and Evaluation are review
-   artifacts even when their changes only record evidence or closure.
+5. Inspect all changed documentation and every staged, unstaged and untracked path. For a Spec
+   delivery, include all current shareable local changes in the same Spec PR, including changes
+   that predate the current task or appear unrelated; do not exclude them based on ownership or
+   assumed scope. Reconcile their behavior, scope and required evidence with the Spec,
+   Evaluation and PR summary. Exclude only secrets, credentials, environment-specific local
+   data, or files that cannot safely be shared, and record each exclusion and reason. Spec and
+   Evaluation are review artifacts even when their changes only record evidence or closure.
 6. Map every in-scope `PRQ-*` through `FR-*` and `AC-*` to current evidence and classify it as
    fully delivered, partially delivered or deferred. Full delivery requires the complete current
    Outcome, Actors, applicable Consumes and Provides, Capabilities and conditional Experience,
