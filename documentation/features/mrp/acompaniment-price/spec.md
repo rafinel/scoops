@@ -1,6 +1,6 @@
 ---
 title: Accompaniment product sale price
-status: in_progress
+status: completed
 revision: 3
 source:
   type: issue
@@ -8,7 +8,7 @@ source:
 scope:
   - MRP categories, product-owned accompaniment price, links, persistence, REST and Web
   - PDV catalog consumption, cart price review and historical snapshots
-last_updated_at: 2026-10-15
+last_updated_at: 2026-10-16
 ---
 
 # Accompaniment product sale price
@@ -817,3 +817,5 @@ Independent read-only compatibility review of revision 1 completed on 2026-10-14
 | 1 | 2026-10-14 | Issue #56 contract incorporating confirmed Link/Edit-only management, first-save review, category restriction and dedicated PDV review design. Editorial enrichment adds source-backed package/layer trees, persistence details and illustrative Core snippets without changing FR/AC behavior or public contracts. |
 | 2 | 2026-10-15 | Adopt a reusable pure business-rule Strategy contract in Core and apply it to PDV pricing, combo allocation, request validation and preview price facts. Use cases retain authorization, data loading, transaction and persistence orchestration; no product behavior, public REST contract, entities or structures change. |
 | 3 | 2026-10-15 | Move `BusinessRuleStrategy` from the integration interfaces boundary into `shared/domain/strategies`, following the repository architecture check. Export it from the shared domain Strategy subpath. Clarify that Edit can retain a legacy dual-category target while it remains an Accompaniment. No product outcome or concrete Strategy boundary changes. |
+
+**Outcome:** Spec revision 3 was implemented; acceptance, authenticated Manager/Operator journeys, visual states and implementation-candidate quality gates passed. The final-head CI gate and detailed evidence are recorded in the [Evaluation](./evaluation.md). The MRP and PDV requirements listed above remain partial; their Implemented checkboxes stay unchecked.
