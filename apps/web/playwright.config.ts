@@ -25,7 +25,10 @@ export default defineConfig({
   workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  reporter: 'html',
+  outputDir: '.playwright-cli/logs/test-results',
+  reporter: [
+    ['html', { outputFolder: '.playwright-cli/logs/html-report', open: 'never' }],
+  ],
   use: {
     baseURL: PLAYWRIGHT_BASE_URL,
     trace: 'on-first-retry',
