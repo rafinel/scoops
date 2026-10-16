@@ -1,5 +1,5 @@
 import { Body, HttpStatus, Inject, Param, ParseUUIDPipe, Patch } from '@nestjs/common'
-import { ApiParam, ApiResponse } from '@nestjs/swagger'
+import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger'
 import type { Account } from '@scoops/core/identity/domain/entities'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { MrpDatabase } from '@scoops/core/mrp/interfaces'
@@ -27,6 +27,30 @@ export class UpdateProductAccompanimentController {
   @RequiredProfiles([UserProfile.Manager])
   @ApiParam({ name: 'productId', format: 'uuid', description: 'The Portion product.' })
   @ApiParam({ name: 'linkId', format: 'uuid', description: 'The accompaniment link.' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['accompanimentTypeId', 'quantityPerPortion'],
+      properties: {
+        accompanimentTypeId: { type: 'string', format: 'uuid' },
+        quantityPerPortion: {
+          type: 'number',
+          minimum: 0,
+          exclusiveMinimum: true,
+          multipleOf: 0.001,
+        },
+        accompanimentPrice: {
+          type: 'number',
+          minimum: 0,
+          maximum: 9_999_999_999_999_998,
+          multipleOf: 0.01,
+          description:
+            'Optional intentional product-wide price change. Omit to keep the latest saved price; zero is allowed.',
+        },
+      },
+    },
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Product accompaniment updated.',
@@ -39,7 +63,7 @@ export class UpdateProductAccompanimentController {
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'The quantity is invalid.',
+    description: 'The quantity or accompaniment sale price is invalid.',
     type: ErrorResponseDto,
   })
   @ApiResponse({

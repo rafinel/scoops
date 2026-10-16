@@ -14,6 +14,7 @@ import { NewSaleCart } from './new-sale-cart'
 import { NewSaleFeedback } from './new-sale-feedback'
 import { OrderConfirmation } from './order-confirmation'
 import { OrderRegistrationDialog } from './order-registration-dialog'
+import { RepricedOrderReviewDialog } from './repriced-order-review-dialog'
 import { OrderVerificationState } from './order-verification-state'
 import { PortionConfigurationDialog } from './portion-configuration-dialog'
 import { ResaleConfigurationDialog } from './resale-configuration-dialog'
@@ -140,58 +141,11 @@ export const NewSalePage = () => {
       ) : null}
 
       {registrationResult?.kind === 'repriced' ? (
-        <Dialog
-          open
-          onOpenChange={(open) => {
-            if (!open) handleFeedbackAction()
-          }}
-        >
-          <DialogContent className='max-w-xl'>
-            <DialogHeader className='border-b border-border-soft p-6 pr-16'>
-              <span className='row-span-2 grid size-11 place-items-center rounded-xl bg-info-soft text-info'>
-                <Icon name='arrow-down-up' className='size-6' />
-              </span>
-              <DialogTitle>O pedido foi atualizado</DialogTitle>
-              <DialogDescription>
-                Alguns valores mudaram antes do registro. Confira o novo total.
-              </DialogDescription>
-            </DialogHeader>
-            <div className='space-y-3 p-6'>
-              {registrationResult.changes.map((change) => (
-                <div
-                  className='rounded-xl bg-info-soft p-4 text-sm text-info'
-                  key={`${change.kind}-${change.previous.label}-${change.current.label}-${change.previous.amount}-${change.current.amount}`}
-                >
-                  <p className='text-xs font-extrabold uppercase'>Pedido atualizado</p>
-                  <p className='mt-1 font-extrabold'>
-                    {change.current.label}:{' '}
-                    {change.current.amount !== change.previous.amount
-                      ? 'valor recalculado'
-                      : 'as condições atuais foram aplicadas'}
-                  </p>
-                  <p className='mt-1 text-xs'>
-                    O pedido ainda não foi registrado. Confirme os novos valores antes de
-                    continuar.
-                  </p>
-                </div>
-              ))}
-              <p className='text-sm text-muted-foreground'>
-                Novo total:{' '}
-                <strong className='text-foreground'>
-                  {new Intl.NumberFormat('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                  }).format(registrationResult.recalculatedCart.total)}
-                </strong>
-              </p>
-            </div>
-            <DialogFooter>
-              <Button onClick={handleFeedbackAction} type='button'>
-                <Icon name='arrow-left' /> Revisar valores
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <RepricedOrderReviewDialog
+          changes={registrationResult.changes}
+          newTotal={registrationResult.recalculatedCart.total}
+          onReview={handleFeedbackAction}
+        />
       ) : null}
 
       {registrationResult?.kind === 'review-required' ? (

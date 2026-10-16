@@ -1,4 +1,5 @@
 import type { Cart } from '#pdv/domain/structures/cart.ts'
+import type { OrderPreviewAccompanimentPrice } from '#pdv/domain/structures/order-preview-accompaniment-price.ts'
 import type { SaleItemKind } from '#pdv/domain/structures/sale-item-kind.ts'
 import type { SalesChannelSnapshot } from '#pdv/domain/structures/sales-channel-snapshot.ts'
 
@@ -28,8 +29,12 @@ export interface OrderPreviewInput {
 export interface OrderPreviewFacts {
   readonly cart: Cart
   readonly channel?: SalesChannelSnapshot
+  /** Signed token facts used to explain an accompaniment price change on revalidation. */
+  readonly selectedAccompanimentPrices?: readonly OrderPreviewAccompanimentPrice[]
 }
 
-export interface OrderPreview extends OrderPreviewFacts {
+export interface OrderPreview {
+  readonly cart: Cart
+  readonly channel?: SalesChannelSnapshot
   readonly previewToken: string
 }

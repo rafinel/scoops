@@ -42,7 +42,7 @@ export class DrizzleProductsRepository
     const [record] = await this.database
       .insert(productModel)
       .values({
-        ...input,
+        ...this.withNumericAccompanimentPrice(input),
         id: crypto.randomUUID(),
         categories: [...input.categories],
         idealStock: this.toNumericValue(input.idealStock) ?? null,
@@ -61,7 +61,7 @@ export class DrizzleProductsRepository
       .insert(productModel)
       .values(
         inputs.map((input) => ({
-          ...input,
+          ...this.withNumericAccompanimentPrice(input),
           id: crypto.randomUUID(),
           categories: [...input.categories],
           idealStock: this.toNumericValue(input.idealStock) ?? null,
@@ -296,6 +296,13 @@ export class DrizzleProductsRepository
     return String(value)
   }
 
+  private withNumericAccompanimentPrice(input: ProductCreate) {
+    return {
+      ...input,
+      accompanimentPrice: this.toNumericValue(input.accompanimentPrice) ?? null,
+    }
+  }
+
   private async replaceProductRecord(
     input: ReturnType<typeof resolveProductUpdate>,
   ): Promise<Product> {
@@ -386,6 +393,7 @@ function toNumericStockValues(
   return {
     idealStock: toNumericValue(changes.idealStock),
     currentUnitCost: toNumericValue(changes.currentUnitCost),
+    accompanimentPrice: toNumericValue(changes.accompanimentPrice),
   }
 }
 

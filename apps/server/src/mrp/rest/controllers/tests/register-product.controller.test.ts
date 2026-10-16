@@ -164,6 +164,39 @@ describe('Register Product Controller [POST /products]', () => {
     )
   })
 
+  it('rejects a new Portion Accompaniment combination and allows Accompaniment Resale', async () => {
+    const rejected = await request(fixture.app.getHttpServer())
+      .post('/products')
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        name: 'Invalid Portion Accompaniment',
+        unit: 'un',
+        categories: ['portion', 'accompaniment'],
+        stockControl: 'single',
+        idealStock: 0,
+      })
+    expect(rejected.status).toBe(400)
+    await expect(
+      fixture.products.findByName(
+        MrpModuleFixture.accounts.establishmentId,
+        'Invalid Portion Accompaniment',
+      ),
+    ).resolves.toBeUndefined()
+
+    const allowed = await request(fixture.app.getHttpServer())
+      .post('/products')
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        name: 'Resale Accompaniment',
+        unit: 'un',
+        categories: ['accompaniment', 'resale'],
+        stockControl: 'single',
+        idealStock: 0,
+      })
+    expect(allowed.status).toBe(201)
+    expect(allowed.body.categories).toEqual(['accompaniment', 'resale'])
+  })
+
   it('rejects invalid primary cardinality before creating any product data', async () => {
     const response = await request(fixture.app.getHttpServer())
       .post('/products')

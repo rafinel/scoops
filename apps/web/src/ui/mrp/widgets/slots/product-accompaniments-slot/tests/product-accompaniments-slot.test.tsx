@@ -34,6 +34,7 @@ const details: ProductAccompanimentsDetails = {
       accompanimentTypeName: 'Cobertura',
       unit: 'g',
       quantityPerPortion: 20,
+      salePrice: 3,
       estimatedCost: 0.45,
     },
   ],
@@ -78,6 +79,7 @@ describe('ProductAccompanimentsSlot', () => {
     render(<ProductAccompanimentsSlot productId={product.id} />)
     expect(screen.getByText('Acompanhamentos')).toBeTruthy()
     expect(screen.getByText('Granola')).toBeTruthy()
+    expect(screen.getByText('R$ 3,00')).toBeTruthy()
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Vincular acompanhamento' })).toBeNull()
   })

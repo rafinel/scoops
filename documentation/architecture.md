@@ -174,7 +174,7 @@ only on exported provider-module capabilities. Ownership is defined in
 | Presentation | `apps/web/src/ui`, `apps/web/src/routes` | User interaction, view state, accessibility, navigation, and feedback. | Authoritative permissions or business invariants. |
 | Web application adapters | `apps/web/src/rest`, contexts and hooks | HTTP transport, service factories, browser-safe configuration, and application state wiring. | Database access or server credentials. |
 | Server application | NestJS controllers and feature modules | HTTP translation, dependency wiring, use-case invocation, and application composition. | Duplicated domain decisions. |
-| Domain/application core | `packages/core/src` | Entities, structures, errors, events, contracts, and business use cases. | Framework, database, HTTP, environment, or SDK concerns. |
+| Domain/application core | `packages/core/src` | Entities, structures, errors, events, contracts, business use cases, and pure reusable module-owned business-rule strategies. | Framework, database, HTTP, environment, or SDK concerns. |
 | Runtime validation | `packages/validation/src` | Reusable Zod schemas, schema composition, syntactic refinement and inferred boundary types. | Authorization, tenant ownership, persistence checks or business decisions. |
 | Email composition | `packages/email/templates` | React Email views and HTML renderers for Communication-owned transactional messages. | NestJS composition, provider SDKs, persistence, or business authorization. |
 | Persistence | `apps/server/src/<module>/database` | Drizzle models, mappers, repositories, and transactional persistence. | Product policy beyond persistence semantics. |
@@ -272,7 +272,10 @@ Its explicit subpaths expose:
 - **events** expose a stable `_NAME` and serializable business-fact payload;
 - **interfaces** define repository and provider capabilities implemented by
   application infrastructure;
-- **use cases** enforce business rules and coordinate contracts for one action.
+- **domain strategies** expose the shared Strategy execution contract and hold
+  pure, reusable rule implementations inside their owning business modules;
+- **use cases** own one application action and coordinate its contracts; pure,
+  reusable business-rule executions belong to module-owned Strategy classes.
 
 Core remains deterministic under mocked contracts and time. It never reads the
 environment, opens connections, performs HTTP requests, or creates SDK clients.

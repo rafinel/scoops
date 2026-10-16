@@ -339,8 +339,10 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
     ])
     const source = this.resolveAccompanimentSource(product, brands)
     const availableQuantity = this.getStockQuantity(balances, source?.brandId)
+
+    const hasConfiguredPrice = product?.accompanimentPrice !== undefined
     const isActive = Boolean(
-      type?.establishmentId === establishmentId && source?.isActive,
+      type?.establishmentId === establishmentId && source?.isActive && hasConfiguredPrice,
     )
     return {
       accompanimentId: link.id,
@@ -349,43 +351,25 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
       name: product?.name ?? 'Acompanhamento indisponível',
       type: type?.name ?? 'Tipo indisponível',
       quantityPerPortion: link.quantityPerPortion,
-      basePrice: this.roundToCents((source?.price ?? 0) * link.quantityPerPortion),
+      basePrice: product?.accompanimentPrice ?? 0,
       isActive,
       isAvailable: isActive && availableQuantity >= link.quantityPerPortion,
       availableQuantity,
     }
   }
 
-  private roundToCents(value: number): number {
-    return Math.round((value + Number.EPSILON) * 100) / 100
-  }
-
   private resolveAccompanimentSource(
     product: Product | undefined,
     brands: Awaited<ReturnType<BrandsRepository['findManyByProductId']>>,
-  ):
-    | { readonly brandId?: string; readonly price: number; readonly isActive: boolean }
-    | undefined {
+  ): { readonly brandId?: string; readonly isActive: boolean } | undefined {
     if (
-      !product ||
-      product.status !== ProductStatus.Active ||
+      product?.status !== ProductStatus.Active ||
       !product.categories.includes(ProductCategory.Accompaniment)
     )
       return undefined
-
-    if (product.stockControl === ProductStockControl.Single) {
-      return product.currentUnitCost === undefined
-        ? undefined
-        : { price: product.currentUnitCost, isActive: true }
-    }
-
+    if (product.stockControl === ProductStockControl.Single) return { isActive: true }
     const primaryBrand = brands.find((brand) => brand.isPrimary)
-    if (!primaryBrand || primaryBrand.packageQuantity <= 0) return undefined
-    return {
-      brandId: primaryBrand.id,
-      price: primaryBrand.packagePrice / primaryBrand.packageQuantity,
-      isActive: true,
-    }
+    return primaryBrand && { brandId: primaryBrand.id, isActive: true }
   }
 
   private getProductKind(product: Product): SaleItemKind | undefined {
@@ -410,20 +394,16 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
     return this.getTotalStockQuantity(stockBalances)
   }
 
-  private async loadProductPages(
+  private loadProductPages(
     query: Parameters<ProductsRepository['findMany']>[0],
     firstPage: ProductCatalogPage,
   ): Promise<readonly ProductCatalogPage[]> {
-    if (firstPage.totalPages <= 1) return [firstPage]
-    const remainingPages = await Promise.all(
-      Array.from({ length: firstPage.totalPages - 1 }, (_, index) =>
-        this.productsRepository.findMany({
-          ...query,
-          page: index + 2,
-        }),
+    return Promise.all([
+      firstPage,
+      ...Array.from({ length: firstPage.totalPages - 1 }, (_, index) =>
+        this.productsRepository.findMany({ ...query, page: index + 2 }),
       ),
-    )
-    return [firstPage, ...remainingPages]
+    ])
   }
 
   private async runSafely<Result>(operation: () => Promise<Result>): Promise<Result> {

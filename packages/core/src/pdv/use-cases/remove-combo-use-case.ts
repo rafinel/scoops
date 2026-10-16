@@ -16,6 +16,7 @@ type Request = {
 }
 export class RemoveComboUseCase implements UseCase<Request> {
   constructor(private readonly database: PdvDatabase) {}
+
   async execute(request: Request): Promise<void> {
     if (request.actor.profile !== UserProfile.Manager)
       throw new AuthorizationError('Somente gestores podem gerenciar combos.')

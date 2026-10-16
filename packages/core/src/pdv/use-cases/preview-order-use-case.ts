@@ -7,15 +7,14 @@ import type {
 } from '#pdv/domain/structures/order-preview.ts'
 import type { SalesChannelSnapshot } from '#pdv/domain/structures/sales-channel-snapshot.ts'
 import type { OrderRegistrationInvalidConfiguration } from '#pdv/domain/structures/order-registration-invalid-configuration.ts'
+import { OrderCartPricingStrategy } from '#pdv/domain/strategies/order-cart-pricing-strategy.ts'
+import { OrderPreviewAccompanimentPriceSnapshotStrategy } from '#pdv/domain/strategies/order-preview-accompaniment-price-snapshot-strategy.ts'
+import { OrderPreviewInputValidationStrategy } from '#pdv/domain/strategies/order-preview-input-validation-strategy.ts'
 import type { DiscountsRepository } from '#pdv/interfaces/discounts-repository.ts'
 import type { OrderPreviewTokenService } from '#pdv/interfaces/order-preview-token-service.ts'
 import type { SalesCatalogProvider } from '#pdv/interfaces/sales-catalog-provider.ts'
 import type { SalesChannelsRepository } from '#pdv/interfaces/sales-channels-repository.ts'
 import { SalesChannelStatus } from '#pdv/domain/structures/sales-channel-status.ts'
-import {
-  rebuildCartWithIssues,
-  validateOrderPreviewInput,
-} from '#pdv/use-cases/order-pricing.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -31,6 +30,11 @@ type Request = OrderPreviewInput & {
 }
 
 export class PreviewOrderUseCase implements UseCase<Request, OrderPreview> {
+  private readonly cartPricing = new OrderCartPricingStrategy()
+  private readonly accompanimentPriceSnapshot =
+    new OrderPreviewAccompanimentPriceSnapshotStrategy()
+  private readonly inputValidation = new OrderPreviewInputValidationStrategy()
+
   constructor(
     private readonly catalog: SalesCatalogProvider,
     private readonly salesChannels: SalesChannelsRepository,
@@ -40,7 +44,7 @@ export class PreviewOrderUseCase implements UseCase<Request, OrderPreview> {
 
   async execute(request: Request): Promise<OrderPreview> {
     this.validateActor(request.actor.profile)
-    validateOrderPreviewInput(request)
+    this.inputValidation.execute(request)
 
     const products = await this.catalog.findByProductIds(
       request.actor.establishmentId,
@@ -51,18 +55,19 @@ export class PreviewOrderUseCase implements UseCase<Request, OrderPreview> {
       request.channelId,
     )
     const combos = await this.discounts.findActive(request.actor.establishmentId)
-    const issues = rebuildCartWithIssues(
-      request,
+    const issues = this.cartPricing.execute({
+      input: request,
       products,
       channel,
       combos,
-      request.actor.establishmentId,
-    )
+      establishmentId: request.actor.establishmentId,
+    })
     this.rejectInvalidConfigurations(issues.invalidConfigurations)
 
-    const facts = this.toFacts(issues.cart, channel)
+    const facts = this.toFacts(issues.cart, channel, products)
     return {
-      ...facts,
+      cart: facts.cart,
+      ...(facts.channel ? { channel: facts.channel } : {}),
       previewToken: this.tokenService.issue(
         this.toInput(request),
         request.actor.establishmentId,
@@ -85,8 +90,9 @@ export class PreviewOrderUseCase implements UseCase<Request, OrderPreview> {
   }
 
   private toFacts(
-    cart: ReturnType<typeof rebuildCartWithIssues>['cart'],
+    cart: ReturnType<OrderCartPricingStrategy['execute']>['cart'],
     channel: SalesChannel | undefined,
+    products: Awaited<ReturnType<SalesCatalogProvider['findByProductIds']>>,
   ): OrderPreviewFacts {
     const snapshot: SalesChannelSnapshot | undefined = channel
       ? {
@@ -95,7 +101,14 @@ export class PreviewOrderUseCase implements UseCase<Request, OrderPreview> {
           percentage: channel.percentage,
         }
       : undefined
-    return snapshot ? { cart, channel: snapshot } : { cart }
+    return {
+      cart,
+      ...(snapshot ? { channel: snapshot } : {}),
+      selectedAccompanimentPrices: this.accompanimentPriceSnapshot.execute({
+        cart,
+        products,
+      }),
+    }
   }
 
   private toInput(request: Request): OrderPreviewInput {

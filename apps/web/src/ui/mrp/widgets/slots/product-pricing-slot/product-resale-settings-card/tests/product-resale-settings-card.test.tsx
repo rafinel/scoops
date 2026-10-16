@@ -25,6 +25,8 @@ describe('ProductResaleSettingsCard', () => {
           product: ProductFaker.fake({ categories: ['resale'], stockControl: 'single' }),
           resale: [{ isActive: false, packageQuantity: 1 }],
           sizes: [],
+          accompanimentPrice: null,
+          suggestedAccompanimentPrice: null,
         }}
         productId='product-1'
       />,
@@ -53,6 +55,8 @@ describe('ProductResaleSettingsCard', () => {
           }),
           resale: [],
           sizes: [],
+          accompanimentPrice: null,
+          suggestedAccompanimentPrice: null,
         }}
         productId='product-1'
       />,
@@ -71,6 +75,8 @@ describe('ProductResaleSettingsCard', () => {
           product: ProductFaker.fake({ categories: ['resale'], stockControl: 'single' }),
           resale: [{ isActive: true, packageQuantity: 1, price: 12.5 }],
           sizes: [],
+          accompanimentPrice: null,
+          suggestedAccompanimentPrice: null,
         }}
         productId='product-1'
       />,

@@ -14,6 +14,7 @@ export type Product = Entity & {
   allowNegativeStock?: boolean
   idealStock?: number
   currentUnitCost?: number
+  accompanimentPrice?: number
   internalNotes?: string
   createdAt: Date
   updatedAt: Date

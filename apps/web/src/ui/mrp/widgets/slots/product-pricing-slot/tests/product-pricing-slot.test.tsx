@@ -49,6 +49,8 @@ describe('ProductPricingSlot', () => {
         product: ProductFaker.fake({ categories: ['portion'], name: 'Açaí' }),
         resale: [],
         sizes: [],
+        accompanimentPrice: null,
+        suggestedAccompanimentPrice: null,
       },
       selectedAction: undefined,
     })
@@ -107,6 +109,8 @@ describe('ProductPricingSlot', () => {
         product: ProductFaker.fake({ categories: ['portion'], name: 'Açaí' }),
         resale: [],
         sizes: [],
+        accompanimentPrice: null,
+        suggestedAccompanimentPrice: null,
       },
       selectedAction: { kind: 'add' },
     })
@@ -139,6 +143,8 @@ describe('ProductPricingSlot', () => {
         product: ProductFaker.fake({ categories: ['resale'], name: 'Açaí avulso' }),
         resale: [{ packageQuantity: 1, price: 9.5, isActive: true }],
         sizes: [],
+        accompanimentPrice: null,
+        suggestedAccompanimentPrice: null,
       },
       selectedAction: undefined,
     } as never)

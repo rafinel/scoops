@@ -26,7 +26,7 @@ export function useUpdateProductAccompanimentAction(productId: string) {
     },
     onSuccess: () =>
       queryClient.invalidateQueries({
-        queryKey: mrpQueryKeys.productAccompaniments(productId),
+        queryKey: mrpQueryKeys.products(),
       }),
   })
   return { ...mutation, updateProductAccompaniment: mutation.mutateAsync }

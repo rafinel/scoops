@@ -93,12 +93,16 @@ describe('NewSalePage', () => {
   })
 
   it.each([
-    ['repriced', 'O pedido foi atualizado', 'Revisar valores'],
+    ['repriced', 'Revise os preços', 'Revisar valores'],
     ['review-required', 'Revise o pedido', 'Revisar pedido'],
     ['correction-required', 'Corrija o pedido', 'Revisar itens'],
   ] as const)('renders the %s server outcome accessibly', (kind, heading, actionName) => {
+    const handleFeedbackAction = vi.fn()
+    const handleConfirmRegistration = vi.fn()
     useNewSalePageMock.mockReturnValue({
       ...pageState(),
+      handleFeedbackAction,
+      handleConfirmRegistration,
       registrationResult:
         kind === 'repriced'
           ? {
@@ -109,14 +113,19 @@ describe('NewSalePage', () => {
                 discounts: [],
                 subtotal: 20,
                 totalDiscount: 0,
-                total: 20,
+                total: 21,
               },
               previewToken: 'fresh-preview-token',
               changes: [
                 {
                   kind: 'channel',
-                  previous: { label: 'Canal anterior', amount: 20 },
-                  current: { label: 'Canal atual', amount: 22 },
+                  previous: { label: 'Balcão', amount: 20 },
+                  current: { label: 'Sem canal', amount: 21 },
+                },
+                {
+                  kind: 'catalog',
+                  previous: { label: 'Total do pedido', amount: 20 },
+                  current: { label: 'Total do pedido', amount: 21 },
                 },
               ],
             }
@@ -156,10 +165,28 @@ describe('NewSalePage', () => {
     const dialog = screen.getByRole('dialog', { name: heading })
     expect(dialog).toBeTruthy()
     expect(screen.getAllByRole('dialog')).toHaveLength(1)
-    expect(screen.queryByRole('status')).toBeNull()
+    if (kind === 'repriced') {
+      expect(screen.getByRole('status', { name: 'Valores atualizados' })).toBeTruthy()
+      expect(
+        screen
+          .getByRole('status', { name: 'Total atualizado do pedido' })
+          .textContent?.replaceAll('\u00a0', ' '),
+      ).toContain('R$ 20,00 → R$ 21,00')
+      const dialogText = dialog.textContent?.replaceAll('\u00a0', ' ')
+      expect(dialogText).toContain('O pedido mudou antes do registro.')
+      expect(dialogText).toContain('Balcão → Sem canal: R$ 20,00 → R$ 21,00')
+      expect(dialogText).toContain('R$ 20,00 → R$ 21,00')
+    } else {
+      expect(screen.queryByRole('status')).toBeNull()
+    }
     const actionButton = screen.getByRole('button', { name: actionName })
     actionButton.focus()
     expect(document.activeElement).toBe(actionButton)
+    if (kind === 'repriced') {
+      actionButton.click()
+      expect(handleFeedbackAction).toHaveBeenCalledTimes(1)
+      expect(handleConfirmRegistration).not.toHaveBeenCalled()
+    }
   })
 
   it('renders rollback assurance only for a confirmed rollback and keeps unknown transport neutral', () => {

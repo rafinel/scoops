@@ -42,6 +42,7 @@ export function useNewSalePage() {
   const [registrationError, setRegistrationError] = useState<string>()
   const [refreshNonce, setRefreshNonce] = useState(0)
   const restoredCartEstablishmentRef = useRef<string | undefined>(undefined)
+  const repricedLineInputsRef = useRef<string | undefined>(undefined)
   const registrationRequestRef = useRef<OrderRegistrationInput | undefined>(undefined)
   const replayAttemptedRef = useRef(false)
   const {
@@ -97,6 +98,12 @@ export function useNewSalePage() {
   }, [establishmentId])
 
   useEffect(() => {
+    if (repricedLineInputsRef.current === JSON.stringify(lineInputs)) {
+      repricedLineInputsRef.current = undefined
+      return
+    }
+    repricedLineInputsRef.current = undefined
+
     if (lineInputs.length === 0) {
       setPreviewCart(undefined)
       setPreviewToken(undefined)
@@ -298,10 +305,7 @@ export function useNewSalePage() {
       const result = readResponseBody(response)
       if (result && result.kind !== 'registered') {
         if (result.kind === 'repriced') {
-          setLineInputs(result.recalculatedCart.lines.map(toCartLineInput))
-          setPreviewCart(result.recalculatedCart)
-          setPreviewToken(result.previewToken)
-          startNewRegistrationRequest()
+          acceptRepricedResult(result)
         }
         setIsRegistrationOpen(false)
         setRegistrationResult(result)
@@ -333,10 +337,7 @@ export function useNewSalePage() {
     }
 
     if (result.kind === 'repriced') {
-      setLineInputs(result.recalculatedCart.lines.map(toCartLineInput))
-      setPreviewCart(result.recalculatedCart)
-      setPreviewToken(result.previewToken)
-      startNewRegistrationRequest()
+      acceptRepricedResult(result)
     }
     setIsRegistrationOpen(false)
     setRegistrationResult(result)
@@ -353,6 +354,17 @@ export function useNewSalePage() {
       lines: toPreviewLines(lineInputs),
       previewToken,
     }
+  }
+
+  function acceptRepricedResult(
+    result: Extract<OrderRegistrationResult, { kind: 'repriced' }>,
+  ) {
+    const recalculatedLineInputs = result.recalculatedCart.lines.map(toCartLineInput)
+    repricedLineInputsRef.current = JSON.stringify(recalculatedLineInputs)
+    setLineInputs(recalculatedLineInputs)
+    setPreviewCart(result.recalculatedCart)
+    setPreviewToken(result.previewToken)
+    startNewRegistrationRequest()
   }
 
   function handleFeedbackAction() {

@@ -29,6 +29,7 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
       createProduct({
         name: 'Immutable Target',
         categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 5.5,
       }),
     )
     const originalType = await fixture.addAccompanimentType({
@@ -59,6 +60,7 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
       accompanimentTypeId: replacementType.id,
       accompanimentTypeName: 'Replacement',
       quantityPerPortion: 2.125,
+      salePrice: 5.5,
     })
     await expect(
       fixture.productAccompaniments.findById(owner.establishmentId, owner.id, link.id),
@@ -67,6 +69,9 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
       accompanimentTypeId: replacementType.id,
       quantityPerPortion: 2.125,
     })
+    await expect(
+      fixture.products.findById(target.establishmentId, target.id),
+    ).resolves.toMatchObject({ accompanimentPrice: 5.5 })
   })
 
   it('returns safe validation, authorization, and ownership errors', async () => {
@@ -77,6 +82,7 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
       createProduct({
         name: 'Error Target',
         categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 4.5,
       }),
     )
     const type = await fixture.addAccompanimentType({
@@ -102,6 +108,22 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
       .patch(`/products/${owner.id}/accompaniments/${link.id}`)
       .set('Cookie', managerRequestAuthorization())
       .send({ accompanimentTypeId: type.id, quantityPerPortion: 1.1234 })
+    const exceedsNumericPrecision = await request(fixture.app.getHttpServer())
+      .patch(`/products/${owner.id}/accompaniments/${link.id}`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 1,
+        accompanimentPrice: 10_000_000_000_000_000,
+      })
+    const immutableTarget = await request(fixture.app.getHttpServer())
+      .patch(`/products/${owner.id}/accompaniments/${link.id}`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 2,
+        accompanimentProductId: target.id,
+      })
     const operator = await request(fixture.app.getHttpServer())
       .patch(`/products/${owner.id}/accompaniments/${link.id}`)
       .set('Cookie', operatorRequestAuthorization())
@@ -116,12 +138,17 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
       .send({ accompanimentTypeId: type.id, quantityPerPortion: 2 })
 
     expect(malformed.status).toBe(422)
+    expect(exceedsNumericPrecision.status).toBe(422)
+    expect(immutableTarget.status).toBe(422)
     expect(operator.status).toBe(403)
     expect(foreign.status).toBe(404)
     expect(missing.status).toBe(404)
     await expect(
       fixture.productAccompaniments.findById(owner.establishmentId, owner.id, link.id),
     ).resolves.toMatchObject({ quantityPerPortion: 1, accompanimentTypeId: type.id })
+    await expect(
+      fixture.products.findById(target.establishmentId, target.id),
+    ).resolves.toMatchObject({ accompanimentPrice: 4.5 })
   })
 
   it('rejects a missing type without changing the existing link', async () => {
@@ -135,6 +162,7 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
       createProduct({
         name: 'Missing Type Target',
         categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 6.5,
       }),
     )
     const type = await fixture.addAccompanimentType({
@@ -161,5 +189,58 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
     await expect(
       fixture.productAccompaniments.findById(owner.establishmentId, owner.id, link.id),
     ).resolves.toMatchObject({ quantityPerPortion: 1, accompanimentTypeId: type.id })
+  })
+
+  it('updates the shared target price while preserving zero and the link target', async () => {
+    const owner = await fixture.addProduct(
+      createProduct({
+        name: 'Price Edit Portion',
+        categories: [ProductCategory.Portion],
+      }),
+    )
+    const target = await fixture.addProduct(
+      createProduct({
+        name: 'Shared Price Topping',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 8.25,
+      }),
+    )
+    const type = await fixture.addAccompanimentType({
+      establishmentId: owner.establishmentId,
+      name: 'Toppings',
+    })
+    const link = await fixture.addProductAccompaniment({
+      establishmentId: owner.establishmentId,
+      productId: owner.id,
+      accompanimentProductId: target.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 1,
+    })
+
+    const response = await request(fixture.app.getHttpServer())
+      .patch(`/products/${owner.id}/accompaniments/${link.id}`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 2.5,
+        accompanimentPrice: 0,
+      })
+
+    expect(response.status).toBe(200)
+    expect(response.body).toMatchObject({
+      id: link.id,
+      accompanimentProductId: target.id,
+      quantityPerPortion: 2.5,
+      salePrice: 0,
+    })
+    await expect(
+      fixture.products.findById(target.establishmentId, target.id),
+    ).resolves.toMatchObject({ accompanimentPrice: 0 })
+    await expect(
+      fixture.productAccompaniments.findById(owner.establishmentId, owner.id, link.id),
+    ).resolves.toMatchObject({
+      accompanimentProductId: target.id,
+      quantityPerPortion: 2.5,
+    })
   })
 })

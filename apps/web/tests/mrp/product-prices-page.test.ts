@@ -131,6 +131,100 @@ test.describe('ProductPricesPage', () => {
     await expect(page.getByRole('button', { name: 'Remover 300 ml' })).toHaveCount(0)
   })
 
+  test('keeps accompaniment pricing in Link/Edit and retains Resale prices for combined products', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    const accompanimentOnlyProduct = ProductFaker.fake({
+      id: 'product-accompaniment-only',
+      name: 'Granola',
+      categories: ['accompaniment'],
+      stockControl: 'single',
+    })
+    const combinedProduct = ProductFaker.fake({
+      id: 'product-accompaniment-resale',
+      name: 'Granola em pote',
+      categories: ['accompaniment', 'resale'],
+      stockControl: 'single',
+    })
+    await mrpFixture.mockProductPricing({
+      respond: (request) => {
+        const isCombined = request.url.pathname.includes(combinedProduct.id)
+        const product = isCombined ? combinedProduct : accompanimentOnlyProduct
+        return {
+          body: {
+            product,
+            mode: isCombined ? 'resale-single' : 'accompaniment',
+            sizes: [],
+            resale: isCombined
+              ? [
+                  {
+                    configuration: {
+                      id: 'resale-config-accompaniment',
+                      establishmentId: 'establishment-1',
+                      productId: combinedProduct.id,
+                      price: 15,
+                      isActive: true,
+                      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+                      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+                    },
+                    packageQuantity: 1,
+                    price: 15,
+                    isActive: true,
+                  },
+                ]
+              : [],
+            accompanimentPrice: 4,
+            suggestedAccompanimentPrice: null,
+          },
+        }
+      },
+    })
+    await page.route('**/products/**', async (route) => {
+      const { pathname } = new URL(route.request().url())
+      if (pathname === `/products/${accompanimentOnlyProduct.id}/stock`) {
+        await route.fulfill({
+          contentType: 'application/json',
+          body: JSON.stringify({
+            product: accompanimentOnlyProduct,
+            stockQuantity: 0,
+            stockSituation: 'normal',
+            brands: [],
+          }),
+        })
+        return
+      }
+      if (pathname === `/products/${accompanimentOnlyProduct.id}/stock-transactions`) {
+        await route.fulfill({
+          contentType: 'application/json',
+          body: JSON.stringify({ items: [], page: 1, limit: 5, total: 0 }),
+        })
+        return
+      }
+      await route.fallback()
+    })
+
+    await page.goto(`/products/${accompanimentOnlyProduct.id}/prices`)
+    await expect(page).toHaveURL(`/products/${accompanimentOnlyProduct.id}/stock`)
+    await expect(
+      page.getByRole('heading', { name: accompanimentOnlyProduct.name }),
+    ).toBeVisible()
+    await expect(page.getByRole('tab', { name: 'Preços' })).toHaveCount(0)
+    await expect(page.getByLabel('Preço do acompanhamento')).toHaveCount(0)
+
+    await page.goto(`/products/${combinedProduct.id}/prices`)
+    await expect(page.getByRole('heading', { name: combinedProduct.name })).toBeVisible()
+    await expect(page.getByRole('tab', { name: 'Preços' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Preço de Revenda' })).toBeVisible()
+    await expect(page.getByRole('textbox', { name: 'Preço de venda' })).toHaveValue(
+      '15,00',
+    )
+    await expect(page.getByLabel('Preço do acompanhamento')).toHaveCount(0)
+  })
+
   test('focuses the validated size destination after the pricing card loads', async ({
     page,
     identityFixture,

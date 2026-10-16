@@ -15,6 +15,14 @@ export class ProductAccompanimentDetailsResponseDto {
   @ApiPropertyOptional() brandName?: string
   @ApiPropertyOptional() unitCost?: number
   @ApiPropertyOptional() estimatedCost?: number
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: null,
+    description:
+      'Saved product-wide Accompaniment sale price. Null means unconfigured; zero means free.',
+  })
+  salePrice!: number | null
 }
 
 export class ProductAccompanimentsResponseDto {

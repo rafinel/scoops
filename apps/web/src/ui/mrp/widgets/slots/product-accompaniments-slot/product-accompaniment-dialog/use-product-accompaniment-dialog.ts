@@ -1,18 +1,9 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useMemo, useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
-import type { z } from 'zod'
-
-import { productAccompanimentFormSchema } from '@scoops/validation'
 import type { ProductAccompanimentDetails } from '@scoops/core/mrp/domain/structures'
 
-import { useAccompanimentCandidatesQuery } from '@/ui/mrp/hooks/use-accompaniment-candidates-query'
-import { useAccompanimentTypesQuery } from '@/ui/mrp/hooks/use-accompaniment-types-query'
-import { useLinkProductAccompanimentAction } from '@/ui/mrp/hooks/use-link-product-accompaniment-action'
-import { useProductStockQuery } from '@/ui/mrp/hooks/use-product-stock-query'
-import { useUpdateProductAccompanimentAction } from '@/ui/mrp/hooks/use-update-product-accompaniment-action'
-
-type FormValues = z.infer<typeof productAccompanimentFormSchema>
+import { useProductAccompanimentDerivedState } from './use-product-accompaniment-derived-state'
+import { useProductAccompanimentForm } from './use-product-accompaniment-form'
+import { useProductAccompanimentQueries } from './use-product-accompaniment-queries'
+import { useProductAccompanimentSubmit } from './use-product-accompaniment-submit'
 
 export function useProductAccompanimentDialog({
   item,
@@ -25,148 +16,230 @@ export function useProductAccompanimentDialog({
   open: boolean
   productId: string
 }) {
-  const form = useForm<FormValues>({
-    defaultValues: getDefaultValues(item),
-    resolver: zodResolver(productAccompanimentFormSchema),
-  })
-  const productIdValue = useWatch({
-    control: form.control,
-    name: 'accompanimentProductId',
-  })
-  const typeId = useWatch({ control: form.control, name: 'accompanimentTypeId' })
-  const quantity = useWatch({ control: form.control, name: 'quantityPerPortion' })
   const isEdit = Boolean(item)
-  const candidatesQuery = useAccompanimentCandidatesQuery(productId, open && !isEdit)
-  const typesQuery = useAccompanimentTypesQuery({ page: 1, pageSize: 100 })
-  const selectedStockQuery = useProductStockQuery(isEdit ? '' : productIdValue)
-  const linkAction = useLinkProductAccompanimentAction(productId)
-  const updateAction = useUpdateProductAccompanimentAction(productId)
-  const [actionError, setActionError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (open) {
-      form.reset(getDefaultValues(item))
-      setActionError(null)
-    }
-  }, [form, item, open])
-
-  const selectedProduct = useMemo(
-    () => candidatesQuery.data?.find((candidate) => candidate.id === productIdValue),
-    [candidatesQuery.data, productIdValue],
-  )
-  const types = typesQuery.data?.items ?? []
-  const selectedTypeName =
-    types.find(({ type }) => type.id === typeId)?.type.name ?? item?.accompanimentTypeName
-  const selectedBrand = selectedStockQuery.data?.brands.find(
-    ({ brand }) => brand.isPrimary,
-  )
-  const source = getAccompanimentSource({
-    item,
-    selectedBrand,
-    selectedProduct,
-    hasSelectedStock: selectedStockQuery.data !== undefined,
-  })
-  const numericQuantity = Number(String(quantity ?? '').replace(',', '.'))
-  const estimatedCost =
-    source?.unitCost !== undefined && numericQuantity > 0
-      ? source.unitCost * numericQuantity
-      : undefined
-  const isRefreshing = [candidatesQuery, typesQuery, selectedStockQuery].some(
-    hasRefreshableData,
-  )
-
-  function handleValueChange(
-    name: 'accompanimentProductId' | 'accompanimentTypeId',
-    value: string | null,
-  ) {
-    form.setValue(name, value ?? '', { shouldDirty: true, shouldValidate: true })
-    setActionError(null)
-  }
-
-  async function handleValidSubmit(values: FormValues) {
-    try {
-      const input = {
-        accompanimentTypeId: values.accompanimentTypeId,
-        quantityPerPortion: Number(values.quantityPerPortion.replace(',', '.')),
-      }
-      if (item) {
-        await updateAction.updateProductAccompaniment({ linkId: item.id, input })
-      } else {
-        await linkAction.linkProductAccompaniment({
-          ...input,
-          accompanimentProductId: values.accompanimentProductId,
-        })
-      }
-      onSuccess()
-    } catch (caught) {
-      setActionError(
-        caught instanceof Error
-          ? caught.message
-          : 'Não foi possível salvar. Tente novamente.',
-      )
-    }
-  }
-
-  return {
-    actionError,
-    candidates: candidatesQuery.data ?? [],
-    candidatesError: candidatesQuery.isError,
-    candidatesLoading: candidatesQuery.isPending,
-    errors: form.formState.errors,
-    estimatedCost,
-    handleSubmit: form.handleSubmit(handleValidSubmit),
-    handleValueChange,
-    isPending: linkAction.isPending || updateAction.isPending,
+  const formState = useProductAccompanimentForm(item, open)
+  const queries = useProductAccompanimentQueries({
+    form: formState.form,
     isEdit,
-    productIdValue,
-    selectedProduct,
-    retryCandidates: candidatesQuery.refetch,
-    retrySelectedStock: selectedStockQuery.refetch,
-    selectedStockError: selectedStockQuery.isError,
-    selectedStockLoading: selectedStockQuery.isPending,
-    source,
-    selectedTypeName,
-    typeId,
-    types,
-    typesError: typesQuery.isError,
-    typesLoading: typesQuery.isPending,
-    isRefreshing,
-    register: form.register,
-  }
+    item,
+    open,
+    productId,
+    productIdValue: formState.productIdValue,
+  })
+  const derived = useProductAccompanimentDerivedState({
+    formState,
+    isEdit,
+    item,
+    queries,
+  })
+  const submit = useProductAccompanimentSubmit({
+    item,
+    onSuccess,
+    productId,
+    savedPrice: derived.savedPrice,
+    setActionError: formState.setActionError,
+  })
+
+  return getDialogState(
+    getFormState(formState, derived, isEdit),
+    getQueryState(queries, derived, isEdit),
+    getSubmitState(formState, submit),
+  )
 }
 
-function getDefaultValues(item?: ProductAccompanimentDetails): FormValues {
+function getFormState(
+  formState: ReturnType<typeof useProductAccompanimentForm>,
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+  isEdit: boolean,
+) {
   return {
-    accompanimentProductId: item?.accompanimentProductId ?? '',
-    accompanimentTypeId: item?.accompanimentTypeId ?? '',
-    quantityPerPortion: item ? String(item.quantityPerPortion) : '',
+    actionError: formState.actionError,
+    errors: formState.form.formState.errors,
+    estimatedCost: derived.estimatedCost,
+    handleValueChange: formState.handleValueChange,
+    isEdit,
+    numericQuantity: derived.numericQuantity,
+    productIdValue: formState.productIdValue,
+    register: formState.form.register,
+    selectedProduct: derived.selectedProduct,
+    selectedStockError: derived.selectedStockError,
+    selectedStockLoading: derived.selectedStockLoading,
+    selectedTypeName: derived.selectedTypeName,
+    source: derived.source,
+    typeId: formState.typeId,
+    types: derived.types,
+    ...getDialogProjection(formState, derived),
   }
 }
 
-function getAccompanimentSource({
-  hasSelectedStock,
-  item,
-  selectedBrand,
-  selectedProduct,
-}: {
-  hasSelectedStock: boolean
-  item?: Pick<ProductAccompanimentDetails, 'brandName' | 'unitCost'>
-  selectedBrand?: { brand: { name: string }; unitPrice?: number }
-  selectedProduct?: { currentUnitCost?: number }
-}) {
-  if (item) return { name: item.brandName, unitCost: item.unitCost }
-  if (selectedBrand?.unitPrice !== undefined) {
-    return { name: selectedBrand.brand.name, unitCost: selectedBrand.unitPrice }
+function getQueryState(
+  queries: ReturnType<typeof useProductAccompanimentQueries>,
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+  isEdit: boolean,
+) {
+  return {
+    accompanimentPriceError: queries.pricingQuery.pricingError,
+    accompanimentPriceIsSaved: derived.savedPrice !== null,
+    accompanimentPriceLoading: derived.isPriceLoading,
+    accompanimentPriceSuggestion:
+      queries.pricingQuery.pricing?.suggestedAccompanimentPrice ?? null,
+    accompanimentPriceSuggestionMode: queries.pricingQuery.pricing?.mode,
+    canSave: isPriceReadyToSave(
+      queries.pricingProductId,
+      queries.pricingQuery.pricingError,
+      derived.isPriceLoading,
+      queries.pricingQuery.isRefreshingPricing,
+    ),
+    candidates: queries.candidatesQuery.data ?? [],
+    candidatesError: !isEdit && queries.candidatesQuery.isError,
+    candidatesLoading: !isEdit && queries.candidatesQuery.isPending,
+    retryAccompanimentPrice: queries.pricingQuery.retryPricing,
+    retryCandidates: queries.candidatesQuery.refetch,
+    retrySelectedStock: queries.selectedStockQuery.refetch,
+    typesError: queries.typesQuery.isError,
+    typesLoading: queries.typesQuery.isPending,
   }
-  if (selectedProduct?.currentUnitCost !== undefined) {
-    return {
-      name: hasSelectedStock ? 'Estoque único' : undefined,
-      unitCost: selectedProduct.currentUnitCost,
-    }
-  }
-  return undefined
 }
 
-function hasRefreshableData(query: { data: unknown; isFetching: boolean }) {
-  return query.isFetching && query.data != null
+function getDialogProjection(
+  formState: ReturnType<typeof useProductAccompanimentForm>,
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+) {
+  return {
+    fields: getDialogFields(formState, derived),
+    isRefreshing: derived.isRefreshing,
+  }
 }
+
+type ProductAccompanimentFormErrors = ReturnType<
+  typeof useProductAccompanimentForm
+>['form']['formState']['errors']
+
+function getDialogFields(
+  formState: ReturnType<typeof useProductAccompanimentForm>,
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+) {
+  return {
+    ...getFormDialogFields(formState),
+    ...getProductDialogFields(derived),
+    ...getCostDialogFields(derived),
+    ...getStockDialogFields(derived),
+  }
+}
+
+function getFormDialogFields(formState: ReturnType<typeof useProductAccompanimentForm>) {
+  return {
+    ...getFormInputFields(formState),
+    ...getFormErrorFields(formState.form.formState.errors),
+  }
+}
+
+function getFormInputFields(formState: ReturnType<typeof useProductAccompanimentForm>) {
+  return {
+    actionError: formState.actionError,
+    handleValueChange: formState.handleValueChange,
+    productIdValue: formState.productIdValue,
+    register: formState.form.register,
+    typeId: formState.typeId,
+  }
+}
+
+function getFormErrorFields(errors: ProductAccompanimentFormErrors) {
+  return {
+    priceError: errors.accompanimentPrice?.message,
+    productError: errors.accompanimentProductId?.message,
+    quantityError: errors.quantityPerPortion?.message,
+    typeError: errors.accompanimentTypeId?.message,
+  }
+}
+
+function getProductDialogFields(
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+) {
+  return {
+    brandName: getBrandName(derived),
+    selectedProductName: derived.selectedProduct?.name,
+    selectedProductUnit: derived.selectedProduct?.unit,
+    selectedTypeName: derived.selectedTypeName,
+    types: derived.types,
+  }
+}
+
+function getBrandName(derived: ReturnType<typeof useProductAccompanimentDerivedState>) {
+  if (derived.selectedStockLoading && derived.selectedProduct?.unit) return 'Carregando…'
+  return derived.source?.name ?? 'Não disponível'
+}
+
+function getCostDialogFields(
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+) {
+  return {
+    estimatedCost: derived.estimatedCost,
+    numericQuantity: derived.numericQuantity,
+    sourceUnitCost: derived.source?.unitCost,
+  }
+}
+
+function getStockDialogFields(
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+) {
+  return {
+    selectedStockError: derived.selectedStockError,
+    selectedStockLoading: derived.selectedStockLoading,
+  }
+}
+
+function isPriceReadyToSave(
+  pricingProductId: string | undefined,
+  pricingError: boolean,
+  priceLoading: boolean,
+  pricingRefreshing: boolean,
+) {
+  if (!pricingProductId) return true
+  return !pricingError && !priceLoading && !pricingRefreshing
+}
+
+function getSubmitState(
+  formState: ReturnType<typeof useProductAccompanimentForm>,
+  submit: ReturnType<typeof useProductAccompanimentSubmit>,
+) {
+  return {
+    handleSubmit: formState.form.handleSubmit(submit.handleValidSubmit),
+    isPending: submit.isPending,
+  }
+}
+
+function getDialogState(
+  formState: ReturnType<typeof getFormState>,
+  queryState: ReturnType<typeof getQueryState>,
+  submitState: ReturnType<typeof getSubmitState>,
+) {
+  return {
+    ...formState,
+    ...queryState,
+    ...submitState,
+    fields: getStateFields(formState.fields, queryState),
+  }
+}
+
+function getStateFields(
+  formFields: ReturnType<typeof getFormState>['fields'],
+  queryState: ReturnType<typeof getQueryState>,
+) {
+  return {
+    ...formFields,
+    ...queryState,
+    priceDescribedBy: getPriceDescription(
+      formFields.priceError,
+      queryState.accompanimentPriceError,
+    ),
+  }
+}
+
+function getPriceDescription(priceError: string | undefined, hasReadError: boolean) {
+  return `accompaniment-price-help${priceError ? ' accompaniment-price-validation-error' : ''}${hasReadError ? ' accompaniment-price-read-error' : ''}`
+}
+
+export type ProductAccompanimentDialogState = ReturnType<
+  typeof useProductAccompanimentDialog
+>

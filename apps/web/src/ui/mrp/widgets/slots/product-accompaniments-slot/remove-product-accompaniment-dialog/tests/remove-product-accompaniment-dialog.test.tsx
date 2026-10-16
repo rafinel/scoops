@@ -18,6 +18,7 @@ const item = {
   accompanimentProductName: 'Granola',
   accompanimentTypeName: 'Cobertura',
   unit: 'g' as const,
+  salePrice: 3,
 }
 
 describe('RemoveProductAccompanimentDialog', () => {

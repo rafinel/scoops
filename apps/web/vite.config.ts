@@ -33,7 +33,9 @@ const config = defineConfig(({ command, mode }) => {
       ({ path }) => path[0] !== 'sentryDsn' && path[0] !== 'scoopsReleaseSha',
     )
     if (relevantIssues.length > 0) {
-      const settingNames = new Set(relevantIssues.map(({ path }) => viteSettingName(path[0])))
+      const settingNames = new Set(
+        relevantIssues.map(({ path }) => viteSettingName(path[0])),
+      )
       throw new Error(
         `Invalid browser build configuration: ${[...settingNames].join(', ')}.`,
       )
@@ -70,6 +72,9 @@ const config = defineConfig(({ command, mode }) => {
 
   return {
     resolve: { tsconfigPaths: true },
+    server: {
+      watch: { ignored: ['**/.playwright-cli/**'] },
+    },
     plugins: [
       ...(command === 'serve' && environment.SCOOPS_PLAYWRIGHT_ANALYTICS_FIXTURE === '1'
         ? [analyticsConsumerFixturePlugin()]

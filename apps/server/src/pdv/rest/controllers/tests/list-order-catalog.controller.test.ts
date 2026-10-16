@@ -73,7 +73,7 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
     expect(response.body).not.toHaveProperty('items')
   })
 
-  it('returns a rounded accompaniment price for the quantity consumed by one portion', async () => {
+  it('uses saved accompaniment price once and leaves unconfigured legacy links unavailable', async () => {
     const product = await fixture.addProduct({
       establishmentId: PdvModuleFixture.accounts.establishmentId,
       name: 'Portion with topping',
@@ -103,11 +103,41 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
       allowNegativeStock: false,
       idealStock: 0,
       currentUnitCost: 0.03,
+      accompanimentPrice: 3.25,
+    })
+    const legacyTopping = await fixture.addProduct({
+      establishmentId: product.establishmentId,
+      name: 'Legacy topping',
+      unit: ProductUnit.Unit,
+      categories: [ProductCategory.Accompaniment],
+      stockControl: ProductStockControl.Single,
+      status: ProductStatus.Active,
+      allowNegativeStock: false,
+      idealStock: 0,
+      currentUnitCost: 5,
+    })
+    const freeTopping = await fixture.addProduct({
+      establishmentId: product.establishmentId,
+      name: 'Free topping',
+      unit: ProductUnit.Unit,
+      categories: [ProductCategory.Accompaniment],
+      stockControl: ProductStockControl.Single,
+      status: ProductStatus.Active,
+      allowNegativeStock: false,
+      idealStock: 0,
+      currentUnitCost: 5,
+      accompanimentPrice: 0,
     })
     const type = await fixture.addAccompanimentType({
       establishmentId: product.establishmentId,
       name: 'Toppings',
     })
+    await Promise.all(
+      [topping, legacyTopping, freeTopping].map(async (target) => {
+        await fixture.stockBalances.initialize(target.id)
+        await fixture.stockBalances.add({ productId: target.id }, 20)
+      }),
+    )
     const accompaniment = await fixture.addProductAccompaniment({
       establishmentId: product.establishmentId,
       productId: product.id,
@@ -115,30 +145,58 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
       accompanimentTypeId: type.id,
       quantityPerPortion: 2.5,
     })
+    const legacyAccompaniment = await fixture.addProductAccompaniment({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      accompanimentProductId: legacyTopping.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 3,
+    })
+    const freeAccompaniment = await fixture.addProductAccompaniment({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      accompanimentProductId: freeTopping.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 4,
+    })
 
     const response = await request(fixture.app.getHttpServer())
       .get('/orders/catalog?page=1&pageSize=20')
       .set('Cookie', managerRequestAuthorization())
 
     expect(response.status).toBe(200)
-    expect(response.body.items).toEqual(
+    const catalogProduct = response.body.items.find(
+      (item: { productId: string }) => item.productId === product.id,
+    )
+    expect(catalogProduct).toBeDefined()
+    expect(catalogProduct.sizes).toEqual([
+      expect.objectContaining({
+        sizeId: size.id,
+        basePrice: 10,
+      }),
+    ])
+    expect(catalogProduct.sizes[0].accompaniments).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          productId: product.id,
-          sizes: [
-            expect.objectContaining({
-              sizeId: size.id,
-              basePrice: 10,
-              accompaniments: [
-                expect.objectContaining({
-                  accompanimentId: accompaniment.id,
-                  quantityPerPortion: 2.5,
-                  basePrice: 0.08,
-                  isActive: true,
-                }),
-              ],
-            }),
-          ],
+          accompanimentId: accompaniment.id,
+          quantityPerPortion: 2.5,
+          basePrice: 3.25,
+          isActive: true,
+          isAvailable: true,
+        }),
+        expect.objectContaining({
+          accompanimentId: legacyAccompaniment.id,
+          quantityPerPortion: 3,
+          basePrice: 0,
+          isActive: false,
+          isAvailable: false,
+        }),
+        expect.objectContaining({
+          accompanimentId: freeAccompaniment.id,
+          quantityPerPortion: 4,
+          basePrice: 0,
+          isActive: true,
+          isAvailable: true,
         }),
       ]),
     )

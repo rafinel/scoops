@@ -46,10 +46,26 @@ export class ResalePricingResponseDto {
 
 export class ProductPricingResponseDto {
   @ApiProperty({ type: () => ProductResponseDto }) product!: ProductResponseDto
-  @ApiProperty({ enum: ['portion', 'resale-single', 'resale-by-brand'] })
-  mode!: 'portion' | 'resale-single' | 'resale-by-brand'
+  @ApiProperty({ enum: ['portion', 'resale-single', 'resale-by-brand', 'accompaniment'] })
+  mode!: 'portion' | 'resale-single' | 'resale-by-brand' | 'accompaniment'
   @ApiProperty({ type: () => ProductSizePricingResponseDto, isArray: true })
   sizes!: ProductSizePricingResponseDto[]
   @ApiProperty({ type: () => ResalePricingResponseDto, isArray: true })
   resale!: ResalePricingResponseDto[]
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: null,
+    description:
+      'Saved product-wide Accompaniment sale price. Null means no price has been saved; zero means free.',
+  })
+  accompanimentPrice!: number | null
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: 12.5,
+    description:
+      'Current applicable Resale price suggested for first setup. This value is not saved by this read.',
+  })
+  suggestedAccompanimentPrice!: number | null
 }

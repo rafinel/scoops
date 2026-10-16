@@ -48,6 +48,8 @@ describe('Get Product Pricing Controller [GET /products/:productId/pricing]', ()
       product: { id: product.id, name: product.name },
       mode: 'portion',
       resale: [],
+      accompanimentPrice: null,
+      suggestedAccompanimentPrice: null,
     })
     expect(response.body.sizes[0]).toMatchObject({
       size: { name: 'Small', quantity: 0.5, price: 8.5, isActive: true },
@@ -114,6 +116,94 @@ describe('Get Product Pricing Controller [GET /products/:productId/pricing]', ()
       ],
     })
     expect(byBrandResponse.body.resale[0]).not.toHaveProperty('price')
+  })
+
+  it('returns saved and suggested Accompaniment prices without writing on read', async () => {
+    const singleTarget = await fixture.addProduct(
+      createProduct({
+        name: 'Suggested Single Target',
+        categories: [ProductCategory.Accompaniment, ProductCategory.Resale],
+      }),
+    )
+    await fixture.addResaleConfiguration({
+      establishmentId: singleTarget.establishmentId,
+      productId: singleTarget.id,
+      price: 12.5,
+      isActive: true,
+    })
+    const beforeRead = await fixture.products.findById(
+      singleTarget.establishmentId,
+      singleTarget.id,
+    )
+
+    const singleResponse = await request(fixture.app.getHttpServer())
+      .get(`/products/${singleTarget.id}/pricing`)
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(singleResponse.status).toBe(200)
+    expect(singleResponse.body).toMatchObject({
+      mode: 'resale-single',
+      accompanimentPrice: null,
+      suggestedAccompanimentPrice: 12.5,
+    })
+    await expect(
+      fixture.products.findById(singleTarget.establishmentId, singleTarget.id),
+    ).resolves.toMatchObject({ updatedAt: beforeRead?.updatedAt })
+
+    const byBrandTarget = await fixture.addProduct(
+      createProduct({
+        name: 'Suggested Brand Target',
+        categories: [ProductCategory.Accompaniment, ProductCategory.Resale],
+        stockControl: ProductStockControl.ByBrand,
+      }),
+    )
+    const brand = await fixture.addBrand({
+      productId: byBrandTarget.id,
+      name: 'Suggestion Brand',
+      packageQuantity: 2,
+      packagePrice: 16,
+      isPrimary: true,
+    })
+    await fixture.addResaleConfiguration({
+      establishmentId: byBrandTarget.establishmentId,
+      productId: byBrandTarget.id,
+      brandId: brand.id,
+      price: 17.75,
+      isActive: true,
+    })
+    const byBrandResponse = await request(fixture.app.getHttpServer())
+      .get(`/products/${byBrandTarget.id}/pricing`)
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(byBrandResponse.status).toBe(200)
+    expect(byBrandResponse.body).toMatchObject({
+      mode: 'resale-by-brand',
+      accompanimentPrice: null,
+      suggestedAccompanimentPrice: 17.75,
+    })
+
+    const freeTarget = await fixture.addProduct(
+      createProduct({
+        name: 'Free Accompaniment',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 0,
+      }),
+    )
+    const freeResponse = await request(fixture.app.getHttpServer())
+      .get(`/products/${freeTarget.id}/pricing`)
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(freeResponse.status).toBe(200)
+    expect(freeResponse.body).toMatchObject({
+      mode: 'accompaniment',
+      accompanimentPrice: 0,
+      suggestedAccompanimentPrice: null,
+      sizes: [],
+      resale: [],
+    })
+    await expect(
+      fixture.products.findById(freeTarget.establishmentId, freeTarget.id),
+    ).resolves.toMatchObject({ accompanimentPrice: 0 })
   })
 
   it('enforces authentication, Manager authorization, and tenant-safe not-found behavior', async () => {

@@ -528,24 +528,43 @@ describe('useNewSalePage', () => {
     expect(result.current.lineInputs).toEqual([])
   })
 
-  it('keeps the preview usable for a repriced conflict and reopens confirmation on review', async () => {
-    const previewOrder = vi.fn().mockResolvedValue({
-      response: {
-        body: {
-          cart: {
-            establishmentId: 'establishment-1',
-            lines: [],
-            discounts: [],
-            subtotal: 10,
-            totalDiscount: 0,
-            total: 10,
+  it('preserves a repriced preview, then refreshes same-line facts after channel change', async () => {
+    const previewOrder = vi
+      .fn()
+      .mockResolvedValueOnce({
+        response: {
+          body: {
+            cart: {
+              establishmentId: 'establishment-1',
+              lines: [],
+              discounts: [],
+              subtotal: 10,
+              totalDiscount: 0,
+              total: 10,
+            },
+            previewToken: 'preview-token',
           },
-          previewToken: 'preview-token',
+          isFailure: false,
+          statusCode: 200,
         },
-        isFailure: false,
-        statusCode: 200,
-      },
-    })
+      })
+      .mockResolvedValueOnce({
+        response: {
+          body: {
+            cart: {
+              establishmentId: 'establishment-1',
+              lines: [],
+              discounts: [],
+              subtotal: 10,
+              totalDiscount: 0,
+              total: 10,
+            },
+            previewToken: 'channel-preview',
+          },
+          isFailure: false,
+          statusCode: 200,
+        },
+      })
     const recalculatedCart = {
       establishmentId: 'establishment-1',
       lines: [
@@ -614,9 +633,21 @@ describe('useNewSalePage', () => {
 
     expect(result.current.registrationResult?.kind).toBe('repriced')
     expect(result.current.lineInputs[0]?.quantity).toBe(2)
+    expect(result.current.previewToken).toBe('new-preview')
     act(() => result.current.handleFeedbackAction())
     expect(result.current.isRegistrationOpen).toBe(true)
+    act(() => result.current.handleChannelChange('channel-1'))
+    await waitFor(() => expect(result.current.previewToken).toBe('channel-preview'))
+    expect(previewOrder).toHaveBeenCalledTimes(2)
+    expect(previewOrder.mock.calls[1]?.[0]).toMatchObject({
+      channelId: 'channel-1',
+      lines: [{ quantity: 2, productId: product.productId }],
+    })
     await act(async () => result.current.handleConfirmRegistration())
     expect(result.current.registrationResult?.kind).toBe('review-required')
+    expect(registerOrder.mock.calls[1]?.[0]).toMatchObject({
+      channelId: 'channel-1',
+      previewToken: 'channel-preview',
+    })
   })
 })

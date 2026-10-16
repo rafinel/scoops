@@ -28,6 +28,7 @@ const single = ProductFaker.fake({
   name: 'Biscuit',
   categories: [ProductCategory.Accompaniment],
   currentUnitCost: 2.5,
+  accompanimentPrice: 4.5,
 })
 const byBrand = ProductFaker.fake({
   id: 'brand-1',
@@ -36,6 +37,7 @@ const byBrand = ProductFaker.fake({
   categories: [ProductCategory.Accompaniment],
   stockControl: ProductStockControl.ByBrand,
   currentUnitCost: undefined,
+  accompanimentPrice: 2.75,
 })
 const unavailable = ProductFaker.fake({
   id: 'unavailable-1',
@@ -108,7 +110,7 @@ describe('Get Product Accompaniments Use Case', () => {
     useCase = new GetProductAccompanimentsUseCase(database)
   })
 
-  it('projects current Single and Main-brand sources, omitting commercial price', async () => {
+  it('projects current cost and the saved commercial price independently', async () => {
     const result = await useCase.execute({
       actor: { id: 'manager-1', establishmentId, profile: UserProfile.Manager },
       productId: owner.id,
@@ -125,11 +127,16 @@ describe('Get Product Accompaniments Use Case', () => {
       brandName: 'Main Brand',
       unitCost: 5,
       estimatedCost: 1.25,
+      salePrice: 2.75,
     })
-    expect(result.accompaniments[1]).toMatchObject({ unitCost: 2.5, estimatedCost: 5 })
+    expect(result.accompaniments[1]).toMatchObject({
+      unitCost: 2.5,
+      estimatedCost: 5,
+      salePrice: 4.5,
+    })
     expect(result.accompaniments[2]).not.toHaveProperty('unitCost')
     expect(result.accompaniments[2]).not.toHaveProperty('estimatedCost')
-    expect(result.accompaniments[0]).not.toHaveProperty('price')
+    expect(result.accompaniments[2]).toHaveProperty('salePrice', null)
   })
 
   it('allows operators to read accompaniments and hides non-Portion or missing owners', async () => {

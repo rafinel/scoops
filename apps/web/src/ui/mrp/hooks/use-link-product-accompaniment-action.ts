@@ -16,7 +16,7 @@ export function useLinkProductAccompanimentAction(productId: string) {
     },
     onSuccess: () =>
       queryClient.invalidateQueries({
-        queryKey: mrpQueryKeys.productAccompaniments(productId),
+        queryKey: mrpQueryKeys.products(),
       }),
   })
   return { ...mutation, linkProductAccompaniment: mutation.mutateAsync }

@@ -178,6 +178,13 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
     }
 
     if (
+      input.categories.includes(ProductCategory.Portion) &&
+      input.categories.includes(ProductCategory.Accompaniment)
+    ) {
+      throw new BadRequestError('Porção e acompanhamento não podem ser usados juntos.')
+    }
+
+    if (
       input.categories.includes(ProductCategory.Manufacturable) &&
       input.stockControl !== ProductStockControl.Single
     ) {

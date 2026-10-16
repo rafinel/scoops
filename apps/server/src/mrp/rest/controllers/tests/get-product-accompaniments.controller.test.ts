@@ -35,6 +35,7 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
         name: 'Granola',
         categories: [ProductCategory.Accompaniment],
         currentUnitCost: 2.5,
+        accompanimentPrice: 8.75,
       }),
     )
     const byBrandTarget = await fixture.addProduct(
@@ -43,6 +44,7 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
         categories: [ProductCategory.Accompaniment],
         stockControl: ProductStockControl.ByBrand,
         currentUnitCost: undefined,
+        accompanimentPrice: 0,
       }),
     )
     const unavailableTarget = await fixture.addProduct(
@@ -105,6 +107,7 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
       quantityPerPortion: 1.25,
       unitCost: 2.5,
       estimatedCost: 3.125,
+      salePrice: 8.75,
     })
     expect(response.body.accompaniments[1]).toMatchObject({
       accompanimentProductId: byBrandTarget.id,
@@ -112,9 +115,11 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
       brandName: 'Main Source',
       unitCost: 5,
       estimatedCost: 5,
+      salePrice: 0,
     })
     expect(response.body.accompaniments[2]).not.toHaveProperty('unitCost')
     expect(response.body.accompaniments[2]).not.toHaveProperty('brandId')
+    expect(response.body.accompaniments[2].salePrice).toBeNull()
     expect(response.body.product.createdAt).toEqual(expect.any(String))
   })
 

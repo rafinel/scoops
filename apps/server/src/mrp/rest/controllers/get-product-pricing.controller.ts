@@ -24,12 +24,14 @@ export class GetProductPricingController {
   @ApiParam({ name: 'productId', format: 'uuid', description: 'The product to read.' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Product pricing returned.',
+    description:
+      'Product pricing, saved Accompaniment price, and any read-only first-setup suggestion returned.',
     type: ProductPricingResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'The product identifier is malformed or pricing is unsupported.',
+    description:
+      'The product identifier is malformed or the product is not eligible for pricing.',
     type: ErrorResponseDto,
   })
   @ApiResponse({

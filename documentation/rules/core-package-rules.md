@@ -106,31 +106,46 @@ Do not scatter hand-written complete entities through tests when a core faker
 exists. Keep only the behavior-specific overrides in the test, and add or
 update the faker when a new valid default or entity state is needed.
 
-## Business rules belong to use cases
+## Business rules use cases and strategies
 
-Every business rule in `packages/core` must be implemented exclusively inside a
-use case class under the owning module's `use-cases` directory.
+Use cases own application actions: authorization, data loading, transaction and
+provider coordination, persistence, and orchestration. A rule used only by one use
+case stays in that use case, usually as a private method.
 
-Entities and structures describe domain state and valid data shapes. They must not
-implement business decisions through methods, exported functions, computed getters,
-validators, policies, specifications, or rule objects.
+When a business rule execution is intentionally reusable by multiple use cases,
+encapsulate it in one pure, module-owned class under
+`<module>/domain/strategies/`. Name the class `<BusinessRuleName>Strategy` and have it
+implement `BusinessRuleStrategy<Input, Output>` from
+`shared/domain/strategies/business-rule-strategy.ts`, with an `execute(input)` method. The
+input and result must make the rule's boundary clear. A strategy may use private
+methods to decompose its own algorithm, and a composed strategy may receive other
+strategies through its constructor.
 
-Do not create `domain/rules`, `domain/policies`, or `domain/services` directories to
-hold business rules. For example, whether a document package can be confirmed must
-be checked by a `ConfirmDocumentPackage` use case class, not by a
-`canConfirmDocumentPackage` function.
+`BusinessRuleStrategy` is a shared domain execution contract, not an integration
+port. Keep it under `shared/domain/strategies`; domain Strategies must not import
+from `interfaces` or `use-cases`.
 
-Use cases may coordinate entities, structures, interfaces, errors, and events while
-enforcing the rules required by one application action. Keep one exported use case
-class per file and use a verb-led name that describes the action.
+Strategies contain deterministic domain decisions only. They must not authorize
+actors, load data, call repositories/providers, persist state, publish events, or
+depend on application frameworks. The owning use case supplies facts and coordinates
+the result. Keep each distinct reusable rule execution in its own Strategy class; do
+not introduce a base class or inheritance hierarchy to share implementation.
 
-### Use cases own their internal decomposition
+Keep entities and structures as data: they must not implement business decisions
+through methods, exported functions, computed getters, validators, or embedded rules.
+Do not create `domain/rules`, `domain/policies`, or `domain/services` directories.
+For example, a reusable document confirmation rule may be a
+`DocumentPackageConfirmationStrategy`; the `ConfirmDocumentPackageUseCase` still owns
+the action, authorization, data loading, persistence, and event publication.
 
-Keep `execute()` focused on the application action's high-level flow. Authorization,
-loading, calculation, aggregation, mapping, and other steps used only by that use case
-belong in private methods on the use case class. Do not move class-owned behavior to
-loose functions merely to shorten the class body, and do not call another use case as
-an internal helper.
+Keep one exported use-case class per file and use a verb-led name that describes the
+action. Do not move class-owned behavior to loose functions merely to shorten a class
+body, and do not call another use case as an internal helper.
+
+### Strategy behavior tests
+
+Test a strategy's observable rule through the use case that consumes it. Core unit
+tests remain use-case tests; do not create isolated unit-test files for Strategies.
 
 Give a non-trivial data shape a named type when it crosses private-method boundaries,
 contains several related fields, or would otherwise be repeated as an anonymous object
@@ -141,11 +156,11 @@ Create an exported domain structure only when the shape has stable domain meanin
 is intentionally shared across files or boundaries. Do not promote implementation-only
 state into `domain/structures` solely to reduce the size of a use-case file.
 
-## Contracts belong to interfaces directories
+## Infrastructure contracts belong to interfaces directories
 
-Every contract exposed by `packages/core` must live in an `interfaces` directory
-under the module that owns it. Never create a directory named `providers` inside
-`packages/core`.
+Every external integration contract exposed by `packages/core` must live in an
+`interfaces` directory under the module that owns it. Never create a directory
+named `providers` inside `packages/core`.
 
 This rule applies to provider, repository, gateway, storage, and other contracts
 implemented outside the core. Their declaration names must continue to describe
@@ -153,10 +168,10 @@ their specific roles, such as `ClientLookupProvider`, `DocumentBatchRepository`,
 `FileStorageProvider`; `interfaces` is the name of the organizational directory,
 not a required suffix for each contract.
 
-Place a contract in `shared/interfaces` only when it is intentionally shared by
-multiple modules. An `interfaces/index.ts` barrel must only re-export declarations.
-Implementations and infrastructure-specific details must remain outside
-`packages/core`.
+Place a technical integration contract in `shared/interfaces` only when it is
+intentionally shared by multiple modules. An `interfaces/index.ts` barrel must
+only re-export declarations. Implementations and infrastructure-specific details
+must remain outside `packages/core`.
 
 Identity authentication follows the same separation:
 

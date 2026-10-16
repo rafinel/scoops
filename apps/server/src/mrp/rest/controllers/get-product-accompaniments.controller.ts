@@ -24,7 +24,8 @@ export class GetProductAccompanimentsController {
   @ApiParam({ name: 'productId', format: 'uuid', description: 'The Portion product.' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Product accompaniments returned.',
+    description:
+      'Product accompaniments returned with separate cost and saved sale-price fields.',
     type: ProductAccompanimentsResponseDto,
   })
   @ApiResponse({

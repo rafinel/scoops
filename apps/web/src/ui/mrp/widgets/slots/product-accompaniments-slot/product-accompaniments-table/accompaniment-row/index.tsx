@@ -6,6 +6,7 @@ import { Icon } from '@/ui/shared/widgets/components/icon'
 
 export type AccompanimentRowProps = {
   canManage: boolean
+  formatCurrency: (value: number) => string
   formatQuantity: (value: number, unit: string) => string
   item: ProductAccompanimentDetails
   onEdit: (item: ProductAccompanimentDetails) => void
@@ -14,27 +15,27 @@ export type AccompanimentRowProps = {
 
 export const AccompanimentRow = ({
   canManage,
+  formatCurrency,
   formatQuantity,
   item,
   onEdit,
   onRemove,
 }: AccompanimentRowProps) => (
   <TableRow>
-    <TableCell className='p-6 font-bold'>{item.accompanimentProductName}</TableCell>
+    <TableCell className='px-6 py-4 font-bold'>{item.accompanimentProductName}</TableCell>
     <TableCell>{item.accompanimentTypeName}</TableCell>
     <TableCell>
       {item.brandName ?? <span className='text-muted-foreground'>Indisponível</span>}
     </TableCell>
     <TableCell>{formatQuantity(item.quantityPerPortion, item.unit)}</TableCell>
     <TableCell>
-      <span
-        aria-label='Não disponível. O preço comercial é configurado por tamanho no PDV.'
-        className='text-muted-foreground'
-        role='img'
-        title='O preço comercial é configurado por tamanho no PDV.'
-      >
-        Não disponível
-      </span>
+      {item.salePrice === null ? (
+        <span className='text-muted-foreground'>Não configurado</span>
+      ) : item.salePrice === 0 ? (
+        <span>Grátis</span>
+      ) : (
+        formatCurrency(item.salePrice)
+      )}
     </TableCell>
     {canManage ? (
       <TableCell>

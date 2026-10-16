@@ -52,6 +52,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
         accompanimentProductId: target.id,
         accompanimentTypeId: type.id,
         quantityPerPortion: 1.25,
+        accompanimentPrice: 7.5,
       })
 
     expect(response.status).toBe(201)
@@ -62,7 +63,11 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
       quantityPerPortion: 1.25,
       unitCost: 4,
       estimatedCost: 5,
+      salePrice: 7.5,
     })
+    await expect(
+      fixture.products.findById(target.establishmentId, target.id),
+    ).resolves.toMatchObject({ accompanimentPrice: 7.5, currentUnitCost: 4 })
     await expect(
       fixture.productAccompaniments.findByProductAndAccompaniment(
         owner.establishmentId,
@@ -98,6 +103,13 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
         status: 'inactive',
       }),
     )
+    const foreignTarget = await fixture.addProduct(
+      createProduct({
+        name: 'Foreign Target',
+        establishmentId: MrpModuleFixture.accounts.foreignEstablishmentId,
+        categories: [ProductCategory.Accompaniment],
+      }),
+    )
     const type = await fixture.addAccompanimentType({
       establishmentId: owner.establishmentId,
       name: 'Sauce',
@@ -106,6 +118,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
       accompanimentProductId: target.id,
       accompanimentTypeId: type.id,
       quantityPerPortion: 1,
+      accompanimentPrice: 4.25,
     }
     await request(fixture.app.getHttpServer())
       .post(`/products/${owner.id}/accompaniments`)
@@ -124,6 +137,10 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
       .post(`/products/${owner.id}/accompaniments`)
       .set('Cookie', managerRequestAuthorization())
       .send({ ...body, accompanimentProductId: inactiveTarget.id })
+    const foreignTargetResponse = await request(fixture.app.getHttpServer())
+      .post(`/products/${owner.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ ...body, accompanimentProductId: foreignTarget.id })
     const operator = await request(fixture.app.getHttpServer())
       .post(`/products/${owner.id}/accompaniments`)
       .set('Cookie', operatorRequestAuthorization())
@@ -143,6 +160,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
     expect(duplicate.status).toBe(409)
     expect(malformed.status).toBe(422)
     expect(inactive.status).toBe(400)
+    expect(foreignTargetResponse.status).toBe(404)
     expect(operator.status).toBe(403)
     expect(foreign.status).toBe(404)
     await expect(
@@ -175,6 +193,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
         accompanimentProductId: target.id,
         accompanimentTypeId: foreignType.id,
         quantityPerPortion: 1,
+        accompanimentPrice: 3,
       })
     const malformedPath = await request(fixture.app.getHttpServer())
       .post('/products/not-a-uuid/accompaniments')
@@ -183,6 +202,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
         accompanimentProductId: target.id,
         accompanimentTypeId: foreignType.id,
         quantityPerPortion: 1,
+        accompanimentPrice: 3,
       })
 
     expect(response.status).toBe(404)
@@ -214,11 +234,109 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
         accompanimentProductId: target.id,
         accompanimentTypeId: type.id,
         quantityPerPortion: 1,
+        accompanimentPrice: 5,
       })
 
     expect(response.status).toBe(400)
     await expect(
       fixture.productAccompaniments.findManyByProductId(owner.establishmentId, owner.id),
     ).resolves.toEqual([])
+  })
+
+  it('requires a valid price for the first link and accepts zero as a saved price', async () => {
+    const owner = await fixture.addProduct(
+      createProduct({ name: 'Price Portion', categories: [ProductCategory.Portion] }),
+    )
+    const target = await fixture.addProduct(
+      createProduct({
+        name: 'Free Topping',
+        categories: [ProductCategory.Accompaniment],
+        currentUnitCost: 1.25,
+      }),
+    )
+    const type = await fixture.addAccompanimentType({
+      establishmentId: owner.establishmentId,
+      name: 'Free Toppings',
+    })
+    const body = {
+      accompanimentProductId: target.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 2,
+    }
+
+    const missingPrice = await request(fixture.app.getHttpServer())
+      .post(`/products/${owner.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send(body)
+    expect(missingPrice.status).toBe(400)
+    await expect(
+      fixture.productAccompaniments.findManyByProductId(owner.establishmentId, owner.id),
+    ).resolves.toEqual([])
+
+    const excessivePrecision = await request(fixture.app.getHttpServer())
+      .post(`/products/${owner.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ ...body, accompanimentPrice: 1.001 })
+    const exceedsNumericPrecision = await request(fixture.app.getHttpServer())
+      .post(`/products/${owner.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ ...body, accompanimentPrice: 10_000_000_000_000_000 })
+    const nullPrice = await request(fixture.app.getHttpServer())
+      .post(`/products/${owner.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ ...body, accompanimentPrice: null })
+    const negative = await request(fixture.app.getHttpServer())
+      .post(`/products/${owner.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ ...body, accompanimentPrice: -1 })
+    const free = await request(fixture.app.getHttpServer())
+      .post(`/products/${owner.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ ...body, accompanimentPrice: 0 })
+
+    expect(excessivePrecision.status).toBe(422)
+    expect(exceedsNumericPrecision.status).toBe(422)
+    expect(nullPrice.status).toBe(422)
+    expect(negative.status).toBe(422)
+    expect(free.status).toBe(201)
+    expect(free.body.salePrice).toBe(0)
+    await expect(
+      fixture.products.findById(target.establishmentId, target.id),
+    ).resolves.toMatchObject({ accompanimentPrice: 0 })
+  })
+
+  it('allows an older client to omit price when the target already has one', async () => {
+    const owner = await fixture.addProduct(
+      createProduct({
+        name: 'Existing Price Portion',
+        categories: [ProductCategory.Portion],
+      }),
+    )
+    const target = await fixture.addProduct(
+      createProduct({
+        name: 'Previously Configured Topping',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 9.25,
+      }),
+    )
+    const type = await fixture.addAccompanimentType({
+      establishmentId: owner.establishmentId,
+      name: 'Toppings',
+    })
+
+    const response = await request(fixture.app.getHttpServer())
+      .post(`/products/${owner.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        accompanimentProductId: target.id,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 1,
+      })
+
+    expect(response.status).toBe(201)
+    expect(response.body.salePrice).toBe(9.25)
+    await expect(
+      fixture.products.findById(target.establishmentId, target.id),
+    ).resolves.toMatchObject({ accompanimentPrice: 9.25 })
   })
 })

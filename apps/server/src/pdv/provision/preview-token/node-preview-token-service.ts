@@ -9,7 +9,7 @@ import { Inject, Injectable } from '@nestjs/common'
 
 import { EnvProvider } from '@/shared/provision/env/env-provider'
 
-const TOKEN_VERSION = 1
+const [LEGACY_TOKEN_VERSION, TOKEN_VERSION] = [1, 2]
 const TOKEN_TTL_MS = 10 * 60 * 1000
 
 type PreviewTokenClaims = {
@@ -31,12 +31,12 @@ export class NodePreviewTokenService implements OrderPreviewTokenService {
   }
 
   issue(input: OrderPreviewInput, establishmentId: string, facts: OrderPreviewFacts) {
-    const issuedAt = Date.now()
+    const [issuedAt, version] = [Date.now(), this.getTokenVersion(facts)]
     const claims: PreviewTokenClaims = {
-      version: TOKEN_VERSION,
+      version,
       establishmentId,
       inputDigest: this.digest(this.canonicalizeInput(input)),
-      factsDigest: this.digest(this.canonicalizeFacts(facts)),
+      factsDigest: this.digest(this.canonicalizeFacts(facts, version)),
       facts,
       issuedAt,
       expiresAt: issuedAt + TOKEN_TTL_MS,
@@ -55,17 +55,17 @@ export class NodePreviewTokenService implements OrderPreviewTokenService {
     const claims = this.readClaims(token)
     if (!claims) return 'invalid'
     if (
-      claims.version !== TOKEN_VERSION ||
+      (claims.version !== LEGACY_TOKEN_VERSION && claims.version !== TOKEN_VERSION) ||
       claims.establishmentId !== establishmentId ||
       !Number.isSafeInteger(claims.expiresAt) ||
-      claims.expiresAt <= Date.now()
+      claims.expiresAt <= Date.now() ||
+      (claims.version === LEGACY_TOKEN_VERSION && this.hasSelectedAccompaniments(facts))
     )
       return 'invalid'
 
-    const inputDigest = this.digest(this.canonicalizeInput(input))
-    if (!this.equalDigest(claims.inputDigest, inputDigest)) return 'invalid'
+    if (!this.matches(claims.inputDigest, this.canonicalizeInput(input))) return 'invalid'
 
-    const factsDigest = this.digest(this.canonicalizeFacts(facts))
+    const factsDigest = this.digest(this.canonicalizeFacts(facts, claims.version))
     return this.equalDigest(claims.factsDigest, factsDigest) ? 'valid' : 'stale'
   }
 
@@ -126,7 +126,7 @@ export class NodePreviewTokenService implements OrderPreviewTokenService {
     return JSON.stringify({ channelId: input.channelId ?? null, lines })
   }
 
-  private canonicalizeFacts(facts: OrderPreviewFacts): string {
+  private canonicalizeFacts(facts: OrderPreviewFacts, version: number): string {
     return JSON.stringify({
       cart: {
         ...facts.cart,
@@ -149,7 +149,37 @@ export class NodePreviewTokenService implements OrderPreviewTokenService {
         ),
       },
       channel: facts.channel ?? null,
+      ...(version === TOKEN_VERSION
+        ? {
+            selectedAccompanimentPrices: [...(facts.selectedAccompanimentPrices ?? [])]
+              .sort(
+                (left, right) =>
+                  left.productId.localeCompare(right.productId) ||
+                  left.sizeId.localeCompare(right.sizeId) ||
+                  left.accompanimentId.localeCompare(right.accompanimentId) ||
+                  left.basePrice - right.basePrice,
+              )
+              .map(({ productId, sizeId, accompanimentId, basePrice }) => ({
+                productId,
+                sizeId,
+                accompanimentId,
+                basePrice,
+              })),
+          }
+        : {}),
     })
+  }
+
+  private getTokenVersion(facts: OrderPreviewFacts): number {
+    return this.hasSelectedAccompaniments(facts) ? TOKEN_VERSION : LEGACY_TOKEN_VERSION
+  }
+
+  private hasSelectedAccompaniments(facts: OrderPreviewFacts): boolean {
+    return (
+      facts.cart.lines.some(
+        (line) => 'accompanimentIds' in line && line.accompanimentIds.length > 0,
+      ) || Boolean(facts.selectedAccompanimentPrices?.length)
+    )
   }
 
   private digest(value: string): string {
@@ -174,5 +204,9 @@ export class NodePreviewTokenService implements OrderPreviewTokenService {
     return (
       leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer)
     )
+  }
+
+  private matches(expectedDigest: string, value: string): boolean {
+    return this.equalDigest(expectedDigest, this.digest(value))
   }
 }
