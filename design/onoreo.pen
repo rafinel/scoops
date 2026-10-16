@@ -3483,14 +3483,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "type": "frame",
-              "id": "oOqOp",
-              "name": "Header Actions",
-              "width": "fit_content(87)",
-              "height": "fit_content(35)",
-              "gap": 8
             }
           ]
         },
@@ -5587,7 +5579,7 @@
                               "id": "mwMOP",
                               "name": "Sub",
                               "fill": "$text-secondary",
-                              "content": "Itens oferecidos junto a este produto no PDV.",
+                              "content": "Itens oferecidos no PDV. O preço de cada produto vale para todas as porções e tamanhos.",
                               "fontFamily": "$font-body",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -5716,7 +5708,7 @@
                                   "id": "bl4JV",
                                   "name": "L",
                                   "fill": "$text-secondary",
-                                  "content": "PREÇO",
+                                  "content": "PREÇO DO PRODUTO",
                                   "fontFamily": "$font-body",
                                   "fontSize": 11,
                                   "fontWeight": "600",
@@ -6758,6 +6750,7 @@
       "name": "Modal Vincular Acompanhamento",
       "reusable": true,
       "width": 520,
+      "height": 721,
       "fill": "$bg-card",
       "cornerRadius": 16,
       "effect": {
@@ -6845,6 +6838,7 @@
           "id": "m4dOk2",
           "name": "Body",
           "width": "fill_container",
+          "height": 570,
           "layout": "vertical",
           "gap": 16,
           "padding": [
@@ -7067,6 +7061,109 @@
               ]
             },
             {
+              "id": "e61dqx",
+              "type": "ref",
+              "ref": "XJAAn",
+              "name": "Preço do acompanhamento",
+              "width": "fill_container",
+              "height": 75,
+              "layout": "vertical",
+              "gap": 8,
+              "descendants": {
+                "NZ3cP": {
+                  "type": "text",
+                  "id": "eKZ6T",
+                  "name": "Rótulo do preço do acompanhamento",
+                  "fill": "$text-secondary",
+                  "content": "Preço do acompanhamento",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                "oAXUb": {
+                  "type": "frame",
+                  "id": "rRJSy",
+                  "name": "Controle de preço do acompanhamento",
+                  "width": 472,
+                  "height": 43,
+                  "fill": "$bg-card",
+                  "cornerRadius": 10,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "sp8s7",
+                      "name": "Prefixo Real",
+                      "fill": "$bg-muted",
+                      "cornerRadius": [
+                        10,
+                        0,
+                        0,
+                        10
+                      ],
+                      "stroke": "$border",
+                      "strokeWidth": {
+                        "right": 1
+                      },
+                      "strokeLinejoin": "round",
+                      "padding": [
+                        12,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "rjKWs",
+                          "name": "Símbolo Real",
+                          "fill": "$text-secondary",
+                          "content": "R$",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "800"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "teDg9",
+                      "name": "Valor preço do acompanhamento",
+                      "width": "fill_container",
+                      "padding": [
+                        12,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "uP3Cb",
+                          "name": "Valor R$ 3,00",
+                          "fill": "$text-primary",
+                          "content": "3,00",
+                          "fontFamily": "$font-body",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "text",
+              "id": "CQxr2",
+              "name": "Alcance do preço",
+              "fill": "$text-secondary",
+              "content": "Este preço vale para todos os vínculos e tamanhos.",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "500"
+            },
+            {
               "type": "frame",
               "id": "xrqAP",
               "name": "Field Quantidade",
@@ -7147,104 +7244,6 @@
                           "fontFamily": "$font-body",
                           "fontSize": 14,
                           "fontWeight": "800"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "frame",
-              "id": "NT7F2",
-              "name": "Field Preço",
-              "width": "fill_container",
-              "layout": "vertical",
-              "gap": 8,
-              "children": [
-                {
-                  "type": "frame",
-                  "id": "tD5r3",
-                  "name": "LblRow",
-                  "width": "fill_container",
-                  "justifyContent": "space_between",
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "kGYAV",
-                      "name": "L",
-                      "fill": "$text-secondary",
-                      "content": "Preço neste produto",
-                      "fontFamily": "$font-body",
-                      "fontSize": 13,
-                      "fontWeight": "600"
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "S0bRSj",
-                  "name": "Input",
-                  "width": "fill_container",
-                  "fill": "$bg-card",
-                  "cornerRadius": 10,
-                  "stroke": "$border",
-                  "strokeWidth": 1,
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "YXCh8",
-                      "name": "Prefix",
-                      "fill": "$bg-muted",
-                      "cornerRadius": [
-                        10,
-                        0,
-                        0,
-                        10
-                      ],
-                      "stroke": "$border",
-                      "strokeWidth": {
-                        "right": 1
-                      },
-                      "strokeLinejoin": "round",
-                      "padding": [
-                        12,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "Y1GwxU",
-                          "name": "L",
-                          "fill": "$text-secondary",
-                          "content": "R$",
-                          "fontFamily": "$font-body",
-                          "fontSize": 14,
-                          "fontWeight": "800"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "Ercos",
-                      "name": "VW",
-                      "width": "fill_container",
-                      "padding": [
-                        12,
-                        14
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "P65RT",
-                          "name": "V",
-                          "fill": "$text-primary",
-                          "content": "3,00",
-                          "fontFamily": "$font-body",
-                          "fontSize": 14,
-                          "fontWeight": "700"
                         }
                       ]
                     }
@@ -115610,6 +115609,586 @@
           ]
         }
       ]
+    },
+    {
+      "id": "AYpcB",
+      "type": "ref",
+      "ref": "c52HsC",
+      "name": "Dialog Revisar Preço do Acompanhamento",
+      "x": 9217,
+      "y": 6488,
+      "width": 560,
+      "descendants": {
+        "BhY1L": {
+          "fill": "$warning-soft"
+        },
+        "W6MAa": {
+          "icon": "triangle-alert",
+          "fill": "$warning"
+        },
+        "WTwuC": {
+          "content": "Revise os preços"
+        },
+        "VtH8I": {
+          "content": "O preço de um acompanhamento mudou antes do registro."
+        },
+        "A5E3Kj": {
+          "type": "frame",
+          "id": "YbvL6",
+          "name": "Lista de conflitos",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 10,
+          "padding": [
+            20,
+            24
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "EjkAH",
+              "name": "Conflito Combo indisponível",
+              "width": "fill_container",
+              "fill": "$warning-soft",
+              "cornerRadius": 12,
+              "stroke": "$warning",
+              "strokeWidth": 1,
+              "gap": 11,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "z99FS",
+                  "name": "Ícone conflito Combo",
+                  "width": 34,
+                  "height": 34,
+                  "fill": "$bg-card",
+                  "cornerRadius": 9,
+                  "stroke": "$warning",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "rHtjH",
+                      "name": "Símbolo conflito Combo",
+                      "width": 17,
+                      "height": 17,
+                      "icon": "badge-percent",
+                      "library": "lucide",
+                      "fill": "$warning"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "R6Fui",
+                  "name": "Conteúdo conflito Combo",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "w7TaKL",
+                      "name": "Tipo conflito Combo",
+                      "fill": "$warning",
+                      "content": "PREÇO ATUALIZADO",
+                      "fontFamily": "$font-body",
+                      "fontSize": 10,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "g2CaO",
+                      "name": "Título conflito Combo",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Granola: R$ 3,00 → R$ 4,00",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "EB0Og",
+                      "name": "Detalhe conflito Combo",
+                      "fill": "$text-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Açaí tradicional: R$ 18,00 → R$ 19,00",
+                      "fontFamily": "$font-body",
+                      "fontSize": 11,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "oqS2B",
+              "name": "Conflito Estoque insuficiente",
+              "width": "fill_container",
+              "fill": "$warning-soft",
+              "cornerRadius": 12,
+              "stroke": "$warning",
+              "strokeWidth": 1,
+              "gap": 11,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "FMs9R",
+                  "name": "Ícone conflito Estoque",
+                  "width": 34,
+                  "height": 34,
+                  "fill": "$bg-card",
+                  "cornerRadius": 9,
+                  "stroke": "$warning",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "u3QNY",
+                      "name": "Símbolo conflito Estoque",
+                      "width": 17,
+                      "height": 17,
+                      "icon": "package-x",
+                      "library": "lucide",
+                      "fill": "$warning"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "BWIEK",
+                  "name": "Conteúdo conflito Estoque",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "aXhHw",
+                      "name": "Tipo conflito Estoque",
+                      "fill": "$warning",
+                      "content": "TOTAL DO PEDIDO",
+                      "fontFamily": "$font-body",
+                      "fontSize": 10,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "wrRiL",
+                      "name": "Título conflito Estoque",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "R$ 28,00 → R$ 29,00",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "yo1s8",
+                      "name": "Detalhe conflito Estoque",
+                      "fill": "$text-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "O pedido ainda não foi registrado.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 11,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "q1U2Nf",
+              "name": "Orientação dos conflitos",
+              "fill": "$text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Revise os novos valores e confirme o pedido novamente.",
+              "lineHeight": 1.4,
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        "S6h039": {
+          "type": "frame",
+          "id": "BTc2Q",
+          "name": "Ações Conflitos do pedido",
+          "width": "fill_container",
+          "stroke": "$border-soft",
+          "strokeWidth": {
+            "top": 1
+          },
+          "gap": 12,
+          "padding": [
+            16,
+            24,
+            24,
+            24
+          ],
+          "justifyContent": "end",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "CF0W4",
+              "name": "Botão Revisar pedido",
+              "fill": "$primary",
+              "cornerRadius": 10,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#6D28D940",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 20
+              },
+              "gap": 8,
+              "padding": [
+                10,
+                20
+              ],
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "i3h1HJ",
+                  "name": "Ícone Revisar pedido",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "arrow-left",
+                  "library": "lucide",
+                  "fill": "#FFFFFF"
+                },
+                {
+                  "type": "text",
+                  "id": "ZEOY7",
+                  "name": "Texto Revisar pedido",
+                  "fill": "#FFFFFF",
+                  "content": "Revisar valores",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "mouHc",
+      "type": "ref",
+      "ref": "c52HsC",
+      "name": "Dialog Revisar Preço do Acompanhamento — Estreito",
+      "x": 9217,
+      "y": 6950,
+      "width": 350,
+      "descendants": {
+        "BhY1L": {
+          "fill": "$warning-soft"
+        },
+        "W6MAa": {
+          "icon": "triangle-alert",
+          "fill": "$warning"
+        },
+        "WTwuC": {
+          "content": "Revise os preços"
+        },
+        "VtH8I": {
+          "content": "O preço de um acompanhamento mudou antes do registro."
+        },
+        "A5E3Kj": {
+          "type": "frame",
+          "id": "ikDyc",
+          "name": "Lista de conflitos",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 10,
+          "padding": [
+            20,
+            24
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "P2MbUg",
+              "name": "Conflito Combo indisponível",
+              "width": "fill_container",
+              "fill": "$warning-soft",
+              "cornerRadius": 12,
+              "stroke": "$warning",
+              "strokeWidth": 1,
+              "gap": 11,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mMWv7",
+                  "name": "Ícone conflito Combo",
+                  "width": 34,
+                  "height": 34,
+                  "fill": "$bg-card",
+                  "cornerRadius": 9,
+                  "stroke": "$warning",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "NSgiV",
+                      "name": "Símbolo conflito Combo",
+                      "width": 17,
+                      "height": 17,
+                      "icon": "badge-percent",
+                      "library": "lucide",
+                      "fill": "$warning"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "qIbCL",
+                  "name": "Conteúdo conflito Combo",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "V56KRZ",
+                      "name": "Tipo conflito Combo",
+                      "fill": "$warning",
+                      "content": "PREÇO ATUALIZADO",
+                      "fontFamily": "$font-body",
+                      "fontSize": 10,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ioObQ",
+                      "name": "Título conflito Combo",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Granola: R$ 3,00 → R$ 4,00",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "jUowT",
+                      "name": "Detalhe conflito Combo",
+                      "fill": "$text-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Açaí tradicional: R$ 18,00 → R$ 19,00",
+                      "fontFamily": "$font-body",
+                      "fontSize": 11,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Ox1SD",
+              "name": "Conflito Estoque insuficiente",
+              "width": "fill_container",
+              "fill": "$warning-soft",
+              "cornerRadius": 12,
+              "stroke": "$warning",
+              "strokeWidth": 1,
+              "gap": 11,
+              "padding": [
+                12,
+                14
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "gAZZo",
+                  "name": "Ícone conflito Estoque",
+                  "width": 34,
+                  "height": 34,
+                  "fill": "$bg-card",
+                  "cornerRadius": 9,
+                  "stroke": "$warning",
+                  "strokeWidth": 1,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "Su6Bi",
+                      "name": "Símbolo conflito Estoque",
+                      "width": 17,
+                      "height": 17,
+                      "icon": "package-x",
+                      "library": "lucide",
+                      "fill": "$warning"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "fgRvv",
+                  "name": "Conteúdo conflito Estoque",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 3,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "vMv1L",
+                      "name": "Tipo conflito Estoque",
+                      "fill": "$warning",
+                      "content": "TOTAL DO PEDIDO",
+                      "fontFamily": "$font-body",
+                      "fontSize": 10,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lWIso",
+                      "name": "Título conflito Estoque",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "R$ 28,00 → R$ 29,00",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "jvj3U",
+                      "name": "Detalhe conflito Estoque",
+                      "fill": "$text-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "O pedido ainda não foi registrado.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 11,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "L0Oij",
+              "name": "Orientação dos conflitos",
+              "fill": "$text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Revise os novos valores e confirme o pedido novamente.",
+              "lineHeight": 1.4,
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        "S6h039": {
+          "type": "frame",
+          "id": "GtkAh",
+          "name": "Ações Conflitos do pedido",
+          "width": "fill_container",
+          "stroke": "$border-soft",
+          "strokeWidth": {
+            "top": 1
+          },
+          "gap": 12,
+          "padding": [
+            16,
+            24,
+            24,
+            24
+          ],
+          "justifyContent": "end",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "k6Vz6",
+              "name": "Botão Revisar pedido",
+              "fill": "$primary",
+              "cornerRadius": 10,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#6D28D940",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 20
+              },
+              "gap": 8,
+              "padding": [
+                10,
+                20
+              ],
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "H5vwy",
+                  "name": "Ícone Revisar pedido",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "arrow-left",
+                  "library": "lucide",
+                  "fill": "#FFFFFF"
+                },
+                {
+                  "type": "text",
+                  "id": "tQWQ9",
+                  "name": "Texto Revisar pedido",
+                  "fill": "#FFFFFF",
+                  "content": "Revisar valores",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        }
+      }
     }
   ],
   "variables": {
