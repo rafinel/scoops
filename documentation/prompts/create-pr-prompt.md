@@ -56,18 +56,28 @@ git log -10 --format='%h %s'
 
 Identify staged, unstaged and untracked files; generated artifacts, migrations, seeds and
 configuration; affected workspaces; unrelated user-owned changes; and secrets or local data
-that must not enter the PR. Keep unrelated changes in place and out of commits. If the
-relationship between a file and the delivery is ambiguous, stop and report it instead of
-including the file speculatively.
+that must not enter the PR. For a Spec delivery, include every current local change in the
+Spec PR by default, including changes that predate the current task or appear unrelated to the
+Spec. Do not leave such changes in the worktree or exclude them based on ownership or an
+assumption that they are unrelated. Reconcile their purpose, scope and required evidence with
+the Spec, Evaluation and PR body. Exclude only secrets, credentials, environment-specific
+local data, or files that cannot safely be shared; record each exclusion and reason. If a
+change's intended behavior is unclear, investigate the repository evidence and incorporate
+the best-supported interpretation rather than silently omitting it. For non-Spec deliveries,
+preserve and exclude unrelated local changes unless the user directs otherwise.
 
 For a Spec delivery, the Spec and Evaluation are review artifacts and belong
 in the PR. Include delivery-owned status, execution and evidence changes, including the final
 closure update created by `conclude-spec`. Do not exclude them as operational or closure-only
-documentation. Preserve and exclude unrelated user-owned changes.
+documentation. Include all current local changes as specified above, and update the Spec,
+Evaluation and PR summary where needed so the integrated delivery and its evidence are accurately
+represented.
 
 ## Branch and PR preparation
 
-1. Inspect status and staged/unstaged changes. Preserve unrelated or user-owned work.
+1. Inspect status and staged/unstaged changes. For a Spec delivery, retain every shareable
+   local change for inclusion in the same PR; exclude only the sensitive or machine-local data
+   defined above.
 2. Fetch the real integration branch without changing the worktree and inspect open and closed
    PRs for the delivery, for example:
 
@@ -96,10 +106,12 @@ documentation. Preserve and exclude unrelated user-owned changes.
 9. If a delivery PR exists, update its head and body. Otherwise create one PR for the
    coherent delivery.
 
-Do not use destructive Git operations, bypass hooks, create accidental dependent branches
-or mix unrelated work. For composed deliveries, document every base and dependency and
-validate the integrated diff. Do not create an intermediate branch merely to divide a diff;
-separate PRs require real semantic boundaries and explicit dependency ordering.
+Do not use destructive Git operations, bypass hooks or create accidental dependent branches.
+For a Spec delivery, the requirement to include all current shareable local changes supersedes
+the normal preference against mixing unrelated work. Document their relationship to the Spec
+and validate the integrated diff. For other composed deliveries, document every base and
+dependency and validate the integrated diff. Do not create an intermediate branch merely to
+divide a diff; separate PRs require real semantic boundaries and explicit dependency ordering.
 
 ## Validation evidence
 
