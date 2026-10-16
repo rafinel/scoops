@@ -34,7 +34,7 @@ execution order. Use create-spec for clarification and independent review before
 | --- | --- | --- |
 | <real PRQ ID or source statement> | full / partial / deferred | <delivery scope without weakening source authority> |
 
-## 2. Implementation Contract
+## 2. Behavior Contract
 
 | ID | PRQ/source coverage | Required behavior |
 | --- | --- | --- |
@@ -56,29 +56,94 @@ accessibility and permitted deviations, mapped to AC IDs>.
 
 ## 3. Technical Contract
 
-**Ownership and existing boundaries:** <owning modules/applications and relevant existing
-public interfaces or source locations>.
+<!-- Keep only affected workspace/layer subsections. Use actual module boundaries;
+omit unchanged layers rather than empty or "No changes" inventories. Within each owning
+section document existing boundaries, public contracts, runtime flow and consequential
+constraints (authorization, tenancy, atomicity, concurrency, idempotency, compatibility,
+failure recovery, lifecycle and browser/SSR guarantees) where applicable. -->
 
-**Runtime and data flow:** <producers, consumers, source of truth and side effects>.
+### packages/core
 
-**Public contracts:** <applicable routes/methods, authorization, payloads, exported
-interfaces, events, error semantics and compatibility obligations>.
+#### Domain
 
-**Consequential constraints:** <applicable tenancy, atomicity, concurrency, idempotency,
-provider failures, lifecycle, browser/SSR and operational guarantees>.
+<Changed entities, structures, errors and events. Entities/structures describe data;
+business rules belong exclusively in owning use-case classes. Include source-backed illustrative TypeScript
+snippets where they clarify the contract, identifying existing versus proposed members.>
 
-**Persistence and generation:** <applicable data fields/indexes/constraints, historical-data
-and migration delivery requirements, generated inputs and real generation commands>.
+#### Use cases
+
+<Typed input/result, authoritative behavior, dependencies, transaction and error semantics.>
+
+#### Interfaces
+
+<Changed repository/provider capabilities, exported contracts and consumers.>
+
+### packages/validation
+
+<Changed schemas, composition and input bounds; distinguish syntax from authoritative rules.>
+
+### apps/server
+
+#### REST
+
+<Routes/methods, authorization, payloads, error mapping, compatibility and .rest examples.>
+
+#### Database
+
+<Affected tables/columns, types, nullability, defaults, keys, indexes and constraints;
+repository/mapping contracts, atomicity, historical data and migration/generation commands.>
+
+#### Messaging
+
+<Events, producers/consumers, outbox, commit ordering, durable steps, retries and idempotency.>
+
+#### Provision
+
+<Affected provider adapters, consuming contracts, registrations and failure translation.>
+
+### apps/web
+
+#### UI
+
+<Screens/dialogs, permissions, states, form behavior, refresh, accessibility and responsive behavior.>
+
+#### Routes
+
+<Navigation, route/search contracts, guards and generated metadata obligations.>
+
+#### REST
+
+<Services, transport mapping, requests/results, failure handling and consumer refresh.>
+
+#### Provision
+
+<Affected browser adapters and their contracts, wiring and lifecycle.>
+
+### packages/email
+
+<Include only changed templates, rendering contracts and exports; delivery stays with its owner.>
+
+<!-- Within affected sections, optionally include expected file trees and the table below.
+Identify existing versus proposed paths; Create/Modify/Move/Generate/Remove describe changes.
+Proposed names and illustrative snippets do not prescribe routine private decomposition.
+No blanket file inventory or provider refactor is required. -->
+
+| Action | Path |
+| --- | --- |
+| <Create / Modify / Move / Generate / Remove> | <affected path; label proposed names and move destination> |
+
+### Cross-layer flow and decisions
+
+<Connect affected owners, source of truth, synchronous/asynchronous flow and side effects.>
 
 | Decision | Chosen approach | Alternative | Reason and accepted trade-off |
 | --- | --- | --- | --- |
 | <consequential choice> | <approach> | <credible alternative> | <reason and limitation> |
 
-<!-- Omit irrelevant constraints and decisions fixed by repository authority. Specify exact
-public details when correctness depends on them; do not inventory future private paths,
-widget trees, internal declarations, execution phases or tasks. -->
+<!-- Omit decisions fixed by repository authority. Specify exact public details when
+correctness depends on them; routine internal structure and execution remain with the agent. -->
 
-## 4. Validation Contract
+## 4. Verification Contract
 
 | Acceptance | Checker and permitted boundary | Expected assertion | Evidence target |
 | --- | --- | --- | --- |
@@ -117,3 +182,9 @@ mapped saved reference and comparison obligation; record actual path/result in E
 | Revision | Date | Material change and reason |
 | --- | --- | --- |
 | 1 | YYYY-MM-DD | <initial contract and source decision> |
+
+<!-- create-spec also generates ./interactive-spec.html as a derived explanation, with
+the actual frontmatter in its header and a separate tab for each contract. Refresh it
+with this Spec's content, revision and status on authoring/amendment. Simulations are
+illustrative; the HTML is neither independent authority nor implementation/runtime proof.
+Create evaluation.md at implementation kickoff, not during Spec authoring. -->
