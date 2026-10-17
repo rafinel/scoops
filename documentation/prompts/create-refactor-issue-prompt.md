@@ -111,7 +111,6 @@ Do not silently encode a new architecture or product rule as refactoring.
   obtain approval for a separate feature/contract change.
 - Do not include unrelated cleanup, speculative abstractions or dependency upgrades that are not
   necessary for the stated outcome.
-- Treat PRD Implemented checkboxes as read-only.
 
 ## GitHub metadata
 

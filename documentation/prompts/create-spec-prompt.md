@@ -39,10 +39,7 @@ Journeys as cross-`PRQ-*` scenario context. Treat the Product Dependency Graph a
 capability and authoritative-fact dependency evidence only, never as implementation order,
 foundation work, agent execution order.
 
-The `Implemented` checkbox records conclusion state; it does not define product behavior or
-Spec scope. This workflow never changes an applicable requirement from `[ ]` to `[x]`. Before
-authoring the Spec, return every materially amended applicable requirement to `[ ]`, including
-one that was previously checked, while leaving unchanged requirement checkboxes untouched.
+PRDs do not record delivery state; Spec scope comes from the applicable requirements only.
 
 ### 2. Classify and research
 
@@ -270,7 +267,7 @@ the agent chooses execution order, decomposition, delegation and routine interna
 State the objective, actual source, compact/complete depth, current behavior, product gap,
 included behavior, exclusions, accepted assumptions and resolved product decisions.
 Map applicable PRQ IDs or source statements to `full`, `partial` or `deferred` coverage.
-Partial delivery never weakens the PRD or checks its Implemented box.
+Partial delivery never weakens the PRD.
 
 ### 2. Behavior Contract
 
@@ -675,7 +672,7 @@ Before setting the Spec to `open`, verify:
 - applicable PRQ Outcome, Actors, Consumes, Provides, Capabilities and Experience have FR/AC
   coverage, with User Journeys informing end-to-end and alternate scenarios;
 - every FR has AC coverage and every AC has a concrete checker;
-- material ambiguities and authority changes are resolved, with amended PRQ boxes unchecked;
+- material ambiguities and authority changes are resolved;
 - public boundary/data/migration contracts and consequential decisions are precise, while
   routine internal structure remains agent-owned;
 - saved references exist, were visually inspected, cover required states/viewports and map

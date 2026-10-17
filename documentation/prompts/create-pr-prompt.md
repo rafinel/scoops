@@ -196,9 +196,9 @@ Include these sections in this order:
   issue, use the GitHub closing keyword `Closes #<number>`; do not use `Refs #<number>` or
   another non-closing relationship when an issue is listed.
 - **PRD and Spec traceability** — applicable PRD, fully/partially delivered `PRQ-*`
-  requirements and their current Implemented-checkbox disposition, Spec revision
+  requirements and their current delivery disposition, Spec revision
   and covered `FR-*`/`AC-*` criteria. Link to the Spec and Evaluation and report their actual
-  current state; only `conclude-spec` changes PRD Implemented checkboxes after local preflight.
+  current state.
   Publication before its final CI and closure gate does not establish completion;
 - **Implementation** — coherent frontend, backend, domain, persistence and test slices with
   the most relevant changed paths. Describe each affected layer concretely: name the

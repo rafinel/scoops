@@ -1,5 +1,5 @@
 ---
-description: Research, interview, create and refine Scoops PRDs with product outcomes, actors, capability dependencies, user journeys and implementation-state traceability.
+description: Research, interview, create and refine Scoops PRDs with product outcomes, actors, capability dependencies, user journeys and traceability.
 ---
 
 # Prompt: Create PRD
@@ -40,7 +40,7 @@ First:
 6. Wait for explicit confirmation.
 
 Only after confirmation can the file be created or updated. When refining an existing PRD,
-preserve unaffected product decisions and implementation checkboxes; migrate only the affected
+preserve unaffected product decisions; migrate only the affected
 requirements unless the user explicitly requests a complete document normalization.
 
 ---
@@ -259,8 +259,6 @@ Each requirement must follow this format:
 
 #### PRQ-01 — Requirement Name
 
-- [ ] **Implemented**
-
 **Outcome:** state the user or business result delivered by the requirement.
 
 **Actors:** name every meaningful initiating or autonomous actor. Use repository profile names
@@ -291,11 +289,7 @@ module consumes. Omit when there is no meaningful downstream consumer.
 
 Use sequential requirements: `PRQ-01`, `PRQ-02`, `PRQ-03`.
 
-Use `[ ]` for every new or materially amended requirement. Only `conclude-spec` may change it
-to `[x]`, after conclusion preflight confirms the complete current requirement is delivered and
-before the delivery commit and final PR CI. `create-prd`, `create-spec` and `implement-spec` do
-not mark requirements implemented. If a checked requirement is materially amended, return it to
-`[ ]` before the revised Spec is authored.
+Requirements do not record delivery state; delivery is tracked by Spec and Evaluation evidence.
 
 Separate requirements with `---`.
 
@@ -374,7 +368,7 @@ The PRD must:
 
 Before saving, validate:
 
-- every requirement has an explicit implementation checkbox, Outcome, Actors and Capabilities;
+- every requirement has an Outcome, Actors and Capabilities;
 - Experience is present for every user-visible requirement and omitted only with a reason clear
   from the requirement;
 - every Consumes/Provides reference names a real requirement or module and agrees with the

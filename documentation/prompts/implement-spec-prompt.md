@@ -97,9 +97,7 @@ score drop for unchanged eligible files. Billing's module and per-file threshold
 temporarily suspended. It does not replace local assessment of the contracted scope.
 After corrections, rerun only invalidated mutation checks and preserve unaffected evidence.
 
-Preserve PRD Implemented checkboxes during implementation. Evaluation `ready` authorizes
-conclusion, not PRD closure. Only the approved material-amendment workflow may reset an
-affected requirement to unchecked here; `conclude-spec` owns marking delivered requirements.
+Evaluation `ready` authorizes conclusion, not delivery closure; `conclude-spec` owns closure.
 
 ## Design-backed UI
 
@@ -189,8 +187,8 @@ current authority. Correctable failures remain correction work, not permission r
 
 If a discrepancy changes product intent, scope, design intent, architecture or another
 contracted decision, pause affected work and return the Spec to `draft` through `create-spec`.
-Update higher authorities first when required, reset materially amended PRD requirements to
-unchecked, increment the revision and refresh affected references and evidence. The Spec
+Update higher authorities first when required, increment the revision and refresh affected
+references and evidence. The Spec
 Reviewer belongs to `create-spec` and is not an implementation reviewer or recurring gate.
 If a declared test conflicts with test-integrity Rules, amend the invalid contract before
 editing that test; never weaken the checker.
@@ -205,7 +203,7 @@ requiring a new Rule for every defect.
 Keep Evaluation `in_progress` while required criteria, checks or verified blocking findings
 remain open. Set it to `ready` when all required evidence is current, both applicable reviews
 are reconciled and no blocking finding remains. Proceed to `conclude-spec` when publication
-authority exists; do not mark the Spec completed or check PRD requirements here.
+authority exists; do not mark the Spec completed here.
 
 Before interruption or handoff, leave a small continuation record: branch/candidate provenance, current progress, interrupted or uncommitted paths,
 unfinished criteria, active blockers, latest checker IDs/results, affected stale evidence and

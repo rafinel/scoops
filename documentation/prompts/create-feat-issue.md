@@ -90,9 +90,6 @@ The PRD Product Dependency Graph describes consumption of product capabilities o
 authoritative facts. It is not implementation sequencing, issue decomposition, foundation
 work, execution waves or delivery priority.
 
-Treat the PRD `Implemented` checkbox as read-only. Creating an issue never checks, unchecks or
-otherwise changes a requirement's checkbox state.
-
 ## GitHub metadata
 
 Create the issue in the current repository and use only the repository's
@@ -204,8 +201,7 @@ paragraphs; the Traceability section repeats them as supporting context.
 - When Pencil file or node references are supplied, preserve them exactly and
   include them in the Delivery Scope rather than only listing them under
   Traceability.
-- Do not claim that a requirement is implemented or change its `Implemented`
-  checkbox; this prompt only creates the issue.
+- Do not claim that a requirement is implemented; this prompt only creates the issue.
 
 ## Approval gate
 

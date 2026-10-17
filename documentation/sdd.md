@@ -37,13 +37,12 @@ explicit approval. Routine reversible implementation decisions require no approv
 
 Each module PRD expresses a canonical `PRQ-*` requirement with these fields, in this order:
 
-1. an **Implemented** checkbox;
-2. **Outcome**;
-3. **Actors**;
-4. optional **Consumes**;
-5. optional **Provides**;
-6. **Capabilities**;
-7. **Experience** when the requirement has a user-visible effect.
+1. **Outcome**;
+2. **Actors**;
+3. optional **Consumes**;
+4. optional **Provides**;
+5. **Capabilities**;
+6. **Experience** when the requirement has a user-visible effect.
 
 Omit `Consumes` or `Provides` when no meaningful product-capability relationship exists, and
 omit `Experience` only for a purely system-executed requirement with no user-visible effect.
@@ -57,13 +56,8 @@ technical dependencies, implementation priority, foundation work, execution phas
 parallelism. The implementing agent derives execution dependencies from the Technical Contract and real
 repository boundaries, never from the PRD graph.
 
-New and materially amended requirements use an unchecked Implemented checkbox. A material PRD
-amendment returns every affected `PRQ-*` to unchecked before the revised Spec is authored.
-`create-prd`, `create-spec` and `implement-spec` never check a PRD requirement. Only
-`conclude-spec` may check a fully delivered current requirement, after conclusion preflight and
-before the delivery commit and final PR CI. Evaluation `ready` means implementation evidence can
-enter conclusion; it is not PRD closure and does not authorize a checkbox change by
-`implement-spec`.
+PRDs do not record delivery state. Delivery is tracked by Spec and Evaluation evidence, and
+Evaluation `ready` means implementation evidence can enter conclusion.
 
 ### SDD identifier taxonomy
 
@@ -297,15 +291,13 @@ become a replacement task/phase Plan.
 An implementation correction keeps the Spec revision, reopens Evaluation and
 refreshes affected proof. A changed product, design or consequential technical
 contract returns the Spec to `draft`, reconciles governing authority first,
-increments its revision and refreshes affected design/checkers. Materially amended
-PRD requirements return to unchecked before revised Spec authoring. Routine internal
+increments its revision and refreshes affected design/checkers. Routine internal
 implementation choices within the contract do not require amendments.
 
 While a PR remains open, `resolve-pr-feedback` owns comment inspection,
 classification, replies and reopening. Explanation or metadata-only feedback does
 not reopen the contract. Implementation corrections reopen the same completed Spec
-as `open` and Evaluation as `in_progress` without a revision increment. Return PRD
-requirements to unchecked only when verified product evidence is invalidated.
+as `open` and Evaluation as `in_progress` without a revision increment.
 Contract changes use amendment. Continue implementation and conclusion rather
 than ending with a proposed correction. After merge, defects use the bug workflow
 and changed product behavior uses a new change Spec.
@@ -321,9 +313,9 @@ and conclusion, subject to documented external blockers and bounded retry limits
 
 With authorization to commit, push and publish:
 
-1. resolve every selected `PRQ-*` through FR/AC to evidence; check only fully
-   delivered current requirements as Implemented after local closure preflight
-   and before the delivery commit; partial/deferred requirements remain unchecked;
+1. resolve every selected `PRQ-*` through FR/AC to evidence and classify it as fully
+   delivered, partially delivered or deferred after local closure preflight and before the
+   delivery commit;
 2. use `commit-code` for scoped commits, including delivery-owned Spec/Evaluation
    and required PRD changes; exclude inherited unrelated governance or user work
    unless explicitly authorized, recording its disposition;
@@ -339,7 +331,7 @@ A local pass, earlier SHA or missing expected workflow does not satisfy final PR
 Record the candidate CI that authorized closure before the closure commit; report live
 closure-head results without writing them back into Evaluation and creating another
 untested head. Do not publish an intermediate `ready`-only update. Product failures
-return affected PRD requirements to unchecked; transient infrastructure failures
+reopen the affected delivery; transient infrastructure failures
 preserve verified product disposition. Explicit waivers are recorded honestly and
 never reported as passed proof. Do not merge or deploy without an explicit request.
 

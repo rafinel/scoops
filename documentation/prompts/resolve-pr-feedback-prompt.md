@@ -15,10 +15,8 @@ Use authenticated `gh` to read the open PR, current head SHA, unresolved convers
 reviews, Spec, `evaluation.md`, actual diff and GitHub Issue traceability. Ignore stale comments
 that target superseded code only after verifying they are no longer applicable.
 
-Read the applicable PRD and the delivery's `PRQ-*`/`FR-*`/`AC-*` traceability. Treat the
-Implemented checkbox as delivery state owned by verified product evidence: this workflow may
-return a requirement to unchecked when feedback invalidates that evidence, but it never marks a
-requirement implemented.
+Read the applicable PRD and the delivery's `PRQ-*`/`FR-*`/`AC-*` traceability. Delivery state is
+owned by verified product evidence in Spec and Evaluation, not by the PRD.
 
 When feedback affects an HTTP route group or request contract, inspect the matching
 `apps/server/rest-client/<module>/<route-group>.rest` file as part of the same review. Classify
@@ -57,9 +55,9 @@ Spec or Rules while the PR remains open:
 2. set `evaluation.md` to `status: in_progress`, append a review-cycle entry and record the
    comment URL as a mapped finding;
 3. verify the finding against the delivered product and its `PRQ-*`/`FR-*`/`AC-*` mapping. If
-   it proves an affected PRD requirement is not delivered, change that requirement to
-   `- [ ] **Implemented**`; if it is only an evidence gap or transient CI/infrastructure issue
-   and product behavior remains verified, preserve the current checkbox state;
+   it proves an affected PRD requirement is not delivered, record it as not delivered in
+   `evaluation.md`; if it is only an evidence gap or transient CI/infrastructure issue
+   and product behavior remains verified, preserve the current delivery disposition;
 4. invoke `implement-spec` for autonomous correction and integrated verification;
 5. let that implementation workflow own fixes, invalidated evidence and manual validation;
 6. after it returns Evaluation to `ready`, invoke `conclude-spec` to publish the corrected
@@ -85,9 +83,7 @@ boundaries while the delivery PR remains open:
 2. append the review comment and reason to its revision history;
 3. route through `create-spec` for product/technical clarification and required authority;
 4. once the amendment is approved, identify every materially changed PRD `PRQ-*`, update the
-   PRD first and change each affected requirement to `- [ ] **Implemented**` before the revised
-   Spec is authored; preserve checked state for requirements whose complete current product
-   contract is unchanged;
+   PRD first before the revised Spec is authored;
 5. update Rules, Architecture, Modules, Design or Tooling first when required;
 6. increment the Spec revision, reconcile the design bundle and validation, set
    `evaluation.md` to `status: in_progress`, preserving unaffected evidence as current and
@@ -95,7 +91,7 @@ boundaries while the delivery PR remains open:
    inside the `create-spec` integrity gate, and return the Spec to `open` after verified findings
    are resolved without a separate user-facing approval stage;
 7. invoke `implement-spec` to autonomously implement and verify the amended contract;
-8. invoke `conclude-spec` again to resolve full-delivery checkboxes, update the existing PR,
+8. invoke `conclude-spec` again to resolve the delivery disposition, update the existing PR,
    run CI and close the delivery.
 
 If classification or expected behavior is ambiguous, ask the user before changing the Spec
@@ -126,7 +122,7 @@ Return:
 - classification and evidence for every actionable comment;
 - replies or PR metadata changes made;
 - Spec/Evaluation transition when reopened;
-- affected PRD `PRQ-*` requirements and any Implemented-checkbox changes or preserved state;
+- affected PRD `PRQ-*` requirements and any changed or preserved delivery disposition;
 - correction, publication and closure outcomes reached in the current task;
 - unresolved comments and blockers.
 

@@ -240,10 +240,7 @@ dependencies, or other product-facing behavior:
 If implementation changes a business rule, update the corresponding PRD in the
 same task so product intent and code remain aligned.
 
-PRD requirement checkboxes are delivery state, not implementation-progress state.
-Only `conclude-spec` marks a complete requirement Implemented, after local closure
-preflight and before the delivery commit and final PR CI. A materially amended
-requirement returns to unchecked before its revised Spec is authored.
+PRDs do not record delivery state. Delivery is tracked by Spec and Evaluation evidence.
 
 ### 5. [`documentation/design.md`](documentation/design.md) — UI work
 

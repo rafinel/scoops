@@ -61,11 +61,10 @@ according to the change. Delivery PRs must be ready for review; verify `isDraft:
    fully delivered, partially delivered or deferred. Full delivery requires the complete current
    Outcome, Actors, applicable Consumes and Provides, Capabilities and conditional Experience,
    with all mapped obligations passing. After this local preflight passes, and before the
-   delivery commit, publication or final PR CI, mark only fully delivered PRD requirements
-   `- [x] **Implemented**`; partial and deferred requirements remain `- [ ] **Implemented**`.
+   delivery commit, publication or final PR CI, record the delivery disposition in
+   `evaluation.md`.
 
-Only conclusion marks a PRD requirement implemented. Evaluation `ready` is permission to
-proceed with closure, not PRD delivery state.
+Evaluation `ready` is permission to proceed with closure, not proof of delivery.
 
 When business rules or correctness-critical logic in eligible Core use cases changed,
 require current mutation evidence for the Spec's scope and semantic pass conditions, including report paths and
@@ -85,13 +84,12 @@ returns `ready`. Keep the current Spec revision for an implementation correction
 
 A change to product behavior, design intent or a consequential technical boundary requires
 Spec amendment: set the Spec `draft`, route through `create-spec`, update higher authority first
-with the required approval, return materially amended PRD requirements to unchecked before the
-revised Spec is authored, increment the revision and reconcile affected Evaluation evidence.
+with the required approval, increment the revision and reconcile affected Evaluation evidence.
 Continue implementation and conclusion in the same task after the amendment is resolved.
 
-Uncheck a previously delivered PRD requirement only when verified product evidence shows it
-is no longer delivered. Preserve its checkbox for transient infrastructure failures or an
-evidence-only gap when the delivered behavior remains verified.
+Record a previously delivered requirement as no longer delivered only when verified product
+evidence shows it. Transient infrastructure failures and evidence-only gaps do not change a
+verified delivery disposition.
 
 Do not stop with a routine fix listed as a suggested next action. Continue corrections until
 passing. Pause only for a required authority decision, missing publication authority or an
@@ -100,7 +98,7 @@ from `implement-spec`. Diagnose repeated failures and change the approach before
 
 ## Publish the candidate
 
-Use `commit-code` for intentional scoped commits, including authorized PRD checkbox changes and
+Use `commit-code` for intentional scoped commits, including authorized PRD changes and
 all delivery-owned documentation. Then invoke `create-pr` to publish or update the same PR;
 never create a duplicate or bypass its metadata/traceability workflow. Inspect publication's
 resulting diff, base, head SHA and evidence freshness, especially after integration-base merges.
@@ -152,7 +150,7 @@ exact checks and outcomes, runtime/manual/visual evidence, independent review fi
 unresolved findings and unfinished criteria, and a short continuation handoff. Use its
 canonical shape from `implement-spec`; do not add a task, phase or ownership ledger.
 
-Before closure, verify PRD checkbox disposition against the same `PRQ-*`/`FR-*`/`AC-*` mapping.
+Before closure, verify the delivery disposition against the same `PRQ-*`/`FR-*`/`AC-*` mapping.
 Review material findings, including resolved failures, for reusable guidance. Record the
 concrete finding separately from its lesson. Update the applicable PRD, Architecture, Modules,
 Design, Tooling, Rule, SDD, prompt or agent authority when a factual clarification is warranted;
