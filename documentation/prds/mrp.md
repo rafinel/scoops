@@ -497,9 +497,10 @@ per-portion consumption, and brand context for PRQ-09, PRQ-10, and PDV.
   reject the Portion+Accompaniment combination.
 - A Manager can make an Accompaniment global instead of linking it to individual Portions. A
   global Accompaniment applies to every Portion of the establishment, including Portions created
-  later, and has one shared type, brand context and quantity per portion. Changing or removing it
-  from any Portion changes or removes it for all Portions. The same eligibility rules as for a
-  link apply.
+  later, and has one shared type, brand context and quantity per portion. Changing it from any
+  Portion changes it for all Portions. Removing it from a Portion removes it only from that
+  Portion, which can be linked to it again later, unless the Manager chooses to remove it from all
+  Portions, which also ends its global status. The same eligibility rules as for a link apply.
 - Each link has a contextual type, such as Coverage, Extra, or Free; the same Accompaniment may
   have different types for different Portions.
 - Accompaniment types are managed on a dedicated MRP page and are available only within the same
@@ -523,8 +524,11 @@ per-portion consumption, and brand context for PRQ-09, PRQ-10, and PDV.
   per portion, applicable Brand, and cost preview.
 - The Link and Edit dialogs include a `Disponível para todas as porções` switch explaining that the
   item appears in all Portions, including new ones, and that type, quantity and price are shared.
-  When the switch is on, the dialog shows a notice that changes apply to all Portions and states
-  how many Portions it affects.
+  When the switch is on, the dialog shows a notice that changes apply to all Portions.
+- Removing a global Accompaniment opens a confirmation with a `Remover de todas as porções` switch.
+  With the switch off, it removes the item only from the current Portion and states that the other
+  and new Portions keep it. With the switch on, it removes the item from all Portions and states
+  that new Portions will not receive it. Both states state that stock balances do not change.
 - Link and Edit dialogs prefill the selected Accompaniment product's saved sale price. If none is
   saved, the Link dialog proposes the applicable Resale price when available; otherwise the
   Manager enters a valid price before linking. Editing this product-owned price applies to every
