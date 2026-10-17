@@ -43,6 +43,7 @@ export class GetProductAccompanimentsUseCase
         productSizesRepository,
         accompanimentTypesRepository,
         productAccompanimentsRepository,
+        globalAccompanimentsRepository,
         resaleConfigurationsRepository,
         eventsRepository,
       }: MrpDatabaseRepositories) => {
@@ -58,6 +59,7 @@ export class GetProductAccompanimentsUseCase
           productSizesRepository,
           accompanimentTypesRepository,
           productAccompanimentsRepository,
+          globalAccompanimentsRepository,
           resaleConfigurationsRepository,
           eventsRepository,
         }
@@ -136,6 +138,8 @@ export class GetProductAccompanimentsUseCase
       unit: accompanimentProduct.unit,
       quantityPerPortion: link.quantityPerPortion,
       salePrice: accompanimentProduct.accompanimentPrice ?? null,
+      isGlobal: link.globalAccompanimentId !== undefined,
+      hasOtherPortionLinks: false,
       ...(source?.brandId ? { brandId: source.brandId } : {}),
       ...(source?.brandName ? { brandName: source.brandName } : {}),
       ...(source?.unitCost !== undefined ? { unitCost: source.unitCost } : {}),

@@ -1,4 +1,5 @@
 import type { Product } from '#mrp/domain/entities/product.ts'
+import type { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import type { ProductCatalogPage } from '#mrp/domain/structures/product-catalog-page.ts'
 import type { ProductCreate } from '#mrp/domain/structures/product-create.ts'
 import type { ProductListParams } from '#mrp/domain/structures/product-list-params.ts'
@@ -14,6 +15,10 @@ export interface ProductsRepository {
   ): Promise<Product | undefined>
   findByName(establishmentId: string, name: string): Promise<Product | undefined>
   findMany(input: ProductListParams): Promise<ProductCatalogPage>
+  findManyByCategory(
+    establishmentId: string,
+    category: ProductCategory,
+  ): Promise<readonly Product[]>
   findManyByIds(
     establishmentId: string,
     productIds: readonly string[],

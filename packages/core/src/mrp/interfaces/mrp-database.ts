@@ -1,5 +1,6 @@
 import type { AccompanimentTypesRepository } from '#mrp/interfaces/accompaniment-types-repository.ts'
 import type { BrandsRepository } from '#mrp/interfaces/brands-repository.ts'
+import type { GlobalAccompanimentsRepository } from '#mrp/interfaces/global-accompaniments-repository.ts'
 import type { ProductAccompanimentsRepository } from '#mrp/interfaces/product-accompaniments-repository.ts'
 import type { ProductSizesRepository } from '#mrp/interfaces/product-sizes-repository.ts'
 import type { ProductsRepository } from '#mrp/interfaces/products-repository.ts'
@@ -25,6 +26,7 @@ export type MrpDatabaseRepositories = {
   productSizesRepository: ProductSizesRepository
   accompanimentTypesRepository: AccompanimentTypesRepository
   productAccompanimentsRepository: ProductAccompanimentsRepository
+  globalAccompanimentsRepository: GlobalAccompanimentsRepository
   resaleConfigurationsRepository: ResaleConfigurationsRepository
   stockAttentionFactsRepository?: StockAttentionFactsRepository
   eventsRepository: Pick<EventsRepository, 'add'>

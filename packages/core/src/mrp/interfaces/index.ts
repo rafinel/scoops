@@ -1,5 +1,6 @@
 export * from '#mrp/interfaces/accompaniment-types-repository.ts'
 export * from '#mrp/interfaces/brands-repository.ts'
+export * from '#mrp/interfaces/global-accompaniments-repository.ts'
 export * from '#mrp/interfaces/mrp-database.ts'
 export * from '#mrp/interfaces/mrp-service.ts'
 export * from '#mrp/interfaces/product-accompaniments-repository.ts'

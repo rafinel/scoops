@@ -48,6 +48,7 @@ export class UpdateProductSizeUseCase implements UseCase<Request, ProductPricing
         productSizesRepository,
         accompanimentTypesRepository,
         productAccompanimentsRepository,
+        globalAccompanimentsRepository,
         resaleConfigurationsRepository,
         eventsRepository,
       }: MrpDatabaseRepositories) => {
@@ -63,6 +64,7 @@ export class UpdateProductSizeUseCase implements UseCase<Request, ProductPricing
           productSizesRepository,
           accompanimentTypesRepository,
           productAccompanimentsRepository,
+          globalAccompanimentsRepository,
           resaleConfigurationsRepository,
           eventsRepository,
         }

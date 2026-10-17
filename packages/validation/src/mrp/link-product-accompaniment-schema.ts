@@ -8,5 +8,6 @@ export const linkProductAccompanimentSchema = z
     accompanimentTypeId: z.uuid(),
     quantityPerPortion: accompanimentQuantitySchema,
     accompanimentPrice: accompanimentPriceSchema.optional(),
+    isGlobal: z.boolean().optional(),
   })
   .strict()

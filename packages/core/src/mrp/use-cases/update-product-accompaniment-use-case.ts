@@ -252,6 +252,8 @@ export class UpdateProductAccompanimentUseCase
       unit: target.unit,
       quantityPerPortion: link.quantityPerPortion,
       salePrice: target.accompanimentPrice ?? null,
+      isGlobal: link.globalAccompanimentId !== undefined,
+      hasOtherPortionLinks: false,
       ...(source?.brandId ? { brandId: source.brandId } : {}),
       ...(source?.brandName ? { brandName: source.brandName } : {}),
       ...(source?.unitCost !== undefined ? { unitCost: source.unitCost } : {}),

@@ -51,6 +51,7 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
         productSizesRepository,
         accompanimentTypesRepository,
         productAccompanimentsRepository,
+        globalAccompanimentsRepository,
         resaleConfigurationsRepository,
         eventsRepository,
       }: MrpDatabaseRepositories) => {
@@ -66,6 +67,7 @@ export class RegisterProductBrandUseCase implements UseCase<Request, ProductBran
           productSizesRepository,
           accompanimentTypesRepository,
           productAccompanimentsRepository,
+          globalAccompanimentsRepository,
           resaleConfigurationsRepository,
           eventsRepository,
         }

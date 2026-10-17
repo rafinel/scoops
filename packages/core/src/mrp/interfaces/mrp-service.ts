@@ -24,6 +24,8 @@ import type {
   LinkProductAccompanimentInput,
   ProductAccompanimentsDetails,
   ProductAccompanimentDetails,
+  ProductAccompanimentCandidate,
+  AccompanimentRemovalScope,
   SaveAccompanimentTypeInput,
   UpdateProductAccompanimentInput,
   ProductPricingDetails,
@@ -148,9 +150,13 @@ export interface MrpService {
     linkId: string,
     input: UpdateProductAccompanimentInput,
   ): Promise<RestResponse<ProductAccompanimentDetails>>
+  listProductAccompanimentCandidates(
+    productId: string,
+  ): Promise<RestResponse<ProductAccompanimentCandidate[]>>
   removeProductAccompaniment(
     productId: string,
     linkId: string,
+    scope?: AccompanimentRemovalScope,
   ): Promise<RestResponse<void>>
   listAccompanimentTypes(
     input: Omit<AccompanimentTypeListParams, 'establishmentId'>,

@@ -27,6 +27,7 @@ export const productAccompanimentFormSchema = z
           ),
         'Informe um preço maior ou igual a zero, com até duas casas decimais.',
       ),
+    isGlobal: z.boolean(),
   })
   .strict()
 

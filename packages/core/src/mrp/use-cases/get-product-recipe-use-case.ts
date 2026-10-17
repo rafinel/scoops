@@ -41,6 +41,7 @@ export class GetProductRecipeUseCase implements UseCase<Request, ProductRecipeDe
         productSizesRepository,
         accompanimentTypesRepository,
         productAccompanimentsRepository,
+        globalAccompanimentsRepository,
         resaleConfigurationsRepository,
         eventsRepository,
       }: MrpDatabaseRepositories) => {
@@ -56,6 +57,7 @@ export class GetProductRecipeUseCase implements UseCase<Request, ProductRecipeDe
           productSizesRepository,
           accompanimentTypesRepository,
           productAccompanimentsRepository,
+          globalAccompanimentsRepository,
           resaleConfigurationsRepository,
           eventsRepository,
         }
