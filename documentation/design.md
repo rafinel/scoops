@@ -29,7 +29,7 @@ Sources: Global CSS of the app, reference **Purple Stream** and screens drawn wi
 | Token | Hex | Usage |
 |---|---|---|
 | `$primary` | `#6D28F5` | Tag, primary button, active tab, selected item |
-| `$primary-soft` | `#EDE9FE` | Active tab background, highlight badge, calculation preview, Manufacturable category chip |
+| `$primary-soft` | `#EDE9FE` | Active tab background, highlight badge, calculation preview |
 
 **Surfaces and text**
 | Token | Hex | Usage |
@@ -62,7 +62,7 @@ Sources: Global CSS of the app, reference **Purple Stream** and screens drawn wi
 |---|---|---|
 | `$danger` | `#B91C1C` / `#991B1B` | Text and icons in error alerts |
 | `$danger-vivid` | `#DC2626` | Full destructive button |
-| `$danger-soft` | `#FEE2E2` | Resale category chip background, destructive dialog icon |
+| `$danger-soft` | `#FEE2E2` | Destructive dialog icon |
 | `$danger-bg` | `#FEF2F2` | Red line background in recipe table (insufficient stock) |
 
 **Semantics — info**
@@ -266,12 +266,16 @@ Three variations:
 - Text 12/600.
 
 Mapping by category:
-| Category | Background | Text/Border |
-|---|---|---|
-| Ingredient | `$info-soft` | `$info` / `#93C5FD` |
-| Manufacturable | `$primary-soft` | `$primary` / `#C4B5FD` |
-| Accompaniment | `$warning-soft` | `$warning` / `#FCD34D` |
-| Resale | `$danger-soft` | `$danger` / `#FCA5A5` |
+| Category | Icon | Background | Text/Border |
+|---|---|---|---|
+| Ingredient | `package-open` | `$category-ingredient-bg` (`#DBEAFE`) | `$category-ingredient` (`#1E40AF`) / `$category-ingredient-border` (`#93C5FD`) |
+| Manufacturable | `chef-hat` | `$category-manufacturable-bg` (`#FFEDD5`) | `$category-manufacturable` (`#C2410C`) / `$category-manufacturable-border` (`#FDBA74`) |
+| Portion | `ice-cream-bowl` | `$category-portion-bg` (`#EDE9FE`) | `$category-portion` (`#5B21B6`) / `$category-portion-border` (`#C4B5FD`) |
+| Accompaniment | `candy` | `$category-accompaniment-bg` (`#FCE7F3`) | `$category-accompaniment` (`#BE185D`) / `$category-accompaniment-border` (`#F9A8D4`) |
+| Resale | `shopping-bag` | `$category-resale-bg` (`#CCFBF1`) | `$category-resale` (`#0F766E`) / `$category-resale-border` (`#5EEAD4`) |
+
+Category colors never reuse the status colors (success, warning and danger), so
+red, green and amber keep their status meaning.
 
 "Active" status chip: same default in `$success-soft` / `$success` / `#86EFAC`.
 
@@ -469,11 +473,14 @@ Large centered button with explicit CTA (e.g. "Add first brand") when the list i
 | Icon | Usage |
 |---|---|
 | `house` | Dashboard |
-| `package` | Stock, Manufacturable (chip category) |
-| `tag` | Sales, Prices (tab), Resale (chip) |
-| `chef-hat` | Recipe (tab) |
+| `package` | Stock |
+| `package-open` | Ingredient (category) |
+| `tag` | Sales, Prices (tab) |
+| `shopping-bag` | Resale (category) |
+| `ice-cream-bowl` | Portion (category) |
+| `candy` | Accompaniment (category) |
+| `chef-hat` | Recipe (tab), Manufacturable (category) |
 | `layers` | Side dishes (tab) |
-| `factory` | Manufacturable (card category) |
 | `settings` | Settings |
 | `users` | Users |
 | `credit-card` | Subscription |
