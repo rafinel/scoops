@@ -102,6 +102,16 @@ export class RemoveProductUseCase implements UseCase<Request, void> {
           request.actor.establishmentId,
           product.id,
         )
+        const global = await globalAccompanimentsRepository.findByAccompanimentProductId(
+          request.actor.establishmentId,
+          product.id,
+        )
+        if (global) {
+          await globalAccompanimentsRepository.remove(
+            request.actor.establishmentId,
+            global.id,
+          )
+        }
         await recipeIngredientsRepository.removeByIngredientProductId(
           request.actor.establishmentId,
           product.id,

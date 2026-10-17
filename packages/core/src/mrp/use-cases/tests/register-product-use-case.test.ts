@@ -16,7 +16,10 @@ import type {
   MrpDatabaseRepositories,
 } from '#mrp/interfaces/mrp-database.ts'
 import type { BrandsRepository } from '#mrp/interfaces/brands-repository.ts'
+import type { GlobalAccompanimentsRepository } from '#mrp/interfaces/global-accompaniments-repository.ts'
+import type { ProductAccompanimentsRepository } from '#mrp/interfaces/product-accompaniments-repository.ts'
 import type { ProductsRepository } from '#mrp/interfaces/products-repository.ts'
+import { GlobalAccompanimentFaker } from '#mrp/domain/entities/fakers/index.ts'
 import type { StockBalancesRepository } from '#mrp/interfaces/stock-balances-repository.ts'
 import type { StockTransactionsRepository } from '#mrp/interfaces/stock-transactions-repository.ts'
 import type { EventsRepository } from '#shared/interfaces/events-repository.ts'
@@ -64,6 +67,8 @@ describe('Register Product Use Case', () => {
   let productsRepository: MockProxy<ProductsRepository>
   let stockBalancesRepository: MockProxy<StockBalancesRepository>
   let stockTransactionsRepository: MockProxy<StockTransactionsRepository>
+  let productAccompanimentsRepository: MockProxy<ProductAccompanimentsRepository>
+  let globalAccompanimentsRepository: MockProxy<GlobalAccompanimentsRepository>
   let useCase: RegisterProductUseCase
 
   beforeEach(() => {
@@ -75,11 +80,16 @@ describe('Register Product Use Case', () => {
     productsRepository = mock<ProductsRepository>()
     stockBalancesRepository = mock<StockBalancesRepository>()
     stockTransactionsRepository = mock<StockTransactionsRepository>()
+    productAccompanimentsRepository = mock<ProductAccompanimentsRepository>()
+    globalAccompanimentsRepository = mock<GlobalAccompanimentsRepository>()
+    globalAccompanimentsRepository.findManyByEstablishmentId.mockResolvedValue([])
     scope = {
       brandsRepository,
       productsRepository,
       stockBalancesRepository,
       stockTransactionsRepository,
+      productAccompanimentsRepository,
+      globalAccompanimentsRepository,
       eventsRepository,
     } as unknown as MockProxy<MrpDatabaseRepositories>
     productsRepository.findByName.mockResolvedValue(undefined)
@@ -148,6 +158,94 @@ describe('Register Product Use Case', () => {
         }),
       }),
     )
+  })
+
+  describe('global accompaniments', () => {
+    const portionRequest = {
+      ...validSingleStockRequest,
+      name: 'Açaí',
+      categories: [ProductCategory.Portion],
+    }
+    const granola = GlobalAccompanimentFaker.fake({
+      id: 'global-1',
+      establishmentId: 'establishment-1',
+      accompanimentProductId: 'granola',
+      accompanimentTypeId: 'type-1',
+      quantityPerPortion: 0.05,
+    })
+    const banana = GlobalAccompanimentFaker.fake({
+      id: 'global-2',
+      establishmentId: 'establishment-1',
+      accompanimentProductId: 'banana',
+      accompanimentTypeId: 'type-2',
+      quantityPerPortion: 2,
+    })
+
+    it('adds one row per global to a newly registered Portion in the same transaction', async () => {
+      const portion = {
+        ...product,
+        id: 'portion-1',
+        categories: [ProductCategory.Portion],
+      }
+      productsRepository.add.mockResolvedValue(portion)
+      globalAccompanimentsRepository.findManyByEstablishmentId.mockResolvedValue([
+        granola,
+        banana,
+      ])
+
+      await expect(useCase.execute(portionRequest)).resolves.toBe(portion)
+
+      expect(database.run).toHaveBeenCalledTimes(1)
+      expect(
+        globalAccompanimentsRepository.findManyByEstablishmentId,
+      ).toHaveBeenCalledWith('establishment-1')
+      expect(productAccompanimentsRepository.addMany).toHaveBeenCalledWith([
+        {
+          establishmentId: 'establishment-1',
+          productId: portion.id,
+          accompanimentProductId: 'granola',
+          accompanimentTypeId: 'type-1',
+          quantityPerPortion: 0.05,
+          globalAccompanimentId: 'global-1',
+        },
+        {
+          establishmentId: 'establishment-1',
+          productId: portion.id,
+          accompanimentProductId: 'banana',
+          accompanimentTypeId: 'type-2',
+          quantityPerPortion: 2,
+          globalAccompanimentId: 'global-2',
+        },
+      ])
+      expect(productsRepository.add.mock.invocationCallOrder[0]).toBeLessThan(
+        productAccompanimentsRepository.addMany.mock.invocationCallOrder[0],
+      )
+    })
+
+    it('does not publish the creation when materializing the global rows fails', async () => {
+      productAccompanimentsRepository.addMany.mockRejectedValue(new Error('failed'))
+
+      await expect(useCase.execute(portionRequest)).rejects.toThrow('failed')
+
+      expect(eventsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it('does not look for globals when the new product is not a Portion', async () => {
+      globalAccompanimentsRepository.findManyByEstablishmentId.mockResolvedValue([
+        granola,
+      ])
+
+      await useCase.execute(validSingleStockRequest)
+      await useCase.execute({
+        ...validSingleStockRequest,
+        categories: [ProductCategory.Accompaniment],
+      })
+
+      expect(
+        globalAccompanimentsRepository.findManyByEstablishmentId,
+      ).not.toHaveBeenCalled()
+      expect(productAccompanimentsRepository.addMany).not.toHaveBeenCalled()
+    })
   })
 
   it('persists when a product allows negative stock', async () => {

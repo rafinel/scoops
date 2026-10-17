@@ -76,4 +76,27 @@ describe('List Accompaniment Types Use Case', () => {
     ).rejects.toBeInstanceOf(BadRequestError)
     expect(repository.findPage).not.toHaveBeenCalled()
   })
+
+  it('returns the repository usage counts so global-only types are reported in use', async () => {
+    const usedOnlyByGlobal = {
+      type: AccompanimentTypeFaker.fake({ id: 'type-global' }),
+      usageCount: 1,
+    }
+    repository.findPage.mockResolvedValue(
+      page({
+        items: [
+          { type: AccompanimentTypeFaker.fake({ id: 'type-free' }), usageCount: 0 },
+          usedOnlyByGlobal,
+        ],
+        total: 2,
+      }),
+    )
+
+    const result = await useCase.execute({
+      actor: { id: 'manager-1', establishmentId: 'e1', profile: UserProfile.Manager },
+    })
+
+    expect(result.items.map((item) => item.usageCount)).toEqual([0, 1])
+    expect(result.items[1]).toBe(usedOnlyByGlobal)
+  })
 })

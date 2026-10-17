@@ -1,4 +1,5 @@
 import type { MrpDatabaseRepositories } from '#mrp/interfaces/mrp-database.ts'
+import type { Brand } from '#mrp/domain/entities/brand.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import { ProductCreatedEvent } from '#mrp/domain/events/product-created-event.ts'
 import {
@@ -10,6 +11,7 @@ import {
   type RegisterProductInput,
 } from '#mrp/domain/structures/index.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
+import { GlobalAccompanimentRowsStrategy } from '#mrp/domain/strategies/global-accompaniment-rows-strategy.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import {
   AuthorizationError,
@@ -25,6 +27,8 @@ type Request = RegisterProductInput & {
 }
 
 export class RegisterProductUseCase implements UseCase<Request, Product> {
+  private readonly globalAccompanimentRows = new GlobalAccompanimentRowsStrategy()
+
   constructor(
     private readonly database: MrpDatabase,
     private readonly datetimeProvider: DatetimeProvider,
@@ -34,116 +38,178 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
     this.validateActor(request.actor)
     this.validateInput(request)
 
-    return this.database.run(
-      async ({
-        productsRepository,
-        brandsRepository,
-        stockBalancesRepository,
-        stockTransactionsRepository,
-        eventsRepository,
-      }: MrpDatabaseRepositories) => {
-        const existingProduct = await productsRepository.findByName(
-          request.actor.establishmentId,
-          request.name.trim(),
-        )
+    return this.database.run((scope) => this.register(scope, request))
+  }
 
-        if (existingProduct) {
-          throw new ConflictError(
-            'Já existe um produto com esse nome neste estabelecimento.',
-          )
-        }
+  private async register(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+  ): Promise<Product> {
+    const createdProduct = await this.createProduct(scope, request)
 
-        const createdProduct = await productsRepository.add({
-          establishmentId: request.actor.establishmentId,
-          name: request.name.trim(),
-          unit: request.unit,
-          categories: [...new Set(request.categories)],
-          stockControl: request.stockControl,
-          status: ProductStatus.Active,
-          allowNegativeStock: request.allowNegativeStock ?? false,
-          idealStock: request.idealStock,
-          ...(request.currentUnitCost === undefined
-            ? {}
-            : { currentUnitCost: request.currentUnitCost }),
-        })
+    if (request.categories.includes(ProductCategory.Portion)) {
+      await this.addGlobalRows(scope, request.actor.establishmentId, createdProduct)
+    }
+    if (request.stockControl === ProductStockControl.Single) {
+      await this.recordSingleStock(scope, request, createdProduct)
+    } else {
+      await this.recordBrandStock(scope, request, createdProduct)
+    }
+    await this.publishCreation(scope, request, createdProduct)
+    return createdProduct
+  }
 
-        if (request.stockControl === ProductStockControl.Single) {
-          await stockBalancesRepository.initialize(createdProduct.id)
-          if (request.initialStock !== undefined && request.initialStock !== 0) {
-            const balance = await stockBalancesRepository.add(
-              { productId: createdProduct.id },
-              request.initialStock,
-            )
-            await stockTransactionsRepository.add({
-              establishmentId: request.actor.establishmentId,
-              productId: createdProduct.id,
-              productName: createdProduct.name,
-              unit: createdProduct.unit,
-              type: request.initialStock > 0 ? 'entry' : 'write-off',
-              quantity: Math.abs(request.initialStock),
-              balanceAfter: balance.quantity,
-              performedBy: request.actor.id,
-              performedByName: request.actor.name,
-              occurredAt: this.datetimeProvider.now(),
-            })
-          }
-        } else {
-          for (const brand of request.brands ?? []) {
-            const createdBrand = await brandsRepository.add({
-              productId: createdProduct.id,
-              name: brand.name.trim(),
-              unit: brand.unit ?? createdProduct.unit,
-              packageQuantity: brand.packageQuantity,
-              packagePrice: brand.packageValue,
-              isPrimary: brand.isPrimary,
-            })
-            await stockBalancesRepository.initialize(createdProduct.id, createdBrand.id)
-            if (brand.initialQuantity !== 0) {
-              const balance = await stockBalancesRepository.add(
-                { productId: createdProduct.id, brandId: createdBrand.id },
-                brand.initialQuantity,
-              )
-              await stockTransactionsRepository.add({
-                establishmentId: request.actor.establishmentId,
-                productId: createdProduct.id,
-                brandId: createdBrand.id,
-                productName: createdProduct.name,
-                brandName: createdBrand.name,
-                unit: createdProduct.unit,
-                type: brand.initialQuantity > 0 ? 'entry' : 'write-off',
-                quantity: Math.abs(brand.initialQuantity),
-                balanceAfter: balance.quantity,
-                performedBy: request.actor.id,
-                performedByName: request.actor.name,
-                occurredAt: this.datetimeProvider.now(),
-              })
-            }
-          }
-        }
-
-        const availableQuantity =
-          request.stockControl === ProductStockControl.Single
-            ? (request.initialStock ?? 0)
-            : (request.brands ?? []).reduce(
-                (total, brand) => total + brand.initialQuantity,
-                0,
-              )
-        await new PublishProductStockAlertUseCase(eventsRepository).execute({
-          product: createdProduct,
-          availableQuantity,
-          occurredAt: createdProduct.createdAt,
-        })
-
-        await eventsRepository.add(
-          new ProductCreatedEvent({
-            productId: createdProduct.id,
-            establishmentId: createdProduct.establishmentId,
-            createdAt: createdProduct.createdAt,
-          }),
-        )
-        return createdProduct
-      },
+  private async createProduct(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+  ): Promise<Product> {
+    const existingProduct = await scope.productsRepository.findByName(
+      request.actor.establishmentId,
+      request.name.trim(),
     )
+
+    if (existingProduct) {
+      throw new ConflictError('Já existe um produto com esse nome neste estabelecimento.')
+    }
+
+    return scope.productsRepository.add({
+      establishmentId: request.actor.establishmentId,
+      name: request.name.trim(),
+      unit: request.unit,
+      categories: [...new Set(request.categories)],
+      stockControl: request.stockControl,
+      status: ProductStatus.Active,
+      allowNegativeStock: request.allowNegativeStock ?? false,
+      idealStock: request.idealStock,
+      ...(request.currentUnitCost === undefined
+        ? {}
+        : { currentUnitCost: request.currentUnitCost }),
+    })
+  }
+
+  private async publishCreation(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+    createdProduct: Product,
+  ): Promise<void> {
+    const availableQuantity =
+      request.stockControl === ProductStockControl.Single
+        ? (request.initialStock ?? 0)
+        : (request.brands ?? []).reduce(
+            (total, brand) => total + brand.initialQuantity,
+            0,
+          )
+    await new PublishProductStockAlertUseCase(scope.eventsRepository).execute({
+      product: createdProduct,
+      availableQuantity,
+      occurredAt: createdProduct.createdAt,
+    })
+
+    await scope.eventsRepository.add(
+      new ProductCreatedEvent({
+        productId: createdProduct.id,
+        establishmentId: createdProduct.establishmentId,
+        createdAt: createdProduct.createdAt,
+      }),
+    )
+  }
+
+  private async addGlobalRows(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<void> {
+    const globals =
+      await scope.globalAccompanimentsRepository.findManyByEstablishmentId(
+        establishmentId,
+      )
+    await scope.productAccompanimentsRepository.addMany(
+      this.globalAccompanimentRows.execute({
+        globals,
+        portionProductIds: [product.id],
+        existingPairs: [],
+      }),
+    )
+  }
+
+  private async recordSingleStock(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+    createdProduct: Product,
+  ): Promise<void> {
+    await scope.stockBalancesRepository.initialize(createdProduct.id)
+    if (request.initialStock === undefined || request.initialStock === 0) return
+
+    const balance = await scope.stockBalancesRepository.add(
+      { productId: createdProduct.id },
+      request.initialStock,
+    )
+    await scope.stockTransactionsRepository.add({
+      establishmentId: request.actor.establishmentId,
+      productId: createdProduct.id,
+      productName: createdProduct.name,
+      unit: createdProduct.unit,
+      type: request.initialStock > 0 ? 'entry' : 'write-off',
+      quantity: Math.abs(request.initialStock),
+      balanceAfter: balance.quantity,
+      performedBy: request.actor.id,
+      performedByName: request.actor.name,
+      occurredAt: this.datetimeProvider.now(),
+    })
+  }
+
+  private async recordBrandStock(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+    createdProduct: Product,
+  ): Promise<void> {
+    for (const brand of request.brands ?? []) {
+      const createdBrand = await scope.brandsRepository.add({
+        productId: createdProduct.id,
+        name: brand.name.trim(),
+        unit: brand.unit ?? createdProduct.unit,
+        packageQuantity: brand.packageQuantity,
+        packagePrice: brand.packageValue,
+        isPrimary: brand.isPrimary,
+      })
+      await scope.stockBalancesRepository.initialize(createdProduct.id, createdBrand.id)
+      if (brand.initialQuantity !== 0) {
+        await this.recordBrandInitialStock(
+          scope,
+          request,
+          createdProduct,
+          createdBrand,
+          brand.initialQuantity,
+        )
+      }
+    }
+  }
+
+  private async recordBrandInitialStock(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+    createdProduct: Product,
+    createdBrand: Brand,
+    initialQuantity: number,
+  ): Promise<void> {
+    const balance = await scope.stockBalancesRepository.add(
+      { productId: createdProduct.id, brandId: createdBrand.id },
+      initialQuantity,
+    )
+    await scope.stockTransactionsRepository.add({
+      establishmentId: request.actor.establishmentId,
+      productId: createdProduct.id,
+      brandId: createdBrand.id,
+      productName: createdProduct.name,
+      brandName: createdBrand.name,
+      unit: createdProduct.unit,
+      type: initialQuantity > 0 ? 'entry' : 'write-off',
+      quantity: Math.abs(initialQuantity),
+      balanceAfter: balance.quantity,
+      performedBy: request.actor.id,
+      performedByName: request.actor.name,
+      occurredAt: this.datetimeProvider.now(),
+    })
   }
 
   private validateActor(actor: ProductActor): void {

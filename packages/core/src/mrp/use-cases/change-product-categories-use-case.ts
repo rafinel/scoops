@@ -20,6 +20,7 @@ import {
   GetAffectedProductSalesConfigurationsUseCase,
   publishAffectedProductSalesConfigurations,
 } from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import { GlobalAccompanimentRowsStrategy } from '#mrp/domain/strategies/global-accompaniment-rows-strategy.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
 type Request = {
@@ -31,99 +32,164 @@ type Request = {
 export class ChangeProductCategoriesUseCase
   implements UseCase<Request, ProductSettingsDetails>
 {
+  private readonly globalAccompanimentRows = new GlobalAccompanimentRowsStrategy()
+
   constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<ProductSettingsDetails> {
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    const product = await this.database.run(
-      async ({
-        productsRepository,
-        brandsRepository,
-        recipesRepository,
-        recipeIngredientsRepository,
-        productionsRepository,
-        productionIngredientsRepository,
-        stockBalancesRepository,
-        stockTransactionsRepository,
-        productSizesRepository,
-        accompanimentTypesRepository,
-        productAccompanimentsRepository,
-        globalAccompanimentsRepository,
-        resaleConfigurationsRepository,
-        eventsRepository,
-      }: MrpDatabaseRepositories) => {
-        const scope = {
-          productsRepository,
-          brandsRepository,
-          recipesRepository,
-          recipeIngredientsRepository,
-          productionsRepository,
-          productionIngredientsRepository,
-          stockBalancesRepository,
-          stockTransactionsRepository,
-          productSizesRepository,
-          accompanimentTypesRepository,
-          productAccompanimentsRepository,
-          globalAccompanimentsRepository,
-          resaleConfigurationsRepository,
-          eventsRepository,
-        }
-        const currentProduct = await productsRepository.findById(
-          request.actor.establishmentId,
-          request.productId,
-        )
-        this.validateProduct(currentProduct, request.actor.establishmentId)
-        this.validateVersion(currentProduct.updatedAt, request.input.expectedUpdatedAt)
-        this.validateCategoryCompatibility(currentProduct, request.input.categories)
-
-        const removedCategories = currentProduct.categories.filter(
-          (category) => !request.input.categories.includes(category),
-        )
-        for (const category of removedCategories) {
-          const dependencies = await this.findDependencies(
-            scope,
-            request.actor.establishmentId,
-            currentProduct,
-            category,
-          )
-          if (dependencies.length > 0) {
-            throw new ConflictError(
-              'A categoria possui dependências e não pode ser removida.',
-            )
-          }
-        }
-
-        const savedProduct = await productsRepository.replace(
-          request.actor.establishmentId,
-          currentProduct.id,
-          { categories: [...request.input.categories] },
-        )
-        const configurations =
-          await new GetAffectedProductSalesConfigurationsUseCase().execute({
-            scope,
-            establishmentId: request.actor.establishmentId,
-            productId: request.productId,
-          })
-        await publishAffectedProductSalesConfigurations({
-          scope,
-          establishmentId: request.actor.establishmentId,
-          productId: request.productId,
-          configurations,
-        })
-        await eventsRepository.add(
-          new ProductUpdatedEvent({
-            productId: savedProduct.id,
-            establishmentId: savedProduct.establishmentId,
-            updatedAt: savedProduct.updatedAt,
-          }),
-        )
-        return savedProduct
-      },
-    )
+    const product = await this.database.run((scope) => this.change(scope, request))
 
     return { product }
+  }
+
+  private async change(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+  ): Promise<Product> {
+    const establishmentId = request.actor.establishmentId
+    const currentProduct = await scope.productsRepository.findById(
+      establishmentId,
+      request.productId,
+    )
+    this.validateProduct(currentProduct, establishmentId)
+    this.validateVersion(currentProduct.updatedAt, request.input.expectedUpdatedAt)
+    this.validateCategoryCompatibility(currentProduct, request.input.categories)
+    await this.validateRemovedCategories(
+      scope,
+      establishmentId,
+      currentProduct,
+      request.input.categories,
+    )
+
+    const savedProduct = await scope.productsRepository.replace(
+      establishmentId,
+      currentProduct.id,
+      { categories: [...request.input.categories] },
+    )
+    await this.syncGlobalAccompaniments(
+      scope,
+      establishmentId,
+      currentProduct,
+      request.input.categories,
+    )
+    const configurations =
+      await new GetAffectedProductSalesConfigurationsUseCase().execute({
+        scope,
+        establishmentId,
+        productId: request.productId,
+      })
+    await publishAffectedProductSalesConfigurations({
+      scope,
+      establishmentId,
+      productId: request.productId,
+      configurations,
+    })
+    await scope.eventsRepository.add(
+      new ProductUpdatedEvent({
+        productId: savedProduct.id,
+        establishmentId: savedProduct.establishmentId,
+        updatedAt: savedProduct.updatedAt,
+      }),
+    )
+    return savedProduct
+  }
+
+  private async validateRemovedCategories(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+    categories: readonly ProductCategory[],
+  ): Promise<void> {
+    const removedCategories = product.categories.filter(
+      (category) => !categories.includes(category),
+    )
+    for (const category of removedCategories) {
+      const dependencies = await this.findDependencies(
+        scope,
+        establishmentId,
+        product,
+        category,
+      )
+      if (dependencies.length > 0) {
+        throw new ConflictError(
+          'A categoria possui dependências e não pode ser removida.',
+        )
+      }
+    }
+  }
+
+  private async syncGlobalAccompaniments(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+    categories: readonly ProductCategory[],
+  ): Promise<void> {
+    const wasPortion = product.categories.includes(ProductCategory.Portion)
+    const isPortion = categories.includes(ProductCategory.Portion)
+    if (!wasPortion && isPortion) {
+      await this.addGlobalRows(scope, establishmentId, product)
+    }
+    if (wasPortion && !isPortion) {
+      await scope.productAccompanimentsRepository.removeByProductId(
+        establishmentId,
+        product.id,
+      )
+    }
+    const wasAccompaniment = product.categories.includes(ProductCategory.Accompaniment)
+    if (wasAccompaniment && !categories.includes(ProductCategory.Accompaniment)) {
+      await this.removeGlobal(scope, establishmentId, product)
+    }
+  }
+
+  private async addGlobalRows(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<void> {
+    const [globals, links] = await Promise.all([
+      scope.globalAccompanimentsRepository.findManyByEstablishmentId(establishmentId),
+      scope.productAccompanimentsRepository.findManyByProductId(
+        establishmentId,
+        product.id,
+      ),
+    ])
+    await scope.productAccompanimentsRepository.addMany(
+      this.globalAccompanimentRows.execute({
+        globals,
+        portionProductIds: [product.id],
+        existingPairs: links,
+      }),
+    )
+  }
+
+  private async removeGlobal(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<void> {
+    const global =
+      await scope.globalAccompanimentsRepository.findByAccompanimentProductId(
+        establishmentId,
+        product.id,
+      )
+    if (global) {
+      await scope.globalAccompanimentsRepository.remove(establishmentId, global.id)
+    }
+  }
+
+  private async countIndividualLinks(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<number> {
+    const links = await scope.productAccompanimentsRepository.findManyByProductId(
+      establishmentId,
+      product.id,
+    )
+    return links.filter((link) => link.globalAccompanimentId === undefined).length
   }
 
   private async findDependencies(
@@ -171,10 +237,7 @@ export class ChangeProductCategoriesUseCase
     if (category === ProductCategory.Portion) {
       const [sizeCount, linkCount] = await Promise.all([
         scope.productSizesRepository.countByProductId(establishmentId, product.id),
-        scope.productAccompanimentsRepository.countByProductId(
-          establishmentId,
-          product.id,
-        ),
+        this.countIndividualLinks(scope, establishmentId, product),
       ])
       const dependencies: ProductCategoryDependency[] = []
       if (sizeCount > 0) {

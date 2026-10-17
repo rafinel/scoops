@@ -46,7 +46,7 @@ describe('Preview Product Category Removal Use Case', () => {
     scope.recipeIngredientsRepository.findManyByIngredientProductId.mockResolvedValue([])
     scope.recipesRepository.findByProductId.mockResolvedValue(undefined)
     scope.productSizesRepository.countByProductId.mockResolvedValue(0)
-    scope.productAccompanimentsRepository.countByProductId.mockResolvedValue(0)
+    scope.productAccompanimentsRepository.findManyByProductId.mockResolvedValue([])
     scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
       [],
     )
@@ -100,7 +100,9 @@ describe('Preview Product Category Removal Use Case', () => {
 
     scope.recipesRepository.findByProductId.mockResolvedValue(undefined)
     scope.productSizesRepository.countByProductId.mockResolvedValue(2)
-    scope.productAccompanimentsRepository.countByProductId.mockResolvedValue(1)
+    scope.productAccompanimentsRepository.findManyByProductId.mockResolvedValue([
+      ProductAccompanimentFaker.fake({ establishmentId: 'e1', productId: product.id }),
+    ])
     await expect(
       useCase.execute({
         actor: manager,
@@ -158,6 +160,84 @@ describe('Preview Product Category Removal Use Case', () => {
       }),
     ).resolves.toMatchObject({
       dependencies: [{ kind: 'resale-configuration', configurationCount: 3 }],
+    })
+  })
+
+  it('does not count global rows as Portion accompaniment dependencies', async () => {
+    const globalRow = ProductAccompanimentFaker.fake({
+      establishmentId: 'e1',
+      productId: product.id,
+      globalAccompanimentId: 'global-1',
+    })
+    const individualRow = ProductAccompanimentFaker.fake({
+      establishmentId: 'e1',
+      productId: product.id,
+    })
+    scope.productAccompanimentsRepository.findManyByProductId.mockResolvedValue([
+      globalRow,
+      globalRow,
+    ])
+
+    await expect(
+      useCase.execute({
+        actor: manager,
+        productId: product.id,
+        category: ProductCategory.Portion,
+      }),
+    ).resolves.toEqual({
+      category: ProductCategory.Portion,
+      canRemove: true,
+      dependencies: [],
+    })
+
+    scope.productAccompanimentsRepository.findManyByProductId.mockResolvedValue([
+      globalRow,
+      individualRow,
+    ])
+    await expect(
+      useCase.execute({
+        actor: manager,
+        productId: product.id,
+        category: ProductCategory.Portion,
+      }),
+    ).resolves.toMatchObject({
+      canRemove: false,
+      dependencies: [{ kind: 'portion-accompaniment', linkCount: 1 }],
+    })
+    expect(
+      scope.productAccompanimentsRepository.findManyByProductId,
+    ).toHaveBeenCalledWith('e1', product.id)
+  })
+
+  it('blocks removing Accompaniment while global rows still use it', async () => {
+    const portion = ProductFaker.fake({
+      id: 'portion-1',
+      establishmentId: 'e1',
+      name: 'Small Portion',
+    })
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [
+        ProductAccompanimentFaker.fake({
+          establishmentId: 'e1',
+          productId: portion.id,
+          accompanimentProductId: product.id,
+          globalAccompanimentId: 'global-1',
+        }),
+      ],
+    )
+    scope.productsRepository.findById.mockImplementation(async (_, id) =>
+      id === portion.id ? portion : product,
+    )
+
+    await expect(
+      useCase.execute({
+        actor: manager,
+        productId: product.id,
+        category: ProductCategory.Accompaniment,
+      }),
+    ).resolves.toMatchObject({
+      canRemove: false,
+      dependencies: [{ kind: 'accompaniment-user', productId: portion.id }],
     })
   })
 
