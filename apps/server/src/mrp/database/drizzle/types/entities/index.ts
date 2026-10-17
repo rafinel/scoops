@@ -1,4 +1,5 @@
 export * from './accompaniment-type'
+export * from './global-accompaniment'
 export * from './product-accompaniment'
 export * from './product-size'
 export * from './production'
