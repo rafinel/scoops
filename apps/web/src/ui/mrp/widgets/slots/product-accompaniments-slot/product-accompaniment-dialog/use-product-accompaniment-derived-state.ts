@@ -19,7 +19,7 @@ export function useProductAccompanimentDerivedState({
   const selectedProduct = useMemo(
     () =>
       queries.candidatesQuery.data?.find(
-        (candidate) => candidate.id === formState.productIdValue,
+        (candidate) => candidate.productId === formState.productIdValue,
       ),
     [formState.productIdValue, queries.candidatesQuery.data],
   )
@@ -49,9 +49,10 @@ function buildDerivedState({
   selectedProduct: Candidate | undefined
   types: AccompanimentTypes
 }) {
-  const cost = getCostState({ formState, item, queries, selectedProduct })
+  const cost = getCostState({ formState, item, queries })
   return {
     ...cost,
+    ...getGlobalState({ formState, isEdit, item, selectedProduct }),
     isPriceLoading:
       Boolean(queries.pricingProductId) && queries.pricingQuery.isLoadingPricing,
     isRefreshing:
@@ -69,25 +70,47 @@ function buildDerivedState({
   }
 }
 
+function getGlobalState({
+  formState,
+  isEdit,
+  item,
+  selectedProduct,
+}: {
+  formState: ProductAccompanimentFormState
+  isEdit: boolean
+  item?: ProductAccompanimentDetails
+  selectedProduct: Candidate | undefined
+}) {
+  const isGlobalLocked = isEdit
+    ? Boolean(item?.isGlobal)
+    : Boolean(selectedProduct?.isGlobal)
+  const hasOtherPortionLinks = isEdit
+    ? Boolean(item?.hasOtherPortionLinks)
+    : Boolean(selectedProduct?.hasPortionLinks)
+  return {
+    isGlobalLocked,
+    isGlobalValue: formState.isGlobalValue,
+    shouldShowReplacementNotice:
+      formState.isGlobalValue && !isGlobalLocked && hasOtherPortionLinks,
+  }
+}
+
 function getCostState({
   formState,
   item,
   queries,
-  selectedProduct,
 }: {
   formState: ProductAccompanimentFormState
   item?: ProductAccompanimentDetails
   queries: ProductAccompanimentQueries
-  selectedProduct: Candidate | undefined
 }) {
-  const selectedBrand = queries.selectedStockQuery.data?.brands.find(
-    ({ brand }) => brand.isPrimary,
-  )
+  const selectedStock = queries.selectedStockQuery.data
+  const selectedBrand = selectedStock?.brands.find(({ brand }) => brand.isPrimary)
   const source = getAccompanimentSource({
     item,
     selectedBrand,
-    selectedProduct,
-    hasSelectedStock: queries.selectedStockQuery.data !== undefined,
+    selectedStockUnitCost: selectedStock?.product.currentUnitCost,
+    hasSelectedStock: selectedStock !== undefined,
   })
   const numericQuantity = Number(String(formState.quantity ?? '').replace(',', '.'))
   return {
@@ -104,21 +127,21 @@ function getAccompanimentSource({
   hasSelectedStock,
   item,
   selectedBrand,
-  selectedProduct,
+  selectedStockUnitCost,
 }: {
   hasSelectedStock: boolean
   item?: Pick<ProductAccompanimentDetails, 'brandName' | 'unitCost'>
   selectedBrand?: { brand: { name: string }; unitPrice?: number }
-  selectedProduct?: { currentUnitCost?: number }
+  selectedStockUnitCost?: number
 }) {
   if (item) return { name: item.brandName, unitCost: item.unitCost }
   if (selectedBrand?.unitPrice !== undefined) {
     return { name: selectedBrand.brand.name, unitCost: selectedBrand.unitPrice }
   }
-  if (selectedProduct?.currentUnitCost !== undefined) {
+  if (selectedStockUnitCost !== undefined) {
     return {
       name: hasSelectedStock ? 'Estoque único' : undefined,
-      unitCost: selectedProduct.currentUnitCost,
+      unitCost: selectedStockUnitCost,
     }
   }
   return undefined

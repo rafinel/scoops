@@ -28,8 +28,11 @@ describe('AccompanimentTypesTable', () => {
     expect(
       screen.getByRole('region', { name: 'Tabela de tipos de acompanhamento' }),
     ).toBeTruthy()
-    expect(screen.getByText('Sem vínculos')).toBeTruthy()
-    expect(screen.getByText('2 vínculos')).toBeTruthy()
+    expect(screen.queryByRole('columnheader', { name: 'Uso' })).toBeNull()
+    expect(screen.queryByText(/vínculo/)).toBeNull()
+    expect(
+      screen.getAllByRole('columnheader').map((header) => header.textContent),
+    ).toEqual(['Nome', 'Status', 'Ações'])
     expect(screen.getByText('Disponível')).toBeTruthy()
     expect(screen.getByText('Em uso')).toBeTruthy()
     expect(

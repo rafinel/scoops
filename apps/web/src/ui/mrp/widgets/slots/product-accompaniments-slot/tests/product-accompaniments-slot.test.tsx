@@ -7,12 +7,32 @@ import { ProductFaker } from '@scoops/core/mrp/domain/entities/fakers'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { ProductAccompanimentsDetails } from '@scoops/core/mrp/domain/structures'
 
+import type { RemoveGlobalAccompanimentDialogProps } from '../remove-global-accompaniment-dialog'
+import type { RemoveProductAccompanimentDialogProps } from '../remove-product-accompaniment-dialog'
 import { ProductAccompanimentsSlot } from '../index'
 import { useProductAccompanimentsSlot } from '../use-product-accompaniments-slot'
 import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
 
 vi.mock('@/ui/mrp/widgets/pages/product-details-page', () => ({
   ProductDetailsPage: ({ children }: { children: ReactNode }) => <>{children}</>,
+}))
+
+vi.mock('../remove-global-accompaniment-dialog', () => ({
+  RemoveGlobalAccompanimentDialog: ({
+    item,
+    portionName,
+  }: RemoveGlobalAccompanimentDialogProps) => (
+    <div role='alertdialog' aria-label='Remoção global'>
+      {item.accompanimentProductName} / {portionName}
+    </div>
+  ),
+}))
+vi.mock('../remove-product-accompaniment-dialog', () => ({
+  RemoveProductAccompanimentDialog: ({ item }: RemoveProductAccompanimentDialogProps) => (
+    <div role='alertdialog' aria-label='Remoção individual'>
+      {item.accompanimentProductName}
+    </div>
+  ),
 }))
 
 vi.mock('../use-product-accompaniments-slot', () => ({
@@ -36,6 +56,8 @@ const details: ProductAccompanimentsDetails = {
       quantityPerPortion: 20,
       salePrice: 3,
       estimatedCost: 0.45,
+      isGlobal: false,
+      hasOtherPortionLinks: false,
     },
   ],
 }
@@ -81,7 +103,7 @@ describe('ProductAccompanimentsSlot', () => {
     expect(screen.getByText('Granola')).toBeTruthy()
     expect(screen.getByText('R$ 3,00')).toBeTruthy()
     expect(screen.queryByRole('dialog')).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Vincular acompanhamento' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Vincular Acompanhamento' })).toBeNull()
   })
 
   it('renders the populated accompaniment card through the slot boundary', () => {
@@ -91,6 +113,36 @@ describe('ProductAccompanimentsSlot', () => {
       screen.getByRole('heading', { name: /Acompanhamentos \(1\)/ }).textContent,
     ).toContain('(1)')
     expect(screen.getByText('Granola').textContent).toBe('Granola')
+  })
+
+  it('routes global rows to the global removal dialog with the Portion name', () => {
+    const accompaniment = details.accompaniments[0]
+    if (!accompaniment) throw new Error('Expected fixture accompaniment')
+    useProductAccompanimentsSlotMock.mockReturnValue({
+      ...fakeSlotState(),
+      selectedAction: { kind: 'remove', item: { ...accompaniment, isGlobal: true } },
+    })
+
+    render(<ProductAccompanimentsSlot productId='product-1' />)
+
+    expect(screen.getByRole('alertdialog', { name: 'Remoção global' }).textContent).toBe(
+      `Granola / ${product.name}`,
+    )
+    expect(screen.queryByRole('alertdialog', { name: 'Remoção individual' })).toBeNull()
+  })
+
+  it('keeps individual rows on the individual removal dialog', () => {
+    const accompaniment = details.accompaniments[0]
+    if (!accompaniment) throw new Error('Expected fixture accompaniment')
+    useProductAccompanimentsSlotMock.mockReturnValue({
+      ...fakeSlotState(),
+      selectedAction: { kind: 'remove', item: accompaniment },
+    })
+
+    render(<ProductAccompanimentsSlot productId='product-1' />)
+
+    expect(screen.getByRole('alertdialog', { name: 'Remoção individual' })).toBeTruthy()
+    expect(screen.queryByRole('alertdialog', { name: 'Remoção global' })).toBeNull()
   })
 
   it('renders loading, error and empty states from the slot controller', () => {

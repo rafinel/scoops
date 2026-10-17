@@ -64,6 +64,9 @@ export type MrpFixture = {
   mockProductStock: (options: MrpStockMockOptions) => Promise<MrpStockMock>
   mockProductRecipe: (options: MrpRecipeMockOptions) => Promise<MrpRecipeMock>
   mockProductAccompaniments: (options: MrpStockMockOptions) => Promise<MrpStockMock>
+  mockProductAccompanimentCandidates: (
+    options: MrpStockMockOptions,
+  ) => Promise<MrpStockMock>
   mockAccompanimentTypes: (options: MrpStockMockOptions) => Promise<MrpStockMock>
   mockProductPricing: (options: MrpStockMockOptions) => Promise<MrpStockMock>
 }
@@ -244,6 +247,28 @@ export const MrpFixture = (page: Page): MrpFixture => ({
         url: new URL(route.request().url()),
       }
       if (route.request().postData()) request.body = route.request().postDataJSON()
+      requests.push(request)
+      const response = await respond(request, requests.length)
+      await route.fulfill({
+        contentType: 'application/json',
+        status: response.status ?? 200,
+        body: JSON.stringify(response.body),
+      })
+    })
+    return { requests }
+  },
+
+  // Register after mockProductAccompaniments: Playwright runs the latest matching route
+  // first, so Link candidates are served here while the Portion list stays there.
+  async mockProductAccompanimentCandidates({ respond }) {
+    const requests: MrpRequestRecord[] = []
+    await page.route('**/products/*/accompaniments/candidates**', async (route) => {
+      if (!['fetch', 'xhr'].includes(route.request().resourceType()))
+        return route.continue()
+      const request: MrpRequestRecord = {
+        method: route.request().method(),
+        url: new URL(route.request().url()),
+      }
       requests.push(request)
       const response = await respond(request, requests.length)
       await route.fulfill({

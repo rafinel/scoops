@@ -74,6 +74,7 @@ function createProductAccompanimentInput(
   return {
     accompanimentTypeId: values.accompanimentTypeId,
     quantityPerPortion: Number(values.quantityPerPortion.replace(',', '.')),
+    ...(values.isGlobal ? { isGlobal: true } : {}),
     ...(savedPrice === null || enteredPrice !== savedPrice
       ? { accompanimentPrice: enteredPrice }
       : {}),

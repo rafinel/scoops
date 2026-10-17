@@ -17,21 +17,40 @@ export function useProductAccompanimentDialog({
   productId: string
 }) {
   const isEdit = Boolean(item)
-  const formState = useProductAccompanimentForm(item, open)
+  const baseFormState = useProductAccompanimentForm(item, open)
   const queries = useProductAccompanimentQueries({
-    form: formState.form,
+    form: baseFormState.form,
     isEdit,
     item,
     open,
     productId,
-    productIdValue: formState.productIdValue,
+    productIdValue: baseFormState.productIdValue,
   })
   const derived = useProductAccompanimentDerivedState({
-    formState,
+    formState: baseFormState,
     isEdit,
     item,
     queries,
   })
+
+  function handleValueChange(
+    name: 'accompanimentProductId' | 'accompanimentTypeId',
+    value: string | null,
+  ) {
+    baseFormState.handleValueChange(name, value)
+    if (name !== 'accompanimentProductId' || isEdit) return
+    baseFormState.selectCandidate(
+      queries.candidatesQuery.data?.find((candidate) => candidate.productId === value),
+      derived.selectedProduct,
+    )
+  }
+
+  function handleGlobalChange(checked: boolean) {
+    if (derived.isGlobalLocked) return
+    baseFormState.handleGlobalChange(checked)
+  }
+
+  const formState = { ...baseFormState, handleGlobalChange, handleValueChange }
   const submit = useProductAccompanimentSubmit({
     item,
     onSuccess,
@@ -56,8 +75,11 @@ function getFormState(
     actionError: formState.actionError,
     errors: formState.form.formState.errors,
     estimatedCost: derived.estimatedCost,
+    handleGlobalChange: formState.handleGlobalChange,
     handleValueChange: formState.handleValueChange,
     isEdit,
+    isGlobalLocked: derived.isGlobalLocked,
+    isGlobalValue: derived.isGlobalValue,
     numericQuantity: derived.numericQuantity,
     productIdValue: formState.productIdValue,
     register: formState.form.register,
@@ -65,6 +87,7 @@ function getFormState(
     selectedStockError: derived.selectedStockError,
     selectedStockLoading: derived.selectedStockLoading,
     selectedTypeName: derived.selectedTypeName,
+    shouldShowReplacementNotice: derived.shouldShowReplacementNotice,
     source: derived.source,
     typeId: formState.typeId,
     types: derived.types,
@@ -123,7 +146,20 @@ function getDialogFields(
     ...getFormDialogFields(formState),
     ...getProductDialogFields(derived),
     ...getCostDialogFields(derived),
+    ...getGlobalDialogFields(formState, derived),
     ...getStockDialogFields(derived),
+  }
+}
+
+function getGlobalDialogFields(
+  formState: ReturnType<typeof useProductAccompanimentForm>,
+  derived: ReturnType<typeof useProductAccompanimentDerivedState>,
+) {
+  return {
+    handleGlobalChange: formState.handleGlobalChange,
+    isGlobalLocked: derived.isGlobalLocked,
+    isGlobalValue: derived.isGlobalValue,
+    shouldShowReplacementNotice: derived.shouldShowReplacementNotice,
   }
 }
 

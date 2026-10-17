@@ -35,12 +35,12 @@ export const ProductAccompanimentsCard = ({
         </h2>
         <p className='mt-1 text-sm text-muted-foreground'>
           Itens oferecidos junto a este produto no PDV. O preço de cada produto vale para
-          todas as porções e tamanhos.
+          todas as porções e tamanhos. Itens globais aparecem em todas as porções.
         </p>
       </div>
       {canManage ? (
         <Button className='min-h-10 shadow-primary' onClick={onAdd} type='button'>
-          <Icon name='plus' /> Vincular acompanhamento
+          <Icon name='plus' /> Vincular Acompanhamento
         </Button>
       ) : null}
     </CardHeader>

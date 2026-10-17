@@ -4,6 +4,8 @@ import { Button } from '@/ui/shadcn/button'
 import { TableCell, TableRow } from '@/ui/shadcn/table'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
+import { GlobalBadge } from './global-badge'
+
 export type AccompanimentRowProps = {
   canManage: boolean
   formatCurrency: (value: number) => string
@@ -22,7 +24,12 @@ export const AccompanimentRow = ({
   onRemove,
 }: AccompanimentRowProps) => (
   <TableRow>
-    <TableCell className='px-6 py-4 font-bold'>{item.accompanimentProductName}</TableCell>
+    <TableCell className='px-6 py-4 font-bold'>
+      <div className='flex flex-wrap items-center gap-x-2 gap-y-1'>
+        <span>{item.accompanimentProductName}</span>
+        {item.isGlobal ? <GlobalBadge /> : null}
+      </div>
+    </TableCell>
     <TableCell>{item.accompanimentTypeName}</TableCell>
     <TableCell>
       {item.brandName ?? <span className='text-muted-foreground'>Indisponível</span>}

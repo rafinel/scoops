@@ -18,6 +18,7 @@ import type {
   StockTransactionPage,
   ProductAccompanimentsDetails,
   ProductAccompanimentDetails,
+  ProductAccompanimentCandidate,
   LinkProductAccompanimentInput,
   UpdateProductAccompanimentInput,
   SaveAccompanimentTypeInput,
@@ -675,8 +676,18 @@ export const MrpService = (restClient: RestClient): MrpRestService => ({
     return response as unknown as RestResponse<ProductAccompanimentDetails>
   },
 
-  removeProductAccompaniment(productId, linkId) {
-    return restClient.delete<void>(`/products/${productId}/accompaniments/${linkId}`)
+  async listProductAccompanimentCandidates(productId) {
+    const response = await restClient.get<ProductAccompanimentCandidate[]>(
+      `/products/${productId}/accompaniments/candidates`,
+    )
+    return response as unknown as RestResponse<ProductAccompanimentCandidate[]>
+  },
+
+  removeProductAccompaniment(productId, linkId, scope) {
+    const query = scope ? `?${new URLSearchParams({ scope }).toString()}` : ''
+    return restClient.delete<void>(
+      `/products/${productId}/accompaniments/${linkId}${query}`,
+    )
   },
 
   async listAccompanimentTypes(input) {

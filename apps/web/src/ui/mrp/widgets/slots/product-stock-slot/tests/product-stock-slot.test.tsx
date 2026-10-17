@@ -129,6 +129,7 @@ describe('ProductStockSlot', () => {
       getProductAccompaniments: vi.fn(),
       linkProductAccompaniment: vi.fn(),
       updateProductAccompaniment: vi.fn(),
+      listProductAccompanimentCandidates: vi.fn(),
       removeProductAccompaniment: vi.fn(),
       listAccompanimentTypes: vi.fn(),
       createAccompanimentType: vi.fn(),

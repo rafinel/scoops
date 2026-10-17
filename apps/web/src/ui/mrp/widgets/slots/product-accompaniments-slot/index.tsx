@@ -58,6 +58,7 @@ export const ProductAccompanimentsSlot = ({
             <AccompanimentActionDialogs
               onOpenChange={handleActionOpenChange}
               onSuccess={handleActionSuccess}
+              portionName={product?.name}
               productId={productId}
               selectedAction={selectedAction}
             />

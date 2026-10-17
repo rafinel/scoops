@@ -14,10 +14,12 @@ export const ProductAccompanimentDialogHeader = ({
     <div className='grid gap-2'>
       <DialogHeader className='border-b border-border-soft p-4 pr-14 sm:p-6 sm:pr-14'>
         <DialogTitle>
-          {isEdit ? 'Editar acompanhamento' : 'Vincular acompanhamento'}
+          {isEdit ? 'Editar Acompanhamento' : 'Vincular Acompanhamento'}
         </DialogTitle>
         <DialogDescription className='mt-1'>
-          Configure como este item aparece no PDV.
+          {isEdit
+            ? 'Atualize como este item aparece no PDV.'
+            : 'Configure como este item aparece no PDV.'}
         </DialogDescription>
       </DialogHeader>
       <div className='px-4 sm:px-6'>
