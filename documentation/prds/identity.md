@@ -103,8 +103,6 @@ establishment, invite staff, and control administrative and operational access.
 
 ### PRQ-01 — Establishment Onboarding
 
-- [x] **Implemented**
-
 **Outcome:** A new customer can create an establishment and activate its first
 Manager through a public, confirmed onboarding flow.
 
@@ -161,8 +159,6 @@ PRQ-02, PRQ-10, PRQ-13, and PRQ-14.
 
 ### PRQ-02 — Authentication and Session
 
-- [x] **Implemented**
-
 **Outcome:** Active Managers and Operators can enter Scoops with individual
 credentials and remain authenticated only while their session is valid.
 
@@ -201,8 +197,6 @@ PRQ-13.
 
 ### PRQ-03 — Password and Access Recovery
 
-- [x] **Implemented**
-
 **Outcome:** A user can create or reset their own password without a Manager viewing
 or setting it.
 
@@ -236,8 +230,6 @@ states consumed by PRQ-13.
 ---
 
 ### PRQ-04 — Profiles and Authorization
-
-- [ ] **Implemented**
 
 **Outcome:** Every protected area and action applies a predictable, fixed access model
 within the user's own establishment.
@@ -274,8 +266,6 @@ PRQ-11, PRQ-13, and PRQ-14.
 ---
 
 ### PRQ-05 — User Registration and Invitation
-
-- [x] **Implemented**
 
 **Outcome:** A Manager can invite a person to the same establishment with an approved
 profile while the invited person retains control of their password.
@@ -314,8 +304,6 @@ PRQ-06, PRQ-07, PRQ-08, PRQ-10, PRQ-13, and PRQ-14.
 ---
 
 ### PRQ-06 — User Listing and Consultation
-
-- [x] **Implemented**
 
 **Outcome:** A Manager can locate manageable users and understand each user's profile,
 status, recent activity, available actions, and administrative history.
@@ -356,7 +344,6 @@ PRQ-07, and PRQ-08; administrative history from PRQ-10.
 
 ### PRQ-07 — Promotion and Demotion
 
-
 **Outcome:** A Manager can align another active user's fixed profile with their current
 responsibility without losing historical authorship or the final active Manager.
 
@@ -390,8 +377,6 @@ from PRQ-05; notification delivery from the Communication module.
 ---
 
 ### PRQ-08 — Inactivation and Reactivation
-
-- [x] **Implemented**
 
 **Outcome:** A Manager can revoke or restore another user's access without deleting
 their identity, profile, reserved email, or history.
@@ -429,8 +414,6 @@ PRQ-13, and PRQ-14.
 
 ### PRQ-09 — Personal Data and My Account
 
-- [x] **Implemented**
-
 **Outcome:** A Manager or Operator can inspect their identity, change their own name,
 and end the current session without changing immutable access attributes.
 
@@ -463,7 +446,6 @@ and end the current session without changing immutable access attributes.
 ---
 
 ### PRQ-10 — Administrative Audit
-
 
 **Outcome:** Managers can reconstruct identity and access changes from an immutable,
 establishment-scoped administrative history that excludes secrets.
@@ -506,7 +488,6 @@ consumed by PRQ-14.
 
 ### PRQ-11 — Establishment Management
 
-
 **Outcome:** A Manager can inspect and change the name and business timezone of
 their own establishment without changing its identity, membership, data ownership,
 or historical snapshots.
@@ -548,7 +529,6 @@ or historical snapshots.
 
 ### PRQ-12 — Customer-Initiated Establishment Deletion Removed
 
-
 **Outcome:** Customers cannot initiate establishment deletion through Identity, while
 historical and policy-governed data lifecycles remain outside this product surface.
 
@@ -574,8 +554,6 @@ historical and policy-governed data lifecycles remain outside this product surfa
 ---
 
 ### PRQ-13 — Navigation, States, and Quality of Experience
-
-- [ ] **Implemented**
 
 **Outcome:** Managers and Operators can understand and recover from Identity states
 through coherent, authorized, responsive, and accessible navigation, global search,
@@ -624,7 +602,6 @@ facts from MRP; order, sales-channel, and discount facts from PDV.
 ---
 
 ### PRQ-14 — Outcome Measurement
-
 
 **Outcome:** Identity performance can be evaluated against the approved activation,
 administrative-autonomy, audit, and authorization success metrics.

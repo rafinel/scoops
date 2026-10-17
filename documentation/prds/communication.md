@@ -78,7 +78,6 @@ Numeric targets for these metrics have not been approved in the existing product
 
 ### PRQ-01 — Communication Channels and Recipients
 
-
 **Outcome:** relevant Scoops messages reach the recipients defined by their context through email,
 in-product notification, or both.
 
@@ -114,8 +113,6 @@ PRQ-03, PRQ-04, PRQ-06, and PRQ-08.
 
 ### PRQ-02 — Stock Messages
 
-- [x] **Implemented**
-
 **Outcome:** users responsible for operational stock follow-up receive enough information to
 recognize low or depleted stock.
 
@@ -144,7 +141,6 @@ PRQ-08; durable and clear in-product messaging from PRQ-09.
 ---
 
 ### PRQ-03 — Billing Messages
-
 
 **Outcome:** Managers and financially responsible users receive the billing and subscription
 information they need to understand the current situation, applicable deadline, and required action.
@@ -181,7 +177,6 @@ PRQ-09 when the defined channel includes an in-product notification.
 
 ### PRQ-04 — Identity Messages
 
-
 **Outcome:** invited users, access-affected users, and Managers receive the defined email or
 in-product communication for relevant identity and establishment-access events.
 
@@ -215,7 +210,6 @@ channel-appropriate content from PRQ-05; mandatory initiation behavior from PRQ-
 
 ### PRQ-05 — Channel-Appropriate Message Content
 
-
 **Outcome:** every recipient receives content that is appropriate to the message channel, event, and
 recipient.
 
@@ -242,7 +236,6 @@ PRQ-04.
 ---
 
 ### PRQ-06 — Notification Center
-
 
 **Outcome:** an authenticated user can privately consult and navigate their complete in-product
 notification history from the Header.
@@ -289,7 +282,6 @@ PRQ-09.
 
 ### PRQ-07 — Individual Notification Reading
 
-
 **Outcome:** each authenticated user's read state reflects only the notifications that have become
 visible to that user.
 
@@ -315,7 +307,6 @@ visible to that user.
 ---
 
 ### PRQ-08 — Communication Initiation Consistency
-
 
 **Outcome:** an action that requires communication is completed only after its mandatory
 communication has been initiated, while subsequent processing can continue independently of the
@@ -345,8 +336,6 @@ obligations; supported channels and recipient selection from PRQ-01.
 ---
 
 ### PRQ-09 — Durable and Clear In-Product Messages
-
-- [x] **Implemented**
 
 **Outcome:** users can revisit in-product messages and understand the event and any required action
 from their content.

@@ -172,7 +172,6 @@ Success is measured by:
 
 ### PRQ-01 — Commercial Plan and Offer
 
-
 **Outcome:** Establishments can subscribe to one transparent monthly offer
 with a uniform price and complete product scope.
 
@@ -216,7 +215,6 @@ PRQ-17
 ---
 
 ### PRQ-02 — Free Trial
-
 
 **Outcome:** A newly activated establishment can experience all of Scoops for
 14 days without providing a payment method.
@@ -267,7 +265,6 @@ PRQ-12 and PRQ-18
 
 ### PRQ-03 — Holder, Billing Data and Acceptance
 
-
 **Outcome:** The subscription identifies its holder, has valid billing data and
 preserves explicit acceptance of the commercial and privacy conditions.
 
@@ -317,7 +314,6 @@ and PRQ-11
 
 ### PRQ-04 — Checkout and Payment Methods
 
-
 **Outcome:** A Manager can purchase the plan securely by credit card or
 Automatic Pix through an Asaas-hosted checkout.
 
@@ -366,8 +362,6 @@ to PRQ-05, PRQ-06, PRQ-07, PRQ-09, PRQ-10, PRQ-11 and PRQ-13
 ---
 
 ### PRQ-05 — Subscription and Access Control States
-
-- [ ] **Implemented**
 
 **Outcome:** Every establishment has an auditable commercial-access state that
 is enforced consistently across Billing-controlled protected routes and actions.
@@ -433,7 +427,6 @@ PDV operational modules, and to PRQ-17
 
 ### PRQ-06 — Renewal, Billing Failure and Tolerance
 
-
 **Outcome:** The subscription renews monthly and gives the establishment seven
 days to recover a failed charge before operational access is blocked.
 
@@ -479,7 +472,6 @@ PRQ-07, PRQ-12 and PRQ-18
 
 ### PRQ-07 — Change of Payment Method
 
-
 **Outcome:** Any Manager can switch securely between card and Automatic Pix
 without exposing sensitive financial data.
 
@@ -524,7 +516,6 @@ renewal and tolerance state
 ---
 
 ### PRQ-08 — Cancellation and Resumption of Renewal
-
 
 **Outcome:** Any Manager can cancel the next renewal without losing the paid
 period and can resume renewal before that period ends.
@@ -573,7 +564,6 @@ PRQ-13 and PRQ-18
 ---
 
 ### PRQ-09 — Refund and Chargeback
-
 
 **Outcome:** A Manager can request the eligible first-payment refund, and the
 establishment receives predictable access treatment for refunds and chargebacks.
@@ -626,7 +616,6 @@ PRQ-11, PRQ-12, PRQ-13 and PRQ-18
 
 ### PRQ-10 — Charges, Receipts and History
 
-
 **Outcome:** Managers can consult the establishment's complete financial
 history, receipts and tax-document links without accessing the provider panel.
 
@@ -667,7 +656,6 @@ refund and chargeback facts; PRQ-11 — NFS-e facts
 ---
 
 ### PRQ-11 — Issuance and Delivery of NFS-e
-
 
 **Outcome:** Every paid monthly fee produces an NFS-e with the applicable
 billing and jurisdictional tax data.
@@ -716,7 +704,6 @@ and PRQ-14
 
 ### PRQ-12 — Billing Notifications
 
-
 **Outcome:** Managers and the financial contact receive timely notice of
 billing events that require knowledge or action.
 
@@ -761,7 +748,6 @@ NFS-e state; PRQ-13 — retention and disposal milestones
 ---
 
 ### PRQ-13 — Retention, Reactivation and Future Operational Disposal
-
 
 **Outcome:** A blocked establishment's operational data remains recoverable for
 90 days and can later be disposed of only through an authorized operational
@@ -816,7 +802,6 @@ PRQ-05, PRQ-12 and PRQ-14
 
 ### PRQ-14 — Tax Archive and Privacy
 
-
 **Outcome:** Future operational disposal removes eligible operational data
 while preserving only the segregated tax minimum required by legal obligation.
 
@@ -866,7 +851,6 @@ disposal
 
 ### PRQ-15 — Permissions and Audit
 
-
 **Outcome:** Billing respects Identity's fixed profiles and preserves the
 authorship and history of administrative and autonomous commercial actions.
 
@@ -911,7 +895,6 @@ PRQ-13
 ---
 
 ### PRQ-16 — Integration, Reliability and Security
-
 
 **Outcome:** Billing tolerates repeated Asaas events, delays and unavailability
 without duplicate effects, duplicate charges or unjustified blocking.
@@ -962,7 +945,6 @@ reconciliation capabilities
 
 ### PRQ-17 — Navigation, Responsiveness and Accessibility
 
-
 **Outcome:** Managers can use offer, status, payment, billing, history and
 cancellation capabilities through one coherent, responsive and accessible
 Subscription experience.
@@ -1006,7 +988,6 @@ financial history; PRQ-11 — NFS-e state
 ---
 
 ### PRQ-18 — Metrics and Instrumentation
-
 
 **Outcome:** Scoops can evaluate trial conversion, subscription revenue,
 payment recovery and retention from privacy-safe, financially reconciled

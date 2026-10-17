@@ -133,8 +133,6 @@ who need to assemble and record orders during service.
 
 ### PRQ-01 — Sales Channel Management
 
-- [ ] **Implemented**
-
 **Outcome:** The Manager can create and manage optional channels that
 apply a global percentage to the paid items of an order. Operators can view channel details
 without changing them.
@@ -196,8 +194,6 @@ PRQ-05, PRQ-06, PRQ-07, PRQ-09 and PRQ-10.
 ---
 
 ### PRQ-02 — New Sale Product Catalog
-
-- [x] **Implemented**
 
 **Outcome:** The Operator can find only active products with valid commercial configuration on
 the `New Sale` screen while still seeing unavailable stock states and the product's sale
@@ -270,8 +266,6 @@ of sale.
 
 ### PRQ-03 — Portion Item Configuration
 
-- [ ] **Implemented**
-
 **Outcome:** The Operator can select size, accompaniments and
 quantity before adding a Portion to the cart.
 
@@ -326,8 +320,6 @@ PRQ-05 and PRQ-13.
 
 ### PRQ-04 — Resale Item Configuration
 
-- [x] **Implemented**
-
 **Outcome:** The Operator can select the brand, when applicable,
 and the quantity of units from a Resale product before adding it to the cart.
 
@@ -370,8 +362,6 @@ and PRQ-13.
 ---
 
 ### PRQ-05 — Cart Assembly and Editing
-
-- [x] **Implemented**
 
 **Outcome:** The Operator can review, edit and remove items before registering the order.
 
@@ -440,8 +430,6 @@ by PRQ-06, PRQ-07, PRQ-08 and PRQ-14.
 
 ### PRQ-06 — Pricing by Channel
 
-- [x] **Implemented**
-
 **Outcome:** The Operator sees consistent prices, subtotals and totals calculated from the
 optional sales channel selected for the order.
 
@@ -487,8 +475,6 @@ PRQ-09 and PRQ-14.
 ---
 
 ### PRQ-07 — Channel, Combo, Price and Stock Revalidation
-
-- [ ] **Implemented**
 
 **Outcome:** The Operator can register an order only after its channel, Combos, product prices,
 configurations and consolidated stock consumption have been revalidated against current
@@ -555,7 +541,6 @@ by PRQ-08.
 
 ### PRQ-08 — Order Confirmation and Registration
 
-
 **Outcome:** The Operator explicitly confirms a definitive order that is created exactly once
 with all stock consumption in one atomic transaction.
 
@@ -615,7 +600,6 @@ registration-time cost facts consumed by PRQ-09.
 
 ### PRQ-09 — Order Snapshot
 
-- [ ] **Implemented**
 **Outcome:** Authorized users can rely on immutable commercial and operational facts preserved
 at the time an order is registered.
 
@@ -690,8 +674,6 @@ commercial, cancellation, cost, and cost-completeness facts.
 
 ### PRQ-10 — Order History
 
-- [ ] **Implemented**
-
 **Outcome:** Operators and Managers can consult all orders from the current ice cream shop and
 open their immutable details.
 
@@ -745,7 +727,6 @@ PRQ-09 and establishment access from the Identity module.
 
 ### PRQ-11 — Permissions, Navigation and Isolation
 
-- [ ] **Implemented**
 **Outcome:** Operators and Managers see only the PDV navigation and actions authorized for their
 profiles, with all data isolated to the current establishment.
 
@@ -788,7 +769,6 @@ module.
 
 ### PRQ-12 — Performance, Responsiveness and Accessibility
 
-- [ ] **Implemented**
 **Outcome:** Operators and Managers can use all four PDV areas quickly and accessibly on priority
 devices while receiving consistent server-backed results.
 
@@ -832,8 +812,6 @@ devices while receiving consistent server-backed results.
 ---
 
 ### PRQ-13 — Combo Discount Management
-
-- [ ] **Implemented**
 
 **Outcome:** The Manager can create and manage discounts of the type Combo, made up of different
 products and sold for a fixed final price. Operators can view Combo definitions without changing
@@ -917,8 +895,6 @@ and Resale facts from PRQ-03 and PRQ-04.
 ---
 
 ### PRQ-14 — Automatic Combo Application
-
-- [x] **Implemented**
 
 **Outcome:** The Operator automatically receives the eligible combination of Combos that
 produces the greatest total savings without reusing product units.
@@ -1009,8 +985,6 @@ PRQ-08 and PRQ-09.
 
 ### PRQ-15 — Order Cancellation
 
-- [x] **Implemented**
-
 **Outcome:** A Manager can cancel any registered order as a one-way lifecycle transition, choose
 whether each sold order line returns its stock consumption or records it as a loss, and preserve
 the original commercial and operational history.
@@ -1078,8 +1052,6 @@ consumed by PRQ-10 and future operational history.
 ---
 
 ### PRQ-16 — Order Printing
-
-- [x] **Implemented**
 
 **Outcome:** A user can print a non-fiscal copy of saved order details for physical
 operations.

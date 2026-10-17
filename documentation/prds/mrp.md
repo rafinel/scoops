@@ -85,8 +85,6 @@ Success is measured by:
 
 ### PRQ-01 — Product Registration and Categories
 
-- [ ] **Implemented**
-
 **Outcome:** Managers can register an establishment-scoped product with valid categories, unit,
 stock control, status, and optional operational settings that determine its later MRP behavior.
 
@@ -145,7 +143,6 @@ unit cost for PRQ-02, PRQ-03, PRQ-04, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09, PR
 
 ### PRQ-02 — Brand Management and Main Brand
 
-
 **Outcome:** Managers can maintain product-specific brands, packaging economics, brand balances,
 and exactly one main brand for future automatic write-offs.
 
@@ -194,7 +191,6 @@ for PRQ-03, PRQ-06, PRQ-07, PRQ-08, PRQ-09, and PRQ-10.
 
 ### PRQ-03 — Inventory Control and Stock History
 
-- [ ] **Implemented**
 **Outcome:** Authorized users can understand current stock and its attributable history, while
 Managers can apply valid entries and write-offs without leaving balances and transactions
 inconsistent.
@@ -277,8 +273,6 @@ Communication; and current stock-attention facts for Analytics.
 
 ### PRQ-04 — Product Listing
 
-- [ ] **Implemented**
-
 **Outcome:** Authorized users can find, compare, and open products using establishment-wide
 operational context and predictable filters, sorting, and pagination.
 
@@ -317,8 +311,6 @@ balances and stock status from PRQ-03; production capacity from PRQ-06.
 ---
 
 ### PRQ-05 — Dedicated Product Page and Settings
-
-- [ ] **Implemented**
 
 **Outcome:** Managers can inspect and maintain each product through one category-aware page, while
 Operators can inspect product information without changing it.
@@ -379,8 +371,6 @@ PRQ-09, and PRQ-10.
 
 ### PRQ-06 — Manufacturable Product Recipes
 
-- [x] **Implemented**
-
 **Outcome:** Managers can define one recipe for a Manufacturable product and see its current cost,
 stock constraints, and maximum producible quantity before recording production.
 
@@ -437,7 +427,6 @@ Analytics.
 
 ### PRQ-07 — Production Record
 
-
 **Outcome:** Managers can record a Manufacturable production quantity with projected ingredient
 consumption and atomic stock updates, while invalid or failed production leaves stock unchanged.
 
@@ -487,18 +476,17 @@ for PRQ-03.
 
 ### PRQ-08 — Accompaniments and Accompaniment Types
 
-- [ ] **Implemented**
-
 **Outcome:** Managers can maintain establishment-scoped accompaniment types and link eligible
-Accompaniment products to Portions with the quantity and brand context needed for sale.
+Accompaniment products to Portions, individually or to every Portion at once, with the quantity
+and brand context needed for sale.
 
 **Actors:** Manager
 
 **Consumes:** Product categories and units from PRQ-01; main-brand facts from PRQ-02; product-page
 context from PRQ-05.
 
-**Provides:** Accompaniment types, Portion-accompaniment links, per-portion consumption, and brand
-context for PRQ-09, PRQ-10, and PDV.
+**Provides:** Accompaniment types, Portion-accompaniment links, global accompaniments,
+per-portion consumption, and brand context for PRQ-09, PRQ-10, and PDV.
 
 #### Capabilities
 
@@ -507,13 +495,19 @@ context for PRQ-09, PRQ-10, and PDV.
   existing retained link remains editable while its active target still has Accompaniment, even if
   its legacy category set also includes Portion; product registration and category changes still
   reject the Portion+Accompaniment combination.
+- A Manager can make an Accompaniment global instead of linking it to individual Portions. A
+  global Accompaniment applies to every Portion of the establishment, including Portions created
+  later, and has one shared type, brand context and quantity per portion. Changing or removing it
+  from any Portion changes or removes it for all Portions. The same eligibility rules as for a
+  link apply.
 - Each link has a contextual type, such as Coverage, Extra, or Free; the same Accompaniment may
   have different types for different Portions.
 - Accompaniment types are managed on a dedicated MRP page and are available only within the same
   establishment. Managers can list, create, and rename types.
 - An unused type may be removed. A type in use remains protected until its links are resolved;
   renaming updates its existing links.
-- Quantity per portion defines consumption for each unit sold.
+- Quantity per portion defines consumption for each unit sold; a global Accompaniment consumes
+  its shared quantity for each Portion unit sold.
 - MRP owns the Accompaniment product's sale price; PDV uses that same price for every linked
   Portion and size. Link and Edit accompaniment dialogs can edit this product-owned price, but a
   link never has its own price.
@@ -523,8 +517,14 @@ context for PRQ-09, PRQ-10, and PDV.
 #### Experience
 
 - The link table displays Accompaniment, Type, Brand, Quantity per portion, the product's sale
-  price, and Actions. `Link accompaniment` opens a modal for Accompaniment, Type, the product's
-  sale price, Quantity per portion, applicable Brand, and cost preview.
+  price, and Actions. Global Accompaniments appear in every Portion's table with a `Global` badge
+  beside the name, and the table description states that global items appear in all Portions.
+  `Link accompaniment` opens a modal for Accompaniment, Type, the product's sale price, Quantity
+  per portion, applicable Brand, and cost preview.
+- The Link and Edit dialogs include a `Disponível para todas as porções` switch explaining that the
+  item appears in all Portions, including new ones, and that type, quantity and price are shared.
+  When the switch is on, the dialog shows a notice that changes apply to all Portions and states
+  how many Portions it affects.
 - Link and Edit dialogs prefill the selected Accompaniment product's saved sale price. If none is
   saved, the Link dialog proposes the applicable Resale price when available; otherwise the
   Manager enters a valid price before linking. Editing this product-owned price applies to every
@@ -553,8 +553,6 @@ context for PRQ-09, PRQ-10, and PDV.
 ---
 
 ### PRQ-09 — Integrated Commercial Settings
-
-- [ ] **Implemented**
 
 **Outcome:** Managers can maintain accompaniment, Portion, and Resale prices and availability
 that determine future PDV operations without duplicating cart, sale, or historical-order rules in
@@ -629,8 +627,6 @@ for PRQ-10, PDV, and Analytics.
 ---
 
 ### PRQ-10 — Navigation, States, and High-Impact Changes
-
-- [ ] **Implemented**
 
 **Outcome:** Managers can navigate MRP and complete or recover from destructive and high-impact
 product changes with clear dependency, loading, success, and error feedback. Operators can
