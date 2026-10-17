@@ -57,6 +57,11 @@ export class LinkProductAccompanimentController {
           description:
             'Optional saved product-wide sale price. Required the first time an unpriced target is linked; zero is allowed.',
         },
+        isGlobal: {
+          type: 'boolean',
+          description:
+            'Make the accompaniment available to every Portion of the establishment. Omitted means false; required to link a product that is already global.',
+        },
       },
     },
   })
@@ -92,7 +97,8 @@ export class LinkProductAccompanimentController {
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
-    description: 'The accompaniment link conflicted.',
+    description:
+      'The accompaniment is already present on the Portion, is global and was linked without isGlobal, or the link conflicted.',
     type: ErrorResponseDto,
   })
   handle(

@@ -3,6 +3,7 @@ export {
   listAccompanimentTypesQuerySchema,
   linkProductAccompanimentSchema,
   saveAccompanimentTypeSchema,
+  removeProductAccompanimentQuerySchema,
   updateProductAccompanimentSchema,
   addRecipeIngredientSchema,
   adjustProductStockSchema,
