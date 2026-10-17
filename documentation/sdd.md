@@ -81,7 +81,6 @@ evidence only to rename an identifier.
 ```text
 documentation/features/<domain>/<feature>/
 ├── spec.md                 # contracts and checkers
-├── interactive-spec.html   # derived interactive explanation of the current Spec
 ├── evaluation.md           # progress, evidence, findings and current handoff
 └── design/                 # saved references when material
     ├── handoff.md
@@ -93,14 +92,6 @@ templates. New behavior for an already concluded feature uses
 `changes/<change-name>/` under that feature. Existing design bundles may retain
 `design/manifest.md`; do not create a duplicate handoff solely to rename it.
 
-`create-spec` generates `interactive-spec.html` beside `spec.md`, including for a
-change Spec. Use the actual Spec frontmatter for its header and give each contract
-a separate tab, with additional navigation only where useful. Preserve applicable
-scope, behavior, design, technical, verification and revision detail; illustrative
-interactions explain contracted outcomes. The HTML is derived documentation, not
-independent contract authority, production implementation or runtime proof. Keep
-its frontmatter, revision, status and content aligned when authoring or amending
-the Spec; simulated results never become Evaluation evidence for the feature.
 Evaluation is created at implementation kickoff, not during Spec authoring.
 
 There is no separate `plan.md` or `create-plan` step. Execution order, decomposition,
