@@ -2460,6 +2460,27 @@
             },
             {
               "type": "frame",
+              "id": "J6gcy",
+              "name": "Group Divider",
+              "width": "fill_container",
+              "padding": [
+                6,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "VfQGD",
+                  "name": "Line",
+                  "width": "fill_container",
+                  "height": 1,
+                  "fill": "$border"
+                }
+              ]
+            },
+            {
+              "type": "frame",
               "id": "dyuVF",
               "name": "Item Nova venda",
               "width": "fill_container",
@@ -2530,6 +2551,27 @@
             },
             {
               "type": "frame",
+              "id": "TKQhV",
+              "name": "Group Divider",
+              "width": "fill_container",
+              "padding": [
+                6,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "j9mv7",
+                  "name": "Line",
+                  "width": "fill_container",
+                  "height": 1,
+                  "fill": "$border"
+                }
+              ]
+            },
+            {
+              "type": "frame",
               "id": "ppGLQ",
               "name": "Item Canais de venda",
               "width": "fill_container",
@@ -2566,7 +2608,7 @@
             {
               "type": "frame",
               "id": "jq7NO",
-              "name": "Item Canais de venda",
+              "name": "Item Descontos",
               "width": "fill_container",
               "cornerRadius": 10,
               "gap": 12,
@@ -5579,7 +5621,7 @@
                               "id": "mwMOP",
                               "name": "Sub",
                               "fill": "$text-secondary",
-                              "content": "Itens oferecidos no PDV. O preço de cada produto vale para todas as porções e tamanhos.",
+                              "content": "Itens oferecidos no PDV. O preço de cada produto vale para todas as porções e tamanhos. Itens globais aparecem em todas as porções.",
                               "fontFamily": "$font-body",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -5754,6 +5796,8 @@
                               "id": "q15dT",
                               "name": "C0",
                               "width": 260,
+                              "gap": 8,
+                              "alignItems": "center",
                               "children": [
                                 {
                                   "type": "text",
@@ -5764,6 +5808,41 @@
                                   "fontFamily": "$font-body",
                                   "fontSize": 14,
                                   "fontWeight": "700"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "nCXMF",
+                                  "name": "Badge Global",
+                                  "fill": "$primary-soft",
+                                  "cornerRadius": 999,
+                                  "gap": 4,
+                                  "padding": [
+                                    3,
+                                    8
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "daF8I",
+                                      "name": "I",
+                                      "width": 12,
+                                      "height": 12,
+                                      "icon": "globe",
+                                      "library": "lucide",
+                                      "fill": "$primary"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "nvbI1",
+                                      "name": "L",
+                                      "fill": "$primary",
+                                      "content": "Global",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 11,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -5954,6 +6033,8 @@
                               "id": "i1P7a",
                               "name": "C0",
                               "width": 260,
+                              "gap": 8,
+                              "alignItems": "center",
                               "children": [
                                 {
                                   "type": "text",
@@ -5964,6 +6045,41 @@
                                   "fontFamily": "$font-body",
                                   "fontSize": 14,
                                   "fontWeight": "700"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "ari6E",
+                                  "name": "Badge Global",
+                                  "fill": "$primary-soft",
+                                  "cornerRadius": 999,
+                                  "gap": 4,
+                                  "padding": [
+                                    3,
+                                    8
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "lW4qp",
+                                      "name": "I",
+                                      "width": 12,
+                                      "height": 12,
+                                      "icon": "globe",
+                                      "library": "lucide",
+                                      "fill": "$primary"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "cKEhl",
+                                      "name": "L",
+                                      "fill": "$primary",
+                                      "content": "Global",
+                                      "fontFamily": "$font-body",
+                                      "fontSize": 11,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -6750,7 +6866,6 @@
       "name": "Modal Vincular Acompanhamento",
       "reusable": true,
       "width": 520,
-      "height": 721,
       "fill": "$bg-card",
       "cornerRadius": 16,
       "effect": {
@@ -6838,7 +6953,6 @@
           "id": "m4dOk2",
           "name": "Body",
           "width": "fill_container",
-          "height": 570,
           "layout": "vertical",
           "gap": 16,
           "padding": [
@@ -6846,6 +6960,47 @@
             24
           ],
           "children": [
+            {
+              "type": "frame",
+              "id": "X10CE",
+              "x": 0,
+              "y": 0,
+              "name": "Aviso escopo global",
+              "enabled": false,
+              "width": "fill_container(0)",
+              "fill": "$primary-soft",
+              "cornerRadius": 10,
+              "gap": 10,
+              "padding": [
+                10,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "n19Vj",
+                  "name": "I",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "globe",
+                  "library": "lucide",
+                  "fill": "$primary"
+                },
+                {
+                  "type": "text",
+                  "id": "UocMn",
+                  "name": "Texto aviso",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Acompanhamento global: as alterações valem para todas as porções (6).",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            },
             {
               "type": "frame",
               "id": "d1NoSK",
@@ -6909,6 +7064,77 @@
                       "icon": "chevron-down",
                       "library": "lucide",
                       "fill": "$text-secondary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "EqC4B",
+              "name": "Campo Global",
+              "width": "fill_container",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 12,
+              "padding": [
+                12,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "k6Ihbx",
+                  "name": "Switch",
+                  "width": 44,
+                  "height": 24,
+                  "fill": "$border",
+                  "cornerRadius": 999,
+                  "padding": 3,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "WDa95",
+                      "name": "Dot",
+                      "fill": "$bg-card",
+                      "width": 18,
+                      "height": 18
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "BFC3s",
+                  "name": "Text",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "s7bS76",
+                      "name": "Título global",
+                      "fill": "$text-primary",
+                      "content": "Disponível para todas as porções",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "yJG0X",
+                      "name": "Ajuda global",
+                      "fill": "$text-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Aparece em todas as porções, incluindo as novas. Tipo, quantidade e preço são compartilhados.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
                     }
                   ]
                 }
@@ -81756,14 +81982,25 @@
       "type": "ref",
       "ref": "iSdux",
       "name": "Modal Editar Acompanhamento",
-      "x": 5375,
-      "y": 833,
+      "x": 5384,
+      "y": 1208,
+      "height": "fit_content",
       "descendants": {
         "epWSZ": {
           "content": "Editar Acompanhamento"
         },
         "w9s7d": {
           "content": "Atualize como este item aparece no PDV."
+        },
+        "X10CE": {
+          "enabled": true
+        },
+        "UocMn": {
+          "content": "Acompanhamento global: as alterações valem para todas as porções."
+        },
+        "k6Ihbx": {
+          "fill": "$primary",
+          "justifyContent": "end"
         },
         "i1laT/dURHs": {
           "content": "Salvar alterações"
@@ -116189,6 +116426,662 @@
           ]
         }
       }
+    },
+    {
+      "type": "frame",
+      "id": "q2gZuS",
+      "x": 11764,
+      "y": 1208,
+      "name": "Dialog Remover Acompanhamento Global — Esta porção",
+      "width": 480,
+      "fill": "$bg-card",
+      "cornerRadius": 16,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#00000033",
+        "offset": {
+          "x": 0,
+          "y": 20
+        },
+        "blur": 50
+      },
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "G5w80d",
+          "name": "Header",
+          "width": "fill_container",
+          "gap": 14,
+          "padding": [
+            24,
+            24,
+            0,
+            24
+          ],
+          "justifyContent": "space_between",
+          "children": [
+            {
+              "type": "frame",
+              "id": "h1kMGf",
+              "name": "IconText",
+              "width": "fill_container",
+              "gap": 14,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ZS8VU",
+                  "name": "IconWrap",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "$danger-soft",
+                  "cornerRadius": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "VMjQH",
+                      "name": "I",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "trash-2",
+                      "library": "lucide",
+                      "fill": "$danger"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "oVI73",
+                  "name": "TitleWrap",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "s1t3D",
+                      "name": "Title",
+                      "fill": "$text-primary",
+                      "content": "Remover Granola?",
+                      "fontFamily": "$font-body",
+                      "fontSize": 18,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "d65mFt",
+                      "name": "Sub",
+                      "fill": "$text-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Granola é um acompanhamento global. Escolha onde ele deve ser removido.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "wbyDu",
+              "name": "CloseBtn",
+              "width": 32,
+              "height": 32,
+              "cornerRadius": 8,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "v6w6A6",
+                  "name": "I",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "x",
+                  "library": "lucide",
+                  "fill": "$text-secondary"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "fKDOi",
+          "name": "Body",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            20,
+            24,
+            0,
+            24
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "JTscp",
+              "name": "Campo Escopo",
+              "width": "fill_container",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "gap": 12,
+              "padding": [
+                12,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "B0lrZ",
+                  "name": "Switch",
+                  "width": 44,
+                  "height": 24,
+                  "fill": "$border",
+                  "cornerRadius": 999,
+                  "padding": 3,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "n0oJP",
+                      "name": "Dot",
+                      "fill": "$bg-card",
+                      "width": 18,
+                      "height": 18
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "tWp81",
+                  "name": "Text",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zOXKS",
+                      "name": "Título escopo",
+                      "fill": "$text-primary",
+                      "content": "Remover de todas as porções",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "duybi",
+                      "name": "Ajuda escopo",
+                      "fill": "$text-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Desligado: remove apenas de Polpa de Açaí.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "G6Ch7I",
+              "name": "Consequência",
+              "width": "fill_container",
+              "fill": "$bg-muted",
+              "cornerRadius": 10,
+              "gap": 10,
+              "padding": [
+                10,
+                14
+              ],
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "nSO3E",
+                  "name": "I",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "info",
+                  "library": "lucide",
+                  "fill": "$text-secondary"
+                },
+                {
+                  "type": "text",
+                  "id": "ptxiC",
+                  "name": "Texto consequência",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Granola continua nas outras 5 porções e nas novas. Você pode vinculá-lo de novo a esta porção depois. Os saldos de estoque não mudam.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "pnwrR",
+          "name": "Footer",
+          "width": "fill_container",
+          "gap": 12,
+          "padding": [
+            20,
+            24,
+            24,
+            24
+          ],
+          "justifyContent": "end",
+          "children": [
+            {
+              "type": "frame",
+              "id": "GILFT",
+              "name": "Cancel",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "padding": [
+                10,
+                20
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Dkquy",
+                  "name": "L",
+                  "fill": "$text-primary",
+                  "content": "Cancelar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "YAPXa",
+              "name": "BtnRemover",
+              "cornerRadius": 10,
+              "stroke": "$danger",
+              "strokeWidth": 1,
+              "gap": 8,
+              "padding": [
+                10,
+                20
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "XcFSV",
+                  "name": "I",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "trash-2",
+                  "library": "lucide",
+                  "fill": "$danger"
+                },
+                {
+                  "type": "text",
+                  "id": "kqVws",
+                  "name": "L",
+                  "fill": "$danger",
+                  "content": "Remover desta porção",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "C8la0H",
+      "x": 12324,
+      "y": 1208,
+      "name": "Dialog Remover Acompanhamento Global — Todas as porções",
+      "width": 480,
+      "fill": "$bg-card",
+      "cornerRadius": 16,
+      "effect": {
+        "type": "shadow",
+        "shadowType": "outer",
+        "color": "#00000033",
+        "offset": {
+          "x": 0,
+          "y": 20
+        },
+        "blur": 50
+      },
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "GyZCi",
+          "name": "Header",
+          "width": "fill_container",
+          "gap": 14,
+          "padding": [
+            24,
+            24,
+            0,
+            24
+          ],
+          "justifyContent": "space_between",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Wn15H",
+              "name": "IconText",
+              "width": "fill_container",
+              "gap": 14,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "EA3ws",
+                  "name": "IconWrap",
+                  "width": 44,
+                  "height": 44,
+                  "fill": "$danger-soft",
+                  "cornerRadius": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "Ndc0L",
+                      "name": "I",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "trash-2",
+                      "library": "lucide",
+                      "fill": "$danger"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "llhaq",
+                  "name": "TitleWrap",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "U1w3eh",
+                      "name": "Title",
+                      "fill": "$text-primary",
+                      "content": "Remover Granola?",
+                      "fontFamily": "$font-body",
+                      "fontSize": 18,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "yhO3k",
+                      "name": "Sub",
+                      "fill": "$text-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Granola é um acompanhamento global. Escolha onde ele deve ser removido.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "lKAk0",
+              "name": "CloseBtn",
+              "width": 32,
+              "height": 32,
+              "cornerRadius": 8,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "Evfdp",
+                  "name": "I",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "x",
+                  "library": "lucide",
+                  "fill": "$text-secondary"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "NuKJQ",
+          "name": "Body",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            20,
+            24,
+            0,
+            24
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "GJ1nL",
+              "name": "Campo Escopo",
+              "width": "fill_container",
+              "fill": "$bg-card",
+              "cornerRadius": 10,
+              "stroke": "$danger",
+              "strokeWidth": 1,
+              "gap": 12,
+              "padding": [
+                12,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ndhJF",
+                  "name": "Switch",
+                  "width": 44,
+                  "height": 24,
+                  "fill": "$danger",
+                  "cornerRadius": 999,
+                  "padding": 3,
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "ESjcd",
+                      "name": "Dot",
+                      "fill": "$bg-card",
+                      "width": 18,
+                      "height": 18
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "HPMC2",
+                  "name": "Text",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "p922WD",
+                      "name": "Título escopo",
+                      "fill": "$text-primary",
+                      "content": "Remover de todas as porções",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "v9SfVZ",
+                      "name": "Ajuda escopo",
+                      "fill": "$text-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Granola deixa de ser global.",
+                      "fontFamily": "$font-body",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "jrCL1",
+              "name": "Consequência",
+              "width": "fill_container",
+              "fill": "$danger-soft",
+              "cornerRadius": 10,
+              "gap": 10,
+              "padding": [
+                10,
+                14
+              ],
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "G3cQqI",
+                  "name": "I",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "triangle-alert",
+                  "library": "lucide",
+                  "fill": "$danger"
+                },
+                {
+                  "type": "text",
+                  "id": "Ar01k",
+                  "name": "Texto consequência",
+                  "fill": "$text-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Será removido de 6 porções, incluindo esta. Novas porções não o receberão. Os saldos de estoque não mudam.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "RXpqk",
+          "name": "Footer",
+          "width": "fill_container",
+          "gap": 12,
+          "padding": [
+            20,
+            24,
+            24,
+            24
+          ],
+          "justifyContent": "end",
+          "children": [
+            {
+              "type": "frame",
+              "id": "O3wbb",
+              "name": "Cancel",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "padding": [
+                10,
+                20
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "d4Cvd5",
+                  "name": "L",
+                  "fill": "$text-primary",
+                  "content": "Cancelar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "M2Ey3",
+              "name": "BtnRemover",
+              "fill": "$danger",
+              "cornerRadius": 10,
+              "gap": 8,
+              "padding": [
+                10,
+                20
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "DnuW9",
+                  "name": "I",
+                  "width": 14,
+                  "height": 14,
+                  "icon": "trash-2",
+                  "library": "lucide",
+                  "fill": "#FFFFFF"
+                },
+                {
+                  "type": "text",
+                  "id": "UmC68",
+                  "name": "L",
+                  "fill": "#FFFFFF",
+                  "content": "Remover de 6 porções",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "700"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "variables": {
