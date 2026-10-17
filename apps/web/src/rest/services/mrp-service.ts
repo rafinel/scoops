@@ -252,6 +252,12 @@ function mapAccompanimentTypePage(
   )
 }
 
+function buildRemovalQuery(
+  scope: Parameters<MrpRestService['removeProductAccompaniment']>[2],
+): string {
+  return scope ? `?${new URLSearchParams({ scope }).toString()}` : ''
+}
+
 export const MrpService = (restClient: RestClient): MrpRestService => ({
   async listProducts(input) {
     const params = new URLSearchParams()
@@ -684,9 +690,8 @@ export const MrpService = (restClient: RestClient): MrpRestService => ({
   },
 
   removeProductAccompaniment(productId, linkId, scope) {
-    const query = scope ? `?${new URLSearchParams({ scope }).toString()}` : ''
     return restClient.delete<void>(
-      `/products/${productId}/accompaniments/${linkId}${query}`,
+      `/products/${productId}/accompaniments/${linkId}${buildRemovalQuery(scope)}`,
     )
   },
 

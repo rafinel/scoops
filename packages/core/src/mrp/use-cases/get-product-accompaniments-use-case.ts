@@ -146,11 +146,24 @@ export class GetProductAccompanimentsUseCase
         establishmentId,
         link,
       ),
+      ...GetProductAccompanimentsUseCase.sourceDetails(source, link.quantityPerPortion),
+    }
+  }
+
+  private static sourceDetails(
+    source: Awaited<
+      ReturnType<typeof GetProductAccompanimentsUseCase.resolveCurrentSource>
+    >,
+    quantityPerPortion: number,
+  ): Partial<ProductAccompanimentDetails> {
+    return {
       ...(source?.brandId ? { brandId: source.brandId } : {}),
       ...(source?.brandName ? { brandName: source.brandName } : {}),
-      ...(source?.unitCost !== undefined ? { unitCost: source.unitCost } : {}),
       ...(source?.unitCost !== undefined
-        ? { estimatedCost: link.quantityPerPortion * source.unitCost }
+        ? {
+            unitCost: source.unitCost,
+            estimatedCost: quantityPerPortion * source.unitCost,
+          }
         : {}),
     }
   }
