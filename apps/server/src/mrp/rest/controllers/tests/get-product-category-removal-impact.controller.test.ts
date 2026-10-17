@@ -126,7 +126,7 @@ describe('Get Product Category Removal Impact Controller [GET /products/:product
     const target = await fixture.addProduct(
       createProduct({
         name: 'Impact Accompaniment Target',
-        categories: [ProductCategory.Accompaniment],
+        categories: [ProductCategory.Accompaniment, ProductCategory.Resale],
         accompanimentPrice: 2,
       }),
     )
