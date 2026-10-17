@@ -10,6 +10,7 @@ import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
+  addGlobalAccompanimentWithRows,
   createProduct,
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
@@ -174,5 +175,112 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
     expect(operator.body.product.id).toBe(product.id)
     expect(foreign.status).toBe(404)
     expect(missing.status).toBe(404)
+  })
+  it('lists global rows first and then individual rows by name, flagging global and other-Portion links', async () => {
+    const portion = await fixture.addProduct(
+      createProduct({
+        name: 'Global Table Portion',
+        categories: [ProductCategory.Portion],
+      }),
+    )
+    const otherPortion = await fixture.addProduct(
+      createProduct({
+        name: 'Other Table Portion',
+        categories: [ProductCategory.Portion],
+        status: ProductStatus.Inactive,
+      }),
+    )
+    const type = await fixture.addAccompanimentType({
+      establishmentId: portion.establishmentId,
+      name: 'Toppings',
+    })
+    const targets = new Map<string, Awaited<ReturnType<typeof fixture.addProduct>>>()
+    for (const name of ['Granola', 'Banana', 'Avela', 'Calda', 'Doce']) {
+      targets.set(
+        name,
+        await fixture.addProduct(
+          createProduct({
+            name,
+            categories: [ProductCategory.Accompaniment],
+            accompanimentPrice: 3,
+          }),
+        ),
+      )
+    }
+    const target = (name: string) => {
+      const found = targets.get(name)
+      if (!found) throw new Error(`Missing target ${name}`)
+      return found
+    }
+    await addGlobalAccompanimentWithRows(fixture, {
+      target: target('Granola'),
+      type,
+      portions: [portion, otherPortion],
+      quantityPerPortion: 0.05,
+    })
+    await addGlobalAccompanimentWithRows(fixture, {
+      target: target('Banana'),
+      type,
+      portions: [portion, otherPortion],
+      quantityPerPortion: 0.08,
+    })
+    for (const [name, linkedPortions] of [
+      ['Doce', [portion]],
+      ['Avela', [portion, otherPortion]],
+      ['Calda', [portion]],
+    ] as const) {
+      for (const linkedPortion of linkedPortions) {
+        await fixture.addProductAccompaniment({
+          establishmentId: portion.establishmentId,
+          productId: linkedPortion.id,
+          accompanimentProductId: target(name).id,
+          accompanimentTypeId: type.id,
+          quantityPerPortion: 1,
+        })
+      }
+    }
+
+    const manager = await request(fixture.app.getHttpServer())
+      .get(`/products/${portion.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+    const operator = await request(fixture.app.getHttpServer())
+      .get(`/products/${portion.id}/accompaniments`)
+      .set('Cookie', operatorRequestAuthorization())
+    const inactivePortion = await request(fixture.app.getHttpServer())
+      .get(`/products/${otherPortion.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(manager.status).toBe(200)
+    expect(
+      manager.body.accompaniments.map(
+        (item: { accompanimentProductName: string; isGlobal: boolean }) =>
+          `${item.accompanimentProductName}:${item.isGlobal}`,
+      ),
+    ).toEqual(['Banana:true', 'Granola:true', 'Avela:false', 'Calda:false', 'Doce:false'])
+    expect(
+      manager.body.accompaniments.map(
+        (item: { accompanimentProductName: string; hasOtherPortionLinks: boolean }) =>
+          `${item.accompanimentProductName}:${item.hasOtherPortionLinks}`,
+      ),
+    ).toEqual([
+      'Banana:false',
+      'Granola:false',
+      'Avela:true',
+      'Calda:false',
+      'Doce:false',
+    ])
+    expect(manager.body.accompaniments[1]).toMatchObject({
+      quantityPerPortion: 0.05,
+      accompanimentTypeName: 'Toppings',
+      salePrice: 3,
+    })
+    expect(operator.status).toBe(200)
+    expect(operator.body.accompaniments).toEqual(manager.body.accompaniments)
+    expect(inactivePortion.status).toBe(200)
+    expect(
+      inactivePortion.body.accompaniments.map(
+        (item: { accompanimentProductName: string }) => item.accompanimentProductName,
+      ),
+    ).toEqual(['Banana', 'Granola', 'Avela'])
   })
 })

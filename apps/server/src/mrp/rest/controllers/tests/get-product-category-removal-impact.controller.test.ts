@@ -6,6 +6,7 @@ import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
+  addGlobalAccompanimentWithRows,
   createProduct,
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
@@ -54,6 +55,111 @@ describe('Get Product Category Removal Impact Controller [GET /products/:product
         },
       ],
     })
+  })
+
+  it('excludes global rows from Portion dependencies and counts only individual rows', async () => {
+    const globalTarget = await fixture.addProduct(
+      createProduct({
+        name: 'Impact Global Target',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 2,
+      }),
+    )
+    const individualTarget = await fixture.addProduct(
+      createProduct({
+        name: 'Impact Individual Target',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 2,
+      }),
+    )
+    const type = await fixture.addAccompanimentType({
+      establishmentId: globalTarget.establishmentId,
+      name: 'Impact Type',
+    })
+    const onlyGlobal = await fixture.addProduct(
+      createProduct({
+        name: 'Impact Only Global Portion',
+        categories: [ProductCategory.Ingredient, ProductCategory.Portion],
+      }),
+    )
+    const mixed = await fixture.addProduct(
+      createProduct({
+        name: 'Impact Mixed Portion',
+        categories: [ProductCategory.Ingredient, ProductCategory.Portion],
+      }),
+    )
+    await addGlobalAccompanimentWithRows(fixture, {
+      target: globalTarget,
+      type,
+      portions: [onlyGlobal, mixed],
+    })
+    await fixture.addProductAccompaniment({
+      establishmentId: mixed.establishmentId,
+      productId: mixed.id,
+      accompanimentProductId: individualTarget.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 1,
+    })
+
+    const withoutDependencies = await request(fixture.app.getHttpServer())
+      .get(`/products/${onlyGlobal.id}/category-removal-impact?category=portion`)
+      .set('Cookie', managerRequestAuthorization())
+    const withIndividualRow = await request(fixture.app.getHttpServer())
+      .get(`/products/${mixed.id}/category-removal-impact?category=portion`)
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(withoutDependencies.status).toBe(200)
+    expect(withoutDependencies.body).toMatchObject({ canRemove: true, dependencies: [] })
+    expect(withIndividualRow.status).toBe(200)
+    expect(withIndividualRow.body.canRemove).toBe(false)
+    expect(withIndividualRow.body.dependencies).toEqual([
+      {
+        kind: 'portion-accompaniment',
+        productId: mixed.id,
+        productName: mixed.name,
+        linkCount: 1,
+      },
+    ])
+  })
+
+  it('reports every Portion using a global as an Accompaniment dependency', async () => {
+    const target = await fixture.addProduct(
+      createProduct({
+        name: 'Impact Accompaniment Target',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 2,
+      }),
+    )
+    const type = await fixture.addAccompanimentType({
+      establishmentId: target.establishmentId,
+      name: 'Impact Accompaniment Type',
+    })
+    const portions = [
+      await fixture.addProduct(
+        createProduct({ name: 'Impact A', categories: [ProductCategory.Portion] }),
+      ),
+      await fixture.addProduct(
+        createProduct({ name: 'Impact B', categories: [ProductCategory.Portion] }),
+      ),
+    ]
+    await addGlobalAccompanimentWithRows(fixture, { target, type, portions })
+
+    const response = await request(fixture.app.getHttpServer())
+      .get(`/products/${target.id}/category-removal-impact?category=accompaniment`)
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(response.status).toBe(200)
+    expect(response.body.canRemove).toBe(false)
+    expect(response.body.dependencies).toHaveLength(2)
+    expect(response.body.dependencies).toEqual(
+      expect.arrayContaining(
+        portions.map((portion) => ({
+          kind: 'accompaniment-user',
+          productId: portion.id,
+          productName: portion.name,
+        })),
+      ),
+    )
   })
 
   it('does not expose another establishment product or dependencies', async () => {

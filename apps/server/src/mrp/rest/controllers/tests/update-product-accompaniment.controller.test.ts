@@ -1,3 +1,4 @@
+import { ProductSalesConfigurationChangedEvent } from '@scoops/core/mrp/domain/events'
 import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -6,7 +7,12 @@ import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
+  addGlobalAccompanimentWithRows,
   createProduct,
+  failSecondSalesConfigurationEvent,
+  findEvents,
+  findSalesConfigurationProductIds,
+  foreignManagerRequestAuthorization,
   managerRequestAuthorization,
   operatorRequestAuthorization,
   prepareMrpFixture,
@@ -241,6 +247,324 @@ describe('Update Product Accompaniment Controller [PATCH /products/:productId/ac
     ).resolves.toMatchObject({
       accompanimentProductId: target.id,
       quantityPerPortion: 2.5,
+    })
+  })
+
+  describe('global accompaniments', () => {
+    async function addPortion(name: string) {
+      return fixture.addProduct(
+        createProduct({ name, categories: [ProductCategory.Portion] }),
+      )
+    }
+
+    async function addTarget(name: string) {
+      return fixture.addProduct(
+        createProduct({
+          name,
+          categories: [ProductCategory.Accompaniment],
+          accompanimentPrice: 4,
+        }),
+      )
+    }
+
+    async function addType(name: string) {
+      return fixture.addAccompanimentType({
+        establishmentId: MrpModuleFixture.accounts.establishmentId,
+        name,
+      })
+    }
+
+    it('edits type, quantity and price for every Portion from any global row', async () => {
+      const portionA = await addPortion('Shared Edit A')
+      const portionB = await addPortion('Shared Edit B')
+      const target = await addTarget('Shared Edit Target')
+      const type = await addType('Shared Edit Type')
+      const replacementType = await addType('Shared Edit Replacement')
+      const { global, rows } = await addGlobalAccompanimentWithRows(fixture, {
+        target,
+        type,
+        portions: [portionA, portionB],
+      })
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch(`/products/${portionA.id}/accompaniments/${rows[0].id}`)
+        .set('Cookie', managerRequestAuthorization())
+        .send({
+          accompanimentTypeId: replacementType.id,
+          quantityPerPortion: 0.125,
+          accompanimentPrice: 6.5,
+        })
+
+      expect(response.status).toBe(200)
+      expect(response.body).toMatchObject({
+        id: rows[0].id,
+        accompanimentTypeId: replacementType.id,
+        quantityPerPortion: 0.125,
+        salePrice: 6.5,
+        isGlobal: true,
+        hasOtherPortionLinks: false,
+      })
+      await expect(
+        fixture.globalAccompaniments.findById(global.establishmentId, global.id),
+      ).resolves.toMatchObject({
+        accompanimentTypeId: replacementType.id,
+        quantityPerPortion: 0.125,
+      })
+      for (const row of rows) {
+        await expect(
+          fixture.productAccompaniments.findById(
+            row.establishmentId,
+            row.productId,
+            row.id,
+          ),
+        ).resolves.toMatchObject({
+          accompanimentTypeId: replacementType.id,
+          quantityPerPortion: 0.125,
+          globalAccompanimentId: global.id,
+        })
+      }
+      await expect(
+        fixture.products.findById(target.establishmentId, target.id),
+      ).resolves.toMatchObject({ accompanimentPrice: 6.5 })
+      await expect(findSalesConfigurationProductIds(fixture)).resolves.toEqual(
+        [portionA.id, portionB.id].sort(),
+      )
+
+      const fromOtherPortion = await request(fixture.app.getHttpServer())
+        .get(`/products/${portionB.id}/accompaniments`)
+        .set('Cookie', managerRequestAuthorization())
+      expect(fromOtherPortion.body.accompaniments[0]).toMatchObject({
+        isGlobal: true,
+        accompanimentTypeId: replacementType.id,
+        quantityPerPortion: 0.125,
+        salePrice: 6.5,
+      })
+    })
+
+    it('rejects ending global status through an edit and keeps every row unchanged', async () => {
+      const portionA = await addPortion('Locked A')
+      const portionB = await addPortion('Locked B')
+      const target = await addTarget('Locked Target')
+      const type = await addType('Locked Type')
+      const otherType = await addType('Locked Other')
+      const { global, rows } = await addGlobalAccompanimentWithRows(fixture, {
+        target,
+        type,
+        portions: [portionA, portionB],
+      })
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch(`/products/${portionA.id}/accompaniments/${rows[0].id}`)
+        .set('Cookie', managerRequestAuthorization())
+        .send({
+          accompanimentTypeId: otherType.id,
+          quantityPerPortion: 9,
+          isGlobal: false,
+        })
+
+      expect(response.status).toBe(400)
+      expect(response.body.message).toBe(
+        'Um acompanhamento global só deixa de ser global pela remoção de todas as porções.',
+      )
+      await expect(
+        fixture.globalAccompaniments.findById(global.establishmentId, global.id),
+      ).resolves.toMatchObject({ accompanimentTypeId: type.id, quantityPerPortion: 1 })
+      await expect(
+        fixture.productAccompaniments.findManyByAccompanimentProductId(
+          target.establishmentId,
+          target.id,
+        ),
+      ).resolves.toEqual(
+        expect.arrayContaining(
+          rows.map((row) =>
+            expect.objectContaining({
+              id: row.id,
+              accompanimentTypeId: type.id,
+              quantityPerPortion: 1,
+            }),
+          ),
+        ),
+      )
+      await expect(
+        findEvents(fixture, ProductSalesConfigurationChangedEvent._NAME),
+      ).resolves.toEqual([])
+    })
+
+    it('publishes nothing when a global edit changes nothing', async () => {
+      const portionA = await addPortion('No-op A')
+      const portionB = await addPortion('No-op B')
+      const target = await addTarget('No-op Target')
+      const type = await addType('No-op Type')
+      const { rows } = await addGlobalAccompanimentWithRows(fixture, {
+        target,
+        type,
+        portions: [portionA, portionB],
+        quantityPerPortion: 1,
+      })
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch(`/products/${portionA.id}/accompaniments/${rows[0].id}`)
+        .set('Cookie', managerRequestAuthorization())
+        .send({ accompanimentTypeId: type.id, quantityPerPortion: 1 })
+
+      expect(response.status).toBe(200)
+      expect(response.body).toMatchObject({ isGlobal: true, quantityPerPortion: 1 })
+      await expect(
+        findEvents(fixture, ProductSalesConfigurationChangedEvent._NAME),
+      ).resolves.toEqual([])
+    })
+
+    it('converts an individual row into a global keeping row ids and adding the other Portions', async () => {
+      const portionA = await addPortion('Convert Edit A')
+      const portionB = await addPortion('Convert Edit B')
+      const portionC = await addPortion('Convert Edit C')
+      const target = await addTarget('Convert Edit Target')
+      const typeA = await addType('Convert Edit Type A')
+      const typeB = await addType('Convert Edit Type B')
+      const editedType = await addType('Convert Edit Final')
+      const rowA = await fixture.addProductAccompaniment({
+        establishmentId: portionA.establishmentId,
+        productId: portionA.id,
+        accompanimentProductId: target.id,
+        accompanimentTypeId: typeA.id,
+        quantityPerPortion: 1,
+      })
+      const rowB = await fixture.addProductAccompaniment({
+        establishmentId: portionB.establishmentId,
+        productId: portionB.id,
+        accompanimentProductId: target.id,
+        accompanimentTypeId: typeB.id,
+        quantityPerPortion: 3,
+      })
+
+      const before = await request(fixture.app.getHttpServer())
+        .get(`/products/${portionA.id}/accompaniments`)
+        .set('Cookie', managerRequestAuthorization())
+      const response = await request(fixture.app.getHttpServer())
+        .patch(`/products/${portionA.id}/accompaniments/${rowA.id}`)
+        .set('Cookie', managerRequestAuthorization())
+        .send({
+          accompanimentTypeId: editedType.id,
+          quantityPerPortion: 0.5,
+          isGlobal: true,
+        })
+
+      expect(before.body.accompaniments[0]).toMatchObject({
+        isGlobal: false,
+        hasOtherPortionLinks: true,
+      })
+      expect(response.status).toBe(200)
+      expect(response.body).toMatchObject({
+        id: rowA.id,
+        isGlobal: true,
+        hasOtherPortionLinks: false,
+        accompanimentTypeId: editedType.id,
+        quantityPerPortion: 0.5,
+      })
+      const global = await fixture.globalAccompaniments.findByAccompanimentProductId(
+        target.establishmentId,
+        target.id,
+      )
+      expect(global).toMatchObject({
+        accompanimentTypeId: editedType.id,
+        quantityPerPortion: 0.5,
+      })
+      for (const [portion, existingRow] of [
+        [portionA, rowA],
+        [portionB, rowB],
+        [portionC, undefined],
+      ] as const) {
+        const rows = await fixture.productAccompaniments.findManyByProductId(
+          portion.establishmentId,
+          portion.id,
+        )
+        expect(rows).toHaveLength(1)
+        expect(rows[0]).toMatchObject({
+          accompanimentTypeId: editedType.id,
+          quantityPerPortion: 0.5,
+          globalAccompanimentId: global?.id,
+        })
+        if (existingRow) expect(rows[0].id).toBe(existingRow.id)
+      }
+      await expect(findSalesConfigurationProductIds(fixture)).resolves.toEqual(
+        [portionA.id, portionB.id, portionC.id].sort(),
+      )
+    })
+
+    it('rolls back global, rows and events together when a step fails mid-transaction', async () => {
+      const portionA = await addPortion('Atomic Edit A')
+      const portionB = await addPortion('Atomic Edit B')
+      const portionC = await addPortion('Atomic Edit C')
+      const target = await addTarget('Atomic Edit Target')
+      const type = await addType('Atomic Edit Type')
+      const otherType = await addType('Atomic Edit Other')
+      const { global, rows } = await addGlobalAccompanimentWithRows(fixture, {
+        target,
+        type,
+        portions: [portionA, portionB, portionC],
+      })
+      const removeFailure = await failSecondSalesConfigurationEvent(fixture)
+
+      let response: request.Response
+      try {
+        response = await request(fixture.app.getHttpServer())
+          .patch(`/products/${portionA.id}/accompaniments/${rows[0].id}`)
+          .set('Cookie', managerRequestAuthorization())
+          .send({
+            accompanimentTypeId: otherType.id,
+            quantityPerPortion: 7,
+            accompanimentPrice: 9,
+          })
+      } finally {
+        await removeFailure()
+      }
+
+      expect(response.status).toBe(500)
+      await expect(
+        fixture.globalAccompaniments.findById(global.establishmentId, global.id),
+      ).resolves.toMatchObject({ accompanimentTypeId: type.id, quantityPerPortion: 1 })
+      for (const row of rows) {
+        await expect(
+          fixture.productAccompaniments.findById(
+            row.establishmentId,
+            row.productId,
+            row.id,
+          ),
+        ).resolves.toMatchObject({ accompanimentTypeId: type.id, quantityPerPortion: 1 })
+      }
+      await expect(
+        fixture.products.findById(target.establishmentId, target.id),
+      ).resolves.toMatchObject({ accompanimentPrice: 4 })
+      await expect(
+        findEvents(fixture, ProductSalesConfigurationChangedEvent._NAME),
+      ).resolves.toEqual([])
+    })
+
+    it('does not let Operators or foreign managers edit a global row', async () => {
+      const portion = await addPortion('Guarded Edit Portion')
+      const target = await addTarget('Guarded Edit Target')
+      const type = await addType('Guarded Edit Type')
+      const { global, rows } = await addGlobalAccompanimentWithRows(fixture, {
+        target,
+        type,
+        portions: [portion],
+      })
+      const body = { accompanimentTypeId: type.id, quantityPerPortion: 5 }
+
+      const operator = await request(fixture.app.getHttpServer())
+        .patch(`/products/${portion.id}/accompaniments/${rows[0].id}`)
+        .set('Cookie', operatorRequestAuthorization())
+        .send(body)
+      const foreign = await request(fixture.app.getHttpServer())
+        .patch(`/products/${portion.id}/accompaniments/${rows[0].id}`)
+        .set('Cookie', foreignManagerRequestAuthorization())
+        .send(body)
+
+      expect(operator.status).toBe(403)
+      expect(foreign.status).toBe(404)
+      await expect(
+        fixture.globalAccompaniments.findById(global.establishmentId, global.id),
+      ).resolves.toMatchObject({ quantityPerPortion: 1 })
     })
   })
 })

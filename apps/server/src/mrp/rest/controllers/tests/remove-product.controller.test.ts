@@ -18,7 +18,9 @@ import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import type { MrpModuleFixture as MrpFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
+  addGlobalAccompanimentWithRows,
   createProduct,
+  findSalesConfigurationProductIds,
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
   operatorRequestAuthorization,
@@ -375,5 +377,172 @@ describe('Remove Product Controller [DELETE /products/:productId]', () => {
     await expect(
       fixture.products.findById(product.establishmentId, product.id),
     ).resolves.toBeDefined()
+  })
+  describe('global accompaniments', () => {
+    it('removes the rows and the global of a deleted Accompaniment and republishes the Portions', async () => {
+      const target = await fixture.addProduct(
+        createProduct({
+          name: 'Deleted Global Target',
+          categories: [ProductCategory.Accompaniment],
+          accompanimentPrice: 3,
+        }),
+      )
+      const survivor = await fixture.addProduct(
+        createProduct({
+          name: 'Surviving Global Target',
+          categories: [ProductCategory.Accompaniment],
+          accompanimentPrice: 3,
+        }),
+      )
+      const portions = [
+        await fixture.addProduct(
+          createProduct({
+            name: 'Delete Global A',
+            categories: [ProductCategory.Portion],
+          }),
+        ),
+        await fixture.addProduct(
+          createProduct({
+            name: 'Delete Global B',
+            categories: [ProductCategory.Portion],
+            status: 'inactive',
+          }),
+        ),
+      ]
+      const type = await fixture.addAccompanimentType({
+        establishmentId: target.establishmentId,
+        name: 'Delete Global Type',
+      })
+      const { global } = await addGlobalAccompanimentWithRows(fixture, {
+        target,
+        type,
+        portions,
+      })
+      const kept = await addGlobalAccompanimentWithRows(fixture, {
+        target: survivor,
+        type,
+        portions,
+      })
+
+      const response = await request(fixture.app.getHttpServer())
+        .delete(`/products/${target.id}`)
+        .set('Cookie', managerRequestAuthorization())
+
+      expect(response.status).toBe(204)
+      await expect(
+        fixture.globalAccompaniments.findById(global.establishmentId, global.id),
+      ).resolves.toBeUndefined()
+      await expect(
+        fixture.productAccompaniments.findManyByAccompanimentProductId(
+          target.establishmentId,
+          target.id,
+        ),
+      ).resolves.toEqual([])
+      await expect(
+        fixture.globalAccompaniments.findById(
+          kept.global.establishmentId,
+          kept.global.id,
+        ),
+      ).resolves.toMatchObject({ id: kept.global.id })
+      for (const portion of portions) {
+        await expect(
+          fixture.productAccompaniments.findManyByProductId(
+            portion.establishmentId,
+            portion.id,
+          ),
+        ).resolves.toEqual([
+          expect.objectContaining({
+            accompanimentProductId: survivor.id,
+            globalAccompanimentId: kept.global.id,
+          }),
+        ])
+      }
+      await expect(findSalesConfigurationProductIds(fixture)).resolves.toEqual(
+        expect.arrayContaining(portions.map(({ id }) => id)),
+      )
+    })
+
+    it('removes a global without rows together with its deleted Accompaniment', async () => {
+      const target = await fixture.addProduct(
+        createProduct({
+          name: 'Rowless Global Target',
+          categories: [ProductCategory.Accompaniment],
+          accompanimentPrice: 3,
+        }),
+      )
+      const type = await fixture.addAccompanimentType({
+        establishmentId: target.establishmentId,
+        name: 'Rowless Global Type',
+      })
+      const { global } = await addGlobalAccompanimentWithRows(fixture, {
+        target,
+        type,
+        portions: [],
+      })
+
+      const response = await request(fixture.app.getHttpServer())
+        .delete(`/products/${target.id}`)
+        .set('Cookie', managerRequestAuthorization())
+
+      expect(response.status).toBe(204)
+      await expect(
+        fixture.globalAccompaniments.findById(global.establishmentId, global.id),
+      ).resolves.toBeUndefined()
+      await expect(
+        fixture.products.findById(target.establishmentId, target.id),
+      ).resolves.toBeUndefined()
+    })
+
+    it('removes a deleted Portion rows and leaves the globals', async () => {
+      const target = await fixture.addProduct(
+        createProduct({
+          name: 'Kept Global Target',
+          categories: [ProductCategory.Accompaniment],
+          accompanimentPrice: 3,
+        }),
+      )
+      const deleted = await fixture.addProduct(
+        createProduct({
+          name: 'Deleted Global Portion',
+          categories: [ProductCategory.Portion],
+        }),
+      )
+      const remaining = await fixture.addProduct(
+        createProduct({
+          name: 'Remaining Global Portion',
+          categories: [ProductCategory.Portion],
+        }),
+      )
+      const type = await fixture.addAccompanimentType({
+        establishmentId: target.establishmentId,
+        name: 'Kept Global Type',
+      })
+      const { global } = await addGlobalAccompanimentWithRows(fixture, {
+        target,
+        type,
+        portions: [deleted, remaining],
+      })
+
+      const response = await request(fixture.app.getHttpServer())
+        .delete(`/products/${deleted.id}`)
+        .set('Cookie', managerRequestAuthorization())
+
+      expect(response.status).toBe(204)
+      await expect(
+        fixture.productAccompaniments.findManyByProductId(
+          deleted.establishmentId,
+          deleted.id,
+        ),
+      ).resolves.toEqual([])
+      await expect(
+        fixture.globalAccompaniments.findById(global.establishmentId, global.id),
+      ).resolves.toMatchObject({ id: global.id })
+      await expect(
+        fixture.productAccompaniments.findManyByProductId(
+          remaining.establishmentId,
+          remaining.id,
+        ),
+      ).resolves.toHaveLength(1)
+    })
   })
 })
