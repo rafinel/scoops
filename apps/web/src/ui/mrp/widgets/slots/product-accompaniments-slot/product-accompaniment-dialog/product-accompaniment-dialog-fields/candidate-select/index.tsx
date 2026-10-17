@@ -35,7 +35,7 @@ export const CandidateSelect = ({
     </SelectTrigger>
     <SelectContent>
       {candidates.map((candidate) => (
-        <SelectItem key={candidate.id} value={candidate.id}>
+        <SelectItem key={candidate.productId} value={candidate.productId}>
           {candidate.name}
         </SelectItem>
       ))}

@@ -2,6 +2,8 @@ import type { ProductAccompanimentDetails } from '@scoops/core/mrp/domain/struct
 
 import { BrandField } from './brand-field'
 import { CostEstimate } from './cost-estimate'
+import { GlobalField } from './global-field'
+import { GlobalScopeNotice } from './global-scope-notice'
 import { PriceField } from './price-field'
 import { ProductField } from './product-field'
 import { QuantityField } from './quantity-field'
@@ -27,7 +29,10 @@ export const ProductAccompanimentDialogFields = ({
   candidatesError,
   candidatesLoading,
   estimatedCost,
+  handleGlobalChange,
   handleValueChange,
+  isGlobalLocked,
+  isGlobalValue,
   item,
   numericQuantity,
   priceError,
@@ -44,6 +49,7 @@ export const ProductAccompanimentDialogFields = ({
   selectedStockError,
   selectedStockLoading,
   selectedTypeName,
+  shouldShowReplacementNotice,
   sourceUnitCost,
   typeError,
   typeId,
@@ -52,6 +58,7 @@ export const ProductAccompanimentDialogFields = ({
   typesLoading,
 }: ProductAccompanimentDialogFieldsProps) => (
   <div className='grid min-h-0 gap-3 overflow-y-auto p-4 sm:gap-5 sm:p-6'>
+    <GlobalScopeNotice isGlobal={isGlobalValue} />
     <ProductField
       candidates={candidates}
       candidatesError={candidatesError}
@@ -62,6 +69,12 @@ export const ProductAccompanimentDialogFields = ({
       productIdValue={productIdValue}
       retryCandidates={retryCandidates}
       selectedProductName={selectedProductName}
+    />
+    <GlobalField
+      handleGlobalChange={handleGlobalChange}
+      isGlobal={isGlobalValue}
+      isLocked={isGlobalLocked}
+      shouldShowReplacementNotice={shouldShowReplacementNotice}
     />
     <TypeField
       handleValueChange={handleValueChange}

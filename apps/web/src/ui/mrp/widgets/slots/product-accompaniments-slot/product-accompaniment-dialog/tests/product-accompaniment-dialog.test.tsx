@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   AccompanimentTypeFaker,
   ProductAccompanimentFaker,
-  ProductFaker,
 } from '@scoops/core/mrp/domain/entities/fakers'
+import type { ProductAccompanimentCandidate } from '@scoops/core/mrp/domain/structures'
 import { productAccompanimentFormSchema } from '@scoops/validation'
 
 import { ROUTES } from '@/constants/routes'
@@ -27,12 +27,20 @@ vi.mock('../use-product-accompaniment-dialog', () => ({
 }))
 
 const useProductAccompanimentDialogMock = vi.mocked(useProductAccompanimentDialog)
-const candidate = ProductFaker.fake({ id: 'product-2', name: 'Granola', unit: 'g' })
+const candidate: ProductAccompanimentCandidate = {
+  productId: 'product-2',
+  name: 'Granola',
+  unit: 'g',
+  stockControl: 'single',
+  accompanimentPrice: 3,
+  isGlobal: false,
+  hasPortionLinks: false,
+}
 const type = AccompanimentTypeFaker.fake({ id: 'type-1', name: 'Cobertura' })
 const item = {
   ...ProductAccompanimentFaker.fake({
     id: 'link-1',
-    accompanimentProductId: candidate.id,
+    accompanimentProductId: candidate.productId,
     accompanimentTypeId: type.id,
     quantityPerPortion: 20,
   }),
@@ -42,6 +50,8 @@ const item = {
   brandName: 'Marca atual',
   salePrice: 3,
   estimatedCost: 0.45,
+  isGlobal: false,
+  hasOtherPortionLinks: false,
 }
 
 const createDialogFields = () => ({
@@ -57,12 +67,15 @@ const createDialogFields = () => ({
   candidatesError: false,
   candidatesLoading: false,
   estimatedCost: 0.45,
+  handleGlobalChange: vi.fn(),
   handleValueChange: vi.fn(),
+  isGlobalLocked: false,
+  isGlobalValue: false,
   numericQuantity: 20,
   priceError: undefined,
   priceDescribedBy: 'accompaniment-price-help',
   productError: undefined,
-  productIdValue: candidate.id,
+  productIdValue: candidate.productId,
   quantityError: undefined,
   register: vi.fn((name: string) => ({
     name,
@@ -76,6 +89,7 @@ const createDialogFields = () => ({
   selectedStockError: false,
   selectedStockLoading: false,
   selectedTypeName: type.name,
+  shouldShowReplacementNotice: false,
   sourceUnitCost: 0.45,
   typeError: undefined,
   typeId: type.id,
@@ -101,7 +115,7 @@ const createForm = (isEdit = false) => ({
   handleValueChange: vi.fn(),
   isEdit,
   isPending: false,
-  productIdValue: candidate.id,
+  productIdValue: candidate.productId,
   retryCandidates: vi.fn(),
   retryAccompanimentPrice: vi.fn(),
   retrySelectedStock: vi.fn(),
@@ -139,7 +153,7 @@ describe('ProductAccompanimentDialog', () => {
       />,
     )
 
-    expect(screen.getByRole('dialog', { name: 'Vincular acompanhamento' })).toBeTruthy()
+    expect(screen.getByRole('dialog', { name: 'Vincular Acompanhamento' })).toBeTruthy()
     expect(screen.getByRole('combobox', { name: 'Acompanhamento' })).toBeTruthy()
     const typeSelector = screen.getByRole('combobox', { name: 'Tipo' })
     expect(typeSelector.textContent).toContain(type.name)
@@ -186,7 +200,7 @@ describe('ProductAccompanimentDialog', () => {
       />,
     )
 
-    expect(screen.getByRole('dialog', { name: 'Editar acompanhamento' })).toBeTruthy()
+    expect(screen.getByRole('dialog', { name: 'Editar Acompanhamento' })).toBeTruthy()
     expect(screen.getByDisplayValue('Granola').getAttribute('disabled')).not.toBeNull()
     expect(screen.getByText('Preço já configurado para este produto.')).toBeTruthy()
     expect(screen.queryByText(/Sugestão baseada/)).toBeNull()
@@ -208,7 +222,7 @@ describe('ProductAccompanimentDialog', () => {
       />,
     )
 
-    const dialog = screen.getByRole('dialog', { name: 'Vincular acompanhamento' })
+    const dialog = screen.getByRole('dialog', { name: 'Vincular Acompanhamento' })
     const status = screen.getByRole('status', { name: 'Atualizando…' })
     expect(status.textContent).toBe('Atualizando…')
     const form = dialog.querySelector('form')
@@ -322,11 +336,174 @@ describe('ProductAccompanimentDialog', () => {
 
   it('keeps the quantity contract strict for submitted links', () => {
     const result = productAccompanimentFormSchema.safeParse({
-      accompanimentProductId: candidate.id,
+      accompanimentProductId: candidate.productId,
       accompanimentTypeId: type.id,
       quantityPerPortion: '0',
+      accompanimentPrice: '3,00',
+      isGlobal: false,
     })
 
     expect(result.success).toBe(false)
+  })
+
+  it('describes the Link and Edit purposes in the dialog header', () => {
+    const { rerender } = render(
+      <ProductAccompanimentDialog
+        onOpenChange={vi.fn()}
+        onSuccess={vi.fn()}
+        open
+        productId='product-1'
+      />,
+    )
+    expect(
+      screen.getByRole('dialog', { name: 'Vincular Acompanhamento' }).textContent,
+    ).toContain('Configure como este item aparece no PDV.')
+
+    useProductAccompanimentDialogMock.mockReturnValue(createForm(true) as never)
+    rerender(
+      <ProductAccompanimentDialog
+        item={item}
+        onOpenChange={vi.fn()}
+        onSuccess={vi.fn()}
+        open
+        productId='product-1'
+      />,
+    )
+    expect(
+      screen.getByRole('dialog', { name: 'Editar Acompanhamento' }).textContent,
+    ).toContain('Atualize como este item aparece no PDV.')
+  })
+
+  describe('global availability', () => {
+    function mockGlobalFields(overrides: Record<string, unknown>, isEdit = false) {
+      useProductAccompanimentDialogMock.mockReturnValue({
+        ...createForm(isEdit),
+        fields: { ...createDialogFields(), ...overrides },
+      } as never)
+    }
+
+    function renderDialog(withItem = false) {
+      return render(
+        <ProductAccompanimentDialog
+          item={withItem ? item : undefined}
+          onOpenChange={vi.fn()}
+          onSuccess={vi.fn()}
+          open
+          productId='product-1'
+        />,
+      )
+    }
+
+    it('offers the enabled switch off with the shared-values help and no notices', () => {
+      renderDialog()
+
+      const globalSwitch = screen.getByRole('switch', {
+        name: 'Disponível para todas as porções',
+      })
+      expect(globalSwitch.getAttribute('aria-checked')).toBe('false')
+      expect(globalSwitch.getAttribute('aria-disabled')).toBeNull()
+      expect(globalSwitch.getAttribute('tabindex')).toBe('0')
+      expect(
+        screen.getByText(
+          'Aparece em todas as porções, incluindo as novas. Tipo, quantidade e preço são compartilhados.',
+        ).id,
+      ).toBe(globalSwitch.getAttribute('aria-describedby'))
+      expect(screen.queryByRole('status')).toBeNull()
+    })
+
+    it('toggles by mouse and by keyboard Space and reports the new value', () => {
+      const handleGlobalChange = vi.fn()
+      mockGlobalFields({ handleGlobalChange })
+      renderDialog()
+      const globalSwitch = screen.getByRole('switch', {
+        name: 'Disponível para todas as porções',
+      })
+
+      fireEvent.click(globalSwitch)
+      globalSwitch.focus()
+      fireEvent.keyDown(globalSwitch, { key: ' ' })
+      fireEvent.keyUp(globalSwitch, { key: ' ' })
+
+      expect(handleGlobalChange).toHaveBeenCalledTimes(2)
+      expect(handleGlobalChange).toHaveBeenNthCalledWith(1, true)
+      expect(handleGlobalChange).toHaveBeenNthCalledWith(2, true)
+    })
+
+    it('announces the global notice as a polite status at the top of the body', () => {
+      mockGlobalFields({ isGlobalValue: true })
+      renderDialog()
+
+      const globalSwitch = screen.getByRole('switch', {
+        name: 'Disponível para todas as porções',
+      })
+      const notice = screen.getByRole('status')
+      expect(globalSwitch.getAttribute('aria-checked')).toBe('true')
+      expect(notice.textContent).toBe(
+        'Acompanhamento global: as alterações valem para todas as porções.',
+      )
+      expect(
+        notice.compareDocumentPosition(
+          screen.getByRole('combobox', { name: 'Acompanhamento' }),
+        ) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy()
+    })
+
+    it('shows the replacement notice beside the switch and links it by description', () => {
+      mockGlobalFields({ isGlobalValue: true, shouldShowReplacementNotice: true })
+      renderDialog()
+
+      const notice = screen.getByText(
+        'Este acompanhamento já está vinculado individualmente a outras porções. Ao salvar, esses vínculos serão substituídos pela configuração global.',
+      ).parentElement
+      const globalSwitch = screen.getByRole('switch', {
+        name: 'Disponível para todas as porções',
+      })
+      expect(notice?.getAttribute('role')).toBe('status')
+      expect(globalSwitch.getAttribute('aria-describedby')).toContain(notice?.id)
+      expect(screen.getAllByRole('status')).toHaveLength(2)
+    })
+
+    it('hides the replacement notice when no individual links need replacing', () => {
+      mockGlobalFields({ isGlobalValue: true, shouldShowReplacementNotice: false })
+      renderDialog()
+
+      expect(screen.queryByText(/vinculado individualmente a outras porções/)).toBeNull()
+      expect(screen.getAllByRole('status')).toHaveLength(1)
+    })
+
+    it('locks a global accompaniment with an announced reason and 60% opacity', () => {
+      const handleGlobalChange = vi.fn()
+      mockGlobalFields(
+        { handleGlobalChange, isGlobalLocked: true, isGlobalValue: true },
+        true,
+      )
+      renderDialog(true)
+
+      const globalSwitch = screen.getByRole('switch', {
+        name: 'Disponível para todas as porções',
+      })
+      const lockedHelp = screen.getByText(
+        'Aparece em todas as porções, incluindo as novas. Para deixar de ser global, use Remover na tabela.',
+      )
+      expect(globalSwitch.getAttribute('aria-checked')).toBe('true')
+      expect(globalSwitch.getAttribute('aria-disabled')).toBe('true')
+      expect(globalSwitch.getAttribute('tabindex')).toBe('0')
+      expect(globalSwitch.getAttribute('aria-describedby')).toBe(lockedHelp.id)
+      expect(globalSwitch.closest('label')?.className).toContain('opacity-60')
+
+      fireEvent.click(globalSwitch)
+      fireEvent.keyDown(globalSwitch, { key: ' ' })
+      fireEvent.keyUp(globalSwitch, { key: ' ' })
+
+      expect(handleGlobalChange).not.toHaveBeenCalled()
+      expect(globalSwitch.getAttribute('aria-checked')).toBe('true')
+    })
+
+    it('does not describe a locked switch with the replacement notice', () => {
+      mockGlobalFields({ isGlobalLocked: true, isGlobalValue: true })
+      renderDialog()
+
+      expect(screen.queryByText(/vinculado individualmente a outras porções/)).toBeNull()
+    })
   })
 })
