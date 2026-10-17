@@ -2,18 +2,15 @@ import type { ProductAccompanimentDetails } from '@scoops/core/mrp/domain/struct
 
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogMedia,
   AlertDialogTitle,
 } from '@/ui/shadcn/alert-dialog'
-import { cn } from '@/ui/shared/lib/utils'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
+import { RemovalActions } from './removal-actions'
 import { RemovalConsequence } from './removal-consequence'
 import { RemovalScopeField } from './removal-scope-field'
 import { useRemoveGlobalAccompanimentDialog } from './use-remove-global-accompaniment-dialog'
@@ -80,25 +77,12 @@ export const RemoveGlobalAccompanimentDialog = ({
             </p>
           ) : null}
         </div>
-        <AlertDialogFooter className='border-t-0 bg-transparent px-6 pt-5 pb-6'>
-          <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction
-            className={cn(
-              removeAll
-                ? 'bg-danger text-destructive-foreground hover:bg-danger/90'
-                : 'border-danger text-danger hover:bg-danger-bg hover:text-danger',
-            )}
-            disabled={isPending}
-            onClick={(event) => {
-              event.preventDefault()
-              void handleConfirm()
-            }}
-            variant={removeAll ? 'default' : 'outline'}
-          >
-            <Icon name='trash-2' />
-            {actionLabel}
-          </AlertDialogAction>
-        </AlertDialogFooter>
+        <RemovalActions
+          actionLabel={actionLabel}
+          isPending={isPending}
+          onConfirm={() => void handleConfirm()}
+          removeAll={removeAll}
+        />
       </AlertDialogContent>
     </AlertDialog>
   )
