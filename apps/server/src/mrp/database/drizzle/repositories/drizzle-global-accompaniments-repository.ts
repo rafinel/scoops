@@ -143,7 +143,8 @@ export class DrizzleGlobalAccompanimentsRepository
           ),
         )
         .returning()
-      if (!record) throw new ConflictError('A operação no banco de dados entrou em conflito.')
+      if (!record)
+        throw new ConflictError('A operação no banco de dados entrou em conflito.')
       return DrizzleGlobalAccompanimentMapper.toDomain(record)
     } catch (error) {
       throw this.toConflictError(error)

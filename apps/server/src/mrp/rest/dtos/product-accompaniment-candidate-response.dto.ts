@@ -48,7 +48,9 @@ export class ProductAccompanimentCandidateResponseDto {
       isGlobal: candidate.isGlobal,
       hasPortionLinks: candidate.hasPortionLinks,
       ...(candidate.global
-        ? { global: ProductAccompanimentCandidateGlobalResponseDto.from(candidate.global) }
+        ? {
+            global: ProductAccompanimentCandidateGlobalResponseDto.from(candidate.global),
+          }
         : {}),
     })
   }

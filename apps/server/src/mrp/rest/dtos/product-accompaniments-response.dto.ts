@@ -25,7 +25,8 @@ export class ProductAccompanimentDetailsResponseDto {
   salePrice!: number | null
 
   @ApiProperty({
-    description: 'Whether the row belongs to a global accompaniment shared by every Portion.',
+    description:
+      'Whether the row belongs to a global accompaniment shared by every Portion.',
   })
   isGlobal!: boolean
 
