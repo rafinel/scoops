@@ -80,7 +80,7 @@ structure:
 - use `Experience` to define applicable visible interaction, states, responsiveness and
   accessibility.
 
-Use all of those fields together to derive the issue Outcome and Scope; do not treat any single
+Use all of those fields together to derive the issue Objective and Delivery Scope; do not treat any single
 field as the complete requirement. PRDs intentionally have no Acceptance Criteria or User
 Stories sections. Derive issue-level acceptance criteria from the selected requirement fields
 without adding a duplicate PRD contract. Use User Journeys only to preserve end-to-end or
@@ -138,40 +138,56 @@ concise and avoid duplicating the milestone name.
 Use the following structure:
 
 ```md
-## Outcome
+## 🎯 Objective
 
-<The user or business outcome this feature enables.>
+<One sentence stating who receives which user or business outcome.>
 
-## Scope
+## 📦 Delivery Scope
 
-- <Included product behavior or capability.>
-- <Important business, technical, design, or integration constraint.>
-- <Design references, including the exact Pencil file and node IDs when supplied.>
-- **Not included:** <Explicitly excluded adjacent behavior.>
+<Prose paragraphs, not bullets: the applications and modules to change, the included
+product behavior, important business, technical, design or integration constraints, the
+design references with the exact Pencil file and node IDs when supplied, and the PRD wording
+the delivery must update. Close by stating that detailed architecture decisions and
+contracts are defined in the Spec.>
 
-## Acceptance criteria
+## ✅ Acceptance Criteria
 
-- <Observable success behavior.>
-- <Validation and error behavior.>
-- <Authorization and tenant-isolation behavior, if applicable.>
-- <Responsive and accessible behavior, if applicable.>
-- <Required automated and manual validation passes.>
+- <Observable success behavior. (PRQ-XX; Journey X)>
+- <Validation and error behavior. (PRQ-XX)>
+- <Authorization and tenant-isolation behavior, if applicable. (PRQ-XX)>
+- <Responsive and accessible behavior, if applicable. (PRQ-XX)>
 
-## References
+## 🧪 Validation
 
-- PRD requirement: <GitHub link to the applicable requirement>
+<Paragraph naming the automated tests by boundary (domain, API, interface) and the
+behaviors they cover.>
+
+<Paragraph naming the manual checks, devices and input methods, and the comparison of
+current screenshots with the referenced design.>
+
+## 🔗 Traceability
+
+- PRD: <GitHub link to the applicable requirement>
+- Requirements: <PRQ-XX list, with the role of each when it is not obvious>
+- Journeys: <Journey letters and names, when applicable>
 - Milestone: <GitHub link to the applicable milestone>
-- Design or dependency: <link, when applicable>
+- Dependency: <module, issue or contract the delivery relies on, when applicable>
+- Design: <Pencil file path and node IDs, or link, when applicable>
+
+## 🚫 Out of Scope
+
+- <Excluded adjacent behavior: the module, requirement or issue that owns it.>
 ```
 
-Keep the issue at product-delivery level. Include only technical constraints
-that materially limit the solution; the Spec owns layer-by-layer contracts,
-file choices, runtime flows, and detailed validation commands. Omit optional
-scope bullets, acceptance criteria, and references that do not apply. Keep
-acceptance criteria observable and testable, and separate required behavior
-from implementation ideas. When the request supplies Pencil design references,
-place the exact file path and node IDs in the Scope section; the References
-section may link to the design file as supporting context.
+Write the issue in English with these headings, in this order. Keep it at
+product-delivery level. Include only technical constraints that materially limit
+the solution; the Spec owns layer-by-layer contracts, file choices, runtime
+flows, and detailed validation commands. Omit optional traceability lines and
+criteria that do not apply. Keep acceptance criteria observable and testable,
+end each with the PRD requirement and journey it traces to, and separate
+required behavior from implementation ideas. When the request supplies Pencil
+design references, place the exact file path and node IDs in the Delivery Scope
+paragraphs; the Traceability section repeats them as supporting context.
 
 ## Scope rules
 
@@ -186,8 +202,8 @@ section may link to the design file as supporting context.
 - Do not add unrelated cleanup, speculative future work, or unrequested
   dependencies.
 - When Pencil file or node references are supplied, preserve them exactly and
-  include them as an explicit Scope bullet rather than only listing them under
-  References.
+  include them in the Delivery Scope rather than only listing them under
+  Traceability.
 - Do not claim that a requirement is implemented or change its `Implemented`
   checkbox; this prompt only creates the issue.
 
