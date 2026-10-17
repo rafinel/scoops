@@ -87,10 +87,12 @@ export class GetProductAccompanimentsUseCase
         )
 
         accompaniments.sort((left, right) => {
+          const globalComparison = Number(right.isGlobal) - Number(left.isGlobal)
           const nameComparison = normalizeForSort(
             left.accompanimentProductName,
           ).localeCompare(normalizeForSort(right.accompanimentProductName))
           return (
+            globalComparison ||
             nameComparison ||
             left.accompanimentProductId.localeCompare(right.accompanimentProductId)
           )
@@ -139,7 +141,11 @@ export class GetProductAccompanimentsUseCase
       quantityPerPortion: link.quantityPerPortion,
       salePrice: accompanimentProduct.accompanimentPrice ?? null,
       isGlobal: link.globalAccompanimentId !== undefined,
-      hasOtherPortionLinks: false,
+      hasOtherPortionLinks: await GetProductAccompanimentsUseCase.hasOtherPortionLinks(
+        scope,
+        establishmentId,
+        link,
+      ),
       ...(source?.brandId ? { brandId: source.brandId } : {}),
       ...(source?.brandName ? { brandName: source.brandName } : {}),
       ...(source?.unitCost !== undefined ? { unitCost: source.unitCost } : {}),
@@ -147,6 +153,21 @@ export class GetProductAccompanimentsUseCase
         ? { estimatedCost: link.quantityPerPortion * source.unitCost }
         : {}),
     }
+  }
+
+  private static async hasOtherPortionLinks(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    link: ProductAccompaniment,
+  ): Promise<boolean> {
+    if (link.globalAccompanimentId !== undefined) return false
+    const linksCount =
+      await scope.productAccompanimentsRepository.countByAccompanimentProductId(
+        establishmentId,
+        link.accompanimentProductId,
+      )
+    // The link itself is part of the count.
+    return linksCount > 1
   }
 
   private static async resolveCurrentSource(

@@ -5,6 +5,7 @@ import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import {
   AccompanimentTypeFaker,
   BrandFaker,
+  GlobalAccompanimentFaker,
   ProductAccompanimentFaker,
   ProductFaker,
   ProductSizeFaker,
@@ -83,7 +84,15 @@ describe('Link Product Accompaniment Use Case', () => {
       undefined,
     )
     scope.productAccompanimentsRepository.add.mockResolvedValue(link)
-    scope.accompanimentTypesRepository.findById.mockResolvedValue(type)
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [],
+    )
+    scope.productAccompanimentsRepository.countByAccompanimentProductId.mockResolvedValue(
+      1,
+    )
+    scope.globalAccompanimentsRepository.findByAccompanimentProductId.mockResolvedValue(
+      undefined,
+    )
     useCase = new LinkProductAccompanimentUseCase(database)
   })
 
@@ -604,5 +613,365 @@ describe('Link Product Accompaniment Use Case', () => {
         actor: { ...request.actor, profile: UserProfile.Operator },
       }),
     ).rejects.toBeInstanceOf(AuthorizationError)
+  })
+
+  describe('global accompaniments', () => {
+    const actor = { id: 'manager-1', establishmentId, profile: UserProfile.Manager }
+    const portionB = ProductFaker.fake({
+      id: 'portion-2',
+      establishmentId,
+      categories: [ProductCategory.Portion],
+    })
+    const portionC = ProductFaker.fake({
+      id: 'portion-3',
+      establishmentId,
+      categories: [ProductCategory.Portion],
+      status: ProductStatus.Inactive,
+    })
+    const portionD = ProductFaker.fake({
+      id: 'portion-4',
+      establishmentId,
+      categories: [ProductCategory.Portion],
+    })
+    const portions = [owner, portionB, portionC, portionD]
+    const global = GlobalAccompanimentFaker.fake({
+      id: 'global-1',
+      establishmentId,
+      accompanimentProductId: target.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 0.5,
+    })
+    const individualRow = (productId: string, quantityPerPortion: number) =>
+      ProductAccompanimentFaker.fake({
+        id: `row-${productId}`,
+        establishmentId,
+        productId,
+        accompanimentProductId: target.id,
+        accompanimentTypeId: 'old-type',
+        quantityPerPortion,
+      })
+    const globalRow = (productId: string) =>
+      ProductAccompanimentFaker.fake({
+        id: `row-${productId}`,
+        establishmentId,
+        productId,
+        accompanimentProductId: target.id,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 0.5,
+        globalAccompanimentId: global.id,
+      })
+    const globalInput = {
+      accompanimentProductId: target.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 0.5,
+      isGlobal: true,
+    }
+    const globalRequest = { actor, productId: owner.id, input: globalInput }
+    const publishedProductIds = () =>
+      scope.eventsRepository.add.mock.calls
+        .map(([event]) =>
+          event instanceof ProductSalesConfigurationChangedEvent
+            ? event.payload.productId
+            : undefined,
+        )
+        .sort()
+
+    beforeEach(() => {
+      scope.productsRepository.findById.mockImplementation(
+        async (_, id) => portions.find((portion) => portion.id === id) ?? currentTarget,
+      )
+      scope.productsRepository.findManyByCategory.mockResolvedValue(portions)
+      scope.globalAccompanimentsRepository.add.mockResolvedValue(global)
+      scope.productAccompanimentsRepository.add.mockImplementation(async (input) =>
+        ProductAccompanimentFaker.fake({ id: `row-${input.productId}`, ...input }),
+      )
+      scope.productAccompanimentsRepository.addMany.mockResolvedValue([])
+    })
+
+    it('creates one global, converts individual rows in place and adds only the missing Portion rows', async () => {
+      scope.productAccompanimentsRepository.findManyByAccompanimentProductId
+        .mockResolvedValueOnce([
+          individualRow(portionB.id, 2),
+          individualRow(portionC.id, 3),
+        ])
+        .mockResolvedValue(portions.map((portion) => globalRow(portion.id)))
+
+      const result = await useCase.execute(globalRequest)
+
+      expect(result).toMatchObject({
+        id: `row-${owner.id}`,
+        accompanimentProductId: target.id,
+        quantityPerPortion: 0.5,
+        isGlobal: true,
+        hasOtherPortionLinks: false,
+      })
+      expect(scope.globalAccompanimentsRepository.add).toHaveBeenCalledWith({
+        establishmentId,
+        accompanimentProductId: target.id,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 0.5,
+      })
+      expect(
+        scope.productAccompanimentsRepository.replaceManyByAccompanimentProductId,
+      ).toHaveBeenCalledWith(establishmentId, target.id, {
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 0.5,
+        globalAccompanimentId: global.id,
+      })
+      expect(scope.productAccompanimentsRepository.add).toHaveBeenCalledTimes(1)
+      expect(scope.productAccompanimentsRepository.add).toHaveBeenCalledWith({
+        establishmentId,
+        productId: owner.id,
+        accompanimentProductId: target.id,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 0.5,
+        globalAccompanimentId: global.id,
+      })
+      expect(scope.productAccompanimentsRepository.addMany).toHaveBeenCalledWith([
+        {
+          establishmentId,
+          productId: portionD.id,
+          accompanimentProductId: target.id,
+          accompanimentTypeId: type.id,
+          quantityPerPortion: 0.5,
+          globalAccompanimentId: global.id,
+        },
+      ])
+      expect(scope.productAccompanimentsRepository.remove).not.toHaveBeenCalled()
+      expect(
+        scope.globalAccompanimentsRepository.add.mock.invocationCallOrder[0],
+      ).toBeLessThan(
+        scope.productAccompanimentsRepository.replaceManyByAccompanimentProductId.mock
+          .invocationCallOrder[0],
+      )
+      expect(publishedProductIds()).toEqual([
+        owner.id,
+        portionB.id,
+        portionC.id,
+        portionD.id,
+      ])
+    })
+
+    it('saves the supplied price with the global and republishes every Portion', async () => {
+      currentTarget = { ...target, accompanimentPrice: undefined }
+      scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+        portions.map((portion) => globalRow(portion.id)),
+      )
+
+      const result = await useCase.execute({
+        ...globalRequest,
+        input: { ...globalInput, accompanimentPrice: 4 },
+      })
+
+      expect(result.salePrice).toBe(4)
+      expect(scope.productsRepository.replace).toHaveBeenCalledWith(
+        establishmentId,
+        target.id,
+        { accompanimentPrice: 4 },
+      )
+      expect(publishedProductIds()).toHaveLength(portions.length)
+    })
+
+    it('validates a global link like an individual link before writing anything', async () => {
+      const invalidTargets = [
+        {
+          product: { ...target, status: ProductStatus.Inactive },
+          error: BadRequestError,
+        },
+        {
+          product: { ...target, categories: [ProductCategory.Ingredient] },
+          error: BadRequestError,
+        },
+        { product: { ...target, accompanimentPrice: undefined }, error: BadRequestError },
+        {
+          product: { ...target, establishmentId: 'another-establishment' },
+          error: NotFoundError,
+        },
+        {
+          product: { ...target, stockControl: ProductStockControl.ByBrand },
+          error: BadRequestError,
+        },
+      ]
+      scope.brandsRepository.findManyByProductId.mockResolvedValue([])
+
+      for (const { product, error } of invalidTargets) {
+        currentTarget = product
+        await expect(useCase.execute(globalRequest)).rejects.toBeInstanceOf(error)
+      }
+
+      expect(scope.globalAccompanimentsRepository.add).not.toHaveBeenCalled()
+      expect(scope.productAccompanimentsRepository.add).not.toHaveBeenCalled()
+      expect(scope.productAccompanimentsRepository.addMany).not.toHaveBeenCalled()
+      expect(scope.eventsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it('rejects a global link when this Portion already has the accompaniment', async () => {
+      scope.productAccompanimentsRepository.findByProductAndAccompaniment.mockResolvedValue(
+        link,
+      )
+
+      await expect(useCase.execute(globalRequest)).rejects.toThrow(
+        new ConflictError('O acompanhamento já está vinculado a esta porção.'),
+      )
+      expect(scope.globalAccompanimentsRepository.add).not.toHaveBeenCalled()
+      expect(scope.productAccompanimentsRepository.add).not.toHaveBeenCalled()
+      expect(scope.eventsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it('rejects an individual link for a global accompaniment and keeps the global untouched', async () => {
+      scope.globalAccompanimentsRepository.findByAccompanimentProductId.mockResolvedValue(
+        global,
+      )
+
+      for (const isGlobal of [undefined, false]) {
+        await expect(
+          useCase.execute({
+            ...globalRequest,
+            input: { ...globalInput, isGlobal },
+          }),
+        ).rejects.toThrow(
+          new ConflictError(
+            'Este acompanhamento é global. Ative “Disponível para todas as porções” para vinculá-lo a esta porção.',
+          ),
+        )
+      }
+
+      expect(
+        scope.globalAccompanimentsRepository.findByAccompanimentProductId,
+      ).toHaveBeenCalledWith(establishmentId, target.id)
+      expect(scope.productAccompanimentsRepository.add).not.toHaveBeenCalled()
+      expect(scope.globalAccompanimentsRepository.replace).not.toHaveBeenCalled()
+      expect(scope.eventsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it('links a removed global again with exactly one row and republishes only this Portion', async () => {
+      scope.globalAccompanimentsRepository.findByAccompanimentProductId.mockResolvedValue(
+        global,
+      )
+
+      const result = await useCase.execute(globalRequest)
+
+      expect(result).toMatchObject({
+        id: `row-${owner.id}`,
+        isGlobal: true,
+        hasOtherPortionLinks: false,
+      })
+      expect(scope.productAccompanimentsRepository.add).toHaveBeenCalledTimes(1)
+      expect(scope.productAccompanimentsRepository.add).toHaveBeenCalledWith({
+        establishmentId,
+        productId: owner.id,
+        accompanimentProductId: target.id,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 0.5,
+        globalAccompanimentId: global.id,
+      })
+      expect(scope.globalAccompanimentsRepository.add).not.toHaveBeenCalled()
+      expect(scope.globalAccompanimentsRepository.replace).not.toHaveBeenCalled()
+      expect(
+        scope.productAccompanimentsRepository.replaceManyByGlobalAccompanimentId,
+      ).not.toHaveBeenCalled()
+      expect(
+        scope.productAccompanimentsRepository.replaceManyByAccompanimentProductId,
+      ).not.toHaveBeenCalled()
+      expect(scope.productAccompanimentsRepository.addMany).not.toHaveBeenCalled()
+      expect(publishedProductIds()).toEqual([owner.id])
+    })
+
+    it('applies changed shared values to the global and every row when linking again', async () => {
+      const anotherType = AccompanimentTypeFaker.fake({
+        id: 'another-type',
+        establishmentId,
+      })
+      scope.accompanimentTypesRepository.findById.mockResolvedValue(anotherType)
+      scope.globalAccompanimentsRepository.findByAccompanimentProductId.mockResolvedValue(
+        global,
+      )
+      scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+        [globalRow(portionB.id)],
+      )
+
+      await useCase.execute({
+        ...globalRequest,
+        input: {
+          ...globalInput,
+          accompanimentTypeId: anotherType.id,
+          quantityPerPortion: 0.75,
+        },
+      })
+
+      const changes = { accompanimentTypeId: anotherType.id, quantityPerPortion: 0.75 }
+      expect(scope.globalAccompanimentsRepository.replace).toHaveBeenCalledWith(
+        establishmentId,
+        global.id,
+        changes,
+      )
+      expect(
+        scope.productAccompanimentsRepository.replaceManyByGlobalAccompanimentId,
+      ).toHaveBeenCalledWith(establishmentId, global.id, changes)
+      expect(scope.productAccompanimentsRepository.add).toHaveBeenCalledWith({
+        establishmentId,
+        productId: owner.id,
+        accompanimentProductId: target.id,
+        ...changes,
+        globalAccompanimentId: global.id,
+      })
+      expect(publishedProductIds()).toEqual([owner.id, portionB.id])
+    })
+
+    it.each([
+      ['quantity', { quantityPerPortion: 0.75 }],
+      ['type', { accompanimentTypeId: 'another-type' }],
+    ])('detects a changed shared %s when linking again', async (_, changed) => {
+      scope.accompanimentTypesRepository.findById.mockResolvedValue(
+        AccompanimentTypeFaker.fake({ id: 'another-type', establishmentId }),
+      )
+      scope.globalAccompanimentsRepository.findByAccompanimentProductId.mockResolvedValue(
+        global,
+      )
+
+      await useCase.execute({
+        ...globalRequest,
+        input: { ...globalInput, ...changed },
+      })
+
+      expect(scope.globalAccompanimentsRepository.replace).toHaveBeenCalledTimes(1)
+    })
+
+    it('stops without publishing when persisting the Portion rows fails', async () => {
+      scope.productAccompanimentsRepository.addMany.mockRejectedValue(new Error('failed'))
+
+      await expect(useCase.execute(globalRequest)).rejects.toThrow('failed')
+
+      expect(scope.eventsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it('reports whether the individual accompaniment is linked to other Portions', async () => {
+      const request = {
+        actor,
+        productId: owner.id,
+        input: {
+          accompanimentProductId: target.id,
+          accompanimentTypeId: type.id,
+          quantityPerPortion: 1.25,
+        },
+      }
+      scope.productAccompanimentsRepository.add.mockResolvedValue(link)
+
+      await expect(useCase.execute(request)).resolves.toMatchObject({
+        isGlobal: false,
+        hasOtherPortionLinks: false,
+      })
+
+      scope.productAccompanimentsRepository.countByAccompanimentProductId.mockResolvedValue(
+        2,
+      )
+      await expect(useCase.execute(request)).resolves.toMatchObject({
+        isGlobal: false,
+        hasOtherPortionLinks: true,
+      })
+      expect(
+        scope.productAccompanimentsRepository.countByAccompanimentProductId,
+      ).toHaveBeenCalledWith(establishmentId, target.id)
+    })
   })
 })

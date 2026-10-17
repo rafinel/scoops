@@ -107,6 +107,9 @@ describe('Get Product Accompaniments Use Case', () => {
         updatedAt: new Date(),
       },
     ])
+    scope.productAccompanimentsRepository.countByAccompanimentProductId.mockResolvedValue(
+      1,
+    )
     useCase = new GetProductAccompanimentsUseCase(database)
   })
 
@@ -162,5 +165,90 @@ describe('Get Product Accompaniments Use Case', () => {
         productId: 'foreign-owner',
       }),
     ).rejects.toBeInstanceOf(NotFoundError)
+  })
+
+  it('lists global rows first and then individual rows by name, flagging links on other Portions', async () => {
+    const globalZest = { ...unavailableLink, globalAccompanimentId: 'global-1' }
+    const globalBiscuit = { ...singleLink, globalAccompanimentId: 'global-2' }
+    scope.productAccompanimentsRepository.findManyByProductId.mockResolvedValue([
+      brandLink,
+      globalZest,
+      globalBiscuit,
+    ])
+    scope.productAccompanimentsRepository.countByAccompanimentProductId.mockImplementation(
+      async (_, accompanimentProductId) =>
+        accompanimentProductId === byBrand.id ? 3 : 1,
+    )
+
+    const result = await useCase.execute({
+      actor: { id: 'operator-1', establishmentId, profile: UserProfile.Operator },
+      productId: owner.id,
+    })
+
+    expect(
+      result.accompaniments.map(({ accompanimentProductName, isGlobal }) => [
+        accompanimentProductName,
+        isGlobal,
+      ]),
+    ).toEqual([
+      ['Biscuit', true],
+      ['Zest', true],
+      ['Apple Syrup', false],
+    ])
+    expect(result.accompaniments.map((item) => item.hasOtherPortionLinks)).toEqual([
+      false,
+      false,
+      true,
+    ])
+    expect(
+      scope.productAccompanimentsRepository.countByAccompanimentProductId,
+    ).toHaveBeenCalledTimes(1)
+    expect(
+      scope.productAccompanimentsRepository.countByAccompanimentProductId,
+    ).toHaveBeenCalledWith(establishmentId, byBrand.id)
+  })
+
+  it('does not flag an individual accompaniment linked only to this Portion', async () => {
+    const result = await useCase.execute({
+      actor: { id: 'manager-1', establishmentId, profile: UserProfile.Manager },
+      productId: owner.id,
+    })
+
+    expect(result.accompaniments.every((item) => !item.isGlobal)).toBe(true)
+    expect(result.accompaniments.every((item) => !item.hasOtherPortionLinks)).toBe(true)
+  })
+
+  it('orders accompaniments with the same name by product id', async () => {
+    const twin = ProductFaker.fake({
+      id: 'a-twin',
+      establishmentId,
+      name: 'Biscuit',
+      categories: [ProductCategory.Accompaniment],
+      accompanimentPrice: 1,
+    })
+    const twinLink = ProductAccompanimentFaker.fake({
+      id: 'link-twin',
+      establishmentId,
+      productId: owner.id,
+      accompanimentProductId: twin.id,
+      accompanimentTypeId: 'type-1',
+    })
+    scope.productsRepository.findById.mockImplementation(async (_, id) =>
+      id === twin.id ? twin : id === owner.id ? owner : single,
+    )
+    scope.productAccompanimentsRepository.findManyByProductId.mockResolvedValue([
+      singleLink,
+      twinLink,
+    ])
+
+    const result = await useCase.execute({
+      actor: { id: 'manager-1', establishmentId, profile: UserProfile.Manager },
+      productId: owner.id,
+    })
+
+    expect(result.accompaniments.map((item) => item.accompanimentProductId)).toEqual([
+      twin.id,
+      single.id,
+    ])
   })
 })
