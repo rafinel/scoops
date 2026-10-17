@@ -260,6 +260,131 @@ describe('Register Order Controller [POST /orders]', () => {
     expect(repriced.body.previewToken).toEqual(expect.any(String))
   })
 
+  it('registers a Portion with a global and an individual accompaniment using product prices and main-brand consumption', async () => {
+    const { product, size } = await addRegisterablePortion(
+      fixture,
+      'Global Registration Portion',
+    )
+    const createTarget = (
+      name: string,
+      stockControl: ProductStockControl,
+      accompanimentPrice: number,
+    ) =>
+      fixture.addProduct({
+        establishmentId: product.establishmentId,
+        name,
+        unit: ProductUnit.Unit,
+        categories: [ProductCategory.Accompaniment],
+        stockControl,
+        status: ProductStatus.Active,
+        allowNegativeStock: false,
+        idealStock: 0,
+        accompanimentPrice,
+      })
+    const individualTarget = await createTarget(
+      'Individual Registration Topping',
+      ProductStockControl.Single,
+      2,
+    )
+    const globalTarget = await createTarget(
+      'Global Registration Topping',
+      ProductStockControl.ByBrand,
+      3.5,
+    )
+    const mainBrand = await fixture.addBrand({
+      productId: globalTarget.id,
+      name: 'Main',
+      packageQuantity: 1,
+      packagePrice: 10,
+      isPrimary: true,
+    })
+    const secondaryBrand = await fixture.addBrand({
+      productId: globalTarget.id,
+      name: 'Secondary',
+      packageQuantity: 1,
+      packagePrice: 8,
+      isPrimary: false,
+    })
+    const type = await fixture.addAccompanimentType({
+      establishmentId: product.establishmentId,
+      name: 'Registration Toppings',
+    })
+    await fixture.stockBalances.initialize(individualTarget.id)
+    await fixture.stockBalances.add({ productId: individualTarget.id }, 20)
+    for (const [brand, quantity] of [
+      [mainBrand, 10],
+      [secondaryBrand, 5],
+    ] as const) {
+      await fixture.stockBalances.initialize(globalTarget.id, brand.id)
+      await fixture.stockBalances.add(
+        { productId: globalTarget.id, brandId: brand.id },
+        quantity,
+      )
+    }
+    const individual = await fixture.addProductAccompaniment({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      accompanimentProductId: individualTarget.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 2,
+    })
+    const global = await fixture.addGlobalAccompaniment({
+      establishmentId: product.establishmentId,
+      accompanimentProductId: globalTarget.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 1.5,
+    })
+    const globalRow = await fixture.addProductAccompaniment({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      accompanimentProductId: globalTarget.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 1.5,
+      globalAccompanimentId: global.id,
+    })
+    const lines = [
+      {
+        productId: product.id,
+        kind: 'portion' as const,
+        quantity: 2,
+        sizeId: size.id,
+        accompanimentIds: [individual.id, globalRow.id],
+      },
+    ]
+
+    const preview = await request(fixture.app.getHttpServer())
+      .post('/orders/preview')
+      .set('Cookie', managerRequestAuthorization())
+      .send({ lines })
+    const registered = await request(fixture.app.getHttpServer())
+      .post('/orders')
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        idempotencyKey: '55000000-0000-4000-8000-0000000000a1',
+        previewToken: preview.body.previewToken,
+        lines,
+      })
+
+    expect(preview.status).toBe(200)
+    expect(registered.status).toBe(201)
+    expect(registered.body).toMatchObject({ kind: 'registered', replayed: false })
+    expect(registered.body.order.lines[0].accompaniments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ accompanimentId: individual.id, basePrice: 2 }),
+        expect.objectContaining({ accompanimentId: globalRow.id, basePrice: 3.5 }),
+      ]),
+    )
+    await expect(
+      fixture.stockBalances.findByProductAndBrand(globalTarget.id, mainBrand.id),
+    ).resolves.toMatchObject({ quantity: 7 })
+    await expect(
+      fixture.stockBalances.findByProductAndBrand(globalTarget.id, secondaryBrand.id),
+    ).resolves.toMatchObject({ quantity: 5 })
+    await expect(
+      fixture.stockBalances.findByProductId(individualTarget.id),
+    ).resolves.toMatchObject({ quantity: 16 })
+  })
+
   it('rejects a conflicting idempotency key without creating another order', async () => {
     const { product, size } = await addRegisterablePortion(fixture, 'Idempotency Portion')
     const firstLines = [

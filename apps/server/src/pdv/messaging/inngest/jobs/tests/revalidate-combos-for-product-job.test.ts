@@ -127,6 +127,67 @@ describe('Revalidate Combos For Product Job', () => {
     expect(captureUnexpected).not.toHaveBeenCalled()
   })
 
+  it('keeps a Combo with a global accompaniment active and deactivates it when the global row disappears from the Portion', async () => {
+    const establishmentId = TEST_ESTABLISHMENT_ID
+    const { portion, size, row, combo } = await createPortionComboWithGlobal(
+      fixture,
+      establishmentId,
+    )
+    const configurationFor = (accompaniments: readonly (typeof row)[]) => ({
+      establishmentId,
+      productId: portion.id,
+      name: portion.name,
+      categories: ['portion' as const],
+      status: 'active' as const,
+      stockControl: 'single' as const,
+      sizes: [
+        {
+          sizeId: size.id,
+          name: size.name,
+          price: size.price,
+          isActive: true,
+          accompaniments: accompaniments.map((item) => ({
+            accompanimentId: item.id,
+            productId: item.accompanimentProductId,
+            name: 'Global topping',
+            type: 'Toppings',
+            basePrice: 3.5,
+            isActive: true,
+          })),
+        },
+      ],
+      resaleConfigurations: [],
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    })
+    const kept = new ProductSalesConfigurationChangedEvent({
+      establishmentId,
+      productId: portion.id,
+      state: 'available',
+      configuration: configurationFor([row]),
+    })
+    const removed = new ProductSalesConfigurationChangedEvent({
+      establishmentId,
+      productId: portion.id,
+      state: 'available',
+      configuration: configurationFor([]),
+    })
+
+    const keptRun = await fixture.runInngest({ name: kept.name, data: kept.payload })
+    const statusAfterKeep = await fixture.discounts.findById(establishmentId, combo.id)
+    const removedRun = await fixture.runInngest({
+      name: removed.name,
+      data: removed.payload,
+    })
+
+    expect(keptRun.status.toLowerCase()).toBe('completed')
+    expect(statusAfterKeep).toMatchObject({ status: 'active' })
+    expect(removedRun.status.toLowerCase()).toBe('completed')
+    await expect(
+      fixture.discounts.findById(establishmentId, combo.id),
+    ).resolves.toMatchObject({ status: 'inactive' })
+    expect(captureUnexpected).not.toHaveBeenCalled()
+  })
+
   it('leaves deleted references inactive across repeated event deliveries', async () => {
     const establishmentId = TEST_ESTABLISHMENT_ID
     const { product, combo } = await createCombo(fixture, establishmentId)
@@ -195,4 +256,78 @@ async function createCombo(fixture: PdvModuleFixture, establishmentId: string) {
   })
 
   return { combo, product }
+}
+
+async function createPortionComboWithGlobal(
+  fixture: PdvModuleFixture,
+  establishmentId: string,
+) {
+  await fixture.get(IdentitySeeder).run({
+    establishments: [EstablishmentFaker.fake({ id: establishmentId })],
+    users: [],
+    registrationAttempts: [],
+  })
+  const portion = await fixture.addProduct(
+    productCreate({
+      establishmentId,
+      name: 'Global Job Portion',
+      categories: ['portion'],
+      currentUnitCost: 2,
+    }),
+  )
+  const size = await fixture.addProductSize({
+    establishmentId,
+    productId: portion.id,
+    name: 'Regular',
+    quantity: 1,
+    price: 10,
+    isActive: true,
+  })
+  const target = await fixture.addProduct(
+    productCreate({
+      establishmentId,
+      name: 'Global Job Topping',
+      categories: ['accompaniment'],
+      accompanimentPrice: 3.5,
+    }),
+  )
+  const type = await fixture.addAccompanimentType({
+    establishmentId,
+    name: 'Toppings',
+  })
+  const global = await fixture.addGlobalAccompaniment({
+    establishmentId,
+    accompanimentProductId: target.id,
+    accompanimentTypeId: type.id,
+    quantityPerPortion: 0.5,
+  })
+  const row = await fixture.addProductAccompaniment({
+    establishmentId,
+    productId: portion.id,
+    accompanimentProductId: target.id,
+    accompanimentTypeId: type.id,
+    quantityPerPortion: 0.5,
+    globalAccompanimentId: global.id,
+  })
+  const resale = await fixture.addProduct(
+    productCreate({ establishmentId, name: 'Global Job Resale' }),
+  )
+  const combo = await fixture.addCombo({
+    establishmentId,
+    name: 'Global Job Combo',
+    status: 'active',
+    fixedPrice: 15,
+    components: [
+      {
+        kind: 'portion',
+        productId: portion.id,
+        quantity: 1,
+        sizeId: size.id,
+        accompanimentIds: [row.id],
+      },
+      { kind: 'resale', productId: resale.id, quantity: 1 },
+    ],
+  })
+
+  return { portion, size, row, combo }
 }
