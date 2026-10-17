@@ -182,6 +182,11 @@ GET {{baseUrl}}/products/{{productId}}/accompaniments
 Cookie: {{sessionCookie}}
 Accept: application/json
 
+### List product accompaniment candidates
+GET {{baseUrl}}/products/{{productId}}/accompaniments/candidates
+Cookie: {{sessionCookie}}
+Accept: application/json
+
 ### Link a product accompaniment
 POST {{baseUrl}}/products/{{productId}}/accompaniments
 Cookie: {{sessionCookie}}
@@ -192,6 +197,19 @@ Content-Type: application/json
   "accompanimentTypeId": "{{accompanimentTypeId}}",
   "quantityPerPortion": 1.25,
   "accompanimentPrice": 7.5
+}
+
+### Link a global product accompaniment
+POST {{baseUrl}}/products/{{productId}}/accompaniments
+Cookie: {{sessionCookie}}
+Content-Type: application/json
+
+{
+  "accompanimentProductId": "{{accompanimentProductId}}",
+  "accompanimentTypeId": "{{accompanimentTypeId}}",
+  "quantityPerPortion": 1.25,
+  "accompanimentPrice": 7.5,
+  "isGlobal": true
 }
 
 ### Update a product accompaniment
@@ -205,8 +223,23 @@ Content-Type: application/json
   "accompanimentPrice": 0
 }
 
-### Remove a product accompaniment
-DELETE {{baseUrl}}/products/{{productId}}/accompaniments/{{linkId}}
+### Convert a product accompaniment to global
+PATCH {{baseUrl}}/products/{{productId}}/accompaniments/{{linkId}}
+Cookie: {{sessionCookie}}
+Content-Type: application/json
+
+{
+  "accompanimentTypeId": "{{accompanimentTypeId}}",
+  "quantityPerPortion": 1.5,
+  "isGlobal": true
+}
+
+### Remove a product accompaniment from this Portion
+DELETE {{baseUrl}}/products/{{productId}}/accompaniments/{{linkId}}?scope=portion
+Cookie: {{sessionCookie}}
+
+### Remove a global product accompaniment from all Portions
+DELETE {{baseUrl}}/products/{{productId}}/accompaniments/{{linkId}}?scope=all
 Cookie: {{sessionCookie}}
 
 ### Get product pricing

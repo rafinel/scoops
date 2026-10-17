@@ -2,6 +2,7 @@ export const MRP_REPOSITORIES = {
   accompanimentTypes: Symbol('MRP_REPOSITORIES.accompanimentTypes'),
   brands: Symbol('MRP_REPOSITORIES.brands'),
   database: Symbol('MRP_REPOSITORIES.database'),
+  globalAccompaniments: Symbol('MRP_REPOSITORIES.globalAccompaniments'),
   productAccompaniments: Symbol('MRP_REPOSITORIES.productAccompaniments'),
   products: Symbol('MRP_REPOSITORIES.products'),
   productSizes: Symbol('MRP_REPOSITORIES.productSizes'),

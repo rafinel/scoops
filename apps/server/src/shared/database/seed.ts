@@ -168,12 +168,6 @@ const SEED_ACCOMPANIMENT_TYPES = [
 const SEED_PRODUCT_ACCOMPANIMENTS = [
   {
     productName: 'Açaí tradicional',
-    accompanimentProductName: 'Granola',
-    accompanimentTypeName: 'Granolas',
-    quantityPerPortion: 0.05,
-  },
-  {
-    productName: 'Açaí tradicional',
     accompanimentProductName: 'Banana fatiada',
     accompanimentTypeName: 'Frutas',
     quantityPerPortion: 0.08,
@@ -192,12 +186,6 @@ const SEED_PRODUCT_ACCOMPANIMENTS = [
   },
   {
     productName: 'Açaí tropical',
-    accompanimentProductName: 'Granola',
-    accompanimentTypeName: 'Granolas',
-    quantityPerPortion: 0.05,
-  },
-  {
-    productName: 'Açaí tropical',
     accompanimentProductName: 'Morango',
     accompanimentTypeName: 'Frutas',
     quantityPerPortion: 0.08,
@@ -213,6 +201,14 @@ const SEED_PRODUCT_ACCOMPANIMENTS = [
     accompanimentProductName: 'Calda de chocolate',
     accompanimentTypeName: 'Caldas',
     quantityPerPortion: 0.02,
+  },
+] as const
+
+const SEED_GLOBAL_ACCOMPANIMENTS = [
+  {
+    accompanimentProductName: 'Granola',
+    accompanimentTypeName: 'Granolas',
+    quantityPerPortion: 0.05,
   },
 ] as const
 
@@ -242,6 +238,7 @@ const SEED_PRODUCTS = [
     unit: ProductUnit.Kilogram,
     categories: [ProductCategory.Accompaniment],
     stockControl: ProductStockControl.ByBrand,
+    accompanimentPrice: 3,
     status: ProductStatus.Active,
     idealStock: 8,
   },
@@ -251,6 +248,7 @@ const SEED_PRODUCTS = [
     unit: ProductUnit.Kilogram,
     categories: [ProductCategory.Accompaniment],
     stockControl: ProductStockControl.ByBrand,
+    accompanimentPrice: 2,
     status: ProductStatus.Active,
     idealStock: 5,
   },
@@ -260,6 +258,7 @@ const SEED_PRODUCTS = [
     unit: ProductUnit.Kilogram,
     categories: [ProductCategory.Accompaniment, ProductCategory.Resale],
     stockControl: ProductStockControl.ByBrand,
+    accompanimentPrice: 4,
     status: ProductStatus.Active,
     idealStock: 6,
   },
@@ -368,6 +367,7 @@ const SEED_PRODUCTS = [
     unit: ProductUnit.Kilogram,
     categories: [ProductCategory.Ingredient, ProductCategory.Accompaniment],
     stockControl: ProductStockControl.Single,
+    accompanimentPrice: 2.5,
     status: ProductStatus.Active,
     idealStock: 10,
     initialStock: 40,
@@ -914,6 +914,7 @@ async function seedDatabase() {
         },
       ],
       productAccompaniments: [...SEED_PRODUCT_ACCOMPANIMENTS],
+      globalAccompaniments: [...SEED_GLOBAL_ACCOMPANIMENTS],
     })
     await pdvSeeder.run({
       salesChannels: [...SEED_SALES_CHANNELS],

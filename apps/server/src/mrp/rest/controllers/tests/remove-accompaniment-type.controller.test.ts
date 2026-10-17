@@ -6,6 +6,7 @@ import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
+  addGlobalAccompanimentWithRows,
   createProduct,
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
@@ -74,6 +75,67 @@ describe('Remove Accompaniment Type Controller [DELETE /accompaniment-types/:typ
     await expect(
       fixture.productAccompaniments.findById(owner.establishmentId, owner.id, link.id),
     ).resolves.toMatchObject({ accompanimentTypeId: type.id })
+  })
+
+  it('protects a type used only by a global without Portion rows', async () => {
+    const target = await fixture.addProduct(
+      createProduct({
+        name: 'Global Only Type Target',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 2,
+      }),
+    )
+    const type = await fixture.addAccompanimentType({
+      establishmentId: target.establishmentId,
+      name: 'Global Only',
+    })
+    const { global } = await addGlobalAccompanimentWithRows(fixture, {
+      target,
+      type,
+      portions: [],
+    })
+
+    const response = await request(fixture.app.getHttpServer())
+      .delete(`/accompaniment-types/${type.id}`)
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(response.status).toBe(409)
+    expect(response.body.message).toBe('O tipo de acompanhamento está em uso.')
+    await expect(
+      fixture.accompanimentTypes.findById(target.establishmentId, type.id),
+    ).resolves.toMatchObject({ id: type.id })
+    await expect(
+      fixture.globalAccompaniments.findById(global.establishmentId, global.id),
+    ).resolves.toMatchObject({ accompanimentTypeId: type.id })
+  })
+
+  it('removes the type once the global that used it is removed', async () => {
+    const target = await fixture.addProduct(
+      createProduct({
+        name: 'Released Type Target',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 2,
+      }),
+    )
+    const type = await fixture.addAccompanimentType({
+      establishmentId: target.establishmentId,
+      name: 'Released Global Type',
+    })
+    const { global } = await addGlobalAccompanimentWithRows(fixture, {
+      target,
+      type,
+      portions: [],
+    })
+    await fixture.globalAccompaniments.remove(global.establishmentId, global.id)
+
+    const response = await request(fixture.app.getHttpServer())
+      .delete(`/accompaniment-types/${type.id}`)
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(response.status).toBe(204)
+    await expect(
+      fixture.accompanimentTypes.findById(target.establishmentId, type.id),
+    ).resolves.toBeUndefined()
   })
 
   it('preserves integrity when a link races with type removal', async () => {

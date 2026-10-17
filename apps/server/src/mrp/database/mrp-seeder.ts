@@ -2,10 +2,11 @@ import type {
   AccompanimentTypeCreate,
   ProductCreate,
 } from '@scoops/core/mrp/domain/structures'
-import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
+import { ProductCategory, ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import type {
   AccompanimentTypesRepository,
   BrandsRepository,
+  GlobalAccompanimentsRepository,
   ProductAccompanimentsRepository,
   ProductSizesRepository,
   ProductionIngredientsRepository,
@@ -61,6 +62,12 @@ type MrpProductAccompanimentSeed = {
   quantityPerPortion: number
 }
 
+type MrpGlobalAccompanimentSeed = {
+  accompanimentProductName: string
+  accompanimentTypeName: string
+  quantityPerPortion: number
+}
+
 type MrpResaleConfigurationSeed = {
   productId?: string
   productName?: string
@@ -77,6 +84,7 @@ export type MrpSeed = {
   stockBalances: MrpStockBalanceSeed[]
   productSizes: MrpProductSizeSeed[]
   productAccompaniments: MrpProductAccompanimentSeed[]
+  globalAccompaniments: MrpGlobalAccompanimentSeed[]
   resaleConfigurations: MrpResaleConfigurationSeed[]
 }
 
@@ -85,6 +93,8 @@ export class MrpSeeder {
   constructor(
     @Inject(MRP_REPOSITORIES.productAccompaniments)
     private readonly productAccompanimentsRepository: ProductAccompanimentsRepository,
+    @Inject(MRP_REPOSITORIES.globalAccompaniments)
+    private readonly globalAccompanimentsRepository: GlobalAccompanimentsRepository,
     @Inject(MRP_REPOSITORIES.productionIngredients)
     private readonly productionIngredientsRepository: ProductionIngredientsRepository,
     @Inject(MRP_STOCK_TRANSACTIONS_REPOSITORY)
@@ -112,6 +122,7 @@ export class MrpSeeder {
   async clear(): Promise<void> {
     // Delete dependent rows first because some MRP foreign keys use RESTRICT.
     await this.productAccompanimentsRepository.removeAll()
+    await this.globalAccompanimentsRepository.removeAll()
     await this.productionIngredientsRepository.removeAll()
     await this.stockTransactionsRepository.removeAll()
     await this.productionsRepository.removeAll()
@@ -162,6 +173,12 @@ export class MrpSeeder {
       productIdsByName,
       accompanimentTypeIdsByName,
     )
+    await this.addGlobalAccompaniments(
+      normalizedSeed.globalAccompaniments,
+      createdProducts,
+      productIdsByName,
+      accompanimentTypeIdsByName,
+    )
   }
 
   private normalizeSeed(seed: MrpSeed | MrpProductSeed[]): MrpSeed {
@@ -174,6 +191,7 @@ export class MrpSeeder {
       stockBalances: [],
       productSizes: [],
       productAccompaniments: [],
+      globalAccompaniments: [],
       resaleConfigurations: [],
     }
   }
@@ -376,6 +394,79 @@ export class MrpSeeder {
     }
   }
 
+  private async addGlobalAccompaniments(
+    globalAccompaniments: MrpGlobalAccompanimentSeed[],
+    createdProducts: Awaited<ReturnType<ProductsRepository['addMany']>>,
+    productIdsByName: Map<string, string>,
+    accompanimentTypeIdsByName: Map<string, string>,
+  ): Promise<void> {
+    if (globalAccompaniments.length === 0) return
+
+    const portions = createdProducts.filter((product) =>
+      product.categories.includes(ProductCategory.Portion),
+    )
+    const individualLinks = await Promise.all(
+      portions.map((portion) =>
+        this.productAccompanimentsRepository.findManyByProductId(
+          portion.establishmentId,
+          portion.id,
+        ),
+      ),
+    )
+    const linkedPairs = new Set(
+      individualLinks
+        .flat()
+        .map((link) => this.getLinkKey(link.productId, link.accompanimentProductId)),
+    )
+
+    for (const globalSeed of globalAccompaniments) {
+      const accompanimentProductId = this.resolveNamedId(
+        productIdsByName,
+        globalSeed.accompanimentProductName,
+        `O acompanhamento global seed ${globalSeed.accompanimentProductName} não foi encontrado.`,
+      )
+      const accompanimentTypeId = this.resolveNamedId(
+        accompanimentTypeIdsByName,
+        globalSeed.accompanimentTypeName,
+        `O tipo de acompanhamento global seed ${globalSeed.accompanimentTypeName} não foi encontrado.`,
+      )
+      const accompanimentProduct = this.getCreatedProduct(
+        accompanimentProductId,
+        createdProducts,
+        `O acompanhamento global seed ${globalSeed.accompanimentProductName} não foi criado nesta seed.`,
+      )
+      const targetPortions = portions.filter(({ id }) => id !== accompanimentProductId)
+      const conflictingPortion = targetPortions.find((portion) =>
+        linkedPairs.has(this.getLinkKey(portion.id, accompanimentProductId)),
+      )
+      if (conflictingPortion) {
+        throw new AppError(
+          `O acompanhamento global seed ${globalSeed.accompanimentProductName} também está vinculado individualmente à porção ${conflictingPortion.name}.`,
+          'Seed MRP inválido',
+        )
+      }
+
+      const [globalAccompaniment] = await this.globalAccompanimentsRepository.addMany([
+        {
+          establishmentId: accompanimentProduct.establishmentId,
+          accompanimentProductId,
+          accompanimentTypeId,
+          quantityPerPortion: globalSeed.quantityPerPortion,
+        },
+      ])
+      await this.productAccompanimentsRepository.addMany(
+        targetPortions.map((portion) => ({
+          establishmentId: portion.establishmentId,
+          productId: portion.id,
+          accompanimentProductId,
+          accompanimentTypeId,
+          quantityPerPortion: globalSeed.quantityPerPortion,
+          globalAccompanimentId: globalAccompaniment.id,
+        })),
+      )
+    }
+  }
+
   private resolveProductId(
     productId: string | undefined,
     productName: string | undefined,
@@ -438,6 +529,10 @@ export class MrpSeeder {
         'Seed MRP inválido',
       )
     }
+  }
+
+  private getLinkKey(productId: string, accompanimentProductId: string): string {
+    return `${productId}:${accompanimentProductId}`
   }
 
   private getBrandKey(productId: string, brandName: string): string {

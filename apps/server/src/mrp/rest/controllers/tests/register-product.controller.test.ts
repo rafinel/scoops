@@ -1,3 +1,5 @@
+import { ProductCategory } from '@scoops/core/mrp/domain/structures'
+import type { GlobalAccompaniment } from '@scoops/core/mrp/domain/entities'
 import request from 'supertest'
 import { ProductStockAlertStateEnteredEvent } from '@scoops/core/mrp/domain/events'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
@@ -6,6 +8,8 @@ import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
+  addGlobalAccompanimentWithRows,
+  createProduct,
   foreignManagerRequestAuthorization,
   findEvents,
   managerRequestAuthorization,
@@ -289,5 +293,118 @@ describe('Register Product Controller [POST /products]', () => {
       establishmentId: MrpModuleFixture.accounts.foreignEstablishmentId,
     })
     expect(foreign.body.id).not.toBe(manager.body.id)
+  })
+  describe('global accompaniments', () => {
+    it('gives a newly registered Portion one row for every global, with shared values', async () => {
+      const type = await fixture.addAccompanimentType({
+        establishmentId: MrpModuleFixture.accounts.establishmentId,
+        name: 'Registration Type',
+      })
+      const existingPortion = await fixture.addProduct(
+        createProduct({
+          name: 'Existing Registration Portion',
+          categories: [ProductCategory.Portion],
+        }),
+      )
+      const targets = [
+        await fixture.addProduct(
+          createProduct({
+            name: 'Registration Granola',
+            categories: [ProductCategory.Accompaniment],
+            accompanimentPrice: 3,
+          }),
+        ),
+        await fixture.addProduct(
+          createProduct({
+            name: 'Registration Banana',
+            categories: [ProductCategory.Accompaniment],
+            accompanimentPrice: 2,
+          }),
+        ),
+      ]
+      const globals: GlobalAccompaniment[] = []
+      for (const [index, target] of targets.entries()) {
+        const { global } = await addGlobalAccompanimentWithRows(fixture, {
+          target,
+          type,
+          portions: [existingPortion],
+          quantityPerPortion: 0.05 * (index + 1),
+        })
+        globals.push(global)
+      }
+
+      const response = await request(fixture.app.getHttpServer())
+        .post('/products')
+        .set('Cookie', managerRequestAuthorization())
+        .send({
+          name: 'Registered Global Portion',
+          unit: 'kg',
+          categories: ['portion'],
+          stockControl: 'single',
+          allowNegativeStock: false,
+          idealStock: 0,
+        })
+
+      expect(response.status).toBe(201)
+      const rows = await fixture.productAccompaniments.findManyByProductId(
+        MrpModuleFixture.accounts.establishmentId,
+        response.body.id,
+      )
+      expect(rows).toHaveLength(2)
+      expect(rows).toEqual(
+        expect.arrayContaining(
+          globals.map((global) =>
+            expect.objectContaining({
+              productId: response.body.id,
+              accompanimentProductId: global.accompanimentProductId,
+              accompanimentTypeId: type.id,
+              quantityPerPortion: global.quantityPerPortion,
+              globalAccompanimentId: global.id,
+            }),
+          ),
+        ),
+      )
+      const table = await request(fixture.app.getHttpServer())
+        .get(`/products/${response.body.id}/accompaniments`)
+        .set('Cookie', managerRequestAuthorization())
+      expect(
+        table.body.accompaniments.map((item: { isGlobal: boolean }) => item.isGlobal),
+      ).toEqual([true, true])
+    })
+
+    it('does not add rows to products registered without the Portion category', async () => {
+      const type = await fixture.addAccompanimentType({
+        establishmentId: MrpModuleFixture.accounts.establishmentId,
+        name: 'Ignored Type',
+      })
+      const target = await fixture.addProduct(
+        createProduct({
+          name: 'Ignored Granola',
+          categories: [ProductCategory.Accompaniment],
+          accompanimentPrice: 3,
+        }),
+      )
+      await addGlobalAccompanimentWithRows(fixture, { target, type, portions: [] })
+
+      const response = await request(fixture.app.getHttpServer())
+        .post('/products')
+        .set('Cookie', managerRequestAuthorization())
+        .send({
+          name: 'Registered Ingredient',
+          unit: 'kg',
+          categories: ['ingredient'],
+          stockControl: 'single',
+          allowNegativeStock: false,
+          idealStock: 0,
+        })
+
+      expect(response.status).toBe(201)
+      await expect(
+        fixture.productAccompaniments.findManyByProductId(
+          MrpModuleFixture.accounts.establishmentId,
+          response.body.id,
+        ),
+      ).resolves.toEqual([])
+    })
   })
 })

@@ -6,6 +6,7 @@ import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
 import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
+  addGlobalAccompanimentWithRows,
   createProduct,
   managerRequestAuthorization,
   operatorRequestAuthorization,
@@ -90,6 +91,85 @@ describe('List Accompaniment Types Controller [GET /accompaniment-types]', () =>
       secondPage.body.items.map((item: { type: { name: string } }) => item.type.name),
     ).toEqual(['Type 11', 'Type 12'])
     expect(JSON.stringify(firstPage.body)).not.toContain(foreignType.id)
+  })
+
+  it('counts rows and global records referencing a type exactly once each', async () => {
+    const portions = [
+      await fixture.addProduct(
+        createProduct({ name: 'Usage Portion A', categories: [ProductCategory.Portion] }),
+      ),
+      await fixture.addProduct(
+        createProduct({ name: 'Usage Portion B', categories: [ProductCategory.Portion] }),
+      ),
+    ]
+    const globalTarget = await fixture.addProduct(
+      createProduct({
+        name: 'Usage Global Target',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 2,
+      }),
+    )
+    const individualTarget = await fixture.addProduct(
+      createProduct({
+        name: 'Usage Individual Target',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 2,
+      }),
+    )
+    const globalOnlyTarget = await fixture.addProduct(
+      createProduct({
+        name: 'Usage Global Only Target',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 2,
+      }),
+    )
+    const establishmentId = portions[0].establishmentId
+    const mixedType = await fixture.addAccompanimentType({
+      establishmentId,
+      name: 'A Mixed',
+    })
+    const globalOnlyType = await fixture.addAccompanimentType({
+      establishmentId,
+      name: 'B Global Only',
+    })
+    const unusedType = await fixture.addAccompanimentType({
+      establishmentId,
+      name: 'C Unused',
+    })
+    await addGlobalAccompanimentWithRows(fixture, {
+      target: globalTarget,
+      type: mixedType,
+      portions,
+    })
+    await fixture.addProductAccompaniment({
+      establishmentId,
+      productId: portions[0].id,
+      accompanimentProductId: individualTarget.id,
+      accompanimentTypeId: mixedType.id,
+      quantityPerPortion: 1,
+    })
+    await addGlobalAccompanimentWithRows(fixture, {
+      target: globalOnlyTarget,
+      type: globalOnlyType,
+      portions: [],
+    })
+
+    const response = await request(fixture.app.getHttpServer())
+      .get('/accompaniment-types?page=1&pageSize=10')
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(response.status).toBe(200)
+    expect(response.body.total).toBe(3)
+    expect(
+      response.body.items.map((item: { type: { id: string }; usageCount: number }) => [
+        item.type.id,
+        item.usageCount,
+      ]),
+    ).toEqual([
+      [mixedType.id, 4],
+      [globalOnlyType.id, 1],
+      [unusedType.id, 0],
+    ])
   })
 
   it('normalizes search and clamps a page beyond the last page', async () => {
