@@ -7,6 +7,7 @@ import { DatabaseTransactionContext } from '@/shared/database/drizzle/database-t
 import type { DrizzleExecutor } from '@/shared/database/drizzle/drizzle-repository'
 
 import { DrizzleAccompanimentTypesRepository } from './drizzle-accompaniment-types-repository'
+import { DrizzleGlobalAccompanimentsRepository } from './drizzle-global-accompaniments-repository'
 import { DrizzleProductsRepository } from './drizzle-products-repository'
 import { DrizzleProductAccompanimentsRepository } from './drizzle-product-accompaniments-repository'
 import { DrizzleProductSizesRepository } from './drizzle-product-sizes-repository'
@@ -109,6 +110,10 @@ export class DrizzleMrpDatabase implements MrpDatabase {
         executor,
       ),
       productAccompanimentsRepository: new DrizzleProductAccompanimentsRepository(
+        this.drizzleClient,
+        executor,
+      ),
+      globalAccompanimentsRepository: new DrizzleGlobalAccompanimentsRepository(
         this.drizzleClient,
         executor,
       ),

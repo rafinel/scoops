@@ -1,6 +1,7 @@
 export * from './drizzle-accompaniment-types-repository'
 export * from './drizzle-product-accompaniments-repository'
 export * from './drizzle-brands-repository'
+export * from './drizzle-global-accompaniments-repository'
 export * from './drizzle-mrp-database'
 export * from './drizzle-products-repository'
 export * from './drizzle-product-sizes-repository'

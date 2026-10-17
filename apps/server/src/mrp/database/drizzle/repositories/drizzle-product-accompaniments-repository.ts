@@ -5,7 +5,7 @@ import type {
 } from '@scoops/core/mrp/domain/structures'
 import { ConflictError } from '@scoops/core/shared/domain/errors'
 import type { ProductAccompanimentsRepository } from '@scoops/core/mrp/interfaces'
-import { and, asc, count, eq } from 'drizzle-orm'
+import { and, asc, count, eq, isNull } from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
@@ -30,11 +30,40 @@ export class DrizzleProductAccompanimentsRepository
           accompanimentProductId: input.accompanimentProductId,
           accompanimentTypeId: input.accompanimentTypeId,
           quantityPerPortion: String(input.quantityPerPortion),
+          globalAccompanimentId: input.globalAccompanimentId ?? null,
           createdAt: now,
           updatedAt: now,
         })
         .returning()
       return DrizzleProductAccompanimentMapper.toDomain(record)
+    } catch (error) {
+      throw this.toConflictError(error)
+    }
+  }
+
+  async addMany(
+    inputs: readonly ProductAccompanimentCreate[],
+  ): Promise<ProductAccompaniment[]> {
+    if (inputs.length === 0) return []
+    try {
+      const now = new Date()
+      const records = await this.database
+        .insert(productAccompanimentModel)
+        .values(
+          inputs.map((input) => ({
+            id: crypto.randomUUID(),
+            establishmentId: input.establishmentId,
+            productId: input.productId,
+            accompanimentProductId: input.accompanimentProductId,
+            accompanimentTypeId: input.accompanimentTypeId,
+            quantityPerPortion: String(input.quantityPerPortion),
+            globalAccompanimentId: input.globalAccompanimentId ?? null,
+            createdAt: now,
+            updatedAt: now,
+          })),
+        )
+        .returning()
+      return records.map(DrizzleProductAccompanimentMapper.toDomain)
     } catch (error) {
       throw this.toConflictError(error)
     }
@@ -154,6 +183,74 @@ export class DrizzleProductAccompanimentsRepository
         .returning({ id: productAccompanimentModel.id })
       if (records.length !== 1)
         throw new ConflictError('A operação no banco de dados entrou em conflito.')
+    }
+  }
+
+  async replaceManyByGlobalAccompanimentId(
+    establishmentId: string,
+    globalAccompanimentId: string,
+    changes: ProductAccompanimentUpdate,
+  ): Promise<void> {
+    try {
+      await this.database
+        .update(productAccompanimentModel)
+        .set({
+          accompanimentTypeId: changes.accompanimentTypeId,
+          quantityPerPortion: String(changes.quantityPerPortion),
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(productAccompanimentModel.establishmentId, establishmentId),
+            eq(productAccompanimentModel.globalAccompanimentId, globalAccompanimentId),
+          ),
+        )
+    } catch (error) {
+      throw this.toConflictError(error)
+    }
+  }
+
+  async replaceManyByAccompanimentProductId(
+    establishmentId: string,
+    accompanimentProductId: string,
+    changes: ProductAccompanimentUpdate & { globalAccompanimentId: string },
+  ): Promise<void> {
+    try {
+      await this.database
+        .update(productAccompanimentModel)
+        .set({
+          accompanimentTypeId: changes.accompanimentTypeId,
+          quantityPerPortion: String(changes.quantityPerPortion),
+          globalAccompanimentId: changes.globalAccompanimentId,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(productAccompanimentModel.establishmentId, establishmentId),
+            eq(productAccompanimentModel.accompanimentProductId, accompanimentProductId),
+            isNull(productAccompanimentModel.globalAccompanimentId),
+          ),
+        )
+    } catch (error) {
+      throw this.toConflictError(error)
+    }
+  }
+
+  async removeByGlobalAccompanimentId(
+    establishmentId: string,
+    globalAccompanimentId: string,
+  ): Promise<void> {
+    try {
+      await this.database
+        .delete(productAccompanimentModel)
+        .where(
+          and(
+            eq(productAccompanimentModel.establishmentId, establishmentId),
+            eq(productAccompanimentModel.globalAccompanimentId, globalAccompanimentId),
+          ),
+        )
+    } catch (error) {
+      throw this.toConflictError(error)
     }
   }
 

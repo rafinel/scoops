@@ -6,12 +6,14 @@ import {
   type ProductCatalogPage,
 } from '@scoops/core/mrp/domain/structures'
 import type { Product } from '@scoops/core/mrp/domain/entities'
+import type { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import type { ProductListParams } from '@scoops/core/mrp/domain/structures'
 import type { ProductCreate, ProductUpdate } from '@scoops/core/mrp/domain/structures'
 import type { ProductsRepository } from '@scoops/core/mrp/interfaces'
 import { ConflictError } from '@scoops/core/shared/domain/errors'
 import {
   and,
+  arrayContains,
   arrayOverlaps,
   asc,
   count,
@@ -116,6 +118,23 @@ export class DrizzleProductsRepository
           inArray(productModel.id, [...new Set(productIds)].slice(0, 500)),
         ),
       )
+    return records.map(DrizzleProductMapper.toDomain)
+  }
+
+  async findManyByCategory(
+    establishmentId: string,
+    category: ProductCategory,
+  ): Promise<readonly Product[]> {
+    const records = await this.database
+      .select()
+      .from(productModel)
+      .where(
+        and(
+          eq(productModel.establishmentId, establishmentId),
+          arrayContains(productModel.categories, [category]),
+        ),
+      )
+      .orderBy(asc(productModel.id))
     return records.map(DrizzleProductMapper.toDomain)
   }
 
