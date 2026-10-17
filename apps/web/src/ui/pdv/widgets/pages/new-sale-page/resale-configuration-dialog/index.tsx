@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/ui/shadcn/dialog'
+import { CATEGORY_SOFT_CLASSES } from '@/constants/product-category-colors'
 import { CATEGORY_ICONS } from '@/constants/product-category-icons'
 import { Button } from '@/ui/shadcn/button'
 import { Input } from '@/ui/shadcn/input'
@@ -40,7 +41,9 @@ export const ResaleConfigurationDialog = (props: ResaleConfigurationDialogProps)
       {product ? (
         <DialogContent className='max-h-[min(92vh,966px)] sm:!max-w-2xl'>
           <DialogHeader className='border-b border-border-soft p-6 pr-16'>
-            <span className='row-span-2 grid size-11 place-items-center rounded-xl bg-info-soft text-info'>
+            <span
+              className={`row-span-2 grid size-11 place-items-center rounded-xl ${CATEGORY_SOFT_CLASSES.resale}`}
+            >
               <Icon name={CATEGORY_ICONS.resale} className='size-6' />
             </span>
             <DialogTitle>{product.name}</DialogTitle>

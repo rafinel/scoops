@@ -4,7 +4,7 @@ import type {
 } from '@scoops/core/mrp/domain/structures'
 import { ProductSortDirection } from '@scoops/core/mrp/domain/structures'
 
-import { CATEGORY_ICONS } from '@/constants'
+import { CATEGORY_ICONS, CATEGORY_OUTLINE_CLASSES } from '@/constants'
 import { Badge } from '@/ui/shadcn/badge'
 import { Button } from '@/ui/shadcn/button'
 import {
@@ -36,14 +36,6 @@ const CATEGORY_LABELS: Record<ProductCategory, string> = {
   portion: 'Porção',
   accompaniment: 'Acompanhamento',
   resale: 'Revenda',
-}
-
-const CATEGORY_BADGE_CLASSES: Record<ProductCategory, string> = {
-  ingredient: 'border-blue-300 bg-blue-50 text-blue-700',
-  manufacturable: 'border-violet-300 bg-violet-50 text-violet-700',
-  portion: 'border-green-300 bg-green-50 text-green-700',
-  accompaniment: 'border-amber-300 bg-amber-50 text-amber-700',
-  resale: 'border-red-300 bg-red-50 text-red-700',
 }
 
 export type ProductTableProps = {
@@ -144,7 +136,7 @@ export const ProductTable = ({
                         className='rounded-full border-0 bg-transparent p-0 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
                       >
                         <Badge
-                          className={`size-8 p-0 ${CATEGORY_BADGE_CLASSES[category]}`}
+                          className={`size-8 p-0 ${CATEGORY_OUTLINE_CLASSES[category]}`}
                           variant='outline'
                         >
                           <Icon name={CATEGORY_ICONS[category]} className='size-4' />

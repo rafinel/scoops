@@ -4,6 +4,7 @@ import type {
 } from '@scoops/core/pdv/domain/structures'
 
 import { CATEGORY_ICONS } from '@/constants/product-category-icons'
+import { CATEGORY_SOFT_CLASSES } from '@/constants/product-category-colors'
 import { Badge } from '@/ui/shadcn/badge'
 import { Button } from '@/ui/shadcn/button'
 import { Card, CardContent } from '@/ui/shadcn/card'
@@ -178,20 +179,12 @@ export const NewSaleCatalog = (props: NewSaleCatalogProps) => {
                       <span
                         className={cn(
                           'grid size-10 place-items-center rounded-xl',
-                          product.kind === 'portion'
-                            ? 'bg-accent text-primary'
-                            : 'bg-info-soft text-info',
+                          CATEGORY_SOFT_CLASSES[product.kind],
                         )}
                       >
                         <Icon className='size-5' name={CATEGORY_ICONS[product.kind]} />
                       </span>
-                      <Badge
-                        className={cn(
-                          product.kind === 'portion'
-                            ? 'bg-accent text-primary'
-                            : 'bg-info-soft text-info',
-                        )}
-                      >
+                      <Badge className={CATEGORY_SOFT_CLASSES[product.kind]}>
                         {product.kind === 'portion' ? 'Porção' : 'Revenda'}
                       </Badge>
                     </div>

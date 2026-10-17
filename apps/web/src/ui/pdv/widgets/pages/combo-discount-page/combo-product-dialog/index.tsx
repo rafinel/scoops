@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/ui/shadcn/dialog'
+import { CATEGORY_COLORS } from '@/constants/product-category-colors'
 import { CATEGORY_ICONS } from '@/constants/product-category-icons'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
@@ -98,8 +99,11 @@ export const ComboProductDialog = (props: ComboProductDialogProps) => {
                   onClick={() => handleSelectProduct(product)}
                   type='button'
                 >
-                  <span className='grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-primary'>
-                    <Icon name={CATEGORY_ICONS[product.kind]} className='size-4' />
+                  <span className='grid size-9 shrink-0 place-items-center rounded-lg bg-muted'>
+                    <Icon
+                      name={CATEGORY_ICONS[product.kind]}
+                      className={`size-4 ${CATEGORY_COLORS[product.kind]}`}
+                    />
                   </span>
                   <span className='min-w-0 flex-1'>
                     <span className='block truncate text-sm font-extrabold'>

@@ -41,6 +41,21 @@
   --color-danger-bg: var(--danger-bg);
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
+  --color-category-ingredient: var(--category-ingredient);
+  --color-category-ingredient-bg: var(--category-ingredient-bg);
+  --color-category-ingredient-border: var(--category-ingredient-border);
+  --color-category-manufacturable: var(--category-manufacturable);
+  --color-category-manufacturable-bg: var(--category-manufacturable-bg);
+  --color-category-manufacturable-border: var(--category-manufacturable-border);
+  --color-category-portion: var(--category-portion);
+  --color-category-portion-bg: var(--category-portion-bg);
+  --color-category-portion-border: var(--category-portion-border);
+  --color-category-accompaniment: var(--category-accompaniment);
+  --color-category-accompaniment-bg: var(--category-accompaniment-bg);
+  --color-category-accompaniment-border: var(--category-accompaniment-border);
+  --color-category-resale: var(--category-resale);
+  --color-category-resale-bg: var(--category-resale-bg);
+  --color-category-resale-border: var(--category-resale-border);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
@@ -111,6 +126,23 @@
   --danger-bg: #fef2f2;
   --info: #1e40af;
   --info-soft: #dbeafe;
+
+  /* Product categories */
+  --category-ingredient: #1e40af;
+  --category-ingredient-bg: #dbeafe;
+  --category-ingredient-border: #93c5fd;
+  --category-manufacturable: #c2410c;
+  --category-manufacturable-bg: #ffedd5;
+  --category-manufacturable-border: #fdba74;
+  --category-portion: #5b21b6;
+  --category-portion-bg: #ede9fe;
+  --category-portion-border: #c4b5fd;
+  --category-accompaniment: #be185d;
+  --category-accompaniment-bg: #fce7f3;
+  --category-accompaniment-border: #f9a8d4;
+  --category-resale: #0f766e;
+  --category-resale-bg: #ccfbf1;
+  --category-resale-border: #5eead4;
 
   /* shadcn semantic aliases */
   --background: var(--bg-page);

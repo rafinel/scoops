@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 
 import type { ProductCategory } from '@scoops/core/mrp/domain/structures'
-import { ProductCategory as ProductCategories } from '@scoops/core/mrp/domain/structures'
 
+import { CATEGORY_OUTLINE_CLASSES } from '@/constants'
 import { Button } from '@/ui/shadcn/button'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import type { IconName } from '@/ui/shared/widgets/components/icon/types'
@@ -23,21 +23,13 @@ export const FilterPill = ({
   tone,
 }: FilterPillProps) => {
   const activeTone =
-    tone === ProductCategories.Ingredient
-      ? 'border-blue-600 bg-blue-50 text-blue-800'
-      : tone === ProductCategories.Manufacturable
-        ? 'border-primary bg-accent text-primary'
-        : tone === ProductCategories.Accompaniment
-          ? 'border-amber-400 bg-amber-50 text-amber-800'
-          : tone === ProductCategories.Resale
-            ? 'border-red-300 bg-red-50 text-red-700'
-            : tone === ProductCategories.Portion
-              ? 'border-green-400 bg-green-50 text-green-800'
-              : tone === 'stock-low'
-                ? 'border-red-800 !bg-red-50 !text-red-800'
-                : tone === 'status-active'
-                  ? 'border-green-800 !bg-green-50 !text-green-800'
-                  : 'border-primary bg-accent text-primary'
+    tone === 'stock-low'
+      ? 'border-red-800 !bg-red-50 !text-red-800'
+      : tone === 'status-active'
+        ? 'border-green-800 !bg-green-50 !text-green-800'
+        : tone
+          ? CATEGORY_OUTLINE_CLASSES[tone]
+          : 'border-primary bg-accent text-primary'
 
   return (
     <Button

@@ -1,7 +1,7 @@
 import type { Product } from '@scoops/core/mrp/domain/entities'
 import type { ProductCategory } from '@scoops/core/mrp/domain/structures'
 
-import { CATEGORY_ICONS } from '@/constants'
+import { CATEGORY_ICONS, CATEGORY_OUTLINE_CLASSES } from '@/constants'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import { CategoryDependencyDialog } from '../category-dependency-dialog'
@@ -14,14 +14,6 @@ const CATEGORY_LABELS: Record<ProductCategory, string> = {
   portion: 'Porção',
   accompaniment: 'Acompanhamento',
   resale: 'Revenda',
-}
-
-const CATEGORY_STYLES: Record<ProductCategory, string> = {
-  ingredient: 'border-blue-300 bg-blue-50 text-blue-700',
-  manufacturable: 'border-violet-300 bg-violet-50 text-violet-700',
-  portion: 'border-green-300 bg-green-50 text-green-700',
-  accompaniment: 'border-amber-300 bg-amber-50 text-amber-700',
-  resale: 'border-red-300 bg-red-50 text-red-700',
 }
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as ProductCategory[]
@@ -83,7 +75,7 @@ export const ProductCategoriesCard = ({
           return (
             <button
               aria-pressed={active}
-              className={`flex min-h-12 items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none ${active ? CATEGORY_STYLES[category] : 'border-border bg-background hover:bg-muted'} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+              className={`flex min-h-12 items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none ${active ? CATEGORY_OUTLINE_CLASSES[category] : 'border-border bg-background hover:bg-muted'} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
               disabled={disabled}
               key={category}
               onClick={() => handleCategoryClick(category)}

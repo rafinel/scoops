@@ -95,16 +95,22 @@ describe('ProductRegistrationForm', () => {
 
     const ingredientCheckbox = screen.getByRole('checkbox', { name: 'Ingrediente' })
     expect(ingredientCheckbox.getAttribute('aria-checked')).toBe('true')
-    expect(ingredientCheckbox.classList.contains('data-checked:bg-blue-700')).toBe(true)
     expect(
-      ingredientCheckbox.closest('label')?.classList.contains('border-blue-300'),
+      ingredientCheckbox.classList.contains('data-checked:bg-category-ingredient'),
     ).toBe(true)
-    expect(ingredientCheckbox.closest('label')?.classList.contains('bg-blue-50')).toBe(
-      true,
-    )
-    expect(ingredientCheckbox.closest('label')?.classList.contains('text-blue-700')).toBe(
-      true,
-    )
+    expect(
+      ingredientCheckbox
+        .closest('label')
+        ?.classList.contains('border-category-ingredient-border'),
+    ).toBe(true)
+    expect(
+      ingredientCheckbox
+        .closest('label')
+        ?.classList.contains('bg-category-ingredient-bg'),
+    ).toBe(true)
+    expect(
+      ingredientCheckbox.closest('label')?.classList.contains('text-category-ingredient'),
+    ).toBe(true)
 
     const portionCheckbox = screen.getByRole('checkbox', { name: 'Porção' })
     expect(portionCheckbox.getAttribute('aria-checked')).toBe('true')
@@ -156,17 +162,25 @@ describe('ProductRegistrationForm', () => {
       name: 'Fabricável',
     })
     expect(manufacturableCheckbox.getAttribute('aria-checked')).toBe('true')
-    expect(manufacturableCheckbox.classList.contains('data-checked:bg-violet-700')).toBe(
-      true,
-    )
     expect(
-      manufacturableCheckbox.closest('label')?.classList.contains('border-violet-300'),
+      manufacturableCheckbox.classList.contains(
+        'data-checked:bg-category-manufacturable',
+      ),
     ).toBe(true)
     expect(
-      manufacturableCheckbox.closest('label')?.classList.contains('bg-violet-50'),
+      manufacturableCheckbox
+        .closest('label')
+        ?.classList.contains('border-category-manufacturable-border'),
     ).toBe(true)
     expect(
-      manufacturableCheckbox.closest('label')?.classList.contains('text-violet-700'),
+      manufacturableCheckbox
+        .closest('label')
+        ?.classList.contains('bg-category-manufacturable-bg'),
+    ).toBe(true)
+    expect(
+      manufacturableCheckbox
+        .closest('label')
+        ?.classList.contains('text-category-manufacturable'),
     ).toBe(true)
   })
 })

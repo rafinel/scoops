@@ -1,7 +1,7 @@
 import { AccompanimentSummary } from '@/ui/pdv/widgets/components/accompaniment-summary'
 import type { OrderDetails } from '@scoops/core/pdv/domain/structures'
 
-import { CATEGORY_ICONS } from '@/constants'
+import { CATEGORY_ICONS, CATEGORY_SOFT_CLASSES } from '@/constants'
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { cn } from '@/ui/shared/lib/utils'
 import { Icon } from '@/ui/shared/widgets/components/icon'
@@ -49,9 +49,7 @@ export const OrderItems = ({ order }: OrderItemsProps) => {
                 <span
                   className={cn(
                     'grid size-10 shrink-0 place-items-center rounded-xl',
-                    line.product.kind === 'portion'
-                      ? 'bg-accent text-primary'
-                      : 'bg-info-soft text-info',
+                    CATEGORY_SOFT_CLASSES[line.product.kind],
                   )}
                 >
                   <Icon className='size-5' name={CATEGORY_ICONS[line.product.kind]} />

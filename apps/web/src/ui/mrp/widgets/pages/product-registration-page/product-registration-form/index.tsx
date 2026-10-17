@@ -38,24 +38,31 @@ const CATEGORY_VALUES: ProductCategory[] = [
 ]
 const CATEGORY_STYLES: Record<ProductCategory, { checkbox: string; selected: string }> = {
   ingredient: {
-    checkbox: 'data-checked:border-blue-700 data-checked:bg-blue-700',
-    selected: 'border-blue-300 bg-blue-50 text-blue-700',
+    checkbox:
+      'data-checked:border-category-ingredient data-checked:bg-category-ingredient',
+    selected:
+      'border-category-ingredient-border bg-category-ingredient-bg text-category-ingredient',
   },
   manufacturable: {
-    checkbox: 'data-checked:border-violet-700 data-checked:bg-violet-700',
-    selected: 'border-violet-300 bg-violet-50 text-violet-700',
+    checkbox:
+      'data-checked:border-category-manufacturable data-checked:bg-category-manufacturable',
+    selected:
+      'border-category-manufacturable-border bg-category-manufacturable-bg text-category-manufacturable',
   },
   portion: {
-    checkbox: 'data-checked:border-green-700 data-checked:bg-green-700',
-    selected: 'border-green-300 bg-green-50 text-green-700',
+    checkbox: 'data-checked:border-category-portion data-checked:bg-category-portion',
+    selected:
+      'border-category-portion-border bg-category-portion-bg text-category-portion',
   },
   accompaniment: {
-    checkbox: 'data-checked:border-amber-700 data-checked:bg-amber-700',
-    selected: 'border-amber-300 bg-amber-50 text-amber-700',
+    checkbox:
+      'data-checked:border-category-accompaniment data-checked:bg-category-accompaniment',
+    selected:
+      'border-category-accompaniment-border bg-category-accompaniment-bg text-category-accompaniment',
   },
   resale: {
-    checkbox: 'data-checked:border-red-700 data-checked:bg-red-700',
-    selected: 'border-red-300 bg-red-50 text-red-700',
+    checkbox: 'data-checked:border-category-resale data-checked:bg-category-resale',
+    selected: 'border-category-resale-border bg-category-resale-bg text-category-resale',
   },
 }
 const UNIT_OPTIONS: Array<{ value: ProductUnit; label: string }> = [
