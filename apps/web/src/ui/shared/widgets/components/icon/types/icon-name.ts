@@ -17,6 +17,7 @@ export type IconName =
   | 'door-open'
   | 'ellipsis'
   | 'filter'
+  | 'globe'
   | 'eye'
   | 'eye-off'
   | 'ice-cream-bowl'
