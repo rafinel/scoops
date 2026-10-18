@@ -1,6 +1,6 @@
 ---
 title: Global accompaniments
-status: open
+status: in_progress
 revision: 1
 source:
   type: issue
