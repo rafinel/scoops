@@ -384,5 +384,46 @@ describe('Change Product Categories Controller [PATCH /products/:productId/categ
         fixture.products.findById(target.establishmentId, target.id),
       ).resolves.toMatchObject({ categories: [ProductCategory.Ingredient] })
     })
+
+    it('changes a product with a global without rows from Accompaniment to Portion in one update', async () => {
+      const { target, type, global } = await setUpGlobal(0)
+      const other = await fixture.addProduct(
+        createProduct({
+          name: 'Category Other Global Target',
+          categories: [ProductCategory.Accompaniment],
+          accompanimentPrice: 2,
+        }),
+      )
+      const otherGlobal = await fixture.addGlobalAccompaniment({
+        establishmentId: other.establishmentId,
+        accompanimentProductId: other.id,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 2,
+      })
+      const current = await fixture.products.findById(target.establishmentId, target.id)
+      if (!current) throw new Error('The target must exist.')
+
+      const response = await request(fixture.app.getHttpServer())
+        .patch(`/products/${target.id}/categories`)
+        .set('Cookie', managerRequestAuthorization())
+        .send({
+          categories: [ProductCategory.Portion],
+          expectedUpdatedAt: expectedUpdatedAt(current),
+        })
+
+      expect(response.status).toBe(200)
+      await expect(
+        fixture.globalAccompaniments.findById(global.establishmentId, global.id),
+      ).resolves.toBeUndefined()
+      const rows = await fixture.productAccompaniments.findManyByProductId(
+        target.establishmentId,
+        target.id,
+      )
+      expect(rows).toHaveLength(1)
+      expect(rows[0]).toMatchObject({
+        accompanimentProductId: other.id,
+        globalAccompanimentId: otherGlobal.id,
+      })
+    })
   })
 })
