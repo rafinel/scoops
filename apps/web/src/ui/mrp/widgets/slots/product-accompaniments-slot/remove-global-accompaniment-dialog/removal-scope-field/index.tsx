@@ -18,7 +18,7 @@ export const RemovalScopeField = ({
   <Label
     className={cn(
       'items-start gap-3 rounded-[10px] border bg-card px-3.5 py-3 leading-normal',
-      removeAll ? 'border-danger' : 'border-border',
+      removeAll ? 'border-danger!' : 'border-border',
     )}
   >
     <Switch

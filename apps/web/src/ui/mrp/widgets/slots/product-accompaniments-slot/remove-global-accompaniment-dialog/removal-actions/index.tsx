@@ -25,7 +25,7 @@ export const RemovalActions = ({
       className={cn(
         removeAll
           ? 'bg-danger text-destructive-foreground hover:bg-danger/90'
-          : 'border-danger text-danger hover:bg-danger-bg hover:text-danger',
+          : 'border-danger! text-danger hover:bg-danger-bg hover:text-danger',
       )}
       disabled={isPending}
       onClick={(event) => {
