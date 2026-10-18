@@ -195,9 +195,9 @@ PRQ-05, PRQ-06, PRQ-07, PRQ-09 and PRQ-10.
 
 ### PRQ-02 — New Sale Product Catalog
 
-**Outcome:** The Operator can find only active products with valid commercial configuration on
-the `New Sale` screen while still seeing unavailable stock states and the product's sale
-category.
+**Outcome:** The Operator can find active, sellable products on the `New Sale` screen and, by
+searching by name, also find unavailable products identified with their reason and the product's
+sale category.
 
 **Actors:** Operator, Manager
 
@@ -209,24 +209,29 @@ PRQ-05.
 
 #### Capabilities
 
-- **Eligibility:** the `New Sale` screen must only display active products
-with valid commercial configuration, differentiating availability and category
-of sale.
+- **Eligibility:** by default, the `New Sale` screen displays only active products with valid
+  commercial configuration and available stock, differentiating category of sale.
 
 - **Data source:** products, sizes, brands, accompaniments, base prices and
   consumed quantities are configured in the MRP module.
 - **Without commercial editing:** the `New Sale` screen does not allow changing registration,
   price or stock.
-- **Portion Category:** appears when it has at least one active size and
+- **Portion Category:** is sellable when it has at least one active size and
   valid.
-- **Resale Category:** appears when it has a valid price and availability.
+- **Resale Category:** is sellable when it has a valid price and availability.
 - **Manufacturable Category:** does not make a product salable without Portion or Resale.
 - **Ingredient Category:** does not make a product salable.
 - **Portion and Resale:** remain mutually exclusive.
 - **Inactive product:** does not appear in new operations.
-- **Incomplete product:** does not appear in the catalog and must be corrected in the module
-  of Products.
-- **Product out of stock:** remains visible as unavailable.
+- **Product without price:** an active product without valid commercial configuration is hidden
+  by default, appears only in a name search, disabled and identified as without price, and must
+  be corrected in the Products module. A price of `0` is a valid price.
+- **Product out of stock:** is hidden by default and appears only in a name search, disabled and
+  identified as out of stock. A product without price and without stock is identified only as
+  without price.
+- **Search-only reveal:** only a non-empty name search, ignoring surrounding spaces, reveals
+  unavailable products; the `Portions` and `Resales` filters alone do not. Counts and pagination
+  reflect the products returned by the current list or search.
 - **Partial portion:** remains selectable when at least one size can
   be sold.
 - **Configuration unavailable:** size, brand or accompaniment is unfeasible
@@ -243,8 +248,8 @@ of sale.
 - **Filters:** must offer `All`, `Portions` and `Resales`.
 - **Identification:** the card must display name, commercial category and
   availability.
-- **Out of stock:** the card must remain visible, disabled and identified
-  with `Out of stock`.
+- **Unavailable products:** when revealed by a search, the card is disabled and identified with
+  `Out of stock`, or with `No price` and the price line `Price not set`.
 - **Product added:** the card of a product present in the cart must display
   the `Added` badge, remains visually distinct and cannot open a new
   configuration.
@@ -260,7 +265,7 @@ of sale.
 - **Responsiveness:** the number of columns must adapt to the width
   available.
 - **Accessibility:** cards must be keyboard operable and communicate
-  available, unavailable or added states.
+  available, unavailable (including its reason) or added states.
 
 ---
 
@@ -874,6 +879,9 @@ and Resale facts from PRQ-03 and PRQ-04.
 - **Creation:** the screen must request name, components, final price and status.
 - **Add product:** should open a dialog that differentiates Resale Portion
   and requires the exact applicable configuration.
+- **Unavailable products in Add product:** the list shows only sellable products by default; a
+  name search also reveals matching products without price or out of stock, disabled and
+  identified with their reason. Combo composition, validation and activation rules are unchanged.
 - **Economy:** the form must compare the current sum of the components with the
   Combo price and display the calculated savings.
 - **Inline validation:** duplicate name, insufficient composition, component
@@ -1227,7 +1235,8 @@ flowchart LR
    and the cart is empty.
 3. The system uses base prices while no channels are selected.
 4. The Operator searches or filters products.
-5. Out-of-stock products remain visible as unavailable.
+5. By default only sellable products are listed; a name search also shows matching
+   out-of-stock or unpriced products, disabled and identified with their reason.
 6. Products already present in the cart remain visible with the seal
    `Added` and available for another configuration.
 7. The journey continues to Portion or Resale configuration.

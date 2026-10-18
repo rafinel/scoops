@@ -217,3 +217,204 @@ test('configures a portion product with its active filter state', async ({
   await expect(page.getByText('Nenhum produto adicionado.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Adicionar produto' })).toBeFocused()
 })
+
+for (const viewport of [
+  { width: 1481, height: 1050, name: 'desktop' },
+  { width: 390, height: 844, name: 'narrow' },
+]) {
+  test(`reveals disabled picker rows for a search and keeps them unselectable at ${viewport.name} viewport`, async ({
+    page,
+    identityFixture,
+  }) => {
+    const diagnostics: string[] = []
+    const catalogQueries: URLSearchParams[] = []
+    page.on('console', (message) => {
+      if (message.type() === 'error') diagnostics.push(message.text())
+    })
+    page.on('requestfailed', (request) => diagnostics.push(request.url()))
+    const availableProduct = {
+      productId: 'portion-acai',
+      name: 'Açaí tradicional',
+      kind: 'portion',
+      stockControl: 'single',
+      isActive: true,
+      isAvailable: true,
+      availability: 'available',
+      sizes: [
+        {
+          sizeId: 'portion-acai-500',
+          name: '500 ml',
+          quantity: 500,
+          basePrice: 14,
+          isActive: true,
+          isAvailable: true,
+          accompaniments: [],
+        },
+      ],
+      resaleBrands: [],
+    }
+    const outOfStockProduct = {
+      productId: 'resale-out-of-stock',
+      name: 'Pote de açaí 1 L',
+      kind: 'resale',
+      stockControl: 'single',
+      isActive: true,
+      isAvailable: false,
+      availability: 'out_of_stock',
+      sizes: [],
+      resalePrice: 28,
+      resaleBrands: [],
+    }
+    const missingPriceProduct = {
+      ...outOfStockProduct,
+      productId: 'resale-missing-price',
+      name: 'Pote de açaí 500 ml',
+      availability: 'missing_price',
+      resalePrice: undefined,
+    }
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    await page.setViewportSize(viewport)
+    await page.route('**/discounts/catalog**', async (route) => {
+      const query = new URL(route.request().url()).searchParams
+      catalogQueries.push(query)
+      const items = query.get('search')
+        ? [availableProduct, outOfStockProduct, missingPriceProduct]
+        : [availableProduct]
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items,
+          page: 1,
+          pageSize: 50,
+          total: items.length,
+          totalPages: 1,
+        }),
+      })
+    })
+
+    await page.goto('/discounts/new')
+    await page.getByRole('button', { name: 'Adicionar produto' }).click()
+    const productDialog = page.getByRole('dialog', { name: 'Adicionar produto' })
+    await expect(productDialog.getByRole('button', { name: /Açaí tradicional/ })).toBeVisible()
+    await expect(productDialog.getByText('Sem estoque')).toHaveCount(0)
+    await expect(productDialog.getByText('Sem preço', { exact: true })).toHaveCount(0)
+
+    const requestsBeforeSearch = catalogQueries.length
+    await productDialog
+      .getByRole('textbox', { name: 'Buscar produtos' })
+      .pressSequentially('  açaí ', { delay: 40 })
+    const outOfStockRow = productDialog.getByRole('button', { name: /Pote de açaí 1 L/ })
+    const missingPriceRow = productDialog.getByRole('button', { name: /Pote de açaí 500 ml/ })
+    await expect(outOfStockRow).toBeVisible()
+    expect(
+      catalogQueries.slice(requestsBeforeSearch).map((query) => query.get('search')),
+    ).toEqual(['açaí'])
+    await expect(outOfStockRow).toHaveAttribute('aria-disabled', 'true')
+    await expect(outOfStockRow).not.toHaveAttribute('aria-pressed', /.*/)
+    await expect(outOfStockRow).toHaveAccessibleDescription('Sem estoque')
+    await expect(missingPriceRow).toHaveAccessibleDescription('Sem preço')
+    await expect(outOfStockRow).toContainText('Sem estoque')
+    await expect(missingPriceRow).toContainText('Sem preço')
+
+    const emptyConfiguration = productDialog.getByText('Selecione um produto para configurar.')
+    await outOfStockRow.click({ force: true })
+    await expect(emptyConfiguration).toBeVisible()
+    await missingPriceRow.focus()
+    await expect(missingPriceRow).toBeFocused()
+    await page.keyboard.press('Enter')
+    await page.keyboard.press('Space')
+    await expect(emptyConfiguration).toBeVisible()
+    await expect(missingPriceRow).toBeFocused()
+    await expect(missingPriceRow).not.toHaveAttribute('aria-pressed', /.*/)
+    await expect(
+      productDialog.getByRole('button', { name: 'Adicionar produto' }),
+    ).toBeDisabled()
+
+    await productDialog.getByRole('button', { name: /Açaí tradicional/ }).click()
+    await expect(
+      productDialog.getByRole('heading', { name: 'Açaí tradicional' }),
+    ).toBeVisible()
+    await outOfStockRow.click({ force: true })
+    await expect(
+      productDialog.getByRole('heading', { name: 'Açaí tradicional' }),
+    ).toBeVisible()
+
+    const requestsBeforeClear = catalogQueries.length
+    await productDialog.getByRole('textbox', { name: 'Buscar produtos' }).fill('')
+    await expect(outOfStockRow).toHaveCount(0)
+    expect(
+      catalogQueries.slice(requestsBeforeClear).map((query) => query.get('search')),
+    ).toEqual([null])
+    expect(diagnostics).toEqual([])
+  })
+}
+
+test('drops the searched rows while an uncached default list loads after clearing the search', async ({
+  page,
+  identityFixture,
+}) => {
+  const baseProduct = {
+    kind: 'resale',
+    stockControl: 'single',
+    isActive: true,
+    sizes: [],
+    resalePrice: 28,
+    resaleBrands: [],
+  }
+  const availableProduct = {
+    ...baseProduct,
+    productId: 'resale-available',
+    name: 'Açaí pronto',
+    isAvailable: true,
+    availability: 'available',
+  }
+  const outOfStockProduct = {
+    ...baseProduct,
+    productId: 'resale-out-of-stock',
+    name: 'Pote de açaí 1 L',
+    isAvailable: false,
+    availability: 'out_of_stock',
+  }
+  let releaseDefaultList: () => void = () => undefined
+  const defaultListGate = new Promise<void>((resolve) => {
+    releaseDefaultList = resolve
+  })
+  let isDefaultListRequested = false
+  await identityFixture.mockManagerSession()
+  await identityFixture.mockManagerAccount()
+  await page.setViewportSize({ width: 1481, height: 1050 })
+  await page.route('**/discounts/catalog**', async (route) => {
+    const query = new URL(route.request().url()).searchParams
+    const isSearching = Boolean(query.get('search'))
+    if (!isSearching && query.get('kind') === 'resale') {
+      isDefaultListRequested = true
+      await defaultListGate
+    }
+    const items = isSearching ? [availableProduct, outOfStockProduct] : [availableProduct]
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({ items, page: 1, pageSize: 50, total: items.length, totalPages: 1 }),
+    })
+  })
+
+  await page.goto('/discounts/new')
+  await page.getByRole('button', { name: 'Adicionar produto' }).click()
+  const productDialog = page.getByRole('dialog', { name: 'Adicionar produto' })
+  const searchInput = productDialog.getByRole('textbox', { name: 'Buscar produtos' })
+  await expect(productDialog.getByText('Açaí pronto')).toBeVisible()
+  await searchInput.fill('açaí')
+  await expect(productDialog.getByText('Pote de açaí 1 L')).toBeVisible()
+  await productDialog.getByRole('button', { name: 'Revendas' }).click()
+  await expect(productDialog.getByText('Pote de açaí 1 L')).toBeVisible()
+
+  await searchInput.fill('')
+  await expect.poll(() => isDefaultListRequested).toBe(true)
+  // The default request is still pending: no searched row may remain on screen.
+  expect(await productDialog.getByText('Pote de açaí 1 L').count()).toBe(0)
+  expect(await productDialog.getByText('Sem estoque').count()).toBe(0)
+
+  releaseDefaultList()
+  await expect(productDialog.getByText('Açaí pronto')).toBeVisible()
+  await expect(productDialog.getByText('Pote de açaí 1 L')).toHaveCount(0)
+})

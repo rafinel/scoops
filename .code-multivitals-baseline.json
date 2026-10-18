@@ -136,23 +136,6 @@
         "lines": 11
       },
       "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/communication/fixtures/communication-module-fixture.ts",
-        "functionName": "constructor",
-        "startLine": 75,
-        "endLine": 85,
-        "lines": 11
-      },
-      "blockB": {
         "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
         "functionName": "constructor",
         "startLine": 22,
@@ -493,23 +476,6 @@
         "lines": 12
       },
       "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/identity/database/identity-seeder.ts",
-        "functionName": "constructor",
-        "startLine": 23,
-        "endLine": 34,
-        "lines": 12
-      },
-      "blockB": {
         "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
         "functionName": "constructor",
         "startLine": 22,
@@ -833,23 +799,6 @@
         "lines": 8
       },
       "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/identity/fixtures/identity-module-fixture.ts",
-        "functionName": "constructor",
-        "startLine": 93,
-        "endLine": 100,
-        "lines": 8
-      },
-      "blockB": {
         "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
         "functionName": "constructor",
         "startLine": 22,
@@ -1110,23 +1059,6 @@
         "startLine": 15,
         "endLine": 22,
         "lines": 8
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/mrp/database/mrp-seeder.ts",
-        "functionName": "constructor",
-        "startLine": 93,
-        "endLine": 120,
-        "lines": 28
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
       }
     },
     {
@@ -1428,23 +1360,6 @@
         "lines": 10
       },
       "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/pdv/database/pdv-seeder.ts",
-        "functionName": "constructor",
-        "startLine": 45,
-        "endLine": 54,
-        "lines": 10
-      },
-      "blockB": {
         "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
         "functionName": "constructor",
         "startLine": 22,
@@ -1671,23 +1586,6 @@
         "startLine": 15,
         "endLine": 22,
         "lines": 8
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/pdv/fixtures/pdv-module-fixture.ts",
-        "functionName": "constructor",
-        "startLine": 188,
-        "endLine": 198,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
       }
     },
     {
@@ -16381,40 +16279,6 @@
     {
       "similarity": 1,
       "blockA": {
-        "filePath": "apps/server/src/pdv/rest/dtos/combo-page-response.dto.ts",
-        "functionName": "from",
-        "startLine": 23,
-        "endLine": 31,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "apps/server/src/pdv/rest/dtos/sales-catalog-product-response.dto.ts",
-        "functionName": "from",
-        "startLine": 142,
-        "endLine": 152,
-        "lines": 11
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/pdv/rest/dtos/order-page-response.dto.ts",
-        "functionName": "from",
-        "startLine": 16,
-        "endLine": 24,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "apps/server/src/pdv/rest/dtos/sales-catalog-product-response.dto.ts",
-        "functionName": "from",
-        "startLine": 142,
-        "endLine": 152,
-        "lines": 11
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
         "filePath": "apps/server/src/shared/database/fixtures/database-fixture.ts",
         "functionName": "getConnectionUri",
         "startLine": 115,
@@ -16444,23 +16308,6 @@
         "startLine": 15,
         "endLine": 22,
         "lines": 8
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/messaging/fixtures/shared-messaging-module-fixture.ts",
-        "functionName": "constructor",
-        "startLine": 16,
-        "endLine": 21,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
       }
     },
     {
@@ -16966,23 +16813,6 @@
         "lines": 8
       },
       "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/global-search/pdv-global-search-provider.ts",
-        "functionName": "constructor",
-        "startLine": 15,
-        "endLine": 22,
-        "lines": 8
-      },
-      "blockB": {
         "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
         "functionName": "constructor",
         "startLine": 22,
@@ -17277,295 +17107,6 @@
         "startLine": 100,
         "endLine": 109,
         "lines": 10
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 22,
-        "endLine": 28,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/cancel-user-invitation-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 23,
-        "endLine": 28,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/correct-ice-cream-shop-onboarding-email-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 18,
-        "endLine": 24,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/correct-user-invitation-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 30,
-        "endLine": 36,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/expire-ice-cream-shop-onboardings-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 23,
-        "endLine": 28,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/invite-user-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 30,
-        "endLine": 36,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/register-ice-cream-shop-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 26,
-        "endLine": 32,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/resend-ice-cream-shop-confirmation-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 18,
-        "endLine": 23,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/resend-user-invitation-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 27,
-        "endLine": 33,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/pdv/use-cases/preview-order-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 38,
-        "endLine": 43,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/pdv/use-cases/register-order-use-case.ts",
-        "functionName": "constructor",
-        "startLine": 79,
-        "endLine": 86,
-        "lines": 8
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "constructor",
-        "startLine": 43,
-        "endLine": 51,
-        "lines": 9
-      },
-      "blockB": {
-        "filePath": "packages/core/src/shared/responses/pagination-response.ts",
-        "functionName": "constructor",
-        "startLine": 2,
-        "endLine": 8,
-        "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "runSafely",
-        "startLine": 409,
-        "endLine": 416,
-        "lines": 8
-      },
-      "blockB": {
-        "filePath": "packages/core/src/pdv/use-cases/list-combos-use-case.ts",
-        "functionName": "safe",
-        "startLine": 226,
-        "endLine": 235,
-        "lines": 10
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findProductIdsByName",
-        "startLine": 423,
-        "endLine": 430,
-        "lines": 8
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findByProductIds",
-        "startLine": 432,
-        "endLine": 439,
-        "lines": 8
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findProductIdsByName",
-        "startLine": 423,
-        "endLine": 430,
-        "lines": 8
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findByProductId",
-        "startLine": 441,
-        "endLine": 446,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findByProductIds",
-        "startLine": 432,
-        "endLine": 439,
-        "lines": 8
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findByProductId",
-        "startLine": 441,
-        "endLine": 446,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "createReader",
-        "startLine": 464,
-        "endLine": 474,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "apps/web/src/rest/services/pdv-service.ts",
-        "functionName": "mapSalesCatalogPage",
-        "startLine": 124,
-        "endLine": 134,
-        "lines": 11
       }
     },
     {
@@ -36849,23 +36390,6 @@
     {
       "similarity": 1,
       "blockA": {
-        "filePath": "packages/core/src/pdv/use-cases/list-order-catalog-use-case.ts",
-        "functionName": "validateActor",
-        "startLine": 67,
-        "endLine": 72,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/pdv/use-cases/register-order-use-case.ts",
-        "functionName": "validateActor",
-        "startLine": 783,
-        "endLine": 788,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
         "filePath": "packages/core/src/pdv/use-cases/preview-order-use-case.ts",
         "functionName": "constructor",
         "startLine": 38,
@@ -55940,23 +55464,6 @@
     {
       "similarity": 0.857,
       "blockA": {
-        "filePath": "apps/server/src/communication/rest/dtos/notification-page-response.dto.ts",
-        "functionName": "from",
-        "startLine": 14,
-        "endLine": 20,
-        "lines": 7
-      },
-      "blockB": {
-        "filePath": "apps/server/src/pdv/rest/dtos/sales-catalog-product-response.dto.ts",
-        "functionName": "from",
-        "startLine": 142,
-        "endLine": 152,
-        "lines": 11
-      }
-    },
-    {
-      "similarity": 0.857,
-      "blockA": {
         "filePath": "apps/server/src/identity/provision/auth/better-auth-password.ts",
         "functionName": "verifyPassword",
         "startLine": 9,
@@ -58575,23 +58082,6 @@
     {
       "similarity": 0.846,
       "blockA": {
-        "filePath": "apps/web/src/ui/pdv/hooks/use-combo-products-query.ts",
-        "functionName": "useComboProductsQuery",
-        "startLine": 8,
-        "endLine": 43,
-        "lines": 36
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/pdv/hooks/use-order-catalog-query.ts",
-        "functionName": "useOrderCatalogQuery",
-        "startLine": 9,
-        "endLine": 46,
-        "lines": 38
-      }
-    },
-    {
-      "similarity": 0.846,
-      "blockA": {
         "filePath": "apps/web/src/ui/mrp/widgets/slots/product-accompaniments-slot/product-accompaniment-dialog/use-product-accompaniment-dialog.ts",
         "functionName": "getFormErrorFields",
         "startLine": 183,
@@ -58801,23 +58291,6 @@
         "startLine": 16,
         "endLine": 24,
         "lines": 9
-      },
-      "blockB": {
-        "filePath": "apps/server/src/pdv/rest/dtos/sales-channel-response.dto.ts",
-        "functionName": "from",
-        "startLine": 15,
-        "endLine": 25,
-        "lines": 11
-      }
-    },
-    {
-      "similarity": 0.842,
-      "blockA": {
-        "filePath": "apps/server/src/pdv/rest/dtos/sales-catalog-product-response.dto.ts",
-        "functionName": "from",
-        "startLine": 142,
-        "endLine": 152,
-        "lines": 11
       },
       "blockB": {
         "filePath": "apps/server/src/pdv/rest/dtos/sales-channel-response.dto.ts",
@@ -60100,57 +59573,6 @@
         "startLine": 72,
         "endLine": 83,
         "lines": 12
-      }
-    },
-    {
-      "similarity": 0.833,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findProductIdsByName",
-        "startLine": 423,
-        "endLine": 430,
-        "lines": 8
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findMany",
-        "startLine": 448,
-        "endLine": 456,
-        "lines": 9
-      }
-    },
-    {
-      "similarity": 0.833,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findByProductIds",
-        "startLine": 432,
-        "endLine": 439,
-        "lines": 8
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findMany",
-        "startLine": 448,
-        "endLine": 456,
-        "lines": 9
-      }
-    },
-    {
-      "similarity": 0.833,
-      "blockA": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findByProductId",
-        "startLine": 441,
-        "endLine": 446,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
-        "functionName": "findMany",
-        "startLine": 448,
-        "endLine": 456,
-        "lines": 9
       }
     },
     {
@@ -70114,6 +69536,686 @@
         "endLine": 9,
         "lines": 6
       }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/pdv/rest/dtos/combo-page-response.dto.ts",
+        "functionName": "from",
+        "startLine": 23,
+        "endLine": 31,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "apps/server/src/pdv/rest/dtos/sales-catalog-product-page-response.dto.ts",
+        "functionName": "from",
+        "startLine": 23,
+        "endLine": 33,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/pdv/rest/dtos/order-page-response.dto.ts",
+        "functionName": "from",
+        "startLine": 16,
+        "endLine": 24,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "apps/server/src/pdv/rest/dtos/sales-catalog-product-page-response.dto.ts",
+        "functionName": "from",
+        "startLine": 23,
+        "endLine": 33,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 0.857,
+      "blockA": {
+        "filePath": "apps/server/src/communication/rest/dtos/notification-page-response.dto.ts",
+        "functionName": "from",
+        "startLine": 14,
+        "endLine": 20,
+        "lines": 7
+      },
+      "blockB": {
+        "filePath": "apps/server/src/pdv/rest/dtos/sales-catalog-product-page-response.dto.ts",
+        "functionName": "from",
+        "startLine": 23,
+        "endLine": 33,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 0.842,
+      "blockA": {
+        "filePath": "apps/server/src/pdv/rest/dtos/sales-catalog-product-page-response.dto.ts",
+        "functionName": "from",
+        "startLine": 23,
+        "endLine": 33,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "apps/server/src/pdv/rest/dtos/sales-channel-response.dto.ts",
+        "functionName": "from",
+        "startLine": 15,
+        "endLine": 25,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/identity/database/identity-seeder.ts",
+        "functionName": "constructor",
+        "startLine": 23,
+        "endLine": 34,
+        "lines": 12
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/identity/fixtures/identity-module-fixture.ts",
+        "functionName": "constructor",
+        "startLine": 93,
+        "endLine": 100,
+        "lines": 8
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/communication/fixtures/communication-module-fixture.ts",
+        "functionName": "constructor",
+        "startLine": 75,
+        "endLine": 85,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/mrp/database/mrp-seeder.ts",
+        "functionName": "constructor",
+        "startLine": 93,
+        "endLine": 120,
+        "lines": 28
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/pdv/database/pdv-seeder.ts",
+        "functionName": "constructor",
+        "startLine": 45,
+        "endLine": 54,
+        "lines": 10
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/pdv/fixtures/pdv-module-fixture.ts",
+        "functionName": "constructor",
+        "startLine": 188,
+        "endLine": 198,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/messaging/fixtures/shared-messaging-module-fixture.ts",
+        "functionName": "constructor",
+        "startLine": 16,
+        "endLine": 21,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/global-search/pdv-global-search-provider.ts",
+        "functionName": "constructor",
+        "startLine": 15,
+        "endLine": 22,
+        "lines": 8
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/use-cases/accept-user-invitation-use-case.ts",
+        "functionName": "constructor",
+        "startLine": 22,
+        "endLine": 28,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/use-cases/cancel-user-invitation-use-case.ts",
+        "functionName": "constructor",
+        "startLine": 23,
+        "endLine": 28,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/use-cases/correct-ice-cream-shop-onboarding-email-use-case.ts",
+        "functionName": "constructor",
+        "startLine": 18,
+        "endLine": 24,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/use-cases/correct-user-invitation-use-case.ts",
+        "functionName": "constructor",
+        "startLine": 30,
+        "endLine": 36,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/use-cases/expire-ice-cream-shop-onboardings-use-case.ts",
+        "functionName": "constructor",
+        "startLine": 23,
+        "endLine": 28,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/use-cases/invite-user-use-case.ts",
+        "functionName": "constructor",
+        "startLine": 30,
+        "endLine": 36,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/use-cases/register-ice-cream-shop-use-case.ts",
+        "functionName": "constructor",
+        "startLine": 26,
+        "endLine": 32,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/use-cases/resend-ice-cream-shop-confirmation-use-case.ts",
+        "functionName": "constructor",
+        "startLine": 18,
+        "endLine": 23,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/identity/use-cases/resend-user-invitation-use-case.ts",
+        "functionName": "constructor",
+        "startLine": 27,
+        "endLine": 33,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/pdv/use-cases/preview-order-use-case.ts",
+        "functionName": "constructor",
+        "startLine": 38,
+        "endLine": 43,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/pdv/use-cases/register-order-use-case.ts",
+        "functionName": "constructor",
+        "startLine": 79,
+        "endLine": 86,
+        "lines": 8
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "constructor",
+        "startLine": 44,
+        "endLine": 52,
+        "lines": 9
+      },
+      "blockB": {
+        "filePath": "packages/core/src/shared/responses/pagination-response.ts",
+        "functionName": "constructor",
+        "startLine": 2,
+        "endLine": 8,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findProductIdsByName",
+        "startLine": 424,
+        "endLine": 431,
+        "lines": 8
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findByProductIds",
+        "startLine": 433,
+        "endLine": 440,
+        "lines": 8
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findProductIdsByName",
+        "startLine": 424,
+        "endLine": 431,
+        "lines": 8
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findByProductId",
+        "startLine": 442,
+        "endLine": 447,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findByProductIds",
+        "startLine": 433,
+        "endLine": 440,
+        "lines": 8
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findByProductId",
+        "startLine": 442,
+        "endLine": 447,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "createReader",
+        "startLine": 465,
+        "endLine": 475,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "apps/web/src/rest/services/pdv-service.ts",
+        "functionName": "mapSalesCatalogPage",
+        "startLine": 124,
+        "endLine": 134,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 0.917,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/global-search/identity-global-search-provider.ts",
+        "functionName": "toUserSearchParams",
+        "startLine": 23,
+        "endLine": 33,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "createOrderedBatchQuery",
+        "startLine": 172,
+        "endLine": 179,
+        "lines": 8
+      }
+    },
+    {
+      "similarity": 0.917,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/global-search/identity-global-search-provider.ts",
+        "functionName": "toUserHit",
+        "startLine": 35,
+        "endLine": 45,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "createOrderedBatchQuery",
+        "startLine": 172,
+        "endLine": 179,
+        "lines": 8
+      }
+    },
+    {
+      "similarity": 0.917,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/global-search/pdv-global-search-provider.ts",
+        "functionName": "toOrderSearchParams",
+        "startLine": 49,
+        "endLine": 58,
+        "lines": 10
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "createOrderedBatchQuery",
+        "startLine": 172,
+        "endLine": 179,
+        "lines": 8
+      }
+    },
+    {
+      "similarity": 0.917,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/global-search/pdv-global-search-provider.ts",
+        "functionName": "toDiscountSearchParams",
+        "startLine": 60,
+        "endLine": 69,
+        "lines": 10
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "createOrderedBatchQuery",
+        "startLine": 172,
+        "endLine": 179,
+        "lines": 8
+      }
+    },
+    {
+      "similarity": 0.917,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/global-search/pdv-global-search-provider.ts",
+        "functionName": "toSalesChannelHit",
+        "startLine": 89,
+        "endLine": 98,
+        "lines": 10
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "createOrderedBatchQuery",
+        "startLine": 172,
+        "endLine": 179,
+        "lines": 8
+      }
+    },
+    {
+      "similarity": 0.917,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/global-search/pdv-global-search-provider.ts",
+        "functionName": "toDiscountHit",
+        "startLine": 100,
+        "endLine": 109,
+        "lines": 10
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "createOrderedBatchQuery",
+        "startLine": 172,
+        "endLine": 179,
+        "lines": 8
+      }
+    },
+    {
+      "similarity": 0.833,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findProductIdsByName",
+        "startLine": 424,
+        "endLine": 431,
+        "lines": 8
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findAllMatching",
+        "startLine": 451,
+        "endLine": 457,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 0.833,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findByProductIds",
+        "startLine": 433,
+        "endLine": 440,
+        "lines": 8
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findAllMatching",
+        "startLine": 451,
+        "endLine": 457,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 0.833,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findByProductId",
+        "startLine": 442,
+        "endLine": 447,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "findAllMatching",
+        "startLine": 451,
+        "endLine": 457,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/server/src/shared/provision/pdv-order-registration/mrp-sales-catalog-provider.ts",
+        "functionName": "runSafely",
+        "startLine": 410,
+        "endLine": 417,
+        "lines": 8
+      },
+      "blockB": {
+        "filePath": "packages/core/src/pdv/use-cases/list-combos-use-case.ts",
+        "functionName": "safe",
+        "startLine": 230,
+        "endLine": 239,
+        "lines": 10
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/pdv/use-cases/list-order-catalog-use-case.ts",
+        "functionName": "validateActor",
+        "startLine": 94,
+        "endLine": 99,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/pdv/use-cases/register-order-use-case.ts",
+        "functionName": "validateActor",
+        "startLine": 783,
+        "endLine": 788,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 0.852,
+      "blockA": {
+        "filePath": "apps/web/src/ui/pdv/hooks/use-combo-products-query.ts",
+        "functionName": "useComboProductsQuery",
+        "startLine": 7,
+        "endLine": 28,
+        "lines": 22
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/pdv/hooks/use-order-catalog-query.ts",
+        "functionName": "useOrderCatalogQuery",
+        "startLine": 8,
+        "endLine": 26,
+        "lines": 19
+      }
     }
   ],
   "files": [
@@ -76495,8 +76597,8 @@
       "functions": [
         {
           "name": "from",
-          "startLine": 100,
-          "endLine": 123,
+          "startLine": 46,
+          "endLine": 70,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -76512,7 +76614,7 @@
             },
             {
               "name": "functionLength",
-              "value": 24,
+              "value": 25,
               "threshold": 70,
               "severity": "ok"
             },
@@ -76524,62 +76626,21 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 271.41,
+              "value": 293.44,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 52.6,
+          "maintainabilityIndex": 52,
           "maintainabilityRating": "warn",
-          "healthScore": 81,
-          "smells": []
-        },
-        {
-          "name": "from",
-          "startLine": 142,
-          "endLine": 152,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 1,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 9,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 128.93,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 64.3,
-          "maintainabilityRating": "warn",
-          "healthScore": 88,
+          "healthScore": 80,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 154,
-        "weightedMI": 68.6,
-        "weightedHealthScore": 87.8,
+        "totalLines": 72,
+        "weightedMI": 67.4,
+        "weightedHealthScore": 86.5,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -78525,8 +78586,8 @@
       "functions": [
         {
           "name": "findProductIdsByName",
-          "startLine": 53,
-          "endLine": 78,
+          "startLine": 54,
+          "endLine": 79,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -78566,8 +78627,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 57,
-          "endLine": 77,
+          "startLine": 58,
+          "endLine": 78,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -78607,8 +78668,8 @@
         },
         {
           "name": "findByProductIds",
-          "startLine": 80,
-          "endLine": 104,
+          "startLine": 81,
+          "endLine": 105,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -78648,8 +78709,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 86,
-          "endLine": 103,
+          "startLine": 87,
+          "endLine": 104,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -78688,144 +78749,9 @@
           "smells": []
         },
         {
-          "name": "findMany",
-          "startLine": 117,
-          "endLine": 160,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 3,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 38,
-              "threshold": 70,
-              "severity": "warn"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 8,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 58.8,
-          "maintainabilityRating": "warn",
-          "healthScore": 79,
-          "smells": []
-        },
-        {
-          "name": "<anonymous>",
-          "startLine": 124,
-          "endLine": 159,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 3,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 36,
-              "threshold": 70,
-              "severity": "warn"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 687.35,
-              "threshold": 800,
-              "severity": "warn"
-            }
-          ],
-          "maintainabilityIndex": 45.8,
-          "maintainabilityRating": "warn",
-          "healthScore": 72,
-          "smells": [
-            {
-              "id": "bloated",
-              "label": "Bloated",
-              "reason": "Large function (36 lines) with high vocabulary (Halstead volume 687.35) but low branching — consider extracting helpers."
-            }
-          ]
-        },
-        {
-          "name": "isEligible",
-          "startLine": 162,
-          "endLine": 178,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 10,
-              "threshold": 15,
-              "severity": "warn"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 5,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 17,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 255.41,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 55,
-          "maintainabilityRating": "warn",
-          "healthScore": 62,
-          "smells": [
-            {
-              "id": "fragile",
-              "label": "Fragile",
-              "reason": "High cyclomatic complexity (10) with low MI (55) — many branches and hard to maintain safely."
-            }
-          ]
-        },
-        {
           "name": "mapProduct",
-          "startLine": 180,
-          "endLine": 300,
+          "startLine": 181,
+          "endLine": 301,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -78865,8 +78791,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 273,
-          "endLine": 288,
+          "startLine": 274,
+          "endLine": 289,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -78906,8 +78832,8 @@
         },
         {
           "name": "mapSize",
-          "startLine": 302,
-          "endLine": 317,
+          "startLine": 303,
+          "endLine": 318,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -78947,8 +78873,8 @@
         },
         {
           "name": "mapAccompaniment",
-          "startLine": 319,
-          "endLine": 359,
+          "startLine": 320,
+          "endLine": 360,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -78988,8 +78914,8 @@
         },
         {
           "name": "resolveAccompanimentSource",
-          "startLine": 361,
-          "endLine": 373,
+          "startLine": 362,
+          "endLine": 374,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -79029,8 +78955,8 @@
         },
         {
           "name": "createReader",
-          "startLine": 464,
-          "endLine": 474,
+          "startLine": 465,
+          "endLine": 475,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -79070,14 +78996,11 @@
         }
       ],
       "summary": {
-        "totalLines": 476,
-        "weightedMI": 56.9,
-        "weightedHealthScore": 69.8,
+        "totalLines": 477,
+        "weightedMI": 58.3,
+        "weightedHealthScore": 70.5,
         "worstSeverity": "error",
-        "smellIds": [
-          "bloated",
-          "fragile"
-        ]
+        "smellIds": []
       }
     },
     {
@@ -101568,49 +101491,8 @@
       "functions": [
         {
           "name": "useComboProductsQuery",
-          "startLine": 8,
-          "endLine": 43,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 6,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 3,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 32,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 322.99,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 48.8,
-          "maintainabilityRating": "warn",
-          "healthScore": 68,
-          "smells": []
-        },
-        {
-          "name": "queryFn",
-          "startLine": 22,
-          "endLine": 31,
+          "startLine": 7,
+          "endLine": 28,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -101626,33 +101508,33 @@
             },
             {
               "name": "functionLength",
-              "value": 10,
+              "value": 18,
               "threshold": 70,
               "severity": "ok"
             },
             {
               "name": "nestingDepth",
-              "value": 1,
+              "value": 0,
               "threshold": 4,
               "severity": "ok"
             },
             {
               "name": "halsteadVolume",
-              "value": 118.94,
+              "value": 211,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 63.3,
+          "maintainabilityIndex": 55.9,
           "maintainabilityRating": "warn",
-          "healthScore": 80,
+          "healthScore": 79,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 44,
-        "weightedMI": 52,
-        "weightedHealthScore": 70.6,
+        "totalLines": 29,
+        "weightedMI": 57.5,
+        "weightedHealthScore": 79.7,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -102086,24 +101968,24 @@
       "functions": [
         {
           "name": "useOrderCatalogQuery",
-          "startLine": 9,
-          "endLine": 46,
+          "startLine": 8,
+          "endLine": 26,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 8,
+              "value": 5,
               "threshold": 15,
               "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 5,
+              "value": 4,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 34,
+              "value": 15,
               "threshold": 70,
               "severity": "ok"
             },
@@ -102115,72 +101997,23 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 409.79,
-              "threshold": 800,
-              "severity": "warn"
-            }
-          ],
-          "maintainabilityIndex": 47.2,
-          "maintainabilityRating": "warn",
-          "healthScore": 61,
-          "smells": [
-            {
-              "id": "fragile",
-              "label": "Fragile",
-              "reason": "High cyclomatic complexity (8) with low MI (47.2) — many branches and hard to maintain safely."
-            }
-          ]
-        },
-        {
-          "name": "queryFn",
-          "startLine": 22,
-          "endLine": 31,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 3,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 2,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 10,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 116.76,
+              "value": 233.18,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 63.3,
+          "maintainabilityIndex": 57.1,
           "maintainabilityRating": "warn",
-          "healthScore": 80,
+          "healthScore": 75,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 47,
-        "weightedMI": 50.6,
-        "weightedHealthScore": 65,
+        "totalLines": 27,
+        "weightedMI": 58.9,
+        "weightedHealthScore": 76.1,
         "worstSeverity": "warn",
-        "smellIds": [
-          "fragile"
-        ]
+        "smellIds": []
       }
     },
     {
@@ -120943,12 +120776,12 @@
       "functions": [
         {
           "name": "ComboProductDialog",
-          "startLine": 26,
-          "endLine": 283,
+          "startLine": 25,
+          "endLine": 265,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 13,
+              "value": 12,
               "threshold": 15,
               "severity": "warn"
             },
@@ -120960,7 +120793,7 @@
             },
             {
               "name": "functionLength",
-              "value": 258,
+              "value": 241,
               "threshold": 70,
               "severity": "error"
             },
@@ -120977,16 +120810,16 @@
               "severity": "error"
             }
           ],
-          "maintainabilityIndex": 23.4,
+          "maintainabilityIndex": 24.1,
           "maintainabilityRating": "warn",
-          "healthScore": 41,
+          "healthScore": 43,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 284,
-        "weightedMI": 39.4,
-        "weightedHealthScore": 54.5,
+        "totalLines": 266,
+        "weightedMI": 38.3,
+        "weightedHealthScore": 54.7,
         "worstSeverity": "error",
         "smellIds": []
       }
@@ -120995,25 +120828,107 @@
       "filePath": "apps/web/src/ui/pdv/widgets/pages/combo-discount-page/combo-product-dialog/use-combo-product-dialog.ts",
       "functions": [
         {
-          "name": "useComboProductDialog",
-          "startLine": 23,
-          "endLine": 202,
+          "name": "createProductRow",
+          "startLine": 35,
+          "endLine": 44,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 23,
+              "value": 2,
               "threshold": 15,
-              "severity": "error"
+              "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 7,
+              "value": 0,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 175,
+              "value": 10,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 76.15,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 64.7,
+          "maintainabilityRating": "warn",
+          "healthScore": 87,
+          "smells": []
+        },
+        {
+          "name": "calculateUnitPrice",
+          "startLine": 48,
+          "endLine": 60,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 5,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 4,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 8,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 125.1,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 64.9,
+          "maintainabilityRating": "warn",
+          "healthScore": 76,
+          "smells": []
+        },
+        {
+          "name": "useComboProductDialog",
+          "startLine": 74,
+          "endLine": 243,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 17,
+              "threshold": 15,
+              "severity": "error"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 3,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 165,
               "threshold": 70,
               "severity": "error"
             },
@@ -121025,20 +120940,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 1293.32,
+              "value": 1020.12,
               "threshold": 800,
               "severity": "error"
             }
           ],
-          "maintainabilityIndex": 26.2,
+          "maintainabilityIndex": 28.3,
           "maintainabilityRating": "warn",
-          "healthScore": 33,
+          "healthScore": 38,
           "smells": []
         },
         {
           "name": "<anonymous>",
-          "startLine": 51,
-          "endLine": 61,
+          "startLine": 97,
+          "endLine": 107,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -121078,49 +120993,49 @@
         },
         {
           "name": "handleSelectProduct",
-          "startLine": 94,
-          "endLine": 105,
+          "startLine": 134,
+          "endLine": 146,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 2,
+              "value": 3,
               "threshold": 15,
               "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 0,
+              "value": 1,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 12,
+              "value": 13,
               "threshold": 70,
               "severity": "ok"
             },
             {
               "name": "nestingDepth",
-              "value": 0,
+              "value": 1,
               "threshold": 4,
               "severity": "ok"
             },
             {
               "name": "halsteadVolume",
-              "value": 131.69,
+              "value": 185.75,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 61.3,
+          "maintainabilityIndex": 59.4,
           "maintainabilityRating": "warn",
-          "healthScore": 86,
+          "healthScore": 79,
           "smells": []
         },
         {
           "name": "handleAdd",
-          "startLine": 139,
-          "endLine": 173,
+          "startLine": 180,
+          "endLine": 214,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -121160,9 +121075,9 @@
         }
       ],
       "summary": {
-        "totalLines": 203,
-        "weightedMI": 41.7,
-        "weightedHealthScore": 50.6,
+        "totalLines": 244,
+        "weightedMI": 45.2,
+        "weightedHealthScore": 56.2,
         "worstSeverity": "error",
         "smellIds": []
       }
@@ -121805,14 +121720,14 @@
       "functions": [
         {
           "name": "NewSaleCatalog",
-          "startLine": 32,
-          "endLine": 257,
+          "startLine": 28,
+          "endLine": 171,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 34,
+              "value": 14,
               "threshold": 15,
-              "severity": "error"
+              "severity": "warn"
             },
             {
               "name": "cognitiveComplexity",
@@ -121822,7 +121737,7 @@
             },
             {
               "name": "functionLength",
-              "value": 226,
+              "value": 144,
               "threshold": 70,
               "severity": "error"
             },
@@ -121834,62 +121749,21 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 879.63,
+              "value": 833.98,
               "threshold": 800,
               "severity": "error"
             }
           ],
-          "maintainabilityIndex": 23.5,
+          "maintainabilityIndex": 30.6,
           "maintainabilityRating": "warn",
-          "healthScore": 37,
-          "smells": []
-        },
-        {
-          "name": "<anonymous>",
-          "startLine": 154,
-          "endLine": 242,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 20,
-              "threshold": 15,
-              "severity": "error"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 3,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 89,
-              "threshold": 70,
-              "severity": "error"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 998.34,
-              "threshold": 800,
-              "severity": "error"
-            }
-          ],
-          "maintainabilityIndex": 33.8,
-          "maintainabilityRating": "warn",
-          "healthScore": 39,
+          "healthScore": 40,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 258,
-        "weightedMI": 30.2,
-        "weightedHealthScore": 40.5,
+        "totalLines": 172,
+        "weightedMI": 39,
+        "weightedHealthScore": 46.9,
         "worstSeverity": "error",
         "smellIds": []
       }
@@ -121898,13 +121772,101 @@
       "filePath": "apps/web/src/ui/pdv/widgets/pages/new-sale-page/new-sale-catalog/use-new-sale-catalog.ts",
       "functions": [
         {
-          "name": "useNewSaleCatalog",
-          "startLine": 14,
-          "endLine": 70,
+          "name": "findStartingPrice",
+          "startLine": 49,
+          "endLine": 63,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
+              "value": 3,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
               "value": 2,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 15,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 195.4,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 57.9,
+          "maintainabilityRating": "warn",
+          "healthScore": 78,
+          "smells": []
+        },
+        {
+          "name": "createCatalogCard",
+          "startLine": 93,
+          "endLine": 125,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 9,
+              "threshold": 15,
+              "severity": "warn"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 3,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 29,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 583.23,
+              "threshold": 800,
+              "severity": "warn"
+            }
+          ],
+          "maintainabilityIndex": 47.5,
+          "maintainabilityRating": "warn",
+          "healthScore": 59,
+          "smells": [
+            {
+              "id": "fragile",
+              "label": "Fragile",
+              "reason": "High cyclomatic complexity (9) with low MI (47.5) — many branches and hard to maintain safely."
+            }
+          ]
+        },
+        {
+          "name": "useCatalogPagination",
+          "startLine": 127,
+          "endLine": 149,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 3,
               "threshold": 15,
               "severity": "ok"
             },
@@ -121916,7 +121878,48 @@
             },
             {
               "name": "functionLength",
-              "value": 57,
+              "value": 23,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 120,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 55.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 80,
+          "smells": []
+        },
+        {
+          "name": "useNewSaleCatalog",
+          "startLine": 151,
+          "endLine": 223,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 3,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 70,
               "threshold": 70,
               "severity": "warn"
             },
@@ -121928,23 +121931,32 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 301.85,
+              "value": 564.33,
               "threshold": 800,
-              "severity": "ok"
+              "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 44.1,
+          "maintainabilityIndex": 40.1,
           "maintainabilityRating": "warn",
-          "healthScore": 72,
-          "smells": []
+          "healthScore": 63,
+          "smells": [
+            {
+              "id": "bloated",
+              "label": "Bloated",
+              "reason": "Large function (70 lines) with high vocabulary (Halstead volume 564.33) but low branching — consider extracting helpers."
+            }
+          ]
         }
       ],
       "summary": {
-        "totalLines": 71,
-        "weightedMI": 53,
-        "weightedHealthScore": 77.2,
+        "totalLines": 224,
+        "weightedMI": 55.8,
+        "weightedHealthScore": 73.5,
         "worstSeverity": "warn",
-        "smellIds": []
+        "smellIds": [
+          "fragile",
+          "bloated"
+        ]
       }
     },
     {
@@ -141308,24 +141320,24 @@
       "functions": [
         {
           "name": "execute",
-          "startLine": 25,
-          "endLine": 54,
+          "startLine": 39,
+          "endLine": 61,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 13,
+              "value": 6,
               "threshold": 15,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 13,
+              "value": 6,
               "threshold": 25,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 30,
+              "value": 23,
               "threshold": 70,
               "severity": "ok"
             },
@@ -141337,37 +141349,23 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 578.7,
+              "value": 539.23,
               "threshold": 800,
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 46.7,
+          "maintainabilityIndex": 50.4,
           "maintainabilityRating": "warn",
-          "healthScore": 37,
-          "smells": [
-            {
-              "id": "incomprehensible",
-              "label": "Incomprehensible",
-              "reason": "High cognitive complexity (13) and Halstead volume (578.7) with low MI (46.7) — very hard to understand."
-            },
-            {
-              "id": "fragile",
-              "label": "Fragile",
-              "reason": "High cyclomatic complexity (13) with low MI (46.7) — many branches and hard to maintain safely."
-            }
-          ]
+          "healthScore": 58,
+          "smells": []
         }
       ],
       "summary": {
-        "totalLines": 56,
-        "weightedMI": 48.4,
-        "weightedHealthScore": 39,
+        "totalLines": 87,
+        "weightedMI": 62.3,
+        "weightedHealthScore": 74.1,
         "worstSeverity": "warn",
-        "smellIds": [
-          "incomprehensible",
-          "fragile"
-        ]
+        "smellIds": []
       }
     },
     {
@@ -141375,24 +141373,24 @@
       "functions": [
         {
           "name": "execute",
-          "startLine": 38,
-          "endLine": 80,
+          "startLine": 43,
+          "endLine": 84,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 10,
+              "value": 8,
               "threshold": 15,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 8,
+              "value": 6,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 43,
+              "value": 42,
               "threshold": 70,
               "severity": "warn"
             },
@@ -141404,20 +141402,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 773.21,
+              "value": 776.31,
               "threshold": 800,
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 42.8,
+          "maintainabilityIndex": 43.3,
           "maintainabilityRating": "warn",
-          "healthScore": 47,
+          "healthScore": 53,
           "smells": []
         },
         {
           "name": "details",
-          "startLine": 82,
-          "endLine": 110,
+          "startLine": 86,
+          "endLine": 114,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -141457,8 +141455,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 87,
-          "endLine": 102,
+          "startLine": 91,
+          "endLine": 106,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -141498,8 +141496,8 @@
         },
         {
           "name": "evaluate",
-          "startLine": 112,
-          "endLine": 171,
+          "startLine": 116,
+          "endLine": 175,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -141545,8 +141543,8 @@
         },
         {
           "name": "validateComponents",
-          "startLine": 176,
-          "endLine": 194,
+          "startLine": 180,
+          "endLine": 198,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -141592,8 +141590,8 @@
         },
         {
           "name": "validatePrice",
-          "startLine": 195,
-          "endLine": 204,
+          "startLine": 199,
+          "endLine": 208,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -141633,8 +141631,8 @@
         },
         {
           "name": "loadProducts",
-          "startLine": 205,
-          "endLine": 225,
+          "startLine": 209,
+          "endLine": 229,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -141671,53 +141669,12 @@
           "maintainabilityRating": "warn",
           "healthScore": 78,
           "smells": []
-        },
-        {
-          "name": "validatePage",
-          "startLine": 240,
-          "endLine": 249,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 6,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 5,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 10,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 122.62,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 62.8,
-          "maintainabilityRating": "warn",
-          "healthScore": 72,
-          "smells": []
         }
       ],
       "summary": {
-        "totalLines": 251,
-        "weightedMI": 55.3,
-        "weightedHealthScore": 62.1,
+        "totalLines": 245,
+        "weightedMI": 55.1,
+        "weightedHealthScore": 62.8,
         "worstSeverity": "error",
         "smellIds": [
           "incomprehensible",
@@ -141730,26 +141687,26 @@
       "functions": [
         {
           "name": "execute",
-          "startLine": 30,
-          "endLine": 65,
+          "startLine": 41,
+          "endLine": 64,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 15,
+              "value": 5,
               "threshold": 15,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 15,
+              "value": 5,
               "threshold": 25,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 36,
+              "value": 24,
               "threshold": 70,
-              "severity": "warn"
+              "severity": "ok"
             },
             {
               "name": "nestingDepth",
@@ -141759,37 +141716,23 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 748.76,
+              "value": 530.04,
               "threshold": 800,
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 43.9,
+          "maintainabilityIndex": 50.1,
           "maintainabilityRating": "warn",
-          "healthScore": 29,
-          "smells": [
-            {
-              "id": "god-function",
-              "label": "God Function",
-              "reason": "High cyclomatic complexity (15), long body (36 lines), and deep nesting (3) — likely doing too many things."
-            },
-            {
-              "id": "incomprehensible",
-              "label": "Incomprehensible",
-              "reason": "High cognitive complexity (15) and Halstead volume (748.76) with low MI (43.9) — very hard to understand."
-            }
-          ]
+          "healthScore": 61,
+          "smells": []
         }
       ],
       "summary": {
-        "totalLines": 74,
-        "weightedMI": 48.9,
-        "weightedHealthScore": 38.1,
+        "totalLines": 101,
+        "weightedMI": 64.5,
+        "weightedHealthScore": 77.2,
         "worstSeverity": "warn",
-        "smellIds": [
-          "god-function",
-          "incomprehensible"
-        ]
+        "smellIds": []
       }
     },
     {
@@ -147252,6 +147195,483 @@
         "totalLines": 54,
         "weightedMI": 61,
         "weightedHealthScore": 83.9,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/server/src/pdv/rest/dtos/sales-catalog-product-page-response.dto.ts",
+      "functions": [
+        {
+          "name": "from",
+          "startLine": 23,
+          "endLine": 33,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 9,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 128.93,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 64.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 88,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 35,
+        "weightedMI": 67.3,
+        "weightedHealthScore": 88.8,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/pdv/widgets/components/sales-catalog-availability-pill/index.tsx",
+      "functions": [
+        {
+          "name": "SalesCatalogAvailabilityPill",
+          "startLine": 27,
+          "endLine": 42,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 13,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 41.21,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 64.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 88,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 43,
+        "weightedMI": 64.3,
+        "weightedHealthScore": 88,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/pdv/widgets/pages/combo-discount-page/combo-product-dialog/combo-product-row/index.tsx",
+      "functions": [
+        {
+          "name": "ComboProductRowItem",
+          "startLine": 17,
+          "endLine": 65,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 9,
+              "threshold": 15,
+              "severity": "warn"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 3,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 45,
+              "threshold": 70,
+              "severity": "warn"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 340,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 45,
+          "maintainabilityRating": "warn",
+          "healthScore": 59,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 66,
+        "weightedMI": 46,
+        "weightedHealthScore": 59.8,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/pdv/widgets/pages/new-sale-page/new-sale-catalog/new-sale-catalog-card-status/index.tsx",
+      "functions": [
+        {
+          "name": "NewSaleCatalogCardStatus",
+          "startLine": 14,
+          "endLine": 47,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 7,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 2,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 34,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 204.33,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 49.5,
+          "maintainabilityRating": "warn",
+          "healthScore": 68,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 48,
+        "weightedMI": 49.5,
+        "weightedHealthScore": 68,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/pdv/widgets/pages/new-sale-page/new-sale-catalog/new-sale-catalog-card/index.tsx",
+      "functions": [
+        {
+          "name": "NewSaleCatalogCard",
+          "startLine": 19,
+          "endLine": 62,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 5,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 3,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 41,
+              "threshold": 70,
+              "severity": "warn"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 343.02,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 46.4,
+          "maintainabilityRating": "warn",
+          "healthScore": 67,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 63,
+        "weightedMI": 47.5,
+        "weightedHealthScore": 67.7,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/pdv/hooks/use-debounced-value.ts",
+      "functions": [
+        {
+          "name": "useDebouncedValue",
+          "startLine": 3,
+          "endLine": 21,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 2,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 15,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 38.04,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 63,
+          "maintainabilityRating": "warn",
+          "healthScore": 86,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 22,
+        "weightedMI": 66.7,
+        "weightedHealthScore": 86.4,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "packages/core/src/pdv/domain/structures/fakers/sales-catalog-product-faker.ts",
+      "functions": [
+        {
+          "name": "fake",
+          "startLine": 10,
+          "endLine": 23,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 14,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 153.25,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 59.6,
+          "maintainabilityRating": "warn",
+          "healthScore": 86,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 39,
+        "weightedMI": 66.7,
+        "weightedHealthScore": 89,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "packages/core/src/pdv/domain/strategies/pagination-params-strategy.ts",
+      "functions": [
+        {
+          "name": "execute",
+          "startLine": 22,
+          "endLine": 31,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 5,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 4,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 10,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 125.64,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 62.8,
+          "maintainabilityRating": "warn",
+          "healthScore": 77,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 37,
+        "weightedMI": 66.5,
+        "weightedHealthScore": 80.2,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/pdv/hooks/use-catalog-query.ts",
+      "functions": [
+        {
+          "name": "useCatalogQuery",
+          "startLine": 11,
+          "endLine": 37,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 3,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 23,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 223.48,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 53.4,
+          "maintainabilityRating": "warn",
+          "healthScore": 78,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 38,
+        "weightedMI": 56.4,
+        "weightedHealthScore": 79.3,
         "worstSeverity": "warn",
         "smellIds": []
       }

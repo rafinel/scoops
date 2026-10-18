@@ -1,3 +1,4 @@
+import { ProductCategory } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
@@ -13,7 +14,9 @@ import {
 import {
   addPortionWithGlobalAccompaniment,
   comboCreate,
+  productCreate,
 } from './combo-controller-test-helpers'
+import { addStock } from './sales-catalog-controller-test-helpers'
 
 describe('Create Combo Controller [POST /discounts]', () => {
   let fixture: PdvModuleFixture
@@ -69,6 +72,44 @@ describe('Create Combo Controller [POST /discounts]', () => {
         response.body.combo.id,
       ),
     ).resolves.toMatchObject({ status: 'active', components })
+  })
+
+  it('creates an active Combo whose priced components are out of stock', async () => {
+    const resales = await Promise.all(
+      ['Sold Out Resale One', 'Sold Out Resale Two'].map(async (name) => {
+        const resale = await fixture.addProduct(
+          productCreate({ name, categories: [ProductCategory.Resale] }),
+        )
+        await fixture.addResaleConfiguration({
+          establishmentId: resale.establishmentId,
+          productId: resale.id,
+          price: 5,
+          isActive: true,
+        })
+        await addStock(fixture, resale.id, false)
+        return resale
+      }),
+    )
+    const components = resales.map(({ id }) => ({
+      kind: 'resale' as const,
+      productId: id,
+      quantity: 1,
+    }))
+
+    const response = await request(fixture.app.getHttpServer())
+      .post('/discounts')
+      .set('Cookie', managerRequestAuthorization())
+      .send({ name: 'Sold Out Combo', status: 'active', fixedPrice: 8, components })
+
+    expect(response.status).toBe(201)
+    expect(response.body.combo).toMatchObject({ status: 'active', components })
+    const catalog = await request(fixture.app.getHttpServer())
+      .get('/discounts/catalog?search=Sold%20Out%20Resale')
+      .set('Cookie', managerRequestAuthorization())
+    expect(catalog.body.items).toEqual([
+      expect.objectContaining({ availability: 'out_of_stock' }),
+      expect.objectContaining({ availability: 'out_of_stock' }),
+    ])
   })
 
   it('rejects an active Combo selecting a global row that no longer exists on the Portion', async () => {

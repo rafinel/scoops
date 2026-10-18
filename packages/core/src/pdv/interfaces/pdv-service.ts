@@ -11,7 +11,7 @@ import type { Order } from '#pdv/domain/entities/order.ts'
 import type { OrderDetails } from '#pdv/domain/structures/order-details.ts'
 import type { OrderListParams } from '#pdv/domain/structures/order-list-params.ts'
 import type { SaleItemKind } from '#pdv/domain/structures/sale-item-kind.ts'
-import type { SalesCatalogProduct } from '#pdv/domain/structures/sales-catalog-product.ts'
+import type { SalesCatalogListItem } from '#pdv/domain/structures/sales-catalog-list-item.ts'
 import type { SalesCatalogListParams } from '#pdv/domain/structures/sales-catalog-list-params.ts'
 import type { SalesChannelCreate } from '#pdv/domain/structures/sales-channel-create.ts'
 import type { SalesChannelUpdate } from '#pdv/domain/structures/sales-channel-update.ts'
@@ -34,7 +34,7 @@ export interface PdvService {
     input: Omit<SalesCatalogListParams, 'establishmentId'> & {
       readonly kind?: SaleItemKind
     },
-  ): Promise<RestResponse<PaginationResponse<SalesCatalogProduct>>>
+  ): Promise<RestResponse<PaginationResponse<SalesCatalogListItem>>>
   registerOrder(
     input: OrderRegistrationInput,
   ): Promise<RestResponse<OrderRegistrationResult>>
@@ -47,7 +47,7 @@ export interface PdvService {
     input: Omit<SalesCatalogListParams, 'establishmentId'> & {
       readonly kind?: SaleItemKind
     },
-  ): Promise<RestResponse<PaginationResponse<SalesCatalogProduct>>>
+  ): Promise<RestResponse<PaginationResponse<SalesCatalogListItem>>>
   createCombo(
     input: Omit<ComboCreate, 'establishmentId'>,
   ): Promise<RestResponse<ComboDetails>>

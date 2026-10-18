@@ -343,6 +343,279 @@ test.describe('NewSalePage', () => {
     await expect(loadingState).toBeHidden({ timeout: INITIAL_PAGE_READY_TIMEOUT_MS })
   })
 
+  for (const viewport of [
+    { width: 1481, height: 1050, name: 'desktop' },
+    { width: 390, height: 844, name: 'narrow' },
+  ]) {
+    test(`reveals unavailable products only for a search and blocks their activation at ${viewport.name} viewport`, async ({
+      page,
+      identityFixture,
+      pdvFixture,
+    }) => {
+      const diagnostics: string[] = []
+      const catalogQueries: URLSearchParams[] = []
+      const previewRequests: string[] = []
+      page.on('console', (message) => {
+        if (message.type() === 'error') diagnostics.push(message.text())
+      })
+      page.on('requestfailed', (request) => diagnostics.push(request.url()))
+      const outOfStockProduct = {
+        ...resaleProduct,
+        productId: 'product-out-of-stock',
+        name: 'Pote de açaí 1 L',
+        stockControl: 'single',
+        availability: 'out_of_stock',
+        isAvailable: false,
+        resalePrice: 28,
+        resaleBrands: [],
+      }
+      const missingPriceProduct = {
+        ...outOfStockProduct,
+        productId: 'product-missing-price',
+        name: 'Pote de açaí 500 ml',
+        availability: 'missing_price',
+        resalePrice: undefined,
+      }
+      await identityFixture.mockManagerSession()
+      await identityFixture.mockManagerAccount()
+      await pdvFixture.mockSalesChannels()
+      await page.setViewportSize(viewport)
+      await page.route('**/orders/preview*', async (route) => {
+        previewRequests.push(route.request().url())
+        await route.abort()
+      })
+      await page.route('**/orders/catalog*', async (route) => {
+        const query = new URL(route.request().url()).searchParams
+        catalogQueries.push(query)
+        const isSearching = Boolean(query.get('search'))
+        const items = isSearching
+          ? [{ ...product, availability: 'available' }, outOfStockProduct, missingPriceProduct]
+          : [product]
+        await route.fulfill({
+          contentType: 'application/json',
+          body: JSON.stringify({
+            items,
+            page: Number(query.get('page')),
+            pageSize: 20,
+            total: items.length,
+            totalPages: 1,
+          }),
+          status: 200,
+        })
+      })
+
+      await page.goto('/sales/new')
+      await expect(page.getByText('Taça de morango').first()).toBeVisible({
+        timeout: INITIAL_PAGE_READY_TIMEOUT_MS,
+      })
+      await expect(page.getByText('1 produtos elegíveis · 0 adicionados')).toBeVisible()
+      await expect(page.getByText('Sem estoque')).toHaveCount(0)
+      await expect(page.getByText('Sem preço', { exact: true })).toHaveCount(0)
+
+      const searchInput = page.getByRole('textbox', { name: 'Buscar produto por nome' })
+      const requestsBeforeSearch = catalogQueries.length
+      await searchInput.pressSequentially('  açaí  ', { delay: 40 })
+      await expect(page.getByText('3 produtos encontrados · 0 adicionados')).toBeVisible()
+      const searchedQueries = catalogQueries.slice(requestsBeforeSearch)
+      expect(searchedQueries.map((query) => query.get('search'))).toEqual(['açaí'])
+      expect(searchedQueries[0]?.get('page')).toBe('1')
+      await expect(page.getByText('Preço não definido')).toBeVisible()
+      await expect(page.getByText('R$ 28,00')).toBeVisible()
+      await expect(page.getByText('Preço sob consulta')).toHaveCount(0)
+      await expect(page.getByText('Sem estoque')).toBeVisible()
+      await expect(page.getByText('Sem preço', { exact: true })).toBeVisible()
+
+      const outOfStockButton = page.getByRole('button', {
+        name: 'Adicionar Pote de açaí 1 L',
+      })
+      const missingPriceButton = page.getByRole('button', {
+        name: 'Adicionar Pote de açaí 500 ml',
+      })
+      await expect(outOfStockButton).toHaveAttribute('aria-disabled', 'true')
+      await expect(outOfStockButton).not.toHaveAttribute('disabled', /.*/)
+      await expect(outOfStockButton).toHaveAccessibleDescription('Sem estoque')
+      await expect(missingPriceButton).toHaveAccessibleDescription('Sem preço')
+
+      await searchInput.focus()
+      for (let step = 0; step < 12; step += 1) {
+        if (await missingPriceButton.evaluate((element) => element === document.activeElement)) {
+          break
+        }
+        await page.keyboard.press('Tab')
+      }
+      await expect(missingPriceButton).toBeFocused()
+      await page.keyboard.press('Enter')
+      await page.keyboard.press('Space')
+      await expect(page.getByRole('dialog')).toHaveCount(0)
+      await expect(missingPriceButton).toBeFocused()
+      // Playwright treats aria-disabled controls as not enabled, so force the user click.
+      await missingPriceButton.click({ force: true })
+      await outOfStockButton.click({ force: true })
+      await expect(page.getByRole('dialog')).toHaveCount(0)
+      expect(previewRequests).toEqual([])
+      await expect(page).toHaveURL(/\/sales\/new$/)
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        ),
+      ).toBe(true)
+
+      const requestsBeforeClear = catalogQueries.length
+      await searchInput.fill('')
+      await expect(page.getByText('1 produtos elegíveis · 0 adicionados')).toBeVisible()
+      await expect(page.getByText('Sem estoque')).toHaveCount(0)
+      expect(
+        catalogQueries.slice(requestsBeforeClear).map((query) => query.get('search')),
+      ).toEqual([null])
+      expect(diagnostics).toEqual([])
+    })
+  }
+
+  test('drops the searched page while an uncached default list loads after clearing the search', async ({
+    page,
+    identityFixture,
+    pdvFixture,
+  }) => {
+    const unavailableProduct = {
+      ...resaleProduct,
+      productId: 'product-out-of-stock',
+      name: 'Pote de açaí 1 L',
+      availability: 'out_of_stock',
+      isAvailable: false,
+    }
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    await pdvFixture.mockSalesChannels()
+    await page.setViewportSize({ width: 1481, height: 1050 })
+    let releaseDefaultList: () => void = () => undefined
+    const defaultListGate = new Promise<void>((resolve) => {
+      releaseDefaultList = resolve
+    })
+    let isDefaultListRequested = false
+    await page.route('**/orders/catalog*', async (route) => {
+      const query = new URL(route.request().url()).searchParams
+      const isSearching = Boolean(query.get('search'))
+      const isUncachedDefault = !isSearching && query.get('kind') === 'portion'
+      if (isUncachedDefault) {
+        isDefaultListRequested = true
+        await defaultListGate
+      }
+      const items = isSearching
+        ? [{ ...product, availability: 'available' }, unavailableProduct]
+        : [{ ...product, availability: 'available' }]
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items,
+          page: 1,
+          pageSize: 20,
+          total: items.length,
+          totalPages: 1,
+        }),
+        status: 200,
+      })
+    })
+
+    await page.goto('/sales/new')
+    await expect(page.getByText('Taça de morango').first()).toBeVisible({
+      timeout: INITIAL_PAGE_READY_TIMEOUT_MS,
+    })
+    const searchInput = page.getByRole('textbox', { name: 'Buscar produto por nome' })
+    await searchInput.fill('açaí')
+    await expect(page.getByText('2 produtos encontrados · 0 adicionados')).toBeVisible()
+    await page.getByRole('button', { name: 'Porções' }).click()
+    await expect(page.getByText('2 produtos encontrados · 0 adicionados')).toBeVisible()
+
+    await searchInput.fill('')
+    await expect.poll(() => isDefaultListRequested).toBe(true)
+    // The default request is still pending: no searched card or count may remain on screen.
+    expect(await page.getByText('Sem estoque').count()).toBe(0)
+    expect(await page.getByText('Pote de açaí 1 L').count()).toBe(0)
+    expect(await page.getByText('2 produtos encontrados · 0 adicionados').count()).toBe(0)
+
+    releaseDefaultList()
+    await expect(page.getByText('1 produtos elegíveis · 0 adicionados')).toBeVisible()
+    await expect(page.getByText('Sem estoque')).toHaveCount(0)
+  })
+
+  test('presents a catalog item without availability from its isAvailable fact', async ({
+    page,
+    identityFixture,
+    pdvFixture,
+  }) => {
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    await pdvFixture.mockSalesChannels()
+    await page.setViewportSize({ width: 1481, height: 1050 })
+    await page.route('**/orders/catalog*', (route) =>
+      route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items: [product, { ...resaleProduct, isAvailable: false }],
+          page: 1,
+          pageSize: 20,
+          total: 2,
+          totalPages: 1,
+        }),
+        status: 200,
+      }),
+    )
+
+    await page.goto('/sales/new')
+    await expect(page.getByText('Taça de morango').first()).toBeVisible({
+      timeout: INITIAL_PAGE_READY_TIMEOUT_MS,
+    })
+    await expect(page.getByText('Disponível', { exact: true })).toHaveCount(1)
+    await expect(page.getByText('Sem estoque')).toHaveCount(1)
+    await expect(
+      page.getByRole('button', { name: 'Adicionar Pote pronto' }),
+    ).toHaveAttribute('aria-disabled', 'true')
+  })
+
+  test('resets the catalog page when the debounced search changes', async ({
+    page,
+    identityFixture,
+    pdvFixture,
+  }) => {
+    const catalogQueries: URLSearchParams[] = []
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    await pdvFixture.mockSalesChannels()
+    await page.setViewportSize({ width: 1481, height: 1050 })
+    await page.route('**/orders/catalog*', (route) => {
+      const query = new URL(route.request().url()).searchParams
+      catalogQueries.push(query)
+      return route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items: [product],
+          page: Number(query.get('page')),
+          pageSize: 20,
+          total: 40,
+          totalPages: 2,
+        }),
+        status: 200,
+      })
+    })
+
+    await page.goto('/sales/new')
+    await expect(page.getByText('Taça de morango').first()).toBeVisible({
+      timeout: INITIAL_PAGE_READY_TIMEOUT_MS,
+    })
+    await page.getByRole('button', { name: 'Página 2' }).click()
+    await expect.poll(() => catalogQueries.at(-1)?.get('page')).toBe('2')
+    await page.getByRole('textbox', { name: 'Buscar produto por nome' }).fill('taça')
+    await expect
+      .poll(() => catalogQueries.at(-1)?.get('search'))
+      .toBe('taça')
+    expect(catalogQueries.at(-1)?.get('page')).toBe('1')
+    expect(
+      catalogQueries.some(
+        (query) => query.get('search') === 'taça' && query.get('page') === '2',
+      ),
+    ).toBe(false)
+  })
+
   test('redirects an anonymous visitor to login', async ({ page }) => {
     await page.goto('/sales/new')
     await expect(page).toHaveURL(/\/login/, { timeout: INITIAL_PAGE_READY_TIMEOUT_MS })

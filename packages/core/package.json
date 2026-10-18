@@ -45,6 +45,7 @@
     "./pdv/domain/entities": "./src/pdv/domain/entities/index.ts",
     "./pdv/domain/events": "./src/pdv/domain/events/index.ts",
     "./pdv/domain/structures": "./src/pdv/domain/structures/index.ts",
+    "./pdv/domain/structures/fakers": "./src/pdv/domain/structures/fakers/index.ts",
     "./pdv/domain/strategies": "./src/pdv/domain/strategies/index.ts",
     "./pdv/interfaces": "./src/pdv/interfaces/index.ts",
     "./pdv/use-cases": "./src/pdv/use-cases/index.ts",

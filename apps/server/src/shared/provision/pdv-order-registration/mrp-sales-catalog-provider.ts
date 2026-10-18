@@ -26,9 +26,10 @@ import type {
 } from '@scoops/core/pdv/domain/structures'
 import type { SalesCatalogProvider } from '@scoops/core/pdv/interfaces'
 import { ServiceUnavailableError } from '@scoops/core/shared/domain/errors'
-import { PaginationResponse } from '@scoops/core/shared/responses/pagination-response'
 import { Injectable } from '@nestjs/common'
 
+const CATALOG_BATCH_SIZE = 50
+type MatchingProductsInput = Parameters<SalesCatalogProvider['findAllMatching']>[0]
 type ProductCatalogRow = ProductCatalogPage['items'][number]
 type StockBalance = Awaited<
   ReturnType<StockBalancesRepository['findManyByProductId']>
@@ -59,7 +60,7 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
         establishmentId,
         search,
         page: 1,
-        pageSize: 50,
+        pageSize: CATALOG_BATCH_SIZE,
         sortBy: ProductSortField.Name,
         sortDirection: ProductSortDirection.Ascending,
       } satisfies Parameters<ProductsRepository['findMany']>[0]
@@ -114,67 +115,67 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
     })
   }
 
-  async findMany(input: {
-    readonly establishmentId: string
-    readonly search?: string
-    readonly page: number
-    readonly pageSize: number
-    readonly kind?: SaleItemKind
-  }): Promise<PaginationResponse<SalesCatalogProduct>> {
-    return this.runSafely(async () => {
-      const query = {
-        establishmentId: input.establishmentId,
-        search: input.search,
-        categories: input.kind
-          ? [input.kind]
-          : [ProductCategory.Portion, ProductCategory.Resale],
-        status: ProductStatus.Active,
-        page: 1,
-        pageSize: input.pageSize,
-        sortBy: ProductSortField.Name,
-        sortDirection: ProductSortDirection.Ascending,
-      } satisfies Parameters<ProductsRepository['findMany']>[0]
-      const firstPage = await this.productsRepository.findMany(query)
-      const pages = await this.loadProductPages(query, firstPage)
-      const products = await Promise.all(
-        pages.flatMap((page) =>
-          page.items.map((row) =>
-            this.mapProduct(input.establishmentId, row.product, row),
-          ),
-        ),
-      )
-      const eligibleProducts = products.filter(
-        (product): product is SalesCatalogProduct =>
-          product !== undefined && this.isEligible(product),
-      )
-      const start = (input.page - 1) * input.pageSize
-      const items = eligibleProducts.slice(start, start + input.pageSize)
-      return new PaginationResponse(
-        items,
-        input.page,
-        input.pageSize,
-        eligibleProducts.length,
-        Math.ceil(eligibleProducts.length / input.pageSize),
-      )
-    })
+  /**
+   * Returns every active Portion or Resale product of the establishment that matches the
+   * optional name search and kind, ordered by name and then by product id (the
+   * repository breaks name ties by id). The result is unbounded and carries no
+   * eligibility filtering: availability and visibility belong to the consuming use case.
+   */
+  async findAllMatching(
+    input: MatchingProductsInput,
+  ): Promise<readonly SalesCatalogProduct[]> {
+    return this.runSafely(() => this.loadMatchingProducts(input))
   }
 
-  private isEligible(product: SalesCatalogProduct): boolean {
-    if (!product.isActive) return false
-    if (product.kind === 'portion')
-      return product.sizes.some(
-        (size) => size.isActive && Number.isFinite(size.basePrice) && size.basePrice >= 0,
-      )
-    if (product.stockControl === ProductStockControl.Single)
-      return (
-        product.resalePrice !== undefined &&
-        Number.isFinite(product.resalePrice) &&
-        product.resalePrice >= 0
-      )
-    return product.resaleBrands.some(
-      (brand) =>
-        brand.isActive && Number.isFinite(brand.basePrice) && brand.basePrice >= 0,
+  private async loadMatchingProducts(
+    input: MatchingProductsInput,
+  ): Promise<readonly SalesCatalogProduct[]> {
+    const query = this.createMatchingQuery(input)
+    const firstPage = await this.productsRepository.findMany(query)
+    const pages = await this.loadProductPages(query, firstPage)
+    return this.mapPages(input.establishmentId, pages)
+  }
+
+  /**
+   * Maps every row to its sale facts; products the mapper rejects are dropped.
+   */
+  private async mapPages(
+    establishmentId: string,
+    pages: readonly ProductCatalogPage[],
+  ): Promise<readonly SalesCatalogProduct[]> {
+    const rows = pages.flatMap((page) => page.items)
+    const products = await Promise.all(
+      rows.map((row) => this.mapProduct(establishmentId, row.product, row)),
     )
+    return products.filter((product) => product !== undefined)
+  }
+
+  /** Active products only, in both sale categories unless the kind narrows them to one. */
+  private createMatchingQuery(
+    input: MatchingProductsInput,
+  ): Parameters<ProductsRepository['findMany']>[0] {
+    return {
+      ...this.createOrderedBatchQuery(),
+      establishmentId: input.establishmentId,
+      search: input.search,
+      categories: this.getMatchingCategories(input.kind),
+      status: ProductStatus.Active,
+    }
+  }
+
+  /** Both sale categories, unless the requested kind narrows the query to one. */
+  private getMatchingCategories(kind?: SaleItemKind): ProductCategory[] {
+    return kind ? [kind] : [ProductCategory.Portion, ProductCategory.Resale]
+  }
+
+  /** The first batch of `CATALOG_BATCH_SIZE` products, name ascending. */
+  private createOrderedBatchQuery() {
+    return {
+      page: 1,
+      pageSize: CATALOG_BATCH_SIZE,
+      sortBy: ProductSortField.Name,
+      sortDirection: ProductSortDirection.Ascending,
+    }
   }
 
   private async mapProduct(
@@ -445,14 +446,14 @@ export class MrpSalesCatalogProvider implements SalesCatalogProvider {
     return this.withReader((reader) => reader.findByProductId(establishmentId, productId))
   }
 
-  findMany(input: {
+  // Unbounded and not filtered by eligibility;
+  // see `MrpSalesCatalogReader.findAllMatching`.
+  findAllMatching(input: {
     readonly establishmentId: string
     readonly search?: string
-    readonly page: number
-    readonly pageSize: number
     readonly kind?: SaleItemKind
-  }): Promise<PaginationResponse<SalesCatalogProduct>> {
-    return this.withReader((reader) => reader.findMany(input))
+  }): Promise<readonly SalesCatalogProduct[]> {
+    return this.withReader((reader) => reader.findAllMatching(input))
   }
 
   private withReader<Result>(

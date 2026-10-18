@@ -9,11 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/ui/shadcn/dialog'
-import { CATEGORY_COLORS } from '@/constants/product-category-colors'
-import { CATEGORY_ICONS } from '@/constants/product-category-icons'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 
+import { ComboProductRowItem } from './combo-product-row'
 import { ComboProductSearch } from './combo-product-search'
 import {
   useComboProductDialog,
@@ -42,7 +41,7 @@ export const ComboProductDialog = (props: ComboProductDialogProps) => {
     isRefreshingCatalog,
     isValidConfiguration,
     kind,
-    products,
+    productRows,
     quantity,
     search,
     selectedBrand,
@@ -86,35 +85,18 @@ export const ComboProductDialog = (props: ComboProductDialogProps) => {
                     : 'Não foi possível carregar os produtos.'}
                 </p>
               ) : null}
-              {!isLoadingCatalog && !isCatalogError && products.length === 0 ? (
+              {!isLoadingCatalog && !isCatalogError && productRows.length === 0 ? (
                 <p className='p-4 text-sm text-muted-foreground'>
                   Nenhum produto disponível.
                 </p>
               ) : null}
-              {products.map((product) => (
-                <button
-                  aria-pressed={selectedProduct?.productId === product.productId}
-                  className='flex min-h-14 w-full items-center gap-3 rounded-xl border border-border-soft p-3 text-left transition-colors hover:bg-muted aria-pressed:border-primary aria-pressed:bg-primary-soft focus-visible:ring-2 focus-visible:ring-ring/40'
-                  key={product.productId}
-                  onClick={() => handleSelectProduct(product)}
-                  type='button'
-                >
-                  <span className='grid size-9 shrink-0 place-items-center rounded-lg bg-muted'>
-                    <Icon
-                      name={CATEGORY_ICONS[product.kind]}
-                      className={`size-4 ${CATEGORY_COLORS[product.kind]}`}
-                    />
-                  </span>
-                  <span className='min-w-0 flex-1'>
-                    <span className='block truncate text-sm font-extrabold'>
-                      {product.name}
-                    </span>
-                    <span className='block text-xs text-muted-foreground'>
-                      {product.kind === 'portion' ? 'Porção' : 'Revenda'}
-                    </span>
-                  </span>
-                  <Icon name='arrow' className='size-4 text-muted-foreground' />
-                </button>
+              {productRows.map((row) => (
+                <ComboProductRowItem
+                  isSelected={selectedProduct?.productId === row.product.productId}
+                  key={row.product.productId}
+                  onSelectProduct={handleSelectProduct}
+                  row={row}
+                />
               ))}
             </div>
           </section>

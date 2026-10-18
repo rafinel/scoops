@@ -1,46 +1,27 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
-
 import type { SaleItemKind } from '@scoops/core/pdv/domain/structures'
 
+import { useCatalogQuery } from '@/ui/pdv/hooks/use-catalog-query'
 import { useRestContext } from '@/ui/shared/hooks/use-rest-context'
 
 import { saleQueryKeys } from './sale-query-keys'
 
 export const useOrderCatalogQuery = (
-  search: string,
+  search: string | undefined,
   kind: SaleItemKind | undefined,
   page: number,
 ) => {
   const { pdvService } = useRestContext()
-  const query = useQuery({
-    queryKey: saleQueryKeys.catalog({
-      search: search || undefined,
-      kind,
-      page,
-      pageSize: 20,
-    }),
-    queryFn: async () => {
-      const response = await pdvService.listOrderCatalog({
-        search: search || undefined,
-        kind,
-        page,
-        pageSize: 20,
-      })
-      if (response.isFailure) response.throwError()
-      return response.body
-    },
-    placeholderData: keepPreviousData,
-    retry: false,
+  const params = { search: search || undefined, kind, page, pageSize: 20 }
+  const { isFetching, isPlaceholderData, ...query } = useCatalogQuery({
+    queryKey: saleQueryKeys.catalog(params),
+    isSearching: params.search !== undefined,
+    fetchPage: () => pdvService.listOrderCatalog(params),
   })
 
   return {
-    catalogError: query.error,
-    catalogPage: query.data,
-    isCatalogError: query.isError,
-    isLoadingCatalog: query.isPending && query.data === undefined,
-    isPageLoadingCatalog: query.isFetching && query.isPlaceholderData,
+    ...query,
+    isPageLoadingCatalog: isFetching && isPlaceholderData,
     isRefreshingCatalog:
-      query.isFetching && query.data !== undefined && !query.isPlaceholderData,
-    refetchCatalog: query.refetch,
+      isFetching && query.catalogPage !== undefined && !isPlaceholderData,
   }
 }

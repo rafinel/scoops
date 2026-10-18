@@ -18,12 +18,58 @@ GET {{baseUrl}}/discounts?search=chocolate&type=combo&status=inactive&page=1&pag
 Cookie: {{sessionCookie}}
 Accept: application/json
 
+### List sellable products for a Combo, hiding unavailable ones (200)
+GET {{baseUrl}}/discounts/catalog?page=1&pageSize=10
+Cookie: {{sessionCookie}}
+Accept: application/json
+
+# Without a search (or with a whitespace-only one), only products whose
+# availability is "available" are returned, and total counts only those.
+# Response body:
+# {
+#   "items": [{
+#     "productId": "{{resaleProductId}}",
+#     "name": "Chocolate",
+#     "kind": "resale",
+#     "stockControl": "single",
+#     "isActive": true,
+#     "isAvailable": true,
+#     "availability": "available",
+#     "sizes": [],
+#     "resalePrice": 12.5,
+#     "resaleBrands": []
+#   }],
+#   "page": 1,
+#   "pageSize": 10,
+#   "total": 1,
+#   "totalPages": 1
+# }
+
 ### List Portion products available for a Combo
 GET {{baseUrl}}/discounts/catalog?kind=portion&page=1&pageSize=10
 Cookie: {{sessionCookie}}
 Accept: application/json
 
-### List Resale products available for a Combo
+### Search Combo products by name, revealing unavailable ones (200)
+GET {{baseUrl}}/discounts/catalog?search=chocolate&page=1&pageSize=10
+Cookie: {{sessionCookie}}
+Accept: application/json
+
+# A non-empty trimmed search returns Portion and Resale matches in every availability,
+# ordered by name then id. isAvailable is true only when availability is "available".
+# Response body:
+# {
+#   "items": [
+#     { "productId": "{{resaleProductId}}", "name": "Chocolate", "kind": "resale", "isAvailable": true, "availability": "available", "sizes": [], "resaleBrands": [] },
+#     { "productId": "{{portionProductId}}", "name": "Chocolate sem preco", "kind": "portion", "isAvailable": false, "availability": "missing_price", "sizes": [], "resaleBrands": [] }
+#   ],
+#   "page": 1,
+#   "pageSize": 10,
+#   "total": 2,
+#   "totalPages": 1
+# }
+
+### Search Resale products for a Combo, revealing unavailable ones (200)
 GET {{baseUrl}}/discounts/catalog?kind=resale&search=chocolate&page=1&pageSize=10
 Cookie: {{sessionCookie}}
 Accept: application/json

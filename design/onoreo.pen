@@ -7142,6 +7142,47 @@
             },
             {
               "type": "frame",
+              "id": "yq4QV",
+              "x": 0,
+              "y": 0,
+              "name": "Aviso substituição de vínculos",
+              "enabled": false,
+              "width": "fill_container(0)",
+              "fill": "$warning-soft",
+              "cornerRadius": 10,
+              "gap": 10,
+              "padding": [
+                10,
+                14
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "gwLgT",
+                  "name": "I",
+                  "width": 16,
+                  "height": 16,
+                  "icon": "triangle-alert",
+                  "library": "lucide",
+                  "fill": "$warning"
+                },
+                {
+                  "type": "text",
+                  "id": "y9vv3X",
+                  "name": "Texto substituição",
+                  "fill": "$warning",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Este acompanhamento já está vinculado individualmente a outras porções. Ao salvar, esses vínculos serão substituídos pela configuração global.",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
               "id": "b55tO",
               "name": "Field Tipo",
               "width": "fill_container",
@@ -82291,7 +82332,10 @@
                                 {
                                   "type": "frame",
                                   "id": "DX838",
+                                  "x": 316,
+                                  "y": 12,
                                   "name": "Coluna USO",
+                                  "enabled": false,
                                   "width": 150,
                                   "children": [
                                     {
@@ -82411,7 +82455,10 @@
                                 {
                                   "type": "frame",
                                   "id": "EetIk",
+                                  "x": 316,
+                                  "y": 22,
                                   "name": "Uso Cobertura",
+                                  "enabled": false,
                                   "width": 150,
                                   "children": [
                                     {
@@ -82583,7 +82630,10 @@
                                 {
                                   "type": "frame",
                                   "id": "tX2pz",
+                                  "x": 316,
+                                  "y": 22,
                                   "name": "Uso Extra",
+                                  "enabled": false,
                                   "width": 150,
                                   "children": [
                                     {
@@ -82755,7 +82805,10 @@
                                 {
                                   "type": "frame",
                                   "id": "XzWYc",
+                                  "x": 316,
+                                  "y": 22,
                                   "name": "Uso Grátis",
+                                  "enabled": false,
                                   "width": 150,
                                   "children": [
                                     {
@@ -120721,6 +120774,157 @@
           ]
         }
       ]
+    },
+    {
+      "id": "zN1rE",
+      "type": "ref",
+      "ref": "iSdux",
+      "name": "Modal Vincular Acompanhamento — Global ligado",
+      "x": 11764,
+      "y": 1023,
+      "descendants": {
+        "X10CE": {
+          "enabled": true
+        },
+        "xmLEG": {
+          "content": "Castanha"
+        },
+        "k6Ihbx": {
+          "fill": "$primary",
+          "justifyContent": "end"
+        },
+        "U0RBc": {
+          "content": "Extra"
+        },
+        "T6EQTw": {
+          "content": "Nutty"
+        },
+        "uP3Cb": {
+          "content": "4,00"
+        },
+        "ajitu": {
+          "content": "20"
+        },
+        "Gmt7J": {
+          "content": "g"
+        },
+        "vJHbe": {
+          "content": "R$ 0,60"
+        },
+        "GU2uX": {
+          "content": "20 g × R$ 0,03/g"
+        }
+      }
+    },
+    {
+      "id": "ymvAn",
+      "type": "ref",
+      "ref": "iSdux",
+      "name": "Modal Vincular Acompanhamento — Global com substituição",
+      "x": 12364,
+      "y": 1023,
+      "descendants": {
+        "X10CE": {
+          "enabled": true
+        },
+        "xmLEG": {
+          "content": "Banana"
+        },
+        "k6Ihbx": {
+          "fill": "$primary",
+          "justifyContent": "end"
+        },
+        "yq4QV": {
+          "enabled": true
+        },
+        "U0RBc": {
+          "content": "Acompanhamento"
+        },
+        "T6EQTw": {
+          "content": "Feira"
+        },
+        "uP3Cb": {
+          "content": "2,00"
+        },
+        "ajitu": {
+          "content": "1"
+        },
+        "Gmt7J": {
+          "content": "un"
+        },
+        "vJHbe": {
+          "content": "R$ 0,80"
+        },
+        "GU2uX": {
+          "content": "1 un × R$ 0,80/un"
+        }
+      }
+    },
+    {
+      "id": "DT6Vc",
+      "type": "ref",
+      "ref": "iSdux",
+      "name": "Modal Editar Acompanhamento — Vínculo individual",
+      "x": 12964,
+      "y": 1023,
+      "descendants": {
+        "epWSZ": {
+          "content": "Editar Acompanhamento"
+        },
+        "w9s7d": {
+          "content": "Atualize como este item aparece no PDV."
+        },
+        "xmLEG": {
+          "content": "Nutella"
+        },
+        "U0RBc": {
+          "content": "Extra"
+        },
+        "T6EQTw": {
+          "content": "Ferrero"
+        },
+        "uP3Cb": {
+          "content": "5,00"
+        },
+        "ajitu": {
+          "content": "20"
+        },
+        "Gmt7J": {
+          "content": "g"
+        },
+        "vJHbe": {
+          "content": "R$ 1,20"
+        },
+        "GU2uX": {
+          "content": "20 g × R$ 0,06/g"
+        },
+        "i1laT/dURHs": {
+          "content": "Salvar alterações"
+        }
+      }
+    },
+    {
+      "id": "y7dXvq",
+      "type": "ref",
+      "ref": "iSdux",
+      "name": "Modal Vincular Acompanhamento — Global removido desta porção",
+      "x": 13564,
+      "y": 1023,
+      "descendants": {
+        "X10CE": {
+          "enabled": true
+        },
+        "EqC4B": {
+          "opacity": 0.6
+        },
+        "k6Ihbx": {
+          "fill": "$primary",
+          "justifyContent": "end"
+        },
+        "yJG0X": {
+          "content": "Aparece em todas as porções, incluindo as novas. Para deixar de ser global, use Remover na tabela."
+        }
+      }
     }
   ],
   "variables": {
