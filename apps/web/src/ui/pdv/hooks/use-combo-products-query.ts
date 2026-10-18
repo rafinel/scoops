@@ -18,6 +18,7 @@ export const useComboProductsQuery = (
   } = useCatalogQuery({
     enabled,
     queryKey: discountQueryKeys.catalog(params),
+    isSearching: params.search !== undefined,
     fetchPage: () => pdvService.listComboProducts(params),
   })
 

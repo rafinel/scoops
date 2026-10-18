@@ -14,6 +14,7 @@ export const useOrderCatalogQuery = (
   const params = { search: search || undefined, kind, page, pageSize: 20 }
   const { isFetching, isPlaceholderData, ...query } = useCatalogQuery({
     queryKey: saleQueryKeys.catalog(params),
+    isSearching: params.search !== undefined,
     fetchPage: () => pdvService.listOrderCatalog(params),
   })
 

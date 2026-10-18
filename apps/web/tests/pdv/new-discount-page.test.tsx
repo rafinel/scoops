@@ -349,3 +349,72 @@ for (const viewport of [
     expect(diagnostics).toEqual([])
   })
 }
+
+test('drops the searched rows while an uncached default list loads after clearing the search', async ({
+  page,
+  identityFixture,
+}) => {
+  const baseProduct = {
+    kind: 'resale',
+    stockControl: 'single',
+    isActive: true,
+    sizes: [],
+    resalePrice: 28,
+    resaleBrands: [],
+  }
+  const availableProduct = {
+    ...baseProduct,
+    productId: 'resale-available',
+    name: 'Açaí pronto',
+    isAvailable: true,
+    availability: 'available',
+  }
+  const outOfStockProduct = {
+    ...baseProduct,
+    productId: 'resale-out-of-stock',
+    name: 'Pote de açaí 1 L',
+    isAvailable: false,
+    availability: 'out_of_stock',
+  }
+  let releaseDefaultList: () => void = () => undefined
+  const defaultListGate = new Promise<void>((resolve) => {
+    releaseDefaultList = resolve
+  })
+  let isDefaultListRequested = false
+  await identityFixture.mockManagerSession()
+  await identityFixture.mockManagerAccount()
+  await page.setViewportSize({ width: 1481, height: 1050 })
+  await page.route('**/discounts/catalog**', async (route) => {
+    const query = new URL(route.request().url()).searchParams
+    const isSearching = Boolean(query.get('search'))
+    if (!isSearching && query.get('kind') === 'resale') {
+      isDefaultListRequested = true
+      await defaultListGate
+    }
+    const items = isSearching ? [availableProduct, outOfStockProduct] : [availableProduct]
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({ items, page: 1, pageSize: 50, total: items.length, totalPages: 1 }),
+    })
+  })
+
+  await page.goto('/discounts/new')
+  await page.getByRole('button', { name: 'Adicionar produto' }).click()
+  const productDialog = page.getByRole('dialog', { name: 'Adicionar produto' })
+  const searchInput = productDialog.getByRole('textbox', { name: 'Buscar produtos' })
+  await expect(productDialog.getByText('Açaí pronto')).toBeVisible()
+  await searchInput.fill('açaí')
+  await expect(productDialog.getByText('Pote de açaí 1 L')).toBeVisible()
+  await productDialog.getByRole('button', { name: 'Revendas' }).click()
+  await expect(productDialog.getByText('Pote de açaí 1 L')).toBeVisible()
+
+  await searchInput.fill('')
+  await expect.poll(() => isDefaultListRequested).toBe(true)
+  // The default request is still pending: no searched row may remain on screen.
+  expect(await productDialog.getByText('Pote de açaí 1 L').count()).toBe(0)
+  expect(await productDialog.getByText('Sem estoque').count()).toBe(0)
+
+  releaseDefaultList()
+  await expect(productDialog.getByText('Açaí pronto')).toBeVisible()
+  await expect(productDialog.getByText('Pote de açaí 1 L')).toHaveCount(0)
+})

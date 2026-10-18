@@ -471,6 +471,73 @@ test.describe('NewSalePage', () => {
     })
   }
 
+  test('drops the searched page while an uncached default list loads after clearing the search', async ({
+    page,
+    identityFixture,
+    pdvFixture,
+  }) => {
+    const unavailableProduct = {
+      ...resaleProduct,
+      productId: 'product-out-of-stock',
+      name: 'Pote de açaí 1 L',
+      availability: 'out_of_stock',
+      isAvailable: false,
+    }
+    await identityFixture.mockManagerSession()
+    await identityFixture.mockManagerAccount()
+    await pdvFixture.mockSalesChannels()
+    await page.setViewportSize({ width: 1481, height: 1050 })
+    let releaseDefaultList: () => void = () => undefined
+    const defaultListGate = new Promise<void>((resolve) => {
+      releaseDefaultList = resolve
+    })
+    let isDefaultListRequested = false
+    await page.route('**/orders/catalog*', async (route) => {
+      const query = new URL(route.request().url()).searchParams
+      const isSearching = Boolean(query.get('search'))
+      const isUncachedDefault = !isSearching && query.get('kind') === 'portion'
+      if (isUncachedDefault) {
+        isDefaultListRequested = true
+        await defaultListGate
+      }
+      const items = isSearching
+        ? [{ ...product, availability: 'available' }, unavailableProduct]
+        : [{ ...product, availability: 'available' }]
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items,
+          page: 1,
+          pageSize: 20,
+          total: items.length,
+          totalPages: 1,
+        }),
+        status: 200,
+      })
+    })
+
+    await page.goto('/sales/new')
+    await expect(page.getByText('Taça de morango').first()).toBeVisible({
+      timeout: INITIAL_PAGE_READY_TIMEOUT_MS,
+    })
+    const searchInput = page.getByRole('textbox', { name: 'Buscar produto por nome' })
+    await searchInput.fill('açaí')
+    await expect(page.getByText('2 produtos encontrados · 0 adicionados')).toBeVisible()
+    await page.getByRole('button', { name: 'Porções' }).click()
+    await expect(page.getByText('2 produtos encontrados · 0 adicionados')).toBeVisible()
+
+    await searchInput.fill('')
+    await expect.poll(() => isDefaultListRequested).toBe(true)
+    // The default request is still pending: no searched card or count may remain on screen.
+    expect(await page.getByText('Sem estoque').count()).toBe(0)
+    expect(await page.getByText('Pote de açaí 1 L').count()).toBe(0)
+    expect(await page.getByText('2 produtos encontrados · 0 adicionados').count()).toBe(0)
+
+    releaseDefaultList()
+    await expect(page.getByText('1 produtos elegíveis · 0 adicionados')).toBeVisible()
+    await expect(page.getByText('Sem estoque')).toHaveCount(0)
+  })
+
   test('presents a catalog item without availability from its isAvailable fact', async ({
     page,
     identityFixture,
