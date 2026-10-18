@@ -2,7 +2,7 @@
 feature: "pdv/new-order-workflow/changes/search-only-unavailable-products"
 spec: ./spec.md
 spec_revision: 1
-status: ready
+status: completed
 updated_at: 2026-10-18
 ---
 
@@ -10,7 +10,7 @@ updated_at: 2026-10-18
 
 Evaluation of Spec revision `1` against the current implementation.
 
-Current result: implementation of Spec revision 1 is integrated across Core, Server and Web. Every acceptance criterion has current passing evidence, the Implementation Reviewer and Visual Reviewer findings are reconciled, and no blocking finding remains. Delivery (commit, PR, CI) is owned by `conclude-spec`.
+Current result: implementation of Spec revision 1 is integrated across Core, Server and Web. Every acceptance criterion has current passing evidence, the Implementation Reviewer and Visual Reviewer findings are reconciled, and no blocking finding remains. Delivered in [PR #65](https://github.com/rafinel/scoops/pull/65); candidate PR CI passed.
 
 ## Acceptance matrix
 
@@ -122,16 +122,30 @@ Visual evidence uses `EV-*` identifiers with `Type = visual`.
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| `CI-01` | Core CI (includes Mutation baseline/candidate 1–4 and `Mutation score (70% per module, Billing temporarily excluded)`) | `64cec27e` | success | https://github.com/rafinel/scoops/actions/runs/39153484813 |
+| `CI-02` | Server CI | `64cec27e` | success | https://github.com/rafinel/scoops/actions/runs/39153484825 |
+| `CI-03` | Web CI | `64cec27e` | success | https://github.com/rafinel/scoops/actions/runs/39153484706 |
+| `CI-04` | Validation CI | `64cec27e` | success | https://github.com/rafinel/scoops/actions/runs/39153484758 |
+
+All 34 checks of PR #65 passed on the implementation candidate head `64cec27e`. Server CI, Web CI, Core CI and Validation CI were all applicable (inputs changed in each workspace). The mutation score gate passed alongside the local 100% result (`EV-02`, `EV-21`, `EV-22`).
+
+## Authority updates
+
+| Finding | Authority path | Disposition | Reason |
+| --- | --- | --- | --- |
+| `FND-01` line-sensitive complexity baseline | `documentation/tooling.md` | No change | Feature-local tooling note; flagged to tooling owners, no new policy. |
+| `FND-02` spread-exposed DTO fields | `documentation/rules/rest-layer-rules.md` | No change | Already requires explicit documented DTO fields; caught by tests. |
+| PRD amendment | `documentation/prds/pdv.md` | Updated | Applied before the Spec and delivered in this PR. |
 
 ## Continuation handoff
 
-- **Branch/candidate:** `feat/enhanced-pdv-search`, uncommitted working tree.
-- **Progress:** complete and ready. Integrated candidate verified; both independent reviews reconciled; corrections rerun.
-- **Interrupted/uncommitted paths:** `documentation/prds/pdv.md` (user-owned PRD amendment), this change folder, and all implementation paths.
+- **Branch/candidate:** `feat/enhanced-pdv-search`, PR #65, candidate head `64cec27e`.
+- **Progress:** completed. Candidate published as PR #65; all applicable CI passed.
+- **Interrupted/uncommitted paths:** none.
 - **Unfinished criteria:** none.
 - **Blockers and stale evidence:** none.
 - **Latest checkers:** `EV-01`–`EV-22` and `MV-01`/`MV-02` passed.
-- **Next useful action:** `conclude-spec` (commit, PR, CI) once the user authorizes publication; the working tree is uncommitted.
+- **Next useful action:** reviewer comments are handled by `resolve-pr-feedback`; do not merge automatically.
 
 ## History
 
@@ -140,3 +154,4 @@ Visual evidence uses `EV-*` identifiers with `Type = visual`.
 | 2026-10-18 | Implementation started; Spec set to `in_progress`. |
 | 2026-10-18 | Core, Server and Web integrated; automated and manual evidence recorded. |
 | 2026-10-18 | Implementation and Visual reviews reconciled; corrections rerun; Evaluation set to `ready`. |
+| 2026-10-18 | Published as PR #65; PR CI passed on `64cec27e`; Evaluation and Spec set to `completed`. |

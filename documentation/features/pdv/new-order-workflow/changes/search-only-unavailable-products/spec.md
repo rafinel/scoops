@@ -1,6 +1,6 @@
 ---
 title: Search-only unavailable products in the sale catalog
-status: in_progress
+status: completed
 revision: 1
 source:
   type: issue
@@ -18,6 +18,8 @@ last_updated_at: 2026-10-18
 ---
 
 # Search-only unavailable products in the sale catalog
+
+**Outcome:** delivered in [PR #65](https://github.com/rafinel/scoops/pull/65); PRQ-02 fully and PRQ-11/12/13 partially delivered as scoped. Evidence: [evaluation.md](./evaluation.md).
 
 ## 1. Context and scope
 
