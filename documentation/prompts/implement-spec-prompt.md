@@ -15,8 +15,9 @@ Spec → autonomous implementation → integrated verification
                                  conclude-spec
 ```
 
-The Spec defines behavior, boundaries, consequential decisions and proofs. The agent
-chooses implementation order, decomposition and delegation. Evaluation records actual
+The Spec defines behavior, boundaries, consequential decisions and proofs. This prompt
+defines the proof workflow and never prescribes the plan: the agent chooses implementation
+order, decomposition, delegation and isolation. Evaluation records actual
 progress, evidence and findings; it is not a second task plan. Do not create or maintain
 `plan.md`, phase ledgers, dependency waves or task-exit bureaucracy.
 
@@ -50,16 +51,16 @@ Plan is context only and does not control execution or readiness.
 
 ## Organize and implement
 
-Implement a small cohesive scope directly when appropriate. Delegate independent workstreams
-with stable input contracts and non-overlapping paths. Give each Builder a descriptive stable
-name, exact Spec revision, relevant `FR-*`/`AC-*`, observable outcome, owned and prohibited
-paths, selected Rules and design references. Tell Builders they share the codebase and must
-preserve others' edits. Reuse the responsible Builder for related work and corrections.
+This prompt does not plan the implementation. It defines what must be read, proven and
+recorded; the agent decides how to get there. Implementation order, decomposition, delegation
+and isolation are the agent's own plan, made for the Spec at hand and not dictated here. The
+agent may implement directly, delegate independent workstreams to subagents, or run them in
+parallel in isolated git worktrees when their paths do not overlap and their input contracts
+are stable, then merge and re-verify. No fixed roles, dispatch ledger or execution artifact
+is required.
 
-The main agent owns shared decisions, root configuration, lockfiles, generated/shared files,
-integration, Evaluation and the official readiness verdict. Inspect delegated diffs together;
-a Builder's report alone does not establish acceptance. Do not require fixed Builder roles,
-one agent per layer, a written dispatch ledger or a separate execution artifact.
+Whoever delegates still integrates: inspect delegated diffs together, because a subagent's
+report alone does not establish acceptance.
 
 Run focused checks during development. Use the repository's commands and test-ownership
 policy; do not add direct tests to indirect boundaries or weaken tests, coverage thresholds,
