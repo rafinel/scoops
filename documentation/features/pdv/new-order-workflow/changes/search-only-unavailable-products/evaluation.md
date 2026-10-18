@@ -2,7 +2,7 @@
 feature: "pdv/new-order-workflow/changes/search-only-unavailable-products"
 spec: ./spec.md
 spec_revision: 1
-status: ready
+status: completed
 updated_at: 2026-10-18
 ---
 
@@ -10,7 +10,7 @@ updated_at: 2026-10-18
 
 Evaluation of Spec revision `1` against the current implementation.
 
-Current result: implementation of Spec revision 1 is integrated across Core, Server and Web. Every acceptance criterion has current passing evidence, the Implementation Reviewer and Visual Reviewer findings are reconciled, and no blocking finding remains. Delivered in [PR #65](https://github.com/rafinel/scoops/pull/65). Review cycle 1 (`FND-08`) is corrected locally and awaits publication and PR CI on the corrected head; CI rows below describe the earlier head `64cec27e`.
+Current result: implementation of Spec revision 1 is integrated across Core, Server and Web. Every acceptance criterion has current passing evidence, the Implementation Reviewer and Visual Reviewer findings are reconciled, and no blocking finding remains. Delivered in [PR #65](https://github.com/rafinel/scoops/pull/65). Review cycle 1 (`FND-08`) is corrected, published and passed PR CI on `c62221c2`.
 
 ## Acceptance matrix
 
@@ -130,8 +130,12 @@ Visual evidence uses `EV-*` identifiers with `Type = visual`.
 | `CI-02` | Server CI | `64cec27e` | success | https://github.com/rafinel/scoops/actions/runs/39153484825 |
 | `CI-03` | Web CI | `64cec27e` | success | https://github.com/rafinel/scoops/actions/runs/39153484706 |
 | `CI-04` | Validation CI | `64cec27e` | success | https://github.com/rafinel/scoops/actions/runs/39153484758 |
+| `CI-05` | Core CI (including the mutation score gate) | `c62221c2` | success | https://github.com/rafinel/scoops/actions/runs/39157799067 |
+| `CI-06` | Server CI | `c62221c2` | success | https://github.com/rafinel/scoops/actions/runs/39157799066 |
+| `CI-07` | Web CI | `c62221c2` | success | https://github.com/rafinel/scoops/actions/runs/39157799034 |
+| `CI-08` | Validation CI | `c62221c2` | success | https://github.com/rafinel/scoops/actions/runs/39157799042 |
 
-All 34 checks of PR #65 passed on the implementation candidate head `64cec27e`. Server CI, Web CI, Core CI and Validation CI were all applicable (inputs changed in each workspace). The mutation score gate passed alongside the local 100% result (`EV-02`, `EV-21`, `EV-22`).
+All 34 checks of PR #65 passed on the implementation candidate head `c62221c2` (earlier `64cec27e`). Server CI, Web CI, Core CI and Validation CI were all applicable (inputs changed in each workspace). The mutation score gate passed alongside the local 100% result (`EV-02`, `EV-21`, `EV-22`).
 
 ## Authority updates
 
@@ -149,6 +153,7 @@ All 34 checks of PR #65 passed on the implementation candidate head `64cec27e`. 
 - **Unfinished criteria:** none.
 - **Blockers and stale evidence:** none.
 - **Latest checkers:** `EV-01`–`EV-23` and `MV-01`/`MV-02` passed.
+- **Review cycle 1:** thread `discussion_r4308157223` (`FND-08`) corrected and CI-verified on `c62221c2`.
 - **Next useful action:** reviewer comments are handled by `resolve-pr-feedback`; do not merge automatically.
 
 ## History
@@ -161,3 +166,4 @@ All 34 checks of PR #65 passed on the implementation candidate head `64cec27e`. 
 | 2026-10-18 | Published as PR #65; PR CI passed on `64cec27e`; Evaluation and Spec set to `completed`. |
 | 2026-10-18 | Review cycle 1: Codex comment on PR #65 (`FND-08`) classified as implementation correction; Spec set to `open`, Evaluation `in_progress`. |
 | 2026-10-18 | `FND-08` corrected and verified (`EV-23`); Evaluation set to `ready`. |
+| 2026-10-18 | Corrected head `c62221c2` passed PR CI (39 checks); Evaluation and Spec set to `completed`. |
