@@ -945,6 +945,17 @@ describe('Link Product Accompaniment Use Case', () => {
       expect(scope.eventsRepository.add).not.toHaveBeenCalled()
     })
 
+    it('never reports other Portion links for a global row, even when the product has many rows', async () => {
+      scope.productAccompanimentsRepository.countByAccompanimentProductId.mockResolvedValue(
+        3,
+      )
+
+      await expect(useCase.execute(globalRequest)).resolves.toMatchObject({
+        isGlobal: true,
+        hasOtherPortionLinks: false,
+      })
+    })
+
     it('reports whether the individual accompaniment is linked to other Portions', async () => {
       const request = {
         actor,

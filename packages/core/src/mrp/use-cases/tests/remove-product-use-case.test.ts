@@ -108,6 +108,29 @@ describe('Remove Product Use Case', () => {
     ).rejects.toBeInstanceOf(AuthorizationError)
   })
 
+  it('hides a product owned by another establishment without removing anything', async () => {
+    scope.productsRepository.findByIdForUpdate.mockResolvedValue({
+      ...product,
+      establishmentId: 'other-establishment',
+    })
+
+    await expect(
+      useCase.execute({ actor: manager, productId: product.id }),
+    ).rejects.toThrow('Produto não encontrado.')
+    expect(scope.productsRepository.remove).not.toHaveBeenCalled()
+    expect(scope.productAccompanimentsRepository.removeByProductId).not.toHaveBeenCalled()
+  })
+
+  it('tells operators that only managers remove products, before any transaction', async () => {
+    await expect(
+      useCase.execute({
+        actor: { ...manager, profile: UserProfile.Operator },
+        productId: product.id,
+      }),
+    ).rejects.toThrow('Somente gestores podem remover produtos.')
+    expect(database.run).not.toHaveBeenCalled()
+  })
+
   describe('global accompaniments', () => {
     const portionA = ProductFaker.fake({
       id: 'portion-a',

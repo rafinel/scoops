@@ -712,6 +712,16 @@ describe('Update Product Accompaniment Use Case', () => {
       scope.productAccompanimentsRepository.addMany.mockResolvedValue([])
     })
 
+    it('never reports other Portion links for a global row, even when the product has many rows', async () => {
+      scope.productAccompanimentsRepository.countByAccompanimentProductId.mockResolvedValue(
+        3,
+      )
+
+      await expect(
+        useCase.execute(request({ quantityPerPortion: 2 })),
+      ).resolves.toMatchObject({ isGlobal: true, hasOtherPortionLinks: false })
+    })
+
     it('changes the shared values for the global and every Portion row', async () => {
       const result = await useCase.execute(
         request({
