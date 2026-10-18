@@ -13,6 +13,8 @@ export type IconName =
   | 'chart-no-axes-combined'
   | 'check'
   | 'circle-check'
+  | 'circle-dollar-sign'
+  | 'circle-off'
   | 'clock'
   | 'door-open'
   | 'ellipsis'

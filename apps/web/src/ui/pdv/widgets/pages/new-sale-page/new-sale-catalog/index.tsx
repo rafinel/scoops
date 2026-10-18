@@ -3,18 +3,14 @@ import type {
   SalesCatalogProduct,
 } from '@scoops/core/pdv/domain/structures'
 
-import { CATEGORY_ICONS } from '@/constants/product-category-icons'
-import { CATEGORY_SOFT_CLASSES } from '@/constants/product-category-colors'
-import { Badge } from '@/ui/shadcn/badge'
 import { Button } from '@/ui/shadcn/button'
-import { Card, CardContent } from '@/ui/shadcn/card'
 import { Input } from '@/ui/shadcn/input'
 import { PageRefreshStatus } from '@/ui/pdv/widgets/pages/query-refresh-status'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import { Pagination } from '@/ui/shared/widgets/components/pagination'
-import { useFormatCurrency } from '@/ui/shared/hooks/use-format-currency'
 import { cn } from '@/ui/shared/lib/utils'
 
+import { NewSaleCatalogCard } from './new-sale-catalog-card'
 import { NewSaleCatalogLoading } from './new-sale-catalog-loading'
 import { useNewSaleCatalog } from './use-new-sale-catalog'
 
@@ -30,9 +26,10 @@ const KIND_LABELS: Record<SaleItemKind | 'all', string> = {
 }
 
 export const NewSaleCatalog = (props: NewSaleCatalogProps) => {
-  const formatCurrency = useFormatCurrency()
   const {
+    catalogCards,
     catalogPage,
+    countLabel,
     handleClearFilters,
     handleKindChange,
     handlePageChange,
@@ -45,7 +42,10 @@ export const NewSaleCatalog = (props: NewSaleCatalogProps) => {
     kind,
     refetchCatalog,
     search,
-  } = useNewSaleCatalog({ onSelectProduct: props.onSelectProduct })
+  } = useNewSaleCatalog({
+    addedProductIds: props.addedProductIds,
+    onSelectProduct: props.onSelectProduct,
+  })
 
   return (
     <section aria-labelledby='new-sale-products-title' className='min-w-0'>
@@ -54,11 +54,7 @@ export const NewSaleCatalog = (props: NewSaleCatalogProps) => {
           <h2 className='text-lg font-extrabold' id='new-sale-products-title'>
             Produtos
           </h2>
-          <p className='text-sm text-muted-foreground'>
-            {catalogPage
-              ? `${catalogPage.total} produtos elegíveis · ${props.addedProductIds.length} adicionados`
-              : 'Selecione um produto para começar'}
-          </p>
+          <p className='text-sm text-muted-foreground'>{countLabel}</p>
         </div>
         <fieldset aria-label='Filtrar por tipo' className='flex gap-2'>
           {(['all', 'portion', 'resale'] as const).map((value) => (
@@ -151,95 +147,13 @@ export const NewSaleCatalog = (props: NewSaleCatalogProps) => {
       {catalogPage && catalogPage.items.length > 0 ? (
         <>
           <div className='mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3'>
-            {catalogPage.items.map((product) => {
-              const isAdded = props.addedProductIds.includes(product.productId)
-              const isUnavailable = !product.isAvailable
-              const availableSize = product.sizes.find(
-                (size) => size.isActive && size.isAvailable,
-              )
-              const availableBrand = product.resaleBrands.find(
-                (brand) => brand.isActive && brand.isAvailable,
-              )
-              const startingPrice =
-                product.kind === 'portion'
-                  ? availableSize?.basePrice
-                  : (availableBrand?.basePrice ?? product.resalePrice)
-
-              return (
-                <Card
-                  className={cn(
-                    'min-w-0 rounded-2xl transition-colors',
-                    isAdded && 'border-primary ring-1 ring-primary',
-                    isUnavailable && 'opacity-55',
-                  )}
-                  key={product.productId}
-                >
-                  <CardContent className='flex min-h-44 flex-col p-4'>
-                    <div className='flex items-start justify-between gap-3'>
-                      <span
-                        className={cn(
-                          'grid size-10 place-items-center rounded-xl',
-                          CATEGORY_SOFT_CLASSES[product.kind],
-                        )}
-                      >
-                        <Icon className='size-5' name={CATEGORY_ICONS[product.kind]} />
-                      </span>
-                      <Badge className={CATEGORY_SOFT_CLASSES[product.kind]}>
-                        {product.kind === 'portion' ? 'Porção' : 'Revenda'}
-                      </Badge>
-                    </div>
-                    <h3 className='mt-4 line-clamp-2 font-extrabold'>{product.name}</h3>
-                    <p className='mt-1 min-h-5 text-sm text-muted-foreground'>
-                      {product.kind === 'portion'
-                        ? 'Escolha o tamanho e os acompanhamentos'
-                        : product.stockControl === 'by-brand'
-                          ? 'Escolha a marca e a embalagem'
-                          : 'Produto com estoque único'}
-                    </p>
-                    <div className='mt-auto flex items-end justify-between gap-2 pt-4'>
-                      <span className='text-sm font-extrabold'>
-                        {startingPrice === undefined
-                          ? 'Preço sob consulta'
-                          : `A partir de ${formatCurrency(startingPrice)}`}
-                      </span>
-                      <Badge
-                        className={cn(
-                          'shrink-0',
-                          isUnavailable
-                            ? 'bg-danger-soft text-danger'
-                            : isAdded
-                              ? 'bg-accent text-primary'
-                              : 'bg-success-soft text-success',
-                        )}
-                      >
-                        <Icon
-                          name={isUnavailable ? 'x' : isAdded ? 'check' : 'circle-check'}
-                        />
-                        {isUnavailable
-                          ? 'Sem estoque'
-                          : isAdded
-                            ? 'Adicionado'
-                            : 'Disponível'}
-                      </Badge>
-                    </div>
-                    <Button
-                      aria-label={`${isAdded ? 'Adicionar outra configuração de' : 'Adicionar'} ${product.name}`}
-                      className='mt-3 w-full'
-                      disabled={isUnavailable}
-                      onClick={() => handleSelectProduct(product)}
-                      type='button'
-                      variant='default'
-                    >
-                      {isAdded
-                        ? product.kind === 'portion'
-                          ? 'Adicionar outra porção'
-                          : 'Adicionar outra unidade'
-                        : 'Adicionar'}
-                    </Button>
-                  </CardContent>
-                </Card>
-              )
-            })}
+            {catalogCards.map((card) => (
+              <NewSaleCatalogCard
+                card={card}
+                key={card.product.productId}
+                onSelectProduct={handleSelectProduct}
+              />
+            ))}
           </div>
           <Pagination
             className='mt-4 rounded-xl border'

@@ -8,8 +8,8 @@ import type {
   OrderRegistrationInput,
   OrderRegistrationResult,
   ComboUpdate,
+  SalesCatalogListItem,
   SalesCatalogListParams,
-  SalesCatalogProduct,
   SaleItemKind,
   SalesChannelCreate,
   SalesChannelUpdate,
@@ -38,11 +38,11 @@ type ComboPageJson = Omit<PaginationResponse<ComboDetailsJson>, 'items'> & {
   items: readonly ComboDetailsJson[]
 }
 
-type SalesCatalogPageJson = Omit<PaginationResponse<SalesCatalogProduct>, 'items'> & {
+type SalesCatalogPageJson = Omit<PaginationResponse<SalesCatalogListItem>, 'items'> & {
   items: readonly SalesCatalogProductJson[]
 }
 
-type SalesCatalogProductJson = SalesCatalogProduct
+type SalesCatalogProductJson = SalesCatalogListItem
 
 type OrderJson = Omit<OrderDetails, 'createdAt' | 'cancellation'> & {
   createdAt: string
@@ -123,7 +123,7 @@ function mapComboPage(response: ComboPageJson): PaginationResponse<ComboDetails>
 
 function mapSalesCatalogPage(
   response: SalesCatalogPageJson,
-): PaginationResponse<SalesCatalogProduct> {
+): PaginationResponse<SalesCatalogListItem> {
   return new PaginationResponse(
     response.items,
     response.page,
@@ -270,7 +270,7 @@ export const PdvService = (restClient: RestClient): PdvRestService => ({
       `/orders/catalog?${params.toString()}`,
     )
     if (!response.isSuccessful) {
-      return response as unknown as RestResponse<PaginationResponse<SalesCatalogProduct>>
+      return response as unknown as RestResponse<PaginationResponse<SalesCatalogListItem>>
     }
 
     return new RestResponse({
@@ -336,7 +336,7 @@ export const PdvService = (restClient: RestClient): PdvRestService => ({
       `/discounts/catalog?${params}`,
     )
     if (!response.isSuccessful) {
-      return response as unknown as RestResponse<PaginationResponse<SalesCatalogProduct>>
+      return response as unknown as RestResponse<PaginationResponse<SalesCatalogListItem>>
     }
 
     return new RestResponse({

@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react'
 
-import type {
-  ComboComponentDetails,
-  DiscountComponent,
-  SaleItemKind,
-  SalesCatalogProduct,
+import {
+  SalesCatalogAvailability,
+  type ComboComponentDetails,
+  type DiscountComponent,
+  type SaleItemKind,
+  type SalesCatalogAccompaniment,
+  type SalesCatalogBrand,
+  type SalesCatalogListItem,
+  type SalesCatalogProduct,
+  type SalesCatalogSize,
 } from '@scoops/core/pdv/domain/structures'
 
 import { useComboProductsQuery } from '@/ui/pdv/hooks/use-combo-products-query'
+import { useEffectiveSearch } from '@/ui/pdv/hooks/use-effective-search'
+import { getEffectiveAvailability } from '@/ui/pdv/utils/get-effective-availability'
+import type { UnavailableSalesCatalogAvailability } from '@/ui/pdv/widgets/components/sales-catalog-availability-pill'
 
 export type ComboProductDetails = ComboComponentDetails
 
@@ -18,7 +26,50 @@ export type ComboProductDialogProps = {
   open: boolean
 }
 
+export type ComboProductRow = {
+  product: SalesCatalogListItem
+  unavailableReason?: UnavailableSalesCatalogAvailability
+  availabilityPillId: string
+}
+
+function createProductRow(product: SalesCatalogListItem): ComboProductRow {
+  const availability = getEffectiveAvailability(product)
+
+  return {
+    product,
+    unavailableReason:
+      availability === SalesCatalogAvailability.Available ? undefined : availability,
+    availabilityPillId: `combo-product-availability-${product.productId}`,
+  }
+}
+
 const roundCents = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100
+
+function calculateUnitPrice(
+  product: SalesCatalogProduct | undefined,
+  size: SalesCatalogSize | undefined,
+  brand: SalesCatalogBrand | undefined,
+  accompaniments: readonly SalesCatalogAccompaniment[],
+) {
+  if (product?.kind !== 'portion') return brand?.basePrice ?? product?.resalePrice ?? 0
+
+  return roundCents(
+    (size?.basePrice ?? 0) +
+      accompaniments.reduce((total, item) => total + item.basePrice, 0),
+  )
+}
+
+function isConfigurationValid(
+  product: SalesCatalogProduct | undefined,
+  size: SalesCatalogSize | undefined,
+  brand: SalesCatalogBrand | undefined,
+) {
+  if (!product) return false
+  if (product.kind === 'portion') return Boolean(size?.isActive)
+  if (brand) return brand.isActive
+
+  return product.resalePrice !== undefined
+}
 
 export function useComboProductDialog({
   existingProductIds,
@@ -27,7 +78,6 @@ export function useComboProductDialog({
   open,
 }: ComboProductDialogProps) {
   const [search, setSearch] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [kind, setKind] = useState<SaleItemKind | undefined>()
   const [selectedProduct, setSelectedProduct] = useState<SalesCatalogProduct>()
   const [sizeId, setSizeId] = useState<string>()
@@ -35,18 +85,14 @@ export function useComboProductDialog({
   const [accompanimentIds, setAccompanimentIds] = useState<string[]>([])
   const [quantity, setQuantity] = useState(1)
   const [configurationError, setConfigurationError] = useState<string | null>(null)
+  const effectiveSearch = useEffectiveSearch(search)
   const {
     catalogError,
     catalogPage,
     isCatalogError,
     isLoadingCatalog,
     isRefreshingCatalog,
-  } = useComboProductsQuery(debouncedSearch, kind, open)
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setDebouncedSearch(search.trim()), 250)
-    return () => clearTimeout(timeout)
-  }, [search])
+  } = useComboProductsQuery(effectiveSearch, kind, open)
 
   useEffect(() => {
     if (!open) return
@@ -60,9 +106,11 @@ export function useComboProductDialog({
     setConfigurationError(null)
   }, [open])
 
-  const products = (catalogPage?.items ?? []).filter(
-    (product) => product.isActive && !existingProductIds.includes(product.productId),
-  )
+  const productRows = (catalogPage?.items ?? [])
+    .filter(
+      (product) => product.isActive && !existingProductIds.includes(product.productId),
+    )
+    .map(createProductRow)
   const selectedSize = selectedProduct?.sizes.find((size) => size.sizeId === sizeId)
   const selectedBrand = selectedProduct?.resaleBrands.find(
     (brand) => brand.brandId === brandId,
@@ -73,25 +121,18 @@ export function useComboProductDialog({
         accompaniment.isActive &&
         accompanimentIds.includes(accompaniment.accompanimentId),
     ) ?? []
-  const unitPrice =
-    selectedProduct?.kind === 'portion'
-      ? roundCents(
-          (selectedSize?.basePrice ?? 0) +
-            activeAccompaniments.reduce((total, item) => total + item.basePrice, 0),
-        )
-      : (selectedBrand?.basePrice ?? selectedProduct?.resalePrice ?? 0)
-  const subtotal = roundCents(unitPrice * quantity)
-  const isValidConfiguration = Boolean(
-    selectedProduct &&
-      quantity > 0 &&
-      (selectedProduct.kind === 'portion'
-        ? selectedSize?.isActive
-        : selectedBrand
-          ? selectedBrand.isActive
-          : selectedProduct.resalePrice !== undefined),
+  const unitPrice = calculateUnitPrice(
+    selectedProduct,
+    selectedSize,
+    selectedBrand,
+    activeAccompaniments,
   )
+  const subtotal = roundCents(unitPrice * quantity)
+  const isValidConfiguration =
+    quantity > 0 && isConfigurationValid(selectedProduct, selectedSize, selectedBrand)
 
-  function handleSelectProduct(product: SalesCatalogProduct) {
+  function handleSelectProduct(product: SalesCatalogListItem) {
+    if (getEffectiveAvailability(product) !== SalesCatalogAvailability.Available) return
     setSelectedProduct(product)
     setSizeId(
       product.kind === 'portion'
@@ -181,7 +222,7 @@ export function useComboProductDialog({
     isRefreshingCatalog,
     isValidConfiguration,
     kind,
-    products,
+    productRows,
     quantity,
     search,
     selectedBrand,

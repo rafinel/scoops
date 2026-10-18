@@ -1,7 +1,8 @@
 import type {
   ComboDetails,
-  SalesCatalogProduct,
+  SalesCatalogListItem,
 } from '@scoops/core/pdv/domain/structures'
+import { SalesCatalogProductFaker } from '@scoops/core/pdv/domain/structures/fakers'
 
 export const comboDetails: ComboDetails = {
   combo: {
@@ -62,35 +63,45 @@ export const comboDetails: ComboDetails = {
   savings: 4,
 }
 
-export const portionProduct: SalesCatalogProduct = {
-  isActive: true,
-  isAvailable: true,
-  kind: 'portion',
-  name: 'Açaí',
-  productId: 'portion-2',
-  resaleBrands: [],
-  sizes: [
-    {
-      accompaniments: [],
-      basePrice: 14,
-      isActive: true,
-      isAvailable: true,
-      name: '500 ml',
-      quantity: 500,
-      sizeId: 'size-2',
-    },
-  ],
-  stockControl: 'single',
-}
+export const portionProduct: SalesCatalogListItem = SalesCatalogProductFaker.fakeListItem(
+  {
+    kind: 'portion',
+    name: 'Açaí',
+    productId: 'portion-2',
+    resalePrice: undefined,
+    sizes: [
+      {
+        accompaniments: [],
+        basePrice: 14,
+        isActive: true,
+        isAvailable: true,
+        name: '500 ml',
+        quantity: 500,
+        sizeId: 'size-2',
+      },
+    ],
+  },
+)
 
-export const resaleProduct: SalesCatalogProduct = {
-  isActive: true,
-  isAvailable: true,
-  kind: 'resale',
+export const resaleProduct: SalesCatalogListItem = SalesCatalogProductFaker.fakeListItem({
   name: 'Brownie',
   productId: 'resale-2',
   resalePrice: 10,
-  resaleBrands: [],
-  sizes: [],
-  stockControl: 'single',
+})
+
+export const outOfStockProduct: SalesCatalogListItem = {
+  ...resaleProduct,
+  availability: 'out_of_stock',
+  isAvailable: false,
+  name: 'Pote de açaí 1 L',
+  productId: 'resale-out-of-stock',
+}
+
+export const missingPriceProduct: SalesCatalogListItem = {
+  ...resaleProduct,
+  availability: 'missing_price',
+  isAvailable: false,
+  name: 'Pote de açaí 500 ml',
+  productId: 'resale-missing-price',
+  resalePrice: undefined,
 }

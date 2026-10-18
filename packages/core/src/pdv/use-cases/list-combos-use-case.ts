@@ -1,3 +1,5 @@
+import { CatalogSearchStrategy } from '#pdv/domain/strategies/catalog-search-strategy.ts'
+import { PaginationParamsStrategy } from '#pdv/domain/strategies/pagination-params-strategy.ts'
 import type { PdvDatabaseRepositories } from '#pdv/interfaces/pdv-database.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Combo } from '#pdv/domain/entities/combo.ts'
@@ -30,6 +32,9 @@ type Request = Omit<ComboListParams, 'establishmentId' | 'page' | 'pageSize'> & 
 export class ListCombosUseCase
   implements UseCase<Request, PaginationResponse<ComboDetails>>
 {
+  private readonly catalogSearch = new CatalogSearchStrategy()
+  private readonly paginationParams = new PaginationParamsStrategy()
+
   constructor(
     private readonly database: PdvDatabase,
     private readonly catalog: SalesCatalogProvider,
@@ -37,11 +42,10 @@ export class ListCombosUseCase
 
   async execute(request: Request): Promise<PaginationResponse<ComboDetails>> {
     this.validateActor(request.actor)
-    const page = request.page ?? 1
-    const pageSize = request.pageSize ?? 20
-    this.validatePage(page, pageSize)
-    const search = request.search?.trim()
-    if (search && search.length > 120)
+    const { page, pageSize, isValid } = this.paginationParams.execute(request)
+    if (!isValid) throw new BadRequestError('Os parâmetros de paginação são inválidos.')
+    const { search, isValid: isValidSearch } = this.catalogSearch.execute(request.search)
+    if (!isValidSearch)
       throw new BadRequestError('A busca deve ter no máximo 120 caracteres.')
     if (request.type !== undefined && !Object.values(DiscountType).includes(request.type))
       throw new BadRequestError('O tipo de desconto é inválido.')
@@ -236,15 +240,5 @@ export class ListCombosUseCase
   private validateActor(actor: ComboActor): void {
     if (actor.profile !== UserProfile.Manager && actor.profile !== UserProfile.Operator)
       throw new AuthorizationError('Somente gestores podem gerenciar combos.')
-  }
-  private validatePage(page: number, pageSize: number): void {
-    if (
-      !Number.isInteger(page) ||
-      page < 1 ||
-      !Number.isInteger(pageSize) ||
-      pageSize < 1 ||
-      pageSize > 50
-    )
-      throw new BadRequestError('Os parâmetros de paginação são inválidos.')
   }
 }

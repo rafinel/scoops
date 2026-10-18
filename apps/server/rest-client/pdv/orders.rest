@@ -69,17 +69,23 @@ Content-Type: application/json
 #   }
 # }
 
-### List the tenant order catalog (200)
+### List the sellable order catalog, hiding unavailable products (200)
 GET {{baseUrl}}/orders/catalog?page=1&pageSize=20
 Cookie: {{sessionCookie}}
 Accept: application/json
 
+# Without a search (or with a whitespace-only one), only products whose
+# availability is "available" are returned, and total counts only those.
 # Response body:
 # {
 #   "items": [{
 #     "productId": "{{productId}}",
 #     "name": "Chocolate",
 #     "kind": "portion",
+#     "stockControl": "single",
+#     "isActive": true,
+#     "isAvailable": true,
+#     "availability": "available",
 #     "sizes": [],
 #     "resaleBrands": []
 #   }],
@@ -89,11 +95,33 @@ Accept: application/json
 #   "totalPages": 1
 # }
 
-### List only Portion catalog entries (200)
+### Search the order catalog by name, revealing unavailable products (200)
+GET {{baseUrl}}/orders/catalog?search=choco&page=1&pageSize=20
+Cookie: {{sessionCookie}}
+Accept: application/json
+
+# A non-empty trimmed search returns every active match ordered by name then id.
+# availability is "available", "out_of_stock" or "missing_price";
+# isAvailable is true only when availability is "available".
+# Response body:
+# {
+#   "items": [
+#     { "productId": "{{productId}}", "name": "Chocolate", "kind": "resale", "isAvailable": true, "availability": "available", "sizes": [], "resaleBrands": [] },
+#     { "productId": "{{productId}}", "name": "Chocolate branco", "kind": "resale", "isAvailable": false, "availability": "out_of_stock", "sizes": [], "resaleBrands": [] },
+#     { "productId": "{{productId}}", "name": "Chocolate sem preco", "kind": "resale", "isAvailable": false, "availability": "missing_price", "sizes": [], "resaleBrands": [] }
+#   ],
+#   "page": 1,
+#   "pageSize": 20,
+#   "total": 3,
+#   "totalPages": 1
+# }
+
+### List only Portion catalog entries matching a search (200)
 GET {{baseUrl}}/orders/catalog?kind=portion&search=scoop&page=1&pageSize=20
 Cookie: {{sessionCookie}}
 Accept: application/json
 
+# kind narrows the result to that kind; it never reveals unavailable products without a search.
 # Response body:
 # {
 #   "items": [],
