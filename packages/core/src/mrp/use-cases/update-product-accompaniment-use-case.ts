@@ -7,6 +7,7 @@ import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type { UpdateProductAccompanimentInput } from '#mrp/domain/structures/update-product-accompaniment-input.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import { AccompanimentPriceValidationStrategy } from '#mrp/domain/strategies/accompaniment-price-validation-strategy.ts'
+import { GlobalAccompanimentRowsStrategy } from '#mrp/domain/strategies/global-accompaniment-rows-strategy.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
 import { ProductStatus } from '#mrp/domain/structures/product-status.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
@@ -28,6 +29,12 @@ type Request = {
   readonly input: UpdateProductAccompanimentInput
 }
 
+type SavedLink = {
+  readonly link: ProductAccompaniment
+  readonly shouldRepublishAll: boolean
+  readonly shouldPublish: boolean
+}
+
 type UpdateContext = {
   readonly owner: Product
   readonly link: ProductAccompaniment
@@ -40,6 +47,7 @@ export class UpdateProductAccompanimentUseCase
 {
   private readonly accompanimentPriceValidation =
     new AccompanimentPriceValidationStrategy()
+  private readonly globalAccompanimentRows = new GlobalAccompanimentRowsStrategy()
   private readonly getAffectedProductSalesConfigurations =
     new GetAffectedProductSalesConfigurationsUseCase()
 
@@ -57,35 +65,28 @@ export class UpdateProductAccompanimentUseCase
     request: Request,
   ): Promise<ProductAccompanimentDetails> {
     const establishmentId = request.actor.establishmentId
-    const { owner, link, target, accompanimentTypeId } = await this.resolveUpdateContext(
-      scope,
-      request,
-    )
+    const context = await this.resolveUpdateContext(scope, request)
+    const { owner, target } = context
     const savedTarget = await this.saveAccompanimentPrice(
       scope,
       target,
       request.input.accompanimentPrice,
     )
-    const updated = await scope.productAccompanimentsRepository.replace(
-      establishmentId,
-      owner.id,
-      link.id,
-      {
-        accompanimentTypeId,
-        quantityPerPortion: request.input.quantityPerPortion,
-      },
-    )
+    const hasPriceChanged = savedTarget.accompanimentPrice !== target.accompanimentPrice
+    const saved = await this.saveLink(scope, request, context)
 
-    const result = await this.buildDetails(scope, establishmentId, updated)
-    const affectedProductIds =
-      savedTarget.accompanimentPrice === target.accompanimentPrice ? [] : undefined
+    const result = await this.buildDetails(scope, establishmentId, saved.link)
+    if (!saved.shouldPublish && !hasPriceChanged) return result
+
+    const shouldRepublishAll = hasPriceChanged || saved.shouldRepublishAll
     const configurations = await this.getAffectedProductSalesConfigurations.execute({
       scope,
       establishmentId,
       productId: owner.id,
-      affectedProductIds,
-      accompanimentProductIdForInverseLookup:
-        affectedProductIds === undefined ? savedTarget.id : undefined,
+      affectedProductIds: shouldRepublishAll ? undefined : [],
+      accompanimentProductIdForInverseLookup: shouldRepublishAll
+        ? savedTarget.id
+        : undefined,
     })
     await publishAffectedProductSalesConfigurations({
       scope,
@@ -98,6 +99,108 @@ export class UpdateProductAccompanimentUseCase
     return result
   }
 
+  private async saveLink(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+    context: UpdateContext,
+  ): Promise<SavedLink> {
+    const { globalAccompanimentId } = context.link
+    if (globalAccompanimentId !== undefined) {
+      return this.saveGlobalRowChanges(scope, request, context, globalAccompanimentId)
+    }
+    if (request.input.isGlobal === true) {
+      return this.convertToGlobal(scope, request, context)
+    }
+    const link = await scope.productAccompanimentsRepository.replace(
+      request.actor.establishmentId,
+      context.owner.id,
+      context.link.id,
+      {
+        accompanimentTypeId: context.accompanimentTypeId,
+        quantityPerPortion: request.input.quantityPerPortion,
+      },
+    )
+    return { link, shouldRepublishAll: false, shouldPublish: true }
+  }
+
+  private async saveGlobalRowChanges(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+    { link, accompanimentTypeId }: UpdateContext,
+    globalAccompanimentId: string,
+  ): Promise<SavedLink> {
+    const establishmentId = request.actor.establishmentId
+    const { quantityPerPortion } = request.input
+    const hasSharedValuesChanged =
+      link.accompanimentTypeId !== accompanimentTypeId ||
+      link.quantityPerPortion !== quantityPerPortion
+    if (!hasSharedValuesChanged) {
+      return { link, shouldRepublishAll: false, shouldPublish: false }
+    }
+    const changes = { accompanimentTypeId, quantityPerPortion }
+    await scope.globalAccompanimentsRepository.replace(
+      establishmentId,
+      globalAccompanimentId,
+      changes,
+    )
+    await scope.productAccompanimentsRepository.replaceManyByGlobalAccompanimentId(
+      establishmentId,
+      globalAccompanimentId,
+      changes,
+    )
+    return {
+      link: { ...link, ...changes },
+      shouldRepublishAll: true,
+      shouldPublish: true,
+    }
+  }
+
+  private async convertToGlobal(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+    { link, target, accompanimentTypeId }: UpdateContext,
+  ): Promise<SavedLink> {
+    const establishmentId = request.actor.establishmentId
+    const { quantityPerPortion } = request.input
+    const global = await scope.globalAccompanimentsRepository.add({
+      establishmentId,
+      accompanimentProductId: target.id,
+      accompanimentTypeId,
+      quantityPerPortion,
+    })
+    const convertedRows =
+      await scope.productAccompanimentsRepository.findManyByAccompanimentProductId(
+        establishmentId,
+        target.id,
+      )
+    await scope.productAccompanimentsRepository.replaceManyByAccompanimentProductId(
+      establishmentId,
+      target.id,
+      { accompanimentTypeId, quantityPerPortion, globalAccompanimentId: global.id },
+    )
+    const portions = await scope.productsRepository.findManyByCategory(
+      establishmentId,
+      ProductCategory.Portion,
+    )
+    await scope.productAccompanimentsRepository.addMany(
+      this.globalAccompanimentRows.execute({
+        globals: [global],
+        portionProductIds: portions.map((portion) => portion.id),
+        existingPairs: convertedRows,
+      }),
+    )
+    return {
+      link: {
+        ...link,
+        accompanimentTypeId,
+        quantityPerPortion,
+        globalAccompanimentId: global.id,
+      },
+      shouldRepublishAll: true,
+      shouldPublish: true,
+    }
+  }
+
   private async resolveUpdateContext(
     scope: MrpDatabaseRepositories,
     request: Request,
@@ -108,18 +211,8 @@ export class UpdateProductAccompanimentUseCase
       request.productId,
     )
     this.validateOwner(owner, establishmentId)
-    const link = await scope.productAccompanimentsRepository.findById(
-      establishmentId,
-      owner.id,
-      request.linkId,
-    )
-    if (
-      !link ||
-      link.establishmentId !== establishmentId ||
-      link.productId !== owner.id
-    ) {
-      throw new NotFoundError('Acompanhamento não encontrado.')
-    }
+    const link = await this.findLink(scope, request, owner)
+    this.validateGlobalStatus(link, request.input)
     const target = await scope.productsRepository.findById(
       establishmentId,
       link.accompanimentProductId,
@@ -139,6 +232,38 @@ export class UpdateProductAccompanimentUseCase
       request.input.accompanimentPrice ?? target.accompanimentPrice,
     )
     return { owner, link, target, accompanimentTypeId: type.id }
+  }
+
+  private async findLink(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+    owner: Product,
+  ): Promise<ProductAccompaniment> {
+    const establishmentId = request.actor.establishmentId
+    const link = await scope.productAccompanimentsRepository.findById(
+      establishmentId,
+      owner.id,
+      request.linkId,
+    )
+    if (
+      !link ||
+      link.establishmentId !== establishmentId ||
+      link.productId !== owner.id
+    ) {
+      throw new NotFoundError('Acompanhamento não encontrado.')
+    }
+    return link
+  }
+
+  private validateGlobalStatus(
+    link: ProductAccompaniment,
+    input: UpdateProductAccompanimentInput,
+  ): void {
+    if (link.globalAccompanimentId !== undefined && input.isGlobal === false) {
+      throw new BadRequestError(
+        'Um acompanhamento global só deixa de ser global pela remoção de todas as porções.',
+      )
+    }
   }
 
   private validateActor(actor: ProductActor): void {
@@ -252,13 +377,38 @@ export class UpdateProductAccompanimentUseCase
       unit: target.unit,
       quantityPerPortion: link.quantityPerPortion,
       salePrice: target.accompanimentPrice ?? null,
+      isGlobal: link.globalAccompanimentId !== undefined,
+      hasOtherPortionLinks: await this.hasOtherPortionLinks(scope, link),
+      ...this.toSourceFields(source, link.quantityPerPortion),
+    }
+  }
+
+  private toSourceFields(
+    source: { brandId?: string; brandName?: string; unitCost?: number } | undefined,
+    quantityPerPortion: number,
+  ) {
+    return {
       ...(source?.brandId ? { brandId: source.brandId } : {}),
       ...(source?.brandName ? { brandName: source.brandName } : {}),
       ...(source?.unitCost !== undefined ? { unitCost: source.unitCost } : {}),
       ...(source?.unitCost !== undefined
-        ? { estimatedCost: link.quantityPerPortion * source.unitCost }
+        ? { estimatedCost: quantityPerPortion * source.unitCost }
         : {}),
     }
+  }
+
+  private async hasOtherPortionLinks(
+    scope: MrpDatabaseRepositories,
+    link: ProductAccompaniment,
+  ): Promise<boolean> {
+    if (link.globalAccompanimentId !== undefined) return false
+    const linksCount =
+      await scope.productAccompanimentsRepository.countByAccompanimentProductId(
+        link.establishmentId,
+        link.accompanimentProductId,
+      )
+    // The link itself is part of the count.
+    return linksCount > 1
   }
 
   private async resolveCurrentSource(

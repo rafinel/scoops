@@ -10,7 +10,10 @@ import {
   resetPdvFixture,
 } from '@/pdv/fixtures/pdv-module-fixture'
 
-import { comboCreate } from './combo-controller-test-helpers'
+import {
+  addPortionWithGlobalAccompaniment,
+  comboCreate,
+} from './combo-controller-test-helpers'
 
 describe('Create Combo Controller [POST /discounts]', () => {
   let fixture: PdvModuleFixture
@@ -43,6 +46,53 @@ describe('Create Combo Controller [POST /discounts]', () => {
     )
     expect(persisted?.name).toBe('Chocolate Combo')
     expect(fixture.broker.events.at(-1)?.name).toBe('pdv/discount.created')
+  })
+
+  it('creates an active Combo whose Portion component selects a global accompaniment', async () => {
+    const { components } = await addPortionWithGlobalAccompaniment(fixture)
+
+    const response = await request(fixture.app.getHttpServer())
+      .post('/discounts')
+      .set('Cookie', managerRequestAuthorization())
+      .send({ name: 'Global Combo', status: 'active', fixedPrice: 15, components })
+
+    expect(response.status).toBe(201)
+    expect(response.body.combo).toMatchObject({
+      name: 'Global Combo',
+      status: 'active',
+      fixedPrice: 15,
+      components,
+    })
+    await expect(
+      fixture.discounts.findById(
+        '43000000-0000-0000-0000-000000000001',
+        response.body.combo.id,
+      ),
+    ).resolves.toMatchObject({ status: 'active', components })
+  })
+
+  it('rejects an active Combo selecting a global row that no longer exists on the Portion', async () => {
+    const { row, components } = await addPortionWithGlobalAccompaniment(fixture)
+    await fixture.productAccompaniments.remove(row.establishmentId, row.productId, row.id)
+
+    const response = await request(fixture.app.getHttpServer())
+      .post('/discounts')
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        name: 'Stale Global Combo',
+        status: 'active',
+        fixedPrice: 15,
+        components,
+      })
+
+    expect(response.status).toBe(400)
+    await expect(
+      fixture.discounts.findPage({
+        establishmentId: '43000000-0000-0000-0000-000000000001',
+        page: 1,
+        pageSize: 10,
+      }),
+    ).resolves.toMatchObject({ total: 0 })
   })
 
   it('rejects malformed bodies and non-Manager callers without persistence', async () => {

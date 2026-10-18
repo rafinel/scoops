@@ -14,7 +14,8 @@ import type {
   MrpDatabase,
   MrpDatabaseRepositories,
 } from '#mrp/interfaces/mrp-database.ts'
-import { NotFoundError } from '#shared/domain/errors/index.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { AuthorizationError, NotFoundError } from '#shared/domain/errors/index.ts'
 import { SetPrimaryProductBrandUseCase } from '#mrp/use-cases/set-primary-product-brand-use-case.ts'
 
 const actor = { id: 'u1', establishmentId: 'e1', profile: UserProfile.Manager }
@@ -71,5 +72,79 @@ describe('Set Primary Product Brand Use Case', () => {
     await expect(
       useCase.execute({ actor, productId: 'foreign', brandId: 'b1' }),
     ).rejects.toBeInstanceOf(NotFoundError)
+  })
+
+  const run = () => useCase.execute({ actor, productId: 'p1', brandId: 'b1' })
+
+  it('only lets managers define the primary brand', async () => {
+    await expect(
+      useCase.execute({
+        actor: { ...actor, profile: UserProfile.Operator },
+        productId: 'p1',
+        brandId: 'b1',
+      }),
+    ).rejects.toThrow(
+      new AuthorizationError('Somente gestores podem definir a marca principal.'),
+    )
+    expect(database.run).not.toHaveBeenCalled()
+  })
+
+  it('looks the product up by establishment and the brand by product', async () => {
+    await run()
+    expect(scope.productsRepository.findById).toHaveBeenCalledWith('e1', 'p1')
+    expect(scope.brandsRepository.findById).toHaveBeenCalledWith('p1', 'b1')
+    expect(scope.brandsRepository.setPrimary).toHaveBeenCalledWith('p1', 'b1')
+  })
+
+  it('returns the promoted brand with its stock and unit price', async () => {
+    await expect(run()).resolves.toEqual({
+      brand: { ...brand, isPrimary: true },
+      stockQuantity: 2,
+      unitPrice: 5,
+    })
+    expect(scope.stockBalancesRepository.findByProductAndBrand).toHaveBeenCalledWith(
+      'p1',
+      'b1',
+    )
+  })
+
+  it('returns the current brand untouched when it is already primary', async () => {
+    const primary = { ...brand, isPrimary: true, packagePrice: 9, packageQuantity: 3 }
+    scope.brandsRepository.findById.mockResolvedValue(primary)
+    await expect(run()).resolves.toEqual({
+      brand: primary,
+      stockQuantity: 2,
+      unitPrice: 3,
+    })
+    expect(scope.brandsRepository.setPrimary).not.toHaveBeenCalled()
+  })
+
+  it('reports zero stock when the brand has no balance', async () => {
+    scope.stockBalancesRepository.findByProductAndBrand.mockResolvedValue(undefined)
+    await expect(run()).resolves.toMatchObject({ stockQuantity: 0 })
+  })
+
+  it('hides missing products and brands with their own messages', async () => {
+    scope.productsRepository.findById.mockResolvedValue(undefined)
+    await expect(run()).rejects.toThrow(new NotFoundError('Produto não encontrado.'))
+    scope.productsRepository.findById.mockResolvedValue(product)
+    scope.brandsRepository.findById.mockResolvedValue(undefined)
+    await expect(run()).rejects.toThrow(new NotFoundError('Marca não encontrada.'))
+    expect(scope.brandsRepository.setPrimary).not.toHaveBeenCalled()
+  })
+
+  it('publishes the refreshed sales configuration of the product', async () => {
+    await run()
+    expect(scope.eventsRepository.add).toHaveBeenCalledTimes(1)
+    expect(scope.eventsRepository.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: ProductSalesConfigurationChangedEvent._NAME,
+        payload: expect.objectContaining({
+          establishmentId: 'e1',
+          productId: 'p1',
+          state: 'available',
+        }),
+      }),
+    )
   })
 })

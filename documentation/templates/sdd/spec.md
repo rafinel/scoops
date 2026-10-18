@@ -182,9 +182,3 @@ mapped saved reference and comparison obligation; record actual path/result in E
 | Revision | Date | Material change and reason |
 | --- | --- | --- |
 | 1 | YYYY-MM-DD | <initial contract and source decision> |
-
-<!-- create-spec also generates ./interactive-spec.html as a derived explanation, with
-the actual frontmatter in its header and a separate tab for each contract. Refresh it
-with this Spec's content, revision and status on authoring/amendment. Simulations are
-illustrative; the HTML is neither independent authority nor implementation/runtime proof.
-Create evaluation.md at implementation kickoff, not during Spec authoring. -->

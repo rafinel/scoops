@@ -57,6 +57,7 @@ export { listProductsQuerySchema } from './mrp/list-products-query-schema.ts'
 export { updateProductSettingsSchema } from './mrp/update-product-settings-schema.ts'
 export { changeProductCategoriesSchema } from './mrp/change-product-categories-schema.ts'
 export { productCategoryRemovalQuerySchema } from './mrp/product-category-removal-query-schema.ts'
+export { removeProductAccompanimentQuerySchema } from './mrp/remove-product-accompaniment-query-schema.ts'
 export {
   changeProductUnitSchema,
   previewProductUnitChangeSchema,

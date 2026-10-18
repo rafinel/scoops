@@ -46,6 +46,18 @@ const LINKED_ACCOMPANIMENT = {
   brandName: 'Estoque único',
   unitCost: 0.009,
   estimatedCost: 0.18,
+  isGlobal: false,
+  hasOtherPortionLinks: false,
+}
+
+const CANDIDATE = {
+  productId: ACCOMPANIMENT.id,
+  name: ACCOMPANIMENT.name,
+  unit: ACCOMPANIMENT.unit,
+  stockControl: ACCOMPANIMENT.stockControl,
+  accompanimentPrice: null,
+  isGlobal: false,
+  hasPortionLinks: false,
 }
 
 const REFERENCE_LINKED_ACCOMPANIMENTS = [
@@ -55,6 +67,7 @@ const REFERENCE_LINKED_ACCOMPANIMENTS = [
     accompanimentProductId: 'granola-product',
     accompanimentProductName: 'Granola',
     brandName: 'Mãe Terra',
+    isGlobal: true,
     quantityPerPortion: 50,
     salePrice: 3,
     estimatedCost: 0.45,
@@ -65,6 +78,7 @@ const REFERENCE_LINKED_ACCOMPANIMENTS = [
     accompanimentProductId: 'milk-powder-product',
     accompanimentProductName: 'Leite em pó',
     brandName: 'Ninho',
+    isGlobal: true,
     quantityPerPortion: 30,
     salePrice: 4.5,
     estimatedCost: 0.36,
@@ -137,6 +151,10 @@ test.describe('MRP supplemental browser coverage', () => {
     await expect(page.getByRole('cell', { name: 'R$ 3,00' })).toBeVisible()
     await expect(page.getByRole('cell', { name: 'R$ 4,50' })).toBeVisible()
     await expect(page.getByRole('row')).toHaveCount(6)
+    await expect(page.getByText('Global', { exact: true })).toHaveCount(2)
+    await expect(
+      page.getByText('Itens globais aparecem em todas as porções.'),
+    ).toBeVisible()
   })
 
   test('shows the Manager contextual Types link on Products without a global sidebar entry', async ({
@@ -397,25 +415,6 @@ test.describe('MRP supplemental browser coverage', () => {
   }) => {
     await identityFixture.mockManagerSession()
     await identityFixture.mockManagerAccount()
-    await mrpFixture.mockProducts({
-      getResponse: (_request) => ({
-        body: {
-          items: [
-            {
-              product: ACCOMPANIMENT,
-              brandCount: 0,
-              stockQuantity: 10,
-              stockSituation: 'normal',
-            },
-          ],
-          page: 1,
-          pageSize: 100,
-          totalItems: 1,
-          totalPages: 1,
-          kpis: { products: 1, brands: 0, lowStock: 0 },
-        },
-      }),
-    })
     await mrpFixture.mockProductStock({
       respond: (_request, requestNumber) => ({
         body: {
@@ -431,6 +430,9 @@ test.describe('MRP supplemental browser coverage', () => {
         body: { product: PRODUCT, accompaniments: [LINKED_ACCOMPANIMENT] },
       }),
     })
+    await mrpFixture.mockProductAccompanimentCandidates({
+      respond: (_request) => ({ body: [CANDIDATE] }),
+    })
     await mrpFixture.mockAccompanimentTypes({
       respond: (_request) => ({
         body: {
@@ -445,8 +447,8 @@ test.describe('MRP supplemental browser coverage', () => {
 
     await page.setViewportSize({ width: 320, height: 900 })
     await page.goto(`/products/${PRODUCT_ID}/accompaniments`)
-    await page.getByRole('button', { name: 'Vincular acompanhamento' }).click()
-    const linkDialog = page.getByRole('dialog', { name: 'Vincular acompanhamento' })
+    await page.getByRole('button', { name: 'Vincular Acompanhamento' }).click()
+    const linkDialog = page.getByRole('dialog', { name: 'Vincular Acompanhamento' })
     await expect(
       linkDialog.getByRole('combobox', { name: 'Acompanhamento' }),
     ).toBeVisible()
@@ -474,7 +476,7 @@ test.describe('MRP supplemental browser coverage', () => {
     await linkCancel.click()
 
     await page.getByRole('button', { name: 'Editar Granola' }).click()
-    const editDialog = page.getByRole('dialog', { name: 'Editar acompanhamento' })
+    const editDialog = page.getByRole('dialog', { name: 'Editar Acompanhamento' })
     await expect(editDialog).toBeVisible()
     await page.setViewportSize({ width: 390, height: 844 })
     await editDialog.getByRole('textbox', { name: /Quantidade por porção/ }).focus()
@@ -506,25 +508,6 @@ test.describe('MRP supplemental browser coverage', () => {
     await identityFixture.mockManagerSession()
     await identityFixture.mockManagerAccount()
     await page.setViewportSize({ width: 676, height: 843 })
-    await mrpFixture.mockProducts({
-      getResponse: (_request) => ({
-        body: {
-          items: [
-            {
-              product: ACCOMPANIMENT,
-              brandCount: 0,
-              stockQuantity: 10,
-              stockSituation: 'normal',
-            },
-          ],
-          page: 1,
-          pageSize: 100,
-          totalItems: 1,
-          totalPages: 1,
-          kpis: { products: 1, brands: 0, lowStock: 0 },
-        },
-      }),
-    })
     await mrpFixture.mockProductStock({
       respond: (_request, requestNumber) => ({
         body: {
@@ -545,6 +528,9 @@ test.describe('MRP supplemental browser coverage', () => {
           body: { product: PRODUCT, accompaniments: [LINKED_ACCOMPANIMENT] },
         }
       },
+    })
+    await mrpFixture.mockProductAccompanimentCandidates({
+      respond: (_request) => ({ body: [CANDIDATE] }),
     })
     await mrpFixture.mockAccompanimentTypes({
       respond: (_request) => ({
@@ -572,8 +558,8 @@ test.describe('MRP supplemental browser coverage', () => {
       })
     })
     await page.goto(`/products/${PRODUCT_ID}/accompaniments`)
-    await page.getByRole('button', { name: 'Vincular acompanhamento' }).click()
-    const linkDialog = page.getByRole('dialog', { name: 'Vincular acompanhamento' })
+    await page.getByRole('button', { name: 'Vincular Acompanhamento' }).click()
+    const linkDialog = page.getByRole('dialog', { name: 'Vincular Acompanhamento' })
     await linkDialog.getByRole('button', { name: 'Vincular' }).click()
     await expect(linkDialog.getByText('Selecione um acompanhamento.')).toBeVisible()
     await expect(linkDialog.getByText('Selecione um tipo.')).toBeVisible()
@@ -597,7 +583,7 @@ test.describe('MRP supplemental browser coverage', () => {
 
     await linkDialog.getByRole('button', { name: 'Cancelar' }).click()
     await page.getByRole('button', { name: 'Editar Granola' }).click()
-    const editDialog = page.getByRole('dialog', { name: 'Editar acompanhamento' })
+    const editDialog = page.getByRole('dialog', { name: 'Editar Acompanhamento' })
     const editQuantity = editDialog.getByRole('textbox', {
       name: /Quantidade por porção/,
     })

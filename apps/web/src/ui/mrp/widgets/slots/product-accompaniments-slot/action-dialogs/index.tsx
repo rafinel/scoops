@@ -1,12 +1,14 @@
 import type { ProductAccompanimentDetails } from '@scoops/core/mrp/domain/structures'
 
 import { ProductAccompanimentDialog } from '../product-accompaniment-dialog'
+import { RemoveGlobalAccompanimentDialog } from '../remove-global-accompaniment-dialog'
 import { RemoveProductAccompanimentDialog } from '../remove-product-accompaniment-dialog'
 import type { ProductAccompanimentsAction } from '../use-product-accompaniments-slot'
 
 export type AccompanimentActionDialogsProps = {
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
+  portionName?: string
   productId: string
   selectedAction?: ProductAccompanimentsAction
 }
@@ -14,6 +16,7 @@ export type AccompanimentActionDialogsProps = {
 export const AccompanimentActionDialogs = ({
   onOpenChange,
   onSuccess,
+  portionName,
   productId,
   selectedAction,
 }: AccompanimentActionDialogsProps) => {
@@ -31,7 +34,18 @@ export const AccompanimentActionDialogs = ({
     )
   }
 
-  return selectedAction?.kind === 'remove' ? (
+  if (selectedAction?.kind !== 'remove') return null
+
+  return selectedAction.item.isGlobal ? (
+    <RemoveGlobalAccompanimentDialog
+      item={selectedAction.item}
+      onOpenChange={onOpenChange}
+      onSuccess={onSuccess}
+      open
+      portionName={portionName}
+      productId={productId}
+    />
+  ) : (
     <RemoveProductAccompanimentDialog
       item={selectedAction.item}
       onOpenChange={onOpenChange}
@@ -39,5 +53,5 @@ export const AccompanimentActionDialogs = ({
       open
       productId={productId}
     />
-  ) : null
+  )
 }

@@ -19,6 +19,8 @@ const item = {
   accompanimentTypeName: 'Cobertura',
   unit: 'g' as const,
   salePrice: 3,
+  isGlobal: false,
+  hasOtherPortionLinks: false,
 }
 
 describe('RemoveProductAccompanimentDialog', () => {

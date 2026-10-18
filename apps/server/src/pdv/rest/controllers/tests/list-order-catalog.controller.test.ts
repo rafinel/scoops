@@ -201,4 +201,148 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
       ]),
     )
   })
+  it('offers a global accompaniment exactly like an individual one and shows an inactive global unavailable', async () => {
+    const product = await fixture.addProduct({
+      establishmentId: PdvModuleFixture.accounts.establishmentId,
+      name: 'Portion with global topping',
+      unit: ProductUnit.Unit,
+      categories: [ProductCategory.Portion],
+      stockControl: ProductStockControl.Single,
+      status: ProductStatus.Active,
+      allowNegativeStock: false,
+      idealStock: 0,
+      currentUnitCost: 2,
+    })
+    const size = await fixture.addProductSize({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      name: 'Regular',
+      quantity: 1,
+      price: 10,
+      isActive: true,
+    })
+    const createTopping = (name: string, accompanimentPrice: number) =>
+      fixture.addProduct({
+        establishmentId: product.establishmentId,
+        name,
+        unit: ProductUnit.Unit,
+        categories: [ProductCategory.Accompaniment],
+        stockControl: ProductStockControl.Single,
+        status: ProductStatus.Active,
+        allowNegativeStock: false,
+        idealStock: 0,
+        currentUnitCost: 0.03,
+        accompanimentPrice,
+      })
+    const individualTopping = await createTopping('Individual topping', 2)
+    const globalTopping = await createTopping('Global topping', 3.5)
+    const freeGlobalTopping = await createTopping('Free global topping', 0)
+    const type = await fixture.addAccompanimentType({
+      establishmentId: product.establishmentId,
+      name: 'Toppings',
+    })
+    for (const target of [individualTopping, globalTopping, freeGlobalTopping]) {
+      await fixture.stockBalances.initialize(target.id)
+      await fixture.stockBalances.add({ productId: target.id }, 20)
+    }
+    const individual = await fixture.addProductAccompaniment({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      accompanimentProductId: individualTopping.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 2,
+    })
+    const global = await fixture.addGlobalAccompaniment({
+      establishmentId: product.establishmentId,
+      accompanimentProductId: globalTopping.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 1.5,
+    })
+    const freeGlobal = await fixture.addGlobalAccompaniment({
+      establishmentId: product.establishmentId,
+      accompanimentProductId: freeGlobalTopping.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 0.5,
+    })
+    const [globalRow, freeGlobalRow] = await fixture.productAccompaniments.addMany([
+      {
+        establishmentId: product.establishmentId,
+        productId: product.id,
+        accompanimentProductId: globalTopping.id,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 1.5,
+        globalAccompanimentId: global.id,
+      },
+      {
+        establishmentId: product.establishmentId,
+        productId: product.id,
+        accompanimentProductId: freeGlobalTopping.id,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 0.5,
+        globalAccompanimentId: freeGlobal.id,
+      },
+    ])
+
+    const available = await request(fixture.app.getHttpServer())
+      .get('/orders/catalog?page=1&pageSize=20')
+      .set('Cookie', operatorRequestAuthorization())
+    await fixture.products.replace(globalTopping.establishmentId, globalTopping.id, {
+      status: ProductStatus.Inactive,
+    })
+    const afterInactivation = await request(fixture.app.getHttpServer())
+      .get('/orders/catalog?page=1&pageSize=20')
+      .set('Cookie', operatorRequestAuthorization())
+
+    const accompanimentsOf = (response: request.Response) =>
+      response.body.items.find(
+        (item: { productId: string }) => item.productId === product.id,
+      ).sizes[0].accompaniments
+    expect(available.status).toBe(200)
+    expect(
+      available.body.items.find(
+        (item: { productId: string }) => item.productId === product.id,
+      ).sizes[0].sizeId,
+    ).toBe(size.id)
+    expect(accompanimentsOf(available)).toHaveLength(3)
+    expect(accompanimentsOf(available)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          accompanimentId: individual.id,
+          quantityPerPortion: 2,
+          basePrice: 2,
+          isActive: true,
+          isAvailable: true,
+        }),
+        expect.objectContaining({
+          accompanimentId: globalRow.id,
+          quantityPerPortion: 1.5,
+          basePrice: 3.5,
+          isActive: true,
+          isAvailable: true,
+        }),
+        expect.objectContaining({
+          accompanimentId: freeGlobalRow.id,
+          quantityPerPortion: 0.5,
+          basePrice: 0,
+          isActive: true,
+          isAvailable: true,
+        }),
+      ]),
+    )
+    expect(afterInactivation.status).toBe(200)
+    expect(accompanimentsOf(afterInactivation)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          accompanimentId: globalRow.id,
+          isActive: false,
+          isAvailable: false,
+        }),
+        expect.objectContaining({
+          accompanimentId: individual.id,
+          isActive: true,
+          isAvailable: true,
+        }),
+      ]),
+    )
+  })
 })

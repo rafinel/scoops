@@ -10,6 +10,7 @@ import type {
   AccompanimentType,
   Brand,
   BrandCreate,
+  GlobalAccompaniment,
   Product,
   ProductAccompaniment,
   ProductSize,
@@ -21,6 +22,7 @@ import type {
 } from '@scoops/core/mrp/domain/entities'
 import type {
   AccompanimentTypeCreate,
+  GlobalAccompanimentCreate,
   ProductAccompanimentCreate,
   ProductCreate,
   ProductSizeCreate,
@@ -31,6 +33,7 @@ import type {
 import type {
   AccompanimentTypesRepository,
   BrandsRepository,
+  GlobalAccompanimentsRepository,
   ProductAccompanimentsRepository,
   ProductsRepository,
   ProductSizesRepository,
@@ -110,6 +113,10 @@ export class MrpModuleFixture {
 
   get productAccompaniments(): ProductAccompanimentsRepository {
     return this.get(MRP_REPOSITORIES.productAccompaniments)
+  }
+
+  get globalAccompaniments(): GlobalAccompanimentsRepository {
+    return this.get(MRP_REPOSITORIES.globalAccompaniments)
   }
 
   get brands(): BrandsRepository {
@@ -226,6 +233,10 @@ export class MrpModuleFixture {
     input: ProductAccompanimentCreate,
   ): Promise<ProductAccompaniment> {
     return this.productAccompaniments.add(input)
+  }
+
+  addGlobalAccompaniment(input: GlobalAccompanimentCreate): Promise<GlobalAccompaniment> {
+    return this.globalAccompaniments.add(input)
   }
 
   addRecipe(input: RecipeCreate): Promise<Recipe> {

@@ -6,6 +6,7 @@ export type ProductAccompaniment = Entity & {
   accompanimentProductId: string
   accompanimentTypeId: string
   quantityPerPortion: number
+  globalAccompanimentId?: string
   createdAt: Date
   updatedAt: Date
 }

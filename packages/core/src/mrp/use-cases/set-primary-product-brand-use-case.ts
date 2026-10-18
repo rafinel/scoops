@@ -19,71 +19,40 @@ export class SetPrimaryProductBrandUseCase
 
   async execute(request: Request): Promise<ProductBrandStock> {
     this.validateActor(request.actor)
-    const result = await this.database.run(
-      async ({
-        productsRepository,
-        brandsRepository,
-        recipesRepository,
-        recipeIngredientsRepository,
-        productionsRepository,
-        productionIngredientsRepository,
-        stockBalancesRepository,
-        stockTransactionsRepository,
-        productSizesRepository,
-        accompanimentTypesRepository,
-        productAccompanimentsRepository,
-        resaleConfigurationsRepository,
-        eventsRepository,
-      }: MrpDatabaseRepositories) => {
-        const scope = {
-          productsRepository,
-          brandsRepository,
-          recipesRepository,
-          recipeIngredientsRepository,
-          productionsRepository,
-          productionIngredientsRepository,
-          stockBalancesRepository,
-          stockTransactionsRepository,
-          productSizesRepository,
-          accompanimentTypesRepository,
-          productAccompanimentsRepository,
-          resaleConfigurationsRepository,
-          eventsRepository,
-        }
-        const product = await productsRepository.findById(
-          request.actor.establishmentId,
-          request.productId,
-        )
-        if (!product) throw new NotFoundError('Produto não encontrado.')
-        const brand = await brandsRepository.findById(product.id, request.brandId)
-        if (!brand) throw new NotFoundError('Marca não encontrada.')
-        const savedBrand = brand.isPrimary
-          ? brand
-          : await brandsRepository.setPrimary(product.id, brand.id)
-        const balance = await stockBalancesRepository.findByProductAndBrand(
-          product.id,
-          brand.id,
-        )
-        const configurations =
-          await new GetAffectedProductSalesConfigurationsUseCase().execute({
-            scope,
-            establishmentId: request.actor.establishmentId,
-            productId: request.productId,
-          })
-        const result = {
-          brand: savedBrand,
-          stockQuantity: balance?.quantity ?? 0,
-          unitPrice: savedBrand.packagePrice / savedBrand.packageQuantity,
-        }
-        await publishAffectedProductSalesConfigurations({
+    const result = await this.database.run(async (scope: MrpDatabaseRepositories) => {
+      const product = await scope.productsRepository.findById(
+        request.actor.establishmentId,
+        request.productId,
+      )
+      if (!product) throw new NotFoundError('Produto não encontrado.')
+      const brand = await scope.brandsRepository.findById(product.id, request.brandId)
+      if (!brand) throw new NotFoundError('Marca não encontrada.')
+      const savedBrand = brand.isPrimary
+        ? brand
+        : await scope.brandsRepository.setPrimary(product.id, brand.id)
+      const balance = await scope.stockBalancesRepository.findByProductAndBrand(
+        product.id,
+        brand.id,
+      )
+      const configurations =
+        await new GetAffectedProductSalesConfigurationsUseCase().execute({
           scope,
           establishmentId: request.actor.establishmentId,
           productId: request.productId,
-          configurations,
         })
-        return result
-      },
-    )
+      const result = {
+        brand: savedBrand,
+        stockQuantity: balance?.quantity ?? 0,
+        unitPrice: savedBrand.packagePrice / savedBrand.packageQuantity,
+      }
+      await publishAffectedProductSalesConfigurations({
+        scope,
+        establishmentId: request.actor.establishmentId,
+        productId: request.productId,
+        configurations,
+      })
+      return result
+    })
     return result
   }
 

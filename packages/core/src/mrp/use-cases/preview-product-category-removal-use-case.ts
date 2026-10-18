@@ -43,6 +43,7 @@ export class PreviewProductCategoryRemovalUseCase
         productSizesRepository,
         accompanimentTypesRepository,
         productAccompanimentsRepository,
+        globalAccompanimentsRepository,
         resaleConfigurationsRepository,
         eventsRepository,
       }: MrpDatabaseRepositories) => {
@@ -58,6 +59,7 @@ export class PreviewProductCategoryRemovalUseCase
           productSizesRepository,
           accompanimentTypesRepository,
           productAccompanimentsRepository,
+          globalAccompanimentsRepository,
           resaleConfigurationsRepository,
           eventsRepository,
         }
@@ -174,7 +176,7 @@ export class PreviewProductCategoryRemovalUseCase
   ): Promise<readonly ProductCategoryDependency[]> {
     const [sizeCount, linkCount] = await Promise.all([
       scope.productSizesRepository.countByProductId(establishmentId, product.id),
-      scope.productAccompanimentsRepository.countByProductId(establishmentId, product.id),
+      this.countIndividualLinks(scope, establishmentId, product),
     ])
     const dependencies: ProductCategoryDependency[] = []
     if (sizeCount > 0) {
@@ -194,6 +196,18 @@ export class PreviewProductCategoryRemovalUseCase
       })
     }
     return this.sortDependencies(dependencies)
+  }
+
+  private async countIndividualLinks(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<number> {
+    const links = await scope.productAccompanimentsRepository.findManyByProductId(
+      establishmentId,
+      product.id,
+    )
+    return links.filter((link) => link.globalAccompanimentId === undefined).length
   }
 
   private async findAccompanimentDependencies(

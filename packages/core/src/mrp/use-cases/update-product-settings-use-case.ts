@@ -46,6 +46,7 @@ export class UpdateProductSettingsUseCase
         productSizesRepository,
         accompanimentTypesRepository,
         productAccompanimentsRepository,
+        globalAccompanimentsRepository,
         resaleConfigurationsRepository,
         eventsRepository,
       }: MrpDatabaseRepositories) => {
@@ -61,6 +62,7 @@ export class UpdateProductSettingsUseCase
           productSizesRepository,
           accompanimentTypesRepository,
           productAccompanimentsRepository,
+          globalAccompanimentsRepository,
           resaleConfigurationsRepository,
           eventsRepository,
         }

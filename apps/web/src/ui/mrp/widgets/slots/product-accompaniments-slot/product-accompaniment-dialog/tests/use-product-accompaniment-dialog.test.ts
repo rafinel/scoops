@@ -4,8 +4,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   AccompanimentTypeFaker,
   ProductAccompanimentFaker,
-  ProductFaker,
 } from '@scoops/core/mrp/domain/entities/fakers'
+import type {
+  ProductAccompanimentCandidate,
+  ProductAccompanimentDetails,
+} from '@scoops/core/mrp/domain/structures'
 
 import { useAccompanimentCandidatesQuery } from '@/ui/mrp/hooks/use-accompaniment-candidates-query'
 import { useAccompanimentTypesQuery } from '@/ui/mrp/hooks/use-accompaniment-types-query'
@@ -44,12 +47,20 @@ const useUpdateProductAccompanimentActionMock = vi.mocked(
   useUpdateProductAccompanimentAction,
 )
 
-const candidate = ProductFaker.fake({ id: 'product-2', name: 'Granola', unit: 'g' })
+const candidate: ProductAccompanimentCandidate = {
+  productId: 'product-2',
+  name: 'Granola',
+  unit: 'g',
+  stockControl: 'single',
+  accompanimentPrice: null,
+  isGlobal: false,
+  hasPortionLinks: false,
+}
 const type = AccompanimentTypeFaker.fake({ id: 'type-1', name: 'Cobertura' })
-const editItem = {
+const editItem: ProductAccompanimentDetails = {
   ...ProductAccompanimentFaker.fake({
     id: 'link-1',
-    accompanimentProductId: candidate.id,
+    accompanimentProductId: candidate.productId,
     accompanimentTypeId: type.id,
     quantityPerPortion: 20,
   }),
@@ -58,6 +69,8 @@ const editItem = {
   unit: 'g' as const,
   salePrice: 3,
   estimatedCost: 0.45,
+  isGlobal: false,
+  hasOtherPortionLinks: false,
 }
 
 describe('useProductAccompanimentDialog', () => {
@@ -77,7 +90,7 @@ describe('useProductAccompanimentDialog', () => {
       isPending: false,
     } as never)
     useProductStockQueryMock.mockReturnValue({
-      data: { brands: [] },
+      data: { brands: [], product: {} },
       isError: false,
       isFetching: true,
       isPending: false,
@@ -138,7 +151,7 @@ describe('useProductAccompanimentDialog', () => {
     price.ref(priceField)
 
     act(() => {
-      result.current.handleValueChange('accompanimentProductId', candidate.id)
+      result.current.handleValueChange('accompanimentProductId', candidate.productId)
       result.current.handleValueChange('accompanimentTypeId', type.id)
     })
     await act(async () => {
@@ -150,7 +163,7 @@ describe('useProductAccompanimentDialog', () => {
     })
 
     expect(linkProductAccompaniment).toHaveBeenCalledWith({
-      accompanimentProductId: candidate.id,
+      accompanimentProductId: candidate.productId,
       accompanimentPrice: 3,
       accompanimentTypeId: type.id,
       quantityPerPortion: 20.5,
@@ -286,7 +299,7 @@ describe('useProductAccompanimentDialog', () => {
     price.ref(priceField)
 
     act(() => {
-      result.current.handleValueChange('accompanimentProductId', candidate.id)
+      result.current.handleValueChange('accompanimentProductId', candidate.productId)
       result.current.handleValueChange('accompanimentTypeId', type.id)
     })
     await act(async () => {
@@ -415,14 +428,14 @@ describe('useProductAccompanimentDialog', () => {
     )
 
     act(() => {
-      result.current.handleValueChange('accompanimentProductId', candidate.id)
+      result.current.handleValueChange('accompanimentProductId', candidate.productId)
       result.current.handleValueChange('accompanimentTypeId', type.id)
     })
     await act(async () => {
       await result.current.handleSubmit({ preventDefault: vi.fn() } as never)
     })
 
-    expect(useProductPricingQueryMock).toHaveBeenLastCalledWith(candidate.id)
+    expect(useProductPricingQueryMock).toHaveBeenLastCalledWith(candidate.productId)
     expect(result.current.canSave).toBe(false)
     expect(result.current.fields).toMatchObject({
       actionError: result.current.actionError,
@@ -441,7 +454,7 @@ describe('useProductAccompanimentDialog', () => {
       priceError: result.current.errors.accompanimentPrice?.message,
       priceDescribedBy: `accompaniment-price-help${result.current.errors.accompanimentPrice ? ' accompaniment-price-validation-error' : ''} accompaniment-price-read-error`,
       productError: result.current.errors.accompanimentProductId?.message,
-      productIdValue: candidate.id,
+      productIdValue: candidate.productId,
       quantityError: result.current.errors.quantityPerPortion?.message,
       selectedProductName: candidate.name,
       selectedProductUnit: candidate.unit,
@@ -484,5 +497,416 @@ describe('useProductAccompanimentDialog', () => {
     expect(result.current.candidatesError).toBe(false)
     expect(result.current.fields.candidatesLoading).toBe(false)
     expect(result.current.fields.candidatesError).toBe(false)
+  })
+
+  describe('global availability', () => {
+    const globalCandidate: ProductAccompanimentCandidate = {
+      ...candidate,
+      productId: 'product-3',
+      name: 'Banana',
+      accompanimentPrice: 2,
+      isGlobal: true,
+      hasPortionLinks: false,
+      global: { accompanimentTypeId: 'type-1', quantityPerPortion: 0.05 },
+    }
+    const linkedCandidate: ProductAccompanimentCandidate = {
+      ...candidate,
+      productId: 'product-4',
+      name: 'Morango',
+      hasPortionLinks: true,
+    }
+
+    type HookResult = { current: ReturnType<typeof useProductAccompanimentDialog> }
+
+    function mockCandidates(candidates: ProductAccompanimentCandidate[]) {
+      useAccompanimentCandidatesQueryMock.mockReturnValue({
+        data: candidates,
+        isError: false,
+        isFetching: false,
+        isPending: false,
+        refetch: vi.fn(),
+      } as never)
+    }
+
+    function registerInput(
+      result: HookResult,
+      name: 'accompanimentPrice' | 'quantityPerPortion',
+    ) {
+      const registration = result.current.register(name)
+      const field = document.createElement('input')
+      field.name = registration.name
+      document.body.append(field)
+      registration.ref(field)
+      return { field, registration }
+    }
+
+    async function typeValue(input: ReturnType<typeof registerInput>, value: string) {
+      input.field.value = value
+      await input.registration.onChange({ target: input.field })
+    }
+
+    function renderLink() {
+      return renderHook(() =>
+        useProductAccompanimentDialog({
+          onSuccess: vi.fn(),
+          open: true,
+          productId: 'product-1',
+        }),
+      )
+    }
+
+    function renderEdit(item: ProductAccompanimentDetails) {
+      return renderHook(() =>
+        useProductAccompanimentDialog({
+          item,
+          onSuccess: vi.fn(),
+          open: true,
+          productId: 'product-1',
+        }),
+      )
+    }
+
+    function mockSavedPrice() {
+      useProductPricingQueryMock.mockReturnValue({
+        pricing: {
+          accompanimentPrice: 3,
+          suggestedAccompanimentPrice: null,
+          mode: 'accompaniment',
+        },
+        pricingError: false,
+        isLoadingPricing: false,
+        isRefreshingPricing: false,
+        retryPricing: vi.fn(),
+      } as never)
+    }
+
+    afterEach(() => {
+      document.body.replaceChildren()
+    })
+
+    it('loads Link candidates for the Portion while the dialog is open', () => {
+      renderLink()
+
+      expect(useAccompanimentCandidatesQueryMock).toHaveBeenCalledWith('product-1', true)
+    })
+
+    it('starts Link with the switch off, unlocked and without notices', () => {
+      mockCandidates([candidate])
+      const { result } = renderLink()
+
+      expect(result.current.fields).toMatchObject({
+        isGlobalLocked: false,
+        isGlobalValue: false,
+        shouldShowReplacementNotice: false,
+      })
+      expect(result.current.isGlobalValue).toBe(false)
+    })
+
+    it('keeps Type and Quantity empty when the switch is turned on for a non-global candidate', () => {
+      mockCandidates([candidate])
+      const { result } = renderLink()
+
+      act(() => {
+        result.current.handleValueChange('accompanimentProductId', candidate.productId)
+      })
+      act(() => result.current.handleGlobalChange(true))
+
+      expect(result.current.isGlobalValue).toBe(true)
+      expect(result.current.isGlobalLocked).toBe(false)
+      expect(result.current.typeId).toBe('')
+      expect(result.current.fields.selectedTypeName).toBeUndefined()
+      expect(result.current.shouldShowReplacementNotice).toBe(false)
+    })
+
+    it('shows the replacement notice only while on for a candidate linked to other Portions', () => {
+      mockCandidates([candidate, linkedCandidate])
+      const { result } = renderLink()
+
+      act(() => {
+        result.current.handleValueChange(
+          'accompanimentProductId',
+          linkedCandidate.productId,
+        )
+      })
+      expect(result.current.shouldShowReplacementNotice).toBe(false)
+      act(() => result.current.handleGlobalChange(true))
+      expect(result.current.shouldShowReplacementNotice).toBe(true)
+      act(() => result.current.handleGlobalChange(false))
+      expect(result.current.shouldShowReplacementNotice).toBe(false)
+    })
+
+    it('posts isGlobal true with the entered values when Link turns the switch on', async () => {
+      const linkProductAccompaniment = vi.fn().mockResolvedValue(undefined)
+      useLinkProductAccompanimentActionMock.mockReturnValue({
+        isPending: false,
+        linkProductAccompaniment,
+      } as never)
+      mockCandidates([linkedCandidate])
+      const { result } = renderLink()
+      const quantity = registerInput(result, 'quantityPerPortion')
+      const price = registerInput(result, 'accompanimentPrice')
+
+      act(() => {
+        result.current.handleValueChange(
+          'accompanimentProductId',
+          linkedCandidate.productId,
+        )
+        result.current.handleValueChange('accompanimentTypeId', type.id)
+        result.current.handleGlobalChange(true)
+      })
+      await act(async () => {
+        await typeValue(quantity, '25')
+        await typeValue(price, '3,00')
+        await result.current.handleSubmit({ preventDefault: vi.fn() } as never)
+      })
+
+      expect(linkProductAccompaniment).toHaveBeenCalledWith({
+        accompanimentProductId: linkedCandidate.productId,
+        accompanimentPrice: 3,
+        accompanimentTypeId: type.id,
+        isGlobal: true,
+        quantityPerPortion: 25,
+      })
+    })
+
+    it('omits isGlobal from the Link payload when the switch is off', async () => {
+      const linkProductAccompaniment = vi.fn().mockResolvedValue(undefined)
+      useLinkProductAccompanimentActionMock.mockReturnValue({
+        isPending: false,
+        linkProductAccompaniment,
+      } as never)
+      mockCandidates([candidate])
+      const { result } = renderLink()
+      const quantity = registerInput(result, 'quantityPerPortion')
+      const price = registerInput(result, 'accompanimentPrice')
+
+      act(() => {
+        result.current.handleValueChange('accompanimentProductId', candidate.productId)
+        result.current.handleValueChange('accompanimentTypeId', type.id)
+      })
+      await act(async () => {
+        await typeValue(quantity, '25')
+        await typeValue(price, '3,00')
+        await result.current.handleSubmit({ preventDefault: vi.fn() } as never)
+      })
+
+      expect(linkProductAccompaniment).toHaveBeenCalledTimes(1)
+      expect(linkProductAccompaniment.mock.calls[0]?.[0]).not.toHaveProperty('isGlobal')
+    })
+
+    it('locks a global candidate on with its shared Type and Quantity prefilled', async () => {
+      const linkProductAccompaniment = vi.fn().mockResolvedValue(undefined)
+      useLinkProductAccompanimentActionMock.mockReturnValue({
+        isPending: false,
+        linkProductAccompaniment,
+      } as never)
+      mockCandidates([candidate, globalCandidate])
+      const { result } = renderLink()
+      registerInput(result, 'quantityPerPortion')
+      const price = registerInput(result, 'accompanimentPrice')
+
+      act(() => {
+        result.current.handleValueChange(
+          'accompanimentProductId',
+          globalCandidate.productId,
+        )
+      })
+
+      expect(result.current.isGlobalValue).toBe(true)
+      expect(result.current.isGlobalLocked).toBe(true)
+      expect(result.current.typeId).toBe('type-1')
+      expect(result.current.shouldShowReplacementNotice).toBe(false)
+      expect(result.current.fields.selectedProductName).toBe('Banana')
+      await act(async () => {
+        await typeValue(price, '2,00')
+        await result.current.handleSubmit({ preventDefault: vi.fn() } as never)
+      })
+
+      expect(linkProductAccompaniment).toHaveBeenCalledWith({
+        accompanimentProductId: globalCandidate.productId,
+        accompanimentPrice: 2,
+        accompanimentTypeId: 'type-1',
+        isGlobal: true,
+        quantityPerPortion: 0.05,
+      })
+    })
+
+    it('ignores attempts to turn off a locked global switch', () => {
+      mockCandidates([globalCandidate])
+      const { result } = renderLink()
+
+      act(() => {
+        result.current.handleValueChange(
+          'accompanimentProductId',
+          globalCandidate.productId,
+        )
+      })
+      act(() => result.current.handleGlobalChange(false))
+
+      expect(result.current.isGlobalValue).toBe(true)
+      expect(result.current.isGlobalLocked).toBe(true)
+    })
+
+    it('clears the shared values and unlocks when switching from a global to an individual candidate', () => {
+      mockCandidates([candidate, globalCandidate])
+      const { result } = renderLink()
+
+      act(() => {
+        result.current.handleValueChange(
+          'accompanimentProductId',
+          globalCandidate.productId,
+        )
+      })
+      act(() => {
+        result.current.handleValueChange('accompanimentProductId', candidate.productId)
+      })
+
+      expect(result.current.isGlobalValue).toBe(false)
+      expect(result.current.isGlobalLocked).toBe(false)
+      expect(result.current.typeId).toBe('')
+    })
+
+    it('keeps typed values when switching between individual candidates', () => {
+      mockCandidates([candidate, linkedCandidate])
+      const { result } = renderLink()
+
+      act(() => {
+        result.current.handleValueChange('accompanimentProductId', candidate.productId)
+        result.current.handleValueChange('accompanimentTypeId', type.id)
+      })
+      act(() => {
+        result.current.handleValueChange(
+          'accompanimentProductId',
+          linkedCandidate.productId,
+        )
+      })
+
+      expect(result.current.typeId).toBe(type.id)
+    })
+
+    it('starts Edit of an individual row with the switch off and enabled', () => {
+      const { result } = renderEdit(editItem)
+
+      expect(result.current.isGlobalValue).toBe(false)
+      expect(result.current.isGlobalLocked).toBe(false)
+      expect(result.current.shouldShowReplacementNotice).toBe(false)
+      expect(result.current.typeId).toBe(type.id)
+    })
+
+    it('converts from Edit with isGlobal true and warns only when other Portions are linked', async () => {
+      const updateProductAccompaniment = vi.fn().mockResolvedValue(undefined)
+      useUpdateProductAccompanimentActionMock.mockReturnValue({
+        isPending: false,
+        updateProductAccompaniment,
+      } as never)
+      mockSavedPrice()
+      const { result } = renderEdit({ ...editItem, hasOtherPortionLinks: true })
+      const price = registerInput(result, 'accompanimentPrice')
+
+      act(() => result.current.handleGlobalChange(true))
+      expect(result.current.isGlobalValue).toBe(true)
+      expect(result.current.shouldShowReplacementNotice).toBe(true)
+      await act(async () => {
+        await typeValue(price, '3,00')
+        await result.current.handleSubmit({ preventDefault: vi.fn() } as never)
+      })
+
+      expect(updateProductAccompaniment).toHaveBeenCalledWith({
+        linkId: 'link-1',
+        input: { accompanimentTypeId: type.id, isGlobal: true, quantityPerPortion: 20 },
+      })
+    })
+
+    it('shows only the global notice when Edit converts a row without other Portion links', () => {
+      const { result } = renderEdit({ ...editItem, hasOtherPortionLinks: false })
+
+      act(() => result.current.handleGlobalChange(true))
+
+      expect(result.current.isGlobalValue).toBe(true)
+      expect(result.current.shouldShowReplacementNotice).toBe(false)
+    })
+
+    it('locks Edit of a global row on and keeps its shared values', async () => {
+      const updateProductAccompaniment = vi.fn().mockResolvedValue(undefined)
+      useUpdateProductAccompanimentActionMock.mockReturnValue({
+        isPending: false,
+        updateProductAccompaniment,
+      } as never)
+      mockSavedPrice()
+      const { result } = renderEdit({ ...editItem, isGlobal: true })
+      const quantity = registerInput(result, 'quantityPerPortion')
+
+      expect(result.current.isGlobalValue).toBe(true)
+      expect(result.current.isGlobalLocked).toBe(true)
+      expect(result.current.shouldShowReplacementNotice).toBe(false)
+      act(() => result.current.handleGlobalChange(false))
+      expect(result.current.isGlobalValue).toBe(true)
+      await act(async () => {
+        await typeValue(quantity, '30')
+        await result.current.handleSubmit({ preventDefault: vi.fn() } as never)
+      })
+
+      expect(updateProductAccompaniment).toHaveBeenCalledWith({
+        linkId: 'link-1',
+        input: { accompanimentTypeId: type.id, isGlobal: true, quantityPerPortion: 30 },
+      })
+    })
+
+    it('omits isGlobal when Edit of an individual row keeps the switch off', async () => {
+      const updateProductAccompaniment = vi.fn().mockResolvedValue(undefined)
+      useUpdateProductAccompanimentActionMock.mockReturnValue({
+        isPending: false,
+        updateProductAccompaniment,
+      } as never)
+      mockSavedPrice()
+      const { result } = renderEdit(editItem)
+
+      await act(async () => {
+        await result.current.handleSubmit({ preventDefault: vi.fn() } as never)
+      })
+
+      expect(updateProductAccompaniment).toHaveBeenCalledTimes(1)
+      expect(updateProductAccompaniment.mock.calls[0]?.[0].input).not.toHaveProperty(
+        'isGlobal',
+      )
+    })
+
+    it('estimates the cost from the selected product single-stock unit cost', () => {
+      useProductStockQueryMock.mockReturnValue({
+        data: { brands: [], product: { currentUnitCost: 0.01 } },
+        isError: false,
+        isFetching: false,
+        isPending: false,
+        refetch: vi.fn(),
+      } as never)
+      mockCandidates([candidate])
+      const { result } = renderLink()
+
+      act(() => {
+        result.current.handleValueChange('accompanimentProductId', candidate.productId)
+      })
+
+      expect(useProductStockQueryMock).toHaveBeenLastCalledWith(candidate.productId)
+      expect(result.current.source).toEqual({ name: 'Estoque único', unitCost: 0.01 })
+      expect(result.current.fields.sourceUnitCost).toBe(0.01)
+      expect(result.current.fields.brandName).toBe('Estoque único')
+    })
+
+    it('prefers the primary brand unit price over the single-stock unit cost', () => {
+      useProductStockQueryMock.mockReturnValue({
+        data: {
+          brands: [{ brand: { name: 'Mãe Terra', isPrimary: true }, unitPrice: 0.02 }],
+          product: { currentUnitCost: 0.01 },
+        },
+        isError: false,
+        isFetching: false,
+        isPending: false,
+        refetch: vi.fn(),
+      } as never)
+      mockCandidates([candidate])
+      const { result } = renderLink()
+
+      expect(result.current.source).toEqual({ name: 'Mãe Terra', unitCost: 0.02 })
+    })
   })
 })

@@ -23,6 +23,7 @@ export class RemoveAccompanimentTypeUseCase implements UseCase<Request, void> {
       async ({
         accompanimentTypesRepository,
         productAccompanimentsRepository,
+        globalAccompanimentsRepository,
       }: MrpDatabaseRepositories) => {
         const type = await accompanimentTypesRepository.findById(
           request.actor.establishmentId,
@@ -31,11 +32,17 @@ export class RemoveAccompanimentTypeUseCase implements UseCase<Request, void> {
         if (!type || type.establishmentId !== request.actor.establishmentId) {
           throw new NotFoundError('Tipo de acompanhamento não encontrado.')
         }
-        const usageCount = await productAccompanimentsRepository.countByTypeId(
-          request.actor.establishmentId,
-          type.id,
-        )
-        if (usageCount > 0) {
+        const [rowsCount, globalsCount] = await Promise.all([
+          productAccompanimentsRepository.countByTypeId(
+            request.actor.establishmentId,
+            type.id,
+          ),
+          globalAccompanimentsRepository.countByTypeId(
+            request.actor.establishmentId,
+            type.id,
+          ),
+        ])
+        if (rowsCount + globalsCount > 0) {
           throw new ConflictError('O tipo de acompanhamento está em uso.')
         }
         await accompanimentTypesRepository.remove(request.actor.establishmentId, type.id)

@@ -4,7 +4,10 @@ import { useForm, useWatch } from 'react-hook-form'
 import type { z } from 'zod'
 
 import { productAccompanimentFormSchema } from '@scoops/validation'
-import type { ProductAccompanimentDetails } from '@scoops/core/mrp/domain/structures'
+import type {
+  ProductAccompanimentCandidate,
+  ProductAccompanimentDetails,
+} from '@scoops/core/mrp/domain/structures'
 
 export type ProductAccompanimentFormValues = z.infer<
   typeof productAccompanimentFormSchema
@@ -12,7 +15,11 @@ export type ProductAccompanimentFormValues = z.infer<
 type ProductAccompanimentDefaultSource = Partial<
   Pick<
     ProductAccompanimentDetails,
-    'accompanimentProductId' | 'accompanimentTypeId' | 'quantityPerPortion' | 'salePrice'
+    | 'accompanimentProductId'
+    | 'accompanimentTypeId'
+    | 'isGlobal'
+    | 'quantityPerPortion'
+    | 'salePrice'
   >
 >
 
@@ -45,7 +52,9 @@ function useProductAccompanimentFormState(
     actionError,
     form,
     ...formFields,
+    handleGlobalChange: getGlobalChangeHandler(form, setActionError),
     handleValueChange: getValueChangeHandler(form, setActionError),
+    selectCandidate: getCandidateSelector(form),
     setActionError,
   }
 }
@@ -56,6 +65,7 @@ function useProductAccompanimentFormFields(
   form: ReturnType<typeof useForm<ProductAccompanimentFormValues>>,
 ) {
   return {
+    isGlobalValue: useWatch({ control: form.control, name: 'isGlobal' }),
     productIdValue: useWatch({ control: form.control, name: 'accompanimentProductId' }),
     quantity: useWatch({ control: form.control, name: 'quantityPerPortion' }),
     typeId: useWatch({ control: form.control, name: 'accompanimentTypeId' }),
@@ -72,6 +82,41 @@ function getValueChangeHandler(
   ) => {
     form.setValue(name, value ?? '', { shouldDirty: true, shouldValidate: true })
     setActionError(null)
+  }
+}
+
+function getGlobalChangeHandler(
+  form: ReturnType<typeof useForm<ProductAccompanimentFormValues>>,
+  setActionError: (value: string | null) => void,
+) {
+  return (checked: boolean) => {
+    form.setValue('isGlobal', checked, { shouldDirty: true })
+    setActionError(null)
+  }
+}
+
+function getCandidateSelector(
+  form: ReturnType<typeof useForm<ProductAccompanimentFormValues>>,
+) {
+  return (
+    candidate: ProductAccompanimentCandidate | undefined,
+    previousCandidate: ProductAccompanimentCandidate | undefined,
+  ) => {
+    const options = { shouldDirty: true, shouldValidate: true }
+    if (candidate?.isGlobal && candidate.global) {
+      form.setValue('isGlobal', true, { shouldDirty: true })
+      form.setValue('accompanimentTypeId', candidate.global.accompanimentTypeId, options)
+      form.setValue(
+        'quantityPerPortion',
+        getDefaultQuantity(candidate.global.quantityPerPortion),
+        options,
+      )
+      return
+    }
+    if (!previousCandidate?.isGlobal) return
+    form.setValue('isGlobal', false, { shouldDirty: true })
+    form.setValue('accompanimentTypeId', '', { shouldDirty: true })
+    form.setValue('quantityPerPortion', '', { shouldDirty: true })
   }
 }
 
@@ -96,6 +141,7 @@ function getDefaultValues(
     accompanimentTypeId: getDefaultValue(item.accompanimentTypeId, ''),
     accompanimentPrice: getDefaultPrice(item.salePrice ?? null),
     quantityPerPortion: getDefaultQuantity(item.quantityPerPortion),
+    isGlobal: getDefaultValue(item.isGlobal, false),
   }
 }
 

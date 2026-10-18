@@ -11,6 +11,7 @@ import type {
   AccompanimentType,
   Brand,
   BrandCreate,
+  GlobalAccompaniment,
   Product,
   ProductAccompaniment,
   ProductSize,
@@ -18,6 +19,7 @@ import type {
 } from '@scoops/core/mrp/domain/entities'
 import type {
   AccompanimentTypeCreate,
+  GlobalAccompanimentCreate,
   ProductAccompanimentCreate,
   ProductCreate,
   ProductSizeCreate,
@@ -26,6 +28,7 @@ import type {
 import type {
   AccompanimentTypesRepository,
   BrandsRepository,
+  GlobalAccompanimentsRepository,
   ProductAccompanimentsRepository,
   ProductsRepository,
   ProductSizesRepository,
@@ -534,6 +537,10 @@ export class PdvModuleFixture {
     return this.get(MRP_REPOSITORIES.productAccompaniments)
   }
 
+  get globalAccompaniments(): GlobalAccompanimentsRepository {
+    return this.get(MRP_REPOSITORIES.globalAccompaniments)
+  }
+
   get discounts(): DiscountsRepository {
     return this.get(PDV_REPOSITORIES.discounts)
   }
@@ -660,6 +667,10 @@ export class PdvModuleFixture {
     input: ProductAccompanimentCreate,
   ): Promise<ProductAccompaniment> {
     return this.productAccompaniments.add(input)
+  }
+
+  addGlobalAccompaniment(input: GlobalAccompanimentCreate): Promise<GlobalAccompaniment> {
+    return this.globalAccompaniments.add(input)
   }
 
   addCombo(input: ComboCreate): Promise<Combo> {

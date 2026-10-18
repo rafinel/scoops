@@ -43,6 +43,7 @@ export class GetProductAccompanimentsUseCase
         productSizesRepository,
         accompanimentTypesRepository,
         productAccompanimentsRepository,
+        globalAccompanimentsRepository,
         resaleConfigurationsRepository,
         eventsRepository,
       }: MrpDatabaseRepositories) => {
@@ -58,6 +59,7 @@ export class GetProductAccompanimentsUseCase
           productSizesRepository,
           accompanimentTypesRepository,
           productAccompanimentsRepository,
+          globalAccompanimentsRepository,
           resaleConfigurationsRepository,
           eventsRepository,
         }
@@ -85,10 +87,12 @@ export class GetProductAccompanimentsUseCase
         )
 
         accompaniments.sort((left, right) => {
+          const globalComparison = Number(right.isGlobal) - Number(left.isGlobal)
           const nameComparison = normalizeForSort(
             left.accompanimentProductName,
           ).localeCompare(normalizeForSort(right.accompanimentProductName))
           return (
+            globalComparison ||
             nameComparison ||
             left.accompanimentProductId.localeCompare(right.accompanimentProductId)
           )
@@ -136,13 +140,47 @@ export class GetProductAccompanimentsUseCase
       unit: accompanimentProduct.unit,
       quantityPerPortion: link.quantityPerPortion,
       salePrice: accompanimentProduct.accompanimentPrice ?? null,
+      isGlobal: link.globalAccompanimentId !== undefined,
+      hasOtherPortionLinks: await GetProductAccompanimentsUseCase.hasOtherPortionLinks(
+        scope,
+        establishmentId,
+        link,
+      ),
+      ...GetProductAccompanimentsUseCase.sourceDetails(source, link.quantityPerPortion),
+    }
+  }
+
+  private static sourceDetails(
+    source: Awaited<
+      ReturnType<typeof GetProductAccompanimentsUseCase.resolveCurrentSource>
+    >,
+    quantityPerPortion: number,
+  ): Partial<ProductAccompanimentDetails> {
+    return {
       ...(source?.brandId ? { brandId: source.brandId } : {}),
       ...(source?.brandName ? { brandName: source.brandName } : {}),
-      ...(source?.unitCost !== undefined ? { unitCost: source.unitCost } : {}),
       ...(source?.unitCost !== undefined
-        ? { estimatedCost: link.quantityPerPortion * source.unitCost }
+        ? {
+            unitCost: source.unitCost,
+            estimatedCost: quantityPerPortion * source.unitCost,
+          }
         : {}),
     }
+  }
+
+  private static async hasOtherPortionLinks(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    link: ProductAccompaniment,
+  ): Promise<boolean> {
+    if (link.globalAccompanimentId !== undefined) return false
+    const linksCount =
+      await scope.productAccompanimentsRepository.countByAccompanimentProductId(
+        establishmentId,
+        link.accompanimentProductId,
+      )
+    // The link itself is part of the count.
+    return linksCount > 1
   }
 
   private static async resolveCurrentSource(

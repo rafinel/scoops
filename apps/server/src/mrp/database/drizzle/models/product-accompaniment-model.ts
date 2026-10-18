@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm'
 import {
   check,
+  foreignKey,
   index,
   numeric,
   pgTable,
@@ -11,6 +12,7 @@ import {
 
 import { productModel } from './product-model'
 import { accompanimentTypeModel } from './accompaniment-type-model'
+import { globalAccompanimentModel } from './global-accompaniment-model'
 
 export const productAccompanimentModel = pgTable(
   'product_accompaniments',
@@ -30,6 +32,7 @@ export const productAccompanimentModel = pgTable(
       precision: 18,
       scale: 3,
     }).notNull(),
+    globalAccompanimentId: uuid('global_accompaniment_id'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull(),
   },
@@ -51,6 +54,18 @@ export const productAccompanimentModel = pgTable(
       table.establishmentId,
       table.accompanimentTypeId,
     ),
+    index('mrp_product_accompaniments_establishment_global_idx').on(
+      table.establishmentId,
+      table.globalAccompanimentId,
+    ),
+    foreignKey({
+      name: 'mrp_product_accompaniments_global_product_fk',
+      columns: [table.globalAccompanimentId, table.accompanimentProductId],
+      foreignColumns: [
+        globalAccompanimentModel.id,
+        globalAccompanimentModel.accompanimentProductId,
+      ],
+    }).onDelete('restrict'),
     check(
       'mrp_product_accompaniments_distinct_products',
       sql`${table.productId} <> ${table.accompanimentProductId}`,

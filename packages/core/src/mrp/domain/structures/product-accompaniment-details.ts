@@ -9,6 +9,8 @@ export type ProductAccompanimentDetails = {
   readonly unit: ProductUnit
   readonly quantityPerPortion: number
   readonly salePrice: number | null
+  readonly isGlobal: boolean
+  readonly hasOtherPortionLinks: boolean
   readonly brandId?: string
   readonly brandName?: string
   readonly unitCost?: number

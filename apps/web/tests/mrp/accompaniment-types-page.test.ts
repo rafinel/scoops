@@ -41,6 +41,16 @@ test.describe('AccompanimentTypesPage', () => {
       page.getByRole('heading', { name: 'Tipos de acompanhamento' }),
     ).toBeVisible()
     await expect(page.getByText('Cobertura')).toBeVisible()
+    const typesTable = page.getByRole('region', {
+      name: 'Tabela de tipos de acompanhamento',
+    })
+    await expect(typesTable.getByRole('columnheader')).toHaveText([
+      'Nome',
+      'Status',
+      'Ações',
+    ])
+    await expect(typesTable.getByText('Em uso')).toBeVisible()
+    await expect(typesTable.getByText(/vínculo/)).toHaveCount(0)
     const disabledRemoveButton = page.getByRole('button', { name: 'Remover Cobertura' })
     await expect(disabledRemoveButton).toBeDisabled()
     const backLink = page.getByRole('link', { name: 'Voltar' })
@@ -63,6 +73,8 @@ test.describe('AccompanimentTypesPage', () => {
     await page.getByRole('button', { name: 'Próxima página' }).click()
     await expect(page).toHaveURL(/page=2/)
     await expect(page.getByText('Extra')).toBeVisible()
+    await expect(typesTable.getByText('Disponível')).toBeVisible()
+    await expect(typesTable.getByText(/vínculo/)).toHaveCount(0)
     expect(types.requests.at(-1)?.url.searchParams.get('page')).toBe('2')
   })
 

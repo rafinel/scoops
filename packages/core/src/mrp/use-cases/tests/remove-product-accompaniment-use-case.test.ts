@@ -3,10 +3,15 @@ import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-
 
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import {
+  GlobalAccompanimentFaker,
   ProductAccompanimentFaker,
   ProductFaker,
 } from '#mrp/domain/entities/fakers/index.ts'
-import { ProductCategory } from '#mrp/domain/structures/index.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import {
+  AccompanimentRemovalScope,
+  ProductCategory,
+} from '#mrp/domain/structures/index.ts'
 import type {
   MrpDatabase,
   MrpDatabaseRepositories,
@@ -88,5 +93,174 @@ describe('Remove Product Accompaniment Use Case', () => {
         linkId: link.id,
       }),
     ).rejects.toBeInstanceOf(AuthorizationError)
+  })
+
+  it('hides links from another establishment or Portion without deleting', async () => {
+    for (const returnedLink of [
+      { ...link, establishmentId: 'another-establishment' },
+      { ...link, productId: 'another-portion' },
+    ]) {
+      scope.productAccompanimentsRepository.findById.mockResolvedValue(returnedLink)
+      await expect(
+        useCase.execute({
+          actor: { id: 'manager-1', establishmentId, profile: UserProfile.Manager },
+          productId: owner.id,
+          linkId: link.id,
+        }),
+      ).rejects.toBeInstanceOf(NotFoundError)
+    }
+    expect(scope.productAccompanimentsRepository.remove).not.toHaveBeenCalled()
+    expect(scope.eventsRepository.add).not.toHaveBeenCalled()
+  })
+
+  describe('global accompaniments', () => {
+    const actor = { id: 'manager-1', establishmentId, profile: UserProfile.Manager }
+    const portionB = ProductFaker.fake({
+      id: 'portion-2',
+      establishmentId,
+      categories: [ProductCategory.Portion],
+    })
+    const portionC = ProductFaker.fake({
+      id: 'portion-3',
+      establishmentId,
+      categories: [ProductCategory.Portion],
+    })
+    const portions = [owner, portionB, portionC]
+    const global = GlobalAccompanimentFaker.fake({ id: 'global-1', establishmentId })
+    const globalRow = (productId: string) =>
+      ProductAccompanimentFaker.fake({
+        id: `row-${productId}`,
+        establishmentId,
+        productId,
+        accompanimentProductId: global.accompanimentProductId,
+        globalAccompanimentId: global.id,
+      })
+    const ownerRow = { ...globalRow(owner.id), id: link.id }
+    const publishedProductIds = () =>
+      scope.eventsRepository.add.mock.calls
+        .map(([event]) =>
+          event instanceof ProductSalesConfigurationChangedEvent
+            ? event.payload.productId
+            : undefined,
+        )
+        .sort()
+
+    beforeEach(() => {
+      scope.productsRepository.findById.mockImplementation(async (_, id) =>
+        portions.find((portion) => portion.id === id),
+      )
+      scope.productAccompanimentsRepository.findById.mockResolvedValue(ownerRow)
+      scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+        [ownerRow, globalRow(portionB.id)],
+      )
+    })
+
+    it.each([
+      ['an omitted scope', undefined],
+      ['the Portion scope', AccompanimentRemovalScope.Portion],
+    ])('removes only this Portion row with %s', async (_, removalScope) => {
+      await useCase.execute({
+        actor,
+        productId: owner.id,
+        linkId: link.id,
+        scope: removalScope,
+      })
+
+      expect(scope.productAccompanimentsRepository.remove).toHaveBeenCalledWith(
+        establishmentId,
+        owner.id,
+        link.id,
+      )
+      expect(
+        scope.productAccompanimentsRepository.removeByGlobalAccompanimentId,
+      ).not.toHaveBeenCalled()
+      expect(scope.globalAccompanimentsRepository.remove).not.toHaveBeenCalled()
+      expect(publishedProductIds()).toEqual([owner.id])
+    })
+
+    it('removes every row and then the global with the All scope and republishes each Portion', async () => {
+      await useCase.execute({
+        actor,
+        productId: owner.id,
+        linkId: link.id,
+        scope: AccompanimentRemovalScope.All,
+      })
+
+      expect(
+        scope.productAccompanimentsRepository.removeByGlobalAccompanimentId,
+      ).toHaveBeenCalledWith(establishmentId, global.id)
+      expect(scope.globalAccompanimentsRepository.remove).toHaveBeenCalledWith(
+        establishmentId,
+        global.id,
+      )
+      expect(scope.productAccompanimentsRepository.remove).not.toHaveBeenCalled()
+      expect(
+        scope.productAccompanimentsRepository.removeByGlobalAccompanimentId.mock
+          .invocationCallOrder[0],
+      ).toBeLessThan(
+        scope.globalAccompanimentsRepository.remove.mock.invocationCallOrder[0],
+      )
+      expect(publishedProductIds()).toEqual([owner.id, portionB.id])
+      expect(scope.stockBalancesRepository.add).not.toHaveBeenCalled()
+      expect(scope.stockTransactionsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it('does not delete the global when removing its rows fails', async () => {
+      scope.productAccompanimentsRepository.removeByGlobalAccompanimentId.mockRejectedValue(
+        new Error('failed'),
+      )
+
+      await expect(
+        useCase.execute({
+          actor,
+          productId: owner.id,
+          linkId: link.id,
+          scope: AccompanimentRemovalScope.All,
+        }),
+      ).rejects.toThrow('failed')
+
+      expect(scope.globalAccompanimentsRepository.remove).not.toHaveBeenCalled()
+      expect(scope.eventsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it('rejects removing an individual row from all Portions', async () => {
+      scope.productAccompanimentsRepository.findById.mockResolvedValue(link)
+
+      await expect(
+        useCase.execute({
+          actor,
+          productId: owner.id,
+          linkId: link.id,
+          scope: AccompanimentRemovalScope.All,
+        }),
+      ).rejects.toThrow(
+        new BadRequestError(
+          'Somente acompanhamentos globais podem ser removidos de todas as porções.',
+        ),
+      )
+
+      expect(scope.productAccompanimentsRepository.remove).not.toHaveBeenCalled()
+      expect(
+        scope.productAccompanimentsRepository.removeByGlobalAccompanimentId,
+      ).not.toHaveBeenCalled()
+      expect(scope.eventsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it('removes an individual row with the Portion scope', async () => {
+      scope.productAccompanimentsRepository.findById.mockResolvedValue(link)
+
+      await useCase.execute({
+        actor,
+        productId: owner.id,
+        linkId: link.id,
+        scope: AccompanimentRemovalScope.Portion,
+      })
+
+      expect(scope.productAccompanimentsRepository.remove).toHaveBeenCalledWith(
+        establishmentId,
+        owner.id,
+        link.id,
+      )
+    })
   })
 })

@@ -40,6 +40,7 @@ export class RemoveProductSizeUseCase implements UseCase<Request, void> {
         productSizesRepository,
         accompanimentTypesRepository,
         productAccompanimentsRepository,
+        globalAccompanimentsRepository,
         resaleConfigurationsRepository,
         eventsRepository,
       }: MrpDatabaseRepositories) => {
@@ -55,6 +56,7 @@ export class RemoveProductSizeUseCase implements UseCase<Request, void> {
           productSizesRepository,
           accompanimentTypesRepository,
           productAccompanimentsRepository,
+          globalAccompanimentsRepository,
           resaleConfigurationsRepository,
           eventsRepository,
         }

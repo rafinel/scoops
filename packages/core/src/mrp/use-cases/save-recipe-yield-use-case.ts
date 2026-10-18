@@ -39,6 +39,7 @@ export class SaveRecipeYieldUseCase implements UseCase<Request, ProductRecipeDet
         productSizesRepository,
         accompanimentTypesRepository,
         productAccompanimentsRepository,
+        globalAccompanimentsRepository,
         resaleConfigurationsRepository,
         eventsRepository,
       }: MrpDatabaseRepositories) => {
@@ -54,6 +55,7 @@ export class SaveRecipeYieldUseCase implements UseCase<Request, ProductRecipeDet
           productSizesRepository,
           accompanimentTypesRepository,
           productAccompanimentsRepository,
+          globalAccompanimentsRepository,
           resaleConfigurationsRepository,
           eventsRepository,
         }

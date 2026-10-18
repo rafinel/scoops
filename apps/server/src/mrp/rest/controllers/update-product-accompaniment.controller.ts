@@ -48,6 +48,11 @@ export class UpdateProductAccompanimentController {
           description:
             'Optional intentional product-wide price change. Omit to keep the latest saved price; zero is allowed.',
         },
+        isGlobal: {
+          type: 'boolean',
+          description:
+            'True converts an individual link into a global accompaniment. Omit to keep the current global status; false is rejected for a global accompaniment.',
+        },
       },
     },
   })
@@ -63,7 +68,8 @@ export class UpdateProductAccompanimentController {
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'The quantity or accompaniment sale price is invalid.',
+    description:
+      'The quantity or accompaniment sale price is invalid, or isGlobal is false for a global accompaniment.',
     type: ErrorResponseDto,
   })
   @ApiResponse({

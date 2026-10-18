@@ -20,8 +20,8 @@ export const mrpQueryKeys = {
     [...mrpQueryKeys.products(), productId, 'unit-change-preview'] as const,
   productUnitChangePreview: (productId: string, targetUnit: string) =>
     [...mrpQueryKeys.productUnitChangePreviews(productId), targetUnit] as const,
-  accompanimentCandidates: (input: unknown) =>
-    [...mrpQueryKeys.products(), 'accompaniment-candidates', input] as const,
+  accompanimentCandidates: (productId: string) =>
+    [...mrpQueryKeys.products(), productId, 'accompaniment-candidates'] as const,
   accompanimentTypes: (input: Omit<AccompanimentTypeListParams, 'establishmentId'>) =>
     [...mrpQueryKeys.all, 'accompaniment-types', input] as const,
   productionPreview: (productId: string, quantity: number) =>

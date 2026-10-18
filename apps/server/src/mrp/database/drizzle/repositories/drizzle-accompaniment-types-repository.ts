@@ -15,6 +15,7 @@ import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
 
 import { DrizzleAccompanimentTypeMapper } from '../mappers/drizzle-accompaniment-type-mapper'
 import { accompanimentTypeModel } from '../models/accompaniment-type-model'
+import { globalAccompanimentModel } from '../models/global-accompaniment-model'
 import { productAccompanimentModel } from '../models/product-accompaniment-model'
 
 @Injectable()
@@ -81,28 +82,24 @@ export class DrizzleAccompanimentTypesRepository
       ? ilike(accompanimentTypeModel.name, `%${input.search}%`)
       : undefined
     const where = searchFilter ? and(tenantFilter, searchFilter) : tenantFilter
+    const rowUsageCount = sql<number>`(
+      select count(*) from ${productAccompanimentModel}
+      where ${productAccompanimentModel.accompanimentTypeId} = ${accompanimentTypeModel.id}
+        and ${productAccompanimentModel.establishmentId} = ${input.establishmentId}
+    )`
+    const globalUsageCount = sql<number>`(
+      select count(*) from ${globalAccompanimentModel}
+      where ${globalAccompanimentModel.accompanimentTypeId} = ${accompanimentTypeModel.id}
+        and ${globalAccompanimentModel.establishmentId} = ${input.establishmentId}
+    )`
     const [records, totals] = await Promise.all([
       this.database
         .select({
           type: accompanimentTypeModel,
-          usageCount: count(productAccompanimentModel.id),
+          usageCount: sql<number>`${rowUsageCount} + ${globalUsageCount}`,
         })
         .from(accompanimentTypeModel)
-        .leftJoin(
-          productAccompanimentModel,
-          and(
-            eq(productAccompanimentModel.accompanimentTypeId, accompanimentTypeModel.id),
-            eq(productAccompanimentModel.establishmentId, input.establishmentId),
-          ),
-        )
         .where(where)
-        .groupBy(
-          accompanimentTypeModel.id,
-          accompanimentTypeModel.establishmentId,
-          accompanimentTypeModel.name,
-          accompanimentTypeModel.createdAt,
-          accompanimentTypeModel.updatedAt,
-        )
         .orderBy(
           asc(sql`lower(${accompanimentTypeModel.name})`),
           asc(accompanimentTypeModel.id),

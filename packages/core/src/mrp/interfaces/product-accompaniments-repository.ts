@@ -4,6 +4,7 @@ import type { ProductAccompanimentUpdate } from '#mrp/domain/structures/product-
 
 export interface ProductAccompanimentsRepository {
   add(input: ProductAccompanimentCreate): Promise<ProductAccompaniment>
+  addMany(inputs: readonly ProductAccompanimentCreate[]): Promise<ProductAccompaniment[]>
   countByTypeId(establishmentId: string, typeId: string): Promise<number>
   findById(
     establishmentId: string,
@@ -45,5 +46,19 @@ export interface ProductAccompanimentsRepository {
     changes: ProductAccompanimentUpdate,
   ): Promise<ProductAccompaniment>
   remove(establishmentId: string, productId: string, linkId: string): Promise<void>
+  replaceManyByGlobalAccompanimentId(
+    establishmentId: string,
+    globalAccompanimentId: string,
+    changes: ProductAccompanimentUpdate,
+  ): Promise<void>
+  replaceManyByAccompanimentProductId(
+    establishmentId: string,
+    accompanimentProductId: string,
+    changes: ProductAccompanimentUpdate & { globalAccompanimentId: string },
+  ): Promise<void>
+  removeByGlobalAccompanimentId(
+    establishmentId: string,
+    globalAccompanimentId: string,
+  ): Promise<void>
   removeAll(): Promise<void>
 }

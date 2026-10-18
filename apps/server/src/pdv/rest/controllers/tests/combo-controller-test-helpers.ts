@@ -51,3 +51,68 @@ export function productCreate(overrides: Partial<ProductCreate> = {}): ProductCr
 export function expectedUpdatedAt(value: { updatedAt: Date }) {
   return value.updatedAt.toISOString()
 }
+
+export async function addPortionWithGlobalAccompaniment(fixture: PdvModuleFixture) {
+  const establishmentId = PdvModuleFixture.accounts.establishmentId
+  const portion = await fixture.addProduct(
+    productCreate({
+      name: 'Combo Portion',
+      categories: [ProductCategory.Portion],
+      currentUnitCost: 2,
+    }),
+  )
+  const size = await fixture.addProductSize({
+    establishmentId,
+    productId: portion.id,
+    name: 'Regular',
+    quantity: 1,
+    price: 10,
+    isActive: true,
+  })
+  const target = await fixture.addProduct(
+    productCreate({
+      name: 'Combo Global Topping',
+      categories: [ProductCategory.Accompaniment],
+      currentUnitCost: 0.5,
+      accompanimentPrice: 3.5,
+    }),
+  )
+  const type = await fixture.addAccompanimentType({
+    establishmentId,
+    name: 'Combo Toppings',
+  })
+  const global = await fixture.addGlobalAccompaniment({
+    establishmentId,
+    accompanimentProductId: target.id,
+    accompanimentTypeId: type.id,
+    quantityPerPortion: 0.5,
+  })
+  const row = await fixture.addProductAccompaniment({
+    establishmentId,
+    productId: portion.id,
+    accompanimentProductId: target.id,
+    accompanimentTypeId: type.id,
+    quantityPerPortion: 0.5,
+    globalAccompanimentId: global.id,
+  })
+  const resale = await fixture.addProduct(
+    productCreate({ name: 'Combo Resale', categories: [ProductCategory.Resale] }),
+  )
+  await fixture.addResaleConfiguration({
+    establishmentId,
+    productId: resale.id,
+    price: 5,
+    isActive: true,
+  })
+  const components = [
+    {
+      kind: 'portion' as const,
+      productId: portion.id,
+      quantity: 1,
+      sizeId: size.id,
+      accompanimentIds: [row.id],
+    },
+    { kind: 'resale' as const, productId: resale.id, quantity: 1 },
+  ]
+  return { portion, size, target, type, global, row, resale, components }
+}

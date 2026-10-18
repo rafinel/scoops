@@ -23,6 +23,18 @@ export class ProductAccompanimentDetailsResponseDto {
       'Saved product-wide Accompaniment sale price. Null means unconfigured; zero means free.',
   })
   salePrice!: number | null
+
+  @ApiProperty({
+    description:
+      'Whether the row belongs to a global accompaniment shared by every Portion.',
+  })
+  isGlobal!: boolean
+
+  @ApiProperty({
+    description:
+      'Whether the same product is individually linked to other Portions. Always false for global rows.',
+  })
+  hasOtherPortionLinks!: boolean
 }
 
 export class ProductAccompanimentsResponseDto {

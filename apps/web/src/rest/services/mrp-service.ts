@@ -18,6 +18,7 @@ import type {
   StockTransactionPage,
   ProductAccompanimentsDetails,
   ProductAccompanimentDetails,
+  ProductAccompanimentCandidate,
   LinkProductAccompanimentInput,
   UpdateProductAccompanimentInput,
   SaveAccompanimentTypeInput,
@@ -249,6 +250,12 @@ function mapAccompanimentTypePage(
       response.totalPages,
     ),
   )
+}
+
+function buildRemovalQuery(
+  scope: Parameters<MrpRestService['removeProductAccompaniment']>[2],
+): string {
+  return scope ? `?${new URLSearchParams({ scope }).toString()}` : ''
 }
 
 export const MrpService = (restClient: RestClient): MrpRestService => ({
@@ -675,8 +682,17 @@ export const MrpService = (restClient: RestClient): MrpRestService => ({
     return response as unknown as RestResponse<ProductAccompanimentDetails>
   },
 
-  removeProductAccompaniment(productId, linkId) {
-    return restClient.delete<void>(`/products/${productId}/accompaniments/${linkId}`)
+  async listProductAccompanimentCandidates(productId) {
+    const response = await restClient.get<ProductAccompanimentCandidate[]>(
+      `/products/${productId}/accompaniments/candidates`,
+    )
+    return response as unknown as RestResponse<ProductAccompanimentCandidate[]>
+  },
+
+  removeProductAccompaniment(productId, linkId, scope) {
+    return restClient.delete<void>(
+      `/products/${productId}/accompaniments/${linkId}${buildRemovalQuery(scope)}`,
+    )
   },
 
   async listAccompanimentTypes(input) {

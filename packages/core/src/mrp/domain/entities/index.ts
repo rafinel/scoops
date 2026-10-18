@@ -1,5 +1,6 @@
 export * from '#mrp/domain/entities/accompaniment-type.ts'
 export * from '#mrp/domain/entities/brand.ts'
+export * from '#mrp/domain/entities/global-accompaniment.ts'
 export * from '#mrp/domain/entities/product-accompaniment.ts'
 export * from '#mrp/domain/entities/product.ts'
 export * from '#mrp/domain/entities/production-ingredient.ts'

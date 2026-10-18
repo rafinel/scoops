@@ -501,6 +501,15 @@ per-portion consumption, and brand context for PRQ-09, PRQ-10, and PDV.
   Portion changes it for all Portions. Removing it from a Portion removes it only from that
   Portion, which can be linked to it again later, unless the Manager chooses to remove it from all
   Portions, which also ends its global status. The same eligibility rules as for a link apply.
+- An Accompaniment product is either global or linked to individual Portions, never both. Making
+  it global replaces its individual links with the global setting. Global status ends only by
+  removing it from all Portions, by deleting the product, or, when it no longer appears in any
+  Portion, by removing its Accompaniment category.
+- Every product with the Portion category receives the current global Accompaniments, whatever
+  its status, including products that gain the category later. Removing the Portion category is
+  not blocked by global Accompaniments and stops the product from receiving them.
+- Linking a global Accompaniment again to a Portion it was removed from restores it there as the
+  same global item without creating a second item, and any shared change applies to all Portions.
 - Each link has a contextual type, such as Coverage, Extra, or Free; the same Accompaniment may
   have different types for different Portions.
 - Accompaniment types are managed on a dedicated MRP page and are available only within the same
@@ -524,7 +533,16 @@ per-portion consumption, and brand context for PRQ-09, PRQ-10, and PDV.
   per portion, applicable Brand, and cost preview.
 - The Link and Edit dialogs include a `Disponível para todas as porções` switch explaining that the
   item appears in all Portions, including new ones, and that type, quantity and price are shared.
-  When the switch is on, the dialog shows a notice that changes apply to all Portions.
+  When the switch is on, the dialog shows a notice that changes apply to all Portions. For an
+  individually linked item, turning the switch on in Link or Edit states before saving that its
+  individual links in other Portions will be replaced by the global setting.
+- Editing a global Accompaniment shows the switch on and locked, with help text explaining that
+  it stops being global only through `Remover`. No action in the Edit dialog ends global status.
+- The Link dialog lists only eligible Accompaniment products not already present in the Portion.
+  Choosing a global Accompaniment removed from that Portion shows the switch on and locked with
+  the shared values.
+- Global Accompaniments are listed before individually linked ones in the Portion table. No
+  Portion count appears in the global notice, the table description, or the removal dialogs.
 - Removing a global Accompaniment opens a confirmation with a `Remover de todas as porções` switch.
   With the switch off, it removes the item only from the current Portion and states that the other
   and new Portions keep it. With the switch on, it removes the item from all Portions and states
@@ -538,9 +556,9 @@ per-portion consumption, and brand context for PRQ-09, PRQ-10, and PDV.
   price; it applies to every linked Portion size and is managed in Link or Edit accompaniment
   dialogs.
 - The type selector offers `Manage types`, which opens the dedicated `Accompaniment types` page.
-- The types page displays registered types, usage status, and removal only for unused types, with
-  `New type` opening creation. Pagination shows visible range, total count, previous, next, and
-  numbered-page controls when records exceed one page.
+- The types page displays registered types, usage status without link counts, and removal only
+  for unused types, with `New type` opening creation. Pagination shows visible range, total count,
+  previous, next, and numbered-page controls when records exceed one page.
 - Editing opens a modal prefilled with the current name. Successful save renames the type across
   links; invalid or duplicate names retain entered context and show validation without closing.
 - Creation includes the type name, supporting guidance, `Cancel`, and `Add type`. Success closes

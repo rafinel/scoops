@@ -27,6 +27,7 @@ describe('Remove Accompaniment Type Use Case', () => {
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.accompanimentTypesRepository.findById.mockResolvedValue(type)
     scope.productAccompanimentsRepository.countByTypeId.mockResolvedValue(0)
+    scope.globalAccompanimentsRepository.countByTypeId.mockResolvedValue(0)
     useCase = new RemoveAccompanimentTypeUseCase(database)
   })
 
@@ -39,7 +40,24 @@ describe('Remove Accompaniment Type Use Case', () => {
       'e1',
       type.id,
     )
+    expect(scope.globalAccompanimentsRepository.countByTypeId).toHaveBeenCalledWith(
+      'e1',
+      type.id,
+    )
     expect(scope.accompanimentTypesRepository.remove).toHaveBeenCalledWith('e1', type.id)
+  })
+
+  it('treats a type used only by a global record as in use before deleting anything', async () => {
+    scope.globalAccompanimentsRepository.countByTypeId.mockResolvedValue(1)
+
+    await expect(
+      useCase.execute({
+        actor: { id: 'manager-1', establishmentId: 'e1', profile: UserProfile.Manager },
+        typeId: type.id,
+      }),
+    ).rejects.toThrow(new ConflictError('O tipo de acompanhamento está em uso.'))
+
+    expect(scope.accompanimentTypesRepository.remove).not.toHaveBeenCalled()
   })
 
   it('protects in-use, missing/foreign and operator branches without partial deletion', async () => {

@@ -35,9 +35,6 @@ export const AccompanimentTypesTable = ({
             Nome
           </TableHead>
           <TableHead className='text-xs font-semibold text-muted-foreground'>
-            Uso
-          </TableHead>
-          <TableHead className='text-xs font-semibold text-muted-foreground'>
             Status
           </TableHead>
           <TableHead className='p-3 text-right text-xs font-semibold text-muted-foreground'>
@@ -53,11 +50,6 @@ export const AccompanimentTypesTable = ({
               <TableCell className='flex items-center gap-2 p-4 font-bold'>
                 <Icon name='tag' className='size-4 text-primary' />
                 {item.type.name}
-              </TableCell>
-              <TableCell>
-                {isUsed
-                  ? `${item.usageCount} vínculo${item.usageCount === 1 ? '' : 's'}`
-                  : 'Sem vínculos'}
               </TableCell>
               <TableCell>
                 <Badge
