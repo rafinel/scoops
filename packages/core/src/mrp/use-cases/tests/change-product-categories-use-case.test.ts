@@ -549,6 +549,54 @@ describe('Change Product Categories Use Case', () => {
       )
     })
 
+    it('never gives a product a row for its own global when it changes from Accompaniment to Portion', async () => {
+      const own = ProductFaker.fake({
+        id: 'own-accompaniment',
+        establishmentId: 'e1',
+        categories: [ProductCategory.Accompaniment],
+        updatedAt,
+      })
+      const ownGlobal = GlobalAccompanimentFaker.fake({
+        id: 'global-own',
+        establishmentId: 'e1',
+        accompanimentProductId: own.id,
+        accompanimentTypeId: 'type-1',
+      })
+      let globals = [ownGlobal, firstGlobal]
+      scope.productsRepository.findById.mockResolvedValue(own)
+      scope.productAccompanimentsRepository.findManyByProductId.mockResolvedValue([])
+      scope.globalAccompanimentsRepository.findByAccompanimentProductId.mockResolvedValue(
+        ownGlobal,
+      )
+      scope.globalAccompanimentsRepository.findManyByEstablishmentId.mockImplementation(
+        async () => globals,
+      )
+      scope.globalAccompanimentsRepository.remove.mockImplementation(async (_, id) => {
+        globals = globals.filter((global) => global.id !== id)
+      })
+
+      await useCase.execute({
+        actor: manager,
+        productId: own.id,
+        input: { categories: [ProductCategory.Portion], expectedUpdatedAt: updatedAt },
+      })
+
+      expect(scope.globalAccompanimentsRepository.remove).toHaveBeenCalledWith(
+        'e1',
+        ownGlobal.id,
+      )
+      expect(scope.productAccompanimentsRepository.addMany).toHaveBeenCalledWith([
+        {
+          establishmentId: 'e1',
+          productId: own.id,
+          accompanimentProductId: firstGlobal.accompanimentProductId,
+          accompanimentTypeId: firstGlobal.accompanimentTypeId,
+          quantityPerPortion: firstGlobal.quantityPerPortion,
+          globalAccompanimentId: firstGlobal.id,
+        },
+      ])
+    })
+
     it('leaves the global untouched when the product keeps the Accompaniment category or has none', async () => {
       scope.productsRepository.findById.mockResolvedValue(accompaniment)
       scope.globalAccompanimentsRepository.findByAccompanimentProductId.mockResolvedValue(

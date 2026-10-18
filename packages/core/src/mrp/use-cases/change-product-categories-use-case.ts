@@ -127,6 +127,10 @@ export class ChangeProductCategoriesUseCase
     product: Product,
     categories: readonly ProductCategory[],
   ): Promise<void> {
+    const wasAccompaniment = product.categories.includes(ProductCategory.Accompaniment)
+    if (wasAccompaniment && !categories.includes(ProductCategory.Accompaniment)) {
+      await this.removeGlobal(scope, establishmentId, product)
+    }
     const wasPortion = product.categories.includes(ProductCategory.Portion)
     const isPortion = categories.includes(ProductCategory.Portion)
     if (!wasPortion && isPortion) {
@@ -137,10 +141,6 @@ export class ChangeProductCategoriesUseCase
         establishmentId,
         product.id,
       )
-    }
-    const wasAccompaniment = product.categories.includes(ProductCategory.Accompaniment)
-    if (wasAccompaniment && !categories.includes(ProductCategory.Accompaniment)) {
-      await this.removeGlobal(scope, establishmentId, product)
     }
   }
 
