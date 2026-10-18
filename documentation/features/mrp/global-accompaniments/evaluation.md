@@ -2,7 +2,7 @@
 feature: "mrp/global-accompaniments"
 spec: ./spec.md
 spec_revision: 1
-status: ready
+status: completed
 updated_at: 2026-10-18
 ---
 
@@ -10,7 +10,7 @@ updated_at: 2026-10-18
 
 Evaluation of Spec revision `1` against the current implementation.
 
-Current result: the integrated candidate (`feat/global-accompaniments`, head `b92acc81` plus this file) passes every automated suite, static gate, build, targeted mutation check and the complete Web route suite. MV-01..MV-03 passed against the real services at both viewports. The independent Implementation Reviewer and Visual Reviewer reported no blocking findings; their non-blocking findings are dispositioned below. Review-cycle correction (FND-12) and CI mutation-gate correction (FND-13) are implemented and verified; Evaluation is `ready` again for `conclude-spec`.
+Current result: delivered. The implementation candidate on PR #63 (head `e802b9a7`) passed every applicable GitHub Actions workflow; MV-01..MV-03 passed against the real services; the Implementation Reviewer, the Visual Reviewer and one external review comment (FND-12) are reconciled. No blocking finding or unfinished criterion remains.
 
 ## Acceptance matrix
 
@@ -135,18 +135,26 @@ Prompt synchronization: `implement-spec-prompt.md` changed; `pnpm sync:commands`
 
 ## PR CI quality gate
 
+Implementation candidate on PR [#63](https://github.com/rafinel/scoops/pull/63), head `e802b9a7`. All 39 check runs succeeded; the PR merge state was `CLEAN`.
+
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| CI-01 | Core CI (types, code, architecture, tests and coverage, complexity, mutation baseline and candidate shards 1-4, per-module mutation score gate) | `e802b9a7` | success | https://github.com/rafinel/scoops/actions/runs/39122971221 |
+| CI-02 | Server CI (code, types, architecture, unit tests and coverage, Inngest integration, build, complexity) | `e802b9a7` | success | https://github.com/rafinel/scoops/actions/runs/39122971242 |
+| CI-03 | Web CI (code, types, architecture, unit tests and coverage, browser integration 1-4, build, complexity) | `e802b9a7` | success | https://github.com/rafinel/scoops/actions/runs/39122971218 |
+| CI-04 | Validation CI (code, types, architecture, complexity) | `e802b9a7` | success | https://github.com/rafinel/scoops/actions/runs/39122971331 |
+
+History: head `198968f8` failed the Core mutation score gate (FND-13, 8 files); head `259f058a` passed the mutation checks but its server run was cancelled when `e802b9a7` (the FND-12 correction) superseded it. Neither counts as current evidence.
 
 ## Continuation handoff
 
-- **Branch/candidate:** `feat/global-accompaniments`, PR #63; candidate pushed at `259f058a` plus the FND-12 correction commits (not yet pushed)
-- **Progress:** implementation integrated and verified; both independent reviews reconciled; review cycle 1 (FND-12) and CI mutation gate (FND-13) corrected; Evaluation `ready`
+- **Branch/candidate:** `feat/global-accompaniments`, PR #63; implementation candidate `e802b9a7` passed CI-01..CI-04; closure commit follows it
+- **Progress:** implementation integrated and verified; both independent reviews reconciled; review cycle 1 (FND-12) and CI mutation gate (FND-13) corrected; Evaluation `completed`
 - **Interrupted/uncommitted paths:** none after the correction commits
 - **Unfinished criteria:** none
 - **Blockers and stale evidence:** none blocking; the local dev database holds MV test data (extra Portion, one order, "Combo MV Granola") pending a user decision on reseeding
 - **Latest checkers:** EV-04..EV-13 passed; MV-01..MV-03 passed
-- **Next useful action:** push the corrected candidate to PR #63, wait for the full CI on the new head, then close the delivery
+- **Next useful action:** none; later reviewer comments go through `resolve-pr-feedback`
 
 ## History
 
@@ -156,4 +164,5 @@ Prompt synchronization: `implement-spec-prompt.md` changed; `pnpm sync:commands`
 | 2026-10-17 | Builders merged; server, web, mutation, complexity and route-suite evidence recorded |
 | 2026-10-18 | Review cycle 1: P2 comment on PR #63 verified as a real defect (FND-12); Evaluation reopened to `in_progress`, Spec revision 1 preserved | 
 | 2026-10-18 | FND-12 corrected and verified (EV-27); Evaluation back to `ready` |
+| 2026-10-18 | Candidate `e802b9a7` passed PR CI (CI-01..CI-04); Spec and Evaluation set to `completed` |
 | 2026-10-17 | MV-01..MV-03 run; Implementation Reviewer and Visual Reviewer reported no blocking findings; Evaluation set to `ready` |

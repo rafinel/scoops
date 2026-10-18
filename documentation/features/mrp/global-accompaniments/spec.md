@@ -1,6 +1,6 @@
 ---
 title: Global accompaniments
-status: in_progress
+status: completed
 revision: 1
 source:
   type: issue
@@ -9,10 +9,12 @@ scope:
   - MRP global accompaniments, Portion accompaniment links, category and product lifecycle, persistence, REST and Web
   - Accompaniment types page usage presentation
   - PDV catalog, order registration and Combo consumption of materialized accompaniment rows
-last_updated_at: 2026-10-17
+last_updated_at: 2026-10-18
 ---
 
 # Global accompaniments
+
+> **Outcome (2026-10-18):** delivered in [PR #63](https://github.com/rafinel/scoops/pull/63) for [Issue #61](https://github.com/rafinel/scoops/issues/61). MRP PRQ-08 is fully delivered; PRQ-09, PRQ-01/05, PRQ-10 and PDV PRQ-03/13 are partially delivered as scoped. All AC-01..AC-15 passed with the evidence in [evaluation.md](./evaluation.md).
 
 ## 1. Context and scope
 
