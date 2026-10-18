@@ -3,14 +3,14 @@ feature: "mrp/global-accompaniments"
 spec: ./spec.md
 spec_revision: 1
 status: ready
-updated_at: 2026-10-17
+updated_at: 2026-10-18
 ---
 
 # Evaluation
 
 Evaluation of Spec revision `1` against the current implementation.
 
-Current result: the integrated candidate (`feat/global-accompaniments`, head `b92acc81` plus this file) passes every automated suite, static gate, build, targeted mutation check and the complete Web route suite. MV-01..MV-03 passed against the real services at both viewports. The independent Implementation Reviewer and Visual Reviewer reported no blocking findings; their non-blocking findings are dispositioned below. Ready for `conclude-spec`.
+Current result: the integrated candidate (`feat/global-accompaniments`, head `b92acc81` plus this file) passes every automated suite, static gate, build, targeted mutation check and the complete Web route suite. MV-01..MV-03 passed against the real services at both viewports. The independent Implementation Reviewer and Visual Reviewer reported no blocking findings; their non-blocking findings are dispositioned below. Review-cycle correction (FND-12) and CI mutation-gate correction (FND-13) are implemented and verified; Evaluation is `ready` again for `conclude-spec`.
 
 ## Acceptance matrix
 
@@ -50,6 +50,7 @@ Current result: the integrated candidate (`feat/global-accompaniments`, head `b9
 | EV-12 | REST client | `apps/server/rest-client/mrp/products.rest` | candidates, POST/PATCH `isGlobal`, both DELETE scopes present; parity only | passed |
 | EV-25 | Coverage | `pnpm --filter @scoops/core test:coverage`, `pnpm --filter web test:coverage`, `pnpm --filter server test:coverage` on the candidate | all three exit 0 at their configured floors: Core 384 files / 1410 tests, Web 219 / 638, Server 97 / 339 | passed |
 | EV-26 | Structural | `pnpm check:spec-implementation -- documentation/features/mrp/global-accompaniments/spec.md` | not applicable: the Spec declares no classified exact-path inventory. The checker reads the use-case table's `Action` column (class names marked Modify/Create) as paths and reports 22 errors, all naming use cases, none a missing artifact. Not rerun after changes; no inventory invented | not_applicable |
+| EV-27 | Core / Server | Review correction FND-12: regression tests for an Accompaniment-to-Portion change of a product with a row-less global. Core use-case test (stateful mocks) failed before the fix; server controller test against Postgres returned 409 with the old ordering and 200 after the fix (verified by temporarily restoring the old code) | fix: `removeGlobal` now runs before `addGlobalRows`; Core 384 files / 1568 tests with coverage passed; `change-product-categories-use-case.ts` mutation 80.53% (unchanged); controller file 11 of 11 passed; code, types, architecture, test-integrity, complexity passed | passed |
 | EV-13 | Review | Implementation Reviewer over `git diff 5a9ccf09..HEAD` | no blocking findings; low findings dispositioned in FND-08..FND-10 | passed |
 
 Equivalent mutant: `remove-product-accompaniment-use-case.ts` line 83 (`globalAccompanimentId === undefined ||` conditional). An individual row combined with `scope=all` is rejected earlier in `execute`, so the branch cannot be reached.
@@ -122,11 +123,15 @@ Prompt synchronization: `implement-spec-prompt.md` changed; `pnpm sync:commands`
 | FND-08 | interpretation | PATCH on an individual row always republishes; no-op suppression applies to global rows (Spec §3 prose vs use-case table) | AC-05 | accepted_non_blocking | follows the use-case table and prior behavior; republishing is idempotent for PDV |
 | FND-09 | observation | `role=status` notices mount with their content; announcement by assistive technology was not confirmed with a screen reader | AC-15 | accepted_non_blocking | roles and aria wiring verified by tests and the keyboard run |
 | FND-10 | observation | empty-state button still reads `Vincular acompanhamento`; Link and Edit dialogs open with focus on the switch while the select is disabled during loading; candidates use one count query per candidate | AC-15 | accepted_non_blocking | the handoff covers only the card button; benign |
+| FND-12 | defect (review) | [PR #63 review comment](https://github.com/rafinel/scoops/pull/63#discussion_r4306746825), P2, `change-product-categories-use-case.ts`: changing a row-less global product from Accompaniment to Portion in one update runs `addGlobalRows` before `removeGlobal`, so the product's own global yields a row with `productId` equal to `accompanimentProductId` and the `mrp_product_accompaniments_distinct_products` constraint rolls the valid transition back | AC-09, EV-04, EV-05 | resolved | verified in code; in-Contract correction (FR-05, FR-11) routed through `implement-spec`; reordered so the product's own global is removed before Portion rows are materialized; proof in EV-27. Gap: earlier tests covered each category transition separately, never the combined one |
+| FND-13 | CI | Core mutation score gate on head `198968f8` failed for 8 use cases changed only by the added `globalAccompanimentsRepository` scope line (CI 48-66%, unchanged vs main) | EV-09, PR CI | resolved | tests added by three builders (94.95-100% locally on all eight, verified), pushed as `259f058a`; CI on that head pending when the review arrived |
 | FND-11 | environment | `pnpm --filter web test:auth:setup` fails on an `origins` assertion | MV-01 | accepted_non_blocking | unrelated to the feature; sign-in done through the UI |
 
 ## Lessons learned
 
 - Unlayered global CSS (`* { border-color }`) silently defeats layered Tailwind border-color utilities; use the `!` modifier or move the rule into a layer. Disposition: recorded in FND-04; no Rule change proposed without an owner decision.
+
+- Category changes can combine several transitions (here: lose Accompaniment and gain Portion in one update); order dependent side effects and test the combined transition at the real database boundary, not only each transition alone. Disposition: No change to Rules (feature-local); recorded in FND-12.
 
 ## PR CI quality gate
 
@@ -135,13 +140,13 @@ Prompt synchronization: `implement-spec-prompt.md` changed; `pnpm sync:commands`
 
 ## Continuation handoff
 
-- **Branch/candidate:** `feat/global-accompaniments` at `b92acc81` plus the commit of this file; local only, not pushed
-- **Progress:** implementation integrated and verified; both independent reviews reconciled; Evaluation `ready`
-- **Interrupted/uncommitted paths:** `documentation/prompts/implement-spec-prompt.md` (prompt edit made at the user's request, uncommitted)
+- **Branch/candidate:** `feat/global-accompaniments`, PR #63; candidate pushed at `259f058a` plus the FND-12 correction commits (not yet pushed)
+- **Progress:** implementation integrated and verified; both independent reviews reconciled; review cycle 1 (FND-12) and CI mutation gate (FND-13) corrected; Evaluation `ready`
+- **Interrupted/uncommitted paths:** none after the correction commits
 - **Unfinished criteria:** none
 - **Blockers and stale evidence:** none blocking; the local dev database holds MV test data (extra Portion, one order, "Combo MV Granola") pending a user decision on reseeding
 - **Latest checkers:** EV-04..EV-13 passed; MV-01..MV-03 passed
-- **Next useful action:** run `conclude-spec` when publication authority exists
+- **Next useful action:** push the corrected candidate to PR #63, wait for the full CI on the new head, then close the delivery
 
 ## History
 
@@ -149,4 +154,6 @@ Prompt synchronization: `implement-spec-prompt.md` changed; `pnpm sync:commands`
 | --- | --- |
 | 2026-10-17 | Spec set to `in_progress`; Evaluation created; Phase A committed as `c47cbf10`; Builders launched in worktrees |
 | 2026-10-17 | Builders merged; server, web, mutation, complexity and route-suite evidence recorded |
+| 2026-10-18 | Review cycle 1: P2 comment on PR #63 verified as a real defect (FND-12); Evaluation reopened to `in_progress`, Spec revision 1 preserved | 
+| 2026-10-18 | FND-12 corrected and verified (EV-27); Evaluation back to `ready` |
 | 2026-10-17 | MV-01..MV-03 run; Implementation Reviewer and Visual Reviewer reported no blocking findings; Evaluation set to `ready` |
