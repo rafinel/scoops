@@ -10,33 +10,38 @@ export type SidebarItem = {
   route: RouteName
   profiles?: readonly UserProfile[]
   activePrefixes?: readonly string[]
+  group?: string
 }
 
 export const SIDEBAR_ITEMS: readonly SidebarItem[] = [
   {
     icon: 'layout-dashboard',
     label: 'Dashboard',
+    group: 'overview',
     route: 'app',
     profiles: [UserProfile.Manager],
   },
   {
     icon: 'package',
     label: 'Produtos',
+    group: 'overview',
     route: 'products',
     profiles: [UserProfile.Manager, UserProfile.Operator],
     activePrefixes: ['/products/'],
   },
-  { icon: 'shopping-cart', label: 'Nova venda', route: 'newSale' },
-  { icon: 'clipboard-list', label: 'Pedidos', route: 'orders' },
+  { icon: 'shopping-cart', label: 'Nova venda', group: 'sales', route: 'newSale' },
+  { icon: 'clipboard-list', label: 'Pedidos', group: 'sales', route: 'orders' },
   {
     icon: 'store',
     label: 'Canais de venda',
+    group: 'management',
     route: 'salesChannels',
     profiles: [UserProfile.Manager, UserProfile.Operator],
   },
   {
     icon: 'tags',
     label: 'Descontos',
+    group: 'management',
     route: 'discounts',
     profiles: [UserProfile.Manager, UserProfile.Operator],
     activePrefixes: ['/discounts/'],

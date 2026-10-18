@@ -1,3 +1,5 @@
+import { Fragment } from 'react'
+
 import { Anchor } from '@/ui/shared/widgets/components/anchor'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 import type { SidebarItem } from '@/constants/sidebar-items'
@@ -23,16 +25,22 @@ export const SidebarNavigation = ({
   return (
     <nav aria-label={ariaLabel} className={className}>
       {navigationItems.map((item) => (
-        <Anchor
-          key={item.route}
-          aria-current={item.ariaCurrent}
-          className={item.className}
-          onClick={onNavigate}
-          route={item.route}
-        >
-          <Icon className='size-[18px]' name={item.icon} />
-          {item.label}
-        </Anchor>
+        <Fragment key={item.route}>
+          {item.hasDividerBefore && (
+            <div className='px-3.5 py-1.5'>
+              <hr className='h-px border-0 bg-border' />
+            </div>
+          )}
+          <Anchor
+            aria-current={item.ariaCurrent}
+            className={item.className}
+            onClick={onNavigate}
+            route={item.route}
+          >
+            <Icon className='size-[18px]' name={item.icon} />
+            {item.label}
+          </Anchor>
+        </Fragment>
       ))}
     </nav>
   )
