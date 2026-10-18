@@ -48,6 +48,8 @@ Current result: the integrated candidate (`feat/global-accompaniments`, head `b9
 | EV-10 | Complexity | `pnpm check:complexity` | passes after fixing 3 real worsenings and refreshing the stale baseline (`ccff6a48`) with user approval; FND-03 | passed |
 | EV-11 | Database | `db:migration:apply` + `db:seed` on local Docker Postgres, SELECT checks | migration 0029 applied; Granola global has 4 rows for 4 Portions; 4 accompaniment prices as in Spec | passed |
 | EV-12 | REST client | `apps/server/rest-client/mrp/products.rest` | candidates, POST/PATCH `isGlobal`, both DELETE scopes present; parity only | passed |
+| EV-25 | Coverage | `pnpm --filter @scoops/core test:coverage`, `pnpm --filter web test:coverage`, `pnpm --filter server test:coverage` on the candidate | all three exit 0 at their configured floors: Core 384 files / 1410 tests, Web 219 / 638, Server 97 / 339 | passed |
+| EV-26 | Structural | `pnpm check:spec-implementation -- documentation/features/mrp/global-accompaniments/spec.md` | not applicable: the Spec declares no classified exact-path inventory. The checker reads the use-case table's `Action` column (class names marked Modify/Create) as paths and reports 22 errors, all naming use cases, none a missing artifact. Not rerun after changes; no inventory invented | not_applicable |
 | EV-13 | Review | Implementation Reviewer over `git diff 5a9ccf09..HEAD` | no blocking findings; low findings dispositioned in FND-08..FND-10 | passed |
 
 Equivalent mutant: `remove-product-accompaniment-use-case.ts` line 83 (`globalAccompanimentId === undefined ||` conditional). An individual row combined with `scope=all` is rejected earlier in `execute`, so the branch cannot be reached.
@@ -80,6 +82,20 @@ Visual evidence uses `EV-*` identifiers with `Type = visual`. Each row was compa
 | EV-23 | visual | Types page | 1560 / 390 | `A5c2Q` | `mv01-step09-types-page-*` | disabled `Remover` on in-use rows (handoff text) vs hidden in the reference; emoji lock in the banner (pre-existing) | passed_with_authorized_difference |
 | EV-24 | visual | Operator table, error state, narrow table | 1560 / 390 | none dedicated (existing patterns) | `mv02-operator-table-*`, `mv01-error-state-*` | none material | passed |
 
+## Delivery disposition
+
+Local closure preflight passed on the integrated candidate (EV-04..EV-13, EV-25, MV-01..MV-03, EV-14..EV-24). Dispositions follow the Spec's coverage table.
+
+| Requirement | Disposition | Basis |
+| --- | --- | --- |
+| MRP PRQ-08 (global accompaniments, incl. the 2026-10-17 amendment) | fully delivered | AC-01..AC-15 passed; FR-01..FR-14 mapped in the acceptance matrix |
+| MRP PRQ-09 | partially delivered, as scoped | product-owned price stays shared for globals (AC-05, AC-11); no price-rule change was in scope |
+| MRP PRQ-01 / PRQ-05 | partially delivered, as scoped | Portion/Accompaniment category changes and product deletion with globals (AC-09, AC-13) |
+| MRP PRQ-10 | partially delivered, as scoped | accessible, keyboard-operable, responsive dialogs and tables (AC-15, EV-14..EV-24) |
+| PDV PRQ-03 / PRQ-13 | partially delivered, consumer proof only | globals appear with product price and identical consumption; Combo components accept globals (AC-11, MV-03); no PDV production code changed |
+
+Prompt synchronization: `implement-spec-prompt.md` changed; `pnpm sync:commands` was run and produced no tracked change beyond the canonical prompt (the command copies are symlinks).
+
 ## Rule and documentation compliance
 
 | Authority | Reference | Result | Notes |
@@ -89,7 +105,8 @@ Visual evidence uses `EV-*` identifiers with `Type = visual`. Each row was compa
 | Complexity | `.code-multivitals-baseline.json` | refreshed with user approval | no new error-level metric (errors 187 to 182); FND-03 |
 | PRD MRP PRQ-08 | `documentation/prds/mrp.md` | aligned | amendment committed before the Spec |
 | Design | `design/handoff.md` and saved references | aligned | EV-14..EV-24 |
-| Reusable guidance | | none needed | FND-04 noted as a lesson only |
+| Reusable guidance | FND-04 lesson | No change | feature-local CSS pitfall; no global Rule proposed without an owner decision |
+| Prompt `implement-spec-prompt.md` | `documentation/prompts/` | Updated | states that the prompt does not plan the work and allows parallel worktrees; included in this PR as a user-requested change |
 
 ## Findings
 
