@@ -24,7 +24,7 @@ export const RemovalActions = ({
     <AlertDialogAction
       className={cn(
         removeAll
-          ? 'bg-danger text-destructive-foreground hover:bg-danger/90'
+          ? 'border-danger! bg-danger text-destructive-foreground hover:bg-danger/90'
           : 'border-danger! text-danger hover:bg-danger-bg hover:text-danger',
       )}
       disabled={isPending}
