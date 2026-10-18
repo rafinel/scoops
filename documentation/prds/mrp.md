@@ -91,8 +91,9 @@ stock control, status, and optional operational settings that determine its late
 **Actors:** Manager
 
 **Provides:** Establishment product catalog, category assignments, product stock unit, stock
-control, status, ideal-stock target, negative-stock policy, and current single-stock ingredient
-unit cost for PRQ-02, PRQ-03, PRQ-04, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09, PRQ-10, and PDV.
+control, status, ideal-stock target, negative-stock policy, current single-stock ingredient
+unit cost, and the optional initial Resale and Accompaniment sale prices for PRQ-02, PRQ-03,
+PRQ-04, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09, PRQ-10, and PDV.
 
 #### Capabilities
 
@@ -121,6 +122,14 @@ unit cost for PRQ-02, PRQ-03, PRQ-04, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09, PR
   a positive stock entry. The latest explicit value applies to future recipe and production
   calculations without rewriting historical transactions or productions, and must be at least
   zero. Weighted-average costing is not used in this version.
+- A Single-stock product categorized as Resale and/or Accompaniment may receive its sale price
+  during registration: a Resale price for Resale and an Accompaniment price for Accompaniment. A
+  Portion or By-brand product receives no registration sale price, because its prices belong to
+  each size or brand and are set in PRQ-09. Each price is optional and follows the PRQ-09 rules;
+  a price left empty is not saved, and the product has no commercial configuration for it until
+  one is set. A Resale price entered at registration creates the Single-stock Resale
+  configuration as available. An Accompaniment price entered at registration becomes the
+  product-owned price defined in PRQ-08 and PRQ-09.
 - Products disallow negative stock by default. A Manager may enable `Allow negative stock`, after
   which an initial balance or a write-off may take that product below zero.
 - Products and their facts cannot be displayed or used across establishments.
@@ -130,6 +139,12 @@ unit cost for PRQ-02, PRQ-03, PRQ-04, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09, PR
 - The registration page contains Name, Unit, Categories, and Stock Control; for a Single-stock
   Ingredient, it may also capture current unit cost. The page is used instead of a modal so the
   manager can review the complete product setup without constrained scrolling.
+- For a Single-stock Resale or Accompaniment, the Catalog section, next to Name and Unit, also
+  shows `Resale price` or `Accompaniment price`; a product with both categories shows both. The
+  fields are hidden for Portion and By-brand products and appear or disappear as the category and
+  stock-control selections change, without discarding other entered values. When both are shown
+  and a Resale price has been entered, the Accompaniment field offers it as a suggestion that is
+  saved only when the Manager confirms it, and later changes to one price never change the other.
 - Categories appear as selectable cards with checkboxes and dependency guidance. Selecting
   Portion disables Resale with an explanation, and selecting Resale disables Portion.
 - When Manufacturable requires Single stock under the current operating model, selecting it locks
@@ -607,6 +622,10 @@ for PRQ-10, PDV, and Analytics.
   the applicable Resale price is not configured, require the Manager to enter the Accompaniment
   price. After it is saved, the Accompaniment price is independent; later Resale-price changes do
   not update it.
+- Registration is also a first-save moment for the Accompaniment price. When a Single-stock
+  product with both Resale and Accompaniment categories is registered, the Resale price typed in
+  the same form is proposed for the Accompaniment price and is saved only when the Manager
+  confirms it. After registration, both prices follow the rules above.
 - Before an Accompaniment product can be linked to a Portion, its sale price must be set as part
   of the Link action when not already configured.
 - The Accompaniment product's sale price applies uniformly across every link and Portion size.
@@ -783,7 +802,8 @@ flowchart LR
 
 1. The Manager selects `New Product`.
 2. The system presents Name, Unit, Categories, and Stock Control; a Single-stock Ingredient may
-   also receive current unit cost.
+   also receive current unit cost, and a Single-stock Resale or Accompaniment may also receive its
+   optional sale price.
 3. The Manager completes the fields.
 4. The system validates:
    - **Success:** creates an active product with zero balance and opens its page.
