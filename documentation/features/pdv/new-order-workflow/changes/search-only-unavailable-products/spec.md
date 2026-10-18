@@ -1,6 +1,6 @@
 ---
 title: Search-only unavailable products in the sale catalog
-status: completed
+status: in_progress
 revision: 1
 source:
   type: issue
