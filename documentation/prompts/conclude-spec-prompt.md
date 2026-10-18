@@ -179,6 +179,10 @@ Evaluation and create an endless sequence of documentation commits. If a final-h
 requires implementation correction, reopen the same Spec/Evaluation and repeat the correction,
 publication and verification loop.
 
+When this conclusion completes a review cycle started by `resolve-pr-feedback`, reply on and
+resolve each addressed thread after the final head passes, as that workflow requires; do not
+leave addressed threads open.
+
 Later reviewer comments belong to `resolve-pr-feedback`. Do not wait indefinitely for comments.
 Do not merge or deploy automatically.
 

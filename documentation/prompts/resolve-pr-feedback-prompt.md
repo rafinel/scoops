@@ -107,6 +107,25 @@ repeatable gap, update the applicable PRD, Architecture, Design, Tooling or Rule
 conclusion; otherwise record an explicit no-change disposition. Do not close a review cycle
 with only a resolved finding when the lesson requires authority updates.
 
+## Reply and resolve every addressed thread
+
+Replying is not closing. Do not end a review cycle with an addressed conversation still open.
+For every actionable thread:
+
+1. once the requested action is on the PR branch and, for an implementation or contract
+   correction, `conclude-spec` has published it and its final head passed the applicable PR CI
+   gate, reply on the thread with the commit that addresses it and the concrete evidence
+   (regression test, observed result, or explanation);
+2. then resolve the thread through authenticated `gh` (GraphQL `resolveReviewThread`), and verify
+   from GitHub that its `isResolved` is `true`; do this by default, without waiting for the
+   reviewer or asking the user, because the evidence-backed reply has been published;
+3. leave a thread open only when the action does not yet exist on the branch, the reviewer's
+   concern is disputed or ambiguous and needs their or the user's decision, or CI on the
+   corrected head has not passed. State each such thread and its reason in the completion
+   report;
+4. finish by listing the PR's review threads from GitHub and confirming none addressed thread
+   remains unresolved.
+
 ## Post-merge boundary
 
 Do not reopen a completed Spec after its PR has merged:
@@ -120,7 +139,7 @@ Return:
 
 - PR and conversation links inspected;
 - classification and evidence for every actionable comment;
-- replies or PR metadata changes made;
+- replies or PR metadata changes made, and the verified resolved state of every addressed thread;
 - Spec/Evaluation transition when reopened;
 - affected PRD `PRQ-*` requirements and any changed or preserved delivery disposition;
 - correction, publication and closure outcomes reached in the current task;
