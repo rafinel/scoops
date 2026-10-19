@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
 
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 
@@ -56,6 +56,10 @@ const useUrlPathnameMock = vi.mocked(useUrlPathname)
 const useNotificationShellProviderMock = vi.mocked(useNotificationShellProvider)
 
 describe('AppLayout', () => {
+  afterEach(() => {
+    cleanup()
+  })
+
   beforeEach(() => {
     useUrlPathnameMock.mockReturnValue({ pathname: ROUTES.app })
     useAppLayoutMock.mockReturnValue({
@@ -157,6 +161,33 @@ describe('AppLayout', () => {
     expect(
       productsLinks.some((link) => link.getAttribute('aria-current') === 'page'),
     ).toBe(true)
+  })
+
+  it.each([
+    [UserProfile.Manager, ['Geral', 'Operação', 'Comercial']],
+    [UserProfile.Operator, ['Operação', 'Comercial']],
+  ])('shows only the section labels with visible items for %s', (profile, labels) => {
+    useAppLayoutMock.mockReturnValue({
+      account: null,
+      error: null,
+      handleLogout: vi.fn(),
+      handleMobileSidebarNavigate: vi.fn(),
+      handleMobileSidebarOpenChange: vi.fn(),
+      isPending: false,
+      isMobileSidebarOpen: false,
+      primaryItems: getSidebarItems(profile),
+      secondaryItems: [],
+    })
+
+    render(<AppLayout />)
+
+    for (const label of ['Geral', 'Operação', 'Comercial']) {
+      expect(screen.queryAllByText(label).length > 0).toBe(labels.includes(label))
+    }
+    const sidebarCount = screen.getAllByText(labels[0]).length
+    expect(screen.queryAllByRole('separator')).toHaveLength(
+      (labels.length - 1) * sidebarCount,
+    )
   })
 
   it('keeps the notification dropdown in the authenticated header composition', () => {
