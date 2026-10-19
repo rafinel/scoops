@@ -132,6 +132,15 @@ Gap/padding scale: 4, 6, 8, 12, 14, 16, 20, 24, 32.
 - Vertical frame, width 280px, fill height, `$bg-card`, right border `$border`.
 - Padding 20px side, 28 top, 24 bottom, gap 28 between sections.
 
+**Section labels and dividers:**
+- The main nav is split into `General` (Dashboard), `Operation` (New sale, Orders) and
+  `Commercial` (Products, Sales channels, Discounts), in that order.
+- Each section starts with a non-interactive label (uppercase, small, bold, letter-spaced,
+  `$text-secondary`) aligned with the item icons. It is not expandable or clickable.
+- A divider (1px `$border`, 14px side inset) separates sections. A label and its divider are not
+  displayed when every entry of the section is hidden for the profile.
+- The footer items (Users, Shop settings, Subscription) have no label.
+
 **Brand on top:**
 - Mark square 40×40, `$primary`, radius 10, white `ice-cream-cone` icon 22px.
 - "Scoops" text on the side (20/900, italics, `$primary`) + tagline below (9/800 uppercase, `$text-secondary`).

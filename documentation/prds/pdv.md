@@ -4,7 +4,8 @@
 
 The Scoops PDV module enables operators of ice cream and açaí shops to assemble and
 register orders containing products sold as Portions or Resales. It provides four independent
-navigation entries: `New sale`, `Orders`, `Sales channels` and `Discounts`.
+navigation entries: `New sale`, `Orders`, `Sales channels` and `Discounts`. The sidebar may place
+them under non-interactive section labels, which are not parent groups.
 
 Operators find eligible products, configure size, brand, accompaniments and quantity, review
 the cart and register a definitive sale. Managers configure optional sales-channel percentage
@@ -743,8 +744,12 @@ module.
 #### Capabilities
 
 - **Independent navigation:** must contain `New sale`, `Orders`,
-  `Sales channels` and `Discounts`, without parent group. Operators may open all four areas;
-  `Sales channels` and `Discounts` are read-only for them.
+  `Sales channels` and `Discounts`, each directly accessible and without an expandable or
+  clickable parent group. The sidebar may arrange entries from every module under non-interactive
+  section labels: `General` (Dashboard), `Operation` (`New sale`, `Orders`) and `Commercial`
+  (Products, `Sales channels`, `Discounts`). A label is not an entry, cannot be opened or
+  expanded, and is not displayed when all of its entries are hidden for the profile. Operators may
+  open all four areas; `Sales channels` and `Discounts` are read-only for them.
 - **Operator:** can assemble, register and consult orders.
 - **Manager:** has Operator permissions and manages channels and discounts. Operators may view
   channel and discount records but cannot manage them.
@@ -1440,7 +1445,8 @@ flowchart LR
 
 - **Name `POS`:** replaced by `New sale`.
 - **Navigation group `Sales`:** discarded; `New Sale`, `Orders` and
-  `Sales channels` are independent inputs.
+  `Sales channels` are independent inputs. Non-interactive section labels are allowed and are not
+  a navigation group.
 - **Generic price modifier:** replaced by `Sales channel`.
 - **Default channel:** discarded; no channels are selected automatically.
 - **Mandatory channel:** discarded; channelless orders use base prices.
