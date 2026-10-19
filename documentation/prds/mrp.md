@@ -340,17 +340,19 @@ PRQ-09, and PRQ-10.
 #### Capabilities
 
 - Stock and Settings tabs are always available. Recipe is available for Manufacturable,
-  Accompaniments for Portion, Prices—Sizes for Portion, and Prices—Resale for Resale.
-  An Accompaniment-only product has no Prices tab.
+  Accompaniments for Portion, Prices—Sizes for Portion, Prices—Resale for Resale, and
+  Portions for an Accompaniment without the Portion category. An Accompaniment-only product
+  has no Prices tab.
 - Operators can open the product page and read its product, stock, recipe, accompaniment,
-  and price information. Every registration, status, stock-policy, and destructive action is
-  unavailable to Operators; Manager capabilities remain unchanged.
+  linked Portion, and price information. Every registration, status, stock-policy, and
+  destructive action is unavailable to Operators; Manager capabilities remain unchanged.
 - PDV consumes size and Resale commercial facts without transferring sales-rule ownership to MRP.
 - An Accompaniment product owns its sale price when used as an accompaniment. Managers set or
-  change it through a Portion's Link or Edit accompaniment dialog, not through the Accompaniment
-  product's Prices page. This price is separate from acquisition cost and any Resale price, and
-  applies uniformly across every linked Portion and size. Before first save, the dialog proposes
-  the applicable existing Resale price when available; otherwise a Manager enters it. Later
+  change it through the Link or Edit accompaniment dialogs, opened from a Portion or from the
+  Accompaniment product's Portions tab, not through a Prices page. This price is separate from
+  acquisition cost and any Resale price, and applies uniformly across every linked Portion and
+  size. Before first save, the dialog proposes the applicable existing Resale price when
+  available; otherwise a Manager enters it. Later
   Resale-price changes do not change the saved Accompaniment price.
 - A category in use cannot be removed until its dependencies are resolved.
 - Unit changes affect product-owned balances, ideal stock, costs, recipes, sizes, consumption,
@@ -370,8 +372,9 @@ PRQ-09, and PRQ-10.
 
 #### Experience
 
-- The header displays Name, Unit, Status, category chips, and stock-control context. The breadcrumb
-  is `Stock > Products > [Product name]`, and only category-enabled tabs appear.
+- The header displays Name, Unit, Status, category chips, and stock-control context, plus a
+  `Global` tag inside the Accompaniment category chip for a global Accompaniment. The breadcrumb is `Stock > Products > [Product name]`,
+  and only category-enabled tabs appear.
 - Operators inspect saved Accompaniment prices in linked Portion tables. A product with
   Accompaniment and Resale retains the Resale Prices tab without an Accompaniment price field.
 - Settings contains Basic Information, read-only Stock Control with editable negative-stock
@@ -501,7 +504,8 @@ and brand context needed for sale.
 context from PRQ-05.
 
 **Provides:** Accompaniment types, Portion-accompaniment links, global accompaniments,
-per-portion consumption, and brand context for PRQ-09, PRQ-10, and PDV.
+Accompaniment-side management of linked Portions, per-portion consumption, and brand context
+for PRQ-09, PRQ-10, and PDV.
 
 #### Capabilities
 
@@ -538,6 +542,17 @@ per-portion consumption, and brand context for PRQ-09, PRQ-10, and PDV.
   link never has its own price.
 - When accompaniment stock is By brand, consumption uses its current main brand.
 - Removing a link does not change current balances and requires confirmation.
+- An Accompaniment product without the Portion category manages its Portions from its own
+  `Porções` tab. A Manager can link several Portions in one operation with one shared type and
+  quantity per portion, and can edit or remove each individually linked Portion on its own.
+  Eligible Portions are products with the Portion category, regardless of status, that do not
+  already have the Accompaniment. The tab applies the same eligibility, price, global and
+  removal rules as the Portion-side dialogs and creates no new kind of link.
+- For a global Accompaniment, the tab lists the Portions that currently have it with its shared
+  type and quantity. A Manager edits those shared values once for all Portions. Removal from
+  one Portion or from all Portions follows the global rules above. Restoring a Portion that was
+  excluded links it again as the same global item.
+- Operators can read the `Porções` tab and cannot link, edit or remove.
 
 #### Experience
 
@@ -586,6 +601,23 @@ per-portion consumption, and brand context for PRQ-09, PRQ-10, and PDV.
 - Unused-type removal uses readable destructive red outline/text styling; in-use removal is
   disabled with readable neutral styling.
 - No component requires a Portion to have an accompaniment.
+- The `Porções` tab shows a paginated, name-searchable table of the Portions that have the
+  Accompaniment, with Portion, Type, Quantity per portion, the product's sale price, and Actions
+  for Managers. The price is the same product-owned value on every row, as shown in each
+  Portion's accompaniment table, and it is changed only in the Link and Edit dialogs.
+- `Link Portions` opens a dialog with a searchable multi-select of eligible Portions that shows
+  each Portion's status, one shared Type and Quantity per portion, the product-owned sale price
+  under the PRQ-09 rules, and the cost preview. The dialog keeps `Disponível para todas as
+  porções`. When it is on, the Portion picker is hidden and the dialog states that individual
+  links will be replaced by the global setting.
+- An individually linked Accompaniment has Edit and Remove per row. A global one shows the
+  `Global` tag inside its Accompaniment category chip in the page header. Its rows show type and
+  quantity read-only with only `Remover desta porção`. The page has one `Editar` action for the
+  shared type, quantity and price, and one `Remover de todas as porções` action, with the
+  existing confirmations and no Portion counts. `Link Portions` on a global Accompaniment opens with the switch on and locked and lists
+  only excluded Portions.
+- With no linked Portion, an empty state offers `Link Portions`. With no Portion registered, it
+  guides the Manager to register one first. Loading, error and retry states are distinct.
 
 ---
 
@@ -630,8 +662,9 @@ for PRQ-10, PDV, and Analytics.
   of the Link action when not already configured.
 - The Accompaniment product's sale price applies uniformly across every link and Portion size.
   Linking the product or adding a Portion size does not create a separate accompaniment price.
-  Managers can change the price in Link or Edit accompaniment dialogs; either action updates the
-  same product-owned price for future sales across all links and sizes.
+  Managers can change the price in the Link or Edit accompaniment dialogs, opened from a Portion
+  or from the Accompaniment product's Portions tab; either action updates the same product-owned
+  price for future sales across all links and sizes.
 - Configuration changes affect future PDV behavior and do not rewrite previous orders.
 - A size name is trimmed, mandatory, and unique within its product without case sensitivity.
   Quantity is positive with at most three decimal places, and sale price is non-negative with at
@@ -652,10 +685,10 @@ for PRQ-10, PDV, and Analytics.
   pricing is edited in a linked Portion's Link or Edit accompaniment dialog.
 - The size table displays Name, Quantity, Operating Cost, Price, available Profit/Margin values,
   and Movements.
-- Link and Edit accompaniment dialogs display and edit the same product-owned sale price. The
-  saved value is prefilled; before first save, the Link dialog proposes the applicable Resale
-  price or requires Manager entry. The Portion Prices—Sizes area displays and edits each Portion
-  size's sale price.
+- Link and Edit accompaniment dialogs display and edit the same product-owned sale price, from
+  either entry point. The saved value is prefilled; before first save, the Link dialog proposes
+  the applicable Resale price or requires Manager entry. The Portion Prices—Sizes area displays
+  and edits each Portion size's sale price.
 - The Accompaniments table displays each linked Accompaniment product's sale price. The same
   product-owned price applies to every Portion size and every link for that product.
 - Sizes and Resale brand configurations can be activated or deactivated without automatically
@@ -872,6 +905,15 @@ flowchart LR
    change it.
 5. PDV uses the same product-owned price regardless of Portion size; a zero price is displayed as
    `Grátis`, and registered orders retain their original prices.
+
+**Alternate path — from the Accompaniment product:**
+
+1. The Manager opens an Accompaniment product and selects `Porções`, then `Link Portions`.
+2. The Manager selects Portions, a type and a quantity per portion. The dialog shows the saved
+   price, proposes the applicable Resale price, or requires the Manager to enter one.
+3. When the links are saved, the product-owned price applies to every link, and the table lists
+   the new Portions.
+4. The Manager may instead turn on `Disponível para todas as porções`.
 
 ### Journey H — Manager changes a product unit
 
