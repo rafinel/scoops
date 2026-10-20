@@ -2,13 +2,13 @@
 feature: "mrp/product-registration-and-stock-brand-controls/changes/registration-sale-prices"
 spec: ./spec.md
 spec_revision: 4
-status: completed
+status: ready
 updated_at: 2026-10-20
 ---
 
 # Evaluation
 
-Evaluation of Spec revision `4` (`completed`, Portion sizes at registration) against the current implementation. Revision 3 results are kept below as history and are reassessed per row in the revision 4 sections; evidence for behavior revision 4 does not touch (prices, Resale rule, hidden-price retention) stays reusable.
+Evaluation of Spec revision `4` (`in_progress`, review cycle 1 corrected and `ready`, Portion sizes at registration) against the current implementation. Revision 3 results are kept below as history and are reassessed per row in the revision 4 sections; evidence for behavior revision 4 does not touch (prices, Resale rule, hidden-price retention) stays reusable.
 
 Current result (revision 4, completed after PR CI on `6e8bd773`): Core, Validation, Server and Web are implemented and verified locally. Core coverage and mutation, the full Server suite (one unrelated flaky test, `FND-011`), Web coverage, the complete Web integration suite (306 of 306), builds, the complexity gate and the repository checks pass. `MV-02` and the price-row re-captures passed against the real Server, PostgreSQL and Web at 1440 × 900 and 390 × 844. The Visual Reviewer found no blocking difference and the Implementation Reviewer's findings are reconciled (`FND-010`..`FND-015`). No open blocking item remains.
 
@@ -97,6 +97,19 @@ Files edited after the revision 4 runs (`use-product-registration-page.ts` and i
 | `EV-134` | Web | `pnpm --filter web test:coverage` | 222 files, 735 tests passed; floors met. Supersedes `EV-109`. | `passed` |
 | `EV-135` | Repository | `pnpm check:spec-implementation -- <spec path>` | Passed: 14 contracted Modify paths (path and Git-state conformance only). | `passed` |
 
+### Review cycle 1 evidence (`FND-016`, `FND-017`)
+
+Scope: `product-registration-form-schema.ts`, `product-size-row/index.tsx` and its new `size-field/` widget, the page hook test. Core, Server, mutation and the rest of Web are untouched, so `EV-101`..`EV-108` and `EV-120`..`EV-128` stay valid. Markup is identical, so captures stay valid.
+
+| ID | Layer | Command or scenario | Result | Status |
+| --- | --- | --- | --- | --- |
+| `EV-140` | Web | `vitest run src/ui/mrp/widgets/pages/product-registration-page` | 9 files, 109 tests passed (size price `,50`, zero price, `SizeField`). | `passed` |
+| `EV-141` | Static | Validation and Web `check:code`, `check:types`, `check:architecture`, `check:complexity` (0 errors), `pnpm check:test-integrity`, `pnpm check:spec-implementation` | Passed (19 pre-existing Biome warnings). | `passed` |
+| `EV-142` | Web | `pnpm --filter web test:coverage`; `pnpm --filter web build` | 223 files, 738 tests passed, floors met; build exit 0. Supersedes `EV-134`. | `passed` |
+| `EV-143` | Web route (mocked transport) | `playwright test tests/mrp/new-product-page.test.tsx --workers=1` | 22 passed. The complete Web integration suite was not repeated: the change touches no route-level claim beyond this suite. | `passed` |
+
+Independent review: the Codex review of `6e8bd773` supplied both findings; no extra reviewer was run for this two-file correction.
+
 ## Delivery disposition
 
 | Requirement | Disposition | Basis |
@@ -178,6 +191,8 @@ Fresh captures live in `apps/web/.playwright-cli/screenshots/` (ignored). The Vi
 | `FND-013` | Contract clarification (Implementation Reviewer agreed) | The Spec asked to keep the size tolerance `\|v·10^n − round(v·10^n)\| < 1e-8`, but `AC-20` requires price `1234567.89` to save and that tolerance rejects it (difference 1.49e-8). | `AC-20`, `EV-101` | `resolved` | The shared `ProductSizeValidationStrategy` and `registerProductSizeSchema` use `Number(v.toFixed(n)) === v` like the Resale and Accompaniment rules. Spec §3 and the decision table now state it, including that float artifacts are rejected on add and edit. No product intent changed. |
 | `FND-014` | Evidence (Implementation Reviewer, low) | The `AC-19` rollback test never wrote a global accompaniment row, so its "no global accompaniment row" claim was vacuous. | `AC-19`, `EV-106` | `resolved` | The controller test now seeds a global accompaniment and asserts `product_accompaniments` stays empty after the second size insert fails. |
 | `FND-015` | Reviewer notes (low) | `ProductSizeRow` has no own `tests/` directory (covered through `ProductSizeFields`); a stale test title in the form suite; no size-specific page-level alert test; the page-level 12px error text and 12px add button differ slightly from the 10/11px design. | `AC-13`, `AC-17`, `AC-21` | `accepted_non_blocking` | `ProductSizeRow` follows the accepted `SalePriceField` disposition (`FND-009`); `AffixedInput` got its own direct-prop test; the title was fixed; the alert is covered by the hook, route and generic page tests; type sizes follow the repository's existing `text-xs`/`text-sm` scale. |
+| `FND-016` | Review (Codex P2, [comment](https://github.com/rafinel/scoops/pull/68#discussion_r4328984290)) | `SIZE_PRICE_PATTERN` in `product-registration-form-schema.ts` requires a digit before the separator, so a size price `,50` is blocked client-side although the server accepts `0.5` and the sale-price and quantity patterns accept it. | `AC-14`, `EV-101`, `EV-109`, `EV-111` | `resolved` | `SIZE_PRICE_PATTERN` now equals the sale-price pattern (leading zero optional). The hook test posts a size price `,50` as `0.5` and a separate test posts `0`. |
+| `FND-017` | Review (Codex P1, [comment](https://github.com/rafinel/scoops/pull/68#discussion_r4328984301)) | `SizeField` is a JSX-returning component declared inside `product-size-row/index.tsx`, which `ui-layer-rules.md` forbids ("Mirror widget structure for nested components"); `FND-010`/`FND-015` had accepted the split without moving it into its own widget. | `AC-13`, `AC-21`, `EV-110` | `resolved` | Moved to `product-size-row/size-field/index.tsx` with an exported `SizeFieldProps`; the row keeps only constants. Added a direct-prop test (`size-field/tests`). Markup unchanged. |
 
 
 ## Authority dispositions
@@ -190,6 +205,9 @@ Fresh captures live in `apps/web/.playwright-cli/screenshots/` (ignored). The Vi
 | Canonical prompt change (`create-spec-prompt.md`) | `pnpm sync` | Updated | Sync ran; generated command and agent files unchanged. |
 
 ## Lessons learned
+
+- A UI Rule that forbids local JSX helpers is easy to miss in a split done for complexity (`FND-017`); route such splits through a child widget directory from the start. No new Rule: `ui-layer-rules.md` already states it (`No change`).
+- Keep client patterns for the same value kind (prices) shared, not copied (`FND-016`). No Rule change.
 
 - The complexity baseline keys functions by `file::name::startLine`, so any edit that shifts lines in a file with baselined functions looks like new violations. Regenerate only the touched files' entries (keep the original entry order, otherwise the diff is unreadable) and review the semantic diff by function name. No new Rule needed; `documentation/tooling.md` already describes regenerating the baseline.
 - Running `biome format --write` on a folder reformats unrelated files in it; scope the write to the files you changed (five unrelated Playwright suites were reverted after this happened).
@@ -230,3 +248,5 @@ Final closure-head results are reported from GitHub in the conclusion summary, n
 | 2026-10-20 | Spec returned to `draft` as revision 4 (Portion sizes at registration); Evaluation reopened to `in_progress`. Impact assessment: AC-01..AC-03, AC-12 and the registration page, schema and use-case evidence are reassessed; AC-04..AC-11 evidence stays reusable unless the shared size rule or complexity baseline invalidates it. |
 | 2026-10-20 | Revision 4 implemented (Portion sizes, price row after Categorias, affixed inputs); size decimal rule aligned with the Resale rule (`FND-013`); mutation, coverage, full Server and Web integration suites, builds, `MV-02` and visual captures recorded; Visual and Implementation Reviewers reconciled. |
 | 2026-10-20 | Closure: Web evidence refreshed (`EV-130`..`EV-135`), delivery disposition recorded, PR #68 published and its CI passed on `6e8bd773`; Evaluation and Spec set to `completed`. |
+| 2026-10-20 | Review cycle 1 on PR #68 (Codex review of `6e8bd773`): `FND-016` (size price without leading zero) and `FND-017` (local `SizeField` widget). Spec set to `open` (revision 4 unchanged), Evaluation to `in_progress`; routed to `implement-spec`. Delivery disposition unchanged: product behavior remains verified, both findings are evidence/structure gaps. |
+| 2026-10-20 | Review cycle 1 corrected (`FND-016`, `FND-017`); evidence `EV-140`..`EV-143` passed; Evaluation `ready`. |
