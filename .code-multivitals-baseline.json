@@ -148293,8 +148293,8 @@
       "functions": [
         {
           "name": "ProductSizeRow",
-          "startLine": 41,
-          "endLine": 108,
+          "startLine": 37,
+          "endLine": 104,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -148340,9 +148340,9 @@
         }
       ],
       "summary": {
-        "totalLines": 130,
-        "weightedMI": 52.6,
-        "weightedHealthScore": 74.6,
+        "totalLines": 105,
+        "weightedMI": 46.2,
+        "weightedHealthScore": 71.2,
         "worstSeverity": "warn",
         "smellIds": [
           "bloated"
