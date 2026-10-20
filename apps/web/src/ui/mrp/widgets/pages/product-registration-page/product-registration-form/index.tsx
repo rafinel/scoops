@@ -21,6 +21,7 @@ import type {
   ProductRegistrationFieldErrors,
   ProductRegistrationFormValues,
 } from '../use-product-registration-page'
+import { ProductSalePriceFields } from './product-sale-price-fields'
 
 const CATEGORY_LABELS: Record<ProductCategory, string> = {
   ingredient: 'Ingrediente',
@@ -73,29 +74,41 @@ const UNIT_OPTIONS: Array<{ value: ProductUnit; label: string }> = [
   { value: 'un', label: 'Unidades (un)' },
 ]
 export type ProductRegistrationFormProps = {
+  accompanimentPrice: string
   categories: ProductCategory[]
   children: ReactNode
   fieldErrors: ProductRegistrationFieldErrors
+  isAccompanimentPriceVisible: boolean
   isCategoryDisabled: (category: ProductCategory) => boolean
+  isResalePriceVisible: boolean
   name: string
+  onAccompanimentPriceChange: (value: string) => void
   onCategoryToggle: (category: ProductCategory) => void
   onNameChange: (value: string) => void
+  onResalePriceChange: (value: string) => void
   onUnitChange: (value: ProductUnit) => void
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
   register: UseFormRegister<ProductRegistrationFormValues>
+  resalePrice: string
   unit: ProductUnit
 }
 export const ProductRegistrationForm = ({
+  accompanimentPrice,
   categories,
   children,
   fieldErrors,
+  isAccompanimentPriceVisible,
   isCategoryDisabled,
+  isResalePriceVisible,
   name,
+  onAccompanimentPriceChange,
   onCategoryToggle,
   onNameChange,
+  onResalePriceChange,
   onSubmit,
   onUnitChange,
   register,
+  resalePrice,
   unit,
 }: ProductRegistrationFormProps) => (
   <form className='space-y-4' noValidate onSubmit={onSubmit}>
@@ -195,6 +208,16 @@ export const ProductRegistrationForm = ({
             </p>
           ) : null}
         </fieldset>
+        <ProductSalePriceFields
+          accompanimentPrice={accompanimentPrice}
+          fieldErrors={fieldErrors}
+          isAccompanimentPriceVisible={isAccompanimentPriceVisible}
+          isResalePriceVisible={isResalePriceVisible}
+          onAccompanimentPriceChange={onAccompanimentPriceChange}
+          onResalePriceChange={onResalePriceChange}
+          register={register}
+          resalePrice={resalePrice}
+        />
       </CardContent>
     </Card>
     {children}

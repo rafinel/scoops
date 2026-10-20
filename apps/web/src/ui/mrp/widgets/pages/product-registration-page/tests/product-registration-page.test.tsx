@@ -33,6 +33,7 @@ function createState(
     isPrimary: true,
   }
   return {
+    accompanimentPrice: '',
     allowNegativeStock: false,
     brandErrors: [
       {
@@ -50,11 +51,24 @@ function createState(
     formError: null,
     idealStock: '10',
     initialStock: '0',
+    isAccompanimentPriceVisible: false,
     isPending: false,
+    isResalePriceVisible: false,
+    isSizesSectionVisible: false,
     name: 'Polpa',
     register: vi.fn(() => ({ name: 'field' })) as never,
+    resalePrice: '',
+    sizeFields: {
+      onAddSize: vi.fn(),
+      onRemoveSize: vi.fn(),
+      onSizeChange: vi.fn(),
+      sizeErrors: [{}],
+      sizes: [{ id: 'size-0', name: '', quantity: '', price: '' }],
+      unit: 'un',
+    },
     stockControl: 'by-brand',
     unit: 'un',
+    handleAccompanimentPriceChange: vi.fn(),
     handleAddBrand: vi.fn(),
     handleAllowNegativeStockChange: vi.fn(),
     handleBrandChange: vi.fn(),
@@ -67,6 +81,7 @@ function createState(
     handleProductCategoryToggle: vi.fn(),
     handleRegister: vi.fn() as never,
     handleRemoveBrand: vi.fn(),
+    handleResalePriceChange: vi.fn(),
     handleStockControlChange: vi.fn(),
     handleUnitChange: vi.fn(),
     isCategoryDisabled: vi.fn(() => false),
@@ -236,6 +251,184 @@ describe('ProductRegistrationPage', () => {
     expect(state.handlePrimaryBrandChange).toHaveBeenCalledWith('brand-2')
     expect(state.handleRemoveBrand).toHaveBeenCalledWith('brand-1')
     expect(state.handleAddBrand).toHaveBeenCalledOnce()
+  })
+
+  describe('sizes', () => {
+    const sizeFields = {
+      onAddSize: vi.fn(),
+      onRemoveSize: vi.fn(),
+      onSizeChange: vi.fn(),
+      sizeErrors: [
+        { name: undefined, quantity: 'Quantidade inválida', price: undefined },
+        {},
+      ],
+      sizes: [
+        { id: 'size-0', name: 'Pequeno', quantity: '0', price: '9,90' },
+        { id: 'size-1', name: 'Grande', quantity: '0,5', price: '14,50' },
+      ],
+      unit: 'kg' as const,
+    }
+    const portionState = {
+      categories: [ProductCategory.Portion],
+      isSizesSectionVisible: true,
+      sizeFields,
+      stockControl: 'single' as const,
+      unit: 'kg' as const,
+    }
+
+    it('renders no sizes section while the hook reports it hidden', () => {
+      render(<ProductRegistrationPage />)
+
+      expect(screen.queryByRole('heading', { name: 'Tamanhos e preços' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Adicionar tamanho' })).toBeNull()
+    })
+
+    it('renders the section between the Catálogo and Estoque cards with the typed rows', () => {
+      useProductRegistrationPageMock.mockReturnValue(createState(portionState))
+      render(<ProductRegistrationPage />)
+
+      const sizes = screen.getByRole('heading', { name: 'Tamanhos e preços' })
+      const catalog = screen.getByRole('heading', { name: 'Catálogo' })
+      const stock = screen.getByRole('heading', { name: 'Estoque' })
+      expect(
+        catalog.compareDocumentPosition(sizes) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy()
+      expect(
+        sizes.compareDocumentPosition(stock) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy()
+      expect(
+        (screen.getByRole('textbox', { name: 'Nome do tamanho 1' }) as HTMLInputElement)
+          .value,
+      ).toBe('Pequeno')
+      expect(
+        (screen.getByRole('textbox', { name: 'Nome do tamanho 2' }) as HTMLInputElement)
+          .value,
+      ).toBe('Grande')
+      expect(screen.getByText('Quantidade inválida')).not.toBeNull()
+    })
+
+    it('delegates size changes, additions and removals to the page hook', () => {
+      const state = createState(portionState)
+      useProductRegistrationPageMock.mockReturnValue(state)
+      render(<ProductRegistrationPage />)
+
+      fireEvent.change(screen.getByRole('textbox', { name: 'Nome do tamanho 1' }), {
+        target: { value: 'Mini' },
+      })
+      fireEvent.change(screen.getByRole('textbox', { name: 'Quantidade do tamanho 2' }), {
+        target: { value: '1' },
+      })
+      fireEvent.change(screen.getByRole('textbox', { name: 'Preço do tamanho 2' }), {
+        target: { value: '20,00' },
+      })
+      fireEvent.click(screen.getByRole('button', { name: 'Remover tamanho 1' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Adicionar tamanho' }))
+
+      expect(state.sizeFields.onSizeChange).toHaveBeenNthCalledWith(1, 'size-0', {
+        name: 'Mini',
+      })
+      expect(state.sizeFields.onSizeChange).toHaveBeenNthCalledWith(2, 'size-1', {
+        quantity: '1',
+      })
+      expect(state.sizeFields.onSizeChange).toHaveBeenNthCalledWith(3, 'size-1', {
+        price: '20,00',
+      })
+      expect(state.sizeFields.onRemoveSize).toHaveBeenCalledWith('size-0')
+      expect(state.sizeFields.onAddSize).toHaveBeenCalledOnce()
+    })
+  })
+
+  describe('sale prices', () => {
+    it('renders no price field for a product that cannot receive a sale price', () => {
+      useProductRegistrationPageMock.mockReturnValue(
+        createState({ categories: [ProductCategory.Ingredient], stockControl: 'single' }),
+      )
+      render(<ProductRegistrationPage />)
+
+      expect(screen.queryByRole('textbox', { name: 'Preço de revenda' })).toBeNull()
+      expect(
+        screen.queryByRole('textbox', { name: 'Preço como acompanhamento' }),
+      ).toBeNull()
+    })
+
+    it('renders the typed prices and delegates their changes to the page hook', () => {
+      const state = createState({
+        accompanimentPrice: '9',
+        brands: [],
+        categories: [ProductCategory.Resale, ProductCategory.Accompaniment],
+        isAccompanimentPriceVisible: true,
+        isResalePriceVisible: true,
+        resalePrice: '12,00',
+        stockControl: 'single',
+      })
+      useProductRegistrationPageMock.mockReturnValue(state)
+      render(<ProductRegistrationPage />)
+
+      const resalePrice = screen.getByRole('textbox', {
+        name: 'Preço de revenda',
+      }) as HTMLInputElement
+      const accompanimentPrice = screen.getByRole('textbox', {
+        name: 'Preço como acompanhamento',
+      }) as HTMLInputElement
+      expect(resalePrice.value).toBe('12,00')
+      expect(accompanimentPrice.value).toBe('9')
+
+      fireEvent.change(resalePrice, { target: { value: '15,50' } })
+      fireEvent.change(accompanimentPrice, { target: { value: '0' } })
+
+      expect(state.handleResalePriceChange).toHaveBeenCalledExactlyOnceWith('15,50')
+      expect(state.handleAccompanimentPriceChange).toHaveBeenCalledExactlyOnceWith('0')
+    })
+
+    it('shows only the visible price field and passes its validation error through', () => {
+      useProductRegistrationPageMock.mockReturnValue(
+        createState({
+          brands: [],
+          categories: [ProductCategory.Accompaniment],
+          fieldErrors: {
+            accompanimentPrice:
+              'Informe um preço maior ou igual a zero, com até duas casas decimais.',
+          },
+          isAccompanimentPriceVisible: true,
+          stockControl: 'single',
+        }),
+      )
+      render(<ProductRegistrationPage />)
+
+      expect(screen.queryByRole('textbox', { name: 'Preço de revenda' })).toBeNull()
+      const accompanimentPrice = screen.getByRole('textbox', {
+        name: 'Preço como acompanhamento',
+      })
+      expect(accompanimentPrice.getAttribute('aria-invalid')).toBe('true')
+      expect(
+        screen.getByText(
+          'Informe um preço maior ou igual a zero, com até duas casas decimais.',
+        ),
+      ).toBeDefined()
+    })
+
+    it('keeps typed prices and shows the page-level alert after a server rejection', () => {
+      useProductRegistrationPageMock.mockReturnValue(
+        createState({
+          brands: [],
+          categories: [ProductCategory.Resale],
+          formError:
+            'O preço de revenda é permitido apenas para produtos de revenda com estoque único.',
+          isResalePriceVisible: true,
+          resalePrice: '12,00',
+          stockControl: 'single',
+        }),
+      )
+      render(<ProductRegistrationPage />)
+
+      expect(screen.getByRole('alert').textContent).toContain(
+        'O preço de revenda é permitido apenas',
+      )
+      expect(
+        (screen.getByRole('textbox', { name: 'Preço de revenda' }) as HTMLInputElement)
+          .value,
+      ).toBe('12,00')
+    })
   })
 
   it('disables cancellation and submission while product creation is pending', () => {

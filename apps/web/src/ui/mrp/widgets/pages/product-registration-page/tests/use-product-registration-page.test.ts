@@ -495,4 +495,614 @@ describe('useProductRegistrationPage', () => {
     await act(async () => result.current.handleRegister(createSubmitEvent() as never))
     expect(result.current.formError).toBe('Não foi possível criar o produto.')
   })
+
+  describe('sale prices', () => {
+    const RESALE_MESSAGE =
+      'Informe um preço de revenda maior ou igual a zero, com até duas casas decimais.'
+    const ACCOMPANIMENT_MESSAGE =
+      'Informe um preço maior ou igual a zero, com até duas casas decimais.'
+
+    function renderRegistration() {
+      const registerProduct = vi.fn().mockResolvedValue({ id: 'product-1' })
+      useRegisterProductActionMock.mockReturnValue({
+        isPending: false,
+        registerProduct,
+      } as never)
+      const { result } = renderHook(() => useProductRegistrationPage())
+      return { registerProduct, result }
+    }
+
+    type RegistrationResult = ReturnType<typeof renderRegistration>['result']
+
+    function toggle(result: RegistrationResult, ...categories: ProductCategory[]) {
+      for (const category of categories) {
+        act(() => result.current.handleProductCategoryToggle(category))
+      }
+    }
+
+    async function submit(result: RegistrationResult) {
+      await act(async () => result.current.handleRegister(createSubmitEvent() as never))
+    }
+
+    function sentInput(registerProduct: ReturnType<typeof vi.fn>) {
+      return registerProduct.mock.calls[0]?.[0] as Record<string, unknown>
+    }
+
+    it('starts with empty hidden prices and updates each price independently', () => {
+      const { result } = renderRegistration()
+
+      expect(result.current.resalePrice).toBe('')
+      expect(result.current.accompanimentPrice).toBe('')
+      expect(result.current.isResalePriceVisible).toBe(false)
+      expect(result.current.isAccompanimentPriceVisible).toBe(false)
+
+      act(() => result.current.handleResalePriceChange('12,00'))
+      expect(result.current.resalePrice).toBe('12,00')
+      expect(result.current.accompanimentPrice).toBe('')
+
+      act(() => result.current.handleAccompanimentPriceChange('9'))
+      expect(result.current.resalePrice).toBe('12,00')
+      expect(result.current.accompanimentPrice).toBe('9')
+    })
+
+    it.each([
+      [
+        'Resale',
+        (r: RegistrationResult) => toggle(r, ProductCategory.Resale),
+        true,
+        false,
+      ],
+      [
+        'Accompaniment',
+        (r: RegistrationResult) => toggle(r, ProductCategory.Accompaniment),
+        false,
+        true,
+      ],
+      [
+        'Resale and Accompaniment',
+        (r: RegistrationResult) =>
+          toggle(r, ProductCategory.Resale, ProductCategory.Accompaniment),
+        true,
+        true,
+      ],
+      [
+        'Resale on By-brand stock then Manufacturable (forced Single)',
+        (r: RegistrationResult) => {
+          act(() => r.current.handleStockControlChange('by-brand'))
+          toggle(r, ProductCategory.Resale)
+          expect(r.current.isResalePriceVisible).toBe(false)
+          toggle(r, ProductCategory.Manufacturable)
+        },
+        true,
+        false,
+      ],
+      [
+        'Portion',
+        (r: RegistrationResult) => toggle(r, ProductCategory.Portion),
+        false,
+        false,
+      ],
+      [
+        'Portion and Accompaniment',
+        (r: RegistrationResult) =>
+          toggle(r, ProductCategory.Portion, ProductCategory.Accompaniment),
+        false,
+        false,
+      ],
+      [
+        'Resale with By-brand stock',
+        (r: RegistrationResult) => {
+          toggle(r, ProductCategory.Resale)
+          act(() => r.current.handleStockControlChange('by-brand'))
+        },
+        false,
+        false,
+      ],
+      [
+        'Accompaniment with By-brand stock',
+        (r: RegistrationResult) => {
+          toggle(r, ProductCategory.Accompaniment)
+          act(() => r.current.handleStockControlChange('by-brand'))
+        },
+        false,
+        false,
+      ],
+      [
+        'Ingredient only',
+        (r: RegistrationResult) => toggle(r, ProductCategory.Ingredient),
+        false,
+        false,
+      ],
+    ])(
+      'shows the price fields for %s',
+      (_name, setup, isResalePriceVisible, isAccompanimentPriceVisible) => {
+        const { result } = renderRegistration()
+
+        setup(result)
+
+        expect(result.current.isResalePriceVisible).toBe(isResalePriceVisible)
+        expect(result.current.isAccompanimentPriceVisible).toBe(
+          isAccompanimentPriceVisible,
+        )
+      },
+    )
+
+    it('keeps the other entered values while categories and stock control change', () => {
+      const { result } = renderRegistration()
+
+      act(() => {
+        result.current.handleNameChange('Paçoca')
+        result.current.handleUnitChange(ProductUnit.Kilogram)
+        result.current.handleInitialStockChange('4')
+        result.current.handleIdealStockChange('10')
+      })
+      toggle(result, ProductCategory.Resale, ProductCategory.Accompaniment)
+      act(() => result.current.handleStockControlChange('by-brand'))
+      toggle(result, ProductCategory.Resale)
+
+      expect(result.current.name).toBe('Paçoca')
+      expect(result.current.unit).toBe(ProductUnit.Kilogram)
+      expect(result.current.initialStock).toBe('4')
+      expect(result.current.idealStock).toBe('10')
+      expect(result.current.categories).toEqual([ProductCategory.Accompaniment])
+    })
+
+    it('keeps a hidden price, neither validates nor sends it, and restores it when shown again', async () => {
+      const { registerProduct, result } = renderRegistration()
+      act(() => result.current.handleNameChange('Paçoca'))
+      toggle(
+        result,
+        ProductCategory.Ingredient,
+        ProductCategory.Resale,
+        ProductCategory.Accompaniment,
+      )
+      act(() => {
+        result.current.handleResalePriceChange('12,50')
+        result.current.handleAccompanimentPriceChange('-1')
+      })
+      toggle(result, ProductCategory.Resale, ProductCategory.Accompaniment)
+
+      expect(result.current.isResalePriceVisible).toBe(false)
+      expect(result.current.isAccompanimentPriceVisible).toBe(false)
+      await submit(result)
+
+      expect(registerProduct).toHaveBeenCalledOnce()
+      expect(sentInput(registerProduct)).not.toHaveProperty('resalePrice')
+      expect(sentInput(registerProduct)).not.toHaveProperty('accompanimentPrice')
+      expect(result.current.fieldErrors.resalePrice).toBeUndefined()
+      expect(result.current.fieldErrors.accompanimentPrice).toBeUndefined()
+
+      toggle(result, ProductCategory.Resale, ProductCategory.Accompaniment)
+      expect(result.current.resalePrice).toBe('12,50')
+      expect(result.current.accompanimentPrice).toBe('-1')
+    })
+
+    it.each([
+      ['resalePrice', RESALE_MESSAGE],
+      ['accompanimentPrice', ACCOMPANIMENT_MESSAGE],
+    ] as const)(
+      'rejects invalid %s input without a request and keeps every entered value',
+      async (field, message) => {
+        for (const value of ['-1', '1,234', 'abc', '10000000000000000']) {
+          const { registerProduct, result } = renderRegistration()
+          act(() => result.current.handleNameChange('Paçoca'))
+          toggle(result, ProductCategory.Resale, ProductCategory.Accompaniment)
+          act(() => {
+            result.current.handleResalePriceChange('3,00')
+            result.current.handleAccompanimentPriceChange('4,00')
+          })
+          act(() =>
+            field === 'resalePrice'
+              ? result.current.handleResalePriceChange(value)
+              : result.current.handleAccompanimentPriceChange(value),
+          )
+
+          await submit(result)
+
+          expect(registerProduct).not.toHaveBeenCalled()
+          expect(result.current.fieldErrors[field]).toBe(message)
+          expect(result.current[field]).toBe(value)
+          expect(result.current.name).toBe('Paçoca')
+          expect(analyticsMocks.recordValidationFailure).toHaveBeenLastCalledWith({
+            attempt: { attempt: 1 },
+            fields: [field],
+          })
+        }
+      },
+    )
+
+    it('clears a price error once the value becomes valid', async () => {
+      const { result } = renderRegistration()
+      act(() => result.current.handleNameChange('Paçoca'))
+      toggle(result, ProductCategory.Resale)
+      act(() => result.current.handleResalePriceChange('-1'))
+      await submit(result)
+      expect(result.current.fieldErrors.resalePrice).toBe(RESALE_MESSAGE)
+
+      act(() => result.current.handleResalePriceChange('10'))
+
+      await waitFor(() => expect(result.current.fieldErrors.resalePrice).toBeUndefined())
+    })
+
+    it.each([
+      ['0', 0],
+      ['12,5', 12.5],
+      ['12.50', 12.5],
+    ])('sends %s as the number %s for both visible prices', async (typed, expected) => {
+      const { registerProduct, result } = renderRegistration()
+      act(() => result.current.handleNameChange('Paçoca'))
+      toggle(result, ProductCategory.Resale, ProductCategory.Accompaniment)
+      act(() => {
+        result.current.handleResalePriceChange(typed)
+        result.current.handleAccompanimentPriceChange(typed)
+      })
+
+      await submit(result)
+
+      expect(sentInput(registerProduct)).toMatchObject({
+        categories: [ProductCategory.Resale, ProductCategory.Accompaniment],
+        resalePrice: expected,
+        accompanimentPrice: expected,
+      })
+    })
+
+    it('sends no price key for an empty or blank visible price', async () => {
+      const { registerProduct, result } = renderRegistration()
+      act(() => result.current.handleNameChange('Paçoca'))
+      toggle(result, ProductCategory.Resale, ProductCategory.Accompaniment)
+      act(() => result.current.handleAccompanimentPriceChange('   '))
+
+      await submit(result)
+
+      expect(registerProduct).toHaveBeenCalledOnce()
+      expect(sentInput(registerProduct)).not.toHaveProperty('resalePrice')
+      expect(sentInput(registerProduct)).not.toHaveProperty('accompanimentPrice')
+    })
+
+    it('never copies one price into the other', async () => {
+      const { registerProduct, result } = renderRegistration()
+      act(() => result.current.handleNameChange('Paçoca'))
+      toggle(result, ProductCategory.Resale, ProductCategory.Accompaniment)
+
+      act(() => result.current.handleResalePriceChange('12,00'))
+      expect(result.current.accompanimentPrice).toBe('')
+      await submit(result)
+
+      expect(sentInput(registerProduct)).toMatchObject({ resalePrice: 12 })
+      expect(sentInput(registerProduct)).not.toHaveProperty('accompanimentPrice')
+    })
+
+    it('keeps both typed prices after a server rejection of the prices', async () => {
+      const { registerProduct, result } = renderRegistration()
+      registerProduct.mockRejectedValueOnce(
+        new Error(
+          'O preço de revenda é permitido apenas para produtos de revenda com estoque único.',
+        ),
+      )
+      act(() => result.current.handleNameChange('Paçoca'))
+      toggle(result, ProductCategory.Resale, ProductCategory.Accompaniment)
+      act(() => {
+        result.current.handleResalePriceChange('12,00')
+        result.current.handleAccompanimentPriceChange('9,00')
+      })
+
+      await submit(result)
+
+      expect(result.current.formError).toBe(
+        'O preço de revenda é permitido apenas para produtos de revenda com estoque único.',
+      )
+      expect(result.current.resalePrice).toBe('12,00')
+      expect(result.current.accompanimentPrice).toBe('9,00')
+    })
+  })
+  describe('sizes', () => {
+    function renderRegistration() {
+      const registerProduct = vi.fn().mockResolvedValue({ id: 'product-1' })
+      useRegisterProductActionMock.mockReturnValue({
+        isPending: false,
+        registerProduct,
+      } as never)
+      const { result } = renderHook(() => useProductRegistrationPage())
+      return { registerProduct, result }
+    }
+
+    type RegistrationResult = ReturnType<typeof renderRegistration>['result']
+
+    function toggle(result: RegistrationResult, ...categories: ProductCategory[]) {
+      for (const category of categories) {
+        act(() => result.current.handleProductCategoryToggle(category))
+      }
+    }
+
+    function fillRow(
+      result: RegistrationResult,
+      index: number,
+      values: { name?: string; quantity?: string; price?: string },
+    ) {
+      const sizeId = result.current.sizeFields.sizes[index]?.id as string
+      act(() => result.current.sizeFields.onSizeChange(sizeId, values))
+    }
+
+    async function submit(result: RegistrationResult) {
+      await act(async () => result.current.handleRegister(createSubmitEvent() as never))
+    }
+
+    function sentInput(registerProduct: ReturnType<typeof vi.fn>) {
+      return registerProduct.mock.calls[0]?.[0] as Record<string, unknown>
+    }
+
+    it('starts with one empty row and shows the section only while Portion is selected', () => {
+      const { result } = renderRegistration()
+
+      expect(result.current.sizeFields.sizes).toEqual([
+        { id: 'size-0', name: '', quantity: '', price: '' },
+      ])
+      expect(result.current.isSizesSectionVisible).toBe(false)
+      toggle(result, ProductCategory.Portion)
+      expect(result.current.isSizesSectionVisible).toBe(true)
+      toggle(result, ProductCategory.Portion)
+      expect(result.current.isSizesSectionVisible).toBe(false)
+      toggle(result, ProductCategory.Ingredient)
+      expect(result.current.isSizesSectionVisible).toBe(false)
+    })
+
+    it('keeps the section visible for a By-brand Portion', () => {
+      const { result } = renderRegistration()
+      toggle(result, ProductCategory.Portion)
+
+      act(() => result.current.handleStockControlChange('by-brand'))
+
+      expect(result.current.isSizesSectionVisible).toBe(true)
+    })
+
+    it('adds rows with fresh ids, edits one row and removes rows without limit', () => {
+      const { result } = renderRegistration()
+      toggle(result, ProductCategory.Portion)
+
+      act(() => result.current.sizeFields.onAddSize())
+      act(() => result.current.sizeFields.onAddSize())
+      expect(result.current.sizeFields.sizes.map((size) => size.id)).toEqual([
+        'size-0',
+        'size-1',
+        'size-2',
+      ])
+
+      fillRow(result, 1, { name: 'Médio', quantity: '0,5' })
+      expect(result.current.sizeFields.sizes[1]).toEqual({
+        id: 'size-1',
+        name: 'Médio',
+        quantity: '0,5',
+        price: '',
+      })
+      expect(result.current.sizeFields.sizes[0]?.name).toBe('')
+
+      act(() => result.current.sizeFields.onRemoveSize('size-0'))
+      expect(result.current.sizeFields.sizes.map((size) => size.id)).toEqual([
+        'size-1',
+        'size-2',
+      ])
+      act(() => result.current.sizeFields.onRemoveSize('size-1'))
+      act(() => result.current.sizeFields.onRemoveSize('size-2'))
+      expect(result.current.sizeFields.sizes).toEqual([])
+    })
+
+    it('sends the typed rows as numbers, trims names and omits empty rows', async () => {
+      const { registerProduct, result } = renderRegistration()
+      act(() => result.current.handleNameChange('Açaí'))
+      toggle(result, ProductCategory.Portion)
+      act(() => result.current.sizeFields.onAddSize())
+      act(() => result.current.sizeFields.onAddSize())
+      fillRow(result, 0, { name: ' Pequeno ', quantity: '1,5', price: '12.50' })
+      fillRow(result, 2, { name: 'Grande', quantity: '2', price: '0' })
+
+      await submit(result)
+
+      expect(registerProduct).toHaveBeenCalledOnce()
+      expect(sentInput(registerProduct)).toMatchObject({
+        categories: [ProductCategory.Portion],
+        sizes: [
+          { name: 'Pequeno', quantity: 1.5, price: 12.5 },
+          { name: 'Grande', quantity: 2, price: 0 },
+        ],
+      })
+    })
+
+    it('sends no sizes key when every row is empty', async () => {
+      const { registerProduct, result } = renderRegistration()
+      act(() => result.current.handleNameChange('Açaí'))
+      toggle(result, ProductCategory.Portion)
+      act(() => result.current.sizeFields.onAddSize())
+
+      await submit(result)
+
+      expect(registerProduct).toHaveBeenCalledOnce()
+      expect(sentInput(registerProduct)).not.toHaveProperty('sizes')
+      expect(result.current.sizeFields.sizeErrors).toEqual(
+        [{}, {}].map(() => ({
+          name: undefined,
+          quantity: undefined,
+          price: undefined,
+        })),
+      )
+    })
+
+    it.each([
+      [
+        'a row with only a name',
+        { name: 'Pequeno' },
+        {
+          quantity: 'Informe uma quantidade maior que zero, com até três casas decimais.',
+          price: 'Informe um preço válido, com até duas casas decimais.',
+        },
+      ],
+      [
+        'an invalid quantity and price',
+        { name: 'Pequeno', quantity: '1,2345', price: '-1' },
+        {
+          quantity: 'Informe uma quantidade maior que zero, com até três casas decimais.',
+          price: 'Informe um preço válido, com até duas casas decimais.',
+        },
+      ],
+      [
+        'a quantity at the numeric limit',
+        { name: 'Pequeno', quantity: '1000000000000000', price: '5' },
+        {
+          quantity: 'Informe uma quantidade maior que zero, com até três casas decimais.',
+        },
+      ],
+      [
+        'a price at the numeric limit',
+        { name: 'Pequeno', quantity: '1', price: '10000000000000000' },
+        { price: 'Informe um preço válido, com até duas casas decimais.' },
+      ],
+      [
+        'a name over 120 characters',
+        { name: 'a'.repeat(121), quantity: '1', price: '5' },
+        { name: 'Informe o nome do tamanho.' },
+      ],
+      [
+        'a quantity of zero',
+        { name: 'Pequeno', quantity: '0', price: '5' },
+        {
+          quantity: 'Informe uma quantidade maior que zero, com até três casas decimais.',
+        },
+      ],
+      [
+        'text instead of numbers',
+        { name: 'Pequeno', quantity: 'abc', price: 'abc' },
+        {
+          quantity: 'Informe uma quantidade maior que zero, com até três casas decimais.',
+          price: 'Informe um preço válido, com até duas casas decimais.',
+        },
+      ],
+    ])(
+      'blocks submit with %s and reports the field errors beside the row',
+      async (_name, values, expectedErrors) => {
+        const { registerProduct, result } = renderRegistration()
+        act(() => result.current.handleNameChange('Açaí'))
+        toggle(result, ProductCategory.Portion)
+        fillRow(result, 0, values)
+
+        await submit(result)
+
+        expect(registerProduct).not.toHaveBeenCalled()
+        expect(result.current.sizeFields.sizeErrors[0]).toEqual({
+          name: undefined,
+          quantity: undefined,
+          price: undefined,
+          ...expectedErrors,
+        })
+        expect(result.current.sizeFields.sizes[0]).toMatchObject(values)
+        expect(analyticsMocks.recordValidationFailure).toHaveBeenCalledWith({
+          attempt: { attempt: 1 },
+          fields: Object.keys(expectedErrors).map((field) => `sizes.*.${field}`),
+        })
+      },
+    )
+
+    it('accepts the largest values below the numeric limits', async () => {
+      const { registerProduct, result } = renderRegistration()
+      act(() => result.current.handleNameChange('Açaí'))
+      toggle(result, ProductCategory.Portion)
+      fillRow(result, 0, {
+        name: 'Máximo',
+        quantity: '999999999999999',
+        price: '9999999999999998',
+      })
+
+      await submit(result)
+
+      expect(registerProduct).toHaveBeenCalledOnce()
+    })
+
+    it('reports a duplicate name on the later row only', async () => {
+      const { registerProduct, result } = renderRegistration()
+      act(() => result.current.handleNameChange('Açaí'))
+      toggle(result, ProductCategory.Portion)
+      act(() => result.current.sizeFields.onAddSize())
+      fillRow(result, 0, { name: 'Médio', quantity: '1', price: '5' })
+      fillRow(result, 1, { name: ' médio ', quantity: '2', price: '8' })
+
+      await submit(result)
+
+      expect(registerProduct).not.toHaveBeenCalled()
+      expect(result.current.sizeFields.sizeErrors[0]?.name).toBeUndefined()
+      expect(result.current.sizeFields.sizeErrors[1]?.name).toBe(
+        'Já existe um tamanho com esse nome.',
+      )
+    })
+
+    it('shows no row error while typing before the first submit', async () => {
+      const { result } = renderRegistration()
+      toggle(result, ProductCategory.Portion)
+
+      fillRow(result, 0, { name: 'Pequeno' })
+      act(() => result.current.sizeFields.onAddSize())
+      await waitFor(() => expect(result.current.sizeFields.sizes).toHaveLength(2))
+
+      expect(result.current.sizeFields.sizeErrors).toEqual([
+        { name: undefined, quantity: undefined, price: undefined },
+        { name: undefined, quantity: undefined, price: undefined },
+      ])
+    })
+
+    it('clears a row error once the field becomes valid', async () => {
+      const { result } = renderRegistration()
+      act(() => result.current.handleNameChange('Açaí'))
+      toggle(result, ProductCategory.Portion)
+      fillRow(result, 0, { name: 'Pequeno' })
+      await submit(result)
+      expect(result.current.sizeFields.sizeErrors[0]?.price).toBeDefined()
+
+      fillRow(result, 0, { quantity: '1', price: '5' })
+
+      await waitFor(() => {
+        expect(result.current.sizeFields.sizeErrors[0]?.quantity).toBeUndefined()
+        expect(result.current.sizeFields.sizeErrors[0]?.price).toBeUndefined()
+      })
+    })
+
+    it('keeps the rows while Portion is unselected, neither validating nor sending them', async () => {
+      const { registerProduct, result } = renderRegistration()
+      act(() => result.current.handleNameChange('Açaí'))
+      toggle(result, ProductCategory.Portion)
+      act(() => result.current.sizeFields.onAddSize())
+      fillRow(result, 0, { name: 'Pequeno' })
+      fillRow(result, 1, { name: 'Grande', quantity: '2', price: '9' })
+      toggle(result, ProductCategory.Portion, ProductCategory.Ingredient)
+
+      await submit(result)
+
+      expect(registerProduct).toHaveBeenCalledOnce()
+      expect(sentInput(registerProduct)).not.toHaveProperty('sizes')
+      expect(result.current.sizeFields.sizeErrors[0]?.quantity).toBeUndefined()
+
+      toggle(result, ProductCategory.Portion)
+      expect(result.current.sizeFields.sizes).toEqual([
+        { id: 'size-0', name: 'Pequeno', quantity: '', price: '' },
+        { id: 'size-1', name: 'Grande', quantity: '2', price: '9' },
+      ])
+    })
+
+    it('keeps the typed rows after a server rejection', async () => {
+      const { registerProduct, result } = renderRegistration()
+      registerProduct.mockRejectedValueOnce(
+        new Error('Já existe um tamanho com esse nome para o produto.'),
+      )
+      act(() => result.current.handleNameChange('Açaí'))
+      toggle(result, ProductCategory.Portion)
+      fillRow(result, 0, { name: 'Pequeno', quantity: '1', price: '5' })
+
+      await submit(result)
+
+      expect(result.current.formError).toBe(
+        'Já existe um tamanho com esse nome para o produto.',
+      )
+      expect(result.current.sizeFields.sizes[0]).toMatchObject({
+        name: 'Pequeno',
+        quantity: '1',
+        price: '5',
+      })
+    })
+  })
 })
