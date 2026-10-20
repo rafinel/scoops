@@ -83,24 +83,31 @@ it. Work the tree in rounds:
 - Keep one monotonically increasing question sequence across all rounds; never restart numbering.
 - Ask the frontier in small batches of at most five questions per message, ordered by dependency
   and impact, and carry the rest of the frontier into the next batch. Number each question and
-  give repository evidence, materially different choices, a recommendation and the consequence
-  of accepting it. When a choice depends on an earlier answer, defer it instead of embedding a
-  speculative default.
+  give repository evidence, at least two materially different lettered options (`A`, `B`, `C`,
+  plus `Something else` when useful) with a one-line consequence each, exactly one marked
+  recommendation with a short reason, and the consequence of accepting it. Short answers such as
+  `1A, 2B` must be possible. When a choice depends on an earlier answer, defer it instead of
+  embedding a speculative default.
 - When the user asks for a clearer explanation, re-ask the same question number in plain
   language with a concrete walkthrough of what each choice means in practice before requesting
   the answer again.
 - Use this format for every round:
 
   ```yaml
-  ❓ **Q1** - **<question title>**: <question body, including choices when useful>
+  ❓ **Q1** - **<question title>**: <question body with repository evidence>
+  - **A.** <option> — <one-line consequence>
+  - **B.** <option> — <one-line consequence>
+  - **C.** Something else.
 
-  ➡️ <recommended answer>
+  ➡️ **<letter>**: <short reason>
 
   ---
 
   ❓ **Q2** - **<question title>**: <question body>
+  - **A.** <option> — <one-line consequence>
+  - **B.** <option> — <one-line consequence>
 
-  ➡️ <recommended answer>
+  ➡️ **<letter>**: <short reason>
   ```
 
 - Wait for the user's answers before recomputing the next frontier.
@@ -115,6 +122,10 @@ it. Work the tree in rounds:
   comment provide context but do not override an explicit annotated answer. Address every supplied
   annotation using the client-required inline annotation directive in the next response.
 - Research repository facts directly; do not ask the user for facts that can be inspected.
+- Verify every repository fact a question relies on before asking it. When later research,
+  review or the user shows that an answered question rested on a wrong or incomplete fact,
+  re-ask that same question number with the corrected evidence and options before changing the
+  Contract; never silently reword the Spec to fit the corrected fact.
 - Keep product, technical, design and validation decisions with the user unless repository
   authority already fixes them. Record decisions, dependencies and assumptions.
 - Challenge contradictions and risks. When the frontier is empty, present the shared
@@ -124,6 +135,28 @@ it. Work the tree in rounds:
   the documentation/design artifacts. Verify existing paths against the current checkout,
   mark each entry `[create]`, `[modify]`, `[move]`, `[generate]` or `[remove]` with a short note
   on the change, and label proposed internal names as adjustable under the Rules.
+
+#### Source scope guard
+
+The source Issue, `PRQ-*` selection, report or direct request fixes the Spec's scope. Research
+and clarification often expose adjacent work: a related defect, a contradictory rule, an
+unimplemented requirement or a broader redesign. Do not grow the Spec to absorb it by default.
+
+- Classify each discovered item as **in source scope**, **required to deliver the source safely**
+  (no source outcome can be met without it) or **adjacent**. Only the first two belong in the
+  Spec without asking.
+- For an adjacent item, ask one question that names the original source scope, explains why the
+  item is outside it and offers at least: record it as an exclusion; track it in a separate Issue
+  or Spec; or absorb it into this Spec. Recommend the exclusion or separate tracking unless the
+  source outcome depends on the item.
+- Do not change PRDs, Issues, design files or other authorities for adjacent work until the user
+  explicitly chooses to absorb it in this conversation.
+- When the user absorbs adjacent work, restate the resulting scope against the original source
+  in the next shared understanding, and show the added FRs, authorities and artifacts separately,
+  so scope drift stays visible before authoring.
+- When the user later narrows the scope again, remove every absorbed artifact: Spec sections,
+  design references, PRD, Issue and Pencil changes. Record the withdrawn items only as
+  exclusions and in the revision history.
 
 #### Exhaustive questionnaire mode
 
@@ -425,6 +458,18 @@ every supplied screenshot has a completed visual inventory, every required suppl
 capture is present or explicitly accepted as an assumption, and every reference/state has a
 planned implementation comparison and evidence target.
 
+The Pencil host may resolve the requested output path on a different filesystem than the
+repository checkout (for example a Windows drive instead of the WSL path). After every export,
+compare the absolute paths the export reports with the feature-local `design/` directory. When
+they differ, copy the images into the repository path, verify them there and remove only the
+stray copies the export created. Never treat a reported path on another host as a saved
+reference.
+
+Design edits made through Pencil MCP live in the open editor until the document is saved.
+After editing a `.pen` file, check that the file on disk changed after the last edit (for
+example its modification time or `git status`). If it did not, ask the user to save the
+document in Pencil and report it as an open item; do not claim the design change is saved.
+
 If export cannot reach a shared repository path, keep the Spec `draft` and report the
 artifact blocker. Builders and the Orchestrator use the saved bundle without live Pencil.
 Reopen Pencil only when the Design Contract changes or the user requests a refresh.
@@ -607,8 +652,12 @@ Before setting the Spec to `open`, verify:
 - material ambiguities and authority changes are resolved;
 - public boundary/data/migration contracts and consequential decisions are precise, while
   routine internal structure remains agent-owned;
-- saved references exist, were visually inspected, cover required states/viewports and map
-  to acceptance checks; required missing design information is resolved;
+- saved references exist in the repository path (not only at a path reported by the design
+  host), were visually inspected, cover required states/viewports and map to acceptance checks;
+  required missing design information is resolved; edited `.pen` files are saved, or the unsaved
+  state is reported to the user;
+- every Spec section, reference and authority change traces to the source scope or to a
+  user-approved absorption recorded in the decision ledger;
 - commands/prerequisites are real, checker ownership follows Rules, and mocked evidence
   cannot be mistaken for real integration proof;
 - authority links, tables and artifact structure are valid;
