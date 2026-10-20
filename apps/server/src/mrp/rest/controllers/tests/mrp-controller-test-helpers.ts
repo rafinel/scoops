@@ -153,6 +153,64 @@ export async function failSecondSalesConfigurationEvent(
   }
 }
 
+/**
+ * Makes the database reject inserts into the given table once `allowedRows` rows exist
+ * (default 0: every insert), so a registration fails after earlier writes of the same
+ * transaction already happened. Returns the cleanup that removes the trigger.
+ */
+export async function failInsertInto(
+  fixture: MrpModuleFixture,
+  table: 'product_sizes' | 'resale_configurations' | 'stock_transactions',
+  allowedRows = 0,
+): Promise<() => Promise<void>> {
+  const database = fixture.get(DrizzleClient).requireDatabase()
+  const name = `test_fail_insert_into_${table}`
+  await database.execute(
+    sql.raw(`
+    CREATE OR REPLACE FUNCTION ${name}()
+    RETURNS trigger AS $$
+    BEGIN
+      IF (SELECT count(*) FROM ${table}) >= ${allowedRows} THEN
+        RAISE EXCEPTION 'forced insert failure';
+      END IF;
+      RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql
+  `),
+  )
+  await database.execute(
+    sql.raw(`
+    CREATE TRIGGER ${name}
+    BEFORE INSERT ON ${table}
+    FOR EACH ROW
+    EXECUTE FUNCTION ${name}()
+  `),
+  )
+  return async () => {
+    await database.execute(sql.raw(`DROP TRIGGER IF EXISTS ${name} ON ${table}`))
+    await database.execute(sql.raw(`DROP FUNCTION IF EXISTS ${name}()`))
+  }
+}
+
+/** Counts every row of a table, bypassing repositories (for rollback assertions). */
+export async function countRows(
+  fixture: MrpModuleFixture,
+  table:
+    | 'product_accompaniments'
+    | 'product_sizes'
+    | 'products'
+    | 'resale_configurations'
+    | 'stock_balances'
+    | 'stock_transactions',
+): Promise<number> {
+  const result = await fixture
+    .get(DrizzleClient)
+    .requireDatabase()
+    .execute(sql.raw(`SELECT count(*)::int AS count FROM ${table}`))
+  const rows = (Array.isArray(result) ? result : result.rows) as Array<{ count: number }>
+  return rows[0]?.count ?? -1
+}
+
 export async function registerPortionThroughRest(
   fixture: MrpModuleFixture,
   name: string,

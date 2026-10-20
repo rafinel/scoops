@@ -88,6 +88,40 @@ Content-Type: application/json
   "currentUnitCost": 4.5
 }
 
+### Register a Single-stock Resale and Accompaniment product with sale prices
+POST {{baseUrl}}/products
+Cookie: {{sessionCookie}}
+Content-Type: application/json
+
+{
+  "name": "Paçoca",
+  "unit": "un",
+  "categories": ["resale", "accompaniment"],
+  "stockControl": "single",
+  "initialStock": 10,
+  "idealStock": 20,
+  "resalePrice": 2.5,
+  "accompanimentPrice": 0
+}
+
+### Register a Portion with its sizes
+POST {{baseUrl}}/products
+Cookie: {{sessionCookie}}
+Content-Type: application/json
+
+{
+  "name": "Açaí",
+  "unit": "kg",
+  "categories": ["portion"],
+  "stockControl": "single",
+  "initialStock": 5,
+  "idealStock": 2,
+  "sizes": [
+    { "name": "Pequeno", "quantity": 0.3, "price": 9.9 },
+    { "name": "Grande", "quantity": 0.5, "price": 14.5 }
+  ]
+}
+
 ### Register a By-brand product with explicit primary brand selection
 POST {{baseUrl}}/products
 Cookie: {{sessionCookie}}

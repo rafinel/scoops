@@ -96,6 +96,40 @@ describe('Save Single Resale Configuration Controller [PUT /products/:productId/
     ).resolves.toHaveLength(0)
   })
 
+  it('rejects a price at the numeric limit without changing the saved configuration and saves a large valid price', async () => {
+    const product = await fixture.addProduct(
+      createProduct({ name: 'Limit Single', categories: [ProductCategory.Resale] }),
+    )
+    const saved = await request(fixture.app.getHttpServer())
+      .put(`/products/${product.id}/resale-configuration`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ price: 12.5, isActive: true })
+    const rejected = await request(fixture.app.getHttpServer())
+      .put(`/products/${product.id}/resale-configuration`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ price: 10_000_000_000_000_000, isActive: true })
+    const afterRejection = await fixture.resaleConfigurations.findManyByProductId(
+      product.establishmentId,
+      product.id,
+    )
+    const large = await request(fixture.app.getHttpServer())
+      .put(`/products/${product.id}/resale-configuration`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ price: 1_234_567.89, isActive: true })
+
+    expect(saved.status).toBe(200)
+    expect(rejected.status).toBe(422)
+    expect(afterRejection).toEqual([expect.objectContaining({ price: 12.5 })])
+    expect(large.status).toBe(200)
+    expect(large.body.resale[0]).toMatchObject({ price: 1_234_567.89, isActive: true })
+    await expect(
+      fixture.resaleConfigurations.findManyByProductId(
+        product.establishmentId,
+        product.id,
+      ),
+    ).resolves.toEqual([expect.objectContaining({ price: 1_234_567.89 })])
+  })
+
   it('enforces authentication and tenant ownership', async () => {
     const product = await fixture.addProduct(
       createProduct({ name: 'Protected Single', categories: [ProductCategory.Resale] }),

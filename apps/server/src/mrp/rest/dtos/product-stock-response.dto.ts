@@ -20,6 +20,7 @@ export class ProductResponseDto {
   @ApiPropertyOptional() allowNegativeStock?: boolean
   @ApiPropertyOptional() idealStock?: number
   @ApiPropertyOptional() currentUnitCost?: number
+  @ApiPropertyOptional() accompanimentPrice?: number
   @ApiPropertyOptional() internalNotes?: string
   @ApiProperty({ format: 'date-time' }) createdAt!: Date
   @ApiProperty({ format: 'date-time' }) updatedAt!: Date
