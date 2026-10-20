@@ -92,7 +92,8 @@ stock control, status, and optional operational settings that determine its late
 
 **Provides:** Establishment product catalog, category assignments, product stock unit, stock
 control, status, ideal-stock target, negative-stock policy, current single-stock ingredient
-unit cost, and the optional initial Resale and Accompaniment sale prices for PRQ-02, PRQ-03,
+unit cost, the optional initial Resale and Accompaniment sale prices, and the optional initial
+Portion sizes with their sale prices for PRQ-02, PRQ-03,
 PRQ-04, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09, PRQ-10, and PDV.
 
 #### Capabilities
@@ -124,12 +125,19 @@ PRQ-04, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09, PRQ-10, and PDV.
   zero. Weighted-average costing is not used in this version.
 - A Single-stock product categorized as Resale and/or Accompaniment may receive its sale price
   during registration: a Resale price for Resale and an Accompaniment price for Accompaniment. A
-  Portion or By-brand product receives no registration sale price, because its prices belong to
-  each size or brand and are set in PRQ-09. Each price is optional and follows the PRQ-09 rules;
+  By-brand product receives no registration sale price, because its Resale prices belong to each
+  brand and are set in PRQ-09. A Portion receives no single registration price; it may instead
+  receive initial sizes, described below. Each price is optional and follows the PRQ-09 rules;
   a price left empty is not saved, and the product has no commercial configuration for it until
   one is set. A Resale price entered at registration creates the Single-stock Resale
   configuration as available. An Accompaniment price entered at registration becomes the
   product-owned price defined in PRQ-08 and PRQ-09.
+- A Portion may receive zero or more initial sizes during registration. Each size has a Name, a
+  quantity in the product stock unit and a sale price, follows the PRQ-09 size rules, and is
+  created active. A Portion registered without sizes is saved but does not appear in PDV until an
+  active size exists. Any invalid size rejects the whole registration and nothing is saved; the
+  product and its sizes are created together or not at all. Registration creates no sizes for a
+  product that is not a Portion.
 - Products disallow negative stock by default. A Manager may enable `Allow negative stock`, after
   which an initial balance or a write-off may take that product below zero.
 - Products and their facts cannot be displayed or used across establishments.
@@ -139,12 +147,20 @@ PRQ-04, PRQ-05, PRQ-06, PRQ-07, PRQ-08, PRQ-09, PRQ-10, and PDV.
 - The registration page contains Name, Unit, Categories, and Stock Control; for a Single-stock
   Ingredient, it may also capture current unit cost. The page is used instead of a modal so the
   manager can review the complete product setup without constrained scrolling.
-- For a Single-stock Resale or Accompaniment, the Catalog section, next to Name and Unit, also
-  shows `Resale price` or `Accompaniment price`; a product with both categories shows both. The
+- For a Single-stock Resale or Accompaniment, the Catalog section, after the Categories,
+  also shows `Resale price` or `Accompaniment price`; a product with both categories shows both. The
   fields are hidden for Portion and By-brand products and appear or disappear as the category and
-  stock-control selections change, without discarding other entered values. When both are shown
-  and a Resale price has been entered, the Accompaniment field offers it as a suggestion that is
-  saved only when the Manager confirms it, and later changes to one price never change the other.
+  stock-control selections change, without discarding other entered values. When both are shown,
+  each starts empty and is entered independently; registration does not copy or propose the
+  Resale price for the Accompaniment price, and later changes to one price never change the other.
+- When Portion is selected, a `Sizes and prices` section appears between the Catalog and Stock
+  sections. It starts with one empty row and an `Add size` action. Each row captures Name,
+  quantity (with the product unit shown) and price, and can be removed; the number of rows is not
+  limited. A completely empty row is ignored on submit. A partly filled row requires Name,
+  quantity and price, shows its validation beside the field and blocks submission without
+  discarding entered values. Size names must be unique within the registration without case
+  sensitivity. Rows typed before Portion is unselected are kept, neither validated nor sent, and
+  return if Portion is selected again. The section stacks its fields on narrow screens.
 - Categories appear as selectable cards with checkboxes and dependency guidance. Selecting
   Portion disables Resale with an explanation, and selecting Resale disables Portion.
 - When Manufacturable requires Single stock under the current operating model, selecting it locks
@@ -654,10 +670,11 @@ for PRQ-10, PDV, and Analytics.
   the applicable Resale price is not configured, require the Manager to enter the Accompaniment
   price. After it is saved, the Accompaniment price is independent; later Resale-price changes do
   not update it.
-- Registration is also a first-save moment for the Accompaniment price. When a Single-stock
-  product with both Resale and Accompaniment categories is registered, the Resale price typed in
-  the same form is proposed for the Accompaniment price and is saved only when the Manager
-  confirms it. After registration, both prices follow the rules above.
+- Registration is also a first-save moment for the Accompaniment price. For a Single-stock product
+  with both Resale and Accompaniment categories, the Manager enters each price independently; the
+  Resale price typed in the same form is not proposed for or copied into the Accompaniment price.
+  If the Accompaniment price is left empty, the Link and Edit dialogs later propose the saved
+  Resale price under the rule above. After registration, both prices follow the rules above.
 - Before an Accompaniment product can be linked to a Portion, its sale price must be set as part
   of the Link action when not already configured.
 - The Accompaniment product's sale price applies uniformly across every link and Portion size.
@@ -671,6 +688,8 @@ for PRQ-10, PDV, and Analytics.
   most two decimal places. New sizes are active by default.
 - A Manager can edit a size's name, quantity, sale price, and active status from the pricing table.
   Invalid values are rejected, and the final active size cannot be deactivated.
+- A size created during product registration (PRQ-01) follows the same rules and is
+  indistinguishable from one added here; later edits, activation and removal use this surface.
 - Size removal requires confirmation. Removing the final active size is allowed and makes the
   Portion unavailable to future PDV operations until another active size is added; removal does
   not rewrite previous orders.
@@ -835,8 +854,8 @@ flowchart LR
 
 1. The Manager selects `New Product`.
 2. The system presents Name, Unit, Categories, and Stock Control; a Single-stock Ingredient may
-   also receive current unit cost, and a Single-stock Resale or Accompaniment may also receive its
-   optional sale price.
+   also receive current unit cost, a Single-stock Resale or Accompaniment may also receive its
+   optional sale price, and a Portion may also receive its initial sizes and their prices.
 3. The Manager completes the fields.
 4. The system validates:
    - **Success:** creates an active product with zero balance and opens its page.
@@ -978,8 +997,8 @@ flowchart LR
 - **Physical stock, batches, and expiration dates:** removed from this version.
 - **Administrative stock audit:** export, reconciliation, and correction remain outside this
   version; MRP retains only the operational facts needed to produce and explain committed changes.
-- **Portion without sizes:** rejected because every salable Portion requires at least one active
-  size.
+- **Portion without sizes:** accepted at registration, but not salable; it stays out of PDV until
+  at least one active size exists, because every salable Portion requires one.
 - **Mandatory accompaniment:** rejected because a Portion may be sold without an accompaniment.
 - **Unscoped recipe brand:** replaced by an optional recipe-line brand selection for By-brand
   ingredients, with the current main brand retained as the default and legacy fallback.
