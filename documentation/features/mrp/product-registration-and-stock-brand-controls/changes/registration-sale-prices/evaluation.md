@@ -2,15 +2,15 @@
 feature: "mrp/product-registration-and-stock-brand-controls/changes/registration-sale-prices"
 spec: ./spec.md
 spec_revision: 4
-status: ready
+status: completed
 updated_at: 2026-10-20
 ---
 
 # Evaluation
 
-Evaluation of Spec revision `4` (`in_progress`, Portion sizes at registration) against the current implementation. Revision 3 results are kept below as history and are reassessed per row in the revision 4 sections; evidence for behavior revision 4 does not touch (prices, Resale rule, hidden-price retention) stays reusable.
+Evaluation of Spec revision `4` (`completed`, Portion sizes at registration) against the current implementation. Revision 3 results are kept below as history and are reassessed per row in the revision 4 sections; evidence for behavior revision 4 does not touch (prices, Resale rule, hidden-price retention) stays reusable.
 
-Current result (revision 4): Core, Validation, Server and Web are implemented and verified locally. Core coverage and mutation, the full Server suite (one unrelated flaky test, `FND-011`), Web coverage, the complete Web integration suite (306 of 306), builds, the complexity gate and the repository checks pass. `MV-02` and the price-row re-captures passed against the real Server, PostgreSQL and Web at 1440 × 900 and 390 × 844. The Visual Reviewer found no blocking difference and the Implementation Reviewer's findings are reconciled (`FND-010`..`FND-015`). No open blocking item remains.
+Current result (revision 4, completed after PR CI on `6e8bd773`): Core, Validation, Server and Web are implemented and verified locally. Core coverage and mutation, the full Server suite (one unrelated flaky test, `FND-011`), Web coverage, the complete Web integration suite (306 of 306), builds, the complexity gate and the repository checks pass. `MV-02` and the price-row re-captures passed against the real Server, PostgreSQL and Web at 1440 × 900 and 390 × 844. The Visual Reviewer found no blocking difference and the Implementation Reviewer's findings are reconciled (`FND-010`..`FND-015`). No open blocking item remains.
 
 ## Acceptance matrix
 
@@ -180,6 +180,15 @@ Fresh captures live in `apps/web/.playwright-cli/screenshots/` (ignored). The Vi
 | `FND-015` | Reviewer notes (low) | `ProductSizeRow` has no own `tests/` directory (covered through `ProductSizeFields`); a stale test title in the form suite; no size-specific page-level alert test; the page-level 12px error text and 12px add button differ slightly from the 10/11px design. | `AC-13`, `AC-17`, `AC-21` | `accepted_non_blocking` | `ProductSizeRow` follows the accepted `SalePriceField` disposition (`FND-009`); `AffixedInput` got its own direct-prop test; the title was fixed; the alert is covered by the hook, route and generic page tests; type sizes follow the repository's existing `text-xs`/`text-sm` scale. |
 
 
+## Authority dispositions
+
+| Finding | Authority path | Disposition | Reason |
+| --- | --- | --- | --- |
+| Complexity baseline keyed by line number (lesson 1) | `documentation/tooling.md` | No change | Already describes regenerating the baseline. |
+| `biome format --write` on a folder reformats unrelated files (lesson 2) | `documentation/tooling.md` | No change | Local operator slip, not a repository rule. |
+| `FND-013` size decimal tolerance | Spec §3 | Updated | Contract text already states the exact `toFixed` rule. |
+| Canonical prompt change (`create-spec-prompt.md`) | `pnpm sync` | Updated | Sync ran; generated command and agent files unchanged. |
+
 ## Lessons learned
 
 - The complexity baseline keys functions by `file::name::startLine`, so any edit that shifts lines in a file with baselined functions looks like new violations. Regenerate only the touched files' entries (keep the original entry order, otherwise the diff is unreadable) and review the semantic diff by function name. No new Rule needed; `documentation/tooling.md` already describes regenerating the baseline.
@@ -187,10 +196,18 @@ Fresh captures live in `apps/web/.playwright-cli/screenshots/` (ignored). The Vi
 
 ## PR CI quality gate
 
-<!-- Populate during conclude-spec. -->
+<!-- Populated during conclude-spec. -->
+
+PR [#68](https://github.com/rafinel/scoops/pull/68) (`feat/new-product-price-field` → `main`, ready for review). Implementation candidate head `6e8bd77370d7709e25a554faa7814ff1d40585e7`; all 39 checks passed. Core CI includes the separate `Mutation baseline`/`Mutation candidate` shards and the `Mutation score (70% per module, Billing temporarily excluded)` gate, which passed together with the local mutation evidence (`EV-103`).
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
+| `CI-01` | Core CI (code, architecture, types, tests and coverage, mutation baseline and candidate 1–4, mutation score, complexity) | `6e8bd773` | passed | https://github.com/rafinel/scoops/actions/runs/39478464747 |
+| `CI-02` | Server CI (code, architecture, types, unit tests and coverage, Inngest integration, build, complexity) | `6e8bd773` | passed | https://github.com/rafinel/scoops/actions/runs/39478464734 |
+| `CI-03` | Validation CI (code, architecture, types, complexity) | `6e8bd773` | passed | https://github.com/rafinel/scoops/actions/runs/39478464766 |
+| `CI-04` | Web CI (code, architecture, types, unit tests and coverage, browser integration 1–4, build, complexity) | `6e8bd773` | passed | https://github.com/rafinel/scoops/actions/runs/39478464843 |
+
+Final closure-head results are reported from GitHub in the conclusion summary, not recorded here.
 
 ## Continuation handoff
 
@@ -200,7 +217,7 @@ Fresh captures live in `apps/web/.playwright-cli/screenshots/` (ignored). The Vi
 - **Unfinished criteria:** none.
 - **Blockers and stale evidence:** none. Revision 3 rows `EV-018`..`EV-022` are superseded by `EV-124`..`EV-128`.
 - **Latest checkers:** all `EV-100`..`EV-128` and `MV-02` passed; `EV-106` has one unrelated flaky failure (`FND-011`).
-- **Next useful action:** hand off to `conclude-spec` when publication is authorized. Consider splitting the sidebar and `use-catalog-query.ts` edits into their own commit. Fabricável + Revenda mutual exclusion is a separate Issue that is still to be created.
+- **Next useful action:** none; delivery completed. Reviewer comments go to `resolve-pr-feedback`. Fabricável + Revenda mutual exclusion is a separate Issue that is still to be created.
 
 ## History
 
@@ -212,3 +229,4 @@ Fresh captures live in `apps/web/.playwright-cli/screenshots/` (ignored). The Vi
 | 2026-10-19 | Full Server and Web suites recorded; Implementation and Visual Reviewers reconciled (`FND-006`–`FND-009`). |
 | 2026-10-20 | Spec returned to `draft` as revision 4 (Portion sizes at registration); Evaluation reopened to `in_progress`. Impact assessment: AC-01..AC-03, AC-12 and the registration page, schema and use-case evidence are reassessed; AC-04..AC-11 evidence stays reusable unless the shared size rule or complexity baseline invalidates it. |
 | 2026-10-20 | Revision 4 implemented (Portion sizes, price row after Categorias, affixed inputs); size decimal rule aligned with the Resale rule (`FND-013`); mutation, coverage, full Server and Web integration suites, builds, `MV-02` and visual captures recorded; Visual and Implementation Reviewers reconciled. |
+| 2026-10-20 | Closure: Web evidence refreshed (`EV-130`..`EV-135`), delivery disposition recorded, PR #68 published and its CI passed on `6e8bd773`; Evaluation and Spec set to `completed`. |

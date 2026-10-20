@@ -1,6 +1,6 @@
 ---
 title: Sale prices and sizes on product registration
-status: in_progress
+status: completed
 revision: 4
 source:
   type: issue
@@ -14,6 +14,8 @@ last_updated_at: 2026-10-20
 ---
 
 # Sale prices and sizes on product registration
+
+**Outcome:** delivered in PR [#68](https://github.com/rafinel/scoops/pull/68): a Manager can set Resale and Accompaniment prices and a Portion's sizes at registration, saved atomically, with shared Resale and size rules on the Prices page. All FR-01..FR-15 and AC-01..AC-21 passed; PRQ-01, PRQ-05, PRQ-08, PRQ-09 and PRQ-10 are partially delivered as stated below. See the [Evaluation](./evaluation.md).
 
 ## 1. Context and scope
 
