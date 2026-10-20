@@ -2,13 +2,13 @@
 feature: "mrp/product-registration-and-stock-brand-controls/changes/registration-sale-prices"
 spec: ./spec.md
 spec_revision: 4
-status: ready
+status: completed
 updated_at: 2026-10-20
 ---
 
 # Evaluation
 
-Evaluation of Spec revision `4` (`in_progress`, review cycle 1 corrected and `ready`, Portion sizes at registration) against the current implementation. Revision 3 results are kept below as history and are reassessed per row in the revision 4 sections; evidence for behavior revision 4 does not touch (prices, Resale rule, hidden-price retention) stays reusable.
+Evaluation of Spec revision `4` (`completed`, review cycle 1 corrected, Portion sizes at registration) against the current implementation. Revision 3 results are kept below as history and are reassessed per row in the revision 4 sections; evidence for behavior revision 4 does not touch (prices, Resale rule, hidden-price retention) stays reusable.
 
 Current result (revision 4, completed after PR CI on `6e8bd773`): Core, Validation, Server and Web are implemented and verified locally. Core coverage and mutation, the full Server suite (one unrelated flaky test, `FND-011`), Web coverage, the complete Web integration suite (306 of 306), builds, the complexity gate and the repository checks pass. `MV-02` and the price-row re-captures passed against the real Server, PostgreSQL and Web at 1440 × 900 and 390 × 844. The Visual Reviewer found no blocking difference and the Implementation Reviewer's findings are reconciled (`FND-010`..`FND-015`). No open blocking item remains.
 
@@ -193,6 +193,8 @@ Fresh captures live in `apps/web/.playwright-cli/screenshots/` (ignored). The Vi
 | `FND-015` | Reviewer notes (low) | `ProductSizeRow` has no own `tests/` directory (covered through `ProductSizeFields`); a stale test title in the form suite; no size-specific page-level alert test; the page-level 12px error text and 12px add button differ slightly from the 10/11px design. | `AC-13`, `AC-17`, `AC-21` | `accepted_non_blocking` | `ProductSizeRow` follows the accepted `SalePriceField` disposition (`FND-009`); `AffixedInput` got its own direct-prop test; the title was fixed; the alert is covered by the hook, route and generic page tests; type sizes follow the repository's existing `text-xs`/`text-sm` scale. |
 | `FND-016` | Review (Codex P2, [comment](https://github.com/rafinel/scoops/pull/68#discussion_r4328984290)) | `SIZE_PRICE_PATTERN` in `product-registration-form-schema.ts` requires a digit before the separator, so a size price `,50` is blocked client-side although the server accepts `0.5` and the sale-price and quantity patterns accept it. | `AC-14`, `EV-101`, `EV-109`, `EV-111` | `resolved` | `SIZE_PRICE_PATTERN` now equals the sale-price pattern (leading zero optional). The hook test posts a size price `,50` as `0.5` and a separate test posts `0`. |
 | `FND-017` | Review (Codex P1, [comment](https://github.com/rafinel/scoops/pull/68#discussion_r4328984301)) | `SizeField` is a JSX-returning component declared inside `product-size-row/index.tsx`, which `ui-layer-rules.md` forbids ("Mirror widget structure for nested components"); `FND-010`/`FND-015` had accepted the split without moving it into its own widget. | `AC-13`, `AC-21`, `EV-110` | `resolved` | Moved to `product-size-row/size-field/index.tsx` with an exported `SizeFieldProps`; the row keeps only constants. Added a direct-prop test (`size-field/tests`). Markup unchanged. |
+| `FND-018` | CI (Web `Complexity`, head `e4abcaa5`) | Extracting `SizeField` shifted the baselined `ProductSizeRow` entry (start line 41 → 37), so the gate reported it as a new warning. The local run only checked the error count, not the warning count/exit code. | `EV-141` | `resolved` | Baseline entry for that one file refreshed in place (severity `warn` unchanged); `pnpm --filter web check:complexity` now exits 0 with 0 warnings. |
+| `FND-019` | Transient infrastructure | Web `Complexity` job on `6eeb37dd` failed in `Set up pnpm` (`npm ECONNRESET`, self-installer exit 152) before any check ran. | `CI-04` | `resolved` | Same-SHA rerun of the run passed. |
 
 
 ## Authority dispositions
@@ -202,9 +204,12 @@ Fresh captures live in `apps/web/.playwright-cli/screenshots/` (ignored). The Vi
 | Complexity baseline keyed by line number (lesson 1) | `documentation/tooling.md` | No change | Already describes regenerating the baseline. |
 | `biome format --write` on a folder reformats unrelated files (lesson 2) | `documentation/tooling.md` | No change | Local operator slip, not a repository rule. |
 | `FND-013` size decimal tolerance | Spec §3 | Updated | Contract text already states the exact `toFixed` rule. |
+| `FND-016`..`FND-019` review and CI findings | `ui-layer-rules.md`, `documentation/tooling.md` | No change | Existing Rule and Tooling text already cover them. |
 | Canonical prompt change (`create-spec-prompt.md`) | `pnpm sync` | Updated | Sync ran; generated command and agent files unchanged. |
 
 ## Lessons learned
+
+- Judge `check:complexity` by its exit code, not only the error count: a line shift in a baselined file can add a warning (`FND-018`). `documentation/tooling.md` already describes regenerating the baseline (`No change`).
 
 - A UI Rule that forbids local JSX helpers is easy to miss in a split done for complexity (`FND-017`); route such splits through a child widget directory from the start. No new Rule: `ui-layer-rules.md` already states it (`No change`).
 - Keep client patterns for the same value kind (prices) shared, not copied (`FND-016`). No Rule change.
@@ -214,18 +219,18 @@ Fresh captures live in `apps/web/.playwright-cli/screenshots/` (ignored). The Vi
 
 ## PR CI quality gate
 
-<!-- Populated during conclude-spec. -->
+PR [#68](https://github.com/rafinel/scoops/pull/68) (`feat/new-product-price-field` → `main`, ready for review). Two candidates were gated; the closure commit's checks are reported from GitHub in the conclusion summary.
 
-PR [#68](https://github.com/rafinel/scoops/pull/68) (`feat/new-product-price-field` → `main`, ready for review). Implementation candidate head `6e8bd77370d7709e25a554faa7814ff1d40585e7`; all 39 checks passed. Core CI includes the separate `Mutation baseline`/`Mutation candidate` shards and the `Mutation score (70% per module, Billing temporarily excluded)` gate, which passed together with the local mutation evidence (`EV-103`).
+**Candidate 1** (`6e8bd773`, before review cycle 1): all 39 checks passed (Core run 39478464747, Server 39478464734, Validation 39478464766, Web 39478464843).
+
+**Candidate 2** (`6eeb37dd`, review cycle 1 correction): all 39 checks passed, including the Core `Mutation baseline`/`Mutation candidate` shards and the `Mutation score (70% per module, Billing temporarily excluded)` gate (consistent with local mutation evidence `EV-103`; Core use-case sources are unchanged in this cycle).
 
 | ID | Workflow | Head SHA | Result | Run |
 | --- | --- | --- | --- | --- |
-| `CI-01` | Core CI (code, architecture, types, tests and coverage, mutation baseline and candidate 1–4, mutation score, complexity) | `6e8bd773` | passed | https://github.com/rafinel/scoops/actions/runs/39478464747 |
-| `CI-02` | Server CI (code, architecture, types, unit tests and coverage, Inngest integration, build, complexity) | `6e8bd773` | passed | https://github.com/rafinel/scoops/actions/runs/39478464734 |
-| `CI-03` | Validation CI (code, architecture, types, complexity) | `6e8bd773` | passed | https://github.com/rafinel/scoops/actions/runs/39478464766 |
-| `CI-04` | Web CI (code, architecture, types, unit tests and coverage, browser integration 1–4, build, complexity) | `6e8bd773` | passed | https://github.com/rafinel/scoops/actions/runs/39478464843 |
-
-Final closure-head results are reported from GitHub in the conclusion summary, not recorded here.
+| `CI-01` | Core CI | `6eeb37dd` | passed | https://github.com/rafinel/scoops/actions/runs/39489388640 |
+| `CI-02` | Server CI | `6eeb37dd` | passed | https://github.com/rafinel/scoops/actions/runs/39489388706 |
+| `CI-03` | Validation CI | `6eeb37dd` | passed | https://github.com/rafinel/scoops/actions/runs/39489388764 |
+| `CI-04` | Web CI | `6eeb37dd` | passed after one same-SHA rerun of the `Complexity` job (`FND-019`) | https://github.com/rafinel/scoops/actions/runs/39489388635 |
 
 ## Continuation handoff
 
@@ -235,7 +240,7 @@ Final closure-head results are reported from GitHub in the conclusion summary, n
 - **Unfinished criteria:** none.
 - **Blockers and stale evidence:** none. Revision 3 rows `EV-018`..`EV-022` are superseded by `EV-124`..`EV-128`.
 - **Latest checkers:** all `EV-100`..`EV-128` and `MV-02` passed; `EV-106` has one unrelated flaky failure (`FND-011`).
-- **Next useful action:** none; delivery completed. Reviewer comments go to `resolve-pr-feedback`. Fabricável + Revenda mutual exclusion is a separate Issue that is still to be created.
+- **Next useful action:** none; delivery completed (review cycle 1 included). Reviewer comments go to `resolve-pr-feedback`. Fabricável + Revenda mutual exclusion is a separate Issue that is still to be created.
 
 ## History
 
@@ -250,3 +255,4 @@ Final closure-head results are reported from GitHub in the conclusion summary, n
 | 2026-10-20 | Closure: Web evidence refreshed (`EV-130`..`EV-135`), delivery disposition recorded, PR #68 published and its CI passed on `6e8bd773`; Evaluation and Spec set to `completed`. |
 | 2026-10-20 | Review cycle 1 on PR #68 (Codex review of `6e8bd773`): `FND-016` (size price without leading zero) and `FND-017` (local `SizeField` widget). Spec set to `open` (revision 4 unchanged), Evaluation to `in_progress`; routed to `implement-spec`. Delivery disposition unchanged: product behavior remains verified, both findings are evidence/structure gaps. |
 | 2026-10-20 | Review cycle 1 corrected (`FND-016`, `FND-017`); evidence `EV-140`..`EV-143` passed; Evaluation `ready`. |
+| 2026-10-20 | Review cycle 1 published (`6eeb37dd`), PR CI passed (`FND-018`, `FND-019` resolved); Evaluation and Spec set to `completed`. |

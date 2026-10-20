@@ -1,6 +1,6 @@
 ---
 title: Sale prices and sizes on product registration
-status: in_progress
+status: completed
 revision: 4
 source:
   type: issue
