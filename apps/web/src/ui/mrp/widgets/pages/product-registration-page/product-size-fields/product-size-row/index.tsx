@@ -1,20 +1,16 @@
 import type { ProductUnit } from '@scoops/core/mrp/domain/structures'
-import type { ReactNode } from 'react'
 
 import { Button } from '@/ui/shadcn/button'
 import { Input } from '@/ui/shadcn/input'
-import { Label } from '@/ui/shadcn/label'
 import { Icon } from '@/ui/shared/widgets/components/icon'
 
 import { AffixedInput } from '../../affixed-input'
 import type { SizeDraft, SizeFieldErrors } from '../../use-product-registration-page'
+import { SizeField } from './size-field'
 
 const ROW_CLASS =
   'relative grid min-w-0 gap-2.5 rounded-xl border border-border/60 p-2.5 sm:grid-cols-[minmax(0,1fr)_12.5rem_12.5rem_auto] sm:gap-2 sm:rounded-none sm:border-0 sm:p-0'
 const ROW_TITLE_CLASS = 'text-xs font-extrabold sm:hidden'
-const FIELD_CLASS = 'grid min-w-0 content-start gap-1.5'
-const LABEL_CLASS = 'text-xs font-semibold text-muted-foreground'
-const ERROR_CLASS = 'text-xs text-destructive'
 const NAME_INPUT_CLASS = 'h-10 rounded-xl px-3 text-sm'
 const REMOVE_BUTTON_CLASS =
   'absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground sm:static sm:mt-[1.375rem] sm:self-start'
@@ -106,24 +102,3 @@ export const ProductSizeRow = ({
     </fieldset>
   )
 }
-
-type SizeFieldProps = {
-  children: ReactNode
-  error?: string
-  id: string
-  label: string
-}
-
-const SizeField = ({ children, error, id, label }: SizeFieldProps) => (
-  <div className={FIELD_CLASS}>
-    <Label className={LABEL_CLASS} htmlFor={id}>
-      {label}
-    </Label>
-    {children}
-    {error ? (
-      <span className={ERROR_CLASS} id={`${id}-error`}>
-        {error}
-      </span>
-    ) : null}
-  </div>
-)

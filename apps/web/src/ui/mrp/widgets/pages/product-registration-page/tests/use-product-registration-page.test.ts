@@ -893,7 +893,7 @@ describe('useProductRegistrationPage', () => {
       act(() => result.current.sizeFields.onAddSize())
       act(() => result.current.sizeFields.onAddSize())
       fillRow(result, 0, { name: ' Pequeno ', quantity: '1,5', price: '12.50' })
-      fillRow(result, 2, { name: 'Grande', quantity: '2', price: '0' })
+      fillRow(result, 2, { name: 'Grande', quantity: '2', price: ',50' })
 
       await submit(result)
 
@@ -902,8 +902,21 @@ describe('useProductRegistrationPage', () => {
         categories: [ProductCategory.Portion],
         sizes: [
           { name: 'Pequeno', quantity: 1.5, price: 12.5 },
-          { name: 'Grande', quantity: 2, price: 0 },
+          { name: 'Grande', quantity: 2, price: 0.5 },
         ],
+      })
+    })
+
+    it('sends a zero size price', async () => {
+      const { registerProduct, result } = renderRegistration()
+      act(() => result.current.handleNameChange('Açaí'))
+      toggle(result, ProductCategory.Portion)
+      fillRow(result, 0, { name: 'Grande', quantity: '2', price: '0' })
+
+      await submit(result)
+
+      expect(sentInput(registerProduct)).toMatchObject({
+        sizes: [{ name: 'Grande', quantity: 2, price: 0 }],
       })
     })
 
