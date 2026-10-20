@@ -1,11 +1,11 @@
 {
-  "analysedAt": "2026-10-18T00:31:18.410Z",
-  "totalFiles": 1941,
-  "totalFunctions": 6576,
-  "warnCount": 1460,
-  "errorCount": 182,
-  "averageMI": 56.8,
-  "averageHealthScore": 71.3,
+  "analysedAt": "2026-10-20T14:02:17.917Z",
+  "totalFiles": 1972,
+  "totalFunctions": 6694,
+  "warnCount": 1482,
+  "errorCount": 181,
+  "averageMI": 56.9,
+  "averageHealthScore": 71.5,
   "clones": [
     {
       "similarity": 1,
@@ -24355,23 +24355,6 @@
       "similarity": 1,
       "blockA": {
         "filePath": "apps/web/src/provision/telemetry/posthog-product-telemetry-provider.ts",
-        "functionName": "createSanitizedCaptureResult",
-        "startLine": 1958,
-        "endLine": 1969,
-        "lines": 12
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
-        "functionName": "buildProductBrandInput",
-        "startLine": 55,
-        "endLine": 65,
-        "lines": 11
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/web/src/provision/telemetry/posthog-product-telemetry-provider.ts",
         "functionName": "createOnboardingTiming",
         "startLine": 2184,
         "endLine": 2189,
@@ -31909,23 +31892,6 @@
         "lines": 8
       },
       "blockB": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
-        "functionName": "getProductRegistrationBasics",
-        "startLine": 99,
-        "endLine": 104,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/web/src/ui/analytics/widgets/pages/dashboard-page/use-dashboard-page.ts",
-        "functionName": "createDashboardInteraction",
-        "startLine": 10,
-        "endLine": 17,
-        "lines": 8
-      },
-      "blockB": {
         "filePath": "packages/core/src/identity/use-cases/change-own-user-name-use-case.ts",
         "functionName": "toAccount",
         "startLine": 120,
@@ -32186,57 +32152,6 @@
         "startLine": 11,
         "endLine": 17,
         "lines": 7
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
-        "functionName": "getProductRegistrationBasics",
-        "startLine": 99,
-        "endLine": 104,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/change-own-user-name-use-case.ts",
-        "functionName": "toAccount",
-        "startLine": 120,
-        "endLine": 129,
-        "lines": 10
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
-        "functionName": "getProductRegistrationBasics",
-        "startLine": 99,
-        "endLine": 104,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/identity/use-cases/search-global-use-case.ts",
-        "functionName": "mapProviderResults",
-        "startLine": 141,
-        "endLine": 149,
-        "lines": 9
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
-        "functionName": "useProductRegistrationWorkflow",
-        "startLine": 244,
-        "endLine": 254,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/mrp/widgets/slots/product-recipe-slot/produce-product-dialog/use-production-workflow.ts",
-        "functionName": "useProductionWorkflowRef",
-        "startLine": 45,
-        "endLine": 55,
-        "lines": 11
       }
     },
     {
@@ -36118,57 +36033,6 @@
     {
       "similarity": 1,
       "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 154,
-        "endLine": 167,
-        "lines": 14
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/remove-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 110,
-        "endLine": 123,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 154,
-        "endLine": 167,
-        "lines": 14
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
-        "functionName": "validateResaleProduct",
-        "startLine": 195,
-        "endLine": 208,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 154,
-        "endLine": 167,
-        "lines": 14
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 186,
-        "endLine": 199,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/register-production-use-case.ts",
         "functionName": "validateInput",
         "startLine": 513,
@@ -36232,57 +36096,6 @@
         "startLine": 275,
         "endLine": 285,
         "lines": 11
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/remove-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 110,
-        "endLine": 123,
-        "lines": 14
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
-        "functionName": "validateResaleProduct",
-        "startLine": 195,
-        "endLine": 208,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/remove-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 110,
-        "endLine": 123,
-        "lines": 14
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 186,
-        "endLine": 199,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 1,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
-        "functionName": "validateResaleProduct",
-        "startLine": 195,
-        "endLine": 208,
-        "lines": 14
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 186,
-        "endLine": 199,
-        "lines": 14
       }
     },
     {
@@ -40188,91 +40001,6 @@
         "lines": 11
       },
       "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 154,
-        "endLine": 167,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 219,
-        "endLine": 229,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/remove-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 110,
-        "endLine": 123,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 219,
-        "endLine": 229,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
-        "functionName": "validateResaleProduct",
-        "startLine": 195,
-        "endLine": 208,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 219,
-        "endLine": 229,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 186,
-        "endLine": 199,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 274,
-        "endLine": 284,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 154,
-        "endLine": 167,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 274,
-        "endLine": 284,
-        "lines": 11
-      },
-      "blockB": {
         "filePath": "packages/core/src/mrp/use-cases/remove-product-size-use-case.ts",
         "functionName": "validatePortionProduct",
         "startLine": 110,
@@ -40290,44 +40018,10 @@
         "lines": 11
       },
       "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
-        "functionName": "validateResaleProduct",
-        "startLine": 195,
-        "endLine": 208,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 274,
-        "endLine": 284,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
+        "filePath": "packages/core/src/mrp/use-cases/remove-product-size-use-case.ts",
         "functionName": "validatePortionProduct",
-        "startLine": 186,
-        "endLine": 199,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/list-product-accompaniment-candidates-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 133,
-        "endLine": 143,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 154,
-        "endLine": 167,
+        "startLine": 110,
+        "endLine": 123,
         "lines": 14
       }
     },
@@ -40351,74 +40045,6 @@
     {
       "similarity": 0.929,
       "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/list-product-accompaniment-candidates-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 133,
-        "endLine": 143,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
-        "functionName": "validateResaleProduct",
-        "startLine": 195,
-        "endLine": 208,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/list-product-accompaniment-candidates-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 133,
-        "endLine": 143,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 186,
-        "endLine": 199,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 154,
-        "endLine": 167,
-        "lines": 14
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/remove-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 116,
-        "endLine": 126,
-        "lines": 11
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 154,
-        "endLine": 167,
-        "lines": 14
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 275,
-        "endLine": 285,
-        "lines": 11
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
         "filePath": "packages/core/src/mrp/use-cases/remove-product-accompaniment-use-case.ts",
         "functionName": "validateOwner",
         "startLine": 116,
@@ -40430,40 +40056,6 @@
         "functionName": "validatePortionProduct",
         "startLine": 110,
         "endLine": 123,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/remove-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 116,
-        "endLine": 126,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
-        "functionName": "validateResaleProduct",
-        "startLine": 195,
-        "endLine": 208,
-        "lines": 14
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/remove-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 116,
-        "endLine": 126,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 186,
-        "endLine": 199,
         "lines": 14
       }
     },
@@ -40482,40 +40074,6 @@
         "startLine": 275,
         "endLine": 285,
         "lines": 11
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
-        "functionName": "validateResaleProduct",
-        "startLine": 195,
-        "endLine": 208,
-        "lines": 14
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 275,
-        "endLine": 285,
-        "lines": 11
-      }
-    },
-    {
-      "similarity": 0.929,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
-        "functionName": "validateOwner",
-        "startLine": 275,
-        "endLine": 285,
-        "lines": 11
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
-        "functionName": "validatePortionProduct",
-        "startLine": 186,
-        "endLine": 199,
-        "lines": 14
       }
     },
     {
@@ -46182,23 +45740,6 @@
     {
       "similarity": 0.9,
       "blockA": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/product-registration-form/index.tsx",
-        "functionName": "CategoryGuidanceHelp",
-        "startLine": 213,
-        "endLine": 224,
-        "lines": 12
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/product-stock-control-card/index.tsx",
-        "functionName": "StockControlGuidanceHelp",
-        "startLine": 143,
-        "endLine": 153,
-        "lines": 11
-      }
-    },
-    {
-      "similarity": 0.9,
-      "blockA": {
         "filePath": "apps/web/src/ui/mrp/widgets/slots/product-accompaniments-slot/accompaniments-empty-state/index.tsx",
         "functionName": "AccompanimentsEmptyState",
         "startLine": 8,
@@ -46347,23 +45888,6 @@
         "startLine": 8,
         "endLine": 23,
         "lines": 16
-      }
-    },
-    {
-      "similarity": 0.9,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/register-product-use-case.ts",
-        "functionName": "execute",
-        "startLine": 37,
-        "endLine": 42,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/register-production-use-case.ts",
-        "functionName": "execute",
-        "startLine": 57,
-        "endLine": 64,
-        "lines": 8
       }
     },
     {
@@ -52761,74 +52285,6 @@
     {
       "similarity": 0.889,
       "blockA": {
-        "filePath": "apps/web/src/ui/communication/widgets/components/notification-toast/use-notification-toast.ts",
-        "functionName": "useNotificationToastHandlers",
-        "startLine": 44,
-        "endLine": 49,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
-        "functionName": "getProductRegistrationSettings",
-        "startLine": 106,
-        "endLine": 111,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 0.889,
-      "blockA": {
-        "filePath": "apps/web/src/ui/communication/widgets/components/notification-toast/use-notification-toast.ts",
-        "functionName": "useNotificationToastHandlers",
-        "startLine": 44,
-        "endLine": 49,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
-        "functionName": "getProductRegistrationStockInput",
-        "startLine": 113,
-        "endLine": 122,
-        "lines": 10
-      }
-    },
-    {
-      "similarity": 0.889,
-      "blockA": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
-        "functionName": "getProductRegistrationSettings",
-        "startLine": 106,
-        "endLine": 111,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/stock-adjustment-dialog/use-stock-adjustment-form.ts",
-        "functionName": "getStockAdjustmentFormOptions",
-        "startLine": 32,
-        "endLine": 37,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 0.889,
-      "blockA": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
-        "functionName": "getProductRegistrationStockInput",
-        "startLine": 113,
-        "endLine": 122,
-        "lines": 10
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/stock-adjustment-dialog/use-stock-adjustment-form.ts",
-        "functionName": "getStockAdjustmentFormOptions",
-        "startLine": 32,
-        "endLine": 37,
-        "lines": 6
-      }
-    },
-    {
-      "similarity": 0.889,
-      "blockA": {
         "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/use-stock-workflow-tracker.ts",
         "functionName": "useStockAnalyticsRef",
         "startLine": 70,
@@ -54915,23 +54371,6 @@
         "startLine": 8,
         "endLine": 15,
         "lines": 8
-      }
-    },
-    {
-      "similarity": 0.864,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
-        "functionName": "validateInput",
-        "startLine": 127,
-        "endLine": 151,
-        "lines": 25
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
-        "functionName": "validateInput",
-        "startLine": 156,
-        "endLine": 183,
-        "lines": 28
       }
     },
     {
@@ -58927,23 +58366,6 @@
         "startLine": 243,
         "endLine": 267,
         "lines": 25
-      }
-    },
-    {
-      "similarity": 0.837,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/change-product-unit-use-case.ts",
-        "functionName": "execute",
-        "startLine": 30,
-        "endLine": 111,
-        "lines": 82
-      },
-      "blockB": {
-        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
-        "functionName": "execute",
-        "startLine": 39,
-        "endLine": 133,
-        "lines": 95
       }
     },
     {
@@ -63146,23 +62568,6 @@
       }
     },
     {
-      "similarity": 0.826,
-      "blockA": {
-        "filePath": "packages/core/src/mrp/use-cases/register-product-use-case.ts",
-        "functionName": "execute",
-        "startLine": 37,
-        "endLine": 42,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "packages/core/src/pdv/use-cases/register-order-use-case.ts",
-        "functionName": "execute",
-        "startLine": 88,
-        "endLine": 94,
-        "lines": 7
-      }
-    },
-    {
       "similarity": 0.825,
       "blockA": {
         "filePath": "apps/web/src/ui/identity/hooks/use-change-establishment-name-action.ts",
@@ -64367,23 +63772,6 @@
         "startLine": 34,
         "endLine": 39,
         "lines": 6
-      }
-    },
-    {
-      "similarity": 0.818,
-      "blockA": {
-        "filePath": "apps/web/src/provision/telemetry/posthog-product-telemetry-provider.ts",
-        "functionName": "createWorkflowObservationState",
-        "startLine": 1054,
-        "endLine": 1066,
-        "lines": 13
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-page.ts",
-        "functionName": "createBrandDraft",
-        "startLine": 41,
-        "endLine": 51,
-        "lines": 11
       }
     },
     {
@@ -68843,23 +68231,6 @@
     {
       "similarity": 0.8,
       "blockA": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
-        "functionName": "getProductRegistrationSettings",
-        "startLine": 106,
-        "endLine": 111,
-        "lines": 6
-      },
-      "blockB": {
-        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
-        "functionName": "getProductRegistrationStockInput",
-        "startLine": 113,
-        "endLine": 122,
-        "lines": 10
-      }
-    },
-    {
-      "similarity": 0.8,
-      "blockA": {
         "filePath": "apps/web/src/ui/communication/widgets/components/notification-dropdown/notification-dropdown-content/index.tsx",
         "functionName": "NotificationDropdownContent",
         "startLine": 12,
@@ -70215,6 +69586,652 @@
         "startLine": 8,
         "endLine": 26,
         "lines": 19
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/web/src/provision/telemetry/posthog-product-telemetry-provider.ts",
+        "functionName": "createSanitizedCaptureResult",
+        "startLine": 1958,
+        "endLine": 1969,
+        "lines": 12
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "buildProductBrandInput",
+        "startLine": 59,
+        "endLine": 69,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/web/src/provision/telemetry/posthog-product-telemetry-provider.ts",
+        "functionName": "createSanitizedCaptureResult",
+        "startLine": 1958,
+        "endLine": 1969,
+        "lines": 12
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getProductRegistrationCatalogInput",
+        "startLine": 153,
+        "endLine": 165,
+        "lines": 13
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "buildProductBrandInput",
+        "startLine": 59,
+        "endLine": 69,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getProductRegistrationCatalogInput",
+        "startLine": 153,
+        "endLine": 165,
+        "lines": 13
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getResalePriceInput",
+        "startLine": 106,
+        "endLine": 111,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getAccompanimentPriceInput",
+        "startLine": 113,
+        "endLine": 118,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "useProductRegistrationWorkflow",
+        "startLine": 335,
+        "endLine": 345,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/slots/product-recipe-slot/produce-product-dialog/use-production-workflow.ts",
+        "functionName": "useProductionWorkflowRef",
+        "startLine": 45,
+        "endLine": 55,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 140,
+        "endLine": 153,
+        "lines": 14
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/remove-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 110,
+        "endLine": 123,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 140,
+        "endLine": 153,
+        "lines": 14
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
+        "functionName": "validateResaleProduct",
+        "startLine": 194,
+        "endLine": 207,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 140,
+        "endLine": 153,
+        "lines": 14
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 172,
+        "endLine": 185,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/remove-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 110,
+        "endLine": 123,
+        "lines": 14
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
+        "functionName": "validateResaleProduct",
+        "startLine": 194,
+        "endLine": 207,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/remove-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 110,
+        "endLine": 123,
+        "lines": 14
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 172,
+        "endLine": 185,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
+        "functionName": "validateResaleProduct",
+        "startLine": 194,
+        "endLine": 207,
+        "lines": 14
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 172,
+        "endLine": 185,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 1,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/domain/strategies/accompaniment-price-validation-strategy.ts",
+        "functionName": "isValid",
+        "startLine": 14,
+        "endLine": 20,
+        "lines": 7
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/domain/strategies/resale-price-validation-strategy.ts",
+        "functionName": "execute",
+        "startLine": 9,
+        "endLine": 15,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 219,
+        "endLine": 229,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 140,
+        "endLine": 153,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 219,
+        "endLine": 229,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
+        "functionName": "validateResaleProduct",
+        "startLine": 194,
+        "endLine": 207,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/get-product-accompaniments-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 219,
+        "endLine": 229,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 172,
+        "endLine": 185,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 274,
+        "endLine": 284,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 140,
+        "endLine": 153,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 274,
+        "endLine": 284,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
+        "functionName": "validateResaleProduct",
+        "startLine": 194,
+        "endLine": 207,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/link-product-accompaniment-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 274,
+        "endLine": 284,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 172,
+        "endLine": 185,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/list-product-accompaniment-candidates-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 133,
+        "endLine": 143,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 140,
+        "endLine": 153,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/list-product-accompaniment-candidates-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 133,
+        "endLine": 143,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
+        "functionName": "validateResaleProduct",
+        "startLine": 194,
+        "endLine": 207,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/list-product-accompaniment-candidates-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 133,
+        "endLine": 143,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 172,
+        "endLine": 185,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 140,
+        "endLine": 153,
+        "lines": 14
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/remove-product-accompaniment-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 116,
+        "endLine": 126,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/register-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 140,
+        "endLine": 153,
+        "lines": 14
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 275,
+        "endLine": 285,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/remove-product-accompaniment-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 116,
+        "endLine": 126,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
+        "functionName": "validateResaleProduct",
+        "startLine": 194,
+        "endLine": 207,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/remove-product-accompaniment-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 116,
+        "endLine": 126,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 172,
+        "endLine": 185,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
+        "functionName": "validateResaleProduct",
+        "startLine": 194,
+        "endLine": 207,
+        "lines": 14
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 275,
+        "endLine": 285,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 0.929,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-accompaniment-use-case.ts",
+        "functionName": "validateOwner",
+        "startLine": 275,
+        "endLine": 285,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/update-product-size-use-case.ts",
+        "functionName": "validatePortionProduct",
+        "startLine": 172,
+        "endLine": 185,
+        "lines": 14
+      }
+    },
+    {
+      "similarity": 0.9,
+      "blockA": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/product-registration-form/index.tsx",
+        "functionName": "CategoryGuidanceHelp",
+        "startLine": 236,
+        "endLine": 247,
+        "lines": 12
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/product-stock-control-card/index.tsx",
+        "functionName": "StockControlGuidanceHelp",
+        "startLine": 143,
+        "endLine": 153,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 0.9,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/register-product-use-case.ts",
+        "functionName": "execute",
+        "startLine": 60,
+        "endLine": 65,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/register-production-use-case.ts",
+        "functionName": "execute",
+        "startLine": 57,
+        "endLine": 64,
+        "lines": 8
+      }
+    },
+    {
+      "similarity": 0.889,
+      "blockA": {
+        "filePath": "apps/web/src/ui/communication/widgets/components/notification-toast/use-notification-toast.ts",
+        "functionName": "useNotificationToastHandlers",
+        "startLine": 44,
+        "endLine": 49,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getProductRegistrationSettings",
+        "startLine": 167,
+        "endLine": 172,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 0.889,
+      "blockA": {
+        "filePath": "apps/web/src/ui/communication/widgets/components/notification-toast/use-notification-toast.ts",
+        "functionName": "useNotificationToastHandlers",
+        "startLine": 44,
+        "endLine": 49,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getProductRegistrationStockInput",
+        "startLine": 174,
+        "endLine": 183,
+        "lines": 10
+      }
+    },
+    {
+      "similarity": 0.889,
+      "blockA": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getProductRegistrationSettings",
+        "startLine": 167,
+        "endLine": 172,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/stock-adjustment-dialog/use-stock-adjustment-form.ts",
+        "functionName": "getStockAdjustmentFormOptions",
+        "startLine": 32,
+        "endLine": 37,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 0.889,
+      "blockA": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getProductRegistrationStockInput",
+        "startLine": 174,
+        "endLine": 183,
+        "lines": 10
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/slots/product-stock-slot/stock-adjustment-dialog/use-stock-adjustment-form.ts",
+        "functionName": "getStockAdjustmentFormOptions",
+        "startLine": 32,
+        "endLine": 37,
+        "lines": 6
+      }
+    },
+    {
+      "similarity": 0.864,
+      "blockA": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getProductBrandFieldErrors",
+        "startLine": 223,
+        "endLine": 233,
+        "lines": 11
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getProductSizeFieldErrors",
+        "startLine": 237,
+        "endLine": 247,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 0.837,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/change-product-unit-use-case.ts",
+        "functionName": "execute",
+        "startLine": 30,
+        "endLine": 111,
+        "lines": 82
+      },
+      "blockB": {
+        "filePath": "packages/core/src/mrp/use-cases/save-product-resale-configuration-use-case.ts",
+        "functionName": "execute",
+        "startLine": 42,
+        "endLine": 136,
+        "lines": 95
+      }
+    },
+    {
+      "similarity": 0.826,
+      "blockA": {
+        "filePath": "packages/core/src/mrp/use-cases/register-product-use-case.ts",
+        "functionName": "execute",
+        "startLine": 60,
+        "endLine": 65,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "packages/core/src/pdv/use-cases/register-order-use-case.ts",
+        "functionName": "execute",
+        "startLine": 88,
+        "endLine": 94,
+        "lines": 7
+      }
+    },
+    {
+      "similarity": 0.818,
+      "blockA": {
+        "filePath": "apps/web/src/provision/telemetry/posthog-product-telemetry-provider.ts",
+        "functionName": "createWorkflowObservationState",
+        "startLine": 1054,
+        "endLine": 1066,
+        "lines": 13
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-page.ts",
+        "functionName": "createBrandDraft",
+        "startLine": 67,
+        "endLine": 77,
+        "lines": 11
+      }
+    },
+    {
+      "similarity": 0.8,
+      "blockA": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getProductRegistrationSettings",
+        "startLine": 167,
+        "endLine": 172,
+        "lines": 6
+      },
+      "blockB": {
+        "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+        "functionName": "getProductRegistrationStockInput",
+        "startLine": 174,
+        "endLine": 183,
+        "lines": 10
       }
     }
   ],
@@ -107759,12 +107776,12 @@
       "functions": [
         {
           "name": "ProductRegistrationPage",
-          "startLine": 8,
-          "endLine": 103,
+          "startLine": 9,
+          "endLine": 119,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 3,
+              "value": 4,
               "threshold": 15,
               "severity": "ok"
             },
@@ -107776,7 +107793,7 @@
             },
             {
               "name": "functionLength",
-              "value": 96,
+              "value": 111,
               "threshold": 70,
               "severity": "error"
             },
@@ -107788,27 +107805,27 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 624.16,
+              "value": 799.93,
               "threshold": 800,
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 36.8,
+          "maintainabilityIndex": 34.5,
           "maintainabilityRating": "warn",
-          "healthScore": 64,
+          "healthScore": 60,
           "smells": [
             {
               "id": "bloated",
               "label": "Bloated",
-              "reason": "Large function (96 lines) with high vocabulary (Halstead volume 624.16) but low branching — consider extracting helpers."
+              "reason": "Large function (111 lines) with high vocabulary (Halstead volume 799.93) but low branching — consider extracting helpers."
             }
           ]
         }
       ],
       "summary": {
-        "totalLines": 104,
-        "weightedMI": 36.8,
-        "weightedHealthScore": 64,
+        "totalLines": 120,
+        "weightedMI": 34.5,
+        "weightedHealthScore": 60,
         "worstSeverity": "error",
         "smellIds": [
           "bloated"
@@ -107820,12 +107837,12 @@
       "functions": [
         {
           "name": "useProductRegistrationPage",
-          "startLine": 57,
-          "endLine": 277,
+          "startLine": 83,
+          "endLine": 363,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 21,
+              "value": 22,
               "threshold": 15,
               "severity": "error"
             },
@@ -107837,7 +107854,7 @@
             },
             {
               "name": "functionLength",
-              "value": 221,
+              "value": 281,
               "threshold": 70,
               "severity": "error"
             },
@@ -107849,20 +107866,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 1040.29,
+              "value": 1671.85,
               "threshold": 800,
               "severity": "error"
             }
           ],
-          "maintainabilityIndex": 24.9,
+          "maintainabilityIndex": 21.1,
           "maintainabilityRating": "warn",
-          "healthScore": 40,
+          "healthScore": 39,
           "smells": []
         },
         {
           "name": "handleProductCategoryToggle",
-          "startLine": 137,
-          "endLine": 159,
+          "startLine": 182,
+          "endLine": 204,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -107902,8 +107919,8 @@
         },
         {
           "name": "handleStockControlChange",
-          "startLine": 161,
-          "endLine": 170,
+          "startLine": 206,
+          "endLine": 215,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -107943,8 +107960,8 @@
         },
         {
           "name": "handleRemoveBrand",
-          "startLine": 207,
-          "endLine": 215,
+          "startLine": 260,
+          "endLine": 268,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -107984,8 +108001,8 @@
         },
         {
           "name": "handleRegister",
-          "startLine": 226,
-          "endLine": 241,
+          "startLine": 300,
+          "endLine": 315,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -108025,9 +108042,9 @@
         }
       ],
       "summary": {
-        "totalLines": 278,
-        "weightedMI": 43.1,
-        "weightedHealthScore": 58.3,
+        "totalLines": 364,
+        "weightedMI": 40.6,
+        "weightedHealthScore": 57.5,
         "worstSeverity": "error",
         "smellIds": []
       }
@@ -114866,8 +114883,8 @@
       "functions": [
         {
           "name": "ProductRegistrationForm",
-          "startLine": 88,
-          "endLine": 202,
+          "startLine": 95,
+          "endLine": 225,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -114895,20 +114912,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 457.69,
+              "value": 519.21,
               "threshold": 800,
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 80,
+          "maintainabilityIndex": 79.6,
           "maintainabilityRating": "ok",
           "healthScore": 75,
           "smells": []
         },
         {
           "name": "<anonymous>",
-          "startLine": 154,
-          "endLine": 181,
+          "startLine": 167,
+          "endLine": 194,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -114948,9 +114965,9 @@
         }
       ],
       "summary": {
-        "totalLines": 225,
-        "weightedMI": 74.8,
-        "weightedHealthScore": 77.6,
+        "totalLines": 248,
+        "weightedMI": 75,
+        "weightedHealthScore": 77.4,
         "worstSeverity": "warn",
         "smellIds": []
       }
@@ -126309,59 +126326,6 @@
       }
     },
     {
-      "filePath": "apps/web/src/ui/shared/widgets/layouts/app-layout/sidebar/sidebar-navigation/index.tsx",
-      "functions": [
-        {
-          "name": "SidebarNavigation",
-          "startLine": 14,
-          "endLine": 39,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 1,
-              "threshold": 15,
-              "severity": "ok"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 0,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 20,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 0,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 49.83,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 59.6,
-          "maintainabilityRating": "warn",
-          "healthScore": 86,
-          "smells": []
-        }
-      ],
-      "summary": {
-        "totalLines": 40,
-        "weightedMI": 68.3,
-        "weightedHealthScore": 88.8,
-        "worstSeverity": "warn",
-        "smellIds": []
-      }
-    },
-    {
       "filePath": "apps/web/src/ui/identity/widgets/pages/landing-page/showcase/panel/view/index.tsx",
       "functions": [
         {
@@ -136842,8 +136806,8 @@
       "functions": [
         {
           "name": "execute",
-          "startLine": 35,
-          "endLine": 119,
+          "startLine": 41,
+          "endLine": 125,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -136883,8 +136847,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 40,
-          "endLine": 116,
+          "startLine": 46,
+          "endLine": 122,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -136929,56 +136893,9 @@
           ]
         },
         {
-          "name": "validateInput",
-          "startLine": 127,
-          "endLine": 151,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 9,
-              "threshold": 15,
-              "severity": "warn"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 8,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 25,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 352.53,
-              "threshold": 800,
-              "severity": "ok"
-            }
-          ],
-          "maintainabilityIndex": 50.5,
-          "maintainabilityRating": "warn",
-          "healthScore": 57,
-          "smells": [
-            {
-              "id": "fragile",
-              "label": "Fragile",
-              "reason": "High cyclomatic complexity (9) with low MI (50.5) — many branches and hard to maintain safely."
-            }
-          ]
-        },
-        {
           "name": "validatePortionProduct",
-          "startLine": 154,
-          "endLine": 167,
+          "startLine": 140,
+          "endLine": 153,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137018,13 +136935,12 @@
         }
       ],
       "summary": {
-        "totalLines": 180,
-        "weightedMI": 47.1,
-        "weightedHealthScore": 67.9,
+        "totalLines": 158,
+        "weightedMI": 46.4,
+        "weightedHealthScore": 69,
         "worstSeverity": "error",
         "smellIds": [
-          "bloated",
-          "fragile"
+          "bloated"
         ]
       }
     },
@@ -137033,8 +136949,8 @@
       "functions": [
         {
           "name": "register",
-          "startLine": 44,
-          "endLine": 60,
+          "startLine": 67,
+          "endLine": 85,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137050,7 +136966,7 @@
             },
             {
               "name": "functionLength",
-              "value": 14,
+              "value": 16,
               "threshold": 70,
               "severity": "ok"
             },
@@ -137062,24 +136978,24 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 266.89,
+              "value": 339,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 57.6,
+          "maintainabilityIndex": 55.6,
           "maintainabilityRating": "warn",
-          "healthScore": 76,
+          "healthScore": 75,
           "smells": []
         },
         {
           "name": "createProduct",
-          "startLine": 62,
-          "endLine": 88,
+          "startLine": 87,
+          "endLine": 116,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 4,
+              "value": 5,
               "threshold": 15,
               "severity": "ok"
             },
@@ -137091,7 +137007,7 @@
             },
             {
               "name": "functionLength",
-              "value": 24,
+              "value": 27,
               "threshold": 70,
               "severity": "ok"
             },
@@ -137103,20 +137019,102 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 435.99,
+              "value": 496.31,
               "threshold": 800,
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 50.9,
+          "maintainabilityIndex": 49.2,
           "maintainabilityRating": "warn",
-          "healthScore": 71,
+          "healthScore": 68,
+          "smells": []
+        },
+        {
+          "name": "addResaleConfiguration",
+          "startLine": 118,
+          "endLine": 131,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 2,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 10,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 129.66,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 63.1,
+          "maintainabilityRating": "warn",
+          "healthScore": 83,
+          "smells": []
+        },
+        {
+          "name": "addSizes",
+          "startLine": 133,
+          "endLine": 148,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 3,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 2,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 12,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 178.38,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 60.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 79,
           "smells": []
         },
         {
           "name": "publishCreation",
-          "startLine": 90,
-          "endLine": 115,
+          "startLine": 150,
+          "endLine": 175,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137156,8 +137154,8 @@
         },
         {
           "name": "addGlobalRows",
-          "startLine": 117,
-          "endLine": 133,
+          "startLine": 177,
+          "endLine": 193,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137197,8 +137195,8 @@
         },
         {
           "name": "recordSingleStock",
-          "startLine": 135,
-          "endLine": 159,
+          "startLine": 195,
+          "endLine": 219,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137238,8 +137236,8 @@
         },
         {
           "name": "recordBrandStock",
-          "startLine": 161,
-          "endLine": 186,
+          "startLine": 221,
+          "endLine": 246,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137279,8 +137277,8 @@
         },
         {
           "name": "recordBrandInitialStock",
-          "startLine": 188,
-          "endLine": 213,
+          "startLine": 248,
+          "endLine": 273,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137319,9 +137317,50 @@
           "smells": []
         },
         {
+          "name": "validateInput",
+          "startLine": 281,
+          "endLine": 290,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 10,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 110.7,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 63.7,
+          "maintainabilityRating": "warn",
+          "healthScore": 88,
+          "smells": []
+        },
+        {
           "name": "validateCategories",
-          "startLine": 234,
-          "endLine": 259,
+          "startLine": 296,
+          "endLine": 321,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137367,8 +137406,8 @@
         },
         {
           "name": "validateStock",
-          "startLine": 261,
-          "endLine": 275,
+          "startLine": 323,
+          "endLine": 337,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137408,8 +137447,8 @@
         },
         {
           "name": "validateCurrentUnitCost",
-          "startLine": 277,
-          "endLine": 296,
+          "startLine": 339,
+          "endLine": 358,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137448,9 +137487,132 @@
           "smells": []
         },
         {
+          "name": "validateSalePrices",
+          "startLine": 360,
+          "endLine": 377,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 3,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 2,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 18,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 208.15,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 56,
+          "maintainabilityRating": "warn",
+          "healthScore": 77,
+          "smells": []
+        },
+        {
+          "name": "validateSizes",
+          "startLine": 379,
+          "endLine": 396,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 7,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 7,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 18,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 2,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 326.98,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 54.1,
+          "maintainabilityRating": "warn",
+          "healthScore": 61,
+          "smells": []
+        },
+        {
+          "name": "requireSalePriceTarget",
+          "startLine": 398,
+          "endLine": 410,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 4,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 3,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 10,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 155.59,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 62.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 77,
+          "smells": []
+        },
+        {
           "name": "validateBrandConfiguration",
-          "startLine": 298,
-          "endLine": 320,
+          "startLine": 416,
+          "endLine": 438,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137490,8 +137652,8 @@
         },
         {
           "name": "validateBrand",
-          "startLine": 328,
-          "endLine": 343,
+          "startLine": 446,
+          "endLine": 461,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -137537,9 +137699,9 @@
         }
       ],
       "summary": {
-        "totalLines": 349,
-        "weightedMI": 56.5,
-        "weightedHealthScore": 72.9,
+        "totalLines": 467,
+        "weightedMI": 57,
+        "weightedHealthScore": 73.3,
         "worstSeverity": "warn",
         "smellIds": [
           "fragile"
@@ -139018,8 +139180,8 @@
       "functions": [
         {
           "name": "execute",
-          "startLine": 39,
-          "endLine": 133,
+          "startLine": 42,
+          "endLine": 136,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -139059,8 +139221,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 44,
-          "endLine": 130,
+          "startLine": 47,
+          "endLine": 133,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -139116,8 +139278,8 @@
         },
         {
           "name": "saveConfiguration",
-          "startLine": 135,
-          "endLine": 171,
+          "startLine": 138,
+          "endLine": 174,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -139157,24 +139319,24 @@
         },
         {
           "name": "validateInput",
-          "startLine": 179,
-          "endLine": 192,
+          "startLine": 182,
+          "endLine": 191,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
-              "value": 5,
+              "value": 3,
               "threshold": 15,
               "severity": "ok"
             },
             {
               "name": "cognitiveComplexity",
-              "value": 4,
+              "value": 2,
               "threshold": 25,
               "severity": "ok"
             },
             {
               "name": "functionLength",
-              "value": 14,
+              "value": 10,
               "threshold": 70,
               "severity": "ok"
             },
@@ -139186,20 +139348,20 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 162.52,
+              "value": 102.19,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 58.8,
+          "maintainabilityIndex": 63.7,
           "maintainabilityRating": "warn",
-          "healthScore": 73,
+          "healthScore": 81,
           "smells": []
         },
         {
           "name": "validateResaleProduct",
-          "startLine": 195,
-          "endLine": 208,
+          "startLine": 194,
+          "endLine": 207,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -139239,9 +139401,9 @@
         }
       ],
       "summary": {
-        "totalLines": 213,
-        "weightedMI": 44.6,
-        "weightedHealthScore": 54.2,
+        "totalLines": 208,
+        "weightedMI": 44.1,
+        "weightedHealthScore": 53.8,
         "worstSeverity": "error",
         "smellIds": [
           "incomprehensible",
@@ -140310,8 +140472,8 @@
       "functions": [
         {
           "name": "execute",
-          "startLine": 34,
-          "endLine": 148,
+          "startLine": 40,
+          "endLine": 154,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -140351,8 +140513,8 @@
         },
         {
           "name": "<anonymous>",
-          "startLine": 39,
-          "endLine": 145,
+          "startLine": 45,
+          "endLine": 151,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -140391,56 +140553,9 @@
           "smells": []
         },
         {
-          "name": "validateInput",
-          "startLine": 156,
-          "endLine": 183,
-          "metrics": [
-            {
-              "name": "cyclomaticComplexity",
-              "value": 10,
-              "threshold": 15,
-              "severity": "warn"
-            },
-            {
-              "name": "cognitiveComplexity",
-              "value": 9,
-              "threshold": 25,
-              "severity": "ok"
-            },
-            {
-              "name": "functionLength",
-              "value": 28,
-              "threshold": 70,
-              "severity": "ok"
-            },
-            {
-              "name": "nestingDepth",
-              "value": 1,
-              "threshold": 4,
-              "severity": "ok"
-            },
-            {
-              "name": "halsteadVolume",
-              "value": 426.06,
-              "threshold": 800,
-              "severity": "warn"
-            }
-          ],
-          "maintainabilityIndex": 48.7,
-          "maintainabilityRating": "warn",
-          "healthScore": 53,
-          "smells": [
-            {
-              "id": "fragile",
-              "label": "Fragile",
-              "reason": "High cyclomatic complexity (10) with low MI (48.7) — many branches and hard to maintain safely."
-            }
-          ]
-        },
-        {
           "name": "validatePortionProduct",
-          "startLine": 186,
-          "endLine": 199,
+          "startLine": 172,
+          "endLine": 185,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -140480,13 +140595,11 @@
         }
       ],
       "summary": {
-        "totalLines": 212,
-        "weightedMI": 42.3,
+        "totalLines": 190,
+        "weightedMI": 41.6,
         "weightedHealthScore": 53.2,
         "worstSeverity": "error",
-        "smellIds": [
-          "fragile"
-        ]
+        "smellIds": []
       }
     },
     {
@@ -146513,8 +146626,8 @@
       "functions": [
         {
           "name": "<anonymous>",
-          "startLine": 26,
-          "endLine": 76,
+          "startLine": 32,
+          "endLine": 82,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -146565,7 +146678,7 @@
         }
       ],
       "summary": {
-        "totalLines": 82,
+        "totalLines": 88,
         "weightedMI": 43.6,
         "weightedHealthScore": 29.1,
         "worstSeverity": "error",
@@ -146796,8 +146909,8 @@
       "functions": [
         {
           "name": "<anonymous>",
-          "startLine": 49,
-          "endLine": 113,
+          "startLine": 97,
+          "endLine": 164,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -146813,7 +146926,7 @@
             },
             {
               "name": "functionLength",
-              "value": 65,
+              "value": 68,
               "threshold": 70,
               "severity": "warn"
             },
@@ -146825,26 +146938,26 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 488.4,
+              "value": 537.67,
               "threshold": 800,
               "severity": "warn"
             }
           ],
-          "maintainabilityIndex": 39.6,
+          "maintainabilityIndex": 38.9,
           "maintainabilityRating": "warn",
-          "healthScore": 29,
+          "healthScore": 27,
           "smells": [
             {
               "id": "god-function",
               "label": "God Function",
-              "reason": "High cyclomatic complexity (15), long body (65 lines), and deep nesting (3) — likely doing too many things."
+              "reason": "High cyclomatic complexity (15), long body (68 lines), and deep nesting (3) — likely doing too many things."
             }
           ]
         },
         {
           "name": "<anonymous>",
-          "startLine": 75,
-          "endLine": 111,
+          "startLine": 126,
+          "endLine": 162,
           "metrics": [
             {
               "name": "cyclomaticComplexity",
@@ -146881,12 +146994,217 @@
           "maintainabilityRating": "warn",
           "healthScore": 51,
           "smells": []
+        },
+        {
+          "name": "isSalePriceVisible",
+          "startLine": 183,
+          "endLine": 196,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 4,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 3,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 11,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 126.71,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 62,
+          "maintainabilityRating": "warn",
+          "healthScore": 79,
+          "smells": []
+        },
+        {
+          "name": "validateSalePrices",
+          "startLine": 198,
+          "endLine": 207,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 5,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 5,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 10,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 2,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 257.47,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 60.6,
+          "maintainabilityRating": "warn",
+          "healthScore": 70,
+          "smells": []
+        },
+        {
+          "name": "validateSizes",
+          "startLine": 215,
+          "endLine": 244,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 6,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 27,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 82.04,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 54.6,
+          "maintainabilityRating": "warn",
+          "healthScore": 71,
+          "smells": []
+        },
+        {
+          "name": "<anonymous>",
+          "startLine": 222,
+          "endLine": 243,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 5,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 4,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 22,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 353.3,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 52.2,
+          "maintainabilityRating": "warn",
+          "healthScore": 69,
+          "smells": []
+        },
+        {
+          "name": "getInvalidSizeFields",
+          "startLine": 250,
+          "endLine": 269,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 3,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 2,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 20,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 432.66,
+              "threshold": 800,
+              "severity": "warn"
+            }
+          ],
+          "maintainabilityIndex": 52.8,
+          "maintainabilityRating": "warn",
+          "healthScore": 77,
+          "smells": []
         }
       ],
       "summary": {
-        "totalLines": 129,
-        "weightedMI": 46.9,
-        "weightedHealthScore": 43.7,
+        "totalLines": 270,
+        "weightedMI": 51.7,
+        "weightedHealthScore": 57.4,
         "worstSeverity": "warn",
         "smellIds": [
           "god-function"
@@ -147624,11 +147942,170 @@
       }
     },
     {
+      "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/product-registration-form/product-sale-price-fields/index.tsx",
+      "functions": [
+        {
+          "name": "ProductSalePriceFields",
+          "startLine": 20,
+          "endLine": 49,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 5,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 2,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 30,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 262.37,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 50.2,
+          "maintainabilityRating": "warn",
+          "healthScore": 69,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 50,
+        "weightedMI": 50.2,
+        "weightedHealthScore": 69,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
       "filePath": "apps/web/src/ui/pdv/hooks/use-catalog-query.ts",
       "functions": [
         {
           "name": "useCatalogQuery",
-          "startLine": 11,
+          "startLine": 29,
+          "endLine": 57,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 3,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 24,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 252.62,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 52.7,
+          "maintainabilityRating": "warn",
+          "healthScore": 78,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 58,
+        "weightedMI": 62.5,
+        "weightedHealthScore": 82.3,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/shared/widgets/layouts/app-layout/sidebar/sidebar-navigation/index.tsx",
+      "functions": [
+        {
+          "name": "SidebarNavigation",
+          "startLine": 15,
+          "endLine": 29,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 2,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 15,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 62.27,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 61.5,
+          "maintainabilityRating": "warn",
+          "healthScore": 85,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 30,
+        "weightedMI": 71,
+        "weightedHealthScore": 88.5,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/shared/widgets/layouts/app-layout/sidebar/sidebar-navigation/use-sidebar-navigation.ts",
+      "functions": [
+        {
+          "name": "buildNavigationItem",
+          "startLine": 23,
           "endLine": 37,
           "metrics": [
             {
@@ -147645,7 +148122,7 @@
             },
             {
               "name": "functionLength",
-              "value": 23,
+              "value": 11,
               "threshold": 70,
               "severity": "ok"
             },
@@ -147657,23 +148134,219 @@
             },
             {
               "name": "halsteadVolume",
-              "value": 223.48,
+              "value": 149.28,
               "threshold": 800,
               "severity": "ok"
             }
           ],
-          "maintainabilityIndex": 53.4,
+          "maintainabilityIndex": 61.7,
           "maintainabilityRating": "warn",
-          "healthScore": 78,
+          "healthScore": 83,
           "smells": []
         }
       ],
       "summary": {
-        "totalLines": 38,
-        "weightedMI": 56.4,
-        "weightedHealthScore": 79.3,
+        "totalLines": 46,
+        "weightedMI": 69.3,
+        "weightedHealthScore": 87.4,
         "worstSeverity": "warn",
         "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/use-product-registration-telemetry.ts",
+      "functions": [
+        {
+          "name": "getProductRegistrationSizesInput",
+          "startLine": 121,
+          "endLine": 132,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 3,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 1,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 12,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 1,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 126.71,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 61.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 80,
+          "smells": []
+        },
+        {
+          "name": "getProductRegistrationCatalogInput",
+          "startLine": 153,
+          "endLine": 165,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 1,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 10,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 79.57,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 64.7,
+          "maintainabilityRating": "warn",
+          "healthScore": 89,
+          "smells": []
+        },
+        {
+          "name": "getProductRegistrationTelemetryFields",
+          "startLine": 309,
+          "endLine": 324,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 2,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 9,
+              "threshold": 70,
+              "severity": "ok"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 101.58,
+              "threshold": 800,
+              "severity": "ok"
+            }
+          ],
+          "maintainabilityIndex": 64.9,
+          "maintainabilityRating": "warn",
+          "healthScore": 87,
+          "smells": []
+        }
+      ],
+      "summary": {
+        "totalLines": 387,
+        "weightedMI": 70.9,
+        "weightedHealthScore": 88.9,
+        "worstSeverity": "warn",
+        "smellIds": []
+      }
+    },
+    {
+      "filePath": "apps/web/src/ui/mrp/widgets/pages/product-registration-page/product-size-fields/product-size-row/index.tsx",
+      "functions": [
+        {
+          "name": "ProductSizeRow",
+          "startLine": 41,
+          "endLine": 108,
+          "metrics": [
+            {
+              "name": "cyclomaticComplexity",
+              "value": 2,
+              "threshold": 15,
+              "severity": "ok"
+            },
+            {
+              "name": "cognitiveComplexity",
+              "value": 0,
+              "threshold": 25,
+              "severity": "ok"
+            },
+            {
+              "name": "functionLength",
+              "value": 61,
+              "threshold": 70,
+              "severity": "warn"
+            },
+            {
+              "name": "nestingDepth",
+              "value": 0,
+              "threshold": 4,
+              "severity": "ok"
+            },
+            {
+              "name": "halsteadVolume",
+              "value": 435.58,
+              "threshold": 800,
+              "severity": "warn"
+            }
+          ],
+          "maintainabilityIndex": 42.3,
+          "maintainabilityRating": "warn",
+          "healthScore": 69,
+          "smells": [
+            {
+              "id": "bloated",
+              "label": "Bloated",
+              "reason": "Large function (61 lines) with high vocabulary (Halstead volume 435.58) but low branching — consider extracting helpers."
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "totalLines": 130,
+        "weightedMI": 52.6,
+        "weightedHealthScore": 74.6,
+        "worstSeverity": "warn",
+        "smellIds": [
+          "bloated"
+        ]
       }
     }
   ]

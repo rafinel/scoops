@@ -16,10 +16,14 @@ type UseCatalogQueryProps<Page> = {
 
 // A searched page may list unavailable products, so it must never stand in for the default list.
 function keepPreviousUnlessLeavingSearch(isSearching: boolean) {
-  return <Data>(previousData: Data | undefined, previousQuery?: Query<Data>) =>
-    previousQuery?.meta?.isSearching && !isSearching
+  return function selectPlaceholderData<Data>(
+    previousData: Data | undefined,
+    previousQuery?: Query<Data>,
+  ) {
+    return previousQuery?.meta?.isSearching && !isSearching
       ? undefined
       : keepPreviousData(previousData)
+  }
 }
 
 export function useCatalogQuery<Page>({
