@@ -75,6 +75,41 @@ describe('Register Product Size Controller [POST /products/:productId/sizes]', (
     ).resolves.toHaveLength(1)
   })
 
+  it.each([
+    ['a quantity at the numeric limit', { quantity: 1_000_000_000_000_000, price: 1 }],
+    ['a price at the numeric limit', { quantity: 1, price: 10_000_000_000_000_000 }],
+  ])('rejects %s without changing persistence', async (_name, values) => {
+    const product = await fixture.addProduct(
+      createProduct({ name: 'Bound Portion', categories: [ProductCategory.Portion] }),
+    )
+
+    const response = await request(fixture.app.getHttpServer())
+      .post(`/products/${product.id}/sizes`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ name: 'Huge', ...values })
+
+    expect(response.status).toBe(422)
+    await expect(
+      fixture.productSizes.findManyByProductId(product.establishmentId, product.id),
+    ).resolves.toEqual([])
+  })
+
+  it('saves values just below the numeric limits and a price with two decimals', async () => {
+    const product = await fixture.addProduct(
+      createProduct({ name: 'Edge Portion', categories: [ProductCategory.Portion] }),
+    )
+
+    const response = await request(fixture.app.getHttpServer())
+      .post(`/products/${product.id}/sizes`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ name: 'Edge', quantity: 0.001, price: 1_234_567.89 })
+
+    expect(response.status).toBe(201)
+    await expect(
+      fixture.productSizes.findManyByProductId(product.establishmentId, product.id),
+    ).resolves.toMatchObject([{ name: 'Edge', quantity: 0.001, price: 1_234_567.89 }])
+  })
+
   it('protects the action with Manager authorization, tenant ownership, and category rules', async () => {
     const product = await fixture.addProduct(
       createProduct({ name: 'Protected Portion', categories: [ProductCategory.Portion] }),

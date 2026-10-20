@@ -1,10 +1,8 @@
 import { z } from 'zod'
 
+import { resalePriceSchema } from './resale-price-schema.ts'
+
 export const saveProductResaleConfigurationSchema = z.strictObject({
-  price: z.number().finite().nonnegative().refine(hasAtMostTwoDecimalPlaces),
+  price: resalePriceSchema,
   isActive: z.boolean(),
 })
-
-function hasAtMostTwoDecimalPlaces(value: number): boolean {
-  return Math.abs(value * 100 - Math.round(value * 100)) < 1e-8
-}

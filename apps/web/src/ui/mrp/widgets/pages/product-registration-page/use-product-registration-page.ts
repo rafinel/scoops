@@ -17,13 +17,32 @@ export type ProductRegistrationFormValues = z.infer<typeof productRegistrationFo
 
 export type BrandDraft = ProductRegistrationFormValues['brands'][number]
 
+export type SizeDraft = ProductRegistrationFormValues['sizes'][number]
+
+export type SizeFieldErrors = {
+  name?: string
+  price?: string
+  quantity?: string
+}
+
+export type ProductSizeFieldsModel = {
+  onAddSize: () => void
+  onRemoveSize: (sizeId: string) => void
+  onSizeChange: (sizeId: string, changes: Partial<SizeDraft>) => void
+  sizeErrors: SizeFieldErrors[]
+  sizes: SizeDraft[]
+  unit: ProductUnit
+}
+
 export type ProductRegistrationFieldErrors = {
+  accompanimentPrice?: string
   brands?: string
   categories?: string
   currentUnitCost?: string
   idealStock?: string
   initialStock?: string
   name?: string
+  resalePrice?: string
 }
 
 const PRODUCT_REGISTRATION_DEFAULT_VALUES: ProductRegistrationFormValues = {
@@ -33,9 +52,16 @@ const PRODUCT_REGISTRATION_DEFAULT_VALUES: ProductRegistrationFormValues = {
   stockControl: 'single',
   allowNegativeStock: false,
   currentUnitCost: '',
+  resalePrice: '',
+  accompanimentPrice: '',
   initialStock: '0',
   idealStock: '0',
   brands: [],
+  sizes: [createSizeDraft('size-0')],
+}
+
+function createSizeDraft(id: string): SizeDraft {
+  return { id, name: '', quantity: '', price: '' }
 }
 
 function createBrandDraft(id: string, unit: ProductUnit, isPrimary = false): BrandDraft {
@@ -59,6 +85,7 @@ export function useProductRegistrationPage() {
   const telemetry = ProductRegistrationTelemetry.useProductRegistrationTelemetry()
   const { navigateTo, navigateToPath } = useNavigation()
   const nextBrandId = useRef(1)
+  const nextSizeId = useRef(1)
   const isSubmitting = useRef(false)
   const [formError, setFormError] = useState<string | null>(null)
   const {
@@ -66,7 +93,7 @@ export function useProductRegistrationPage() {
     setValue,
     watch,
     handleSubmit: submitForm,
-    formState: { errors },
+    formState: { errors, isSubmitted },
   } = useForm<ProductRegistrationFormValues>({
     defaultValues: PRODUCT_REGISTRATION_DEFAULT_VALUES,
     resolver: zodResolver(productRegistrationFormSchema),
@@ -79,7 +106,19 @@ export function useProductRegistrationPage() {
   const initialStock = watch('initialStock')
   const idealStock = watch('idealStock')
   const currentUnitCost = watch('currentUnitCost')
+  const resalePrice = watch('resalePrice')
+  const accompanimentPrice = watch('accompanimentPrice')
   const brands = watch('brands')
+  const sizes = watch('sizes')
+  const isSizesSectionVisible = categories.includes(ProductCategory.Portion)
+  const isResalePriceVisible = ProductRegistrationTelemetry.isSalePriceVisible(
+    { categories, stockControl },
+    ProductCategory.Resale,
+  )
+  const isAccompanimentPriceVisible = ProductRegistrationTelemetry.isSalePriceVisible(
+    { categories, stockControl },
+    ProductCategory.Accompaniment,
+  )
   const calculatedInitialStock = brands.reduce(
     (total, brand) =>
       total +
@@ -87,8 +126,8 @@ export function useProductRegistrationPage() {
         (parseBrazilianDecimal(brand.packageCount) || 0),
     0,
   )
-  const { brandErrors, fieldErrors } =
-    ProductRegistrationTelemetry.mapProductRegistrationErrors(errors, brands)
+  const { brandErrors, fieldErrors, sizeErrors } =
+    ProductRegistrationTelemetry.mapProductRegistrationErrors(errors, brands, sizes)
 
   function clearFormError() {
     setFormError(null)
@@ -97,10 +136,11 @@ export function useProductRegistrationPage() {
   function setFormValue<FieldName extends keyof ProductRegistrationFormValues>(
     fieldName: FieldName,
     value: ProductRegistrationFormValues[FieldName],
+    shouldValidate = true,
   ) {
     setValue(fieldName as never, value as never, {
       shouldDirty: true,
-      shouldValidate: true,
+      shouldValidate,
     })
     clearFormError()
   }
@@ -114,6 +154,7 @@ export function useProductRegistrationPage() {
   }
 
   const registrationPageModel = {
+    accompanimentPrice,
     allowNegativeStock,
     brandErrors,
     brands,
@@ -124,9 +165,13 @@ export function useProductRegistrationPage() {
     formError,
     idealStock,
     initialStock,
+    isAccompanimentPriceVisible,
     isPending,
+    isResalePriceVisible,
+    isSizesSectionVisible,
     name,
     register,
+    resalePrice,
     stockControl,
     unit,
     handleAddBrand,
@@ -185,6 +230,14 @@ export function useProductRegistrationPage() {
     setFormValue('currentUnitCost', value)
   }
 
+  function handleResalePriceChange(value: string) {
+    setFormValue('resalePrice', value)
+  }
+
+  function handleAccompanimentPriceChange(value: string) {
+    setFormValue('accompanimentPrice', value)
+  }
+
   function handleBrandChange(brandId: string, changes: Partial<BrandDraft>) {
     const nextBrands = brands.map((brand) =>
       brand.id === brandId ? { ...brand, ...changes } : brand,
@@ -212,6 +265,27 @@ export function useProductRegistrationPage() {
       ? remainingBrands.map((brand, index) => ({ ...brand, isPrimary: index === 0 }))
       : remainingBrands
     setFormValue('brands', nextBrands)
+  }
+
+  function handleAddSize() {
+    const size = createSizeDraft(`size-${nextSizeId.current++}`)
+    setFormValue('sizes', [...sizes, size], isSubmitted)
+  }
+
+  function handleSizeChange(sizeId: string, changes: Partial<SizeDraft>) {
+    setFormValue(
+      'sizes',
+      sizes.map((size) => (size.id === sizeId ? { ...size, ...changes } : size)),
+      isSubmitted,
+    )
+  }
+
+  function handleRemoveSize(sizeId: string) {
+    setFormValue(
+      'sizes',
+      sizes.filter((size) => size.id !== sizeId),
+      isSubmitted,
+    )
   }
 
   function isCategoryDisabled(category: ProductCategory) {
@@ -259,8 +333,19 @@ export function useProductRegistrationPage() {
     void navigateTo('products')
   }
 
+  const sizeFields: ProductSizeFieldsModel = {
+    onAddSize: handleAddSize,
+    onRemoveSize: handleRemoveSize,
+    onSizeChange: handleSizeChange,
+    sizeErrors,
+    sizes,
+    unit,
+  }
+
   return {
     ...registrationPageModel,
+    sizeFields,
+    handleAccompanimentPriceChange,
     handleCancel,
     handleCurrentUnitCostChange,
     handleIdealStockChange,
@@ -270,6 +355,7 @@ export function useProductRegistrationPage() {
     handleProductCategoryToggle,
     handleRegister: handleFormSubmit,
     handleRemoveBrand,
+    handleResalePriceChange,
     handleStockControlChange,
     handleUnitChange,
     isCategoryDisabled,

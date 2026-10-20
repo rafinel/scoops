@@ -90,6 +90,63 @@ describe('Update Product Size Controller [PATCH /products/:productId/sizes/:size
     ).resolves.toMatchObject({ isActive: true })
   })
 
+  it.each([
+    ['a quantity at the numeric limit', { quantity: 1_000_000_000_000_000, price: 10 }],
+    ['a price at the numeric limit', { quantity: 1, price: 10_000_000_000_000_000 }],
+  ])('rejects %s and keeps the saved size', async (_name, values) => {
+    const product = await fixture.addProduct(
+      createProduct({
+        name: 'Bound Update Portion',
+        categories: [ProductCategory.Portion],
+      }),
+    )
+    const size = await fixture.addProductSize({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      name: 'Existing',
+      quantity: 1,
+      price: 10,
+      isActive: true,
+    })
+
+    const response = await request(fixture.app.getHttpServer())
+      .patch(`/products/${product.id}/sizes/${size.id}`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ name: 'Existing', isActive: true, ...values })
+
+    expect(response.status).toBe(422)
+    await expect(
+      fixture.productSizes.findById(product.establishmentId, product.id, size.id),
+    ).resolves.toMatchObject({ quantity: 1, price: 10 })
+  })
+
+  it('saves a price with two decimals and the smallest quantity', async () => {
+    const product = await fixture.addProduct(
+      createProduct({
+        name: 'Edge Update Portion',
+        categories: [ProductCategory.Portion],
+      }),
+    )
+    const size = await fixture.addProductSize({
+      establishmentId: product.establishmentId,
+      productId: product.id,
+      name: 'Existing',
+      quantity: 1,
+      price: 10,
+      isActive: true,
+    })
+
+    const response = await request(fixture.app.getHttpServer())
+      .patch(`/products/${product.id}/sizes/${size.id}`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ name: 'Existing', quantity: 0.001, price: 1_234_567.89, isActive: true })
+
+    expect(response.status).toBe(200)
+    await expect(
+      fixture.productSizes.findById(product.establishmentId, product.id, size.id),
+    ).resolves.toMatchObject({ quantity: 0.001, price: 1_234_567.89 })
+  })
+
   it('rejects malformed, duplicate, unauthorized, and foreign updates', async () => {
     const product = await fixture.addProduct(
       createProduct({

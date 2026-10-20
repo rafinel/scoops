@@ -9,15 +9,21 @@ const registerMock = vi.fn(() => ({ name: 'field' })) as never
 function renderForm(overrides: Partial<ProductRegistrationFormProps> = {}) {
   return render(
     <ProductRegistrationForm
+      accompanimentPrice=''
       categories={[]}
       fieldErrors={{}}
+      isAccompanimentPriceVisible={false}
       isCategoryDisabled={() => false}
+      isResalePriceVisible={false}
       name='Polpa de açaí'
+      onAccompanimentPriceChange={vi.fn()}
       onCategoryToggle={vi.fn()}
       onNameChange={vi.fn()}
+      onResalePriceChange={vi.fn()}
       onSubmit={vi.fn()}
       onUnitChange={vi.fn()}
       register={registerMock}
+      resalePrice=''
       unit='un'
       {...overrides}
     >
@@ -155,6 +161,145 @@ describe('ProductRegistrationForm', () => {
     )
   })
 
+  describe('sale prices', () => {
+    it('renders no price row when neither price field is visible', () => {
+      renderForm()
+
+      expect(screen.queryByRole('textbox', { name: 'Preço de revenda' })).toBeNull()
+      expect(
+        screen.queryByRole('textbox', { name: 'Preço como acompanhamento' }),
+      ).toBeNull()
+      expect(screen.queryByText(/Opcional\. Sem preço/)).toBeNull()
+    })
+
+    it('renders the Resale price after the categories and delegates its changes', () => {
+      const onResalePriceChange = vi.fn()
+      renderForm({
+        categories: [ProductCategory.Resale],
+        isResalePriceVisible: true,
+        onResalePriceChange,
+        resalePrice: '12,50',
+      })
+
+      const resalePrice = screen.getByRole('textbox', {
+        name: 'Preço de revenda',
+      }) as HTMLInputElement
+      expect(resalePrice.value).toBe('12,50')
+      expect(resalePrice.placeholder).toBe('0,00')
+      expect(resalePrice.getAttribute('inputmode')).toBe('decimal')
+      expect(resalePrice.getAttribute('aria-invalid')).toBe('false')
+      expect(registerMock).toHaveBeenCalledWith('resalePrice')
+      expect(
+        screen.queryByRole('textbox', { name: 'Preço como acompanhamento' }),
+      ).toBeNull()
+
+      expectDocumentOrder([
+        screen.getByRole('textbox', { name: 'Nome' }),
+        screen.getByRole('combobox', { name: 'Unidade' }),
+        screen.getByRole('group', { name: 'Categorias' }),
+        resalePrice,
+      ])
+
+      fireEvent.change(resalePrice, { target: { value: '15,00' } })
+      expect(onResalePriceChange).toHaveBeenCalledWith('15,00')
+    })
+
+    it('renders both prices in tab order after the categories with independent values and handlers', () => {
+      const onAccompanimentPriceChange = vi.fn()
+      const onResalePriceChange = vi.fn()
+      renderForm({
+        accompanimentPrice: '',
+        categories: [ProductCategory.Resale, ProductCategory.Accompaniment],
+        isAccompanimentPriceVisible: true,
+        isResalePriceVisible: true,
+        onAccompanimentPriceChange,
+        onResalePriceChange,
+        resalePrice: '12,00',
+      })
+
+      const resalePrice = screen.getByRole('textbox', {
+        name: 'Preço de revenda',
+      }) as HTMLInputElement
+      const accompanimentPrice = screen.getByRole('textbox', {
+        name: 'Preço como acompanhamento',
+      }) as HTMLInputElement
+      expect(resalePrice.value).toBe('12,00')
+      expect(accompanimentPrice.value).toBe('')
+      expect(registerMock).toHaveBeenCalledWith('accompanimentPrice')
+      expect(screen.queryByText(/Usar preço de revenda/)).toBeNull()
+
+      expectDocumentOrder([
+        screen.getByRole('textbox', { name: 'Nome' }),
+        screen.getByRole('combobox', { name: 'Unidade' }),
+        screen.getByRole('checkbox', { name: 'Ingrediente' }),
+        resalePrice,
+        accompanimentPrice,
+      ])
+
+      fireEvent.change(accompanimentPrice, { target: { value: '9,00' } })
+      expect(onAccompanimentPriceChange).toHaveBeenCalledWith('9,00')
+      expect(onResalePriceChange).not.toHaveBeenCalled()
+    })
+
+    it('shows the optional hint with each price and describes the input by it', () => {
+      renderForm({
+        isAccompanimentPriceVisible: true,
+        isResalePriceVisible: true,
+      })
+
+      expect(
+        screen.getAllByText('Opcional. Sem preço, o produto fica indisponível no PDV.'),
+      ).toHaveLength(2)
+      expect(
+        screen
+          .getByRole('textbox', { name: 'Preço de revenda' })
+          .getAttribute('aria-describedby'),
+      ).toBe('resale-price-hint')
+      expect(
+        screen
+          .getByRole('textbox', { name: 'Preço como acompanhamento' })
+          .getAttribute('aria-describedby'),
+      ).toBe('accompaniment-price-hint')
+    })
+
+    it('reports price validation errors beside each visible price field', () => {
+      renderForm({
+        fieldErrors: {
+          accompanimentPrice:
+            'Informe um preço maior ou igual a zero, com até duas casas decimais.',
+          resalePrice:
+            'Informe um preço de revenda maior ou igual a zero, com até duas casas decimais.',
+        },
+        isAccompanimentPriceVisible: true,
+        isResalePriceVisible: true,
+      })
+
+      const resalePrice = screen.getByRole('textbox', { name: 'Preço de revenda' })
+      expect(resalePrice.getAttribute('aria-invalid')).toBe('true')
+      expect(resalePrice.getAttribute('aria-describedby')).toBe(
+        'resale-price-hint resale-price-error',
+      )
+      expect(
+        screen.getByText(
+          'Informe um preço de revenda maior ou igual a zero, com até duas casas decimais.',
+        ).id,
+      ).toBe('resale-price-error')
+
+      const accompanimentPrice = screen.getByRole('textbox', {
+        name: 'Preço como acompanhamento',
+      })
+      expect(accompanimentPrice.getAttribute('aria-invalid')).toBe('true')
+      expect(accompanimentPrice.getAttribute('aria-describedby')).toBe(
+        'accompaniment-price-hint accompaniment-price-error',
+      )
+      expect(
+        screen.getByText(
+          'Informe um preço maior ou igual a zero, com até duas casas decimais.',
+        ).id,
+      ).toBe('accompaniment-price-error')
+    })
+  })
+
   it('uses category-specific selected colors for manufacturable choices', () => {
     renderForm({ categories: [ProductCategory.Manufacturable] })
 
@@ -184,6 +329,15 @@ describe('ProductRegistrationForm', () => {
     ).toBe(true)
   })
 })
+
+function expectDocumentOrder(elements: Element[]) {
+  for (const [index, element] of elements.slice(0, -1).entries()) {
+    const next = elements[index + 1] as Element
+    expect(
+      Boolean(element.compareDocumentPosition(next) & Node.DOCUMENT_POSITION_FOLLOWING),
+    ).toBe(true)
+  }
+}
 
 function selectOption(option: HTMLElement) {
   fireEvent.pointerDown(option, { button: 0, pointerId: 1 })

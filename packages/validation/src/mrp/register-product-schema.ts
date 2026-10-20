@@ -5,6 +5,9 @@ import { productCategorySchema } from './product-category-schema.ts'
 import { productRegistrationBrandSchema } from './product-registration-brand-schema.ts'
 import { productStockControlSchema } from './product-stock-control-schema.ts'
 import { productUnitSchema } from './product-unit-schema.ts'
+import { accompanimentPriceSchema } from './accompaniment-price-schema.ts'
+import { registerProductSizeSchema } from './register-product-size-schema.ts'
+import { resalePriceSchema } from './resale-price-schema.ts'
 
 export const registerProductSchema = z
   .object({
@@ -22,6 +25,9 @@ export const registerProductSchema = z
       .optional(),
     initialStock: z.number().finite().optional(),
     brands: z.array(productRegistrationBrandSchema).optional(),
+    resalePrice: resalePriceSchema.optional(),
+    accompanimentPrice: accompanimentPriceSchema.optional(),
+    sizes: z.array(registerProductSizeSchema).optional(),
   })
   .superRefine((input, context) => {
     if (

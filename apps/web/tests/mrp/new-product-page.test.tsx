@@ -287,6 +287,537 @@ test.describe('NewProductPage', () => {
     await expect(page).toHaveURL('/products/product-1')
   })
 
+  test('shows the sale price fields by category and stock control and restores hidden values', async ({
+    page,
+    identityFixture,
+  }) => {
+    const { consoleErrors, failedRequests } = addDiagnostics(page)
+    await openRegistration(page, identityFixture)
+    const resalePrice = page.getByRole('textbox', { name: 'Preço de revenda' })
+    const accompanimentPrice = page.getByRole('textbox', {
+      name: 'Preço como acompanhamento',
+    })
+
+    await page.getByRole('checkbox', { name: 'Ingrediente' }).check()
+    await expect(resalePrice).toHaveCount(0)
+    await expect(accompanimentPrice).toHaveCount(0)
+
+    await page.getByRole('checkbox', { name: 'Revenda' }).check()
+    await expect(resalePrice).toBeVisible()
+    await expect(resalePrice).toHaveAttribute('placeholder', '0,00')
+    await expect(
+      page.getByText('Opcional. Sem preço, o produto fica indisponível no PDV.'),
+    ).toBeVisible()
+    await expect(accompanimentPrice).toHaveCount(0)
+    await resalePrice.fill('12,50')
+
+    await page.getByRole('checkbox', { name: 'Acompanhamento' }).check()
+    await expect(accompanimentPrice).toBeVisible()
+    await expect(accompanimentPrice).toHaveValue('')
+
+    await page.getByRole('checkbox', { name: 'Revenda' }).uncheck()
+    await expect(resalePrice).toHaveCount(0)
+    await page.getByRole('checkbox', { name: 'Revenda' }).check()
+    await expect(resalePrice).toHaveValue('12,50')
+
+    await page.getByRole('button', { name: 'Por marca' }).click()
+    await expect(resalePrice).toHaveCount(0)
+    await expect(accompanimentPrice).toHaveCount(0)
+    await page.getByRole('button', { name: 'Estoque único' }).click()
+    await expect(resalePrice).toHaveValue('12,50')
+
+    await assertDiagnostics(page, consoleErrors, failedRequests)
+  })
+
+  test('does not validate or send prices typed into fields that are hidden again', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await openRegistration(page, identityFixture)
+    const { registrations } = await mrpFixture.mockProducts({
+      getResponse: {
+        body: {
+          items: [],
+          page: 1,
+          pageSize: 10,
+          totalItems: 0,
+          totalPages: 0,
+          kpis: {},
+        },
+      },
+      postResponse: { body: CREATED_PRODUCT, status: 201 },
+    })
+    await page.route('**/products/product-1/stock', async (route) =>
+      route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify(STOCK_RESPONSE),
+      }),
+    )
+    await page.route('**/products/product-1/stock-transactions**', async (route) =>
+      route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items: [],
+          page: 1,
+          pageSize: 10,
+          totalItems: 0,
+          totalPages: 0,
+        }),
+      }),
+    )
+    await page.getByRole('textbox', { name: 'Nome', exact: true }).fill('Paçoca')
+    await page.getByRole('checkbox', { name: 'Ingrediente' }).check()
+    await page.getByRole('checkbox', { name: 'Revenda' }).check()
+    await page.getByRole('checkbox', { name: 'Acompanhamento' }).check()
+    await page.getByRole('textbox', { name: 'Preço de revenda' }).fill('12,50')
+    await page.getByRole('textbox', { name: 'Preço como acompanhamento' }).fill('-1')
+    await page.getByRole('checkbox', { name: 'Revenda' }).uncheck()
+    await page.getByRole('checkbox', { name: 'Acompanhamento' }).uncheck()
+
+    await page.getByRole('button', { name: 'Criar produto' }).click()
+
+    await expect.poll(() => registrations).toHaveLength(1)
+    expect(registrations[0]).not.toHaveProperty('resalePrice')
+    expect(registrations[0]).not.toHaveProperty('accompanimentPrice')
+    expect(registrations[0]).toMatchObject({ categories: ['ingredient'] })
+    await expect(page).toHaveURL('/products/product-1/stock')
+  })
+
+  test('lays the price fields side by side on desktop and stacks them on narrow screens', async ({
+    page,
+    identityFixture,
+  }) => {
+    const { consoleErrors, failedRequests } = addDiagnostics(page)
+    await openRegistration(page, identityFixture)
+    await page.getByRole('checkbox', { name: 'Revenda' }).check()
+    await page.getByRole('checkbox', { name: 'Acompanhamento' }).check()
+    const resalePrice = page.getByRole('textbox', { name: 'Preço de revenda' })
+    const accompanimentPrice = page.getByRole('textbox', {
+      name: 'Preço como acompanhamento',
+    })
+
+    await page.setViewportSize({ width: 1440, height: 900 })
+    const desktopResale = await resalePrice.boundingBox()
+    const desktopAccompaniment = await accompanimentPrice.boundingBox()
+    expect(
+      Math.abs((desktopResale?.y ?? 0) - (desktopAccompaniment?.y ?? 1)),
+    ).toBeLessThan(2)
+    expect(desktopAccompaniment?.x ?? 0).toBeGreaterThan(desktopResale?.x ?? 0)
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    const narrowResale = await resalePrice.boundingBox()
+    const narrowAccompaniment = await accompanimentPrice.boundingBox()
+    expect(narrowAccompaniment?.y ?? 0).toBeGreaterThan(narrowResale?.y ?? 0)
+    expect(Math.abs((narrowResale?.x ?? 0) - (narrowAccompaniment?.x ?? 1))).toBeLessThan(
+      2,
+    )
+
+    await assertDiagnostics(page, consoleErrors, failedRequests)
+  })
+
+  test('shows a price error beside the field and does not post an invalid price', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await openRegistration(page, identityFixture)
+    const { registrations } = await mrpFixture.mockProducts({
+      getResponse: {
+        body: {
+          items: [],
+          page: 1,
+          pageSize: 10,
+          totalItems: 0,
+          totalPages: 0,
+          kpis: {},
+        },
+      },
+    })
+    await page.getByRole('textbox', { name: 'Nome', exact: true }).fill('Paçoca')
+    await page.getByRole('checkbox', { name: 'Revenda' }).check()
+    await page.getByRole('checkbox', { name: 'Acompanhamento' }).check()
+    await page.getByRole('textbox', { name: 'Preço de revenda' }).fill('12,00')
+    const accompanimentPrice = page.getByRole('textbox', {
+      name: 'Preço como acompanhamento',
+    })
+    await accompanimentPrice.fill('-1')
+
+    await page.getByRole('button', { name: 'Criar produto' }).click()
+
+    await expect(
+      page.getByText(
+        'Informe um preço maior ou igual a zero, com até duas casas decimais.',
+      ),
+    ).toBeVisible()
+    await expect(accompanimentPrice).toHaveAttribute('aria-invalid', 'true')
+    await expect(accompanimentPrice).toHaveValue('-1')
+    await expect(page.getByRole('textbox', { name: 'Preço de revenda' })).toHaveValue(
+      '12,00',
+    )
+    expect(registrations).toHaveLength(0)
+  })
+
+  test('submits the typed prices as numbers and navigates to the created product', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await openRegistration(page, identityFixture)
+    const { registrations } = await mrpFixture.mockProducts({
+      getResponse: {
+        body: {
+          items: [],
+          page: 1,
+          pageSize: 10,
+          totalItems: 0,
+          totalPages: 0,
+          kpis: {},
+        },
+      },
+      postResponse: { body: CREATED_PRODUCT, status: 201 },
+    })
+    await page.route('**/products/product-1/stock', async (route) =>
+      route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify(STOCK_RESPONSE),
+      }),
+    )
+    await page.route('**/products/product-1/stock-transactions**', async (route) =>
+      route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items: [],
+          page: 1,
+          pageSize: 10,
+          totalItems: 0,
+          totalPages: 0,
+        }),
+      }),
+    )
+
+    await page.getByRole('textbox', { name: 'Nome', exact: true }).fill('Paçoca')
+    await page.getByRole('checkbox', { name: 'Revenda' }).check()
+    await page.getByRole('checkbox', { name: 'Acompanhamento' }).check()
+    await page.getByRole('textbox', { name: 'Preço de revenda' }).fill('12,00')
+    await page.getByRole('textbox', { name: 'Preço como acompanhamento' }).fill('0')
+    await page.getByRole('spinbutton', { name: 'Estoque inicial' }).fill('10')
+    await page.getByRole('button', { name: 'Criar produto' }).click()
+
+    await expect.poll(() => registrations).toHaveLength(1)
+    expect(registrations[0]).toEqual({
+      name: 'Paçoca',
+      unit: 'un',
+      categories: ['resale', 'accompaniment'],
+      stockControl: 'single',
+      allowNegativeStock: false,
+      idealStock: 0,
+      initialStock: 10,
+      resalePrice: 12,
+      accompanimentPrice: 0,
+    })
+    await expect(page).toHaveURL('/products/product-1/stock')
+  })
+
+  test('keeps the typed prices and shows the page alert when the server rejects the registration', async ({
+    page,
+    identityFixture,
+  }) => {
+    await openRegistration(page, identityFixture)
+    const bodies: unknown[] = []
+    await page.route('**/products', async (route) => {
+      bodies.push(route.request().postDataJSON())
+      await route.fulfill({
+        contentType: 'application/json',
+        status: 400,
+        body: JSON.stringify({
+          message:
+            'O preço de revenda é permitido apenas para produtos de revenda com estoque único.',
+        }),
+      })
+    })
+    await page.getByRole('textbox', { name: 'Nome', exact: true }).fill('Paçoca')
+    await page.getByRole('checkbox', { name: 'Revenda' }).check()
+    await page.getByRole('textbox', { name: 'Preço de revenda' }).fill('12,00')
+
+    await page.getByRole('button', { name: 'Criar produto' }).click()
+
+    await expect(page.getByRole('alert')).toContainText(
+      'O preço de revenda é permitido apenas para produtos de revenda com estoque único.',
+    )
+    await expect(page.getByRole('textbox', { name: 'Preço de revenda' })).toHaveValue(
+      '12,00',
+    )
+    expect(bodies).toEqual([expect.objectContaining({ resalePrice: 12 })])
+    await expect(page).toHaveURL('/products/new')
+  })
+
+  test('shows the sizes section only for Portion, between the Catálogo and Estoque cards, and restores hidden rows', async ({
+    page,
+    identityFixture,
+  }) => {
+    await openRegistration(page, identityFixture)
+    const sizes = page.getByRole('heading', { name: 'Tamanhos e preços' })
+    await expect(sizes).toBeHidden()
+
+    await page.getByRole('checkbox', { name: 'Porção' }).check()
+    await expect(sizes).toBeVisible()
+    await expect(page.getByRole('textbox', { name: 'Nome do tamanho 1' })).toBeVisible()
+    await expect(page.getByRole('textbox', { name: 'Nome do tamanho 2' })).toBeHidden()
+    await expect(page.getByRole('textbox', { name: 'Preço de revenda' })).toBeHidden()
+    const positions = await page
+      .getByRole('heading', { level: 2 })
+      .evaluateAll((headings) => headings.map((heading) => heading.textContent))
+    expect(positions.indexOf('Catálogo')).toBeLessThan(
+      positions.indexOf('Tamanhos e preços'),
+    )
+    expect(positions.indexOf('Tamanhos e preços')).toBeLessThan(
+      positions.indexOf('Estoque'),
+    )
+
+    await page.getByRole('button', { name: 'Adicionar tamanho' }).click()
+    await page.getByRole('textbox', { name: 'Nome do tamanho 2' }).fill('Grande')
+    await page.getByRole('button', { name: 'Remover tamanho 1' }).click()
+    await expect(page.getByRole('textbox', { name: 'Nome do tamanho 2' })).toBeHidden()
+    await expect(page.getByRole('textbox', { name: 'Nome do tamanho 1' })).toHaveValue(
+      'Grande',
+    )
+
+    await page.getByRole('checkbox', { name: 'Porção' }).uncheck()
+    await expect(sizes).toBeHidden()
+    await page.getByRole('checkbox', { name: 'Porção' }).check()
+    await expect(page.getByRole('textbox', { name: 'Nome do tamanho 1' })).toHaveValue(
+      'Grande',
+    )
+    await page.getByRole('button', { name: 'Por marca' }).click()
+    await expect(sizes).toBeVisible()
+  })
+
+  test('shows size row errors beside the fields and does not post an invalid row', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await openRegistration(page, identityFixture)
+    const { registrations } = await mrpFixture.mockProducts({
+      getResponse: {
+        body: {
+          items: [],
+          page: 1,
+          pageSize: 10,
+          totalItems: 0,
+          totalPages: 0,
+          kpis: {},
+        },
+      },
+    })
+    await page.getByRole('textbox', { name: 'Nome', exact: true }).fill('Açaí')
+    await page.getByRole('checkbox', { name: 'Porção' }).check()
+    await page.getByRole('button', { name: 'Adicionar tamanho' }).click()
+    await page.getByRole('textbox', { name: 'Nome do tamanho 1' }).fill('Médio')
+    await page.getByRole('textbox', { name: 'Quantidade do tamanho 1' }).fill('0,5')
+    await page.getByRole('textbox', { name: 'Preço do tamanho 1' }).fill('9,90')
+    await page.getByRole('textbox', { name: 'Nome do tamanho 2' }).fill(' médio ')
+
+    await page.getByRole('button', { name: 'Criar produto' }).click()
+
+    const quantity = page.getByRole('textbox', { name: 'Quantidade do tamanho 2' })
+    await expect(quantity).toHaveAttribute('aria-invalid', 'true')
+    await expect(
+      page.getByText(
+        'Informe uma quantidade maior que zero, com até três casas decimais.',
+      ),
+    ).toBeVisible()
+    await expect(
+      page.getByText('Informe um preço válido, com até duas casas decimais.'),
+    ).toBeVisible()
+    await expect(page.getByText('Já existe um tamanho com esse nome.')).toBeVisible()
+    await expect(page.getByRole('textbox', { name: 'Nome do tamanho 2' })).toHaveValue(
+      ' médio ',
+    )
+    await expect(page.getByRole('textbox', { name: 'Preço do tamanho 1' })).toHaveValue(
+      '9,90',
+    )
+    expect(registrations).toHaveLength(0)
+  })
+
+  test('submits the typed sizes as numbers, ignores empty rows and navigates to the created product', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await openRegistration(page, identityFixture)
+    const { registrations } = await mrpFixture.mockProducts({
+      getResponse: {
+        body: {
+          items: [],
+          page: 1,
+          pageSize: 10,
+          totalItems: 0,
+          totalPages: 0,
+          kpis: {},
+        },
+      },
+      postResponse: { body: CREATED_PRODUCT, status: 201 },
+    })
+    await page.route('**/products/product-1/stock', async (route) =>
+      route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify(STOCK_RESPONSE),
+      }),
+    )
+    await page.route('**/products/product-1/stock-transactions**', async (route) =>
+      route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items: [],
+          page: 1,
+          pageSize: 10,
+          totalItems: 0,
+          totalPages: 0,
+        }),
+      }),
+    )
+
+    await page.getByRole('textbox', { name: 'Nome', exact: true }).fill('Açaí')
+    await page.getByRole('checkbox', { name: 'Porção' }).check()
+    await page.getByRole('button', { name: 'Adicionar tamanho' }).click()
+    await page.getByRole('button', { name: 'Adicionar tamanho' }).click()
+    await page.getByRole('textbox', { name: 'Nome do tamanho 1' }).fill('Pequeno')
+    await page.getByRole('textbox', { name: 'Quantidade do tamanho 1' }).fill('0,3')
+    await page.getByRole('textbox', { name: 'Preço do tamanho 1' }).fill('9,90')
+    await page.getByRole('textbox', { name: 'Nome do tamanho 3' }).fill('Grande')
+    await page.getByRole('textbox', { name: 'Quantidade do tamanho 3' }).fill('0.5')
+    await page.getByRole('textbox', { name: 'Preço do tamanho 3' }).fill('14.50')
+    await page.getByRole('button', { name: 'Criar produto' }).click()
+
+    await expect.poll(() => registrations).toHaveLength(1)
+    expect(registrations[0]).toMatchObject({
+      categories: ['portion'],
+      sizes: [
+        { name: 'Pequeno', quantity: 0.3, price: 9.9 },
+        { name: 'Grande', quantity: 0.5, price: 14.5 },
+      ],
+    })
+    await expect(page).toHaveURL('/products/product-1/stock')
+  })
+
+  test('does not validate or send size rows typed while Portion is unselected', async ({
+    page,
+    identityFixture,
+    mrpFixture,
+  }) => {
+    await openRegistration(page, identityFixture)
+    const { registrations } = await mrpFixture.mockProducts({
+      getResponse: {
+        body: {
+          items: [],
+          page: 1,
+          pageSize: 10,
+          totalItems: 0,
+          totalPages: 0,
+          kpis: {},
+        },
+      },
+      postResponse: { body: CREATED_PRODUCT, status: 201 },
+    })
+    await page.route('**/products/product-1/stock', async (route) =>
+      route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify(STOCK_RESPONSE),
+      }),
+    )
+    await page.route('**/products/product-1/stock-transactions**', async (route) =>
+      route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items: [],
+          page: 1,
+          pageSize: 10,
+          totalItems: 0,
+          totalPages: 0,
+        }),
+      }),
+    )
+    await page.getByRole('textbox', { name: 'Nome', exact: true }).fill('Açaí')
+    await page.getByRole('checkbox', { name: 'Porção' }).check()
+    await page.getByRole('textbox', { name: 'Nome do tamanho 1' }).fill('Pequeno')
+    await page.getByRole('checkbox', { name: 'Porção' }).uncheck()
+    await page.getByRole('checkbox', { name: 'Ingrediente' }).check()
+
+    await page.getByRole('button', { name: 'Criar produto' }).click()
+
+    await expect.poll(() => registrations).toHaveLength(1)
+    expect(registrations[0]).not.toHaveProperty('sizes')
+    await expect(page).toHaveURL('/products/product-1/stock')
+  })
+
+  test('keeps the typed sizes and shows the page alert when the server rejects the registration', async ({
+    page,
+    identityFixture,
+  }) => {
+    await openRegistration(page, identityFixture)
+    const bodies: unknown[] = []
+    await page.route('**/products', async (route) => {
+      bodies.push(route.request().postDataJSON())
+      await route.fulfill({
+        contentType: 'application/json',
+        status: 400,
+        body: JSON.stringify({
+          message: 'Já existe um tamanho com esse nome para o produto.',
+        }),
+      })
+    })
+    await page.getByRole('textbox', { name: 'Nome', exact: true }).fill('Açaí')
+    await page.getByRole('checkbox', { name: 'Porção' }).check()
+    await page.getByRole('textbox', { name: 'Nome do tamanho 1' }).fill('Pequeno')
+    await page.getByRole('textbox', { name: 'Quantidade do tamanho 1' }).fill('1')
+    await page.getByRole('textbox', { name: 'Preço do tamanho 1' }).fill('5')
+
+    await page.getByRole('button', { name: 'Criar produto' }).click()
+
+    await expect(page.getByRole('alert')).toContainText(
+      'Já existe um tamanho com esse nome para o produto.',
+    )
+    await expect(page.getByRole('textbox', { name: 'Nome do tamanho 1' })).toHaveValue(
+      'Pequeno',
+    )
+    expect(bodies).toEqual([
+      expect.objectContaining({ sizes: [{ name: 'Pequeno', quantity: 1, price: 5 }] }),
+    ])
+    await expect(page).toHaveURL('/products/new')
+  })
+
+  test('lays the size row fields on one line on desktop and stacks them on narrow screens', async ({
+    page,
+    identityFixture,
+  }) => {
+    const { consoleErrors, failedRequests } = addDiagnostics(page)
+    await openRegistration(page, identityFixture)
+    await page.getByRole('checkbox', { name: 'Porção' }).check()
+    const fields = page.getByRole('group', { name: 'Tamanho 1' }).locator('label')
+    await expect(fields).toHaveCount(3)
+
+    await page.setViewportSize({ width: 1440, height: 900 })
+    const wide = await fields.evaluateAll((labels) =>
+      labels.map((label) => label.getBoundingClientRect().top),
+    )
+    expect(Math.max(...wide) - Math.min(...wide)).toBeLessThanOrEqual(1)
+    await assertDiagnostics(page, consoleErrors, failedRequests)
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    const narrow = await fields.evaluateAll((labels) =>
+      labels.map((label) => {
+        const { left, top } = label.getBoundingClientRect()
+        return { left, top }
+      }),
+    )
+    expect(new Set(narrow.map(({ left }) => Math.round(left))).size).toBe(1)
+    expect(narrow[0]?.top ?? 0).toBeLessThan(narrow[1]?.top ?? 0)
+    expect(narrow[1]?.top ?? 0).toBeLessThan(narrow[2]?.top ?? 0)
+    await assertDiagnostics(page, consoleErrors, failedRequests)
+  })
+
   test('returns to products through cancel and browser back without posting', async ({
     page,
     identityFixture,

@@ -2,11 +2,13 @@ import { Button } from '@/ui/shadcn/button'
 import { BackLink } from '@/ui/shared/widgets/components/back-link'
 
 import { ProductRegistrationForm } from './product-registration-form'
+import { ProductSizeFields } from './product-size-fields'
 import { ProductStockControlCard } from './product-stock-control-card'
 import { useProductRegistrationPage } from './use-product-registration-page'
 
 export const ProductRegistrationPage = () => {
   const {
+    accompanimentPrice,
     allowNegativeStock,
     brandErrors,
     brands,
@@ -17,11 +19,17 @@ export const ProductRegistrationPage = () => {
     formError,
     idealStock,
     initialStock,
+    isAccompanimentPriceVisible,
     isPending,
+    isResalePriceVisible,
+    isSizesSectionVisible,
     name,
     register,
+    resalePrice,
+    sizeFields,
     stockControl,
     unit,
+    handleAccompanimentPriceChange,
     handleAddBrand,
     handleAllowNegativeStockChange,
     handleBrandChange,
@@ -34,6 +42,7 @@ export const ProductRegistrationPage = () => {
     handleProductCategoryToggle,
     handleRegister,
     handleRemoveBrand,
+    handleResalePriceChange,
     handleStockControlChange,
     handleUnitChange,
     isCategoryDisabled,
@@ -46,17 +55,24 @@ export const ProductRegistrationPage = () => {
         <h1 className='text-2xl font-black tracking-tight sm:text-3xl'>Novo produto</h1>
       </div>
       <ProductRegistrationForm
+        accompanimentPrice={accompanimentPrice}
         categories={categories}
         fieldErrors={fieldErrors}
+        isAccompanimentPriceVisible={isAccompanimentPriceVisible}
         isCategoryDisabled={isCategoryDisabled}
+        isResalePriceVisible={isResalePriceVisible}
         name={name}
+        onAccompanimentPriceChange={handleAccompanimentPriceChange}
         onCategoryToggle={handleProductCategoryToggle}
         onNameChange={handleNameChange}
+        onResalePriceChange={handleResalePriceChange}
         onSubmit={handleRegister}
         onUnitChange={handleUnitChange}
         register={register}
+        resalePrice={resalePrice}
         unit={unit}
       >
+        {isSizesSectionVisible ? <ProductSizeFields {...sizeFields} /> : null}
         <ProductStockControlCard
           allowNegativeStock={allowNegativeStock}
           brandErrors={brandErrors}
