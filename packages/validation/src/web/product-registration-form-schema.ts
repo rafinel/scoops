@@ -11,7 +11,7 @@ import { resalePriceSchema } from '../mrp/resale-price-schema.ts'
 
 const SALE_PRICE_PATTERN = /^(?:\d+(?:\.\d{1,2})?|\.\d{1,2})$/
 const SIZE_QUANTITY_PATTERN = /^(?:\d+|\d*\.\d{1,3})$/
-const SIZE_PRICE_PATTERN = /^\d+(?:\.\d{1,2})?$/
+const SIZE_PRICE_PATTERN = SALE_PRICE_PATTERN
 const SIZE_MESSAGES = {
   name: 'Informe o nome do tamanho.',
   quantity: 'Informe uma quantidade maior que zero, com até três casas decimais.',
