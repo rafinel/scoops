@@ -183,6 +183,7 @@ describe('Update Product Size Use Case', () => {
     ['NaN', Number.NaN],
     ['infinite', Number.POSITIVE_INFINITY],
     ['with four decimal places', 1.0001],
+    ['at the numeric(18,3) limit', 1_000_000_000_000_000],
   ])('rejects a %s quantity with the quantity message', async (_label, quantity) => {
     await expect(update({ quantity })).rejects.toThrow(
       new BadRequestError(
@@ -197,6 +198,7 @@ describe('Update Product Size Use Case', () => {
     ['NaN', Number.NaN],
     ['infinite', Number.POSITIVE_INFINITY],
     ['with three decimal places', 1.005],
+    ['at the numeric(18,2) limit', 10_000_000_000_000_000],
   ])('rejects a %s price with the price message', async (_label, price) => {
     await expect(update({ price })).rejects.toThrow(
       new BadRequestError(
@@ -211,6 +213,31 @@ describe('Update Product Size Use Case', () => {
       new BadRequestError('O status do tamanho é obrigatório.'),
     )
     expect(database.run).not.toHaveBeenCalled()
+  })
+
+  it('accepts the largest quantity and price below the numeric limits', async () => {
+    await update({ quantity: 999_999_999_999_999, price: 9_999_999_999_999_998 })
+
+    expect(scope.productSizesRepository.replace).toHaveBeenCalledWith(
+      establishmentId,
+      product.id,
+      size.id,
+      expect.objectContaining({
+        quantity: 999_999_999_999_999,
+        price: 9_999_999_999_999_998,
+      }),
+    )
+  })
+
+  it('accepts a quantity with three decimals and a price with two decimals', async () => {
+    await update({ quantity: 1234567.891, price: 1234567.89 })
+
+    expect(scope.productSizesRepository.replace).toHaveBeenCalledWith(
+      establishmentId,
+      product.id,
+      size.id,
+      expect.objectContaining({ quantity: 1234567.891, price: 1234567.89 }),
+    )
   })
 
   it('accepts the smallest positive quantity with three decimals and a zero price', async () => {

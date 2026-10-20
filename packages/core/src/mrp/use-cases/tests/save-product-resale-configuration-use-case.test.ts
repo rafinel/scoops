@@ -222,4 +222,253 @@ describe('Save Product Resale Configuration Use Case', () => {
       }),
     ).rejects.toBeInstanceOf(AuthorizationError)
   })
+
+  describe.each([
+    ['Single', { productId: singleProduct.id }],
+    ['By-brand', { productId: byBrandProduct.id, brandId: brand.id }],
+  ])('a %s price', (_mode, target) => {
+    it.each([
+      ['the numeric(18,2) limit of 10^16', 10_000_000_000_000_000],
+      ['a negative number', -0.01],
+      ['three decimal places', 10.001],
+      ['a floating-point artifact', 0.30000000000000004],
+      ['not a number', Number.NaN],
+      ['infinite', Number.POSITIVE_INFINITY],
+    ])('rejects %s without starting a transaction', async (_name, price) => {
+      const rejection = expect(
+        useCase.execute({ actor, ...target, input: { price, isActive: true } }),
+      ).rejects
+
+      await rejection.toBeInstanceOf(BadRequestError)
+      await rejection.toThrow(
+        'O preço deve ser não negativo e possuir até duas casas decimais.',
+      )
+      expect(database.run).not.toHaveBeenCalled()
+      expect(scope.resaleConfigurationsRepository.add).not.toHaveBeenCalled()
+      expect(scope.resaleConfigurationsRepository.replace).not.toHaveBeenCalled()
+    })
+
+    it.each([0, 1_234_567.89])('saves the valid price %s', async (price) => {
+      await useCase.execute({ actor, ...target, input: { price, isActive: true } })
+
+      expect(scope.resaleConfigurationsRepository.add).toHaveBeenCalledWith(
+        expect.objectContaining({ productId: target.productId, price, isActive: true }),
+      )
+    })
+  })
+
+  it('keeps an existing configuration unchanged when the new price is rejected', async () => {
+    singleConfiguration = ResaleConfigurationFaker.fake({
+      id: 'single-configuration',
+      establishmentId,
+      productId: singleProduct.id,
+      price: 5,
+      isActive: true,
+    })
+
+    await expect(
+      useCase.execute({
+        actor,
+        productId: singleProduct.id,
+        input: { price: 10_000_000_000_000_000, isActive: true },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestError)
+
+    expect(singleConfiguration?.price).toBe(5)
+    expect(scope.resaleConfigurationsRepository.replace).not.toHaveBeenCalled()
+  })
+
+  describe('eligibility', () => {
+    const validInput = { price: 10, isActive: true }
+
+    it('rejects an unknown product', async () => {
+      const rejection = expect(
+        useCase.execute({ actor, productId: 'missing-product', input: validInput }),
+      ).rejects
+
+      await rejection.toBeInstanceOf(NotFoundError)
+      await rejection.toThrow('Produto não encontrado.')
+      expect(scope.resaleConfigurationsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it('rejects a product from another establishment as not found', async () => {
+      scope.productsRepository.findById.mockResolvedValue({
+        ...singleProduct,
+        establishmentId: 'foreign-establishment',
+      })
+
+      const rejection = expect(
+        useCase.execute({ actor, productId: singleProduct.id, input: validInput }),
+      ).rejects
+
+      await rejection.toBeInstanceOf(NotFoundError)
+      await rejection.toThrow('Produto não encontrado.')
+      expect(scope.resaleConfigurationsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      [
+        'a product without the Resale category',
+        [ProductCategory.Ingredient],
+        'O produto não é uma revenda.',
+      ],
+      [
+        'a Portion product',
+        [ProductCategory.Resale, ProductCategory.Portion],
+        'Porção e Revenda não podem ser usadas juntas.',
+      ],
+    ])('rejects %s', async (_name, categories, message) => {
+      scope.productsRepository.findById.mockResolvedValue({
+        ...singleProduct,
+        categories,
+      })
+
+      const rejection = expect(
+        useCase.execute({ actor, productId: singleProduct.id, input: validInput }),
+      ).rejects
+
+      await rejection.toBeInstanceOf(BadRequestError)
+      await rejection.toThrow(message)
+      expect(scope.resaleConfigurationsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it('rejects a product with an unsupported stock control', async () => {
+      scope.productsRepository.findById.mockResolvedValue({
+        ...singleProduct,
+        stockControl: 'unsupported' as ProductStockControl,
+      })
+
+      const rejection = expect(
+        useCase.execute({ actor, productId: singleProduct.id, input: validInput }),
+      ).rejects
+
+      await rejection.toBeInstanceOf(BadRequestError)
+      await rejection.toThrow('O controle de estoque do produto não é suportado.')
+    })
+
+    it('rejects a brand on a Single-stock product', async () => {
+      const rejection = expect(
+        useCase.execute({
+          actor,
+          productId: singleProduct.id,
+          brandId: brand.id,
+          input: validInput,
+        }),
+      ).rejects
+
+      await rejection.toBeInstanceOf(BadRequestError)
+      await rejection.toThrow('O produto de estoque único não possui marcas.')
+    })
+
+    it('requires a brand for a By-brand product', async () => {
+      const rejection = expect(
+        useCase.execute({ actor, productId: byBrandProduct.id, input: validInput }),
+      ).rejects
+
+      await rejection.toBeInstanceOf(BadRequestError)
+      await rejection.toThrow('Informe a marca da configuração de revenda.')
+    })
+
+    it.each([
+      ['an unknown brand', 'missing-brand'],
+      ['a brand of another product', 'other-product-brand'],
+    ])('rejects %s as not found', async (_name, brandId) => {
+      scope.brandsRepository.findById.mockResolvedValue(
+        brandId === 'other-product-brand'
+          ? { ...brand, id: brandId, productId: 'other-product' }
+          : undefined,
+      )
+
+      const rejection = expect(
+        useCase.execute({
+          actor,
+          productId: byBrandProduct.id,
+          brandId,
+          input: validInput,
+        }),
+      ).rejects
+
+      await rejection.toBeInstanceOf(NotFoundError)
+      await rejection.toThrow('Marca não encontrada.')
+      expect(scope.resaleConfigurationsRepository.add).not.toHaveBeenCalled()
+    })
+
+    it('requires a boolean availability', async () => {
+      const rejection = expect(
+        useCase.execute({
+          actor,
+          productId: singleProduct.id,
+          input: { price: 10, isActive: 'yes' as unknown as boolean },
+        }),
+      ).rejects
+
+      await rejection.toBeInstanceOf(BadRequestError)
+      await rejection.toThrow('O status da configuração é obrigatório.')
+      expect(database.run).not.toHaveBeenCalled()
+    })
+
+    it('limits saving to Managers', async () => {
+      const rejection = expect(
+        useCase.execute({
+          actor: { ...actor, profile: UserProfile.Operator },
+          productId: singleProduct.id,
+          input: validInput,
+        }),
+      ).rejects
+
+      await rejection.toBeInstanceOf(AuthorizationError)
+      await rejection.toThrow('Somente gestores podem salvar preços de revenda.')
+      expect(database.run).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['another establishment', { establishmentId: 'foreign-establishment' }],
+      ['another product', { productId: 'other-product' }],
+      ['a brand', { brandId: 'unexpected-brand' }],
+    ])(
+      'does not replace a Single configuration owned by %s',
+      async (_name, overrides) => {
+        singleConfiguration = ResaleConfigurationFaker.fake({
+          id: 'single-configuration',
+          establishmentId,
+          productId: singleProduct.id,
+          price: 5,
+          isActive: true,
+          ...overrides,
+        })
+
+        const rejection = expect(
+          useCase.execute({ actor, productId: singleProduct.id, input: validInput }),
+        ).rejects
+
+        await rejection.toBeInstanceOf(NotFoundError)
+        await rejection.toThrow('Configuração de revenda não encontrada.')
+        expect(scope.resaleConfigurationsRepository.replace).not.toHaveBeenCalled()
+      },
+    )
+
+    it('does not replace a By-brand configuration owned by another brand', async () => {
+      brandConfiguration = ResaleConfigurationFaker.fake({
+        id: 'brand-configuration',
+        establishmentId,
+        productId: byBrandProduct.id,
+        brandId: 'another-brand',
+        price: 5,
+        isActive: true,
+      })
+
+      const rejection = expect(
+        useCase.execute({
+          actor,
+          productId: byBrandProduct.id,
+          brandId: brand.id,
+          input: validInput,
+        }),
+      ).rejects
+
+      await rejection.toBeInstanceOf(NotFoundError)
+      await rejection.toThrow('Configuração de revenda não encontrada.')
+      expect(scope.resaleConfigurationsRepository.replace).not.toHaveBeenCalled()
+    })
+  })
 })

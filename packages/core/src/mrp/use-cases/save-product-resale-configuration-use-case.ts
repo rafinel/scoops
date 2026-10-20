@@ -2,6 +2,7 @@ import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import type { ResaleConfiguration } from '#mrp/domain/entities/resale-configuration.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
+import { ResalePriceValidationStrategy } from '#mrp/domain/strategies/resale-price-validation-strategy.ts'
 import {
   ProductCategory,
   ProductStockControl,
@@ -34,6 +35,8 @@ type Request = {
 export class SaveProductResaleConfigurationUseCase
   implements UseCase<Request, ProductPricingDetails>
 {
+  private readonly resalePriceValidation = new ResalePriceValidationStrategy()
+
   constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<ProductPricingDetails> {
@@ -177,11 +180,7 @@ export class SaveProductResaleConfigurationUseCase
   }
 
   private validateInput(input: SaveProductResaleConfigurationInput): void {
-    if (
-      !Number.isFinite(input.price) ||
-      input.price < 0 ||
-      !hasAtMostTwoDecimalPlaces(input.price)
-    ) {
+    if (!this.resalePriceValidation.execute(input.price)) {
       throw new BadRequestError(
         'O preço deve ser não negativo e possuir até duas casas decimais.',
       )
@@ -205,8 +204,4 @@ function validateResaleProduct(
   if (product.categories.includes(ProductCategory.Portion)) {
     throw new BadRequestError('Porção e Revenda não podem ser usadas juntas.')
   }
-}
-
-function hasAtMostTwoDecimalPlaces(value: number): boolean {
-  return Math.abs(value * 100 - Math.round(value * 100)) < 1e-8
 }

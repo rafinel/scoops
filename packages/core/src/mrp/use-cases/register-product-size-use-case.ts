@@ -7,6 +7,10 @@ import {
   type ProductPricingDetails,
   type RegisterProductSizeInput,
 } from '#mrp/domain/structures/index.ts'
+import {
+  PRODUCT_SIZE_VALIDATION_MESSAGES,
+  ProductSizeValidationStrategy,
+} from '#mrp/domain/strategies/product-size-validation-strategy.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
 import {
   GetAffectedProductSalesConfigurationsUseCase,
@@ -30,6 +34,8 @@ type Request = {
 export class RegisterProductSizeUseCase
   implements UseCase<Request, ProductPricingDetails>
 {
+  private readonly sizeValidation = new ProductSizeValidationStrategy()
+
   constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<ProductPricingDetails> {
@@ -125,29 +131,9 @@ export class RegisterProductSizeUseCase
   }
 
   private validateInput(input: RegisterProductSizeInput): void {
-    if (!input.name.trim() || input.name.trim().length > 120) {
-      throw new BadRequestError(
-        'O nome do tamanho deve possuir entre 1 e 120 caracteres.',
-      )
-    }
-    if (
-      !Number.isFinite(input.quantity) ||
-      input.quantity <= 0 ||
-      !hasAtMostThreeDecimalPlaces(input.quantity)
-    ) {
-      throw new BadRequestError(
-        'A quantidade deve ser positiva e possuir até três casas decimais.',
-      )
-    }
-    if (
-      !Number.isFinite(input.price) ||
-      input.price < 0 ||
-      !hasAtMostTwoDecimalPlaces(input.price)
-    ) {
-      throw new BadRequestError(
-        'O preço deve ser não negativo e possuir até duas casas decimais.',
-      )
-    }
+    const result = this.sizeValidation.execute(input)
+    if (result !== 'valid')
+      throw new BadRequestError(PRODUCT_SIZE_VALIDATION_MESSAGES[result])
   }
 }
 
@@ -168,12 +154,4 @@ function validatePortionProduct(
 
 function normalizeName(value: string): string {
   return value.trim().toLocaleLowerCase()
-}
-
-function hasAtMostThreeDecimalPlaces(value: number): boolean {
-  return Math.abs(value * 1_000 - Math.round(value * 1_000)) < 1e-8
-}
-
-function hasAtMostTwoDecimalPlaces(value: number): boolean {
-  return Math.abs(value * 100 - Math.round(value * 100)) < 1e-8
 }

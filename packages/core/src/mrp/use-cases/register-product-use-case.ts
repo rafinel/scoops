@@ -11,7 +11,13 @@ import {
   type RegisterProductInput,
 } from '#mrp/domain/structures/index.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
+import { AccompanimentPriceValidationStrategy } from '#mrp/domain/strategies/accompaniment-price-validation-strategy.ts'
 import { GlobalAccompanimentRowsStrategy } from '#mrp/domain/strategies/global-accompaniment-rows-strategy.ts'
+import {
+  PRODUCT_SIZE_VALIDATION_MESSAGES,
+  ProductSizeValidationStrategy,
+} from '#mrp/domain/strategies/product-size-validation-strategy.ts'
+import { ResalePriceValidationStrategy } from '#mrp/domain/strategies/resale-price-validation-strategy.ts'
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import {
   AuthorizationError,
@@ -26,8 +32,25 @@ type Request = RegisterProductInput & {
   actor: ProductActor & { readonly name: string }
 }
 
+const SALE_PRICE_TARGET_MESSAGES = {
+  [ProductCategory.Resale]:
+    'O preço de revenda é permitido apenas para produtos de revenda com estoque único.',
+  [ProductCategory.Accompaniment]:
+    'O preço como acompanhamento é permitido apenas para acompanhamentos de estoque único.',
+} as const
+const RESALE_PRICE_MESSAGE =
+  'O preço de revenda deve ser maior ou igual a zero e ter até duas casas decimais.'
+const SIZES_NOT_ALLOWED_MESSAGE = 'Tamanhos são permitidos apenas para porções.'
+const DUPLICATE_SIZE_MESSAGE = 'Já existe um tamanho com esse nome para o produto.'
+const ACCOMPANIMENT_PRICE_MESSAGE =
+  'O preço deve ser maior ou igual a zero e ter até duas casas decimais.'
+
 export class RegisterProductUseCase implements UseCase<Request, Product> {
+  private readonly accompanimentPriceValidation =
+    new AccompanimentPriceValidationStrategy()
   private readonly globalAccompanimentRows = new GlobalAccompanimentRowsStrategy()
+  private readonly resalePriceValidation = new ResalePriceValidationStrategy()
+  private readonly sizeValidation = new ProductSizeValidationStrategy()
 
   constructor(
     private readonly database: MrpDatabase,
@@ -47,6 +70,8 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
   ): Promise<Product> {
     const createdProduct = await this.createProduct(scope, request)
 
+    await this.addResaleConfiguration(scope, request, createdProduct)
+    await this.addSizes(scope, request, createdProduct)
     if (request.categories.includes(ProductCategory.Portion)) {
       await this.addGlobalRows(scope, request.actor.establishmentId, createdProduct)
     }
@@ -84,7 +109,42 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
       ...(request.currentUnitCost === undefined
         ? {}
         : { currentUnitCost: request.currentUnitCost }),
+      ...(request.accompanimentPrice === undefined
+        ? {}
+        : { accompanimentPrice: request.accompanimentPrice }),
     })
+  }
+
+  private async addResaleConfiguration(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+    product: Product,
+  ): Promise<void> {
+    if (request.resalePrice === undefined) return
+
+    await scope.resaleConfigurationsRepository.add({
+      establishmentId: request.actor.establishmentId,
+      productId: product.id,
+      price: request.resalePrice,
+      isActive: true,
+    })
+  }
+
+  private async addSizes(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+    product: Product,
+  ): Promise<void> {
+    for (const size of request.sizes ?? []) {
+      await scope.productSizesRepository.add({
+        establishmentId: request.actor.establishmentId,
+        productId: product.id,
+        name: size.name.trim(),
+        quantity: size.quantity,
+        price: size.price,
+        isActive: true,
+      })
+    }
   }
 
   private async publishCreation(
@@ -223,6 +283,8 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
     this.validateCategories(input)
     this.validateStock(input)
     this.validateCurrentUnitCost(input)
+    this.validateSalePrices(input)
+    this.validateSizes(input)
     this.validateBrandConfiguration(input)
     this.validateBrandValues(input)
   }
@@ -293,6 +355,62 @@ export class RegisterProductUseCase implements UseCase<Request, Product> {
     ) {
       throw new BadRequestError('O custo unitário atual é inválido.')
     }
+  }
+
+  private validateSalePrices(input: RegisterProductInput): void {
+    const { accompanimentPrice, resalePrice } = input
+
+    if (resalePrice !== undefined) {
+      this.requireSalePriceTarget(input, ProductCategory.Resale)
+      this.requireValidSalePrice(
+        this.resalePriceValidation.execute(resalePrice),
+        RESALE_PRICE_MESSAGE,
+      )
+    }
+    if (accompanimentPrice !== undefined) {
+      this.requireSalePriceTarget(input, ProductCategory.Accompaniment)
+      this.requireValidSalePrice(
+        this.accompanimentPriceValidation.execute(accompanimentPrice) !== 'invalid',
+        ACCOMPANIMENT_PRICE_MESSAGE,
+      )
+    }
+  }
+
+  private validateSizes(input: RegisterProductInput): void {
+    const sizes = input.sizes ?? []
+    if (sizes.length === 0) return
+
+    if (!input.categories.includes(ProductCategory.Portion)) {
+      throw new BadRequestError(SIZES_NOT_ALLOWED_MESSAGE)
+    }
+    for (const size of sizes) {
+      const result = this.sizeValidation.execute(size)
+      if (result !== 'valid') {
+        throw new BadRequestError(PRODUCT_SIZE_VALIDATION_MESSAGES[result])
+      }
+    }
+    const names = sizes.map((size) => size.name.trim().toLocaleLowerCase())
+    if (new Set(names).size !== names.length) {
+      throw new BadRequestError(DUPLICATE_SIZE_MESSAGE)
+    }
+  }
+
+  private requireSalePriceTarget(
+    input: RegisterProductInput,
+    category: keyof typeof SALE_PRICE_TARGET_MESSAGES,
+  ): void {
+    const canReceivePrice =
+      input.stockControl === ProductStockControl.Single &&
+      input.categories.includes(category) &&
+      !input.categories.includes(ProductCategory.Portion)
+
+    if (!canReceivePrice) {
+      throw new BadRequestError(SALE_PRICE_TARGET_MESSAGES[category])
+    }
+  }
+
+  private requireValidSalePrice(isValid: boolean, message: string): void {
+    if (!isValid) throw new BadRequestError(message)
   }
 
   private validateBrandConfiguration(input: RegisterProductInput): void {
