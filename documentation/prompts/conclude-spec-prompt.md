@@ -33,10 +33,14 @@ according to the change. Delivery PRs must be ready for review; verify `isDraft:
    existing automated, runtime, manual, visual and independent-review evidence. Evidence must
    name the candidate or affected diff and its assumptions; a check label alone is insufficient.
 2. Reuse passing evidence when its implementation, contract, dependencies and environment
-   assumptions remain valid. Run only missing or invalidated checks. Every affected Core,
-   Server or Web workspace must have current passing `test:coverage` evidence at its configured
-   floor; never lower a threshold to make closure pass. Apply the same freshness decision to
-   generation, formatting, types, integration, architecture, build and Playwright CLI checks.
+   assumptions remain valid. Run only missing or invalidated checks. Full test suites run only
+   in the Final PR CI gate: do not run a workspace-wide `test` or `test:coverage` command or
+   the complete Playwright route suite locally during conclusion. Local evidence for changed
+   behavior comes from focused tests of the affected files, scenarios or routes. Coverage floors
+   are verified by the applicable Core, Server and Web CI workflows on the PR head; never lower
+   a threshold to make closure pass. Apply the same freshness decision to generation,
+   formatting, types, architecture, complexity, build and Playwright CLI checks, which remain
+   local.
 3. When the Spec explicitly classifies exact artifact paths as `Create`, `Modify`, `Generate`
    or `Remove`, require a current passing
    `pnpm check:spec-implementation -- <exact-spec-path>` result for those obligations. Reuse
@@ -114,7 +118,9 @@ workflows on its actual PR head SHA. Do not push a standalone documentation comm
 publish Evaluation's `ready` transition. Determine applicability from real path filters,
 including Core CI, Server CI and Web CI when their inputs changed. Record each applicable
 workflow/check name, result, run URL and tested SHA in Evaluation; state why any workflow is
-inapplicable.
+inapplicable. These runs are the only full-suite evidence: Evaluation records the Core, Server
+and Web test and coverage-floor results from them, since conclusion does not repeat them
+locally.
 
 For applicable Core CI, include its separate `Mutation` job, which runs the full eligible
 Core use-case scope with `--all` across all four CI shards and uploads HTML/JSON

@@ -664,7 +664,24 @@ Before setting the Spec to `open`, verify:
 - the current draft passed independent compatibility review with verified blockers resolved.
 
 Return the clickable Spec path, revision/status, outcome and exclusions, important decisions,
-design/checker coverage and accepted risks. The next workflow is `implement-spec`.
+design/checker coverage and accepted risks. The next workflow is `implement-spec`. Write this
+handoff following the user-facing communication rules below.
+
+## User-facing communication
+
+Progress updates, decision ledgers, review results and the final handoff are read by a person,
+not parsed by a tool. Write them as fluid, readable prose:
+
+- lead with the outcome in one sentence, then explain what changed and why in short, connected
+  paragraphs;
+- use lists or tables only for genuinely list-shaped content, such as options, decision ledgers,
+  file trees, findings or ordered steps; do not stack terse fragments, arrows or semicolon chains;
+- introduce internal identifiers (FR/AC IDs, node IDs, symbols) with a plain description of what
+  they are, and avoid unexplained jargon;
+- separate what is done, what is open and what the user must do next, and end with one clear
+  call to action when one is needed (for example, saving an edited `.pen` file);
+- keep grilling questions in the lettered format required by the grilling protocol; these rules
+  govern the surrounding explanation, not the question structure.
 
 ## Material amendments
 
