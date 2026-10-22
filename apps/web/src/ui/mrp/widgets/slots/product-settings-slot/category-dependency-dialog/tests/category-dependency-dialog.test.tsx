@@ -87,6 +87,7 @@ describe('CategoryDependencyDialog', () => {
         open
         productId='product-1'
         productName='Açaí'
+        savedCategories={['ingredient']}
       />,
     )
 
@@ -139,6 +140,7 @@ describe('CategoryDependencyDialog', () => {
         open
         productId='product-1'
         productName='Açaí'
+        savedCategories={['ingredient']}
       />,
     )
     expect(
@@ -163,6 +165,7 @@ describe('CategoryDependencyDialog', () => {
         open
         productId='product-1'
         productName='Açaí'
+        savedCategories={['ingredient']}
       />,
     )
 
@@ -190,6 +193,7 @@ describe('CategoryDependencyDialog', () => {
         open
         productId='product-1'
         productName='Açaí'
+        savedCategories={['ingredient']}
       />,
     )
 
@@ -221,6 +225,7 @@ describe('CategoryDependencyDialog', () => {
         open
         productId='product-1'
         productName='Açaí'
+        savedCategories={['ingredient']}
       />,
     )
 
@@ -253,6 +258,7 @@ describe('CategoryDependencyDialog', () => {
         open={false}
         productId='product-1'
         productName='Açaí'
+        savedCategories={['ingredient']}
       />,
     )
     expect(screen.queryByRole('dialog')).toBeNull()
@@ -270,6 +276,7 @@ describe('CategoryDependencyDialog', () => {
         open
         productId='product-1'
         productName='Açaí'
+        savedCategories={['ingredient']}
       />,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Entendi' }))

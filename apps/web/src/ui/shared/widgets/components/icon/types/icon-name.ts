@@ -31,6 +31,7 @@ export type IconName =
   | 'new-password'
   | 'name'
   | 'search'
+  | 'search-x'
   | 'shield'
   | 'shield-alert'
   | 'shield-check'

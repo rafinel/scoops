@@ -1,4 +1,5 @@
 import type {
+  AccompanimentPortionListParams,
   AccompanimentTypeListParams,
   StockTransactionListParams,
 } from '@scoops/core/mrp/domain/structures'
@@ -14,6 +15,17 @@ export const mrpQueryKeys = {
     [...mrpQueryKeys.products(), productId, 'pricing'] as const,
   productAccompaniments: (productId: string) =>
     [...mrpQueryKeys.products(), productId, 'accompaniments'] as const,
+  accompanimentPortions: (
+    productId: string,
+    input: Omit<
+      AccompanimentPortionListParams,
+      'establishmentId' | 'accompanimentProductId'
+    >,
+  ) => [...mrpQueryKeys.products(), productId, 'accompaniment-portions', input] as const,
+  accompanimentPortionCandidates: (productId: string) =>
+    [...mrpQueryKeys.products(), productId, 'accompaniment-portion-candidates'] as const,
+  globalAccompaniment: (productId: string) =>
+    [...mrpQueryKeys.products(), productId, 'global-accompaniment'] as const,
   productSettings: (productId: string) =>
     [...mrpQueryKeys.products(), productId, 'settings'] as const,
   productUnitChangePreviews: (productId: string) =>

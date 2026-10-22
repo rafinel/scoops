@@ -20,6 +20,7 @@ export const ROUTES = {
   productDetailsStock: '/products/$productId/stock',
   productDetailsRecipe: '/products/$productId/recipe',
   productDetailsAccompaniments: '/products/$productId/accompaniments',
+  productDetailsPortions: '/products/$productId/portions',
   productDetailsPrices: '/products/$productId/prices',
   productDetailsSettings: '/products/$productId/settings',
   accompanimentTypes: '/accompaniment-types',
@@ -60,6 +61,10 @@ export function productDetailsRoute(productId: string): string {
 
 export function productAccompanimentsRoute(productId: string): string {
   return ROUTES.productDetailsAccompaniments.replace('$productId', productId)
+}
+
+export function productPortionsRoute(productId: string): string {
+  return ROUTES.productDetailsPortions.replace('$productId', productId)
 }
 
 export function productStockRoute(productId: string): string {

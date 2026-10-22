@@ -7,6 +7,7 @@ export type ProductDetailsTab =
   | 'stock'
   | 'recipe'
   | 'accompaniments'
+  | 'portions'
   | 'prices'
   | 'settings'
 export type ProductDetailsTabsProps = {
@@ -21,6 +22,7 @@ const TAB_CONFIG: Array<{
     | 'productDetailsStock'
     | 'productDetailsRecipe'
     | 'productDetailsAccompaniments'
+    | 'productDetailsPortions'
     | 'productDetailsPrices'
     | 'productDetailsSettings'
   value: ProductDetailsTab
@@ -32,6 +34,12 @@ const TAB_CONFIG: Array<{
     label: 'Acompanhamentos',
     route: 'productDetailsAccompaniments',
     value: 'accompaniments',
+  },
+  {
+    icon: 'ice-cream-cone',
+    label: 'Porções',
+    route: 'productDetailsPortions',
+    value: 'portions',
   },
   { icon: 'tag', label: 'Preços', route: 'productDetailsPrices', value: 'prices' },
   {
@@ -48,6 +56,8 @@ export const ProductDetailsTabs = ({ product, selectedTab }: ProductDetailsTabsP
   const visibleTabs = TAB_CONFIG.filter(({ value }) => {
     if (value === 'recipe') return hasCategory('manufacturable')
     if (value === 'accompaniments') return hasCategory('portion')
+    if (value === 'portions')
+      return hasCategory('accompaniment') && !hasCategory('portion')
     if (value === 'prices') return hasCategory('portion') || hasCategory('resale')
     return true
   })

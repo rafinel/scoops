@@ -34,8 +34,8 @@ export const ProductAccompanimentsCard = ({
           </span>
         </h2>
         <p className='mt-1 text-sm text-muted-foreground'>
-          Itens oferecidos junto a este produto no PDV. O preço de cada produto vale para
-          todas as porções e tamanhos. Itens globais aparecem em todas as porções.
+          Itens oferecidos junto a este produto no PDV. Cada vínculo tem o seu preço.
+          Itens globais aparecem em todas as porções.
         </p>
       </div>
       {canManage ? (

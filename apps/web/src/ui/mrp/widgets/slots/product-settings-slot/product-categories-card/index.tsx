@@ -144,6 +144,7 @@ export const ProductCategoriesCard = ({
           open={dialogOpen}
           productId={product.id}
           productName={product.name}
+          savedCategories={product.categories}
         />
       ) : null}
     </section>

@@ -7,8 +7,8 @@ import { ProductFaker } from '@scoops/core/mrp/domain/entities/fakers'
 import { UserProfile } from '@scoops/core/identity/domain/structures'
 import type { ProductAccompanimentsDetails } from '@scoops/core/mrp/domain/structures'
 
-import type { RemoveGlobalAccompanimentDialogProps } from '../remove-global-accompaniment-dialog'
-import type { RemoveProductAccompanimentDialogProps } from '../remove-product-accompaniment-dialog'
+import type { RemoveGlobalAccompanimentDialogProps } from '@/ui/mrp/widgets/components/remove-global-accompaniment-dialog'
+import type { RemoveProductAccompanimentDialogProps } from '@/ui/mrp/widgets/components/remove-product-accompaniment-dialog'
 import { ProductAccompanimentsSlot } from '../index'
 import { useProductAccompanimentsSlot } from '../use-product-accompaniments-slot'
 import { useAuthContext } from '@/ui/shared/hooks/use-auth-context'
@@ -17,17 +17,17 @@ vi.mock('@/ui/mrp/widgets/pages/product-details-page', () => ({
   ProductDetailsPage: ({ children }: { children: ReactNode }) => <>{children}</>,
 }))
 
-vi.mock('../remove-global-accompaniment-dialog', () => ({
+vi.mock('@/ui/mrp/widgets/components/remove-global-accompaniment-dialog', () => ({
   RemoveGlobalAccompanimentDialog: ({
     item,
     portionName,
   }: RemoveGlobalAccompanimentDialogProps) => (
     <div role='alertdialog' aria-label='Remoção global'>
-      {item.accompanimentProductName} / {portionName}
+      {item?.accompanimentProductName} / {portionName}
     </div>
   ),
 }))
-vi.mock('../remove-product-accompaniment-dialog', () => ({
+vi.mock('@/ui/mrp/widgets/components/remove-product-accompaniment-dialog', () => ({
   RemoveProductAccompanimentDialog: ({ item }: RemoveProductAccompanimentDialogProps) => (
     <div role='alertdialog' aria-label='Remoção individual'>
       {item.accompanimentProductName}
