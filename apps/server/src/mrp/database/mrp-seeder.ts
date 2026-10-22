@@ -60,12 +60,14 @@ type MrpProductAccompanimentSeed = {
   accompanimentProductName: string
   accompanimentTypeName: string
   quantityPerPortion: number
+  accompanimentPrice?: number
 }
 
 type MrpGlobalAccompanimentSeed = {
   accompanimentProductName: string
   accompanimentTypeName: string
   quantityPerPortion: number
+  accompanimentPrice?: number
 }
 
 type MrpResaleConfigurationSeed = {
@@ -390,6 +392,7 @@ export class MrpSeeder {
         accompanimentProductId,
         accompanimentTypeId,
         quantityPerPortion: accompanimentSeed.quantityPerPortion,
+        accompanimentPrice: accompanimentSeed.accompanimentPrice,
       })
     }
   }
@@ -446,25 +449,44 @@ export class MrpSeeder {
         )
       }
 
-      const [globalAccompaniment] = await this.globalAccompanimentsRepository.addMany([
-        {
-          establishmentId: accompanimentProduct.establishmentId,
-          accompanimentProductId,
-          accompanimentTypeId,
-          quantityPerPortion: globalSeed.quantityPerPortion,
-        },
-      ])
-      await this.productAccompanimentsRepository.addMany(
-        targetPortions.map((portion) => ({
-          establishmentId: portion.establishmentId,
-          productId: portion.id,
-          accompanimentProductId,
-          accompanimentTypeId,
-          quantityPerPortion: globalSeed.quantityPerPortion,
-          globalAccompanimentId: globalAccompaniment.id,
-        })),
-      )
+      await this.addGlobalWithRows(globalSeed, {
+        establishmentId: accompanimentProduct.establishmentId,
+        accompanimentProductId,
+        accompanimentTypeId,
+        targetPortions,
+      })
     }
+  }
+
+  private async addGlobalWithRows(
+    globalSeed: MrpGlobalAccompanimentSeed,
+    input: {
+      establishmentId: string
+      accompanimentProductId: string
+      accompanimentTypeId: string
+      targetPortions: readonly { id: string; establishmentId: string }[]
+    },
+  ): Promise<void> {
+    const { accompanimentProductId, accompanimentTypeId } = input
+    const [globalAccompaniment] = await this.globalAccompanimentsRepository.addMany([
+      {
+        establishmentId: input.establishmentId,
+        accompanimentProductId,
+        accompanimentTypeId,
+        quantityPerPortion: globalSeed.quantityPerPortion,
+        accompanimentPrice: globalSeed.accompanimentPrice,
+      },
+    ])
+    await this.productAccompanimentsRepository.addMany(
+      input.targetPortions.map((portion) => ({
+        establishmentId: portion.establishmentId,
+        productId: portion.id,
+        accompanimentProductId,
+        accompanimentTypeId,
+        quantityPerPortion: globalSeed.quantityPerPortion,
+        globalAccompanimentId: globalAccompaniment.id,
+      })),
+    )
   }
 
   private resolveProductId(

@@ -9,6 +9,7 @@ import {
   DrizzleMrpDatabase,
   DrizzleProductsRepository,
   DrizzleProductAccompanimentsRepository,
+  DrizzleProductSalesConfigurationSourcesRepository,
   DrizzleProductSizesRepository,
   DrizzleProductionIngredientsRepository,
   DrizzleProductionsRepository,
@@ -28,6 +29,7 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
     DrizzleAccompanimentTypesRepository,
     DrizzleProductsRepository,
     DrizzleProductAccompanimentsRepository,
+    DrizzleProductSalesConfigurationSourcesRepository,
     DrizzleGlobalAccompanimentsRepository,
     DrizzleProductSizesRepository,
     DrizzleBrandsRepository,
@@ -52,6 +54,10 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
     {
       provide: MRP_REPOSITORIES.globalAccompaniments,
       useExisting: DrizzleGlobalAccompanimentsRepository,
+    },
+    {
+      provide: MRP_REPOSITORIES.productSalesConfigurationSources,
+      useExisting: DrizzleProductSalesConfigurationSourcesRepository,
     },
     { provide: MRP_REPOSITORIES.products, useExisting: DrizzleProductsRepository },
     {
@@ -91,6 +97,7 @@ import { MrpSeeder } from '@/mrp/database/mrp-seeder'
     MRP_REPOSITORIES.accompanimentTypes,
     MRP_REPOSITORIES.productAccompaniments,
     MRP_REPOSITORIES.globalAccompaniments,
+    MRP_REPOSITORIES.productSalesConfigurationSources,
     MRP_REPOSITORIES.products,
     MRP_REPOSITORIES.productSizes,
     MRP_REPOSITORIES.brands,

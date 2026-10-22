@@ -179,7 +179,7 @@ describe('Register Order Controller [POST /orders]', () => {
       allowNegativeStock: false,
       idealStock: 0,
       currentUnitCost: 1,
-      accompanimentPrice: 3,
+      accompanimentPrice: 9,
     })
     const accompanimentType = await fixture.addAccompanimentType({
       establishmentId: product.establishmentId,
@@ -191,6 +191,7 @@ describe('Register Order Controller [POST /orders]', () => {
       accompanimentProductId: accompanimentProduct.id,
       accompanimentTypeId: accompanimentType.id,
       quantityPerPortion: 1,
+      accompanimentPrice: 3,
     })
     await fixture.stockBalances.initialize(accompanimentProduct.id)
     await fixture.stockBalances.add({ productId: accompanimentProduct.id }, 2)
@@ -241,9 +242,16 @@ describe('Register Order Controller [POST /orders]', () => {
       .post('/orders/preview')
       .set('Cookie', managerRequestAuthorization())
       .send({ lines })
-    await fixture.products.replace(product.establishmentId, accompanimentProduct.id, {
-      accompanimentPrice: 4,
-    })
+    await fixture.productAccompaniments.replace(
+      product.establishmentId,
+      product.id,
+      accompaniment.id,
+      {
+        accompanimentTypeId: accompaniment.accompanimentTypeId,
+        quantityPerPortion: accompaniment.quantityPerPortion,
+        accompanimentPrice: 4,
+      },
+    )
 
     const repriced = await request(fixture.app.getHttpServer())
       .post('/orders')
@@ -260,7 +268,7 @@ describe('Register Order Controller [POST /orders]', () => {
     expect(repriced.body.previewToken).toEqual(expect.any(String))
   })
 
-  it('registers a Portion with a global and an individual accompaniment using product prices and main-brand consumption', async () => {
+  it('registers a Portion with a global and an individual accompaniment using link and global prices and main-brand consumption', async () => {
     const { product, size } = await addRegisterablePortion(
       fixture,
       'Global Registration Portion',
@@ -284,12 +292,12 @@ describe('Register Order Controller [POST /orders]', () => {
     const individualTarget = await createTarget(
       'Individual Registration Topping',
       ProductStockControl.Single,
-      2,
+      20,
     )
     const globalTarget = await createTarget(
       'Global Registration Topping',
       ProductStockControl.ByBrand,
-      3.5,
+      30,
     )
     const mainBrand = await fixture.addBrand({
       productId: globalTarget.id,
@@ -327,12 +335,14 @@ describe('Register Order Controller [POST /orders]', () => {
       accompanimentProductId: individualTarget.id,
       accompanimentTypeId: type.id,
       quantityPerPortion: 2,
+      accompanimentPrice: 2,
     })
     const global = await fixture.addGlobalAccompaniment({
       establishmentId: product.establishmentId,
       accompanimentProductId: globalTarget.id,
       accompanimentTypeId: type.id,
       quantityPerPortion: 1.5,
+      accompanimentPrice: 3.5,
     })
     const globalRow = await fixture.addProductAccompaniment({
       establishmentId: product.establishmentId,

@@ -36,7 +36,7 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
         name: 'Granola',
         categories: [ProductCategory.Accompaniment],
         currentUnitCost: 2.5,
-        accompanimentPrice: 8.75,
+        accompanimentPrice: 1,
       }),
     )
     const byBrandTarget = await fixture.addProduct(
@@ -45,7 +45,7 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
         categories: [ProductCategory.Accompaniment],
         stockControl: ProductStockControl.ByBrand,
         currentUnitCost: undefined,
-        accompanimentPrice: 0,
+        accompanimentPrice: 1,
       }),
     )
     const unavailableTarget = await fixture.addProduct(
@@ -54,6 +54,7 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
         categories: [ProductCategory.Accompaniment],
         status: ProductStatus.Inactive,
         currentUnitCost: undefined,
+        accompanimentPrice: 1,
       }),
     )
     const brand = await fixture.addBrand({
@@ -74,6 +75,7 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
       accompanimentProductId: byBrandTarget.id,
       accompanimentTypeId: type.id,
       quantityPerPortion: 1,
+      accompanimentPrice: 0,
     })
     await fixture.addProductAccompaniment({
       establishmentId: owner.establishmentId,
@@ -88,6 +90,7 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
       accompanimentProductId: singleTarget.id,
       accompanimentTypeId: type.id,
       quantityPerPortion: 1.25,
+      accompanimentPrice: 8.75,
     })
 
     const response = await request(fixture.app.getHttpServer())
@@ -217,12 +220,14 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
       type,
       portions: [portion, otherPortion],
       quantityPerPortion: 0.05,
+      accompanimentPrice: 5,
     })
     await addGlobalAccompanimentWithRows(fixture, {
       target: target('Banana'),
       type,
       portions: [portion, otherPortion],
       quantityPerPortion: 0.08,
+      accompanimentPrice: undefined,
     })
     for (const [name, linkedPortions] of [
       ['Doce', [portion]],
@@ -236,6 +241,7 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
           accompanimentProductId: target(name).id,
           accompanimentTypeId: type.id,
           quantityPerPortion: 1,
+          accompanimentPrice: linkedPortion.id === portion.id ? 4 : 6,
         })
       }
     }
@@ -272,8 +278,17 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
     expect(manager.body.accompaniments[1]).toMatchObject({
       quantityPerPortion: 0.05,
       accompanimentTypeName: 'Toppings',
-      salePrice: 3,
+      salePrice: 5,
     })
+    // A global row shows the global's own price (null when the global has none), and an
+    // individual row shows its own link price rather than the Accompaniment product's default.
+    expect(manager.body.accompaniments[0].salePrice).toBeNull()
+    expect(
+      manager.body.accompaniments.map(
+        (item: { accompanimentProductName: string; salePrice: number | null }) =>
+          `${item.accompanimentProductName}:${item.salePrice}`,
+      ),
+    ).toEqual(['Banana:null', 'Granola:5', 'Avela:4', 'Calda:4', 'Doce:4'])
     expect(operator.status).toBe(200)
     expect(operator.body.accompaniments).toEqual(manager.body.accompaniments)
     expect(inactivePortion.status).toBe(200)
@@ -282,5 +297,10 @@ describe('Get Product Accompaniments Controller [GET /products/:productId/accomp
         (item: { accompanimentProductName: string }) => item.accompanimentProductName,
       ),
     ).toEqual(['Banana', 'Granola', 'Avela'])
+    expect(
+      inactivePortion.body.accompaniments.map(
+        (item: { salePrice: number | null }) => item.salePrice,
+      ),
+    ).toEqual([null, 5, 6])
   })
 })

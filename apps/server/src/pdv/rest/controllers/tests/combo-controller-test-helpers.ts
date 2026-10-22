@@ -86,6 +86,7 @@ export async function addPortionWithGlobalAccompaniment(fixture: PdvModuleFixtur
     accompanimentProductId: target.id,
     accompanimentTypeId: type.id,
     quantityPerPortion: 0.5,
+    accompanimentPrice: 3.5,
   })
   const row = await fixture.addProductAccompaniment({
     establishmentId,

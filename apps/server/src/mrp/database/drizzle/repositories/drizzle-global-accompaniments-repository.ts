@@ -10,6 +10,7 @@ import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
 
+import { toNumericValue } from '../helpers'
 import { DrizzleGlobalAccompanimentMapper } from '../mappers/drizzle-global-accompaniment-mapper'
 import { globalAccompanimentModel } from '../models/global-accompaniment-model'
 
@@ -29,6 +30,7 @@ export class DrizzleGlobalAccompanimentsRepository
           accompanimentProductId: input.accompanimentProductId,
           accompanimentTypeId: input.accompanimentTypeId,
           quantityPerPortion: String(input.quantityPerPortion),
+          accompanimentPrice: toNumericValue(input.accompanimentPrice) ?? null,
           createdAt: now,
           updatedAt: now,
         })
@@ -54,6 +56,7 @@ export class DrizzleGlobalAccompanimentsRepository
             accompanimentProductId: input.accompanimentProductId,
             accompanimentTypeId: input.accompanimentTypeId,
             quantityPerPortion: String(input.quantityPerPortion),
+            accompanimentPrice: toNumericValue(input.accompanimentPrice) ?? null,
             createdAt: now,
             updatedAt: now,
           })),
@@ -134,6 +137,7 @@ export class DrizzleGlobalAccompanimentsRepository
         .set({
           accompanimentTypeId: changes.accompanimentTypeId,
           quantityPerPortion: String(changes.quantityPerPortion),
+          accompanimentPrice: toNumericValue(changes.accompanimentPrice),
           updatedAt: new Date(),
         })
         .where(

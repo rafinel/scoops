@@ -11,6 +11,10 @@ export class DrizzleProductAccompanimentMapper {
       accompanimentProductId: record.accompanimentProductId,
       accompanimentTypeId: record.accompanimentTypeId,
       quantityPerPortion: Number(record.quantityPerPortion),
+      accompanimentPrice:
+        record.accompanimentPrice === null
+          ? undefined
+          : Number(record.accompanimentPrice),
       globalAccompanimentId: record.globalAccompanimentId ?? undefined,
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,

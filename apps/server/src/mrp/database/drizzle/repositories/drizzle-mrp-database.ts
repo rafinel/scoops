@@ -10,6 +10,7 @@ import { DrizzleAccompanimentTypesRepository } from './drizzle-accompaniment-typ
 import { DrizzleGlobalAccompanimentsRepository } from './drizzle-global-accompaniments-repository'
 import { DrizzleProductsRepository } from './drizzle-products-repository'
 import { DrizzleProductAccompanimentsRepository } from './drizzle-product-accompaniments-repository'
+import { DrizzleProductSalesConfigurationSourcesRepository } from './drizzle-product-sales-configuration-sources-repository'
 import { DrizzleProductSizesRepository } from './drizzle-product-sizes-repository'
 import { DrizzleBrandsRepository } from './drizzle-brands-repository'
 import { DrizzleProductionIngredientsRepository } from './drizzle-production-ingredients-repository'
@@ -121,6 +122,11 @@ export class DrizzleMrpDatabase implements MrpDatabase {
         this.drizzleClient,
         executor,
       ),
+      productSalesConfigurationSourcesRepository:
+        new DrizzleProductSalesConfigurationSourcesRepository(
+          this.drizzleClient,
+          executor,
+        ),
       eventsRepository: new DrizzleEventsRepository(this.drizzleClient, executor),
       stockAttentionFactsRepository: new DrizzleStockAttentionFactsRepository(
         this.drizzleClient,

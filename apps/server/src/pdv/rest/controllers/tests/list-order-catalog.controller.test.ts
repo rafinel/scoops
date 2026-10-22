@@ -258,7 +258,7 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
       allowNegativeStock: false,
       idealStock: 0,
       currentUnitCost: 0.03,
-      accompanimentPrice: 3.25,
+      accompanimentPrice: 1.5,
     })
     const legacyTopping = await fixture.addProduct({
       establishmentId: product.establishmentId,
@@ -270,6 +270,7 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
       allowNegativeStock: false,
       idealStock: 0,
       currentUnitCost: 5,
+      accompanimentPrice: 9,
     })
     const freeTopping = await fixture.addProduct({
       establishmentId: product.establishmentId,
@@ -281,7 +282,7 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
       allowNegativeStock: false,
       idealStock: 0,
       currentUnitCost: 5,
-      accompanimentPrice: 0,
+      accompanimentPrice: 7,
     })
     const type = await fixture.addAccompanimentType({
       establishmentId: product.establishmentId,
@@ -299,6 +300,7 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
       accompanimentProductId: topping.id,
       accompanimentTypeId: type.id,
       quantityPerPortion: 2.5,
+      accompanimentPrice: 3.25,
     })
     const legacyAccompaniment = await fixture.addProductAccompaniment({
       establishmentId: product.establishmentId,
@@ -313,6 +315,7 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
       accompanimentProductId: freeTopping.id,
       accompanimentTypeId: type.id,
       quantityPerPortion: 4,
+      accompanimentPrice: 0,
     })
 
     const response = await request(fixture.app.getHttpServer())
@@ -390,9 +393,11 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
         currentUnitCost: 0.03,
         accompanimentPrice,
       })
-    const individualTopping = await createTopping('Individual topping', 2)
-    const globalTopping = await createTopping('Global topping', 3.5)
-    const freeGlobalTopping = await createTopping('Free global topping', 0)
+    // The Accompaniment products' own prices are only defaults: the catalog reads the link's price
+    // (individual) or the global record's price (global), so these values must never show up.
+    const individualTopping = await createTopping('Individual topping', 11)
+    const globalTopping = await createTopping('Global topping', 12)
+    const freeGlobalTopping = await createTopping('Free global topping', 13)
     const type = await fixture.addAccompanimentType({
       establishmentId: product.establishmentId,
       name: 'Toppings',
@@ -407,18 +412,21 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
       accompanimentProductId: individualTopping.id,
       accompanimentTypeId: type.id,
       quantityPerPortion: 2,
+      accompanimentPrice: 2,
     })
     const global = await fixture.addGlobalAccompaniment({
       establishmentId: product.establishmentId,
       accompanimentProductId: globalTopping.id,
       accompanimentTypeId: type.id,
       quantityPerPortion: 1.5,
+      accompanimentPrice: 3.5,
     })
     const freeGlobal = await fixture.addGlobalAccompaniment({
       establishmentId: product.establishmentId,
       accompanimentProductId: freeGlobalTopping.id,
       accompanimentTypeId: type.id,
       quantityPerPortion: 0.5,
+      accompanimentPrice: 0,
     })
     const [globalRow, freeGlobalRow] = await fixture.productAccompaniments.addMany([
       {
@@ -500,5 +508,211 @@ describe('List Order Catalog Controller [GET /orders/catalog]', () => {
         }),
       ]),
     )
+  })
+
+  it('offers the same accompaniment at each portion link price and keeps a link without price inactive', async () => {
+    const establishmentId = PdvModuleFixture.accounts.establishmentId
+    const createPortion = async (name: string) => {
+      const portion = await fixture.addProduct({
+        establishmentId,
+        name,
+        unit: ProductUnit.Unit,
+        categories: [ProductCategory.Portion],
+        stockControl: ProductStockControl.Single,
+        status: ProductStatus.Active,
+        allowNegativeStock: false,
+        idealStock: 0,
+        currentUnitCost: 2,
+      })
+      await fixture.addProductSize({
+        establishmentId,
+        productId: portion.id,
+        name: 'Regular',
+        quantity: 1,
+        price: 10,
+        isActive: true,
+      })
+      await addStock(fixture, portion.id, true)
+      return portion
+    }
+    const portionA = await createPortion('Portion A')
+    const portionB = await createPortion('Portion B')
+    const portionC = await createPortion('Portion C')
+    const topping = await fixture.addProduct({
+      establishmentId,
+      name: 'Shared topping',
+      unit: ProductUnit.Unit,
+      categories: [ProductCategory.Accompaniment],
+      stockControl: ProductStockControl.Single,
+      status: ProductStatus.Active,
+      allowNegativeStock: false,
+      idealStock: 0,
+      currentUnitCost: 0.03,
+      accompanimentPrice: 5,
+    })
+    const type = await fixture.addAccompanimentType({ establishmentId, name: 'Toppings' })
+    await fixture.stockBalances.initialize(topping.id)
+    await fixture.stockBalances.add({ productId: topping.id }, 20)
+    const link = (productId: string, accompanimentPrice?: number) =>
+      fixture.addProductAccompaniment({
+        establishmentId,
+        productId,
+        accompanimentProductId: topping.id,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 1,
+        accompanimentPrice,
+      })
+    const linkA = await link(portionA.id, 4)
+    const linkB = await link(portionB.id, 8)
+    const linkC = await link(portionC.id)
+
+    const response = await getCatalog('?page=1&pageSize=20')
+
+    const accompanimentsOf = (productId: string) =>
+      response.body.items.find(
+        (item: { productId: string }) => item.productId === productId,
+      ).sizes[0].accompaniments
+    expect(response.status).toBe(200)
+    expect(accompanimentsOf(portionA.id)).toEqual([
+      expect.objectContaining({
+        accompanimentId: linkA.id,
+        basePrice: 4,
+        isActive: true,
+        isAvailable: true,
+      }),
+    ])
+    expect(accompanimentsOf(portionB.id)).toEqual([
+      expect.objectContaining({
+        accompanimentId: linkB.id,
+        basePrice: 8,
+        isActive: true,
+        isAvailable: true,
+      }),
+    ])
+    expect(accompanimentsOf(portionC.id)).toEqual([
+      expect.objectContaining({
+        accompanimentId: linkC.id,
+        basePrice: 0,
+        isActive: false,
+        isAvailable: false,
+      }),
+    ])
+  })
+
+  it('keeps a global accompaniment without a price inactive and shows its price on every row', async () => {
+    const establishmentId = PdvModuleFixture.accounts.establishmentId
+    const portions = await Promise.all(
+      ['Global portion A', 'Global portion B'].map(async (name) => {
+        const portion = await fixture.addProduct({
+          establishmentId,
+          name,
+          unit: ProductUnit.Unit,
+          categories: [ProductCategory.Portion],
+          stockControl: ProductStockControl.Single,
+          status: ProductStatus.Active,
+          allowNegativeStock: false,
+          idealStock: 0,
+          currentUnitCost: 2,
+        })
+        await fixture.addProductSize({
+          establishmentId,
+          productId: portion.id,
+          name: 'Regular',
+          quantity: 1,
+          price: 10,
+          isActive: true,
+        })
+        await addStock(fixture, portion.id, true)
+        return portion
+      }),
+    )
+    const createTopping = async (name: string) => {
+      const topping = await fixture.addProduct({
+        establishmentId,
+        name,
+        unit: ProductUnit.Unit,
+        categories: [ProductCategory.Accompaniment],
+        stockControl: ProductStockControl.Single,
+        status: ProductStatus.Active,
+        allowNegativeStock: false,
+        idealStock: 0,
+        currentUnitCost: 0.03,
+        accompanimentPrice: 6,
+      })
+      await fixture.stockBalances.initialize(topping.id)
+      await fixture.stockBalances.add({ productId: topping.id }, 20)
+      return topping
+    }
+    const pricedTopping = await createTopping('Priced global topping')
+    const unpricedTopping = await createTopping('Unpriced global topping')
+    const type = await fixture.addAccompanimentType({ establishmentId, name: 'Toppings' })
+    const pricedGlobal = await fixture.addGlobalAccompaniment({
+      establishmentId,
+      accompanimentProductId: pricedTopping.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 1,
+      accompanimentPrice: 2.75,
+    })
+    const unpricedGlobal = await fixture.addGlobalAccompaniment({
+      establishmentId,
+      accompanimentProductId: unpricedTopping.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 1,
+    })
+    const rows = await fixture.productAccompaniments.addMany(
+      portions.flatMap((portion) => [
+        {
+          establishmentId,
+          productId: portion.id,
+          accompanimentProductId: pricedTopping.id,
+          accompanimentTypeId: type.id,
+          quantityPerPortion: 1,
+          globalAccompanimentId: pricedGlobal.id,
+        },
+        {
+          establishmentId,
+          productId: portion.id,
+          accompanimentProductId: unpricedTopping.id,
+          accompanimentTypeId: type.id,
+          quantityPerPortion: 1,
+          globalAccompanimentId: unpricedGlobal.id,
+        },
+      ]),
+    )
+
+    const response = await getCatalog('?page=1&pageSize=20')
+
+    expect(response.status).toBe(200)
+    for (const portion of portions) {
+      const accompaniments = response.body.items.find(
+        (item: { productId: string }) => item.productId === portion.id,
+      ).sizes[0].accompaniments
+      const priced = rows.find(
+        (row) =>
+          row.productId === portion.id && row.accompanimentProductId === pricedTopping.id,
+      )
+      const unpriced = rows.find(
+        (row) =>
+          row.productId === portion.id &&
+          row.accompanimentProductId === unpricedTopping.id,
+      )
+      expect(accompaniments).toHaveLength(2)
+      expect(accompaniments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            accompanimentId: priced?.id,
+            basePrice: 2.75,
+            isActive: true,
+            isAvailable: true,
+          }),
+          expect.objectContaining({
+            accompanimentId: unpriced?.id,
+            basePrice: 0,
+            isActive: false,
+            isAvailable: false,
+          }),
+        ]),
+      )
+    }
   })
 })
