@@ -28,53 +28,21 @@ export class GetProductRecipeUseCase implements UseCase<Request, ProductRecipeDe
   async execute(request: Request): Promise<ProductRecipeDetails> {
     this.validateActor(request.actor)
 
-    return this.database.run(
-      async ({
-        productsRepository,
-        brandsRepository,
-        recipesRepository,
-        recipeIngredientsRepository,
-        productionsRepository,
-        productionIngredientsRepository,
-        stockBalancesRepository,
-        stockTransactionsRepository,
-        productSizesRepository,
-        accompanimentTypesRepository,
-        productAccompanimentsRepository,
-        globalAccompanimentsRepository,
-        resaleConfigurationsRepository,
-        eventsRepository,
-      }: MrpDatabaseRepositories) => {
-        const scope = {
-          productsRepository,
-          brandsRepository,
-          recipesRepository,
-          recipeIngredientsRepository,
-          productionsRepository,
-          productionIngredientsRepository,
-          stockBalancesRepository,
-          stockTransactionsRepository,
-          productSizesRepository,
-          accompanimentTypesRepository,
-          productAccompanimentsRepository,
-          globalAccompanimentsRepository,
-          resaleConfigurationsRepository,
-          eventsRepository,
-        }
-        const product = await productsRepository.findById(
-          request.actor.establishmentId,
-          request.productId,
-        )
+    return this.database.run(async (scope: MrpDatabaseRepositories) => {
+      const { productsRepository } = scope
+      const product = await productsRepository.findById(
+        request.actor.establishmentId,
+        request.productId,
+      )
 
-        this.validateManufacturableProduct(product)
+      this.validateManufacturableProduct(product)
 
-        return GetProductRecipeUseCase.buildDetails(
-          scope,
-          request.actor.establishmentId,
-          product,
-        )
-      },
-    )
+      return GetProductRecipeUseCase.buildDetails(
+        scope,
+        request.actor.establishmentId,
+        product,
+      )
+    })
   }
 
   static async buildDetails(

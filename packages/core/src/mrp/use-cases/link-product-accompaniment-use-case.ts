@@ -1,4 +1,5 @@
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
+import type { AccompanimentType } from '#mrp/domain/entities/accompaniment-type.ts'
 import type { GlobalAccompaniment } from '#mrp/domain/entities/global-accompaniment.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import type { ProductAccompaniment } from '#mrp/domain/entities/product-accompaniment.ts'
@@ -10,10 +11,8 @@ import { ProductStatus } from '#mrp/domain/structures/product-status.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
 import { AccompanimentPriceValidationStrategy } from '#mrp/domain/strategies/accompaniment-price-validation-strategy.ts'
 import { GlobalAccompanimentRowsStrategy } from '#mrp/domain/strategies/global-accompaniment-rows-strategy.ts'
-import {
-  GetAffectedProductSalesConfigurationsUseCase,
-  publishAffectedProductSalesConfigurations,
-} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationStrategy } from '#mrp/domain/strategies/product-sales-configuration-strategy.ts'
 import type {
   MrpDatabase,
   MrpDatabaseRepositories,
@@ -37,10 +36,13 @@ type LinkContext = {
   readonly target: Product
   readonly accompanimentTypeId: string
   readonly global?: GlobalAccompaniment
+  /** The validated sale price: the link's (individual) or the global's (global modes). */
+  readonly price: number
 }
 
 type SavedLink = {
   readonly link: ProductAccompaniment
+  readonly global?: GlobalAccompaniment
   readonly shouldRepublishAll: boolean
 }
 
@@ -50,8 +52,7 @@ export class LinkProductAccompanimentUseCase
   private readonly accompanimentPriceValidation =
     new AccompanimentPriceValidationStrategy()
   private readonly globalAccompanimentRows = new GlobalAccompanimentRowsStrategy()
-  private readonly getAffectedProductSalesConfigurations =
-    new GetAffectedProductSalesConfigurationsUseCase()
+  private readonly salesConfiguration = new ProductSalesConfigurationStrategy()
 
   constructor(private readonly database: MrpDatabase) {}
 
@@ -69,43 +70,73 @@ export class LinkProductAccompanimentUseCase
     const establishmentId = request.actor.establishmentId
     const context = await this.resolveLinkContext(scope, request)
     const { owner, target } = context
-    const savedTarget = await this.saveAccompanimentPrice(
-      scope,
-      target,
-      request.input.accompanimentPrice,
-    )
-    const hasPriceChanged = savedTarget.accompanimentPrice !== target.accompanimentPrice
+    await this.saveDefaultPrice(scope, target, request.input.accompanimentPrice)
     const saved =
       request.input.isGlobal === true
         ? await this.saveGlobalLink(scope, request, context)
         : await this.saveIndividualLink(scope, request, context)
 
-    const result = await this.buildDetails(scope, establishmentId, saved.link)
-    const shouldRepublishAll = hasPriceChanged || saved.shouldRepublishAll
-    const configurations = await this.getAffectedProductSalesConfigurations.execute({
+    const result = await this.buildDetails(scope, establishmentId, saved)
+    const affectedProductIds = await this.findAffectedProductIds(
       scope,
       establishmentId,
-      productId: owner.id,
-      affectedProductIds: shouldRepublishAll ? undefined : [],
-      accompanimentProductIdForInverseLookup: shouldRepublishAll
-        ? savedTarget.id
-        : undefined,
-    })
-    await publishAffectedProductSalesConfigurations({
+      owner.id,
+      saved.shouldRepublishAll ? target.id : undefined,
+    )
+    await this.publishPortionSalesConfigurations(
       scope,
       establishmentId,
-      productId: owner.id,
-      configurations: configurations.filter((configuration) =>
-        configuration.categories.includes(ProductCategory.Portion),
-      ),
-    })
+      affectedProductIds,
+    )
     return result
+  }
+
+  private async findAffectedProductIds(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    ownerId: string,
+    accompanimentProductId: string | undefined,
+  ): Promise<readonly string[]> {
+    if (accompanimentProductId === undefined) return [ownerId]
+    const rows =
+      await scope.productAccompanimentsRepository.findManyByAccompanimentProductId(
+        establishmentId,
+        accompanimentProductId,
+      )
+    const ownerIds = rows
+      .filter((row) => row.establishmentId === establishmentId)
+      .map((row) => row.productId)
+    return [...new Set([ownerId, ...ownerIds])]
+  }
+
+  private async publishPortionSalesConfigurations(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    productIds: readonly string[],
+  ): Promise<void> {
+    const sources =
+      await scope.productSalesConfigurationSourcesRepository.findManyByProductIds(
+        establishmentId,
+        productIds,
+      )
+    const configurations = this.salesConfiguration.execute({ establishmentId, sources })
+    for (const configuration of configurations) {
+      if (!configuration.categories.includes(ProductCategory.Portion)) continue
+      await scope.eventsRepository.add(
+        new ProductSalesConfigurationChangedEvent({
+          establishmentId,
+          productId: configuration.productId,
+          state: 'available',
+          configuration,
+        }),
+      )
+    }
   }
 
   private async saveIndividualLink(
     scope: MrpDatabaseRepositories,
     request: Request,
-    { owner, target, accompanimentTypeId }: LinkContext,
+    { owner, target, accompanimentTypeId, price }: LinkContext,
   ): Promise<SavedLink> {
     const link = await scope.productAccompanimentsRepository.add({
       establishmentId: request.actor.establishmentId,
@@ -113,6 +144,7 @@ export class LinkProductAccompanimentUseCase
       accompanimentProductId: target.id,
       accompanimentTypeId,
       quantityPerPortion: request.input.quantityPerPortion,
+      accompanimentPrice: price,
     })
     return { link, shouldRepublishAll: false }
   }
@@ -130,7 +162,7 @@ export class LinkProductAccompanimentUseCase
   private async joinGlobal(
     scope: MrpDatabaseRepositories,
     request: Request,
-    { owner, target, accompanimentTypeId }: LinkContext,
+    { owner, target, accompanimentTypeId, price }: LinkContext,
     global: GlobalAccompaniment,
   ): Promise<SavedLink> {
     const establishmentId = request.actor.establishmentId
@@ -138,17 +170,20 @@ export class LinkProductAccompanimentUseCase
     const hasSharedValuesChanged =
       global.accompanimentTypeId !== accompanimentTypeId ||
       global.quantityPerPortion !== quantityPerPortion
+    const hasPriceChanged = global.accompanimentPrice !== price
+    const savedGlobal =
+      hasSharedValuesChanged || hasPriceChanged
+        ? await scope.globalAccompanimentsRepository.replace(establishmentId, global.id, {
+            accompanimentTypeId,
+            quantityPerPortion,
+            accompanimentPrice: price,
+          })
+        : global
     if (hasSharedValuesChanged) {
-      const changes = { accompanimentTypeId, quantityPerPortion }
-      await scope.globalAccompanimentsRepository.replace(
-        establishmentId,
-        global.id,
-        changes,
-      )
       await scope.productAccompanimentsRepository.replaceManyByGlobalAccompanimentId(
         establishmentId,
         global.id,
-        changes,
+        { accompanimentTypeId, quantityPerPortion },
       )
     }
     const link = await scope.productAccompanimentsRepository.add({
@@ -159,13 +194,17 @@ export class LinkProductAccompanimentUseCase
       quantityPerPortion,
       globalAccompanimentId: global.id,
     })
-    return { link, shouldRepublishAll: hasSharedValuesChanged }
+    return {
+      link,
+      global: savedGlobal,
+      shouldRepublishAll: hasSharedValuesChanged || hasPriceChanged,
+    }
   }
 
   private async createGlobal(
     scope: MrpDatabaseRepositories,
     request: Request,
-    { owner, target, accompanimentTypeId }: LinkContext,
+    { owner, target, accompanimentTypeId, price }: LinkContext,
   ): Promise<SavedLink> {
     const establishmentId = request.actor.establishmentId
     const { quantityPerPortion } = request.input
@@ -174,6 +213,7 @@ export class LinkProductAccompanimentUseCase
       accompanimentProductId: target.id,
       accompanimentTypeId,
       quantityPerPortion,
+      accompanimentPrice: price,
     })
     const convertedRows =
       await scope.productAccompanimentsRepository.findManyByAccompanimentProductId(
@@ -183,7 +223,12 @@ export class LinkProductAccompanimentUseCase
     await scope.productAccompanimentsRepository.replaceManyByAccompanimentProductId(
       establishmentId,
       target.id,
-      { accompanimentTypeId, quantityPerPortion, globalAccompanimentId: global.id },
+      {
+        accompanimentTypeId,
+        quantityPerPortion,
+        globalAccompanimentId: global.id,
+        accompanimentPrice: null,
+      },
     )
     const link = await scope.productAccompanimentsRepository.add({
       establishmentId,
@@ -204,7 +249,7 @@ export class LinkProductAccompanimentUseCase
         existingPairs: [...convertedRows, link],
       }),
     )
-    return { link, shouldRepublishAll: true }
+    return { link, global, shouldRepublishAll: true }
   }
 
   private async resolveLinkContext(
@@ -222,6 +267,24 @@ export class LinkProductAccompanimentUseCase
       request.input.accompanimentProductId,
     )
     this.validateTarget(target, owner.id, establishmentId)
+    const type = await this.findType(scope, request)
+    if (target.stockControl === ProductStockControl.ByBrand) {
+      await this.requireMainBrand(scope, target)
+    }
+    await this.validateNotLinked(scope, owner, target)
+    const global = await this.findGlobal(scope, request, target)
+    const price = this.validateAccompanimentPrice(
+      request.input.accompanimentPrice ??
+        (global ? global.accompanimentPrice : target.accompanimentPrice),
+    )
+    return { owner, target, accompanimentTypeId: type.id, global, price }
+  }
+
+  private async findType(
+    scope: MrpDatabaseRepositories,
+    request: Request,
+  ): Promise<AccompanimentType> {
+    const establishmentId = request.actor.establishmentId
     const type = await scope.accompanimentTypesRepository.findById(
       establishmentId,
       request.input.accompanimentTypeId,
@@ -229,22 +292,23 @@ export class LinkProductAccompanimentUseCase
     if (!type || type.establishmentId !== establishmentId) {
       throw new NotFoundError('Tipo de acompanhamento não encontrado.')
     }
-    if (target.stockControl === ProductStockControl.ByBrand) {
-      await this.requireMainBrand(scope, target)
-    }
+    return type
+  }
+
+  private async validateNotLinked(
+    scope: MrpDatabaseRepositories,
+    owner: Product,
+    target: Product,
+  ): Promise<void> {
     const existing =
       await scope.productAccompanimentsRepository.findByProductAndAccompaniment(
-        establishmentId,
+        owner.establishmentId,
         owner.id,
         target.id,
       )
-    if (existing)
+    if (existing) {
       throw new ConflictError('O acompanhamento já está vinculado a esta porção.')
-    const global = await this.findGlobal(scope, request, target)
-    this.validateAccompanimentPrice(
-      request.input.accompanimentPrice ?? target.accompanimentPrice,
-    )
-    return { owner, target, accompanimentTypeId: type.id, global }
+    }
   }
 
   private async findGlobal(
@@ -321,21 +385,21 @@ export class LinkProductAccompanimentUseCase
     return Math.abs(value * 1_000 - Math.round(value * 1_000)) < 1e-8
   }
 
-  private async saveAccompanimentPrice(
+  /** The default only prefills: it is written by the first Link save while still unset. */
+  private async saveDefaultPrice(
     scope: MrpDatabaseRepositories,
     target: Product,
     suppliedPrice: number | undefined,
-  ): Promise<Product> {
-    if (suppliedPrice === undefined || suppliedPrice === target.accompanimentPrice)
-      return target
-    return scope.productsRepository.replace(target.establishmentId, target.id, {
+  ): Promise<void> {
+    if (suppliedPrice === undefined || target.accompanimentPrice !== undefined) return
+    await scope.productsRepository.replace(target.establishmentId, target.id, {
       accompanimentPrice: suppliedPrice,
     })
   }
 
-  private validateAccompanimentPrice(price: number | undefined): void {
+  private validateAccompanimentPrice(price: number | undefined): number {
     const result = this.accompanimentPriceValidation.execute(price)
-    if (typeof result === 'number') return
+    if (typeof result === 'number') return result
     throw new BadRequestError(
       result === 'missing'
         ? 'Informe o preço de venda do acompanhamento.'
@@ -356,7 +420,7 @@ export class LinkProductAccompanimentUseCase
   private async buildDetails(
     scope: MrpDatabaseRepositories,
     establishmentId: string,
-    link: ProductAccompaniment,
+    { link, global }: SavedLink,
   ): Promise<ProductAccompanimentDetails> {
     const target = await scope.productsRepository.findById(
       establishmentId,
@@ -381,7 +445,7 @@ export class LinkProductAccompanimentUseCase
       accompanimentTypeName: type.name,
       unit: target.unit,
       quantityPerPortion: link.quantityPerPortion,
-      salePrice: target.accompanimentPrice ?? null,
+      salePrice: (global ? global.accompanimentPrice : link.accompanimentPrice) ?? null,
       isGlobal: link.globalAccompanimentId !== undefined,
       hasOtherPortionLinks: await this.hasOtherPortionLinks(scope, link),
       ...this.toSourceFields(source, link.quantityPerPortion),

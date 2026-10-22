@@ -2,8 +2,16 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-extended'
 
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
-import { ProductFaker, ProductSizeFaker } from '#mrp/domain/entities/fakers/index.ts'
+import {
+  AccompanimentTypeFaker,
+  GlobalAccompanimentFaker,
+  ProductAccompanimentFaker,
+  ProductFaker,
+  ProductSizeFaker,
+} from '#mrp/domain/entities/fakers/index.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
 import { ProductCategory } from '#mrp/domain/structures/index.ts'
+import { ProductSalesConfigurationSourceFaker } from '#mrp/domain/structures/fakers/index.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type {
   MrpDatabase,
@@ -63,6 +71,12 @@ describe('Update Product Size Use Case', () => {
       .mockResolvedValueOnce([updatedSize, secondSize])
     scope.productSizesRepository.countActive.mockResolvedValue(2)
     scope.productSizesRepository.replace.mockResolvedValue(updatedSize)
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [],
+    )
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [],
+    )
     useCase = new UpdateProductSizeUseCase(database)
   })
 
@@ -391,5 +405,288 @@ describe('Update Product Size Use Case', () => {
       size.id,
       expect.objectContaining({ isActive: true }),
     )
+  })
+
+  it('publishes the complete tenant-qualified current sales configuration of the Portion', async () => {
+    const updatedAt = new Date('2026-02-01T00:00:00.000Z')
+    const published = ProductFaker.fake({
+      ...product,
+      name: 'Açaí',
+      updatedAt,
+    })
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [ProductSalesConfigurationSourceFaker.fake({ product: published })],
+    )
+
+    await update()
+
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith(establishmentId, [product.id])
+    expect(scope.eventsRepository.add).toHaveBeenCalledExactlyOnceWith(
+      new ProductSalesConfigurationChangedEvent({
+        establishmentId,
+        productId: product.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: product.id,
+          name: 'Açaí',
+          categories: [ProductCategory.Portion],
+          status: published.status,
+          stockControl: published.stockControl,
+          sizes: [],
+          resaleConfigurations: [],
+          updatedAt,
+        },
+      }),
+    )
+  })
+
+  it('publishes the saved Product price once and leaves unpriced legacy links unavailable', async () => {
+    const ownerUpdatedAt = new Date('2026-01-01T00:00:00.000Z')
+    const accompanimentUpdatedAt = new Date('2026-01-02T00:00:00.000Z')
+    const accompaniment = ProductFaker.fake({
+      id: 'accompaniment-1',
+      establishmentId,
+      categories: [ProductCategory.Accompaniment],
+      updatedAt: accompanimentUpdatedAt,
+    })
+    const accompanimentType = AccompanimentTypeFaker.fake({
+      id: 'type-1',
+      establishmentId,
+      updatedAt: ownerUpdatedAt,
+    })
+    const accompanimentLink = ProductAccompanimentFaker.fake({
+      id: 'link-1',
+      establishmentId,
+      productId: product.id,
+      accompanimentProductId: accompaniment.id,
+      accompanimentTypeId: accompanimentType.id,
+      accompanimentPrice: 2.75,
+      updatedAt: ownerUpdatedAt,
+    })
+    const sourceWith = (link: typeof accompanimentLink) =>
+      ProductSalesConfigurationSourceFaker.fake({
+        product: { ...product, updatedAt: ownerUpdatedAt },
+        sizes: [{ ...size, updatedAt: ownerUpdatedAt }],
+        links: [link],
+        accompanimentProducts: [accompaniment],
+        accompanimentTypes: [accompanimentType],
+      })
+    const publishedEvent = () =>
+      scope.eventsRepository.add.mock.calls.at(
+        -1,
+      )?.[0] as ProductSalesConfigurationChangedEvent
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [sourceWith(accompanimentLink)],
+    )
+
+    await update()
+
+    expect(
+      publishedEvent().payload.configuration?.sizes[0]?.accompaniments[0],
+    ).toMatchObject({ basePrice: 2.75, isActive: true })
+    expect(publishedEvent().payload.configuration?.updatedAt).toEqual(
+      accompanimentUpdatedAt,
+    )
+
+    scope.productSizesRepository.findManyByProductId.mockResolvedValue([size, secondSize])
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [sourceWith({ ...accompanimentLink, accompanimentPrice: undefined })],
+    )
+    await update()
+
+    expect(
+      publishedEvent().payload.configuration?.sizes[0]?.accompaniments[0],
+    ).toMatchObject({ basePrice: 0, isActive: false })
+  })
+
+  describe('rows that reference a global', () => {
+    const accompaniment = ProductFaker.fake({
+      id: 'accompaniment-1',
+      establishmentId,
+      categories: [ProductCategory.Accompaniment],
+      accompanimentPrice: 9.99,
+      updatedAt: new Date('2026-01-02T00:00:00.000Z'),
+    })
+    const accompanimentType = AccompanimentTypeFaker.fake({
+      id: 'type-1',
+      establishmentId,
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    })
+    const globalLink = ProductAccompanimentFaker.fake({
+      id: 'link-1',
+      establishmentId,
+      productId: product.id,
+      accompanimentProductId: accompaniment.id,
+      accompanimentTypeId: accompanimentType.id,
+      globalAccompanimentId: 'global-1',
+      accompanimentPrice: 1,
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    })
+    const sourceWithGlobals = (
+      globals: ReturnType<typeof GlobalAccompanimentFaker.fake>[],
+    ) =>
+      ProductSalesConfigurationSourceFaker.fake({
+        product: { ...product, updatedAt: new Date('2026-01-01T00:00:00.000Z') },
+        sizes: [{ ...size, updatedAt: new Date('2026-01-01T00:00:00.000Z') }],
+        links: [globalLink],
+        accompanimentProducts: [accompaniment],
+        accompanimentTypes: [accompanimentType],
+        globals,
+      })
+    const publishedConfiguration = () => {
+      const [event] = scope.eventsRepository.add.mock.calls.at(-1) ?? []
+      return (event as ProductSalesConfigurationChangedEvent | undefined)?.payload
+        .configuration
+    }
+
+    it("publishes the global's price instead of the row's own price or the default", async () => {
+      const global = GlobalAccompanimentFaker.fake({
+        id: 'global-1',
+        establishmentId,
+        accompanimentProductId: accompaniment.id,
+        accompanimentPrice: 6.5,
+        updatedAt: new Date('2026-01-09T00:00:00.000Z'),
+      })
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+        [sourceWithGlobals([global])],
+      )
+
+      await update()
+
+      expect(publishedConfiguration()?.sizes[0]?.accompaniments[0]).toMatchObject({
+        accompanimentId: 'link-1',
+        basePrice: 6.5,
+        isActive: true,
+      })
+    })
+
+    it("counts the global's update time among the facts of the rows that reference it", async () => {
+      const global = GlobalAccompanimentFaker.fake({
+        id: 'global-1',
+        establishmentId,
+        accompanimentProductId: accompaniment.id,
+        accompanimentPrice: 6.5,
+        updatedAt: new Date('2026-01-09T00:00:00.000Z'),
+      })
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+        [sourceWithGlobals([global])],
+      )
+
+      await update()
+
+      expect(publishedConfiguration()?.updatedAt).toEqual(
+        new Date('2026-01-09T00:00:00.000Z'),
+      )
+    })
+
+    it('keeps a row unavailable when its global has no price', async () => {
+      const global = GlobalAccompanimentFaker.fake({
+        id: 'global-1',
+        establishmentId,
+        accompanimentProductId: accompaniment.id,
+        accompanimentPrice: undefined,
+      })
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+        [sourceWithGlobals([global])],
+      )
+
+      await update()
+
+      expect(publishedConfiguration()?.sizes[0]?.accompaniments[0]).toMatchObject({
+        basePrice: 0,
+        isActive: false,
+      })
+    })
+
+    it.each([
+      { name: 'missing', globals: [] },
+      {
+        name: 'foreign',
+        globals: [
+          GlobalAccompanimentFaker.fake({
+            id: 'global-1',
+            establishmentId: 'establishment-2',
+            accompanimentProductId: accompaniment.id,
+            accompanimentPrice: 6.5,
+          }),
+        ],
+      },
+    ])('fails when the referenced global is $name', async ({ globals }) => {
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+        [sourceWithGlobals(globals)],
+      )
+
+      await expect(update()).rejects.toThrow(
+        new NotFoundError('A configuração de acompanhamento não foi encontrada.'),
+      )
+      expect(scope.eventsRepository.add).not.toHaveBeenCalled()
+    })
+  })
+
+  it('republishes every Portion that uses the product as an accompaniment, once and in order', async () => {
+    const otherPortion = ProductFaker.fake({
+      id: 'portion-2',
+      establishmentId,
+      categories: [ProductCategory.Portion],
+    })
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [
+        ProductAccompanimentFaker.fake({
+          establishmentId,
+          productId: otherPortion.id,
+          accompanimentProductId: product.id,
+        }),
+        ProductAccompanimentFaker.fake({
+          establishmentId,
+          productId: otherPortion.id,
+          accompanimentProductId: product.id,
+        }),
+        ProductAccompanimentFaker.fake({
+          establishmentId: 'establishment-2',
+          productId: 'foreign-portion',
+          accompanimentProductId: product.id,
+        }),
+        ProductAccompanimentFaker.fake({
+          establishmentId,
+          productId: product.id,
+          accompanimentProductId: product.id,
+        }),
+      ],
+    )
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [
+        ProductSalesConfigurationSourceFaker.fake({ product }),
+        ProductSalesConfigurationSourceFaker.fake({ product: otherPortion }),
+      ],
+    )
+
+    await update()
+
+    expect(
+      scope.productAccompanimentsRepository.findManyByAccompanimentProductId,
+    ).toHaveBeenCalledExactlyOnceWith(establishmentId, product.id)
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith(establishmentId, [product.id, otherPortion.id])
+    expect(scope.eventsRepository.add.mock.calls.map(([event]) => event.payload)).toEqual(
+      [
+        expect.objectContaining({ productId: product.id, state: 'available' }),
+        expect.objectContaining({ productId: otherPortion.id, state: 'available' }),
+      ],
+    )
+  })
+
+  it('publishes nothing when the update is rejected', async () => {
+    scope.productSizesRepository.findById.mockResolvedValue(undefined)
+
+    await expect(update()).rejects.toBeInstanceOf(NotFoundError)
+
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).not.toHaveBeenCalled()
+    expect(scope.eventsRepository.add).not.toHaveBeenCalled()
   })
 })

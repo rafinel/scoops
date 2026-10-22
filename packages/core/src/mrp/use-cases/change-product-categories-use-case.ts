@@ -16,10 +16,8 @@ import {
   ConflictError,
   NotFoundError,
 } from '#shared/domain/errors/index.ts'
-import {
-  GetAffectedProductSalesConfigurationsUseCase,
-  publishAffectedProductSalesConfigurations,
-} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationStrategy } from '#mrp/domain/strategies/product-sales-configuration-strategy.ts'
 import { GlobalAccompanimentRowsStrategy } from '#mrp/domain/strategies/global-accompaniment-rows-strategy.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
@@ -33,6 +31,7 @@ export class ChangeProductCategoriesUseCase
   implements UseCase<Request, ProductSettingsDetails>
 {
   private readonly globalAccompanimentRows = new GlobalAccompanimentRowsStrategy()
+  private readonly salesConfiguration = new ProductSalesConfigurationStrategy()
 
   constructor(private readonly database: MrpDatabase) {}
 
@@ -75,18 +74,11 @@ export class ChangeProductCategoriesUseCase
       currentProduct,
       request.input.categories,
     )
-    const configurations =
-      await new GetAffectedProductSalesConfigurationsUseCase().execute({
-        scope,
-        establishmentId,
-        productId: request.productId,
-      })
-    await publishAffectedProductSalesConfigurations({
+    await this.publishSalesConfigurations(
       scope,
       establishmentId,
-      productId: request.productId,
-      configurations,
-    })
+      await this.findAffectedProductIds(scope, establishmentId, request.productId),
+    )
     await scope.eventsRepository.add(
       new ProductUpdatedEvent({
         productId: savedProduct.id,
@@ -95,6 +87,45 @@ export class ChangeProductCategoriesUseCase
       }),
     )
     return savedProduct
+  }
+
+  private async findAffectedProductIds(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    productId: string,
+  ): Promise<readonly string[]> {
+    const links =
+      await scope.productAccompanimentsRepository.findManyByAccompanimentProductId(
+        establishmentId,
+        productId,
+      )
+    const ownerIds = links
+      .filter((link) => link.establishmentId === establishmentId)
+      .map((link) => link.productId)
+    return [...new Set([productId, ...ownerIds])]
+  }
+
+  private async publishSalesConfigurations(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    productIds: readonly string[],
+  ): Promise<void> {
+    const sources =
+      await scope.productSalesConfigurationSourcesRepository.findManyByProductIds(
+        establishmentId,
+        productIds,
+      )
+    const configurations = this.salesConfiguration.execute({ establishmentId, sources })
+    for (const configuration of configurations) {
+      await scope.eventsRepository.add(
+        new ProductSalesConfigurationChangedEvent({
+          establishmentId,
+          productId: configuration.productId,
+          state: 'available',
+          configuration,
+        }),
+      )
+    }
   }
 
   private async validateRemovedCategories(

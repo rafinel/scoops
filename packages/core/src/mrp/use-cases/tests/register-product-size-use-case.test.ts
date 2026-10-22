@@ -2,7 +2,14 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-extended'
 
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
-import { ProductFaker, ProductSizeFaker } from '#mrp/domain/entities/fakers/index.ts'
+import {
+  AccompanimentTypeFaker,
+  ProductAccompanimentFaker,
+  ProductFaker,
+  ProductSizeFaker,
+} from '#mrp/domain/entities/fakers/index.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationSourceFaker } from '#mrp/domain/structures/fakers/index.ts'
 import { ProductCategory } from '#mrp/domain/structures/index.ts'
 import type { ProductActor } from '#mrp/domain/structures/product-actor.ts'
 import type {
@@ -54,6 +61,12 @@ describe('Register Product Size Use Case', () => {
       .mockResolvedValueOnce([existingSize])
       .mockResolvedValueOnce([existingSize, addedSize])
     scope.productSizesRepository.add.mockResolvedValue(addedSize)
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [],
+    )
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [],
+    )
     useCase = new RegisterProductSizeUseCase(database)
   })
 
@@ -317,4 +330,116 @@ describe('Register Product Size Use Case', () => {
 
     expect(scope.productSizesRepository.add).toHaveBeenCalledTimes(1)
   })
+
+  it('publishes the sales configuration of the Portion including the new size', async () => {
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [
+        ProductSalesConfigurationSourceFaker.fake({
+          product,
+          sizes: [addedSize, existingSize],
+        }),
+      ],
+    )
+
+    await useCase.execute({
+      actor,
+      productId: product.id,
+      input: { name: 'Medium', quantity: 1.5, price: 12.5 },
+    })
+
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith(establishmentId, [product.id])
+    expect(scope.eventsRepository.add).toHaveBeenCalledExactlyOnceWith(
+      new ProductSalesConfigurationChangedEvent({
+        establishmentId,
+        productId: product.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: product.id,
+          name: product.name,
+          categories: [ProductCategory.Portion],
+          status: product.status,
+          stockControl: product.stockControl,
+          sizes: [addedSize, existingSize].map((size) => ({
+            sizeId: size.id,
+            name: size.name,
+            price: size.price,
+            isActive: size.isActive,
+            accompaniments: [],
+          })),
+          resaleConfigurations: [],
+          updatedAt: new Date(
+            Math.max(
+              product.updatedAt.getTime(),
+              addedSize.updatedAt.getTime(),
+              existingSize.updatedAt.getTime(),
+            ),
+          ),
+        },
+      }),
+    )
+  })
+
+  it.each([
+    { name: 'a missing accompaniment product', productExists: false, typeExists: true },
+    {
+      name: 'an accompaniment product from another establishment',
+      productExists: true,
+      typeExists: true,
+      foreignProduct: true,
+    },
+    { name: 'a missing accompaniment type', productExists: true, typeExists: false },
+    {
+      name: 'an accompaniment type from another establishment',
+      productExists: true,
+      typeExists: true,
+      foreignType: true,
+    },
+  ])(
+    'rejects a dangling relationship when $name',
+    async ({ productExists, typeExists, foreignProduct, foreignType }) => {
+      const accompaniment = ProductFaker.fake({
+        id: 'accompaniment-1',
+        establishmentId: foreignProduct ? 'establishment-2' : establishmentId,
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 2.5,
+      })
+      const type = AccompanimentTypeFaker.fake({
+        id: 'type-1',
+        establishmentId: foreignType ? 'establishment-2' : establishmentId,
+      })
+      const link = ProductAccompanimentFaker.fake({
+        id: 'link-1',
+        establishmentId,
+        productId: product.id,
+        accompanimentProductId: accompaniment.id,
+        accompanimentTypeId: type.id,
+      })
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+        [
+          ProductSalesConfigurationSourceFaker.fake({
+            product,
+            sizes: [existingSize],
+            links: [link],
+            accompanimentProducts: productExists ? [accompaniment] : [],
+            accompanimentTypes: typeExists ? [type] : [],
+          }),
+        ],
+      )
+
+      const registration = useCase.execute({
+        actor,
+        productId: product.id,
+        input: { name: 'Medium', quantity: 1.5, price: 12.5 },
+      })
+
+      await expect(registration).rejects.toBeInstanceOf(NotFoundError)
+      await expect(registration).rejects.toMatchObject({
+        message: 'A configuração de acompanhamento não foi encontrada.',
+      })
+      expect(scope.eventsRepository.add).not.toHaveBeenCalled()
+    },
+  )
 })

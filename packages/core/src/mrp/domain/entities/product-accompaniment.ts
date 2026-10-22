@@ -6,6 +6,8 @@ export type ProductAccompaniment = Entity & {
   accompanimentProductId: string
   accompanimentTypeId: string
   quantityPerPortion: number
+  /** The link's own sale price; absent for a row that references a global (the global's price applies). */
+  accompanimentPrice?: number
   globalAccompanimentId?: string
   createdAt: Date
   updatedAt: Date

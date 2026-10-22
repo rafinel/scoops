@@ -8,10 +8,8 @@ import type {
   MrpDatabase,
   MrpDatabaseRepositories,
 } from '#mrp/interfaces/mrp-database.ts'
-import {
-  GetAffectedProductSalesConfigurationsUseCase,
-  publishAffectedProductSalesConfigurations,
-} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationStrategy } from '#mrp/domain/strategies/product-sales-configuration-strategy.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -27,8 +25,7 @@ type Request = {
 }
 
 export class RemoveProductAccompanimentUseCase implements UseCase<Request, void> {
-  private readonly getAffectedProductSalesConfigurations =
-    new GetAffectedProductSalesConfigurationsUseCase()
+  private readonly salesConfiguration = new ProductSalesConfigurationStrategy()
 
   constructor(private readonly database: MrpDatabase) {}
 
@@ -58,19 +55,10 @@ export class RemoveProductAccompanimentUseCase implements UseCase<Request, void>
     }
     this.validateScope(link, request.scope)
 
-    const affectedProductIds = await this.removeLink(scope, link, request.scope)
-    const configurations = await this.getAffectedProductSalesConfigurations.execute({
-      scope,
-      establishmentId,
-      productId: owner.id,
-      affectedProductIds,
-    })
-    await publishAffectedProductSalesConfigurations({
-      scope,
-      establishmentId,
-      productId: owner.id,
-      configurations,
-    })
+    const removedFromProductIds = await this.removeLink(scope, link, request.scope)
+    await this.publishSalesConfigurations(scope, establishmentId, [
+      ...new Set([owner.id, ...removedFromProductIds]),
+    ])
   }
 
   private async removeLink(
@@ -105,6 +93,29 @@ export class RemoveProductAccompanimentUseCase implements UseCase<Request, void>
       globalAccompanimentId,
     )
     return rows.map((row) => row.productId)
+  }
+
+  private async publishSalesConfigurations(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    productIds: readonly string[],
+  ): Promise<void> {
+    const sources =
+      await scope.productSalesConfigurationSourcesRepository.findManyByProductIds(
+        establishmentId,
+        productIds,
+      )
+    const configurations = this.salesConfiguration.execute({ establishmentId, sources })
+    for (const configuration of configurations) {
+      await scope.eventsRepository.add(
+        new ProductSalesConfigurationChangedEvent({
+          establishmentId,
+          productId: configuration.productId,
+          state: 'available',
+          configuration,
+        }),
+      )
+    }
   }
 
   private validateActor(actor: ProductActor): void {

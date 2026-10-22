@@ -90,6 +90,7 @@ describe('List Product Accompaniment Candidates Use Case', () => {
       accompanimentProductId: globalRemovedHere.id,
       accompanimentTypeId: 'type-1',
       quantityPerPortion: 0.05,
+      accompanimentPrice: 7.25,
     })
     const globalPresentHere = GlobalAccompanimentFaker.fake({
       id: 'global-2',
@@ -155,7 +156,7 @@ describe('List Product Accompaniment Candidates Use Case', () => {
         name: globalRemovedHere.name,
         unit: globalRemovedHere.unit,
         stockControl: globalRemovedHere.stockControl,
-        accompanimentPrice: 2,
+        accompanimentPrice: 7.25,
         isGlobal: true,
         hasPortionLinks: false,
         global: { accompanimentTypeId: 'type-1', quantityPerPortion: 0.05 },
@@ -183,6 +184,24 @@ describe('List Product Accompaniment Candidates Use Case', () => {
     expect(
       scope.productAccompanimentsRepository.countByAccompanimentProductId,
     ).not.toHaveBeenCalledWith(establishmentId, globalRemovedHere.id)
+  })
+
+  it('reports null for a global candidate whose global has no price, ignoring the default', async () => {
+    const globalProduct = accompaniment('global-product', 'Granola', {
+      accompanimentPrice: 2,
+    })
+    scope.productsRepository.findManyByCategory.mockResolvedValue([globalProduct])
+    scope.globalAccompanimentsRepository.findManyByEstablishmentId.mockResolvedValue([
+      GlobalAccompanimentFaker.fake({
+        establishmentId,
+        accompanimentProductId: globalProduct.id,
+        accompanimentPrice: undefined,
+      }),
+    ])
+
+    const result = await useCase.execute({ actor, productId: owner.id })
+
+    expect(result).toMatchObject([{ isGlobal: true, accompanimentPrice: null }])
   })
 
   it('orders products with the same name by id', async () => {

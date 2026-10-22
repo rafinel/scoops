@@ -30,65 +30,33 @@ export class PreviewProductCategoryRemovalUseCase
     this.validateActor(request.actor)
     this.validateCategory(request.category)
 
-    return this.database.run(
-      async ({
-        productsRepository,
-        brandsRepository,
-        recipesRepository,
-        recipeIngredientsRepository,
-        productionsRepository,
-        productionIngredientsRepository,
-        stockBalancesRepository,
-        stockTransactionsRepository,
-        productSizesRepository,
-        accompanimentTypesRepository,
-        productAccompanimentsRepository,
-        globalAccompanimentsRepository,
-        resaleConfigurationsRepository,
-        eventsRepository,
-      }: MrpDatabaseRepositories) => {
-        const scope = {
-          productsRepository,
-          brandsRepository,
-          recipesRepository,
-          recipeIngredientsRepository,
-          productionsRepository,
-          productionIngredientsRepository,
-          stockBalancesRepository,
-          stockTransactionsRepository,
-          productSizesRepository,
-          accompanimentTypesRepository,
-          productAccompanimentsRepository,
-          globalAccompanimentsRepository,
-          resaleConfigurationsRepository,
-          eventsRepository,
-        }
-        const product = await productsRepository.findById(
-          request.actor.establishmentId,
-          request.productId,
-        )
-        this.validateProduct(product, request.actor.establishmentId)
-        if (!product.categories.includes(request.category)) {
-          throw new BadRequestError('A categoria não está atribuída ao produto.')
-        }
-        if (product.categories.length === 1) {
-          throw new BadRequestError('O produto deve possuir pelo menos uma categoria.')
-        }
+    return this.database.run(async (scope: MrpDatabaseRepositories) => {
+      const { productsRepository } = scope
+      const product = await productsRepository.findById(
+        request.actor.establishmentId,
+        request.productId,
+      )
+      this.validateProduct(product, request.actor.establishmentId)
+      if (!product.categories.includes(request.category)) {
+        throw new BadRequestError('A categoria não está atribuída ao produto.')
+      }
+      if (product.categories.length === 1) {
+        throw new BadRequestError('O produto deve possuir pelo menos uma categoria.')
+      }
 
-        const dependencies = await this.findDependencies(
-          scope,
-          request.actor.establishmentId,
-          product,
-          request.category,
-        )
+      const dependencies = await this.findDependencies(
+        scope,
+        request.actor.establishmentId,
+        product,
+        request.category,
+      )
 
-        return {
-          category: request.category,
-          canRemove: dependencies.length === 0,
-          dependencies,
-        }
-      },
-    )
+      return {
+        category: request.category,
+        canRemove: dependencies.length === 0,
+        dependencies,
+      }
+    })
   }
 
   private async findDependencies(

@@ -3,11 +3,20 @@ import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-
 
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import {
+  AccompanimentTypeFaker,
+  ProductAccompanimentFaker,
   ProductFaker,
+  ProductSizeFaker,
   ResaleConfigurationFaker,
 } from '#mrp/domain/entities/fakers/index.ts'
 import type { ResaleConfiguration } from '#mrp/domain/entities/resale-configuration.ts'
-import { ProductCategory, ProductStockControl } from '#mrp/domain/structures/index.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationSourceFaker } from '#mrp/domain/structures/fakers/index.ts'
+import {
+  ProductCategory,
+  ProductStatus,
+  ProductStockControl,
+} from '#mrp/domain/structures/index.ts'
 import type {
   MrpDatabase,
   MrpDatabaseRepositories,
@@ -111,6 +120,32 @@ describe('Save Product Resale Configuration Use Case', () => {
         else brandConfiguration = configuration
         return configuration
       },
+    )
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [],
+    )
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockImplementation(
+      async (_establishment, productIds) =>
+        productIds.flatMap((productId) => {
+          if (productId === singleProduct.id) {
+            return [
+              ProductSalesConfigurationSourceFaker.fake({
+                product: singleProduct,
+                resaleConfigurations: singleConfiguration ? [singleConfiguration] : [],
+              }),
+            ]
+          }
+          if (productId === byBrandProduct.id) {
+            return [
+              ProductSalesConfigurationSourceFaker.fake({
+                product: byBrandProduct,
+                resaleConfigurations: brandConfiguration ? [brandConfiguration] : [],
+                brands: [brand],
+              }),
+            ]
+          }
+          return []
+        }),
     )
     useCase = new SaveProductResaleConfigurationUseCase(database)
   })
@@ -470,5 +505,247 @@ describe('Save Product Resale Configuration Use Case', () => {
       await rejection.toThrow('Configuração de revenda não encontrada.')
       expect(scope.resaleConfigurationsRepository.replace).not.toHaveBeenCalled()
     })
+  })
+
+  it('publishes the saved Single configuration once for the product', async () => {
+    await useCase.execute({
+      actor,
+      productId: singleProduct.id,
+      input: { price: 8.5, isActive: true },
+    })
+
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith(establishmentId, [singleProduct.id])
+    expect(scope.eventsRepository.add).toHaveBeenCalledExactlyOnceWith(
+      new ProductSalesConfigurationChangedEvent({
+        establishmentId,
+        productId: singleProduct.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: singleProduct.id,
+          name: singleProduct.name,
+          categories: [ProductCategory.Resale],
+          status: singleProduct.status,
+          stockControl: ProductStockControl.Single,
+          sizes: [],
+          resaleConfigurations: [{ price: 8.5, isActive: true }],
+          updatedAt: new Date(
+            Math.max(
+              singleProduct.updatedAt.getTime(),
+              (singleConfiguration as ResaleConfiguration).updatedAt.getTime(),
+            ),
+          ),
+        },
+      }),
+    )
+  })
+
+  it('ignores brand updates for a Single-stock product but counts them for a By-brand product', async () => {
+    const brandUpdatedAt = new Date('2030-01-01T00:00:00.000Z')
+    const updatedBrand = { ...brand, updatedAt: brandUpdatedAt }
+    const published = (productId: string) =>
+      scope.eventsRepository.add.mock.calls
+        .map(([event]) => event as ProductSalesConfigurationChangedEvent)
+        .find((event) => event.payload.productId === productId)?.payload.configuration
+        ?.updatedAt
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockImplementation(
+      async (_establishment, [productId]) => [
+        ProductSalesConfigurationSourceFaker.fake({
+          product: productId === singleProduct.id ? singleProduct : byBrandProduct,
+          brands: [{ ...updatedBrand, productId }],
+        }),
+      ],
+    )
+
+    await useCase.execute({
+      actor,
+      productId: singleProduct.id,
+      input: { price: 8.5, isActive: true },
+    })
+    await useCase.execute({
+      actor,
+      productId: byBrandProduct.id,
+      brandId: brand.id,
+      input: { price: 15, isActive: true },
+    })
+
+    expect(published(singleProduct.id)).toEqual(singleProduct.updatedAt)
+    expect(published(byBrandProduct.id)).toEqual(brandUpdatedAt)
+  })
+
+  it('filters foreign child rows and maps By-brand resale names into the published configuration', async () => {
+    const ownerUpdatedAt = new Date('2026-01-01T00:00:00.000Z')
+    const sizeUpdatedAt = new Date('2026-01-02T00:00:00.000Z')
+    const linkUpdatedAt = new Date('2026-01-03T00:00:00.000Z')
+    const typeUpdatedAt = new Date('2026-01-04T00:00:00.000Z')
+    const accompanimentUpdatedAt = new Date('2026-01-05T00:00:00.000Z')
+    const configurationUpdatedAt = new Date('2026-01-06T00:00:00.000Z')
+    const brandUpdatedAt = new Date('2026-01-07T00:00:00.000Z')
+    const owner = { ...byBrandProduct, updatedAt: ownerUpdatedAt }
+    const accompaniment = ProductFaker.fake({
+      id: 'accompaniment-1',
+      establishmentId,
+      name: 'Granola',
+      categories: [ProductCategory.Accompaniment],
+      status: ProductStatus.Active,
+      updatedAt: accompanimentUpdatedAt,
+    })
+    const type = AccompanimentTypeFaker.fake({
+      id: 'type-1',
+      establishmentId,
+      name: 'Cobertura',
+      updatedAt: typeUpdatedAt,
+    })
+    const validSize = ProductSizeFaker.fake({
+      id: 'size-1',
+      establishmentId,
+      productId: owner.id,
+      name: 'Médio',
+      price: 12,
+      updatedAt: sizeUpdatedAt,
+    })
+    const validLink = ProductAccompanimentFaker.fake({
+      id: 'link-1',
+      establishmentId,
+      productId: owner.id,
+      accompanimentProductId: accompaniment.id,
+      accompanimentTypeId: type.id,
+      accompanimentPrice: 0,
+      updatedAt: linkUpdatedAt,
+    })
+    const mappedBrand = { ...brand, name: 'Mãe Terra', updatedAt: brandUpdatedAt }
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [
+        ProductSalesConfigurationSourceFaker.fake({
+          product: owner,
+          sizes: [
+            validSize,
+            ProductSizeFaker.fake({
+              id: 'size-foreign-establishment',
+              establishmentId: 'establishment-2',
+              productId: owner.id,
+              updatedAt: new Date('2025-12-01T00:00:00.000Z'),
+            }),
+            ProductSizeFaker.fake({
+              id: 'size-other-product',
+              establishmentId,
+              productId: 'other-product',
+              updatedAt: new Date('2025-12-02T00:00:00.000Z'),
+            }),
+          ],
+          links: [
+            validLink,
+            ProductAccompanimentFaker.fake({
+              id: 'link-foreign-establishment',
+              establishmentId: 'establishment-2',
+              productId: owner.id,
+              accompanimentProductId: accompaniment.id,
+              accompanimentTypeId: type.id,
+              updatedAt: new Date('2025-12-03T00:00:00.000Z'),
+            }),
+            ProductAccompanimentFaker.fake({
+              id: 'link-other-product',
+              establishmentId,
+              productId: 'other-product',
+              accompanimentProductId: accompaniment.id,
+              accompanimentTypeId: type.id,
+              updatedAt: new Date('2025-12-04T00:00:00.000Z'),
+            }),
+          ],
+          resaleConfigurations: [
+            ResaleConfigurationFaker.fake({
+              id: 'resale-1',
+              establishmentId,
+              productId: owner.id,
+              brandId: mappedBrand.id,
+              price: 18,
+              isActive: true,
+              updatedAt: configurationUpdatedAt,
+            }),
+            ResaleConfigurationFaker.fake({
+              id: 'resale-unknown-brand',
+              establishmentId,
+              productId: owner.id,
+              brandId: 'brand-unknown',
+              price: 19,
+              isActive: false,
+            }),
+            ResaleConfigurationFaker.fake({
+              id: 'resale-unbranded',
+              establishmentId,
+              productId: owner.id,
+              brandId: undefined,
+              price: 20,
+              isActive: true,
+            }),
+            ResaleConfigurationFaker.fake({
+              id: 'resale-foreign-establishment',
+              establishmentId: 'establishment-2',
+              productId: owner.id,
+              price: 21,
+              updatedAt: new Date('2025-12-05T00:00:00.000Z'),
+            }),
+            ResaleConfigurationFaker.fake({
+              id: 'resale-other-product',
+              establishmentId,
+              productId: 'other-product',
+              price: 22,
+              updatedAt: new Date('2025-12-06T00:00:00.000Z'),
+            }),
+          ],
+          brands: [mappedBrand],
+          accompanimentProducts: [accompaniment],
+          accompanimentTypes: [type],
+        }),
+      ],
+    )
+
+    await useCase.execute({
+      actor,
+      productId: owner.id,
+      brandId: brand.id,
+      input: { price: 18, isActive: true },
+    })
+
+    const [[event]] = scope.eventsRepository.add.mock.calls
+    const { configuration } = (event as ProductSalesConfigurationChangedEvent).payload
+    expect(configuration?.sizes).toEqual([
+      {
+        sizeId: validSize.id,
+        name: validSize.name,
+        price: validSize.price,
+        isActive: validSize.isActive,
+        accompaniments: [
+          {
+            accompanimentId: validLink.id,
+            productId: accompaniment.id,
+            name: accompaniment.name,
+            type: type.name,
+            basePrice: 0,
+            isActive: true,
+          },
+        ],
+      },
+    ])
+    expect(configuration?.resaleConfigurations).toEqual([
+      { brandId: mappedBrand.id, brandName: 'Mãe Terra', price: 18, isActive: true },
+      { brandId: 'brand-unknown', price: 19, isActive: false },
+      { price: 20, isActive: true },
+    ])
+    expect(configuration?.updatedAt).toEqual(brandUpdatedAt)
+  })
+
+  it('publishes nothing when the product is not eligible', async () => {
+    await expect(
+      useCase.execute({
+        actor,
+        productId: 'unknown-product',
+        input: { price: 8.5, isActive: true },
+      }),
+    ).rejects.toBeInstanceOf(NotFoundError)
+
+    expect(scope.eventsRepository.add).not.toHaveBeenCalled()
   })
 })

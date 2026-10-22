@@ -5,6 +5,8 @@ export type GlobalAccompaniment = Entity & {
   accompanimentProductId: string
   accompanimentTypeId: string
   quantityPerPortion: number
+  /** The one sale price shared by every row that references this global. */
+  accompanimentPrice?: number
   createdAt: Date
   updatedAt: Date
 }

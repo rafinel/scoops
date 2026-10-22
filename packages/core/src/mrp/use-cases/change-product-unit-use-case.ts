@@ -12,10 +12,8 @@ import {
   ConflictError,
   NotFoundError,
 } from '#shared/domain/errors/index.ts'
-import {
-  GetAffectedProductSalesConfigurationsUseCase,
-  publishAffectedProductSalesConfigurations,
-} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationStrategy } from '#mrp/domain/strategies/product-sales-configuration-strategy.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
 type Request = {
@@ -25,89 +23,95 @@ type Request = {
 }
 
 export class ChangeProductUnitUseCase implements UseCase<Request, Product> {
+  private readonly salesConfiguration = new ProductSalesConfigurationStrategy()
+
   constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<Product> {
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    const product = await this.database.run(
-      async ({
-        productsRepository,
-        brandsRepository,
-        recipesRepository,
-        recipeIngredientsRepository,
-        productionsRepository,
-        productionIngredientsRepository,
-        stockBalancesRepository,
-        stockTransactionsRepository,
-        productSizesRepository,
-        accompanimentTypesRepository,
-        productAccompanimentsRepository,
-        globalAccompanimentsRepository,
-        resaleConfigurationsRepository,
-        eventsRepository,
-      }: MrpDatabaseRepositories) => {
-        const scope = {
-          productsRepository,
-          brandsRepository,
-          recipesRepository,
-          recipeIngredientsRepository,
-          productionsRepository,
-          productionIngredientsRepository,
-          stockBalancesRepository,
-          stockTransactionsRepository,
-          productSizesRepository,
-          accompanimentTypesRepository,
-          productAccompanimentsRepository,
-          globalAccompanimentsRepository,
-          resaleConfigurationsRepository,
-          eventsRepository,
-        }
-        const currentProduct = await productsRepository.findByIdForUpdate(
-          request.actor.establishmentId,
-          request.productId,
-        )
-        if (
-          !currentProduct ||
-          currentProduct.establishmentId !== request.actor.establishmentId
-        ) {
-          throw new NotFoundError('Produto não encontrado.')
-        }
-        this.validateVersion(currentProduct, request.input.expectedUpdatedAt)
-        if (currentProduct.unit === request.input.targetUnit) {
-          throw new BadRequestError('A unidade de destino deve ser diferente da atual.')
-        }
+    const product = await this.database.run(async (scope: MrpDatabaseRepositories) => {
+      const currentProduct = await scope.productsRepository.findByIdForUpdate(
+        request.actor.establishmentId,
+        request.productId,
+      )
+      if (
+        !currentProduct ||
+        currentProduct.establishmentId !== request.actor.establishmentId
+      ) {
+        throw new NotFoundError('Produto não encontrado.')
+      }
+      this.validateVersion(currentProduct, request.input.expectedUpdatedAt)
+      if (currentProduct.unit === request.input.targetUnit) {
+        throw new BadRequestError('A unidade de destino deve ser diferente da atual.')
+      }
 
-        const savedProduct = await productsRepository.replace(
-          request.actor.establishmentId,
-          currentProduct.id,
-          { unit: request.input.targetUnit },
-        )
-        const configurations =
-          await new GetAffectedProductSalesConfigurationsUseCase().execute({
-            scope,
-            establishmentId: request.actor.establishmentId,
-            productId: request.productId,
-          })
-        await publishAffectedProductSalesConfigurations({
-          scope,
-          establishmentId: request.actor.establishmentId,
-          productId: request.productId,
-          configurations,
-        })
-        await eventsRepository.add(
-          new ProductUpdatedEvent({
-            productId: savedProduct.id,
-            establishmentId: savedProduct.establishmentId,
-            updatedAt: savedProduct.updatedAt,
-          }),
-        )
-        return savedProduct
-      },
-    )
+      const savedProduct = await scope.productsRepository.replace(
+        request.actor.establishmentId,
+        currentProduct.id,
+        { unit: request.input.targetUnit },
+      )
+      const affectedProductIds = await this.findAffectedProductIds(
+        scope,
+        request.actor.establishmentId,
+        request.productId,
+      )
+      await this.publishSalesConfigurations(
+        scope,
+        request.actor.establishmentId,
+        affectedProductIds,
+      )
+      await scope.eventsRepository.add(
+        new ProductUpdatedEvent({
+          productId: savedProduct.id,
+          establishmentId: savedProduct.establishmentId,
+          updatedAt: savedProduct.updatedAt,
+        }),
+      )
+      return savedProduct
+    })
 
     return product
+  }
+
+  private async findAffectedProductIds(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    productId: string,
+  ): Promise<readonly string[]> {
+    const links =
+      await scope.productAccompanimentsRepository.findManyByAccompanimentProductId(
+        establishmentId,
+        productId,
+      )
+    const ownerIds = links
+      .filter((link) => link.establishmentId === establishmentId)
+      .map((link) => link.productId)
+    return [...new Set([productId, ...ownerIds])]
+  }
+
+  private async publishSalesConfigurations(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    productIds: readonly string[],
+  ): Promise<void> {
+    const sources =
+      await scope.productSalesConfigurationSourcesRepository.findManyByProductIds(
+        establishmentId,
+        productIds,
+      )
+    const configurations = this.salesConfiguration.execute({ establishmentId, sources })
+    for (const configuration of configurations) {
+      await scope.eventsRepository.add(
+        new ProductSalesConfigurationChangedEvent({
+          establishmentId,
+          productId: configuration.productId,
+          state: 'available',
+          configuration,
+        }),
+      )
+    }
   }
 
   private validateActor(actor: ProductActor): void {

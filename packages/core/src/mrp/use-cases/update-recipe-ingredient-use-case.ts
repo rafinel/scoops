@@ -34,97 +34,65 @@ export class UpdateRecipeIngredientUseCase
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    return this.database.run(
-      async ({
-        productsRepository,
-        brandsRepository,
-        recipesRepository,
-        recipeIngredientsRepository,
-        productionsRepository,
-        productionIngredientsRepository,
-        stockBalancesRepository,
-        stockTransactionsRepository,
-        productSizesRepository,
-        accompanimentTypesRepository,
-        productAccompanimentsRepository,
-        globalAccompanimentsRepository,
-        resaleConfigurationsRepository,
-        eventsRepository,
-      }: MrpDatabaseRepositories) => {
-        const scope = {
-          productsRepository,
-          brandsRepository,
-          recipesRepository,
-          recipeIngredientsRepository,
-          productionsRepository,
-          productionIngredientsRepository,
-          stockBalancesRepository,
-          stockTransactionsRepository,
-          productSizesRepository,
-          accompanimentTypesRepository,
-          productAccompanimentsRepository,
-          globalAccompanimentsRepository,
-          resaleConfigurationsRepository,
-          eventsRepository,
-        }
-        const product = await productsRepository.findById(
-          request.actor.establishmentId,
-          request.productId,
-        )
-        if (!product) throw new NotFoundError('Produto não encontrado.')
-        if (!product.categories.includes(ProductCategory.Manufacturable)) {
-          throw new BadRequestError('O produto não é fabricável.')
-        }
-        const recipe = await recipesRepository.findByProductId(
-          request.actor.establishmentId,
-          product.id,
-        )
-        if (!recipe) throw new NotFoundError('Receita não encontrada.')
-        const line = await recipeIngredientsRepository.findById(
-          request.actor.establishmentId,
-          recipe.id,
-          request.lineId,
-        )
-        if (!line) throw new NotFoundError('Ingrediente da receita não encontrado.')
+    return this.database.run(async (scope: MrpDatabaseRepositories) => {
+      const { productsRepository, recipesRepository, recipeIngredientsRepository } = scope
+      const product = await productsRepository.findById(
+        request.actor.establishmentId,
+        request.productId,
+      )
+      if (!product) throw new NotFoundError('Produto não encontrado.')
+      if (!product.categories.includes(ProductCategory.Manufacturable)) {
+        throw new BadRequestError('O produto não é fabricável.')
+      }
+      const recipe = await recipesRepository.findByProductId(
+        request.actor.establishmentId,
+        product.id,
+      )
+      if (!recipe) throw new NotFoundError('Receita não encontrada.')
+      const line = await recipeIngredientsRepository.findById(
+        request.actor.establishmentId,
+        recipe.id,
+        request.lineId,
+      )
+      if (!line) throw new NotFoundError('Ingrediente da receita não encontrado.')
 
-        const ingredientProduct = await productsRepository.findById(
-          request.actor.establishmentId,
-          line.ingredientProductId,
-        )
-        if (!ingredientProduct)
-          throw new NotFoundError('Ingrediente da receita não encontrado.')
-        if (ingredientProduct.status !== ProductStatus.Active) {
-          throw new BadRequestError('O ingrediente deve estar ativo.')
-        }
-        if (!ingredientProduct.categories.includes(ProductCategory.Ingredient)) {
-          throw new BadRequestError('O produto selecionado não é um ingrediente.')
-        }
+      const ingredientProduct = await productsRepository.findById(
+        request.actor.establishmentId,
+        line.ingredientProductId,
+      )
+      if (!ingredientProduct)
+        throw new NotFoundError('Ingrediente da receita não encontrado.')
+      if (ingredientProduct.status !== ProductStatus.Active) {
+        throw new BadRequestError('O ingrediente deve estar ativo.')
+      }
+      if (!ingredientProduct.categories.includes(ProductCategory.Ingredient)) {
+        throw new BadRequestError('O produto selecionado não é um ingrediente.')
+      }
 
-        const selectedBrandId = await this.resolveBrandId(
-          scope,
-          ingredientProduct,
-          request.input.ingredientBrandId ?? line.ingredientBrandId,
-        )
+      const selectedBrandId = await this.resolveBrandId(
+        scope,
+        ingredientProduct,
+        request.input.ingredientBrandId ?? line.ingredientBrandId,
+      )
 
-        await recipeIngredientsRepository.replace(
-          request.actor.establishmentId,
-          recipe.id,
-          line.id,
-          {
-            quantity: request.input.quantity,
-            ...(request.input.ingredientBrandId !== undefined && selectedBrandId
-              ? { ingredientBrandId: selectedBrandId }
-              : {}),
-          },
-        )
+      await recipeIngredientsRepository.replace(
+        request.actor.establishmentId,
+        recipe.id,
+        line.id,
+        {
+          quantity: request.input.quantity,
+          ...(request.input.ingredientBrandId !== undefined && selectedBrandId
+            ? { ingredientBrandId: selectedBrandId }
+            : {}),
+        },
+      )
 
-        return GetProductRecipeUseCase.buildDetails(
-          scope,
-          request.actor.establishmentId,
-          product,
-        )
-      },
-    )
+      return GetProductRecipeUseCase.buildDetails(
+        scope,
+        request.actor.establishmentId,
+        product,
+      )
+    })
   }
 
   private validateActor(actor: ProductActor): void {

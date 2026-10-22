@@ -8,6 +8,7 @@ import {
   ProductFaker,
 } from '#mrp/domain/entities/fakers/index.ts'
 import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationSourceFaker } from '#mrp/domain/structures/fakers/index.ts'
 import {
   AccompanimentRemovalScope,
   ProductCategory,
@@ -46,6 +47,12 @@ describe('Remove Product Accompaniment Use Case', () => {
     database.run.mockImplementation(async (operation) => operation(scope))
     scope.productsRepository.findById.mockResolvedValue(owner)
     scope.productAccompanimentsRepository.findById.mockResolvedValue(link)
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockImplementation(
+      async (_, productIds) =>
+        productIds.includes(owner.id)
+          ? [ProductSalesConfigurationSourceFaker.fake({ product: owner })]
+          : [],
+    )
     useCase = new RemoveProductAccompanimentUseCase(database)
   })
 
@@ -62,6 +69,30 @@ describe('Remove Product Accompaniment Use Case', () => {
     )
     expect(scope.stockBalancesRepository.add).not.toHaveBeenCalled()
     expect(scope.stockTransactionsRepository.add).not.toHaveBeenCalled()
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith(establishmentId, [owner.id])
+    expect(
+      scope.productAccompanimentsRepository.findManyByAccompanimentProductId,
+    ).not.toHaveBeenCalled()
+    expect(scope.eventsRepository.add).toHaveBeenCalledExactlyOnceWith(
+      new ProductSalesConfigurationChangedEvent({
+        establishmentId,
+        productId: owner.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: owner.id,
+          name: owner.name,
+          categories: [ProductCategory.Portion],
+          status: owner.status,
+          stockControl: owner.stockControl,
+          sizes: [],
+          resaleConfigurations: [],
+          updatedAt: owner.updatedAt,
+        },
+      }),
+    )
   })
 
   it('rejects missing/invalid owner, link and operator without deleting', async () => {
@@ -149,6 +180,15 @@ describe('Remove Product Accompaniment Use Case', () => {
       scope.productsRepository.findById.mockImplementation(async (_, id) =>
         portions.find((portion) => portion.id === id),
       )
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockImplementation(
+        async (_, productIds) =>
+          productIds.flatMap((productId) => {
+            const portion = portions.find((candidate) => candidate.id === productId)
+            return portion
+              ? [ProductSalesConfigurationSourceFaker.fake({ product: portion })]
+              : []
+          }),
+      )
       scope.productAccompanimentsRepository.findById.mockResolvedValue(ownerRow)
       scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
         [ownerRow, globalRow(portionB.id)],
@@ -201,6 +241,9 @@ describe('Remove Product Accompaniment Use Case', () => {
         scope.globalAccompanimentsRepository.remove.mock.invocationCallOrder[0],
       )
       expect(publishedProductIds()).toEqual([owner.id, portionB.id])
+      expect(
+        scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+      ).toHaveBeenCalledExactlyOnceWith(establishmentId, [owner.id, portionB.id])
       expect(scope.stockBalancesRepository.add).not.toHaveBeenCalled()
       expect(scope.stockTransactionsRepository.add).not.toHaveBeenCalled()
     })

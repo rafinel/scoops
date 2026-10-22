@@ -10,6 +10,7 @@ import {
   RecipeFaker,
 } from '#mrp/domain/entities/fakers/index.ts'
 import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationSourceFaker } from '#mrp/domain/structures/fakers/index.ts'
 import { ProductCategory } from '#mrp/domain/structures/index.ts'
 import type {
   MrpDatabase,
@@ -65,6 +66,12 @@ describe('Remove Product Use Case', () => {
     scope.globalAccompanimentsRepository.findByAccompanimentProductId.mockResolvedValue(
       undefined,
     )
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [],
+    )
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [],
+    )
     useCase = new RemoveProductUseCase(database)
   })
 
@@ -93,6 +100,22 @@ describe('Remove Product Use Case', () => {
     expect(scope.productsRepository.remove).toHaveBeenCalledWith('e1', 'p1')
     expect(scope.stockTransactionsRepository.removeAll).not.toHaveBeenCalled()
     expect(scope.productionsRepository.removeAll).not.toHaveBeenCalled()
+  })
+
+  it('publishes only the deleted state when no Portion uses the removed product', async () => {
+    await useCase.execute({ actor: manager, productId: product.id })
+
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith('e1', [])
+    expect(scope.eventsRepository.add).toHaveBeenCalledExactlyOnceWith(
+      new ProductSalesConfigurationChangedEvent({
+        establishmentId: 'e1',
+        productId: 'p1',
+        state: 'deleted',
+        configuration: null,
+      }),
+    )
   })
 
   it('hides foreign products and rejects operators before transaction work', async () => {
@@ -178,6 +201,17 @@ describe('Remove Product Use Case', () => {
       scope.brandsRepository.findManyByProductId.mockResolvedValue([])
       scope.productSizesRepository.findManyByProductId.mockResolvedValue([])
       scope.recipesRepository.findByProductId.mockResolvedValue(undefined)
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockImplementation(
+        async (_, productIds) =>
+          productIds.flatMap((productId) => {
+            const portion = [portionA, portionB].find(
+              (candidate) => candidate.id === productId,
+            )
+            return portion
+              ? [ProductSalesConfigurationSourceFaker.fake({ product: portion })]
+              : []
+          }),
+      )
     })
 
     it('removes the global with an Accompaniment product after its rows and republishes every Portion', async () => {
@@ -205,6 +239,59 @@ describe('Remove Product Use Case', () => {
           expect.objectContaining({ productId: accompaniment.id, state: 'deleted' }),
         ]),
       )
+      expect(
+        publishedEvents().map(({ productId, state }) => ({ productId, state })),
+      ).toEqual([
+        { productId: portionA.id, state: 'available' },
+        { productId: portionB.id, state: 'available' },
+        { productId: accompaniment.id, state: 'deleted' },
+      ])
+      expect(
+        scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+      ).toHaveBeenCalledExactlyOnceWith('e1', [portionA.id, portionB.id])
+    })
+
+    it('captures the inverse owners before any row is removed and ignores foreign or self links', async () => {
+      scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+        [
+          ProductAccompanimentFaker.fake({
+            establishmentId: 'e1',
+            productId: portionA.id,
+            accompanimentProductId: accompaniment.id,
+          }),
+          ProductAccompanimentFaker.fake({
+            establishmentId: 'e1',
+            productId: portionA.id,
+            accompanimentProductId: accompaniment.id,
+          }),
+          ProductAccompanimentFaker.fake({
+            establishmentId: 'other-establishment',
+            productId: 'foreign-portion',
+            accompanimentProductId: accompaniment.id,
+          }),
+          ProductAccompanimentFaker.fake({
+            establishmentId: 'e1',
+            productId: accompaniment.id,
+            accompanimentProductId: accompaniment.id,
+          }),
+        ],
+      )
+
+      await useCase.execute({ actor: manager, productId: accompaniment.id })
+
+      expect(
+        scope.productAccompanimentsRepository.findManyByAccompanimentProductId,
+      ).toHaveBeenCalledExactlyOnceWith('e1', accompaniment.id)
+      expect(
+        scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mock
+          .invocationCallOrder[0],
+      ).toBeLessThan(
+        scope.productAccompanimentsRepository.removeByAccompanimentProductId.mock
+          .invocationCallOrder[0],
+      )
+      expect(
+        scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+      ).toHaveBeenCalledExactlyOnceWith('e1', [portionA.id])
     })
 
     it('keeps globals when a Portion is removed and publishes nothing after a failed deletion', async () => {

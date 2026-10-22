@@ -1,6 +1,8 @@
 import type { ProductAccompaniment } from '#mrp/domain/entities/product-accompaniment.ts'
+import type { AccompanimentPortionListParams } from '#mrp/domain/structures/accompaniment-portion-list-params.ts'
 import type { ProductAccompanimentCreate } from '#mrp/domain/structures/product-accompaniment-create.ts'
 import type { ProductAccompanimentUpdate } from '#mrp/domain/structures/product-accompaniment-update.ts'
+import type { PaginationResponse } from '#shared/responses/pagination-response.ts'
 
 export interface ProductAccompanimentsRepository {
   add(input: ProductAccompanimentCreate): Promise<ProductAccompaniment>
@@ -24,6 +26,9 @@ export interface ProductAccompanimentsRepository {
     establishmentId: string,
     accompanimentProductId: string,
   ): Promise<number>
+  findPageByAccompanimentProductId(
+    params: AccompanimentPortionListParams,
+  ): Promise<PaginationResponse<ProductAccompaniment>>
   replaceQuantitiesByAccompanimentProductId(
     establishmentId: string,
     accompanimentProductId: string,
@@ -59,6 +64,15 @@ export interface ProductAccompanimentsRepository {
   removeByGlobalAccompanimentId(
     establishmentId: string,
     globalAccompanimentId: string,
+  ): Promise<void>
+  /**
+   * Clears the global reference of every row of the global, giving each row `accompanimentPrice`
+   * as its own price in the same UPDATE (ids, type, quantity and `updatedAt` stay unchanged).
+   */
+  clearGlobalReferenceByGlobalAccompanimentId(
+    establishmentId: string,
+    globalAccompanimentId: string,
+    accompanimentPrice: number | undefined,
   ): Promise<void>
   removeAll(): Promise<void>
 }

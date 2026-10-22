@@ -26,71 +26,39 @@ export class SaveRecipeYieldUseCase implements UseCase<Request, ProductRecipeDet
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    return this.database.run(
-      async ({
-        productsRepository,
-        brandsRepository,
-        recipesRepository,
-        recipeIngredientsRepository,
-        productionsRepository,
-        productionIngredientsRepository,
-        stockBalancesRepository,
-        stockTransactionsRepository,
-        productSizesRepository,
-        accompanimentTypesRepository,
-        productAccompanimentsRepository,
-        globalAccompanimentsRepository,
-        resaleConfigurationsRepository,
-        eventsRepository,
-      }: MrpDatabaseRepositories) => {
-        const scope = {
-          productsRepository,
-          brandsRepository,
-          recipesRepository,
-          recipeIngredientsRepository,
-          productionsRepository,
-          productionIngredientsRepository,
-          stockBalancesRepository,
-          stockTransactionsRepository,
-          productSizesRepository,
-          accompanimentTypesRepository,
-          productAccompanimentsRepository,
-          globalAccompanimentsRepository,
-          resaleConfigurationsRepository,
-          eventsRepository,
-        }
-        const product = await productsRepository.findById(
-          request.actor.establishmentId,
-          request.productId,
-        )
-        if (!product) throw new NotFoundError('Produto não encontrado.')
-        if (!product.categories.includes(ProductCategory.Manufacturable)) {
-          throw new BadRequestError('O produto não é fabricável.')
-        }
+    return this.database.run(async (scope: MrpDatabaseRepositories) => {
+      const { productsRepository, recipesRepository } = scope
+      const product = await productsRepository.findById(
+        request.actor.establishmentId,
+        request.productId,
+      )
+      if (!product) throw new NotFoundError('Produto não encontrado.')
+      if (!product.categories.includes(ProductCategory.Manufacturable)) {
+        throw new BadRequestError('O produto não é fabricável.')
+      }
 
-        const recipe = await recipesRepository.findByProductId(
-          request.actor.establishmentId,
-          product.id,
-        )
-        if (recipe) {
-          await recipesRepository.replace(request.actor.establishmentId, recipe.id, {
-            yieldQuantity: request.input.yieldQuantity,
-          })
-        } else {
-          await recipesRepository.add({
-            establishmentId: request.actor.establishmentId,
-            productId: product.id,
-            yieldQuantity: request.input.yieldQuantity,
-          })
-        }
+      const recipe = await recipesRepository.findByProductId(
+        request.actor.establishmentId,
+        product.id,
+      )
+      if (recipe) {
+        await recipesRepository.replace(request.actor.establishmentId, recipe.id, {
+          yieldQuantity: request.input.yieldQuantity,
+        })
+      } else {
+        await recipesRepository.add({
+          establishmentId: request.actor.establishmentId,
+          productId: product.id,
+          yieldQuantity: request.input.yieldQuantity,
+        })
+      }
 
-        return GetProductRecipeUseCase.buildDetails(
-          scope,
-          request.actor.establishmentId,
-          product,
-        )
-      },
-    )
+      return GetProductRecipeUseCase.buildDetails(
+        scope,
+        request.actor.establishmentId,
+        product,
+      )
+    })
   }
 
   private validateActor(actor: ProductActor): void {
