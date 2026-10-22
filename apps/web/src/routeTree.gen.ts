@@ -43,6 +43,7 @@ import { Route as AuthenticatedProductsProductIdStockRouteImport } from './route
 import { Route as AuthenticatedProductsProductIdSettingsRouteImport } from './routes/_authenticated/products/$productId/settings'
 import { Route as AuthenticatedProductsProductIdRecipeRouteImport } from './routes/_authenticated/products/$productId/recipe'
 import { Route as AuthenticatedProductsProductIdPricesRouteImport } from './routes/_authenticated/products/$productId/prices'
+import { Route as AuthenticatedProductsProductIdPortionsRouteImport } from './routes/_authenticated/products/$productId/portions'
 import { Route as AuthenticatedProductsProductIdAccompanimentsRouteImport } from './routes/_authenticated/products/$productId/accompaniments'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -235,6 +236,12 @@ const AuthenticatedProductsProductIdPricesRoute =
     path: '/prices',
     getParentRoute: () => AuthenticatedProductsProductIdRouteRoute,
   } as any)
+const AuthenticatedProductsProductIdPortionsRoute =
+  AuthenticatedProductsProductIdPortionsRouteImport.update({
+    id: '/portions',
+    path: '/portions',
+    getParentRoute: () => AuthenticatedProductsProductIdRouteRoute,
+  } as any)
 const AuthenticatedProductsProductIdAccompanimentsRoute =
   AuthenticatedProductsProductIdAccompanimentsRouteImport.update({
     id: '/accompaniments',
@@ -272,6 +279,7 @@ export interface FileRoutesByFullPath {
   '/subscription/': typeof AuthenticatedSubscriptionIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
   '/products/$productId/accompaniments': typeof AuthenticatedProductsProductIdAccompanimentsRoute
+  '/products/$productId/portions': typeof AuthenticatedProductsProductIdPortionsRoute
   '/products/$productId/prices': typeof AuthenticatedProductsProductIdPricesRoute
   '/products/$productId/recipe': typeof AuthenticatedProductsProductIdRecipeRoute
   '/products/$productId/settings': typeof AuthenticatedProductsProductIdSettingsRoute
@@ -307,6 +315,7 @@ export interface FileRoutesByTo {
   '/subscription': typeof AuthenticatedSubscriptionIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/products/$productId/accompaniments': typeof AuthenticatedProductsProductIdAccompanimentsRoute
+  '/products/$productId/portions': typeof AuthenticatedProductsProductIdPortionsRoute
   '/products/$productId/prices': typeof AuthenticatedProductsProductIdPricesRoute
   '/products/$productId/recipe': typeof AuthenticatedProductsProductIdRecipeRoute
   '/products/$productId/settings': typeof AuthenticatedProductsProductIdSettingsRoute
@@ -345,6 +354,7 @@ export interface FileRoutesById {
   '/_authenticated/subscription/': typeof AuthenticatedSubscriptionIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/products/$productId/accompaniments': typeof AuthenticatedProductsProductIdAccompanimentsRoute
+  '/_authenticated/products/$productId/portions': typeof AuthenticatedProductsProductIdPortionsRoute
   '/_authenticated/products/$productId/prices': typeof AuthenticatedProductsProductIdPricesRoute
   '/_authenticated/products/$productId/recipe': typeof AuthenticatedProductsProductIdRecipeRoute
   '/_authenticated/products/$productId/settings': typeof AuthenticatedProductsProductIdSettingsRoute
@@ -383,6 +393,7 @@ export interface FileRouteTypes {
     | '/subscription/'
     | '/users/'
     | '/products/$productId/accompaniments'
+    | '/products/$productId/portions'
     | '/products/$productId/prices'
     | '/products/$productId/recipe'
     | '/products/$productId/settings'
@@ -418,6 +429,7 @@ export interface FileRouteTypes {
     | '/subscription'
     | '/users'
     | '/products/$productId/accompaniments'
+    | '/products/$productId/portions'
     | '/products/$productId/prices'
     | '/products/$productId/recipe'
     | '/products/$productId/settings'
@@ -455,6 +467,7 @@ export interface FileRouteTypes {
     | '/_authenticated/subscription/'
     | '/_authenticated/users/'
     | '/_authenticated/products/$productId/accompaniments'
+    | '/_authenticated/products/$productId/portions'
     | '/_authenticated/products/$productId/prices'
     | '/_authenticated/products/$productId/recipe'
     | '/_authenticated/products/$productId/settings'
@@ -716,6 +729,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductsProductIdPricesRouteImport
       parentRoute: typeof AuthenticatedProductsProductIdRouteRoute
     }
+    '/_authenticated/products/$productId/portions': {
+      id: '/_authenticated/products/$productId/portions'
+      path: '/portions'
+      fullPath: '/products/$productId/portions'
+      preLoaderRoute: typeof AuthenticatedProductsProductIdPortionsRouteImport
+      parentRoute: typeof AuthenticatedProductsProductIdRouteRoute
+    }
     '/_authenticated/products/$productId/accompaniments': {
       id: '/_authenticated/products/$productId/accompaniments'
       path: '/accompaniments'
@@ -728,6 +748,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedProductsProductIdRouteRouteChildren {
   AuthenticatedProductsProductIdAccompanimentsRoute: typeof AuthenticatedProductsProductIdAccompanimentsRoute
+  AuthenticatedProductsProductIdPortionsRoute: typeof AuthenticatedProductsProductIdPortionsRoute
   AuthenticatedProductsProductIdPricesRoute: typeof AuthenticatedProductsProductIdPricesRoute
   AuthenticatedProductsProductIdRecipeRoute: typeof AuthenticatedProductsProductIdRecipeRoute
   AuthenticatedProductsProductIdSettingsRoute: typeof AuthenticatedProductsProductIdSettingsRoute
@@ -739,6 +760,8 @@ const AuthenticatedProductsProductIdRouteRouteChildren: AuthenticatedProductsPro
   {
     AuthenticatedProductsProductIdAccompanimentsRoute:
       AuthenticatedProductsProductIdAccompanimentsRoute,
+    AuthenticatedProductsProductIdPortionsRoute:
+      AuthenticatedProductsProductIdPortionsRoute,
     AuthenticatedProductsProductIdPricesRoute:
       AuthenticatedProductsProductIdPricesRoute,
     AuthenticatedProductsProductIdRecipeRoute:

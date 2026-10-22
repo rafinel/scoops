@@ -273,3 +273,19 @@ CI configuration, deployment secrets, or environment names from another project.
 - Stop persistent development processes started for a task when validation is
   complete, unless the user asks to leave them running.
 
+## User communication
+
+Every reply, question, design section and report written for the user follows
+the same plain style, in the user's language:
+
+- Lead with the answer or conclusion, then give the supporting detail.
+- Use short sentences with one idea each; avoid chaining clauses with
+  semicolons, dashes and parentheses.
+- Mention file paths, symbols and commands only where they help locate
+  something; describe the idea otherwise.
+- Write natural language without untranslated jargon or literal calques; define
+  an unavoidable technical term in a few words.
+- When referring to an earlier decision, check or identifier, restate in a few
+  words what it means.
+- Send only what changed instead of repeating long blocks, except where a
+  workflow explicitly requires a full re-ask.

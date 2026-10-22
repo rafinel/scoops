@@ -13,6 +13,7 @@ import {
   ProductStatus,
   ProductStockControl,
   ProductUnit,
+  type ProductSalesConfiguration,
 } from '@scoops/core/mrp/domain/structures'
 
 import { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
@@ -81,6 +82,8 @@ export async function addGlobalAccompanimentWithRows(
     type: AccompanimentType
     portions: readonly Product[]
     quantityPerPortion?: number
+    /** The global's shared price; defaults to the target's default price, pass `undefined` for none. */
+    accompanimentPrice?: number
   },
 ): Promise<{ global: GlobalAccompaniment; rows: readonly ProductAccompaniment[] }> {
   const quantityPerPortion = input.quantityPerPortion ?? 1
@@ -89,6 +92,10 @@ export async function addGlobalAccompanimentWithRows(
     accompanimentProductId: input.target.id,
     accompanimentTypeId: input.type.id,
     quantityPerPortion,
+    accompanimentPrice:
+      'accompanimentPrice' in input
+        ? input.accompanimentPrice
+        : input.target.accompanimentPrice,
   })
   const rows = await fixture.productAccompaniments.addMany(
     input.portions.map((portion) => ({
@@ -108,6 +115,74 @@ export async function findSalesConfigurationProductIds(
 ): Promise<string[]> {
   const events = await findEvents(fixture, ProductSalesConfigurationChangedEvent._NAME)
   return events.map((event) => (event.payload as { productId: string }).productId).sort()
+}
+
+type StoredSalesConfiguration = Omit<ProductSalesConfiguration, 'updatedAt'> & {
+  readonly updatedAt: string
+}
+
+export type SalesConfigurationPayload = {
+  readonly establishmentId: string
+  readonly productId: string
+  readonly state: 'available' | 'deleted'
+  readonly configuration: StoredSalesConfiguration | null
+}
+
+/**
+ * Reads the complete stored payload of every sales-configuration event. The events table
+ * has no sequence column, so the payloads are returned sorted by product id and state
+ * (`available` before `deleted`); publication order is asserted by Core use-case tests.
+ * `configuration.updatedAt` is the ISO string persisted in the outbox.
+ */
+export async function findSalesConfigurationPayloads(
+  fixture: MrpModuleFixture,
+): Promise<SalesConfigurationPayload[]> {
+  const events = await findEvents(fixture, ProductSalesConfigurationChangedEvent._NAME)
+  return events
+    .map((event) => event.payload as SalesConfigurationPayload)
+    .sort(
+      (left, right) =>
+        left.productId.localeCompare(right.productId) ||
+        left.state.localeCompare(right.state),
+    )
+}
+
+/** Orders rows like the database does for the repositories under test (`ORDER BY id`). */
+export function sortById<Row extends { readonly id: string }>(
+  rows: readonly Row[],
+): Row[] {
+  return [...rows].sort((left, right) => (left.id < right.id ? -1 : 1))
+}
+
+/** The ISO string of the latest instant, as stored in a payload `updatedAt`. */
+export function latestIso(...dates: readonly Date[]): string {
+  return new Date(Math.max(...dates.map((date) => date.getTime()))).toISOString()
+}
+
+/**
+ * Moves a row's `updated_at` to a fixed instant, bypassing repositories, so a test can make
+ * one specific fact the latest one of a sales configuration.
+ */
+export async function setUpdatedAt(
+  fixture: MrpModuleFixture,
+  table:
+    | 'accompaniment_types'
+    | 'product_accompaniments'
+    | 'product_brands'
+    | 'product_sizes'
+    | 'products'
+    | 'resale_configurations',
+  id: string,
+  updatedAt: Date,
+): Promise<void> {
+  await fixture
+    .get(DrizzleClient)
+    .requireDatabase()
+    .execute(
+      sql.raw(
+        `UPDATE ${table} SET updated_at = '${updatedAt.toISOString()}' WHERE id = '${id}'`,
+      ),
+    )
 }
 
 /**

@@ -68,6 +68,9 @@ describe('List Product Accompaniment Candidates Controller [GET /products/:produ
     const globalRemoved = await addAccompaniment('Global Removed', {
       accompanimentPrice: 4.25,
     })
+    const globalUnpriced = await addAccompaniment('Global Unpriced', {
+      accompanimentPrice: 5,
+    })
     const inactive = await addAccompaniment('Inactive', {
       status: ProductStatus.Inactive,
       accompanimentPrice: 1,
@@ -103,11 +106,24 @@ describe('List Product Accompaniment Candidates Controller [GET /products/:produ
       type,
       portions: [portion, otherPortion],
       quantityPerPortion: 0.25,
+      // The candidate shows the global's shared price, not the product default (4.25).
+      accompanimentPrice: 7,
     })
     await fixture.productAccompaniments.remove(
       portion.establishmentId,
       portion.id,
       removed.rows[0].id,
+    )
+    const unpriced = await addGlobalAccompanimentWithRows(fixture, {
+      target: globalUnpriced,
+      type,
+      portions: [portion, otherPortion],
+      accompanimentPrice: undefined,
+    })
+    await fixture.productAccompaniments.remove(
+      portion.establishmentId,
+      portion.id,
+      unpriced.rows[0].id,
     )
 
     const response = await request(fixture.app.getHttpServer())
@@ -118,6 +134,7 @@ describe('List Product Accompaniment Candidates Controller [GET /products/:produ
     expect(response.body.map((candidate: { name: string }) => candidate.name)).toEqual([
       'Almond',
       'Global Removed',
+      'Global Unpriced',
       'Linked Elsewhere',
       'Zebra Sprinkles',
     ])
@@ -135,19 +152,24 @@ describe('List Product Accompaniment Candidates Controller [GET /products/:produ
       name: 'Global Removed',
       unit: ProductUnit.Kilogram,
       stockControl: ProductStockControl.Single,
-      accompanimentPrice: 4.25,
+      accompanimentPrice: 7,
       isGlobal: true,
       hasPortionLinks: false,
       global: { accompanimentTypeId: type.id, quantityPerPortion: 0.25 },
     })
     expect(response.body[2]).toMatchObject({
+      productId: globalUnpriced.id,
+      accompanimentPrice: null,
+      isGlobal: true,
+    })
+    expect(response.body[3]).toMatchObject({
       productId: linkedElsewhere.id,
       accompanimentPrice: 0,
       isGlobal: false,
       hasPortionLinks: true,
     })
-    expect(response.body[2]).not.toHaveProperty('global')
-    expect(response.body[3]).toMatchObject({
+    expect(response.body[3]).not.toHaveProperty('global')
+    expect(response.body[4]).toMatchObject({
       productId: eligibleUnpriced.id,
       unit: ProductUnit.Unit,
       accompanimentPrice: null,

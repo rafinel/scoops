@@ -42,7 +42,7 @@ export const ProductAccompanimentsTable = ({
               'TIPO',
               'MARCA',
               'QTD POR PORÇÃO',
-              'PREÇO DO PRODUTO',
+              'PREÇO',
               ...(canManage ? ['AÇÕES'] : []),
             ].map((label) => (
               <TableHead

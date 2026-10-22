@@ -7,6 +7,8 @@ import { ProductStockAlertStateEnteredEvent } from '#mrp/domain/events/product-s
 import { ProductStockAlertState } from '#mrp/domain/structures/product-stock-alert-state.ts'
 import { StockAdjustmentType } from '#mrp/domain/structures/stock-adjustment-type.ts'
 import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductAccompanimentFaker } from '#mrp/domain/entities/fakers/index.ts'
+import { ProductSalesConfigurationSourceFaker } from '#mrp/domain/structures/fakers/index.ts'
 import {
   ProductCategory,
   ProductStatus,
@@ -84,6 +86,12 @@ describe('Register Product Brand Use Case', () => {
       situation: StockSituation.Normal,
     })
     scope.stockBalancesRepository.findManyByProductId.mockResolvedValue([])
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [],
+    )
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [ProductSalesConfigurationSourceFaker.fake({ product })],
+    )
     useCase = new RegisterProductBrandUseCase(database, datetime)
   })
 
@@ -369,5 +377,73 @@ describe('Register Product Brand Use Case', () => {
     expect(scope.brandsRepository.add).toHaveBeenCalledWith(
       expect.objectContaining({ name }),
     )
+  })
+
+  it('publishes the stock alert before the complete By-brand sales configuration', async () => {
+    const brandUpdatedAt = new Date('2030-01-01T00:00:00.000Z')
+    scope.stockBalancesRepository.findManyByProductId
+      .mockResolvedValueOnce([
+        {
+          productId: 'p1',
+          brandId: 'b0',
+          quantity: 12,
+          situation: StockSituation.Normal,
+        },
+      ])
+      .mockResolvedValueOnce([
+        { productId: 'p1', brandId: 'b0', quantity: 4, situation: StockSituation.Normal },
+        { productId: 'p1', brandId: 'b1', quantity: 3, situation: StockSituation.Normal },
+      ])
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [
+        ProductSalesConfigurationSourceFaker.fake({
+          product,
+          brands: [{ ...brand, updatedAt: brandUpdatedAt }],
+        }),
+      ],
+    )
+
+    await run({ initialQuantity: 3 })
+
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith('e1', ['p1'])
+    expect(scope.eventsRepository.add.mock.calls.map(([event]) => event)).toEqual([
+      expect.objectContaining({ name: ProductStockAlertStateEnteredEvent._NAME }),
+      new ProductSalesConfigurationChangedEvent({
+        establishmentId: 'e1',
+        productId: 'p1',
+        state: 'available',
+        configuration: {
+          establishmentId: 'e1',
+          productId: 'p1',
+          name: 'Milk',
+          categories: [ProductCategory.Ingredient],
+          status: ProductStatus.Active,
+          stockControl: ProductStockControl.ByBrand,
+          sizes: [],
+          resaleConfigurations: [],
+          updatedAt: brandUpdatedAt,
+        },
+      }),
+    ])
+  })
+
+  it('republishes every Portion that uses the product as an accompaniment', async () => {
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [
+        ProductAccompanimentFaker.fake({
+          establishmentId: 'e1',
+          productId: 'portion-1',
+          accompanimentProductId: 'p1',
+        }),
+      ],
+    )
+
+    await run()
+
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith('e1', ['p1', 'portion-1'])
   })
 })

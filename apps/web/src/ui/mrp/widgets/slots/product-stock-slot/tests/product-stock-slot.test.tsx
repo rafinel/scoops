@@ -19,6 +19,12 @@ vi.mock('../use-product-stock-slot', () => ({
   useProductStockSlot: vi.fn(),
 }))
 vi.mock('@/ui/shared/hooks/use-auth-context', () => ({ useAuthContext: vi.fn() }))
+vi.mock(
+  '@/ui/mrp/widgets/pages/product-details-page/product-details-header/use-product-details-header',
+  () => ({
+    useProductDetailsHeader: () => ({ isCategoryGlobal: () => false, isGlobal: false }),
+  }),
+)
 
 vi.mock('@/ui/shared/widgets/components/anchor', () => ({
   Anchor: ({ children, params: _params, route: _route, ...props }: AnchorProps) => (
@@ -131,6 +137,12 @@ describe('ProductStockSlot', () => {
       updateProductAccompaniment: vi.fn(),
       listProductAccompanimentCandidates: vi.fn(),
       removeProductAccompaniment: vi.fn(),
+      listAccompanimentPortions: vi.fn(),
+      listAccompanimentPortionCandidates: vi.fn(),
+      linkAccompanimentPortions: vi.fn(),
+      getGlobalAccompaniment: vi.fn(),
+      updateGlobalAccompaniment: vi.fn(),
+      removeGlobalAccompaniment: vi.fn(),
       listAccompanimentTypes: vi.fn(),
       createAccompanimentType: vi.fn(),
       renameAccompanimentType: vi.fn(),

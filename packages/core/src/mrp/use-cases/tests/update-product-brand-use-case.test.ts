@@ -14,7 +14,9 @@ import type {
   MrpDatabase,
   MrpDatabaseRepositories,
 } from '#mrp/interfaces/mrp-database.ts'
+import { ResaleConfigurationFaker } from '#mrp/domain/entities/fakers/index.ts'
 import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationSourceFaker } from '#mrp/domain/structures/fakers/index.ts'
 import {
   AuthorizationError,
   BadRequestError,
@@ -69,6 +71,12 @@ describe('Update Product Brand Use Case', () => {
       quantity: 7,
       situation: StockSituation.Normal,
     })
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [],
+    )
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [ProductSalesConfigurationSourceFaker.fake({ product })],
+    )
     useCase = new UpdateProductBrandUseCase(database)
   })
   it('updates configuration without changing stock', async () => {
@@ -255,6 +263,66 @@ describe('Update Product Brand Use Case', () => {
         }),
       }),
     )
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith('e1', ['p1'])
+  })
+
+  it('publishes the renamed brand and the latest brand update of the By-brand configuration', async () => {
+    const renamed = {
+      ...brand,
+      name: 'B',
+      updatedAt: new Date('2030-01-01T00:00:00.000Z'),
+    }
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [
+        ProductSalesConfigurationSourceFaker.fake({
+          product,
+          brands: [renamed],
+          resaleConfigurations: [
+            ResaleConfigurationFaker.fake({
+              establishmentId: 'e1',
+              productId: 'p1',
+              brandId: 'b1',
+              price: 15,
+              isActive: false,
+              updatedAt: new Date('2029-01-01T00:00:00.000Z'),
+            }),
+          ],
+        }),
+      ],
+    )
+
+    await run()
+
+    expect(scope.eventsRepository.add).toHaveBeenCalledExactlyOnceWith(
+      new ProductSalesConfigurationChangedEvent({
+        establishmentId: 'e1',
+        productId: 'p1',
+        state: 'available',
+        configuration: {
+          establishmentId: 'e1',
+          productId: 'p1',
+          name: 'Milk',
+          categories: [ProductCategory.Ingredient],
+          status: ProductStatus.Active,
+          stockControl: ProductStockControl.ByBrand,
+          sizes: [],
+          resaleConfigurations: [
+            { brandId: 'b1', brandName: 'B', price: 15, isActive: false },
+          ],
+          updatedAt: renamed.updatedAt,
+        },
+      }),
+    )
+  })
+
+  it('publishes nothing when the update is rejected', async () => {
+    scope.brandsRepository.findByName.mockResolvedValue({ ...brand, id: 'b2' })
+
+    await expect(run()).rejects.toBeInstanceOf(ConflictError)
+
+    expect(scope.eventsRepository.add).not.toHaveBeenCalled()
   })
 
   it('measures the name length after trimming surrounding spaces', async () => {

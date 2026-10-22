@@ -1,7 +1,13 @@
-
 import { ProductFaker } from '@scoops/core/mrp/domain/entities/fakers'
 
+import type { IdentityModuleFixture } from '../fixtures/identity-module-fixture'
+import type { MrpFixture } from '../fixtures/mrp-module-fixture'
 import { expect, test } from '../playwright'
+
+type DependencyFixtures = {
+  identityFixture: IdentityModuleFixture
+  mrpFixture: MrpFixture
+}
 
 const PRODUCT_ID = '00000000-0000-4000-8000-000000000010'
 const FOREIGN_PRODUCT_ID = '00000000-0000-4000-8000-000000000011'
@@ -73,7 +79,6 @@ const REMOVAL_IMPACT = {
   },
   retainedHistory: { stockTransactions: 3, productions: 1, orders: 2 },
 }
-
 
 const CATEGORY_BLOCKER_SCENARIOS = [
   {
@@ -183,7 +188,6 @@ const CATEGORY_BLOCKER_SCENARIOS = [
   },
 ] as const
 
-
 test.describe('ProductSettingsPage', () => {
   test('redirects anonymous access and preserves validated retry state', async ({
     page,
@@ -286,6 +290,17 @@ test.describe('ProductSettingsPage', () => {
           return { body: { product: scenario.product } }
         },
       })
+      await mrpFixture.mockGlobalAccompaniment({
+        respond: () => ({
+          body: {
+            accompanimentProductId: PRODUCT_ID,
+            accompanimentProductName: PRODUCT.name,
+            isGlobal: false,
+            unit: PRODUCT.unit,
+            salePrice: null,
+          },
+        }),
+      })
 
       await page.setViewportSize({ width: 1560, height: 1450 })
       await page.goto(`/products/${PRODUCT_ID}/settings`)
@@ -304,6 +319,128 @@ test.describe('ProductSettingsPage', () => {
       ).toBe(true)
     })
   }
+
+  test.describe('Accompaniment dependency navigation', () => {
+    const ACCOMPANIMENT_DEPENDENCY = {
+      category: 'accompaniment' as const,
+      canRemove: false,
+      dependencies: [
+        {
+          kind: 'accompaniment-user' as const,
+          productId: '00000000-0000-4000-8000-000000000024',
+          productName: 'Vinculado a: Açaí Batido',
+        },
+      ],
+    }
+
+    async function mockDependencyScenario(
+      { identityFixture, mrpFixture }: DependencyFixtures,
+      categories: readonly string[],
+    ) {
+      await identityFixture.mockManagerSession()
+      await identityFixture.mockManagerAccount()
+      await mrpFixture.mockProducts({
+        getResponse: {
+          body: {
+            items: [],
+            page: 1,
+            pageSize: 10,
+            totalItems: 0,
+            totalPages: 0,
+            kpis: { products: 0, brands: 0, lowStock: 0 },
+          },
+        },
+      })
+      await mrpFixture.mockProductStock({
+        respond: (request) => {
+          if (request.url.pathname.endsWith('/category-removal-impact')) {
+            return { body: ACCOMPANIMENT_DEPENDENCY }
+          }
+          return {
+            body: {
+              product: { ...PRODUCT, categories },
+              stockQuantity: 0,
+              stockSituation: 'normal',
+              brands: [],
+            },
+          }
+        },
+      })
+      await mrpFixture.mockAccompanimentPortions({
+        respond: () => ({
+          body: {
+            items: [],
+            page: 1,
+            pageSize: 10,
+            total: 0,
+            totalPages: 0,
+            hasPortionProducts: true,
+          },
+        }),
+      })
+      await mrpFixture.mockGlobalAccompaniment({
+        respond: () => ({
+          body: {
+            accompanimentProductId: PRODUCT_ID,
+            accompanimentProductName: PRODUCT.name,
+            isGlobal: false,
+            unit: PRODUCT.unit,
+            salePrice: null,
+          },
+        }),
+      })
+    }
+
+    test('opens the Porções tab of an Accompaniment without Portion with the retry parameters', async ({
+      page,
+      identityFixture,
+      mrpFixture,
+    }) => {
+      await mockDependencyScenario({ identityFixture, mrpFixture }, [
+        'accompaniment',
+        'ingredient',
+      ])
+
+      await page.goto(`/products/${PRODUCT_ID}/settings`)
+      const categoryRegion = page.getByRole('region', { name: 'Categorias do produto' })
+      await categoryRegion.getByRole('button', { name: 'Acompanhamento' }).click()
+      await expect(
+        page.getByRole('heading', { name: 'Acompanhamento em uso' }),
+      ).toBeVisible()
+      await page.getByRole('button', { name: 'Ver produtos' }).click()
+
+      await expect(page).toHaveURL(
+        `/products/${PRODUCT_ID}/portions?retryCategory=accompaniment&retryDependency=accompaniment-user&retryProductId=${PRODUCT_ID}`,
+      )
+      await expect(page.getByRole('tab', { name: 'Porções' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      )
+    })
+
+    test('keeps the filtered Products listing for a legacy product that is also a Portion', async ({
+      page,
+      identityFixture,
+      mrpFixture,
+    }) => {
+      await mockDependencyScenario({ identityFixture, mrpFixture }, [
+        'portion',
+        'accompaniment',
+      ])
+
+      await page.goto(`/products/${PRODUCT_ID}/settings`)
+      const categoryRegion = page.getByRole('region', { name: 'Categorias do produto' })
+      await categoryRegion.getByRole('button', { name: 'Acompanhamento' }).click()
+      await expect(
+        page.getByRole('heading', { name: 'Acompanhamento em uso' }),
+      ).toBeVisible()
+      await page.getByRole('button', { name: 'Ver produtos' }).click()
+
+      await expect(page).toHaveURL(
+        `/products?retryCategory=accompaniment&retryDependency=accompaniment-user&retryProductId=${PRODUCT_ID}&usedAsAccompanimentId=${PRODUCT_ID}`,
+      )
+    })
+  })
 
   test('renders persisted settings at desktop and narrow viewports', async ({
     page,

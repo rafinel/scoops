@@ -69,6 +69,13 @@ export type MrpFixture = {
   ) => Promise<MrpStockMock>
   mockAccompanimentTypes: (options: MrpStockMockOptions) => Promise<MrpStockMock>
   mockProductPricing: (options: MrpStockMockOptions) => Promise<MrpStockMock>
+  // Register the Accompaniment Portions routes after any broad `**/products/**` mock:
+  // Playwright runs the latest matching route first, so these specific globs win.
+  mockAccompanimentPortions: (options: MrpStockMockOptions) => Promise<MrpStockMock>
+  mockAccompanimentPortionCandidates: (
+    options: MrpStockMockOptions,
+  ) => Promise<MrpStockMock>
+  mockGlobalAccompaniment: (options: MrpStockMockOptions) => Promise<MrpStockMock>
 }
 
 const resolveResponse = (
@@ -300,4 +307,42 @@ export const MrpFixture = (page: Page): MrpFixture => ({
     })
     return { requests }
   },
+
+  async mockAccompanimentPortions({ respond }) {
+    return mockRespondingRoute(page, '**/products/*/portions**', respond)
+  },
+
+  async mockAccompanimentPortionCandidates({ respond }) {
+    return mockRespondingRoute(page, '**/products/*/portions/candidates**', respond)
+  },
+
+  async mockGlobalAccompaniment({ respond }) {
+    return mockRespondingRoute(page, '**/products/*/global-accompaniment**', respond)
+  },
 })
+
+async function mockRespondingRoute(
+  page: Page,
+  glob: string,
+  respond: MrpStockMockOptions['respond'],
+): Promise<MrpStockMock> {
+  const requests: MrpRequestRecord[] = []
+  await page.route(glob, async (route) => {
+    if (!['fetch', 'xhr'].includes(route.request().resourceType())) {
+      return route.continue()
+    }
+    const request: MrpRequestRecord = {
+      method: route.request().method(),
+      url: new URL(route.request().url()),
+    }
+    if (route.request().postData()) request.body = route.request().postDataJSON()
+    requests.push(request)
+    const response = await respond(request, requests.length)
+    await route.fulfill({
+      contentType: 'application/json',
+      status: response.status ?? 200,
+      body: JSON.stringify(response.body),
+    })
+  })
+  return { requests }
+}

@@ -1,5 +1,9 @@
 export {
   accompanimentPriceSchema,
+  linkAccompanimentPortionsSchema,
+  listAccompanimentPortionsQuerySchema,
+  removeGlobalAccompanimentQuerySchema,
+  updateGlobalAccompanimentSchema,
   listAccompanimentTypesQuerySchema,
   linkProductAccompanimentSchema,
   saveAccompanimentTypeSchema,

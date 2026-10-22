@@ -1,29 +1,16 @@
 import type { Product } from '@scoops/core/mrp/domain/entities'
-import type { ProductCategory } from '@scoops/core/mrp/domain/structures'
-
-import { CATEGORY_ICONS, CATEGORY_OUTLINE_CLASSES } from '@/constants'
 import { Badge } from '@/ui/shadcn/badge'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/ui/shadcn/tooltip'
-import { Icon } from '@/ui/shared/widgets/components/icon'
+import { TooltipProvider } from '@/ui/shadcn/tooltip'
 
-const CATEGORY_LABELS: Record<ProductCategory, string> = {
-  ingredient: 'Ingrediente',
-  manufacturable: 'Fabricável',
-  portion: 'Porção',
-  accompaniment: 'Acompanhamento',
-  resale: 'Revenda',
-}
+import { ProductCategoryChip } from './product-category-chip'
+import { useProductDetailsHeader } from './use-product-details-header'
 
 export type ProductDetailsHeaderProps = {
   product: Product
 }
 
 export const ProductDetailsHeader = ({ product }: ProductDetailsHeaderProps) => {
+  const { isCategoryGlobal } = useProductDetailsHeader({ product })
   const stockControlLabel = product.stockControl === 'by-brand' ? 'Por marca' : 'Único'
 
   return (
@@ -47,21 +34,11 @@ export const ProductDetailsHeader = ({ product }: ProductDetailsHeaderProps) => 
       <div className='mt-4 flex flex-wrap items-center gap-2'>
         <TooltipProvider delay={300}>
           {product.categories.map((category) => (
-            <Tooltip key={category}>
-              <TooltipTrigger
-                aria-label={CATEGORY_LABELS[category]}
-                className='rounded-full border-0 bg-transparent p-0 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-              >
-                <Badge
-                  className={`h-8 gap-1.5 px-3 font-semibold ${CATEGORY_OUTLINE_CLASSES[category]}`}
-                  variant='outline'
-                >
-                  <Icon name={CATEGORY_ICONS[category]} className='size-4' />
-                  {CATEGORY_LABELS[category]}
-                </Badge>
-              </TooltipTrigger>
-              <TooltipContent>{CATEGORY_LABELS[category]}</TooltipContent>
-            </Tooltip>
+            <ProductCategoryChip
+              category={category}
+              isGlobal={isCategoryGlobal(category)}
+              key={category}
+            />
           ))}
         </TooltipProvider>
         <Badge

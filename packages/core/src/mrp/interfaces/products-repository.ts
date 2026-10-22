@@ -19,6 +19,7 @@ export interface ProductsRepository {
     establishmentId: string,
     category: ProductCategory,
   ): Promise<readonly Product[]>
+  existsByCategory(establishmentId: string, category: ProductCategory): Promise<boolean>
   findManyByIds(
     establishmentId: string,
     productIds: readonly string[],

@@ -97,7 +97,8 @@ export class ListProductAccompanimentCandidatesUseCase
       name: product.name,
       unit: product.unit,
       stockControl: product.stockControl,
-      accompanimentPrice: product.accompanimentPrice ?? null,
+      accompanimentPrice:
+        (global ? global.accompanimentPrice : product.accompanimentPrice) ?? null,
       isGlobal: global !== undefined,
       hasPortionLinks,
       ...(global

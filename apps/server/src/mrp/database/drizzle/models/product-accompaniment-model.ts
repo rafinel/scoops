@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm'
 import {
+  type AnyPgColumn,
   check,
   foreignKey,
   index,
@@ -32,6 +33,7 @@ export const productAccompanimentModel = pgTable(
       precision: 18,
       scale: 3,
     }).notNull(),
+    accompanimentPrice: numeric('accompaniment_price', { precision: 18, scale: 2 }),
     globalAccompanimentId: uuid('global_accompaniment_id'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull(),
@@ -66,6 +68,18 @@ export const productAccompanimentModel = pgTable(
         globalAccompanimentModel.accompanimentProductId,
       ],
     }).onDelete('restrict'),
+    ...createAccompanimentConstraints(table),
+  ],
+)
+
+function createAccompanimentConstraints(table: {
+  productId: AnyPgColumn
+  accompanimentProductId: AnyPgColumn
+  quantityPerPortion: AnyPgColumn
+  accompanimentPrice: AnyPgColumn
+  globalAccompanimentId: AnyPgColumn
+}) {
+  return [
     check(
       'mrp_product_accompaniments_distinct_products',
       sql`${table.productId} <> ${table.accompanimentProductId}`,
@@ -74,5 +88,13 @@ export const productAccompanimentModel = pgTable(
       'mrp_product_accompaniments_quantity_positive',
       sql`${table.quantityPerPortion} > 0`,
     ),
-  ],
-)
+    check(
+      'mrp_product_accompaniments_accompaniment_price_non_negative',
+      sql`${table.accompanimentPrice} is null or ${table.accompanimentPrice} >= 0`,
+    ),
+    check(
+      'mrp_product_accompaniments_global_row_has_no_price',
+      sql`${table.globalAccompanimentId} is null or ${table.accompanimentPrice} is null`,
+    ),
+  ]
+}

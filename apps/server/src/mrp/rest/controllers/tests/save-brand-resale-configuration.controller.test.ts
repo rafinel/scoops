@@ -7,11 +7,14 @@ import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
   createProduct,
+  findSalesConfigurationPayloads,
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
   operatorRequestAuthorization,
   prepareMrpFixture,
   resetMrpFixture,
+  setUpdatedAt,
+  sortById,
 } from './mrp-controller-test-helpers'
 
 describe('Save Brand Resale Configuration Controller [PUT /products/:productId/brands/:brandId/resale-configuration]', () => {
@@ -78,6 +81,94 @@ describe('Save Brand Resale Configuration Controller [PUT /products/:productId/b
         product.id,
       ),
     ).resolves.toHaveLength(1)
+  })
+
+  it('publishes the complete By-brand configuration with brand names and brand updates', async () => {
+    const establishmentId = MrpModuleFixture.accounts.establishmentId
+    const product = await fixture.addProduct(
+      createProduct({
+        name: 'Payload By Brand',
+        categories: [ProductCategory.Resale],
+        stockControl: ProductStockControl.ByBrand,
+      }),
+    )
+    const brandOne = await fixture.addBrand({
+      productId: product.id,
+      name: 'Mãe Terra',
+      packageQuantity: 3,
+      packagePrice: 30,
+      isPrimary: true,
+    })
+    const brandTwo = await fixture.addBrand({
+      productId: product.id,
+      name: 'Nutri',
+      packageQuantity: 1,
+      packagePrice: 5,
+      isPrimary: false,
+    })
+    const unconfiguredBrand = await fixture.addBrand({
+      productId: product.id,
+      name: 'Sem preço',
+      packageQuantity: 1,
+      packagePrice: 5,
+      isPrimary: false,
+    })
+    const existing = await fixture.addResaleConfiguration({
+      establishmentId,
+      productId: product.id,
+      brandId: brandTwo.id,
+      price: 9,
+      isActive: false,
+    })
+    const latestFact = new Date('2099-01-01T00:00:00.000Z')
+    await setUpdatedAt(fixture, 'product_brands', unconfiguredBrand.id, latestFact)
+
+    const response = await request(fixture.app.getHttpServer())
+      .put(`/products/${product.id}/brands/${brandOne.id}/resale-configuration`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ price: 18.5, isActive: true })
+
+    expect(response.status).toBe(200)
+    const saved = await fixture.resaleConfigurations.findManyByProductId(
+      establishmentId,
+      product.id,
+    )
+    const entries = {
+      [brandOne.id]: {
+        brandId: brandOne.id,
+        brandName: 'Mãe Terra',
+        price: 18.5,
+        isActive: true,
+      },
+      [brandTwo.id]: {
+        brandId: brandTwo.id,
+        brandName: 'Nutri',
+        price: 9,
+        isActive: false,
+      },
+    }
+    expect(saved).toHaveLength(2)
+    expect(saved.map(({ id }) => id)).toContain(existing.id)
+    await expect(findSalesConfigurationPayloads(fixture)).resolves.toEqual([
+      {
+        establishmentId,
+        productId: product.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: product.id,
+          name: 'Payload By Brand',
+          categories: [ProductCategory.Resale],
+          status: 'active',
+          stockControl: 'by-brand',
+          sizes: [],
+          resaleConfigurations: sortById(saved).map(
+            (configuration) => entries[configuration.brandId as string],
+          ),
+          updatedAt: latestFact.toISOString(),
+        },
+      },
+    ])
   })
 
   it('rejects missing or foreign brands, wrong mode, and malformed values', async () => {

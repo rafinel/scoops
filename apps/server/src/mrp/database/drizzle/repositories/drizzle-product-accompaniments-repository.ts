@@ -1,17 +1,21 @@
 import type { ProductAccompaniment } from '@scoops/core/mrp/domain/entities'
 import type {
+  AccompanimentPortionListParams,
   ProductAccompanimentCreate,
   ProductAccompanimentUpdate,
 } from '@scoops/core/mrp/domain/structures'
 import { ConflictError } from '@scoops/core/shared/domain/errors'
 import type { ProductAccompanimentsRepository } from '@scoops/core/mrp/interfaces'
-import { and, asc, count, eq, isNull } from 'drizzle-orm'
+import { PaginationResponse } from '@scoops/core/shared/responses/pagination-response'
+import { and, asc, count, eq, ilike, isNull, sql } from 'drizzle-orm'
 import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
 
+import { escapeLikePattern, toNumericValue } from '../helpers'
 import { DrizzleProductAccompanimentMapper } from '../mappers/drizzle-product-accompaniment-mapper'
 import { productAccompanimentModel } from '../models/product-accompaniment-model'
+import { productModel } from '../models/product-model'
 
 @Injectable()
 export class DrizzleProductAccompanimentsRepository
@@ -30,6 +34,7 @@ export class DrizzleProductAccompanimentsRepository
           accompanimentProductId: input.accompanimentProductId,
           accompanimentTypeId: input.accompanimentTypeId,
           quantityPerPortion: String(input.quantityPerPortion),
+          accompanimentPrice: toNumericValue(input.accompanimentPrice) ?? null,
           globalAccompanimentId: input.globalAccompanimentId ?? null,
           createdAt: now,
           updatedAt: now,
@@ -57,6 +62,7 @@ export class DrizzleProductAccompanimentsRepository
             accompanimentProductId: input.accompanimentProductId,
             accompanimentTypeId: input.accompanimentTypeId,
             quantityPerPortion: String(input.quantityPerPortion),
+            accompanimentPrice: toNumericValue(input.accompanimentPrice) ?? null,
             globalAccompanimentId: input.globalAccompanimentId ?? null,
             createdAt: now,
             updatedAt: now,
@@ -164,6 +170,61 @@ export class DrizzleProductAccompanimentsRepository
     return Number(record?.count ?? 0)
   }
 
+  async findPageByAccompanimentProductId(
+    params: AccompanimentPortionListParams,
+  ): Promise<PaginationResponse<ProductAccompaniment>> {
+    const [records, total] = await Promise.all([
+      this.findPortionLinksPage(params),
+      this.countPortionLinks(params),
+    ])
+
+    return new PaginationResponse(
+      records.map(DrizzleProductAccompanimentMapper.toDomain),
+      params.page,
+      params.pageSize,
+      total,
+      Math.ceil(total / params.pageSize),
+    )
+  }
+
+  private async findPortionLinksPage(params: AccompanimentPortionListParams) {
+    const rows = await this.database
+      .select({ link: productAccompanimentModel })
+      .from(productAccompanimentModel)
+      .innerJoin(productModel, this.portionJoin(params.establishmentId))
+      .where(this.portionLinksFilter(params))
+      .orderBy(asc(sql`lower(${productModel.name})`), asc(productAccompanimentModel.id))
+      .limit(params.pageSize)
+      .offset((params.page - 1) * params.pageSize)
+    return rows.map(({ link }) => link)
+  }
+
+  private async countPortionLinks(params: AccompanimentPortionListParams) {
+    const [record] = await this.database
+      .select({ count: count() })
+      .from(productAccompanimentModel)
+      .innerJoin(productModel, this.portionJoin(params.establishmentId))
+      .where(this.portionLinksFilter(params))
+    return Number(record?.count ?? 0)
+  }
+
+  private portionJoin(establishmentId: string) {
+    return and(
+      eq(productModel.id, productAccompanimentModel.productId),
+      eq(productModel.establishmentId, establishmentId),
+    )
+  }
+
+  private portionLinksFilter(params: AccompanimentPortionListParams) {
+    return and(
+      eq(productAccompanimentModel.establishmentId, params.establishmentId),
+      eq(productAccompanimentModel.accompanimentProductId, params.accompanimentProductId),
+      params.search
+        ? ilike(productModel.name, `%${escapeLikePattern(params.search)}%`)
+        : undefined,
+    )
+  }
+
   async replaceQuantitiesByAccompanimentProductId(
     establishmentId: string,
     accompanimentProductId: string,
@@ -221,6 +282,7 @@ export class DrizzleProductAccompanimentsRepository
         .set({
           accompanimentTypeId: changes.accompanimentTypeId,
           quantityPerPortion: String(changes.quantityPerPortion),
+          accompanimentPrice: null,
           globalAccompanimentId: changes.globalAccompanimentId,
           updatedAt: new Date(),
         })
@@ -243,6 +305,29 @@ export class DrizzleProductAccompanimentsRepository
     try {
       await this.database
         .delete(productAccompanimentModel)
+        .where(
+          and(
+            eq(productAccompanimentModel.establishmentId, establishmentId),
+            eq(productAccompanimentModel.globalAccompanimentId, globalAccompanimentId),
+          ),
+        )
+    } catch (error) {
+      throw this.toConflictError(error)
+    }
+  }
+
+  async clearGlobalReferenceByGlobalAccompanimentId(
+    establishmentId: string,
+    globalAccompanimentId: string,
+    accompanimentPrice: number | undefined,
+  ): Promise<void> {
+    try {
+      await this.database
+        .update(productAccompanimentModel)
+        .set({
+          globalAccompanimentId: null,
+          accompanimentPrice: toNumericValue(accompanimentPrice) ?? null,
+        })
         .where(
           and(
             eq(productAccompanimentModel.establishmentId, establishmentId),
@@ -318,6 +403,7 @@ export class DrizzleProductAccompanimentsRepository
         .set({
           accompanimentTypeId: changes.accompanimentTypeId,
           quantityPerPortion: String(changes.quantityPerPortion),
+          accompanimentPrice: toNumericValue(changes.accompanimentPrice),
           updatedAt: new Date(),
         })
         .where(

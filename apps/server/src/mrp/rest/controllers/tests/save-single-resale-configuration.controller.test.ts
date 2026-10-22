@@ -7,11 +7,13 @@ import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
   createProduct,
+  findSalesConfigurationPayloads,
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
   operatorRequestAuthorization,
   prepareMrpFixture,
   resetMrpFixture,
+  setUpdatedAt,
 } from './mrp-controller-test-helpers'
 
 describe('Save Single Resale Configuration Controller [PUT /products/:productId/resale-configuration]', () => {
@@ -71,6 +73,56 @@ describe('Save Single Resale Configuration Controller [PUT /products/:productId/
         limit: 20,
       }),
     ).resolves.toMatchObject({ items: [] })
+  })
+
+  it('publishes the complete Single configuration and ignores brand updates', async () => {
+    const establishmentId = MrpModuleFixture.accounts.establishmentId
+    const product = await fixture.addProduct(
+      createProduct({ name: 'Payload Resale', categories: [ProductCategory.Resale] }),
+    )
+    const leftoverBrand = await fixture.addBrand({
+      productId: product.id,
+      name: 'Leftover Brand',
+      packageQuantity: 1,
+      packagePrice: 5,
+      isPrimary: true,
+    })
+    await setUpdatedAt(
+      fixture,
+      'product_brands',
+      leftoverBrand.id,
+      new Date('2099-01-01T00:00:00.000Z'),
+    )
+
+    const response = await request(fixture.app.getHttpServer())
+      .put(`/products/${product.id}/resale-configuration`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ price: 12.5, isActive: true })
+
+    expect(response.status).toBe(200)
+    const [saved] = await fixture.resaleConfigurations.findManyByProductId(
+      establishmentId,
+      product.id,
+    )
+    if (!saved) throw new Error('The saved configuration was not found.')
+    await expect(findSalesConfigurationPayloads(fixture)).resolves.toEqual([
+      {
+        establishmentId,
+        productId: product.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: product.id,
+          name: 'Payload Resale',
+          categories: [ProductCategory.Resale],
+          status: 'active',
+          stockControl: 'single',
+          sizes: [],
+          resaleConfigurations: [{ price: 12.5, isActive: true }],
+          updatedAt: saved.updatedAt.toISOString(),
+        },
+      },
+    ])
   })
 
   it('rejects malformed input and non-Single products before persistence', async () => {

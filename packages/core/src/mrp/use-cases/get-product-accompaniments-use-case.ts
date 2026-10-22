@@ -1,4 +1,5 @@
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
+import type { GlobalAccompaniment } from '#mrp/domain/entities/global-accompaniment.ts'
 import type { Product } from '#mrp/domain/entities/product.ts'
 import type { ProductAccompaniment } from '#mrp/domain/entities/product-accompaniment.ts'
 import type { ProductAccompanimentDetails } from '#mrp/domain/structures/product-accompaniment-details.ts'
@@ -30,77 +31,45 @@ export class GetProductAccompanimentsUseCase
   async execute(request: Request): Promise<ProductAccompanimentsDetails> {
     this.validateActor(request.actor)
 
-    return this.database.run(
-      async ({
-        productsRepository,
-        brandsRepository,
-        recipesRepository,
-        recipeIngredientsRepository,
-        productionsRepository,
-        productionIngredientsRepository,
-        stockBalancesRepository,
-        stockTransactionsRepository,
-        productSizesRepository,
-        accompanimentTypesRepository,
-        productAccompanimentsRepository,
-        globalAccompanimentsRepository,
-        resaleConfigurationsRepository,
-        eventsRepository,
-      }: MrpDatabaseRepositories) => {
-        const scope = {
-          productsRepository,
-          brandsRepository,
-          recipesRepository,
-          recipeIngredientsRepository,
-          productionsRepository,
-          productionIngredientsRepository,
-          stockBalancesRepository,
-          stockTransactionsRepository,
-          productSizesRepository,
-          accompanimentTypesRepository,
-          productAccompanimentsRepository,
-          globalAccompanimentsRepository,
-          resaleConfigurationsRepository,
-          eventsRepository,
-        }
-        const owner = await productsRepository.findById(
-          request.actor.establishmentId,
-          request.productId,
-        )
-        this.validateOwner(owner, request.actor.establishmentId)
+    return this.database.run(async (scope: MrpDatabaseRepositories) => {
+      const { productsRepository, productAccompanimentsRepository } = scope
+      const owner = await productsRepository.findById(
+        request.actor.establishmentId,
+        request.productId,
+      )
+      this.validateOwner(owner, request.actor.establishmentId)
 
-        const links = await productAccompanimentsRepository.findManyByProductId(
-          request.actor.establishmentId,
-          owner.id,
-        )
-        const accompaniments = await Promise.all(
-          links.map((link) =>
-            link.establishmentId !== request.actor.establishmentId ||
-            link.productId !== owner.id
-              ? Promise.reject(new NotFoundError('Acompanhamento não encontrado.'))
-              : GetProductAccompanimentsUseCase.buildDetails(
-                  scope,
-                  request.actor.establishmentId,
-                  link,
-                ),
-          ),
-        )
+      const links = await productAccompanimentsRepository.findManyByProductId(
+        request.actor.establishmentId,
+        owner.id,
+      )
+      const accompaniments = await Promise.all(
+        links.map((link) =>
+          link.establishmentId !== request.actor.establishmentId ||
+          link.productId !== owner.id
+            ? Promise.reject(new NotFoundError('Acompanhamento não encontrado.'))
+            : GetProductAccompanimentsUseCase.buildDetails(
+                scope,
+                request.actor.establishmentId,
+                link,
+              ),
+        ),
+      )
 
-        accompaniments.sort((left, right) => {
-          const globalComparison = Number(right.isGlobal) - Number(left.isGlobal)
-          const nameComparison = normalizeForSort(
-            left.accompanimentProductName,
-          ).localeCompare(normalizeForSort(right.accompanimentProductName))
-          return (
-            globalComparison ||
-            nameComparison ||
-            left.accompanimentProductId.localeCompare(right.accompanimentProductId)
-          )
-        })
+      accompaniments.sort((left, right) => {
+        const globalComparison = Number(right.isGlobal) - Number(left.isGlobal)
+        const nameComparison = normalizeForSort(
+          left.accompanimentProductName,
+        ).localeCompare(normalizeForSort(right.accompanimentProductName))
+        return (
+          globalComparison ||
+          nameComparison ||
+          left.accompanimentProductId.localeCompare(right.accompanimentProductId)
+        )
+      })
 
-        return { product: owner, accompaniments }
-      },
-    )
+      return { product: owner, accompaniments }
+    })
   }
 
   static async buildDetails(
@@ -127,6 +96,11 @@ export class GetProductAccompanimentsUseCase
       throw new NotFoundError('Tipo de acompanhamento não encontrado.')
     }
 
+    const global = await GetProductAccompanimentsUseCase.findGlobal(
+      scope,
+      establishmentId,
+      link,
+    )
     const source = await GetProductAccompanimentsUseCase.resolveCurrentSource(
       scope,
       accompanimentProduct,
@@ -139,7 +113,7 @@ export class GetProductAccompanimentsUseCase
       accompanimentTypeName: type.name,
       unit: accompanimentProduct.unit,
       quantityPerPortion: link.quantityPerPortion,
-      salePrice: accompanimentProduct.accompanimentPrice ?? null,
+      salePrice: (global ? global.accompanimentPrice : link.accompanimentPrice) ?? null,
       isGlobal: link.globalAccompanimentId !== undefined,
       hasOtherPortionLinks: await GetProductAccompanimentsUseCase.hasOtherPortionLinks(
         scope,
@@ -148,6 +122,22 @@ export class GetProductAccompanimentsUseCase
       ),
       ...GetProductAccompanimentsUseCase.sourceDetails(source, link.quantityPerPortion),
     }
+  }
+
+  private static async findGlobal(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    link: ProductAccompaniment,
+  ): Promise<GlobalAccompaniment | undefined> {
+    if (link.globalAccompanimentId === undefined) return undefined
+    const global = await scope.globalAccompanimentsRepository.findById(
+      establishmentId,
+      link.globalAccompanimentId,
+    )
+    if (!global || global.establishmentId !== establishmentId) {
+      throw new NotFoundError('Acompanhamento global não encontrado.')
+    }
+    return global
   }
 
   private static sourceDetails(

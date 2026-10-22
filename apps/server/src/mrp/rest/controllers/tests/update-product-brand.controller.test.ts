@@ -1,11 +1,12 @@
-import { ProductStockControl } from '@scoops/core/mrp/domain/structures'
+import { ProductCategory, ProductStockControl } from '@scoops/core/mrp/domain/structures'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import type { BetterAuthFixture } from '@/identity/fixtures/better-auth-fixture'
-import type { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
+import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import {
   operatorRequestAuthorization,
   createProduct,
+  findSalesConfigurationPayloads,
   managerRequestAuthorization,
   prepareMrpFixture,
   resetMrpFixture,
@@ -41,6 +42,60 @@ describe('Update Product Brand Controller [PATCH /products/:productId/brands/:br
       stockQuantity: 8,
       unitPrice: 9,
     })
+  })
+
+  it('publishes the renamed brand in the complete By-brand configuration', async () => {
+    const establishmentId = MrpModuleFixture.accounts.establishmentId
+    const product = await fixture.addProduct(
+      createProduct({
+        name: 'Brand Payload',
+        categories: [ProductCategory.Resale],
+        stockControl: ProductStockControl.ByBrand,
+      }),
+    )
+    const brand = await fixture.addBrand({
+      productId: product.id,
+      name: 'Old',
+      packageQuantity: 2,
+      packagePrice: 20,
+      isPrimary: true,
+    })
+    await fixture.addResaleConfiguration({
+      establishmentId,
+      productId: product.id,
+      brandId: brand.id,
+      price: 15,
+      isActive: true,
+    })
+
+    const response = await request(fixture.app.getHttpServer())
+      .patch(`/products/${product.id}/brands/${brand.id}`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ name: 'Renamed', packageQuantity: 4, packageValue: 36 })
+
+    expect(response.status).toBe(200)
+    const savedBrand = await fixture.brands.findById(product.id, brand.id)
+    if (!savedBrand) throw new Error('The saved brand was not found.')
+    await expect(findSalesConfigurationPayloads(fixture)).resolves.toEqual([
+      {
+        establishmentId,
+        productId: product.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: product.id,
+          name: 'Brand Payload',
+          categories: [ProductCategory.Resale],
+          status: 'active',
+          stockControl: 'by-brand',
+          sizes: [],
+          resaleConfigurations: [
+            { brandId: brand.id, brandName: 'Renamed', price: 15, isActive: true },
+          ],
+          updatedAt: savedBrand.updatedAt.toISOString(),
+        },
+      },
+    ])
   })
 
   it('rejects duplicate names and preserves the original brand', async () => {

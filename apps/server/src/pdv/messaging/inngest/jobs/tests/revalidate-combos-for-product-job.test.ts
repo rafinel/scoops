@@ -300,6 +300,7 @@ async function createPortionComboWithGlobal(
     accompanimentProductId: target.id,
     accompanimentTypeId: type.id,
     quantityPerPortion: 0.5,
+    accompanimentPrice: 3.5,
   })
   const row = await fixture.addProductAccompaniment({
     establishmentId,

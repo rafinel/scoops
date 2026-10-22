@@ -27,6 +27,7 @@ export const globalAccompanimentModel = pgTable(
       precision: 18,
       scale: 3,
     }).notNull(),
+    accompanimentPrice: numeric('accompaniment_price', { precision: 18, scale: 2 }),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).notNull(),
   },
@@ -46,6 +47,10 @@ export const globalAccompanimentModel = pgTable(
     check(
       'mrp_global_accompaniments_quantity_positive',
       sql`${table.quantityPerPortion} > 0`,
+    ),
+    check(
+      'mrp_global_accompaniments_accompaniment_price_non_negative',
+      sql`${table.accompanimentPrice} is null or ${table.accompanimentPrice} >= 0`,
     ),
   ],
 )

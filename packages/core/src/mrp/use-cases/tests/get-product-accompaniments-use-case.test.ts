@@ -4,6 +4,7 @@ import { mock, mockDeep, type DeepMockProxy, type MockProxy } from 'vitest-mock-
 import { UserProfile } from '#identity/domain/structures/user-profile.ts'
 import {
   AccompanimentTypeFaker,
+  GlobalAccompanimentFaker,
   ProductAccompanimentFaker,
   ProductFaker,
 } from '#mrp/domain/entities/fakers/index.ts'
@@ -28,7 +29,7 @@ const single = ProductFaker.fake({
   name: 'Biscuit',
   categories: [ProductCategory.Accompaniment],
   currentUnitCost: 2.5,
-  accompanimentPrice: 4.5,
+  accompanimentPrice: 9,
 })
 const byBrand = ProductFaker.fake({
   id: 'brand-1',
@@ -37,7 +38,7 @@ const byBrand = ProductFaker.fake({
   categories: [ProductCategory.Accompaniment],
   stockControl: ProductStockControl.ByBrand,
   currentUnitCost: undefined,
-  accompanimentPrice: 2.75,
+  accompanimentPrice: 8,
 })
 const unavailable = ProductFaker.fake({
   id: 'unavailable-1',
@@ -53,6 +54,7 @@ const singleLink = ProductAccompanimentFaker.fake({
   accompanimentProductId: single.id,
   accompanimentTypeId: 'type-1',
   quantityPerPortion: 2,
+  accompanimentPrice: 4.5,
 })
 const brandLink = ProductAccompanimentFaker.fake({
   id: 'link-2',
@@ -61,6 +63,7 @@ const brandLink = ProductAccompanimentFaker.fake({
   accompanimentProductId: byBrand.id,
   accompanimentTypeId: 'type-1',
   quantityPerPortion: 0.25,
+  accompanimentPrice: 2.75,
 })
 const unavailableLink = ProductAccompanimentFaker.fake({
   id: 'link-3',
@@ -113,7 +116,7 @@ describe('Get Product Accompaniments Use Case', () => {
     useCase = new GetProductAccompanimentsUseCase(database)
   })
 
-  it('projects current cost and the saved commercial price independently', async () => {
+  it("projects current cost and each link's own sale price independently of the default", async () => {
     const result = await useCase.execute({
       actor: { id: 'manager-1', establishmentId, profile: UserProfile.Manager },
       productId: owner.id,
@@ -170,6 +173,19 @@ describe('Get Product Accompaniments Use Case', () => {
   it('lists global rows first and then individual rows by name, flagging links on other Portions', async () => {
     const globalZest = { ...unavailableLink, globalAccompanimentId: 'global-1' }
     const globalBiscuit = { ...singleLink, globalAccompanimentId: 'global-2' }
+    scope.globalAccompanimentsRepository.findById.mockImplementation(async (_, id) =>
+      id === 'global-1'
+        ? GlobalAccompanimentFaker.fake({
+            id,
+            establishmentId,
+            accompanimentPrice: 6,
+          })
+        : GlobalAccompanimentFaker.fake({
+            id,
+            establishmentId,
+            accompanimentPrice: undefined,
+          }),
+    )
     scope.productAccompanimentsRepository.findManyByProductId.mockResolvedValue([
       brandLink,
       globalZest,
@@ -200,12 +216,51 @@ describe('Get Product Accompaniments Use Case', () => {
       false,
       true,
     ])
+    // A global row has no price of its own: it shows the global's, even over a stale own price.
+    expect(result.accompaniments.map((item) => item.salePrice)).toEqual([null, 6, 2.75])
+    expect(scope.globalAccompanimentsRepository.findById).toHaveBeenCalledWith(
+      establishmentId,
+      'global-1',
+    )
     expect(
       scope.productAccompanimentsRepository.countByAccompanimentProductId,
     ).toHaveBeenCalledTimes(1)
     expect(
       scope.productAccompanimentsRepository.countByAccompanimentProductId,
     ).toHaveBeenCalledWith(establishmentId, byBrand.id)
+  })
+
+  it.each([
+    { name: 'missing', global: undefined },
+    {
+      name: 'foreign',
+      global: GlobalAccompanimentFaker.fake({
+        id: 'global-1',
+        establishmentId: 'establishment-2',
+        accompanimentPrice: 6,
+      }),
+    },
+  ])('fails when the global a row references is $name', async ({ global }) => {
+    scope.productAccompanimentsRepository.findManyByProductId.mockResolvedValue([
+      { ...singleLink, globalAccompanimentId: 'global-1' },
+    ])
+    scope.globalAccompanimentsRepository.findById.mockResolvedValue(global)
+
+    await expect(
+      useCase.execute({
+        actor: { id: 'manager-1', establishmentId, profile: UserProfile.Manager },
+        productId: owner.id,
+      }),
+    ).rejects.toThrow(new NotFoundError('Acompanhamento global não encontrado.'))
+  })
+
+  it('does not read any global for individual rows', async () => {
+    await useCase.execute({
+      actor: { id: 'manager-1', establishmentId, profile: UserProfile.Manager },
+      productId: owner.id,
+    })
+
+    expect(scope.globalAccompanimentsRepository.findById).not.toHaveBeenCalled()
   })
 
   it('does not flag an individual accompaniment linked only to this Portion', async () => {

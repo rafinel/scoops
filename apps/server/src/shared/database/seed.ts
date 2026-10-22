@@ -171,12 +171,14 @@ const SEED_PRODUCT_ACCOMPANIMENTS = [
     accompanimentProductName: 'Banana fatiada',
     accompanimentTypeName: 'Frutas',
     quantityPerPortion: 0.08,
+    accompanimentPrice: 2,
   },
   {
     productName: 'Açaí tradicional',
     accompanimentProductName: 'Creme de avelã',
     accompanimentTypeName: 'Complementos',
     quantityPerPortion: 0.03,
+    accompanimentPrice: 4,
   },
   {
     productName: 'Açaí tradicional',
@@ -189,12 +191,14 @@ const SEED_PRODUCT_ACCOMPANIMENTS = [
     accompanimentProductName: 'Morango',
     accompanimentTypeName: 'Frutas',
     quantityPerPortion: 0.08,
+    accompanimentPrice: 2.5,
   },
   {
     productName: 'Açaí tropical',
     accompanimentProductName: 'Creme de avelã',
     accompanimentTypeName: 'Complementos',
     quantityPerPortion: 0.03,
+    accompanimentPrice: 4,
   },
   {
     productName: 'Açaí tropical',
@@ -209,6 +213,7 @@ const SEED_GLOBAL_ACCOMPANIMENTS = [
     accompanimentProductName: 'Granola',
     accompanimentTypeName: 'Granolas',
     quantityPerPortion: 0.05,
+    accompanimentPrice: 3,
   },
 ] as const
 

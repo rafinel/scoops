@@ -41,6 +41,13 @@ import type {
   RegisterProductSizeInput,
   SaveProductResaleConfigurationInput,
   UpdateProductSizeInput,
+  AccompanimentPortionCandidate,
+  AccompanimentPortionDetails,
+  AccompanimentPortionListParams,
+  AccompanimentPortionsPage,
+  GlobalAccompanimentDetails,
+  LinkAccompanimentPortionsInput,
+  UpdateGlobalAccompanimentInput,
 } from '#mrp/domain/structures/index.ts'
 import type { RestResponse } from '#shared/responses/rest-response.ts'
 
@@ -157,6 +164,31 @@ export interface MrpService {
     productId: string,
     linkId: string,
     scope?: AccompanimentRemovalScope,
+  ): Promise<RestResponse<void>>
+  listAccompanimentPortions(
+    productId: string,
+    input: Omit<
+      AccompanimentPortionListParams,
+      'establishmentId' | 'accompanimentProductId'
+    >,
+  ): Promise<RestResponse<AccompanimentPortionsPage>>
+  listAccompanimentPortionCandidates(
+    productId: string,
+  ): Promise<RestResponse<AccompanimentPortionCandidate[]>>
+  linkAccompanimentPortions(
+    productId: string,
+    input: LinkAccompanimentPortionsInput,
+  ): Promise<RestResponse<AccompanimentPortionDetails[]>>
+  getGlobalAccompaniment(
+    productId: string,
+  ): Promise<RestResponse<GlobalAccompanimentDetails>>
+  updateGlobalAccompaniment(
+    productId: string,
+    input: UpdateGlobalAccompanimentInput,
+  ): Promise<RestResponse<GlobalAccompanimentDetails>>
+  removeGlobalAccompaniment(
+    productId: string,
+    options?: { keepPortionLinks?: boolean },
   ): Promise<RestResponse<void>>
   listAccompanimentTypes(
     input: Omit<AccompanimentTypeListParams, 'establishmentId'>,

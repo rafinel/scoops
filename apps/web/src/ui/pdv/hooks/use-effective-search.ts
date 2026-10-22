@@ -1,4 +1,4 @@
-import { useDebouncedValue } from './use-debounced-value'
+import { useDebouncedValue } from '@/ui/shared/hooks/use-debounced-value'
 
 const SEARCH_DEBOUNCE_MS = 250
 

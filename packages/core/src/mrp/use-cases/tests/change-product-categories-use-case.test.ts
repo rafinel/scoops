@@ -9,7 +9,9 @@ import {
   ProductFaker,
   RecipeFaker,
 } from '#mrp/domain/entities/fakers/index.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
 import { ProductUpdatedEvent } from '#mrp/domain/events/product-updated-event.ts'
+import { ProductSalesConfigurationSourceFaker } from '#mrp/domain/structures/fakers/index.ts'
 import { ProductCategory } from '#mrp/domain/structures/product-category.ts'
 import { ProductStockControl } from '#mrp/domain/structures/product-stock-control.ts'
 import type {
@@ -57,6 +59,12 @@ describe('Change Product Categories Use Case', () => {
     scope.globalAccompanimentsRepository.findManyByEstablishmentId.mockResolvedValue([])
     scope.globalAccompanimentsRepository.findByAccompanimentProductId.mockResolvedValue(
       undefined,
+    )
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [],
+    )
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [ProductSalesConfigurationSourceFaker.fake({ product })],
     )
     useCase = new ChangeProductCategoriesUseCase(database)
   })
@@ -658,5 +666,72 @@ describe('Change Product Categories Use Case', () => {
       expect(scope.productsRepository.replace).not.toHaveBeenCalled()
       expect(eventsRepository.add).not.toHaveBeenCalled()
     })
+  })
+
+  it('republishes the product and its inverse owners once before recording the product update', async () => {
+    const owner = ProductFaker.fake({
+      id: 'portion-1',
+      establishmentId: 'e1',
+      categories: [ProductCategory.Portion],
+    })
+    const savedProduct = {
+      ...product,
+      categories: [
+        ProductCategory.Ingredient,
+        ProductCategory.Portion,
+        ProductCategory.Manufacturable,
+      ],
+    }
+    scope.productsRepository.replace.mockResolvedValue(savedProduct)
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [
+        ProductAccompanimentFaker.fake({
+          establishmentId: 'e1',
+          productId: owner.id,
+          accompanimentProductId: product.id,
+        }),
+        ProductAccompanimentFaker.fake({
+          establishmentId: 'e1',
+          productId: owner.id,
+          accompanimentProductId: product.id,
+        }),
+        ProductAccompanimentFaker.fake({
+          establishmentId: 'other-establishment',
+          productId: 'foreign-portion',
+          accompanimentProductId: product.id,
+        }),
+      ],
+    )
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [
+        ProductSalesConfigurationSourceFaker.fake({ product: savedProduct }),
+        ProductSalesConfigurationSourceFaker.fake({ product: owner }),
+      ],
+    )
+
+    await useCase.execute({
+      actor: manager,
+      productId: product.id,
+      input: { categories: savedProduct.categories, expectedUpdatedAt: updatedAt },
+    })
+
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith('e1', [product.id, owner.id])
+    expect(eventsRepository.add.mock.calls.map(([event]) => event)).toEqual([
+      expect.objectContaining({
+        name: ProductSalesConfigurationChangedEvent._NAME,
+        payload: expect.objectContaining({
+          productId: product.id,
+          state: 'available',
+          configuration: expect.objectContaining({ categories: savedProduct.categories }),
+        }),
+      }),
+      expect.objectContaining({
+        name: ProductSalesConfigurationChangedEvent._NAME,
+        payload: expect.objectContaining({ productId: owner.id, state: 'available' }),
+      }),
+      expect.objectContaining({ name: ProductUpdatedEvent._NAME }),
+    ])
   })
 })

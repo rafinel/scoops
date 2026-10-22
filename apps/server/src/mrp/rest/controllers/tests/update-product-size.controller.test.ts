@@ -7,11 +7,14 @@ import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 
 import {
   createProduct,
+  findSalesConfigurationPayloads,
   foreignManagerRequestAuthorization,
   managerRequestAuthorization,
   operatorRequestAuthorization,
   prepareMrpFixture,
   resetMrpFixture,
+  setUpdatedAt,
+  sortById,
 } from './mrp-controller-test-helpers'
 
 describe('Update Product Size Controller [PATCH /products/:productId/sizes/:sizeId]', () => {
@@ -194,5 +197,161 @@ describe('Update Product Size Controller [PATCH /products/:productId/sizes/:size
     await expect(
       fixture.productSizes.findById(product.establishmentId, product.id, other.id),
     ).resolves.toMatchObject({ name: 'Other' })
+  })
+
+  it('publishes the complete sales configuration with every accompaniment state', async () => {
+    const establishmentId = MrpModuleFixture.accounts.establishmentId
+    const portion = await fixture.addProduct(
+      createProduct({ name: 'Payload Portion', categories: [ProductCategory.Portion] }),
+    )
+    const large = await fixture.addProductSize({
+      establishmentId,
+      productId: portion.id,
+      name: 'Grande',
+      quantity: 1,
+      price: 10,
+      isActive: true,
+    })
+    const small = await fixture.addProductSize({
+      establishmentId,
+      productId: portion.id,
+      name: 'Pequeno',
+      quantity: 0.5,
+      price: 6,
+      isActive: true,
+    })
+    const sauce = await fixture.addAccompanimentType({ establishmentId, name: 'Calda' })
+    const topping = await fixture.addAccompanimentType({
+      establishmentId,
+      name: 'Cobertura',
+    })
+    const targets = {
+      priced: await fixture.addProduct(
+        createProduct({
+          name: 'Granola',
+          categories: [ProductCategory.Accompaniment],
+          accompanimentPrice: 2.5,
+        }),
+      ),
+      free: await fixture.addProduct(
+        createProduct({
+          name: 'Leite em pó',
+          categories: [ProductCategory.Accompaniment],
+          accompanimentPrice: 0,
+        }),
+      ),
+      unpriced: await fixture.addProduct(
+        createProduct({
+          name: 'Paçoca',
+          categories: [ProductCategory.Accompaniment],
+          accompanimentPrice: 1,
+        }),
+      ),
+      inactive: await fixture.addProduct(
+        createProduct({
+          name: 'Banana',
+          categories: [ProductCategory.Accompaniment],
+          accompanimentPrice: 3,
+          status: 'inactive',
+        }),
+      ),
+    }
+    const links = {
+      priced: await fixture.addProductAccompaniment({
+        establishmentId,
+        productId: portion.id,
+        accompanimentProductId: targets.priced.id,
+        accompanimentTypeId: sauce.id,
+        quantityPerPortion: 1,
+        accompanimentPrice: 2.5,
+      }),
+      free: await fixture.addProductAccompaniment({
+        establishmentId,
+        productId: portion.id,
+        accompanimentProductId: targets.free.id,
+        accompanimentTypeId: topping.id,
+        quantityPerPortion: 1,
+        accompanimentPrice: 0,
+      }),
+      unpriced: await fixture.addProductAccompaniment({
+        establishmentId,
+        productId: portion.id,
+        accompanimentProductId: targets.unpriced.id,
+        accompanimentTypeId: topping.id,
+        quantityPerPortion: 1,
+      }),
+      inactive: await fixture.addProductAccompaniment({
+        establishmentId,
+        productId: portion.id,
+        accompanimentProductId: targets.inactive.id,
+        accompanimentTypeId: sauce.id,
+        quantityPerPortion: 1,
+        accompanimentPrice: 3,
+      }),
+    }
+    const latestFact = new Date('2099-01-01T00:00:00.000Z')
+    await setUpdatedAt(fixture, 'accompaniment_types', sauce.id, latestFact)
+
+    const response = await request(fixture.app.getHttpServer())
+      .patch(`/products/${portion.id}/sizes/${small.id}`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({ name: 'Pequeno', quantity: 0.5, price: 6, isActive: false })
+
+    expect(response.status).toBe(200)
+    const accompaniments = sortById([
+      links.priced,
+      links.free,
+      links.unpriced,
+      links.inactive,
+    ]).map((link) => {
+      const entries = {
+        [links.priced.id]: [targets.priced, sauce, 2.5, true],
+        [links.free.id]: [targets.free, topping, 0, true],
+        [links.unpriced.id]: [targets.unpriced, topping, 0, false],
+        [links.inactive.id]: [targets.inactive, sauce, 3, false],
+      } as const
+      const [target, type, basePrice, isActive] = entries[link.id]
+      return {
+        accompanimentId: link.id,
+        productId: target.id,
+        name: target.name,
+        type: type.name,
+        basePrice,
+        isActive,
+      }
+    })
+    await expect(findSalesConfigurationPayloads(fixture)).resolves.toEqual([
+      {
+        establishmentId,
+        productId: portion.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: portion.id,
+          name: 'Payload Portion',
+          categories: [ProductCategory.Portion],
+          status: 'active',
+          stockControl: 'single',
+          sizes: [
+            {
+              sizeId: large.id,
+              name: 'Grande',
+              price: 10,
+              isActive: true,
+              accompaniments,
+            },
+            {
+              sizeId: small.id,
+              name: 'Pequeno',
+              price: 6,
+              isActive: false,
+              accompaniments,
+            },
+          ],
+          resaleConfigurations: [],
+          updatedAt: latestFact.toISOString(),
+        },
+      },
+    ])
   })
 })

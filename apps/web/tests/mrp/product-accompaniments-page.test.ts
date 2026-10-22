@@ -266,7 +266,7 @@ test.describe('ProductAccompanimentsPage', () => {
     await expect(dialog).toBeHidden()
     await page.setViewportSize({ width: 1560, height: 1178 })
     await expect(
-      page.getByRole('columnheader', { name: 'PREÇO DO PRODUTO' }),
+      page.getByRole('columnheader', { name: 'PREÇO' }),
     ).toBeVisible()
     await expect(page.getByRole('cell', { name: 'R$ 3,00' })).toBeVisible()
     expect(savedPrice).toBe(3)
@@ -850,7 +850,7 @@ test.describe('ProductAccompanimentsPage', () => {
       ).toBeVisible()
     })
 
-    test('links a removed global again with the locked switch and shared values', async ({
+    test('links a removed global again with the global notice, no switch and shared values', async ({
       page,
       identityFixture,
       mrpFixture,
@@ -880,27 +880,35 @@ test.describe('ProductAccompanimentsPage', () => {
       await dialog.getByRole('combobox', { name: 'Acompanhamento' }).click()
       await page.getByRole('option', { name: 'Granola' }).click()
 
-      const globalSwitch = dialog.getByRole('switch', {
-        name: 'Disponível para todas as porções',
-      })
-      await expect(globalSwitch).toHaveAttribute('aria-checked', 'true')
-      await expect(globalSwitch).toHaveAttribute('aria-disabled', 'true')
-      await expect(globalSwitch).toHaveAccessibleDescription(
-        /Para deixar de ser global, use Remover na tabela\./,
+      await expect(dialog.getByRole('switch')).toHaveCount(0)
+      await expect(
+        dialog.getByText('Este preço vale para todas as porções.'),
+      ).toBeVisible()
+      await expect(
+        dialog.getByText('Disponível para todas as porções', { exact: true }),
+      ).toHaveCount(0)
+      const globalNotice = dialog.getByRole('status')
+      await expect(globalNotice).toBeVisible()
+      await expect(globalNotice).toHaveText(
+        'Acompanhamento global: as alterações valem para todas as porções. Para deixar de ser global, use Remover na tabela.',
       )
-      await globalSwitch.focus()
-      await expect(globalSwitch).toBeFocused()
-      await page.keyboard.press('Space')
-      await expect(globalSwitch).toHaveAttribute('aria-checked', 'true')
+      await expect(
+        dialog.getByText(/Aparece em todas as porções, incluindo as novas/),
+      ).toHaveCount(0)
       await expect(dialog.getByRole('combobox', { name: 'Tipo' })).toContainText(
         'Cobertura',
       )
       await expect(
         dialog.getByRole('textbox', { name: /Quantidade por porção/ }),
       ).toHaveValue('50')
+      await expect(dialog.getByRole('textbox', { name: /Preço/ })).toHaveValue('3,00')
       await expect(
         dialog.getByText(/vinculado individualmente a outras porções/),
       ).toHaveCount(0)
+      await expect(dialog.getByRole('status')).toHaveCount(1)
+      await expect(
+        dialog.getByRole('button', { name: 'Vincular', exact: true }),
+      ).toBeEnabled()
 
       await dialog.getByRole('button', { name: 'Vincular', exact: true }).click()
       await expect(dialog).toBeHidden()
@@ -914,7 +922,7 @@ test.describe('ProductAccompanimentsPage', () => {
       })
     })
 
-    test('edits a global with the locked switch and converts an individual row', async ({
+    test('edits a global with the global notice and no switch and converts an individual row', async ({
       page,
       identityFixture,
       mrpFixture,
@@ -937,14 +945,22 @@ test.describe('ProductAccompanimentsPage', () => {
       await page.goto(`/products/${PRODUCT_ID}/accompaniments`)
       await page.getByRole('button', { name: 'Editar Granola' }).click()
       const globalDialog = page.getByRole('dialog', { name: 'Editar Acompanhamento' })
-      const lockedSwitch = globalDialog.getByRole('switch', {
-        name: 'Disponível para todas as porções',
-      })
-      await expect(lockedSwitch).toHaveAttribute('aria-checked', 'true')
-      await expect(lockedSwitch).toHaveAttribute('aria-disabled', 'true')
+      await expect(globalDialog.getByRole('switch')).toHaveCount(0)
+      await expect(
+        globalDialog.getByText('Este preço vale para todas as porções.'),
+      ).toBeVisible()
+      await expect(globalDialog.getByRole('status')).toHaveCount(1)
       await expect(
         globalDialog.getByRole('status').filter({ hasText: 'Acompanhamento global:' }),
       ).toBeVisible()
+      await expect(
+        globalDialog.getByRole('status').filter({ hasText: 'Acompanhamento global:' }),
+      ).toHaveText(
+        'Acompanhamento global: as alterações valem para todas as porções. Para deixar de ser global, use Remover na tabela.',
+      )
+      await expect(
+        globalDialog.getByText(/Aparece em todas as porções, incluindo as novas/),
+      ).toHaveCount(0)
       await globalDialog
         .getByRole('textbox', { name: /Quantidade por porção/ })
         .fill('40')
@@ -966,8 +982,14 @@ test.describe('ProductAccompanimentsPage', () => {
       await expect(enabledSwitch).toHaveAttribute('aria-checked', 'false')
       await expect(enabledSwitch).not.toHaveAttribute('aria-disabled', 'true')
       await expect(individualDialog.getByRole('status')).toHaveCount(0)
+      await expect(
+        individualDialog.getByText('Este preço vale só para este vínculo.'),
+      ).toBeVisible()
       await enabledSwitch.click()
       await expect(enabledSwitch).toHaveAttribute('aria-checked', 'true')
+      await expect(
+        individualDialog.getByText('Este preço vale para todas as porções.'),
+      ).toBeVisible()
       await expect(
         individualDialog.getByRole('status').filter({
           hasText: 'já está vinculado individualmente a outras porções',

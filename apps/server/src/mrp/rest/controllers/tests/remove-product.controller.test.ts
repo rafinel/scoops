@@ -20,8 +20,10 @@ import type { MrpModuleFixture as MrpFixture } from '@/mrp/fixtures/mrp-module-f
 import {
   addGlobalAccompanimentWithRows,
   createProduct,
+  findSalesConfigurationPayloads,
   findSalesConfigurationProductIds,
   foreignManagerRequestAuthorization,
+  latestIso,
   managerRequestAuthorization,
   operatorRequestAuthorization,
   prepareMrpFixture,
@@ -297,6 +299,145 @@ describe('Remove Product Controller [DELETE /products/:productId]', () => {
     await expect(
       fixture.productions.countByProductId(product.establishmentId, product.id),
     ).resolves.toBe(1)
+  })
+
+  it('publishes the remaining configuration of every Portion that used the product and then the deleted state', async () => {
+    const establishmentId = MrpModuleFixture.accounts.establishmentId
+    const removed = await fixture.addProduct(
+      createProduct({
+        name: 'Removed Accompaniment',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 3,
+      }),
+    )
+    const kept = await fixture.addProduct(
+      createProduct({
+        name: 'Kept Accompaniment',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 1,
+      }),
+    )
+    const portionA = await fixture.addProduct(
+      createProduct({ name: 'Used Portion A', categories: [ProductCategory.Portion] }),
+    )
+    const portionB = await fixture.addProduct(
+      createProduct({
+        name: 'Used Portion B',
+        categories: [ProductCategory.Portion],
+        status: 'inactive',
+      }),
+    )
+    await fixture.addProduct(
+      createProduct({ name: 'Unrelated Portion', categories: [ProductCategory.Portion] }),
+    )
+    const sizeA = await fixture.addProductSize({
+      establishmentId,
+      productId: portionA.id,
+      name: 'Único',
+      quantity: 1,
+      price: 11,
+      isActive: true,
+    })
+    const type = await fixture.addAccompanimentType({ establishmentId, name: 'Calda' })
+    await fixture.addProductAccompaniment({
+      establishmentId,
+      productId: portionA.id,
+      accompanimentProductId: removed.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 1,
+    })
+    const keptLink = await fixture.addProductAccompaniment({
+      establishmentId,
+      productId: portionA.id,
+      accompanimentProductId: kept.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 1,
+      accompanimentPrice: 2.5,
+    })
+    await fixture.addProductAccompaniment({
+      establishmentId,
+      productId: portionB.id,
+      accompanimentProductId: removed.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 2,
+    })
+
+    const response = await request(fixture.app.getHttpServer())
+      .delete(`/products/${removed.id}`)
+      .set('Cookie', managerRequestAuthorization())
+
+    expect(response.status).toBe(204)
+    const expectedAvailable = [
+      {
+        establishmentId,
+        productId: portionA.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: portionA.id,
+          name: 'Used Portion A',
+          categories: [ProductCategory.Portion],
+          status: 'active',
+          stockControl: 'single',
+          sizes: [
+            {
+              sizeId: sizeA.id,
+              name: 'Único',
+              price: 11,
+              isActive: true,
+              accompaniments: [
+                {
+                  accompanimentId: keptLink.id,
+                  productId: kept.id,
+                  name: 'Kept Accompaniment',
+                  type: 'Calda',
+                  basePrice: 2.5,
+                  isActive: true,
+                },
+              ],
+            },
+          ],
+          resaleConfigurations: [],
+          updatedAt: latestIso(
+            portionA.updatedAt,
+            sizeA.updatedAt,
+            keptLink.updatedAt,
+            kept.updatedAt,
+            type.updatedAt,
+          ),
+        },
+      },
+      {
+        establishmentId,
+        productId: portionB.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: portionB.id,
+          name: 'Used Portion B',
+          categories: [ProductCategory.Portion],
+          status: 'inactive',
+          stockControl: 'single',
+          sizes: [],
+          resaleConfigurations: [],
+          updatedAt: portionB.updatedAt.toISOString(),
+        },
+      },
+    ]
+    const expected = [
+      ...expectedAvailable,
+      {
+        establishmentId,
+        productId: removed.id,
+        state: 'deleted',
+        configuration: null,
+      },
+    ].sort(
+      (left, right) =>
+        left.productId.localeCompare(right.productId) ||
+        left.state.localeCompare(right.state),
+    )
+    await expect(findSalesConfigurationPayloads(fixture)).resolves.toEqual(expected)
   })
 
   it('rolls back all current dependency removal when the final delete fails', async () => {

@@ -9,8 +9,10 @@ import { MrpModuleFixture } from '@/mrp/fixtures/mrp-module-fixture'
 import {
   addGlobalAccompanimentWithRows,
   createProduct,
+  findSalesConfigurationPayloads,
   findSalesConfigurationProductIds,
   foreignManagerRequestAuthorization,
+  latestIso,
   managerRequestAuthorization,
   operatorRequestAuthorization,
   prepareMrpFixture,
@@ -282,6 +284,68 @@ describe('Remove Product Accompaniment Controller [DELETE /products/:productId/a
           registered.id,
         ),
       ).resolves.toEqual([])
+    })
+
+    it('publishes the remaining configuration of the Portions captured before an all-scope removal', async () => {
+      const { portions, rows } = await setUpGlobal(2)
+      const [first, second] = portions
+      const size = await fixture.addProductSize({
+        establishmentId: first.establishmentId,
+        productId: first.id,
+        name: 'Único',
+        quantity: 1,
+        price: 7,
+        isActive: true,
+      })
+
+      const response = await request(fixture.app.getHttpServer())
+        .delete(`/products/${second.id}/accompaniments/${rows[1].id}?scope=all`)
+        .set('Cookie', managerRequestAuthorization())
+
+      expect(response.status).toBe(204)
+      const expected = [
+        {
+          establishmentId: first.establishmentId,
+          productId: first.id,
+          state: 'available',
+          configuration: {
+            establishmentId: first.establishmentId,
+            productId: first.id,
+            name: first.name,
+            categories: [ProductCategory.Portion],
+            status: 'active',
+            stockControl: 'single',
+            sizes: [
+              {
+                sizeId: size.id,
+                name: 'Único',
+                price: 7,
+                isActive: true,
+                accompaniments: [],
+              },
+            ],
+            resaleConfigurations: [],
+            updatedAt: latestIso(first.updatedAt, size.updatedAt),
+          },
+        },
+        {
+          establishmentId: second.establishmentId,
+          productId: second.id,
+          state: 'available',
+          configuration: {
+            establishmentId: second.establishmentId,
+            productId: second.id,
+            name: second.name,
+            categories: [ProductCategory.Portion],
+            status: 'active',
+            stockControl: 'single',
+            sizes: [],
+            resaleConfigurations: [],
+            updatedAt: second.updatedAt.toISOString(),
+          },
+        },
+      ].sort((left, right) => left.productId.localeCompare(right.productId))
+      await expect(findSalesConfigurationPayloads(fixture)).resolves.toEqual(expected)
     })
 
     it('rejects scope=all for an individual row and an unknown scope without changes', async () => {

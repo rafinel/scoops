@@ -11,7 +11,9 @@ import {
   createProduct,
   failSecondSalesConfigurationEvent,
   findEvents,
+  findSalesConfigurationPayloads,
   findSalesConfigurationProductIds,
+  latestIso,
   managerRequestAuthorization,
   operatorRequestAuthorization,
   prepareMrpFixture,
@@ -79,7 +81,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
         owner.id,
         target.id,
       ),
-    ).resolves.toMatchObject({ quantityPerPortion: 1.25 })
+    ).resolves.toMatchObject({ quantityPerPortion: 1.25, accompanimentPrice: 7.5 })
     await expect(fixture.balances.findByProductId(target.id)).resolves.toEqual(
       beforeBalance,
     )
@@ -308,6 +310,13 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
     await expect(
       fixture.products.findById(target.establishmentId, target.id),
     ).resolves.toMatchObject({ accompanimentPrice: 0 })
+    await expect(
+      fixture.productAccompaniments.findByProductAndAccompaniment(
+        owner.establishmentId,
+        owner.id,
+        target.id,
+      ),
+    ).resolves.toMatchObject({ accompanimentPrice: 0 })
   })
 
   it('allows an older client to omit price when the target already has one', async () => {
@@ -343,6 +352,189 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
     await expect(
       fixture.products.findById(target.establishmentId, target.id),
     ).resolves.toMatchObject({ accompanimentPrice: 9.25 })
+    await expect(
+      fixture.productAccompaniments.findByProductAndAccompaniment(
+        owner.establishmentId,
+        owner.id,
+        target.id,
+      ),
+    ).resolves.toMatchObject({ accompanimentPrice: 9.25 })
+  })
+
+  it('gives the new link the entered price and leaves other links and the saved default untouched', async () => {
+    const establishmentId = MrpModuleFixture.accounts.establishmentId
+    const owner = await fixture.addProduct(
+      createProduct({
+        name: 'Entered Price Owner',
+        categories: [ProductCategory.Portion],
+      }),
+    )
+    const other = await fixture.addProduct(
+      createProduct({
+        name: 'Entered Price Other',
+        categories: [ProductCategory.Portion],
+      }),
+    )
+    await fixture.addProductSize({
+      establishmentId,
+      productId: owner.id,
+      name: 'Grande',
+      quantity: 1,
+      price: 15,
+      isActive: true,
+    })
+    const target = await fixture.addProduct(
+      createProduct({
+        name: 'Entered Price Target',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 4,
+      }),
+    )
+    const type = await fixture.addAccompanimentType({ establishmentId, name: 'Calda' })
+    const otherLink = await fixture.addProductAccompaniment({
+      establishmentId,
+      productId: other.id,
+      accompanimentProductId: target.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 2,
+      accompanimentPrice: 6,
+    })
+
+    const response = await request(fixture.app.getHttpServer())
+      .post(`/products/${owner.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        accompanimentProductId: target.id,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 1,
+        accompanimentPrice: 8,
+      })
+
+    expect(response.status).toBe(201)
+    expect(response.body.salePrice).toBe(8)
+    await expect(
+      fixture.productAccompaniments.findById(establishmentId, owner.id, response.body.id),
+    ).resolves.toMatchObject({ accompanimentPrice: 8 })
+    await expect(
+      fixture.productAccompaniments.findById(establishmentId, other.id, otherLink.id),
+    ).resolves.toEqual(otherLink)
+    const savedTarget = await fixture.products.findById(establishmentId, target.id)
+    expect(savedTarget?.accompanimentPrice).toBe(4)
+    expect(savedTarget?.updatedAt).toEqual(target.updatedAt)
+    const payloads = await findSalesConfigurationPayloads(fixture)
+    expect(payloads.map((payload) => payload.productId)).toEqual([owner.id])
+    expect(payloads[0].configuration?.sizes[0].accompaniments).toEqual([
+      expect.objectContaining({ productId: target.id, basePrice: 8, isActive: true }),
+    ])
+  })
+
+  it('publishes the complete configuration of the owner only when the shared price is unchanged', async () => {
+    const establishmentId = MrpModuleFixture.accounts.establishmentId
+    const owner = await fixture.addProduct(
+      createProduct({ name: 'Payload Owner', categories: [ProductCategory.Portion] }),
+    )
+    const other = await fixture.addProduct(
+      createProduct({ name: 'Payload Other', categories: [ProductCategory.Portion] }),
+    )
+    const ownerSize = await fixture.addProductSize({
+      establishmentId,
+      productId: owner.id,
+      name: 'Grande',
+      quantity: 1,
+      price: 15,
+      isActive: true,
+    })
+    const inactiveOwnerSize = await fixture.addProductSize({
+      establishmentId,
+      productId: owner.id,
+      name: 'Médio',
+      quantity: 0.5,
+      price: 10,
+      isActive: false,
+    })
+    const target = await fixture.addProduct(
+      createProduct({
+        name: 'Payload Target',
+        categories: [ProductCategory.Accompaniment],
+        accompanimentPrice: 3.25,
+      }),
+    )
+    const type = await fixture.addAccompanimentType({ establishmentId, name: 'Calda' })
+    await fixture.addProductAccompaniment({
+      establishmentId,
+      productId: other.id,
+      accompanimentProductId: target.id,
+      accompanimentTypeId: type.id,
+      quantityPerPortion: 2,
+      accompanimentPrice: 6,
+    })
+
+    const response = await request(fixture.app.getHttpServer())
+      .post(`/products/${owner.id}/accompaniments`)
+      .set('Cookie', managerRequestAuthorization())
+      .send({
+        accompanimentProductId: target.id,
+        accompanimentTypeId: type.id,
+        quantityPerPortion: 1.5,
+      })
+
+    expect(response.status).toBe(201)
+    const savedLink = await fixture.productAccompaniments.findById(
+      establishmentId,
+      owner.id,
+      response.body.id,
+    )
+    if (!savedLink) throw new Error('The saved link was not found.')
+    const accompaniments = [
+      {
+        accompanimentId: savedLink.id,
+        productId: target.id,
+        name: 'Payload Target',
+        type: 'Calda',
+        basePrice: 3.25,
+        isActive: true,
+      },
+    ]
+    await expect(findSalesConfigurationPayloads(fixture)).resolves.toEqual([
+      {
+        establishmentId,
+        productId: owner.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: owner.id,
+          name: 'Payload Owner',
+          categories: [ProductCategory.Portion],
+          status: 'active',
+          stockControl: 'single',
+          sizes: [
+            {
+              sizeId: ownerSize.id,
+              name: 'Grande',
+              price: 15,
+              isActive: true,
+              accompaniments,
+            },
+            {
+              sizeId: inactiveOwnerSize.id,
+              name: 'Médio',
+              price: 10,
+              isActive: false,
+              accompaniments,
+            },
+          ],
+          resaleConfigurations: [],
+          updatedAt: latestIso(
+            owner.updatedAt,
+            ownerSize.updatedAt,
+            inactiveOwnerSize.updatedAt,
+            savedLink.updatedAt,
+            target.updatedAt,
+            type.updatedAt,
+          ),
+        },
+      },
+    ])
   })
 
   describe('global accompaniments', () => {
@@ -407,6 +599,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
       expect(global).toMatchObject({
         accompanimentTypeId: type.id,
         quantityPerPortion: 0.05,
+        accompanimentPrice: 4,
       })
       for (const portion of [portionA, portionB, inactivePortion]) {
         const rows = await fixture.productAccompaniments.findManyByProductId(
@@ -420,6 +613,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
           quantityPerPortion: 0.05,
           globalAccompanimentId: global?.id,
         })
+        expect(rows[0].accompanimentPrice).toBeUndefined()
       }
       expect(response.body.id).toBe(
         (
@@ -459,6 +653,104 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
       })
     })
 
+    it('publishes the complete configuration of every Portion when creating a global', async () => {
+      const establishmentId = MrpModuleFixture.accounts.establishmentId
+      const portionA = await addPortion('Payload Global A')
+      const inactivePortion = await addPortion('Payload Global B', { status: 'inactive' })
+      const sizeA = await fixture.addProductSize({
+        establishmentId,
+        productId: portionA.id,
+        name: 'Único',
+        quantity: 1,
+        price: 8,
+        isActive: true,
+      })
+      const sizeB = await fixture.addProductSize({
+        establishmentId,
+        productId: inactivePortion.id,
+        name: 'Único',
+        quantity: 1,
+        price: 9,
+        isActive: true,
+      })
+      const target = await addTarget('Payload Global Target', { accompanimentPrice: 0 })
+      const type = await addType('Granolas')
+
+      const response = await request(fixture.app.getHttpServer())
+        .post(`/products/${portionA.id}/accompaniments`)
+        .set('Cookie', managerRequestAuthorization())
+        .send({
+          accompanimentProductId: target.id,
+          accompanimentTypeId: type.id,
+          quantityPerPortion: 0.05,
+          isGlobal: true,
+        })
+
+      expect(response.status).toBe(201)
+      const rows = Object.fromEntries(
+        await Promise.all(
+          [portionA, inactivePortion].map(async (portion) => [
+            portion.id,
+            (
+              await fixture.productAccompaniments.findManyByProductId(
+                establishmentId,
+                portion.id,
+              )
+            )[0],
+          ]),
+        ),
+      )
+      const expectedPayload = (
+        portion: typeof portionA,
+        size: typeof sizeA,
+        status: string,
+      ) => ({
+        establishmentId,
+        productId: portion.id,
+        state: 'available',
+        configuration: {
+          establishmentId,
+          productId: portion.id,
+          name: portion.name,
+          categories: [ProductCategory.Portion],
+          status,
+          stockControl: 'single',
+          sizes: [
+            {
+              sizeId: size.id,
+              name: 'Único',
+              price: size.price,
+              isActive: true,
+              accompaniments: [
+                {
+                  accompanimentId: rows[portion.id].id,
+                  productId: target.id,
+                  name: 'Payload Global Target',
+                  type: 'Granolas',
+                  basePrice: 0,
+                  isActive: true,
+                },
+              ],
+            },
+          ],
+          resaleConfigurations: [],
+          updatedAt: latestIso(
+            portion.updatedAt,
+            size.updatedAt,
+            rows[portion.id].updatedAt,
+            target.updatedAt,
+            type.updatedAt,
+          ),
+        },
+      })
+      await expect(findSalesConfigurationPayloads(fixture)).resolves.toEqual(
+        [
+          expectedPayload(portionA, sizeA, 'active'),
+          expectedPayload(inactivePortion, sizeB, 'inactive'),
+        ].sort((left, right) => left.productId.localeCompare(right.productId)),
+      )
+    })
+
     it('converts individual links in place keeping row ids and adds the missing Portions', async () => {
       const portionA = await addPortion('Convert A')
       const portionB = await addPortion('Convert B')
@@ -474,6 +766,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
         accompanimentProductId: target.id,
         accompanimentTypeId: oldTypeB.id,
         quantityPerPortion: 1,
+        accompanimentPrice: 5,
       })
       const rowC = await fixture.addProductAccompaniment({
         establishmentId: portionC.establishmentId,
@@ -481,6 +774,7 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
         accompanimentProductId: target.id,
         accompanimentTypeId: oldTypeC.id,
         quantityPerPortion: 2,
+        accompanimentPrice: 6,
       })
 
       const response = await request(fixture.app.getHttpServer())
@@ -514,8 +808,11 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
           quantityPerPortion: 0.75,
           globalAccompanimentId: global?.id,
         })
+        // Converted rows lose their own price; the global stores the shared one.
+        expect(rows[0].accompanimentPrice).toBeUndefined()
         if (existingRow) expect(rows[0].id).toBe(existingRow.id)
       }
+      expect(global).toMatchObject({ accompanimentPrice: 4 })
       await expect(findSalesConfigurationProductIds(fixture)).resolves.toEqual(
         [portionA.id, portionB.id, portionC.id, portionD.id].sort(),
       )
@@ -598,7 +895,15 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
       ).resolves.toMatchObject({
         accompanimentTypeId: replacementType.id,
         quantityPerPortion: 2.5,
+        accompanimentPrice: 4,
       })
+      const restoredRow =
+        await fixture.productAccompaniments.findByProductAndAccompaniment(
+          portionA.establishmentId,
+          portionA.id,
+          target.id,
+        )
+      expect(restoredRow?.accompanimentPrice).toBeUndefined()
       const duplicate = await request(fixture.app.getHttpServer())
         .post(`/products/${portionA.id}/accompaniments`)
         .set('Cookie', managerRequestAuthorization())
@@ -612,6 +917,64 @@ describe('Link Product Accompaniment Controller [POST /products/:productId/accom
       expect(duplicate.body.message).toBe(
         'O acompanhamento já está vinculado a esta porção.',
       )
+    })
+
+    it('stores an entered price on the global only, leaving the rows and the default without it', async () => {
+      const portionA = await addPortion('Shared Price A')
+      const portionB = await addPortion('Shared Price B')
+      const target = await addTarget('Shared Price Target')
+      const type = await addType('Shared Price Type')
+      const { global, rows } = await addGlobalAccompanimentWithRows(fixture, {
+        target,
+        type,
+        portions: [portionA],
+      })
+      await fixture.addProductSize({
+        establishmentId: portionA.establishmentId,
+        productId: portionA.id,
+        name: 'Único',
+        quantity: 1,
+        price: 8,
+        isActive: true,
+      })
+
+      const response = await request(fixture.app.getHttpServer())
+        .post(`/products/${portionB.id}/accompaniments`)
+        .set('Cookie', managerRequestAuthorization())
+        .send({
+          accompanimentProductId: target.id,
+          accompanimentTypeId: type.id,
+          quantityPerPortion: 1,
+          accompanimentPrice: 9,
+          isGlobal: true,
+        })
+
+      expect(response.status).toBe(201)
+      expect(response.body.salePrice).toBe(9)
+      await expect(
+        fixture.globalAccompaniments.findById(global.establishmentId, global.id),
+      ).resolves.toMatchObject({ accompanimentPrice: 9 })
+      await expect(
+        fixture.products.findById(target.establishmentId, target.id),
+      ).resolves.toMatchObject({ accompanimentPrice: 4 })
+      for (const row of await fixture.productAccompaniments.findManyByAccompanimentProductId(
+        target.establishmentId,
+        target.id,
+      )) {
+        expect(row.accompanimentPrice).toBeUndefined()
+      }
+      const payloads = await findSalesConfigurationPayloads(fixture)
+      expect(payloads.map((payload) => payload.productId)).toEqual(
+        [portionA.id, portionB.id].sort(),
+      )
+      const payloadA = payloads.find((payload) => payload.productId === portionA.id)
+      expect(payloadA?.configuration?.sizes[0].accompaniments).toEqual([
+        expect.objectContaining({
+          accompanimentId: rows[0].id,
+          basePrice: 9,
+          isActive: true,
+        }),
+      ])
     })
 
     it('rejects global linking for Operators, foreign targets and malformed flags without changes', async () => {

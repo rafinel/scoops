@@ -14,7 +14,12 @@ import type {
   MrpDatabase,
   MrpDatabaseRepositories,
 } from '#mrp/interfaces/mrp-database.ts'
+import {
+  ProductAccompanimentFaker,
+  ResaleConfigurationFaker,
+} from '#mrp/domain/entities/fakers/index.ts'
 import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationSourceFaker } from '#mrp/domain/structures/fakers/index.ts'
 import { AuthorizationError, NotFoundError } from '#shared/domain/errors/index.ts'
 import { SetPrimaryProductBrandUseCase } from '#mrp/use-cases/set-primary-product-brand-use-case.ts'
 
@@ -58,6 +63,12 @@ describe('Set Primary Product Brand Use Case', () => {
       quantity: 2,
       situation: StockSituation.Normal,
     })
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [],
+    )
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [ProductSalesConfigurationSourceFaker.fake({ product })],
+    )
     useCase = new SetPrimaryProductBrandUseCase(database)
   })
   it('exchanges one main brand atomically and is idempotent', async () => {
@@ -146,5 +157,80 @@ describe('Set Primary Product Brand Use Case', () => {
         }),
       }),
     )
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith('e1', ['p1'])
+  })
+
+  it('publishes the brand names and the latest brand update of a By-brand product', async () => {
+    const brandUpdatedAt = new Date('2030-01-01T00:00:00.000Z')
+    const promoted = { ...brand, isPrimary: true, updatedAt: brandUpdatedAt }
+    scope.productSalesConfigurationSourcesRepository.findManyByProductIds.mockResolvedValue(
+      [
+        ProductSalesConfigurationSourceFaker.fake({
+          product,
+          brands: [promoted],
+          resaleConfigurations: [
+            ResaleConfigurationFaker.fake({
+              establishmentId: 'e1',
+              productId: 'p1',
+              brandId: 'b1',
+              price: 18,
+              isActive: true,
+              updatedAt: new Date('2029-01-01T00:00:00.000Z'),
+            }),
+          ],
+        }),
+      ],
+    )
+
+    await run()
+
+    expect(scope.eventsRepository.add).toHaveBeenCalledExactlyOnceWith(
+      new ProductSalesConfigurationChangedEvent({
+        establishmentId: 'e1',
+        productId: 'p1',
+        state: 'available',
+        configuration: {
+          establishmentId: 'e1',
+          productId: 'p1',
+          name: 'Milk',
+          categories: [ProductCategory.Ingredient],
+          status: ProductStatus.Active,
+          stockControl: ProductStockControl.ByBrand,
+          sizes: [],
+          resaleConfigurations: [
+            { brandId: 'b1', brandName: promoted.name, price: 18, isActive: true },
+          ],
+          updatedAt: brandUpdatedAt,
+        },
+      }),
+    )
+  })
+
+  it('republishes every Portion that uses the product as an accompaniment after the product itself', async () => {
+    scope.productAccompanimentsRepository.findManyByAccompanimentProductId.mockResolvedValue(
+      [
+        ProductAccompanimentFaker.fake({
+          establishmentId: 'e1',
+          productId: 'portion-1',
+          accompanimentProductId: 'p1',
+        }),
+      ],
+    )
+
+    await run()
+
+    expect(
+      scope.productSalesConfigurationSourcesRepository.findManyByProductIds,
+    ).toHaveBeenCalledExactlyOnceWith('e1', ['p1', 'portion-1'])
+  })
+
+  it('publishes nothing when the brand is missing', async () => {
+    scope.brandsRepository.findById.mockResolvedValue(undefined)
+
+    await expect(run()).rejects.toBeInstanceOf(NotFoundError)
+
+    expect(scope.eventsRepository.add).not.toHaveBeenCalled()
   })
 })

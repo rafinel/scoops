@@ -37,6 +37,12 @@ import type {
   RegisterProductSizeInput,
   SaveProductResaleConfigurationInput,
   UpdateProductSizeInput,
+  AccompanimentPortionCandidate,
+  AccompanimentPortionDetails,
+  AccompanimentPortionsPage,
+  GlobalAccompanimentDetails,
+  LinkAccompanimentPortionsInput,
+  UpdateGlobalAccompanimentInput,
 } from '@scoops/core/mrp/domain/structures'
 import { RestResponse } from '@scoops/core/shared/responses/rest-response'
 import type { RestClient } from '@scoops/core/shared/interfaces'
@@ -693,6 +699,52 @@ export const MrpService = (restClient: RestClient): MrpRestService => ({
     return restClient.delete<void>(
       `/products/${productId}/accompaniments/${linkId}${buildRemovalQuery(scope)}`,
     )
+  },
+
+  async listAccompanimentPortions(productId, input) {
+    const params = new URLSearchParams()
+    if (input.search) params.set('search', input.search)
+    params.set('page', String(input.page))
+    params.set('pageSize', String(input.pageSize))
+    const response = await restClient.get<AccompanimentPortionsPage>(
+      `/products/${productId}/portions?${params.toString()}`,
+    )
+    return response as unknown as RestResponse<AccompanimentPortionsPage>
+  },
+
+  async listAccompanimentPortionCandidates(productId) {
+    const response = await restClient.get<AccompanimentPortionCandidate[]>(
+      `/products/${productId}/portions/candidates`,
+    )
+    return response as unknown as RestResponse<AccompanimentPortionCandidate[]>
+  },
+
+  async linkAccompanimentPortions(productId, input: LinkAccompanimentPortionsInput) {
+    const response = await restClient.post<AccompanimentPortionDetails[]>(
+      `/products/${productId}/portions`,
+      input,
+    )
+    return response as unknown as RestResponse<AccompanimentPortionDetails[]>
+  },
+
+  async getGlobalAccompaniment(productId) {
+    const response = await restClient.get<GlobalAccompanimentDetails>(
+      `/products/${productId}/global-accompaniment`,
+    )
+    return response as unknown as RestResponse<GlobalAccompanimentDetails>
+  },
+
+  async updateGlobalAccompaniment(productId, input: UpdateGlobalAccompanimentInput) {
+    const response = await restClient.patch<GlobalAccompanimentDetails>(
+      `/products/${productId}/global-accompaniment`,
+      input,
+    )
+    return response as unknown as RestResponse<GlobalAccompanimentDetails>
+  },
+
+  removeGlobalAccompaniment(productId, options) {
+    const query = options?.keepPortionLinks ? '?keepPortionLinks=true' : ''
+    return restClient.delete<void>(`/products/${productId}/global-accompaniment${query}`)
   },
 
   async listAccompanimentTypes(input) {

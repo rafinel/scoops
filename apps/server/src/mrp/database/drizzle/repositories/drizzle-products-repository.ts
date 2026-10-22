@@ -28,6 +28,7 @@ import { Injectable } from '@nestjs/common'
 
 import { DrizzleRepository } from '@/shared/database/drizzle/drizzle-repository'
 
+import { escapeLikePattern } from '../helpers'
 import { DrizzleProductMapper } from '../mappers/drizzle-product-mapper'
 import { productAccompanimentModel } from '../models/product-accompaniment-model'
 import { productBrandModel } from '../models/product-brand-model'
@@ -119,6 +120,23 @@ export class DrizzleProductsRepository
         ),
       )
     return records.map(DrizzleProductMapper.toDomain)
+  }
+
+  async existsByCategory(
+    establishmentId: string,
+    category: ProductCategory,
+  ): Promise<boolean> {
+    const [record] = await this.database
+      .select({ id: productModel.id })
+      .from(productModel)
+      .where(
+        and(
+          eq(productModel.establishmentId, establishmentId),
+          arrayContains(productModel.categories, [category]),
+        ),
+      )
+      .limit(1)
+    return record !== undefined
   }
 
   async findManyByCategory(
@@ -350,10 +368,6 @@ export class DrizzleProductsRepository
       .where(productIdentityFilter(establishmentId, productId))
       .returning({ id: productModel.id })
   }
-}
-
-function escapeLikePattern(value: string): string {
-  return value.replace(/[\\%_]/g, '\\$&')
 }
 
 function productIdentityFilter(establishmentId: string | undefined, productId: string) {

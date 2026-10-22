@@ -11,11 +11,9 @@ import {
   PRODUCT_SIZE_VALIDATION_MESSAGES,
   ProductSizeValidationStrategy,
 } from '#mrp/domain/strategies/product-size-validation-strategy.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationStrategy } from '#mrp/domain/strategies/product-sales-configuration-strategy.ts'
 import type { MrpDatabase } from '#mrp/interfaces/mrp-database.ts'
-import {
-  GetAffectedProductSalesConfigurationsUseCase,
-  publishAffectedProductSalesConfigurations,
-} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
 import { GetProductPricingUseCase } from '#mrp/use-cases/get-product-pricing-use-case.ts'
 import {
   AuthorizationError,
@@ -34,6 +32,7 @@ type Request = {
 
 export class UpdateProductSizeUseCase implements UseCase<Request, ProductPricingDetails> {
   private readonly sizeValidation = new ProductSizeValidationStrategy()
+  private readonly salesConfiguration = new ProductSalesConfigurationStrategy()
 
   constructor(private readonly database: MrpDatabase) {}
 
@@ -41,116 +40,120 @@ export class UpdateProductSizeUseCase implements UseCase<Request, ProductPricing
     this.validateActor(request.actor)
     this.validateInput(request.input)
 
-    const result = await this.database.run(
-      async ({
-        productsRepository,
-        brandsRepository,
-        recipesRepository,
-        recipeIngredientsRepository,
-        productionsRepository,
-        productionIngredientsRepository,
-        stockBalancesRepository,
-        stockTransactionsRepository,
-        productSizesRepository,
-        accompanimentTypesRepository,
-        productAccompanimentsRepository,
-        globalAccompanimentsRepository,
-        resaleConfigurationsRepository,
-        eventsRepository,
-      }: MrpDatabaseRepositories) => {
-        const scope = {
-          productsRepository,
-          brandsRepository,
-          recipesRepository,
-          recipeIngredientsRepository,
-          productionsRepository,
-          productionIngredientsRepository,
-          stockBalancesRepository,
-          stockTransactionsRepository,
-          productSizesRepository,
-          accompanimentTypesRepository,
-          productAccompanimentsRepository,
-          globalAccompanimentsRepository,
-          resaleConfigurationsRepository,
-          eventsRepository,
-        }
-        const product = await productsRepository.findById(
-          request.actor.establishmentId,
-          request.productId,
-        )
-        validatePortionProduct(product, request.actor.establishmentId)
+    const result = await this.database.run(async (scope: MrpDatabaseRepositories) => {
+      const product = await scope.productsRepository.findById(
+        request.actor.establishmentId,
+        request.productId,
+      )
+      validatePortionProduct(product, request.actor.establishmentId)
 
-        const size = await productSizesRepository.findById(
-          request.actor.establishmentId,
-          product.id,
-          request.sizeId,
-        )
-        if (
-          !size ||
-          size.establishmentId !== request.actor.establishmentId ||
-          size.productId !== product.id
-        ) {
-          throw new NotFoundError('Tamanho não encontrado.')
-        }
+      const size = await scope.productSizesRepository.findById(
+        request.actor.establishmentId,
+        product.id,
+        request.sizeId,
+      )
+      if (
+        !size ||
+        size.establishmentId !== request.actor.establishmentId ||
+        size.productId !== product.id
+      ) {
+        throw new NotFoundError('Tamanho não encontrado.')
+      }
 
-        const sizes = await productSizesRepository.findManyByProductId(
+      const sizes = await scope.productSizesRepository.findManyByProductId(
+        request.actor.establishmentId,
+        product.id,
+      )
+      const normalizedName = request.input.name.trim()
+      if (
+        sizes.some(
+          (candidate) =>
+            candidate.id !== size.id &&
+            normalizeName(candidate.name) === normalizeName(normalizedName),
+        )
+      ) {
+        throw new ConflictError('Já existe um tamanho com esse nome para o produto.')
+      }
+
+      if (size.isActive && !request.input.isActive) {
+        const activeCount = await scope.productSizesRepository.countActive(
           request.actor.establishmentId,
           product.id,
         )
-        const normalizedName = request.input.name.trim()
-        if (
-          sizes.some(
-            (candidate) =>
-              candidate.id !== size.id &&
-              normalizeName(candidate.name) === normalizeName(normalizedName),
-          )
-        ) {
-          throw new ConflictError('Já existe um tamanho com esse nome para o produto.')
+        if (activeCount <= 1) {
+          throw new ConflictError('A porção deve possuir pelo menos um tamanho ativo.')
         }
+      }
 
-        if (size.isActive && !request.input.isActive) {
-          const activeCount = await productSizesRepository.countActive(
-            request.actor.establishmentId,
-            product.id,
-          )
-          if (activeCount <= 1) {
-            throw new ConflictError('A porção deve possuir pelo menos um tamanho ativo.')
-          }
-        }
+      await scope.productSizesRepository.replace(
+        request.actor.establishmentId,
+        product.id,
+        size.id,
+        {
+          name: normalizedName,
+          quantity: request.input.quantity,
+          price: request.input.price,
+          isActive: request.input.isActive,
+        },
+      )
 
-        await productSizesRepository.replace(
-          request.actor.establishmentId,
-          product.id,
-          size.id,
-          {
-            name: normalizedName,
-            quantity: request.input.quantity,
-            price: request.input.price,
-            isActive: request.input.isActive,
-          },
-        )
-
-        const details = await GetProductPricingUseCase.buildDetails(
-          scope,
-          request.actor.establishmentId,
-          product,
-        )
-        const configurations =
-          await new GetAffectedProductSalesConfigurationsUseCase().execute({
-            scope,
-            establishmentId: request.actor.establishmentId,
-            productId: request.productId,
-          })
-        await publishAffectedProductSalesConfigurations({
-          scope,
-          establishmentId: request.actor.establishmentId,
-          productId: request.productId,
-          configurations,
-        })
-        return details
-      },
-    )
+      const details = await GetProductPricingUseCase.buildDetails(
+        scope,
+        request.actor.establishmentId,
+        product,
+      )
+      const affectedProductIds = await this.findAffectedProductIds(
+        scope,
+        request.actor.establishmentId,
+        request.productId,
+      )
+      await this.publishSalesConfigurations(
+        scope,
+        request.actor.establishmentId,
+        affectedProductIds,
+      )
+      return details
+    })
     return result
+  }
+
+  private async findAffectedProductIds(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    productId: string,
+  ): Promise<readonly string[]> {
+    const links =
+      await scope.productAccompanimentsRepository.findManyByAccompanimentProductId(
+        establishmentId,
+        productId,
+      )
+    const ownerIds = links
+      .filter((link) => link.establishmentId === establishmentId)
+      .map((link) => link.productId)
+    return [...new Set([productId, ...ownerIds])]
+  }
+
+  private async publishSalesConfigurations(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    productIds: readonly string[],
+  ): Promise<void> {
+    const sources =
+      await scope.productSalesConfigurationSourcesRepository.findManyByProductIds(
+        establishmentId,
+        productIds,
+      )
+    const configurations = this.salesConfiguration.execute({ establishmentId, sources })
+    for (const configuration of configurations) {
+      await scope.eventsRepository.add(
+        new ProductSalesConfigurationChangedEvent({
+          establishmentId,
+          productId: configuration.productId,
+          state: 'available',
+          configuration,
+        }),
+      )
+    }
   }
 
   private validateActor(actor: ProductActor): void {

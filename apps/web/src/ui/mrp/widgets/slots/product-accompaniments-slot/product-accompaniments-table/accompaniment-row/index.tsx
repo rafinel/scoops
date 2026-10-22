@@ -1,10 +1,9 @@
 import type { ProductAccompanimentDetails } from '@scoops/core/mrp/domain/structures'
 
+import { GlobalBadge } from '@/ui/mrp/widgets/components/global-badge'
 import { Button } from '@/ui/shadcn/button'
 import { TableCell, TableRow } from '@/ui/shadcn/table'
 import { Icon } from '@/ui/shared/widgets/components/icon'
-
-import { GlobalBadge } from './global-badge'
 
 export type AccompanimentRowProps = {
   canManage: boolean

@@ -3,6 +3,7 @@ import type { Product } from '@scoops/core/mrp/domain/entities'
 import type {
   AccompanimentTypesRepository,
   BrandsRepository,
+  GlobalAccompanimentsRepository,
   ProductAccompanimentsRepository,
   ProductsRepository,
   ProductSizesRepository,
@@ -45,6 +46,7 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
     private readonly productsRepository: ProductsRepository,
     private readonly productSizesRepository: ProductSizesRepository,
     private readonly productAccompanimentsRepository: ProductAccompanimentsRepository,
+    private readonly globalAccompanimentsRepository: GlobalAccompanimentsRepository,
     private readonly accompanimentTypesRepository: AccompanimentTypesRepository,
     private readonly resaleConfigurationsRepository: ResaleConfigurationsRepository,
     private readonly brandsRepository: BrandsRepository,
@@ -323,7 +325,37 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
       ReturnType<ProductAccompanimentsRepository['findManyByProductId']>
     >[number],
   ): Promise<EnrichedSalesCatalogAccompaniment> {
-    const [product, type, brands, balances] = await Promise.all([
+    const { product, type, brands, balances, accompanimentPrice } =
+      await this.loadAccompanimentFacts(establishmentId, link)
+    const source = this.resolveAccompanimentSource(product, brands)
+    const availableQuantity = this.getStockQuantity(balances, source?.brandId)
+
+    const isActive = Boolean(
+      type?.establishmentId === establishmentId &&
+        source?.isActive &&
+        accompanimentPrice !== undefined,
+    )
+    return {
+      accompanimentId: link.id,
+      productId: link.accompanimentProductId,
+      ...(source?.brandId ? { brandId: source.brandId } : {}),
+      name: product?.name ?? 'Acompanhamento indisponível',
+      type: type?.name ?? 'Tipo indisponível',
+      quantityPerPortion: link.quantityPerPortion,
+      basePrice: accompanimentPrice ?? 0,
+      isActive,
+      isAvailable: isActive && availableQuantity >= link.quantityPerPortion,
+      availableQuantity,
+    }
+  }
+
+  private async loadAccompanimentFacts(
+    establishmentId: string,
+    link: Awaited<
+      ReturnType<ProductAccompanimentsRepository['findManyByProductId']>
+    >[number],
+  ) {
+    const [product, type, brands, balances, accompanimentPrice] = await Promise.all([
       this.productsRepository.findById(establishmentId, link.accompanimentProductId),
       this.accompanimentTypesRepository.findById(
         establishmentId,
@@ -337,26 +369,27 @@ class MrpSalesCatalogReader implements SalesCatalogProvider {
         establishmentId,
         link.accompanimentProductId,
       ),
+      this.findAccompanimentPrice(establishmentId, link),
     ])
-    const source = this.resolveAccompanimentSource(product, brands)
-    const availableQuantity = this.getStockQuantity(balances, source?.brandId)
+    return { product, type, brands, balances, accompanimentPrice }
+  }
 
-    const hasConfiguredPrice = product?.accompanimentPrice !== undefined
-    const isActive = Boolean(
-      type?.establishmentId === establishmentId && source?.isActive && hasConfiguredPrice,
+  /** The link's own price, or the price of the global a row references (tenant-checked). */
+  private async findAccompanimentPrice(
+    establishmentId: string,
+    link: {
+      readonly accompanimentPrice?: number
+      readonly globalAccompanimentId?: string
+    },
+  ): Promise<number | undefined> {
+    if (!link.globalAccompanimentId) return link.accompanimentPrice
+    const global = await this.globalAccompanimentsRepository.findById(
+      establishmentId,
+      link.globalAccompanimentId,
     )
-    return {
-      accompanimentId: link.id,
-      productId: link.accompanimentProductId,
-      ...(source?.brandId ? { brandId: source.brandId } : {}),
-      name: product?.name ?? 'Acompanhamento indisponível',
-      type: type?.name ?? 'Tipo indisponível',
-      quantityPerPortion: link.quantityPerPortion,
-      basePrice: product?.accompanimentPrice ?? 0,
-      isActive,
-      isAvailable: isActive && availableQuantity >= link.quantityPerPortion,
-      availableQuantity,
-    }
+    return global?.establishmentId === establishmentId
+      ? global.accompanimentPrice
+      : undefined
   }
 
   private resolveAccompanimentSource(
@@ -467,6 +500,7 @@ export class MrpSalesCatalogProvider implements SalesCatalogProvider {
       repositories.productsRepository,
       repositories.productSizesRepository,
       repositories.productAccompanimentsRepository,
+      repositories.globalAccompanimentsRepository,
       repositories.accompanimentTypesRepository,
       repositories.resaleConfigurationsRepository,
       repositories.brandsRepository,

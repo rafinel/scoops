@@ -5,6 +5,8 @@
 @linkId = 00000000-0000-0000-0000-000000000000
 @accompanimentTypeId = 00000000-0000-0000-0000-000000000000
 @accompanimentProductId = 00000000-0000-0000-0000-000000000000
+@portionProductId = 00000000-0000-0000-0000-000000000000
+@secondPortionProductId = 00000000-0000-0000-0000-000000000000
 @sizeId = 00000000-0000-0000-0000-000000000000
 @lineId = 00000000-0000-0000-0000-000000000000
 @expectedUpdatedAt = 2026-08-24T12:00:00.000Z
@@ -274,6 +276,76 @@ Cookie: {{sessionCookie}}
 
 ### Remove a global product accompaniment from all Portions
 DELETE {{baseUrl}}/products/{{productId}}/accompaniments/{{linkId}}?scope=all
+Cookie: {{sessionCookie}}
+
+### List the Portions that have an Accompaniment (productId is the Accompaniment)
+GET {{baseUrl}}/products/{{productId}}/portions?search=ban&page=1&pageSize=10
+Cookie: {{sessionCookie}}
+Accept: application/json
+
+### List the Portions that can still receive an Accompaniment (productId is the Accompaniment)
+GET {{baseUrl}}/products/{{productId}}/portions/candidates
+Cookie: {{sessionCookie}}
+Accept: application/json
+
+### Link several Portions to an Accompaniment individually (mode a)
+POST {{baseUrl}}/products/{{productId}}/portions
+Cookie: {{sessionCookie}}
+Content-Type: application/json
+
+{
+  "portionProductIds": ["{{portionProductId}}", "{{secondPortionProductId}}"],
+  "accompanimentTypeId": "{{accompanimentTypeId}}",
+  "quantityPerPortion": 1.25,
+  "accompanimentPrice": 7.5
+}
+
+### Make an Accompaniment global for every Portion (mode b, no Portion ids)
+POST {{baseUrl}}/products/{{productId}}/portions
+Cookie: {{sessionCookie}}
+Content-Type: application/json
+
+{
+  "accompanimentTypeId": "{{accompanimentTypeId}}",
+  "quantityPerPortion": 1.25,
+  "accompanimentPrice": 7.5,
+  "isGlobal": true
+}
+
+### Restore excluded Portions of a global Accompaniment (mode c)
+POST {{baseUrl}}/products/{{productId}}/portions
+Cookie: {{sessionCookie}}
+Content-Type: application/json
+
+{
+  "portionProductIds": ["{{portionProductId}}"],
+  "accompanimentTypeId": "{{accompanimentTypeId}}",
+  "quantityPerPortion": 1.25,
+  "isGlobal": true
+}
+
+### Get the global status of an Accompaniment
+GET {{baseUrl}}/products/{{productId}}/global-accompaniment
+Cookie: {{sessionCookie}}
+Accept: application/json
+
+### Update a global Accompaniment (shared type, quantity and price)
+PATCH {{baseUrl}}/products/{{productId}}/global-accompaniment
+Cookie: {{sessionCookie}}
+Content-Type: application/json
+
+{
+  "accompanimentTypeId": "{{accompanimentTypeId}}",
+  "quantityPerPortion": 1.5,
+  "accompanimentPrice": 0
+}
+
+### Remove a global Accompaniment from all Portions
+DELETE {{baseUrl}}/products/{{productId}}/global-accompaniment
+Cookie: {{sessionCookie}}
+
+### End global status keeping every current Portion row as an individual link
+DELETE {{baseUrl}}/products/{{productId}}/global-accompaniment?keepPortionLinks=true
 Cookie: {{sessionCookie}}
 
 ### Get product pricing

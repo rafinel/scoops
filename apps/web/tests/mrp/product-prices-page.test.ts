@@ -1,11 +1,9 @@
-
 import { ProductFaker, ProductSizeFaker } from '@scoops/core/mrp/domain/entities/fakers'
 
 import { expect, test } from '../playwright'
 
 const PRODUCT_ID = 'product-pricing-1'
 const SIZE_ID = 'size-small'
-
 
 const PORTION_PRODUCT = ProductFaker.fake({
   id: PRODUCT_ID,
@@ -155,6 +153,22 @@ test.describe('ProductPricesPage', () => {
               : [],
             accompanimentPrice: 4,
             suggestedAccompanimentPrice: null,
+          },
+        }
+      },
+    })
+    await mrpFixture.mockGlobalAccompaniment({
+      respond: (request) => {
+        const product = request.url.pathname.includes(combinedProduct.id)
+          ? combinedProduct
+          : accompanimentOnlyProduct
+        return {
+          body: {
+            accompanimentProductId: product.id,
+            accompanimentProductName: product.name,
+            isGlobal: false,
+            unit: product.unit,
+            salePrice: 4,
           },
         }
       },

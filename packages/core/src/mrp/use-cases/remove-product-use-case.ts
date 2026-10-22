@@ -6,10 +6,8 @@ import type {
   MrpDatabase,
   MrpDatabaseRepositories,
 } from '#mrp/interfaces/mrp-database.ts'
-import {
-  GetAffectedProductSalesConfigurationsUseCase,
-  publishAffectedProductSalesConfigurations,
-} from '#mrp/use-cases/get-affected-product-sales-configurations-use-case.ts'
+import { ProductSalesConfigurationChangedEvent } from '#mrp/domain/events/product-sales-configuration-changed-event.ts'
+import { ProductSalesConfigurationStrategy } from '#mrp/domain/strategies/product-sales-configuration-strategy.ts'
 import { AuthorizationError, NotFoundError } from '#shared/domain/errors/index.ts'
 import type { UseCase } from '#shared/interfaces/use-case.ts'
 
@@ -19,143 +17,148 @@ type Request = {
 }
 
 export class RemoveProductUseCase implements UseCase<Request, void> {
+  private readonly salesConfiguration = new ProductSalesConfigurationStrategy()
+
   constructor(private readonly database: MrpDatabase) {}
 
   async execute(request: Request): Promise<void> {
     this.validateActor(request.actor)
 
-    let inverseOwnerIds: readonly string[] = []
-    await this.database.run(
-      async ({
-        productsRepository,
-        brandsRepository,
-        recipesRepository,
-        recipeIngredientsRepository,
-        productionsRepository,
-        productionIngredientsRepository,
-        stockBalancesRepository,
-        stockTransactionsRepository,
-        productSizesRepository,
-        accompanimentTypesRepository,
-        productAccompanimentsRepository,
-        globalAccompanimentsRepository,
-        resaleConfigurationsRepository,
-        eventsRepository,
-      }: MrpDatabaseRepositories) => {
-        const scope = {
-          productsRepository,
-          brandsRepository,
-          recipesRepository,
-          recipeIngredientsRepository,
-          productionsRepository,
-          productionIngredientsRepository,
-          stockBalancesRepository,
-          stockTransactionsRepository,
-          productSizesRepository,
-          accompanimentTypesRepository,
-          productAccompanimentsRepository,
-          globalAccompanimentsRepository,
-          resaleConfigurationsRepository,
-          eventsRepository,
-        }
-        const product = await productsRepository.findByIdForUpdate(
+    await this.database.run(async (scope: MrpDatabaseRepositories) => {
+      const product = await scope.productsRepository.findByIdForUpdate(
+        request.actor.establishmentId,
+        request.productId,
+      )
+      if (!product || product.establishmentId !== request.actor.establishmentId) {
+        throw new NotFoundError('Produto não encontrado.')
+      }
+
+      await this.readImpact(scope, request.actor.establishmentId, product)
+
+      const inverseOwnerIds = await this.findInverseOwnerIds(
+        scope,
+        request.actor.establishmentId,
+        product,
+      )
+
+      const [brands, sizes, recipe] = await Promise.all([
+        scope.brandsRepository.findManyByProductId(
           request.actor.establishmentId,
-          request.productId,
-        )
-        if (!product || product.establishmentId !== request.actor.establishmentId) {
-          throw new NotFoundError('Produto não encontrado.')
-        }
+          product.id,
+        ),
+        scope.productSizesRepository.findManyByProductId(
+          request.actor.establishmentId,
+          product.id,
+        ),
+        scope.recipesRepository.findByProductId(
+          request.actor.establishmentId,
+          product.id,
+        ),
+      ])
 
-        await this.readImpact(scope, request.actor.establishmentId, product)
-
-        const inverseLinks =
-          (await productAccompanimentsRepository.findManyByAccompanimentProductId(
-            request.actor.establishmentId,
-            product.id,
-          )) ?? []
-        inverseOwnerIds = [
-          ...new Set(
-            inverseLinks
-              .filter(
-                (link) =>
-                  link.establishmentId === request.actor.establishmentId &&
-                  link.productId !== product.id,
-              )
-              .map((link) => link.productId),
-          ),
-        ]
-
-        const [brands, sizes, recipe] = await Promise.all([
-          brandsRepository.findManyByProductId(request.actor.establishmentId, product.id),
-          productSizesRepository.findManyByProductId(
-            request.actor.establishmentId,
-            product.id,
-          ),
-          recipesRepository.findByProductId(request.actor.establishmentId, product.id),
-        ])
-
-        await productAccompanimentsRepository.removeByProductId(
+      await scope.productAccompanimentsRepository.removeByProductId(
+        request.actor.establishmentId,
+        product.id,
+      )
+      await scope.productAccompanimentsRepository.removeByAccompanimentProductId(
+        request.actor.establishmentId,
+        product.id,
+      )
+      const global =
+        await scope.globalAccompanimentsRepository.findByAccompanimentProductId(
           request.actor.establishmentId,
           product.id,
         )
-        await productAccompanimentsRepository.removeByAccompanimentProductId(
+      if (global) {
+        await scope.globalAccompanimentsRepository.remove(
           request.actor.establishmentId,
-          product.id,
+          global.id,
         )
-        const global = await globalAccompanimentsRepository.findByAccompanimentProductId(
-          request.actor.establishmentId,
-          product.id,
-        )
-        if (global) {
-          await globalAccompanimentsRepository.remove(
-            request.actor.establishmentId,
-            global.id,
-          )
-        }
-        await recipeIngredientsRepository.removeByIngredientProductId(
-          request.actor.establishmentId,
-          product.id,
-        )
-        await resaleConfigurationsRepository.removeByProductId(
-          request.actor.establishmentId,
-          product.id,
-        )
+      }
+      await scope.recipeIngredientsRepository.removeByIngredientProductId(
+        request.actor.establishmentId,
+        product.id,
+      )
+      await scope.resaleConfigurationsRepository.removeByProductId(
+        request.actor.establishmentId,
+        product.id,
+      )
 
-        for (const size of sizes) {
-          await productSizesRepository.remove(
-            request.actor.establishmentId,
-            product.id,
-            size.id,
-          )
-        }
-        if (recipe) {
-          await recipesRepository.remove(request.actor.establishmentId, recipe.id)
-        }
-        for (const brand of brands) {
-          await brandsRepository.remove(
-            request.actor.establishmentId,
-            product.id,
-            brand.id,
-          )
-        }
+      for (const size of sizes) {
+        await scope.productSizesRepository.remove(
+          request.actor.establishmentId,
+          product.id,
+          size.id,
+        )
+      }
+      if (recipe) {
+        await scope.recipesRepository.remove(request.actor.establishmentId, recipe.id)
+      }
+      for (const brand of brands) {
+        await scope.brandsRepository.remove(
+          request.actor.establishmentId,
+          product.id,
+          brand.id,
+        )
+      }
 
-        await productsRepository.remove(request.actor.establishmentId, product.id)
-        const configurations =
-          await new GetAffectedProductSalesConfigurationsUseCase().execute({
-            scope,
-            establishmentId: request.actor.establishmentId,
-            productId: request.productId,
-            affectedProductIds: inverseOwnerIds,
-          })
-        await publishAffectedProductSalesConfigurations({
-          scope,
+      await scope.productsRepository.remove(request.actor.establishmentId, product.id)
+      await this.publishSalesConfigurations(
+        scope,
+        request.actor.establishmentId,
+        inverseOwnerIds,
+      )
+      await scope.eventsRepository.add(
+        new ProductSalesConfigurationChangedEvent({
           establishmentId: request.actor.establishmentId,
           productId: request.productId,
-          configurations,
-          deleted: true,
-        })
-      },
-    )
+          state: 'deleted',
+          configuration: null,
+        }),
+      )
+    })
+  }
+
+  private async findInverseOwnerIds(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    product: Product,
+  ): Promise<readonly string[]> {
+    const links =
+      await scope.productAccompanimentsRepository.findManyByAccompanimentProductId(
+        establishmentId,
+        product.id,
+      )
+    const ownerIds = links
+      .filter(
+        (link) =>
+          link.establishmentId === establishmentId && link.productId !== product.id,
+      )
+      .map((link) => link.productId)
+    return [...new Set(ownerIds)]
+  }
+
+  private async publishSalesConfigurations(
+    scope: MrpDatabaseRepositories,
+    establishmentId: string,
+    productIds: readonly string[],
+  ): Promise<void> {
+    const sources =
+      await scope.productSalesConfigurationSourcesRepository.findManyByProductIds(
+        establishmentId,
+        productIds,
+      )
+    const configurations = this.salesConfiguration.execute({ establishmentId, sources })
+    for (const configuration of configurations) {
+      await scope.eventsRepository.add(
+        new ProductSalesConfigurationChangedEvent({
+          establishmentId,
+          productId: configuration.productId,
+          state: 'available',
+          configuration,
+        }),
+      )
+    }
   }
 
   private async readImpact(

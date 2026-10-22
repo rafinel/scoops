@@ -1,8 +1,9 @@
 import type { ProductAccompanimentDetails } from '@scoops/core/mrp/domain/structures'
 
-import { ProductAccompanimentDialog } from '../product-accompaniment-dialog'
-import { RemoveGlobalAccompanimentDialog } from '../remove-global-accompaniment-dialog'
-import { RemoveProductAccompanimentDialog } from '../remove-product-accompaniment-dialog'
+import { ProductAccompanimentDialog } from '@/ui/mrp/widgets/components/product-accompaniment-dialog'
+import { RemoveGlobalAccompanimentDialog } from '@/ui/mrp/widgets/components/remove-global-accompaniment-dialog'
+import { RemoveProductAccompanimentDialog } from '@/ui/mrp/widgets/components/remove-product-accompaniment-dialog'
+
 import type { ProductAccompanimentsAction } from '../use-product-accompaniments-slot'
 
 export type AccompanimentActionDialogsProps = {
